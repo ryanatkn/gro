@@ -4,7 +4,7 @@ import {to_sveltekit_app_specifier} from './sveltekit_shim_app.js';
 
 const name = 'sveltekit_shim_app';
 
-export const create_sveltekit_shim_app_plugin = (): esbuild.Plugin => ({
+export const esbuild_plugin_sveltekit_shim_app = (): esbuild.Plugin => ({
 	name,
 	setup: (build) => {
 		build.onResolve(

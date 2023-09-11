@@ -2,7 +2,7 @@ import type * as esbuild from 'esbuild';
 
 import {render_env_shim_module} from './sveltekit_shim_env.js';
 
-export const create_sveltekit_shim_env_plugin = (
+export const esbuild_plugin_sveltekit_shim_env = (
 	dev: boolean,
 	public_prefix: string | undefined,
 	private_prefix: string | undefined,

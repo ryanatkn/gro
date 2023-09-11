@@ -15,8 +15,8 @@ import {paths} from '../path/paths.js';
 import type {BuildName} from '../build/build_config.js';
 import {watch_dir, type WatchNodeFs} from '../fs/watch_dir.js';
 import {load_sveltekit_config} from '../util/sveltekit_config.js';
-import {create_sveltekit_shim_app_plugin} from '../util/sveltekit_shim_app_plugin.js';
-import {create_sveltekit_shim_env_plugin} from '../util/sveltekit_shim_env_plugin.js';
+import {esbuild_plugin_sveltekit_shim_app} from '../util/esbuild_plugin_sveltekit_shim_app.js';
+import {esbuild_plugin_sveltekit_shim_env} from '../util/esbuild_plugin_sveltekit_shim_env.js';
 import {print_build_result} from '../util/esbuild.js';
 
 const dir = cwd() + '/';
@@ -103,8 +103,8 @@ export const create_plugin = ({
 				// external: ['*/password_worker.ts'], // TODO BLOCK only internal project should files get marked, not transitive deps
 				plugins: [
 					// TODO BLOCK extract and refactor with the existing helpers for the loader+postprocess
-					create_sveltekit_shim_app_plugin(),
-					create_sveltekit_shim_env_plugin(dev, public_prefix, private_prefix, env_dir),
+					esbuild_plugin_sveltekit_shim_app(),
+					esbuild_plugin_sveltekit_shim_env(dev, public_prefix, private_prefix, env_dir),
 					create_sveltekit_shim_alias_plugin(),
 					{
 						name: 'external_worker',
@@ -153,8 +153,8 @@ export const create_plugin = ({
 									bundle: true,
 									target: config.target,
 									plugins: [
-										create_sveltekit_shim_app_plugin(),
-										create_sveltekit_shim_env_plugin(dev, public_prefix, private_prefix, env_dir),
+										esbuild_plugin_sveltekit_shim_app(),
+										esbuild_plugin_sveltekit_shim_env(dev, public_prefix, private_prefix, env_dir),
 										create_sveltekit_shim_alias_plugin(),
 									],
 								});
