@@ -161,10 +161,13 @@ export const create_plugin = ({
 							build.onResolve({filter: /\.worker(|\.js|\.ts)$/u}, async ({path, importer}) => {
 								console.log(red('[external_worker] ENTER'), yellow(path), '\n', importer);
 
+								const absolute_path = join(dirname(importer), path);
+								console.log(`absolute_path`, absolute_path);
+
 								// TODO BLOCK make sure this isn't called more than once if 2 files import it (probably need to cache)
 								const build_result = await esbuild.build({
 									// TODO BLOCK refactor options with above
-									entryPoints: [path],
+									entryPoints: [absolute_path],
 									outdir,
 									outbase: paths.lib, // TODO configure
 									format: 'esm',
@@ -180,10 +183,7 @@ export const create_plugin = ({
 								});
 								print_build_result(log, build_result);
 
-								const specifier = relative(dirname(importer), path);
-								console.log(red(`specifier`), specifier);
-
-								return {path: specifier, external: true};
+								return {path, external: true};
 							});
 						},
 					},
