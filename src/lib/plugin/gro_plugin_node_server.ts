@@ -3,7 +3,6 @@ import {existsSync, readFileSync} from 'node:fs';
 import * as esbuild from 'esbuild';
 import {cwd} from 'node:process';
 import {yellow, red, blue, green} from 'kleur/colors';
-import {escapeRegexp} from '@feltjs/util/regexp.js';
 
 import type {Plugin, PluginContext} from './plugin.js';
 import {
@@ -17,6 +16,7 @@ import {load_sveltekit_config} from '../util/sveltekit_config.js';
 import {esbuild_plugin_sveltekit_shim_app} from '../util/esbuild_plugin_sveltekit_shim_app.js';
 import {esbuild_plugin_sveltekit_shim_env} from '../util/esbuild_plugin_sveltekit_shim_env.js';
 import {parse_specifier, print_build_result} from '../util/esbuild.js';
+import {esbuild_plugin_sveltekit_shim_alias} from '../util/esbuild_plugin_sveltekit_shim_alias.js';
 
 export interface Options {
 	dir?: string;
@@ -62,21 +62,6 @@ export const create_plugin = ({
 
 			const timing_to_esbuild_create_context = timings.start('create build context');
 			console.log(`config.target`, config.target);
-
-			// TODO BLOCK hoist/refactor
-			const esbuild_plugin_sveltekit_shim_alias = (): esbuild.Plugin => ({
-				name: 'sveltekit_shim_alias',
-				setup: (build) => {
-					const aliases: Record<string, string> = {$lib: 'src/lib', ...alias};
-					const alias_prefixes = Object.keys(aliases).map((a) => escapeRegexp(a));
-					const filter = new RegExp('^(' + alias_prefixes.join('|') + ')', 'u');
-					build.onResolve({filter}, async (args) => {
-						const {path, ...rest} = args;
-						const prefix = filter.exec(path)![1];
-						return build.resolve(dir + aliases[prefix] + path.substring(prefix.length), rest);
-					});
-				},
-			});
 
 			// TODO BLOCK hoist/refactor
 			const esbuild_plugin_sveltekit_local_imports = (): esbuild.Plugin => ({
@@ -151,7 +136,7 @@ export const create_plugin = ({
 						env_files,
 						ambient_env,
 					}),
-					esbuild_plugin_sveltekit_shim_alias(),
+					esbuild_plugin_sveltekit_shim_alias({dir, alias}),
 					// TODO BLOCK extract
 					{
 						name: 'external_worker',
@@ -184,7 +169,7 @@ export const create_plugin = ({
 												env_files,
 												ambient_env,
 											}),
-											esbuild_plugin_sveltekit_shim_alias(),
+											esbuild_plugin_sveltekit_shim_alias({dir, alias}),
 											esbuild_plugin_sveltekit_local_imports(),
 										],
 									});
