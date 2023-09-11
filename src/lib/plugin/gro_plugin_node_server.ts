@@ -2,7 +2,7 @@ import {spawnRestartableProcess, type RestartableProcess} from '@feltjs/util/pro
 import {existsSync} from 'node:fs';
 import * as esbuild from 'esbuild';
 import {cwd} from 'node:process';
-import {yellow, red, blue} from 'kleur/colors';
+import {yellow, red, blue, green} from 'kleur/colors';
 import {extname, join} from 'node:path';
 import {stripEnd} from '@feltjs/util/string.js';
 import {escapeRegexp} from '@feltjs/util/regexp.js';
@@ -72,6 +72,7 @@ export const create_plugin = ({
 					build.onResolve({filter: matcher}, async (args) => {
 						console.log(
 							blue('[sveltekit_shim_alias] path, importer'),
+							green('1'),
 							yellow(args.path),
 							'\n',
 							args.importer,
@@ -90,7 +91,7 @@ export const create_plugin = ({
 						// const ext = extname(path);
 						// if (ext !== '.ts' && ext !== '.js' && ext !== '.svelte') path += '.ts'; // TODO BLOCK tricky because of files with `.(schema|task)` etc
 
-						// TODO BLOCK copypasta from loader
+						// TODO BLOCK copypasta from loader - probably a helper that returns {id, specifier} (entryPoint and final path)
 						// The specifier `path` has now been mapped to its final form, so we can inspect it.
 						const path_is_relative = path[0] === '.';
 						const path_is_absolute = path[0] === '/';
@@ -110,14 +111,15 @@ export const create_plugin = ({
 							}
 						}
 
-						console.log(blue('[sveltekit_shim_alias] final path'), yellow(path));
+						console.log(blue('[sveltekit_shim_alias] final path'), green('2'), yellow(path));
 						if (path === specifier) return {path};
 						const resolved = await build.resolve(path, rest);
-						console.log(blue('[sveltekit_shim_alias] resolved'), resolved);
-						// if (resolved.external) {
-						// TODO BLOCK figure this out
-						// return {...resolved, path: './password_worker.js'};
-						// } else {
+						console.log(
+							blue('[sveltekit_shim_alias] resolved path'),
+							green('3'),
+							yellow(path),
+							resolved,
+						);
 						return resolved;
 					});
 				},
@@ -132,7 +134,6 @@ export const create_plugin = ({
 				packages: 'external',
 				bundle: true,
 				target: config.target,
-				// external: ['*/password_worker.ts'], // TODO BLOCK only internal project should files get marked, not transitive deps
 				plugins: [
 					// TODO BLOCK extract and refactor with the existing helpers for the loader+postprocess
 					esbuild_plugin_sveltekit_shim_app(),
@@ -141,20 +142,8 @@ export const create_plugin = ({
 					{
 						name: 'external_worker',
 						setup: (build) => {
-							build.onResolve({filter: /\.worker(|\.js|\.ts)$/u}, async (args) => {
-								console.log(
-									red('[external_worker] ENTER'),
-									red(`args.path, args.importer\n`),
-									yellow(args.path),
-									'\n',
-									args.importer,
-								);
-
-								let path = args.path;
-
-								// TODO BLOCK probably a helper that returns {id, specifier} (entryPoint and final path)
-
-								console.log(red('[external_worker] FINAL path'), yellow(path));
+							build.onResolve({filter: /\.worker(|\.js|\.ts)$/u}, async ({path}) => {
+								console.log(red('[external_worker] ENTER'), yellow(path));
 
 								// TODO BLOCK make sure this isn't called more than once if 2 files import it (probably need to cache)
 								const build_result = await esbuild.build({
