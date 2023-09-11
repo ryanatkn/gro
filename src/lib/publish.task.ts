@@ -57,8 +57,8 @@ export const task: Task<Args> = {
 		await spawn('git', ['checkout', branch]);
 		await spawn('git', ['pull', 'origin', branch]);
 
-		// Rebuild everything -- TODO maybe optimize and only clean `buildProd`
-		clean_fs({build: true, dist: true}, log);
+		// Rebuild everything
+		clean_fs({build: true}, log);
 		if (is_this_project_gro) {
 			const buildResult = await spawn('npm', ['run', 'build']);
 			if (!buildResult.ok) throw Error('Failed to build Gro');

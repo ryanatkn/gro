@@ -178,10 +178,10 @@ export const task: Task<Args> = {
 		);
 
 		// Clean up any existing worktree.
-		await cleanGitWorktree();
+		await clean_git_worktree();
 
-		// Rebuild everything -- TODO maybe optimize and only clean `buildProd`
-		clean_fs({build: true, dist: true}, log);
+		// Rebuild everything
+		clean_fs({build: true}, log);
 
 		if (cleanAndExit) {
 			log.info(green('all clean'));
@@ -237,7 +237,7 @@ export const task: Task<Args> = {
 			await spawn('git', ['push', origin, target, '-f'], GIT_ARGS);
 		} catch (err) {
 			log.error(red('updating git failed:'), printError(err));
-			await cleanGitWorktree();
+			await clean_git_worktree();
 			throw Error(`Deploy failed in a bad state: built but not pushed. See the error above.`);
 		}
 
@@ -245,14 +245,14 @@ export const task: Task<Args> = {
 		rmSync(`${WORKTREE_DIR}/${GIT_DIRNAME}`, {recursive: true});
 		rmSync(dir, {recursive: true});
 		renameSync(WORKTREE_DIR, dir);
-		await cleanGitWorktree();
+		await clean_git_worktree();
 
 		log.info(green('deployed')); // TODO log a different message if "Everything up-to-date"
 	},
 };
 
 // `{stdio: 'pipe'}` silences the output
-const cleanGitWorktree = async (): Promise<void> => {
+const clean_git_worktree = async (): Promise<void> => {
 	await spawn('git', ['worktree', 'remove', WORKTREE_DIRNAME, '--force'], {stdio: 'pipe'});
 	await spawn('git', ['worktree', 'prune'], {stdio: 'pipe'});
 };

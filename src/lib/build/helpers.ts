@@ -4,47 +4,11 @@ import {existsSync} from 'node:fs';
 import type {Flavored} from '@feltjs/util/types.js';
 
 import type {BuildConfigInput} from './build_config.js';
-import {
-	type Paths,
-	build_id_to_source_id,
-	JS_EXTENSION,
-	TS_EXTENSION,
-	type SourceId,
-	replace_extension,
-} from '../path/paths.js';
-import type {BuildDependency} from './build_dependency.js';
 
 // Note that this uses md5 and therefore is not cryptographically secure.
 // It's fine for now, but some use cases may need security.
 export const to_hash = (buf: Buffer): string =>
 	createHash('md5').update(buf).digest().toString('hex');
-
-export interface MapDependencyToSourceId {
-	(dependency: BuildDependency, build_dir: string, paths: Paths): SourceId;
-}
-
-// TODO this was changed from sync to async to support JS:
-// https://github.com/feltjs/gro/pull/270/files
-// There's a problem though -- the build system as written wants to resolve source ids up front,
-// but in the case of supporting JS we need to defer resolving them to some downstream moment,
-// because we can't know if we are talking about a TS or JS file until it's read from disk.
-// This is likely going to fit into a larger redesign of the system
-// towards a Rollup-compatible API, but this gets basic JS file support working for now.
-// The key issues are that 1) this shouldn't be async,
-// and 2) JS files may cause errors in rare cases,
-// like if the intended source file changes its extension.
-// (not a big deal, but points to a system design flaw)
-export const map_dependency_to_source_id: MapDependencyToSourceId = (
-	dependency,
-	build_dir,
-	paths,
-) => {
-	const source_id = build_id_to_source_id(dependency.build_id, build_dir, paths);
-	// TODO hacky -- see comments above
-	if (existsSync(source_id) || !source_id.endsWith(TS_EXTENSION)) return source_id;
-	const hacky_other_possible_source_id = replace_extension(source_id, JS_EXTENSION);
-	return existsSync(hacky_other_possible_source_id) ? hacky_other_possible_source_id : source_id;
-};
 
 export const add_js_sourcemap_footer = (code: string, sourcemapPath: string): string =>
 	`${code}\n//# sourceMappingURL=${sourcemapPath}`;

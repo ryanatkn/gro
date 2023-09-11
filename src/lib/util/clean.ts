@@ -1,13 +1,11 @@
 import type {SystemLogger} from '@feltjs/util/log.js';
 import {existsSync, rmSync} from 'node:fs';
 
-import {to_source_meta_dir} from '../build/source_meta.js';
 import {
 	NODE_MODULES_DIRNAME,
 	paths,
 	SVELTEKIT_DEV_DIRNAME,
 	SVELTEKIT_BUILD_DIRNAME,
-	to_build_out_dir,
 	SVELTEKIT_VITE_CACHE_PATH,
 	print_path,
 } from '../path/paths.js';
@@ -15,15 +13,11 @@ import {
 export const clean_fs = (
 	{
 		build = false,
-		buildDev = false,
-		buildProd = false,
 		dist = false,
 		sveltekit = false,
 		nodemodules = false,
 	}: {
 		build?: boolean;
-		buildDev?: boolean;
-		buildProd?: boolean;
 		dist?: boolean;
 		sveltekit?: boolean;
 		nodemodules?: boolean;
@@ -32,16 +26,7 @@ export const clean_fs = (
 ): void => {
 	if (build) {
 		remove_dir(paths.build, log);
-	}
-	if (!build && buildDev) {
-		remove_dir(to_build_out_dir(true), log);
-		remove_dir(to_source_meta_dir(paths.build, true), log);
-	}
-	if (!build && buildProd) {
-		remove_dir(to_build_out_dir(false), log);
-		remove_dir(to_source_meta_dir(paths.build, false), log);
-	}
-	if (dist) {
+	} else if (dist) {
 		remove_dir(paths.dist, log);
 	}
 	if (sveltekit) {

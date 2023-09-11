@@ -25,13 +25,6 @@ export const Args = z
 			})
 			.optional()
 			.default(false),
-		preserve: z
-			.boolean({
-				description:
-					'keeps the production build artifacts in the cache directory instead of deleting them',
-			})
-			.optional()
-			.default(false),
 	})
 	.strict();
 export type Args = z.infer<typeof Args>;
@@ -42,7 +35,7 @@ export const task: Task<Args> = {
 	run: async (ctx): Promise<void> => {
 		const {
 			log,
-			args: {clean, install, preserve},
+			args: {clean, install},
 		} = ctx;
 
 		const timings = new Timings(); // TODO belongs in ctx
@@ -56,7 +49,7 @@ export const task: Task<Args> = {
 		// Clean in the default case, but not if the caller passes a `false` `clean` arg,
 		// This is used by `gro publish` and `gro deploy` because they call `clean_fs` themselves.
 		if (clean) {
-			clean_fs({buildProd: true, dist: true}, log);
+			clean_fs({dist: true}, log);
 		}
 
 		// TODO delete prod builds (what about config/system tho?)
@@ -73,19 +66,6 @@ export const task: Task<Args> = {
 		// Adapt the build to final ouputs.
 		const adapters = await adapt({...ctx, config, dev: false, timings});
 		if (!adapters.length) log.info('no adapters to `adapt`');
-
-		// Delete the production build artifacts at `.gro/prod` unless the caller asks to preserve them.
-		// The main reason for this is to delete any imported-and-baked static environment variables,
-		// which may be surprising to some users and could potentially lead to secret leaks
-		// if the cache directory is mishandled. We may want to move `.gro/dist` to the root
-		// so it's more visible, and so the entire `.gro` directory remains free of secrets,
-		// but that may be even more error prone, because users would
-		// have to gitignore a new root dist directory.
-		// Dynamic variable imports can be used to avoid this problem completely.
-		// For more see the SvelteKit docs - https://kit.svelte.dev/docs/modules#$env-dynamic-private
-		if (!preserve) {
-			clean_fs({buildProd: true}, log);
-		}
 
 		printTimings(timings, log);
 	},
