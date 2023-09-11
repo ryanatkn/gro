@@ -118,16 +118,16 @@ export const resolve: ResolveHook = async (specifier, context, nextResolve) => {
 	}
 
 	// The specifier `path` has now been mapped to its final form, so we can inspect it.
-	const relative = path[0] === '.';
-	const absolute = path[0] === '/';
-	if (!relative && !absolute) {
+	const path_is_relative = path[0] === '.';
+	const path_is_absolute = path[0] === '/';
+	if (!path_is_relative && !path_is_absolute) {
 		// Handle external specifiers imported by internal code.
 		return nextResolve(specifier, context);
 	}
 
 	// TODO `import.meta.resolves` was supposedly unflagged for Node 20.6 but I'm still seeing it as undefined
 	// await import.meta.resolve(path);
-	let js_path = relative ? join(parent_path, '../', path) : path;
+	let js_path = path_is_relative ? join(parent_path, '../', path) : path;
 	if (!path.endsWith('.js')) js_path += '.js'; // TODO BLOCK handle `.ts` imports too, and svelte, and ignore `.(schema|task.` etc, same helpers as esbuild plugin for server
 	if (existsSync(js_path)) {
 		path = js_path;

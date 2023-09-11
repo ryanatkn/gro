@@ -70,7 +70,6 @@ export const create_plugin = ({
 					const alias_prefixes = Object.keys(aliases).map((a) => escapeRegexp(a));
 					const matcher = new RegExp('^(' + alias_prefixes.join('|') + ')', 'u');
 					build.onResolve({filter: matcher}, async (args) => {
-						// console.log(blue('[sveltekit_shim_alias]'), `[sveltekit_shim_alias] args`, args);
 						console.log(
 							blue('[sveltekit_shim_alias] path, importer'),
 							args.path,
@@ -84,7 +83,6 @@ export const create_plugin = ({
 						const aliased = aliases[prefix];
 						console.log(blue('[sveltekit_shim_alias]'), `prefix`, prefix);
 						console.log(blue('[sveltekit_shim_alias]'), `aliased`, aliased);
-						// console.log(yellow(`[sveltekit_shim_alias] enter path`), specifier);
 
 						let path = dir + aliased + specifier.substring(prefix.length);
 						console.log(blue('[sveltekit_shim_alias]'), `ALIASED path`, path);
@@ -127,36 +125,56 @@ export const create_plugin = ({
 
 							build.onResolve({filter: matcher}, async (args) => {
 								console.log(
-									red('[external_worker]'),
+									red('[external_worker] ENTER'),
 									red(`args.path, args.importer\n`),
 									args.path,
 									'\n',
 									args.importer,
 								);
-								let path = join(args.importer, '../', args.path);
-								console.log(red('[external_worker]'), `path`, path);
-								if (path[0] !== '.' && path[0] !== '/') path = './' + path;
-								if (!path.endsWith('.js')) {
-									const ext = extname(path);
-									if (ext === '.ts') {
-										path = stripEnd(path, ext) + '.js';
-									} else if (ext !== '.js') {
-										path += '.js';
+								// let path = args.path[0] === '.' ? join(args.importer, '../', args.path) : args.path;
+								// console.log(red('[external_worker]'), `path`, path);
+								// if (path[0] !== '.' && path[0] !== '/') path = './' + path;
+								// if (!path.endsWith('.js')) {
+								// 	const ext = extname(path);
+								// 	if (ext === '.ts') {
+								// 		path = stripEnd(path, ext) + '.js';
+								// 	} else if (ext !== '.js') {
+								// 		path += '.js';
+								// 	}
+								// }
+
+								let path = args.path;
+
+								// TODO BLOCK probably a helper that returns {id, specifier} (entryPoint and final path)
+
+								// TODO BLOCK copypasta from loader
+								// The specifier `path` has now been mapped to its final form, so we can inspect it.
+								const path_is_relative = path[0] === '.';
+								const path_is_absolute = path[0] === '/';
+								if (!path_is_relative && !path_is_absolute) {
+									// Handle external specifiers imported by internal code.
+									throw new Error('TODO'); // TODO BLOCK
+								}
+
+								// TODO `import.meta.resolves` was supposedly unflagged for Node 20.6 but I'm still seeing it as undefined
+								// await import.meta.resolve(path);
+								let js_path = path_is_relative ? join(args.importer, '../', path) : path;
+								if (!path.endsWith('.js')) js_path += '.js'; // TODO BLOCK handle `.ts` imports too, and svelte, and ignore `.(schema|task.` etc, same helpers as esbuild plugin for server
+								if (existsSync(js_path)) {
+									path = js_path;
+								} else {
+									const ts_path = js_path.slice(0, -3) + '.ts';
+									if (existsSync(ts_path)) {
+										path = ts_path;
 									}
 								}
 
-								console.log(red('[external_worker]'), red(`path`), yellow(path));
-								console.log(
-									red('[external_worker]'),
-									red(`[external_worker] building external worker path`),
-									args.path,
-									args.importer,
-								);
+								console.log(red('[external_worker] FINAL path'), yellow(path));
 
 								// TODO BLOCK make sure this isn't called more than once if 2 files import it (probably need to cache)
 								const build_result = await esbuild.build({
 									// TODO BLOCK refactor options with above
-									entryPoints: [args.path],
+									entryPoints: [path],
 									outdir,
 									outbase: paths.lib, // TODO configure
 									format: 'esm',
@@ -171,6 +189,7 @@ export const create_plugin = ({
 									],
 								});
 								print_build_result(log, build_result);
+
 								return {path, external: true};
 							});
 						},
