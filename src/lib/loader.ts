@@ -108,15 +108,12 @@ export const resolve: ResolveHook = async (specifier, context, nextResolve) => {
 
 	let path = specifier;
 
-	if (path.startsWith('$lib')) {
-		path = dir + 'src/' + path.substring(1);
-	}
-
-	if (alias) {
-		for (const [from, to] of Object.entries(alias)) {
-			if (path.startsWith(from)) {
-				path = dir + to + path.substring(from.length);
-			}
+	// Map the specifier with the SvelteKit aliases.
+	const aliases = {$lib: 'src/lib', ...alias};
+	for (const [from, to] of Object.entries(aliases)) {
+		if (path.startsWith(from)) {
+			path = dir + to + path.substring(from.length);
+			break;
 		}
 	}
 

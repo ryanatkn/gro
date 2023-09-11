@@ -20,14 +20,14 @@ import {esbuild_plugin_sveltekit_shim_env} from '../util/esbuild_plugin_svelteki
 import {print_build_result} from '../util/esbuild.js';
 import {escape_for_regexp} from '../util/regexp.js';
 
-const dir = cwd() + '/';
-
 export interface Options {
-	build_name: BuildName; // defaults to 'server'
+	dir?: string;
+	build_name?: BuildName; // defaults to 'server'
 	base_build_path?: string; // defaults to 'server/server.js'
 }
 
 export const create_plugin = ({
+	dir = cwd() + '/',
 	build_name = NODE_SERVER_BUILD_NAME,
 	base_build_path = NODE_SERVER_BUILD_BASE_PATH,
 }: Partial<Options> = {}): Plugin<PluginContext<object>> => {
@@ -66,20 +66,24 @@ export const create_plugin = ({
 				name: 'sveltekit_shim_alias',
 				setup: (build) => {
 					// TODO BLOCK construct matcher with $lib and each `config.alias` as well as paths that start with `.` or `/` I think?
-					const prefixes = [escape_for_regexp('$lib')];
-					console.log(`prefixes`, prefixes);
-					const matcher = new RegExp('^(' + prefixes.join('|') + ')', 'u');
+					const aliases: Record<string, string> = {$lib: 'src/lib', ...alias};
+					const alias_prefixes = Object.keys(aliases).map((a) => escape_for_regexp(a));
+					console.log(`alias_prefixes`, alias_prefixes);
+					const matcher = new RegExp('^(' + alias_prefixes.join('|') + ')', 'u');
 					console.log(`matcher`, matcher);
 					build.onResolve({filter: matcher}, async (args) => {
 						// console.log(`[sveltekit_shim_alias] args`, args);
 						const {path: specifier, ...rest} = args;
-						const matches = matcher.exec(specifier);
+						const matches = matcher.exec(specifier)!;
 						console.log(`matcher.exec(specifier)`, matches);
-						const prefix = matches![1];
+						const prefix = matches[1];
+						const aliased = aliases[prefix];
 						console.log(`prefix`, prefix);
+						console.log(`aliased`, aliased);
 						// console.log(yellow(`[sveltekit_shim_alias] enter path`), specifier);
 
-						let path = dir + 'src/' + specifier.slice(1);
+						let path = dir + aliased + specifier.substring(prefix.length);
+						console.log(`ALIASED path`, path);
 						const ext = extname(path);
 						if (ext !== '.ts' && ext !== '.js' && ext !== '.svelte') path += '.ts'; // TODO BLOCK tricky because of files with `.(schema|task)` etc
 						if (!existsSync(path)) throw Error('not found: ' + path); // TODO BLOCK remove
@@ -92,9 +96,6 @@ export const create_plugin = ({
 						// return {...resolved, path: './password_worker.js'};
 						// } else {
 						return resolved;
-						// }
-						// return {path};
-						// }
 					});
 				},
 			});
