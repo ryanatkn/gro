@@ -125,9 +125,5 @@ test__parse_specifier(
 	},
 );
 
-// TODO BLOCK does relative for both need to throw?
-// how else could it do it without a base path?
-// do we need that usecase though? need to test more with esbuild
-
 test__parse_specifier.run();
 /* parse_specifier_result */
