@@ -37,6 +37,15 @@ test__parse_specifier('parses a js specifier', async () => {
 	});
 });
 
+test__parse_specifier('parses a js specifier as ts for a file that does not exist', async () => {
+	assert.equal(await parse_specifier(dir + 'test_missing.js', dir + 'importer.ts'), {
+		final_path: './test_missing.js',
+		source_path: dir + 'test_missing.ts',
+		mapped_path: dir + 'test_missing.js',
+		namespace: 'sveltekit_local_imports_ts',
+	});
+});
+
 test__parse_specifier('parses from a directory 1 deeper', async () => {
 	assert.equal(await parse_specifier(dir + 'test_ts.ts', dir + '/a/importer.ts'), {
 		final_path: '../test_ts.js',
