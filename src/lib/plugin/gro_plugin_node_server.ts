@@ -73,7 +73,10 @@ export const create_plugin = ({
 					build.onResolve({filter: matcher}, async (args) => {
 						// console.log(`[sveltekit_shim_alias] args`, args);
 						const {path: specifier, ...rest} = args;
-						console.log(`matcher.exec(specifier)`, matcher.exec(specifier));
+						const matches = matcher.exec(specifier);
+						console.log(`matcher.exec(specifier)`, matches);
+						const prefix = matches![1];
+						console.log(`prefix`, prefix);
 						// console.log(yellow(`[sveltekit_shim_alias] enter path`), specifier);
 
 						let path = dir + 'src/' + specifier.slice(1);
