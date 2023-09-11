@@ -2,7 +2,7 @@ import {spawnRestartableProcess, type RestartableProcess} from '@feltjs/util/pro
 import {existsSync} from 'node:fs';
 import * as esbuild from 'esbuild';
 import {cwd} from 'node:process';
-import {yellow, red} from 'kleur/colors';
+import {yellow, red, magenta} from 'kleur/colors';
 import {extname, join, relative} from 'node:path';
 import {stripEnd} from '@feltjs/util/string.js';
 import {escapeRegexp} from '@feltjs/util/regexp.js';
@@ -68,22 +68,22 @@ export const create_plugin = ({
 					// TODO BLOCK construct matcher with $lib and each `config.alias` as well as paths that start with `.` or `/` I think?
 					const aliases: Record<string, string> = {$lib: 'src/lib', ...alias};
 					const alias_prefixes = Object.keys(aliases).map((a) => escapeRegexp(a));
-					console.log(`alias_prefixes`, alias_prefixes);
+					console.log(magenta('[sveltekit_shim_alias]'), `alias_prefixes`, alias_prefixes);
 					const matcher = new RegExp('^(' + alias_prefixes.join('|') + ')', 'u');
-					console.log(`matcher`, matcher);
+					console.log(magenta('[sveltekit_shim_alias]'), `matcher`, matcher);
 					build.onResolve({filter: matcher}, async (args) => {
-						// console.log(`[sveltekit_shim_alias] args`, args);
+						// console.log(magenta('[sveltekit_shim_alias]'), `[sveltekit_shim_alias] args`, args);
 						const {path: specifier, ...rest} = args;
 						const matches = matcher.exec(specifier)!;
-						console.log(`matcher.exec(specifier)`, matches);
+						console.log(magenta('[sveltekit_shim_alias]'), `matcher.exec(specifier)`, matches);
 						const prefix = matches[1];
 						const aliased = aliases[prefix];
-						console.log(`prefix`, prefix);
-						console.log(`aliased`, aliased);
+						console.log(magenta('[sveltekit_shim_alias]'), `prefix`, prefix);
+						console.log(magenta('[sveltekit_shim_alias]'), `aliased`, aliased);
 						// console.log(yellow(`[sveltekit_shim_alias] enter path`), specifier);
 
 						let path = dir + aliased + specifier.substring(prefix.length);
-						console.log(`ALIASED path`, path);
+						console.log(magenta('[sveltekit_shim_alias]'), `ALIASED path`, path);
 						const ext = extname(path);
 						if (ext !== '.ts' && ext !== '.js' && ext !== '.svelte') path += '.ts'; // TODO BLOCK tricky because of files with `.(schema|task)` etc
 						if (!existsSync(path)) throw Error('not found: ' + path); // TODO BLOCK remove
@@ -122,9 +122,15 @@ export const create_plugin = ({
 							const matcher = /\.worker(|\.js|\.ts)$/u;
 
 							build.onResolve({filter: matcher}, async (args) => {
-								console.log(red(`args.path, args.importer\n`), args.path, '\n', args.importer);
+								console.log(
+									red('[external_worker]'),
+									red(`args.path, args.importer\n`),
+									args.path,
+									'\n',
+									args.importer,
+								);
 								let path = join(args.importer, '../', args.path);
-								console.log(`path`, path);
+								console.log(red('[external_worker]'), `path`, path);
 								if (path[0] !== '.' && path[0] !== '/') path = './' + path;
 								if (!path.endsWith('.js')) {
 									const ext = extname(path);
@@ -135,8 +141,9 @@ export const create_plugin = ({
 									}
 								}
 
-								console.log(red(`path`), yellow(path));
+								console.log(red('[external_worker]'), red(`path`), yellow(path));
 								console.log(
+									red('[external_worker]'),
 									red(`[external_worker] building external worker path`),
 									args.path,
 									args.importer,
