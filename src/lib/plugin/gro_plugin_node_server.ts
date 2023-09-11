@@ -148,7 +148,8 @@ export const create_plugin = ({
 							namespace,
 							pluginData: {source_path},
 						});
-						return build.resolve();
+						// const resolved = await build.resolve(final_path, rest);
+						// console.log(`resolved`, resolved);
 						return {path: final_path, namespace, pluginData: {source_path}};
 					});
 					// TODO BLOCK can we remove this?
@@ -217,7 +218,10 @@ export const create_plugin = ({
 						ambient_env,
 					}),
 					esbuild_plugin_sveltekit_shim_alias(),
-					esbuild_plugin_sveltekit_local_imports(),
+					// TODO BLOCK a few possibilities here
+					// 1. arrange the plugins in the right order
+					// 2. call resolve from one or the other (or both?)
+					// 3. helpers like `parse_specifier`
 					{
 						name: 'external_worker',
 						setup: (build) => {
@@ -258,6 +262,7 @@ export const create_plugin = ({
 							});
 						},
 					},
+					esbuild_plugin_sveltekit_local_imports(),
 				],
 			});
 			timing_to_esbuild_create_context();
