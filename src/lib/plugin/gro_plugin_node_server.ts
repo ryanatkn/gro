@@ -87,7 +87,7 @@ export const create_plugin = ({
 					build.onResolve({filter: /^(\/|.)/u}, async ({path, ...rest}) => {
 						const {importer} = rest;
 						console.log(
-							blue('[sveltekit_imports] path, importer'),
+							blue('[sveltekit_imports] ENTER path, importer'),
 							green('1'),
 							yellow(path),
 							'\n',
@@ -150,7 +150,7 @@ export const create_plugin = ({
 							console.log(`mapped_to_importer2`, cyan(mapped_to_importer));
 						}
 						console.log(`mapped`, yellow(mapped));
-						console.log(green(`DONE`), {
+						console.log(blue('[sveltekit_imports] EXIT'), {
 							path: mapped_to_importer,
 							namespace,
 							pluginData: {source_path},
