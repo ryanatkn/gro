@@ -233,9 +233,25 @@
       "default": "./dist/util/env.js",
       "types": "./dist/util/env.d.ts"
     },
+    "./util/esbuild_plugin_sveltekit_shim_app.js": {
+      "default": "./dist/util/esbuild_plugin_sveltekit_shim_app.js",
+      "types": "./dist/util/esbuild_plugin_sveltekit_shim_app.d.ts"
+    },
+    "./util/esbuild_plugin_sveltekit_shim_env.js": {
+      "default": "./dist/util/esbuild_plugin_sveltekit_shim_env.js",
+      "types": "./dist/util/esbuild_plugin_sveltekit_shim_env.d.ts"
+    },
+    "./util/esbuild.js": {
+      "default": "./dist/util/esbuild.js",
+      "types": "./dist/util/esbuild.d.ts"
+    },
     "./util/schema.js": {
       "default": "./dist/util/schema.js",
       "types": "./dist/util/schema.d.ts"
+    },
+    "./util/sveltekit_config.js": {
+      "default": "./dist/util/sveltekit_config.js",
+      "types": "./dist/util/sveltekit_config.d.ts"
     },
     "./util/sveltekit_shim_app_environment.js": {
       "default": "./dist/util/sveltekit_shim_app_environment.js",
@@ -256,6 +272,14 @@
     "./util/sveltekit_shim_app_stores.js": {
       "default": "./dist/util/sveltekit_shim_app_stores.js",
       "types": "./dist/util/sveltekit_shim_app_stores.d.ts"
+    },
+    "./util/sveltekit_shim_app.js": {
+      "default": "./dist/util/sveltekit_shim_app.js",
+      "types": "./dist/util/sveltekit_shim_app.d.ts"
+    },
+    "./util/sveltekit_shim_env.js": {
+      "default": "./dist/util/sveltekit_shim_env.js",
+      "types": "./dist/util/sveltekit_shim_env.d.ts"
     },
     "./util/sveltekit_sync.js": {
       "default": "./dist/util/sveltekit_sync.js",

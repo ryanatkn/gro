@@ -24,12 +24,16 @@ export interface Options {
 	dir?: string;
 	build_name?: BuildName; // defaults to 'server'
 	base_build_path?: string; // defaults to 'server/server.js'
+	env_files?: string[];
+	ambient_env?: Record<string, string>;
 }
 
 export const create_plugin = ({
 	dir = cwd() + '/',
 	build_name = NODE_SERVER_BUILD_NAME,
 	base_build_path = NODE_SERVER_BUILD_BASE_PATH,
+	env_files,
+	ambient_env,
 }: Partial<Options> = {}): Plugin<PluginContext<object>> => {
 	let build_ctx: esbuild.BuildContext;
 	let watcher: WatchNodeFs;
@@ -71,7 +75,7 @@ export const create_plugin = ({
 					build.onResolve({filter}, async (args) => {
 						const {path, ...rest} = args;
 						const prefix = filter.exec(path)![1];
-						return build.resolve(aliases[prefix] + path.substring(prefix.length), rest);
+						return build.resolve(dir + aliases[prefix] + path.substring(prefix.length), rest);
 					});
 				},
 			});
@@ -103,6 +107,7 @@ export const create_plugin = ({
 						const path_is_absolute = path[0] === '/';
 						if (!path_is_relative && !path_is_absolute) {
 							// Handle external specifiers imported by internal code.
+							console.log(red(`ERRRRRRRRRRRRRRRRRRR path`), path);
 							throw new Error('TODO'); // TODO BLOCK
 						}
 
@@ -125,7 +130,8 @@ export const create_plugin = ({
 							original_path,
 						);
 						if (path === original_path) {
-							return build.resolve(path, rest);
+							console.log(blue('[sveltekit_imports] RESOLVED ABSOLUTE'), path);
+							return {path};
 						}
 						const absolute_path = path; // TODO BLOCK refactor
 						path = relative(dirname(args.importer), absolute_path);
@@ -161,7 +167,14 @@ export const create_plugin = ({
 				plugins: [
 					// TODO BLOCK extract and refactor with the existing helpers for the loader+postprocess
 					esbuild_plugin_sveltekit_shim_app(),
-					esbuild_plugin_sveltekit_shim_env(dev, public_prefix, private_prefix, env_dir),
+					esbuild_plugin_sveltekit_shim_env({
+						dev,
+						public_prefix,
+						private_prefix,
+						env_dir,
+						env_files,
+						ambient_env,
+					}),
 					esbuild_plugin_sveltekit_shim_alias(),
 					esbuild_plugin_sveltekit_imports(),
 					{
@@ -186,7 +199,14 @@ export const create_plugin = ({
 									target: config.target,
 									plugins: [
 										esbuild_plugin_sveltekit_shim_app(),
-										esbuild_plugin_sveltekit_shim_env(dev, public_prefix, private_prefix, env_dir),
+										esbuild_plugin_sveltekit_shim_env({
+											dev,
+											public_prefix,
+											private_prefix,
+											env_dir,
+											env_files,
+											ambient_env,
+										}),
 										esbuild_plugin_sveltekit_shim_alias(),
 										esbuild_plugin_sveltekit_imports(),
 									],
