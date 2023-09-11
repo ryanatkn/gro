@@ -48,7 +48,8 @@ export const parse_specifier = async (path: string, importer: string): Promise<P
 
 	const importer_absolute = importer[0] === '.' ? join(dirname(mapped_path), importer) : importer;
 	console.log(`importer_absolute`, importer_absolute);
-	let final_path = relative(dirname(importer_absolute), mapped_path);
+	let final_path =
+		mapped_path[0] === '.' ? mapped_path : relative(dirname(importer_absolute), mapped_path);
 	console.log(`final_path before`, final_path);
 	if (final_path[0] !== '.') final_path = './' + final_path;
 	console.log(`final_path DONE`, final_path);
