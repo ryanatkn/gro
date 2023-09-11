@@ -94,7 +94,7 @@ test__parse_specifier('parses from a directory 2 shallower', async () => {
 	});
 });
 
-test__parse_specifier('parses a relative ts specifier', async () => {
+test__parse_specifier.only('parses a relative ts specifier', async () => {
 	assert.equal(await parse_specifier('./test_ts.ts', dir + 'importer.ts'), {
 		final_path: './test_ts.js',
 		source_path: dir + 'test_ts.ts',
@@ -111,6 +111,19 @@ test__parse_specifier('parses a ts specifier with a relative importer', async ()
 		namespace: 'sveltekit_local_imports_ts',
 	});
 });
+
+test__parse_specifier(
+	'fails to parse when the specifier and importer are both relative',
+	async () => {
+		let err;
+		try {
+			await parse_specifier('./test_ts.ts', './importer.ts');
+		} catch (_err) {
+			err = _err;
+		}
+		assert.ok(err, 'expected an error');
+	},
+);
 
 // TODO BLOCK does relative for both need to throw?
 // how else could it do it without a base path?
