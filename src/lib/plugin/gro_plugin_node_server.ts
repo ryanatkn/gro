@@ -102,47 +102,31 @@ export const create_plugin = ({
 						}
 
 						// map the path relative to the `importer`, and add the correct extension
-						let mapped = path;
-						let source_path = mapped;
-						const is_js = mapped.endsWith('.js');
-						const is_ts = mapped.endsWith('.ts');
+						let mapped_path;
+						let source_path;
 						let namespace;
-						if (is_ts) {
-							console.log(`is_ts`, is_ts);
-							mapped = replace_extension(mapped, '.js');
-							namespace = 'sveltekit_local_imports_ts';
-						} else if (is_js) {
-							console.log(`is_js`, is_js);
-							const maybe_ts = replace_extension(mapped, '.ts');
-							console.log(`maybe_ts`, maybe_ts);
-							if (existsSync(maybe_ts)) {
-								console.log('YES TS');
-								source_path = maybe_ts;
-								namespace = 'sveltekit_local_imports_ts';
-							} else {
-								console.log('NOT TS');
-								namespace = 'sveltekit_local_imports_js';
-							}
+						const ext = extname(path);
+						const is_js = ext === '.js';
+						const is_ts = ext === '.ts';
+						const js_path = is_js ? path : is_ts ? replace_extension(path, '.js') : path + '.js';
+						if (existsSync(js_path)) {
+							namespace = 'sveltekit_local_imports_js';
+							mapped_path = js_path;
+							source_path = js_path;
 						} else {
-							console.log('is_NEITHER', mapped);
-							if (existsSync(path + '.ts')) {
-								mapped += '.js';
-								source_path += '.ts';
-								namespace = 'sveltekit_local_imports_ts';
-							} else if (existsSync(path + '.js')) {
-								mapped += '.js';
-								source_path += '.js';
-								namespace = 'sveltekit_local_imports_js';
-							}
+							// assume `.ts`, so other plugins like for `.svelte` and `.json` need to be added earlier
+							namespace = 'sveltekit_local_imports_ts';
+							source_path = is_ts ? path : is_js ? replace_extension(path, '.ts') : path + '.ts';
+							mapped_path = replace_extension(source_path, '.js');
 						}
 
 						const importer_absolute =
-							importer[0] === '.' ? join(dirname(mapped), importer) : importer;
-						let final_path = relative(dirname(importer_absolute), mapped);
+							importer[0] === '.' ? join(dirname(mapped_path), importer) : importer;
+						let final_path = relative(dirname(importer_absolute), mapped_path);
 						if (final_path[0] !== '.') final_path = './' + final_path;
 						console.log(`final_path2`, cyan(final_path));
 
-						console.log(`mapped`, yellow(mapped));
+						console.log(`mapped`, yellow(mapped_path));
 						console.log(blue('[sveltekit_imports] EXIT'), {
 							path: final_path,
 							namespace,
@@ -218,6 +202,7 @@ export const create_plugin = ({
 						ambient_env,
 					}),
 					esbuild_plugin_sveltekit_shim_alias(),
+					esbuild_plugin_sveltekit_local_imports(),
 					// TODO BLOCK a few possibilities here
 					// 1. arrange the plugins in the right order
 					// 2. call resolve from one or the other (or both?)
@@ -262,7 +247,6 @@ export const create_plugin = ({
 							});
 						},
 					},
-					esbuild_plugin_sveltekit_local_imports(),
 				],
 			});
 			timing_to_esbuild_create_context();
