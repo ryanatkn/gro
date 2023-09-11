@@ -97,8 +97,8 @@ test__parse_specifier('parses from a directory 2 shallower', async () => {
 test__parse_specifier.only('parses a relative ts specifier', async () => {
 	assert.equal(await parse_specifier('./test_ts.ts', dir + 'importer.ts'), {
 		final_path: './test_ts.js',
-		source_path: './test_ts.ts',
-		mapped_path: './test_ts.js',
+		source_path: dir + 'test_ts.ts',
+		mapped_path: dir + 'test_ts.js',
 		namespace: 'sveltekit_local_imports_ts',
 	});
 });
