@@ -3,7 +3,7 @@ import {existsSync} from 'node:fs';
 import * as esbuild from 'esbuild';
 import {cwd} from 'node:process';
 import {yellow, red, blue, green} from 'kleur/colors';
-import {extname, join} from 'node:path';
+import {dirname, extname, join, relative} from 'node:path';
 import {stripEnd} from '@feltjs/util/string.js';
 import {escapeRegexp} from '@feltjs/util/regexp.js';
 
@@ -100,6 +100,7 @@ export const create_plugin = ({
 							throw new Error('TODO'); // TODO BLOCK
 						}
 
+						// TODO BLOCK needs to be relative?
 						let js_path = path_is_relative ? join(args.importer, '../', path) : path;
 						if (!path.endsWith('.js')) js_path += '.js'; // TODO BLOCK handle `.ts` imports too, and svelte, and ignore `.(schema|task.` etc, same helpers as esbuild plugin for server
 						if (existsSync(js_path)) {
@@ -111,12 +112,17 @@ export const create_plugin = ({
 							}
 						}
 
-						console.log(blue('[sveltekit_shim_alias] final path'), green('2'), yellow(path));
+						console.log(
+							blue('[sveltekit_shim_alias] RESOLVING path'),
+							green('22'),
+							yellow(path),
+							specifier,
+						);
 						if (path === specifier) return {path};
 						const resolved = await build.resolve(path, rest);
 						console.log(
-							blue('[sveltekit_shim_alias] resolved path'),
-							green('3'),
+							blue('[sveltekit_shim_alias] RESOLVED path'),
+							green('333'),
 							yellow(path),
 							resolved,
 						);
@@ -142,8 +148,8 @@ export const create_plugin = ({
 					{
 						name: 'external_worker',
 						setup: (build) => {
-							build.onResolve({filter: /\.worker(|\.js|\.ts)$/u}, async ({path}) => {
-								console.log(red('[external_worker] ENTER'), yellow(path));
+							build.onResolve({filter: /\.worker(|\.js|\.ts)$/u}, async ({path, importer}) => {
+								console.log(red('[external_worker] ENTER'), yellow(path), '\n', importer);
 
 								// TODO BLOCK make sure this isn't called more than once if 2 files import it (probably need to cache)
 								const build_result = await esbuild.build({
@@ -164,7 +170,10 @@ export const create_plugin = ({
 								});
 								print_build_result(log, build_result);
 
-								return {path, external: true};
+								const specifier = relative(dirname(importer), path);
+								console.log(red(`specifier`), specifier);
+
+								return {path: specifier, external: true};
 							});
 						},
 					},
