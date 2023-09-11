@@ -13,7 +13,6 @@ export interface ParsedSpecifier {
 	namespace: string;
 }
 
-// TODO BLOCK consider changing to return only absolute paths, maybe taking a dir, and add a helper for the relative specifier
 /**
  * Maps `path` relative to the `importer`, and infer the correct extension.
  * If no `.js` file is found for the `path` on the filesystem, it assumes `.ts`.
