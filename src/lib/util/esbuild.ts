@@ -1,4 +1,4 @@
-import {yellow, red} from 'kleur/colors';
+import {yellow, red, magenta} from 'kleur/colors';
 import type {Logger} from '@feltjs/util/log.js';
 import type * as esbuild from 'esbuild';
 import {dirname, extname, join, relative} from 'node:path';
@@ -18,6 +18,7 @@ export interface ParsedSpecifier {
  * If no `.js` source file is found, it assumes `.ts`.
  */
 export const parse_specifier = async (path: string, importer: string): Promise<ParsedSpecifier> => {
+	console.log(magenta(`[parse_specifier] enter`), {path, importer});
 	let mapped_path;
 	let source_path;
 	let namespace;
@@ -40,6 +41,12 @@ export const parse_specifier = async (path: string, importer: string): Promise<P
 	let final_path = relative(dirname(importer_absolute), mapped_path);
 	if (final_path[0] !== '.') final_path = './' + final_path;
 
+	console.log(magenta(`[parse_specifier] LEAVE`), {
+		final_path,
+		source_path,
+		mapped_path,
+		namespace,
+	});
 	return {final_path, source_path, mapped_path, namespace};
 };
 

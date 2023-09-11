@@ -156,39 +156,43 @@ export const create_plugin = ({
 					{
 						name: 'external_worker',
 						setup: (build) => {
-							build.onResolve({filter: /\.worker(|\.js|\.ts)$/u}, async ({path, importer}) => {
-								const parsed = await parse_specifier(path, importer);
-								console.log(red('[external_worker] ENTER'), yellow(path), '\n', importer, parsed);
-								const {final_path, source_path, namespace} = parsed;
+							build.onResolve(
+								{filter: /\.worker(|\.js|\.ts)$/u},
+								async ({path, importer, ...rest}) => {
+									const parsed = await parse_specifier(path, importer);
+									console.log(red('[external_worker] ENTER'), yellow(path), '\n', importer, parsed);
+									console.log(`rest:`, rest);
+									const {final_path, source_path, namespace} = parsed;
 
-								// TODO BLOCK make sure this isn't called more than once if 2 files import it (probably need to cache)
-								const build_result = await esbuild.build({
-									entryPoints: [source_path],
-									outdir,
-									outbase: paths.lib, // TODO configure
-									format: 'esm',
-									platform: 'node',
-									packages: 'external',
-									bundle: true,
-									target: config.target,
-									plugins: [
-										esbuild_plugin_sveltekit_shim_app(),
-										esbuild_plugin_sveltekit_shim_env({
-											dev,
-											public_prefix,
-											private_prefix,
-											env_dir,
-											env_files,
-											ambient_env,
-										}),
-										esbuild_plugin_sveltekit_shim_alias(),
-										esbuild_plugin_sveltekit_local_imports(),
-									],
-								});
-								print_build_result(log, build_result);
+									// TODO BLOCK make sure this isn't called more than once if 2 files import it (probably need to cache)
+									const build_result = await esbuild.build({
+										entryPoints: [source_path],
+										outdir,
+										outbase: paths.lib, // TODO configure
+										format: 'esm',
+										platform: 'node',
+										packages: 'external',
+										bundle: true,
+										target: config.target,
+										plugins: [
+											esbuild_plugin_sveltekit_shim_app(),
+											esbuild_plugin_sveltekit_shim_env({
+												dev,
+												public_prefix,
+												private_prefix,
+												env_dir,
+												env_files,
+												ambient_env,
+											}),
+											esbuild_plugin_sveltekit_shim_alias(),
+											esbuild_plugin_sveltekit_local_imports(),
+										],
+									});
+									print_build_result(log, build_result);
 
-								return {path: final_path, external: true, namespace};
-							});
+									return {path: final_path, external: true, namespace};
+								},
+							);
 						},
 					},
 					esbuild_plugin_sveltekit_local_imports(),
