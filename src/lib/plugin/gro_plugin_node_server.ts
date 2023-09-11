@@ -130,26 +130,6 @@ export const create_plugin = ({
 							return {contents: readFileSync(source_path), loader: 'js'};
 						},
 					);
-					// build.onLoad(
-					// 	{filter: /.*/u, namespace: 'sveltekit_local_imports_ts'},
-					// 	async ({path}) => {
-					// 		console.log(`LOAD path`, path);
-					// 		let final_path;
-					// 		let loader: esbuild.Loader | undefined = undefined;
-					// 		if (existsSync(path)) {
-					// 			final_path = path;
-					// 		} else {
-					// 			const ts_path = replace_extension(path, '.ts');
-					// 			if (existsSync(ts_path)) {
-					// 				final_path = ts_path;
-					// 				loader = 'ts';
-					// 			} else {
-					// 				throw Error('CANNOT LOAD PATH ' + path);
-					// 			}
-					// 		}
-					// 		return {contents: readFileSync(final_path), loader};
-					// 	},
-					// );
 				},
 			});
 
