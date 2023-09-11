@@ -1,0 +1,205 @@
+import {red} from 'kleur/colors';
+import {Timings} from '@feltjs/util/timings.js';
+import {UnreachableError} from '@feltjs/util/error.js';
+import type {Result} from '@feltjs/util/result.js';
+import {printError} from '@feltjs/util/print.js';
+
+import {
+	load_source_path_data_by_input_path,
+	load_source_ids_by_input_path,
+} from '../path/input_path.js';
+import type {PathStats, PathData} from '../path/path_data.js';
+import {paths_from_id, print_path, print_path_or_gro_path, type SourceId} from '../path/paths.js';
+
+export interface ModuleMeta<TModule extends Record<string, any> = Record<string, any>> {
+	id: string;
+	mod: TModule;
+}
+
+export type LoadModuleResult<T> = Result<{mod: T}, LoadModuleFailure>;
+export type LoadModuleFailure =
+	| {ok: false; type: 'importFailed'; id: string; error: Error}
+	| {ok: false; type: 'invalid'; id: string; mod: Record<string, any>; validation: string};
+
+export const load_module = async <T extends Record<string, any>>(
+	id: string,
+	validate?: (mod: Record<string, any>) => mod is T,
+): Promise<LoadModuleResult<ModuleMeta<T>>> => {
+	let mod;
+	try {
+		mod = await import(id);
+	} catch (err) {
+		return {ok: false, type: 'importFailed', id, error: err};
+	}
+	if (validate && !validate(mod)) {
+		return {ok: false, type: 'invalid', id, mod, validation: validate.name};
+	}
+	return {ok: true, mod: {id, mod}};
+};
+
+export type FindModulesResult = Result<
+	{
+		source_ids_by_input_path: Map<string, string[]>;
+		source_id_path_data_by_input_path: Map<string, PathData>;
+		timings: Timings<FindModulesTimings>;
+	},
+	FindModulesFailure
+>;
+export type FindModulesFailure =
+	| {
+			type: 'unmapped_input_paths';
+			source_id_path_data_by_input_path: Map<string, PathData>;
+			unmapped_input_paths: string[];
+			reasons: string[];
+	  }
+	| {
+			type: 'input_directories_with_no_files';
+			source_ids_by_input_path: Map<string, string[]>;
+			source_id_path_data_by_input_path: Map<string, PathData>;
+			input_directories_with_no_files: string[];
+			reasons: string[];
+	  };
+type FindModulesTimings = 'map input paths' | 'find files';
+
+export type LoadModulesResult<TModuleMeta extends ModuleMeta> = Result<
+	{
+		modules: TModuleMeta[];
+		timings: Timings<LoadModulesTimings>;
+	},
+	{
+		type: 'load_module_failures';
+		load_module_failures: LoadModuleFailure[];
+		reasons: string[];
+		// still return the modules and timings, deferring to the caller
+		modules: TModuleMeta[];
+		timings: Timings<LoadModulesTimings>;
+	}
+>;
+type LoadModulesTimings = 'load modules';
+
+/*
+
+Finds modules from input paths. (see `src/lib/path/input_path.ts` for more)
+
+*/
+export const find_modules = async (
+	input_paths: string[],
+	find_files: (id: string) => Promise<Map<string, PathStats>>,
+	get_possible_source_ids?: (input_path: string) => string[],
+): Promise<FindModulesResult> => {
+	// Check which extension variation works - if it's a directory, prefer others first!
+	const timings = new Timings<FindModulesTimings>();
+	const timingToMapInputPaths = timings.start('map input paths');
+	const {source_id_path_data_by_input_path, unmapped_input_paths} =
+		load_source_path_data_by_input_path(input_paths, get_possible_source_ids);
+	timingToMapInputPaths();
+
+	// Error if any input path could not be mapped.
+	if (unmapped_input_paths.length) {
+		return {
+			ok: false,
+			type: 'unmapped_input_paths',
+			source_id_path_data_by_input_path,
+			unmapped_input_paths,
+			reasons: unmapped_input_paths.map((input_path) =>
+				red(
+					`Input path ${print_path_or_gro_path(
+						input_path,
+						paths_from_id(input_path),
+					)} cannot be mapped to a file or directory.`,
+				),
+			),
+		};
+	}
+
+	// Find all of the files for any directories.
+	const timingToFindFiles = timings.start('find files');
+	const {source_ids_by_input_path, input_directories_with_no_files} =
+		await load_source_ids_by_input_path(source_id_path_data_by_input_path, (id) => find_files(id));
+	timingToFindFiles();
+
+	// Error if any input path has no files. (means we have an empty directory)
+	return input_directories_with_no_files.length
+		? {
+				ok: false,
+				type: 'input_directories_with_no_files',
+				source_id_path_data_by_input_path,
+				source_ids_by_input_path,
+				input_directories_with_no_files,
+				reasons: input_directories_with_no_files.map((input_path) =>
+					red(
+						`Input directory ${print_path_or_gro_path(
+							source_id_path_data_by_input_path.get(input_path)!.id,
+							paths_from_id(input_path),
+						)} contains no matching files.`,
+					),
+				),
+		  }
+		: {ok: true, source_ids_by_input_path, source_id_path_data_by_input_path, timings};
+};
+
+/*
+
+Load modules by source id.
+
+TODO parallelize, originally it needed to be serial for a specific usecase we no longer have
+
+*/
+export const load_modules = async <
+	ModuleType extends Record<string, any>,
+	TModuleMeta extends ModuleMeta<ModuleType>,
+>(
+	source_ids_by_input_path: Map<string, string[]>, // TODO maybe make this a flat array and remove `input_path`?
+	dev: boolean,
+	load_module_by_id: (source_id: SourceId, dev: boolean) => Promise<LoadModuleResult<TModuleMeta>>,
+): Promise<LoadModulesResult<TModuleMeta>> => {
+	const timings = new Timings<LoadModulesTimings>();
+	const timing_to_load_modules = timings.start('load modules');
+	const modules: TModuleMeta[] = [];
+	const load_module_failures: LoadModuleFailure[] = [];
+	const reasons: string[] = [];
+	for (const [input_path, source_ids] of source_ids_by_input_path) {
+		for (const id of source_ids) {
+			const result = await load_module_by_id(id, dev); // eslint-disable-line no-await-in-loop
+			if (result.ok) {
+				modules.push(result.mod);
+			} else {
+				load_module_failures.push(result);
+				switch (result.type) {
+					case 'importFailed': {
+						reasons.push(
+							`Module import ${print_path(id, paths_from_id(id))} failed from input ${print_path(
+								input_path,
+								paths_from_id(input_path),
+							)}: ${printError(result.error)}`,
+						);
+						break;
+					}
+					case 'invalid': {
+						// TODO try to make this a good error message for the task case
+						reasons.push(
+							`Module ${print_path(id, paths_from_id(id))} failed validation '${
+								result.validation
+							}'.`,
+						);
+						break;
+					}
+					default:
+						throw new UnreachableError(result);
+				}
+			}
+		}
+	}
+	timing_to_load_modules();
+
+	return load_module_failures.length
+		? {
+				ok: false,
+				type: 'load_module_failures',
+				load_module_failures,
+				reasons,
+				modules,
+				timings,
+		  }
+		: {ok: true, modules, timings};
+};
