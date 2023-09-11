@@ -13,11 +13,10 @@ export const esbuild_plugin_sveltekit_shim_env = (
 	name: 'sveltekit_shim_env',
 	setup: (build) => {
 		const namespace = 'sveltekit_shim_env';
-		const matcher = /^\$env\/(static|dynamic)\/(public|private)$/u;
-		build.onResolve({filter: matcher}, ({path}) => ({path, namespace}));
-		build.onLoad({filter: /.*/u, namespace}, (args) => {
-			const {path} = args;
-			const matches = matcher.exec(path);
+		const filter = /^\$env\/(static|dynamic)\/(public|private)$/u;
+		build.onResolve({filter}, ({path}) => ({path, namespace}));
+		build.onLoad({filter: /.*/u, namespace}, ({path}) => {
+			const matches = filter.exec(path);
 			const mode = matches![1] as 'static' | 'dynamic';
 			const visibility = matches![2] as 'public' | 'private';
 			return {

@@ -11,8 +11,9 @@ export const esbuild_plugin_sveltekit_shim_app = (): esbuild.Plugin => ({
 			{filter: /^\$app\/(environment|forms|navigation|paths|stores)$/u},
 			({path, ...rest}) => {
 				const mapped = to_sveltekit_app_specifier(path);
-				if (!mapped)
+				if (!mapped) {
 					throw Error(`plugin "${name}" failed to map path to SvelteKit app shim: ${path}`);
+				}
 				return build.resolve(mapped, rest);
 			},
 		);

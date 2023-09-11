@@ -2,7 +2,7 @@ import {spawnRestartableProcess, type RestartableProcess} from '@feltjs/util/pro
 import {existsSync} from 'node:fs';
 import * as esbuild from 'esbuild';
 import {cwd} from 'node:process';
-import {yellow, red, blue, green} from 'kleur/colors';
+import {yellow, red, blue, green, cyan} from 'kleur/colors';
 import {dirname, extname, join, relative} from 'node:path';
 import {stripEnd} from '@feltjs/util/string.js';
 import {escapeRegexp} from '@feltjs/util/regexp.js';
@@ -65,28 +65,34 @@ export const create_plugin = ({
 			const esbuild_plugin_sveltekit_shim_alias = (): esbuild.Plugin => ({
 				name: 'sveltekit_shim_alias',
 				setup: (build) => {
-					// TODO BLOCK construct matcher with $lib and each `config.alias` as well as paths that start with `.` or `/` I think?
 					const aliases: Record<string, string> = {$lib: 'src/lib', ...alias};
 					const alias_prefixes = Object.keys(aliases).map((a) => escapeRegexp(a));
-					const matcher = new RegExp('^(' + alias_prefixes.join('|') + ')', 'u');
-					build.onResolve({filter: matcher}, async (args) => {
+					const filter = new RegExp('^(' + alias_prefixes.join('|') + ')', 'u');
+					build.onResolve({filter}, async (args) => {
+						const {path, ...rest} = args;
+						const prefix = filter.exec(path)![1];
+						return build.resolve(aliases[prefix] + path.substring(prefix.length), rest);
+					});
+				},
+			});
+
+			// TODO BLOCK hoist/refactor
+			const esbuild_plugin_sveltekit_imports = (): esbuild.Plugin => ({
+				name: 'sveltekit_imports',
+				setup: (build) => {
+					// TODO BLOCK add .js as necessary and map from .ts?
+					build.onResolve({filter: /.*/u}, async (args) => {
 						console.log(
-							blue('[sveltekit_shim_alias] path, importer'),
+							blue('[sveltekit_imports] path, importer'),
 							green('1'),
 							yellow(args.path),
 							'\n',
-							args.importer,
 						);
-						const {path: specifier, ...rest} = args;
-						const matches = matcher.exec(specifier)!;
-						console.log(blue('[sveltekit_shim_alias]'), `matcher.exec(specifier)`, matches);
-						const prefix = matches[1];
-						const aliased = aliases[prefix];
-						console.log(blue('[sveltekit_shim_alias]'), `prefix`, prefix);
-						console.log(blue('[sveltekit_shim_alias]'), `aliased`, aliased);
+						// TODO BLOCK handle this being '' for the entry
+						console.log(`{args.importer}`, {importer: args.importer});
 
-						let path = dir + aliased + specifier.substring(prefix.length);
-						console.log(blue('[sveltekit_shim_alias]'), `ALIASED path`, path);
+						const {path: original_path, ...rest} = args;
+						let path = original_path;
 
 						// const ext = extname(path);
 						// if (ext !== '.ts' && ext !== '.js' && ext !== '.svelte') path += '.ts'; // TODO BLOCK tricky because of files with `.(schema|task)` etc
@@ -113,17 +119,19 @@ export const create_plugin = ({
 						}
 
 						console.log(
-							blue('[sveltekit_shim_alias] ABSOLUTE path'),
+							blue('[sveltekit_imports] ABSOLUTE path'),
 							green('22a'),
 							yellow(path),
-							specifier,
+							original_path,
 						);
-						if (path === specifier) return {path};
+						if (path === original_path) {
+							return build.resolve(path, rest);
+						}
 						const absolute_path = path; // TODO BLOCK refactor
 						path = relative(dirname(args.importer), absolute_path);
 						if (path[0] !== '.') path = './' + path;
 						console.log(
-							blue('[sveltekit_shim_alias] RELATIVE path'),
+							blue('[sveltekit_imports] RELATIVE path'),
 							green('22b'),
 							yellow(path),
 							args.importer,
@@ -131,7 +139,7 @@ export const create_plugin = ({
 
 						const resolved = await build.resolve(path, rest);
 						console.log(
-							blue('[sveltekit_shim_alias] RESOLVED path'),
+							blue('[sveltekit_imports] RESOLVED path'),
 							green('333'),
 							yellow(path),
 							resolved,
@@ -155,6 +163,7 @@ export const create_plugin = ({
 					esbuild_plugin_sveltekit_shim_app(),
 					esbuild_plugin_sveltekit_shim_env(dev, public_prefix, private_prefix, env_dir),
 					esbuild_plugin_sveltekit_shim_alias(),
+					esbuild_plugin_sveltekit_imports(),
 					{
 						name: 'external_worker',
 						setup: (build) => {
@@ -179,6 +188,7 @@ export const create_plugin = ({
 										esbuild_plugin_sveltekit_shim_app(),
 										esbuild_plugin_sveltekit_shim_env(dev, public_prefix, private_prefix, env_dir),
 										esbuild_plugin_sveltekit_shim_alias(),
+										esbuild_plugin_sveltekit_imports(),
 									],
 								});
 								print_build_result(log, build_result);
