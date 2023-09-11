@@ -8,7 +8,7 @@ import {exists} from './exists.js';
 
 export interface ParsedSpecifier {
 	specifier: string;
-	source_path: string;
+	source_id: string;
 	namespace: string;
 }
 
@@ -36,28 +36,28 @@ export const parse_specifier = async (path: string, importer: string): Promise<P
 		: path_absolute + '.js';
 
 	let mapped_path;
-	let source_path;
+	let source_id;
 	let namespace;
 	if (await exists(js_path)) {
 		// a `.js` version exists on the filesystem, so use it
 		namespace = 'sveltekit_local_imports_js';
 		mapped_path = js_path;
-		source_path = js_path;
+		source_id = js_path;
 	} else {
 		// assume `.ts`, so other plugins like for `.svelte` and `.json` must be added earlier
 		namespace = 'sveltekit_local_imports_ts';
-		source_path = is_ts
+		source_id = is_ts
 			? path_absolute
 			: is_js
 			? replace_extension(path_absolute, '.ts')
 			: path_absolute + '.ts';
-		mapped_path = replace_extension(source_path, '.js');
+		mapped_path = replace_extension(source_id, '.js');
 	}
 
 	let specifier = relative(dirname(importer_absolute), mapped_path);
 	if (specifier[0] !== '.') specifier = './' + specifier;
 
-	return {specifier, source_path, namespace};
+	return {specifier, source_id, namespace};
 };
 
 export const print_build_result = (log: Logger, build_result: esbuild.BuildResult): void => {

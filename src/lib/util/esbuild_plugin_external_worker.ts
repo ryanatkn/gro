@@ -43,12 +43,12 @@ export const esbuild_plugin_external_worker = ({
 			const parsed = await parse_specifier(path, importer);
 			console.log(`parsed`, parsed);
 			console.log(`rest:`, rest);
-			const {specifier, source_path, namespace} = parsed;
+			const {specifier, source_id, namespace} = parsed;
 
 			// TODO BLOCK make sure this isn't called more than once if 2 files import it (probably need to cache)
 			const build_result = await esbuild.build({
 				...build_options,
-				entryPoints: [source_path],
+				entryPoints: [source_id],
 				plugins: [
 					esbuild_plugin_sveltekit_shim_app(),
 					esbuild_plugin_sveltekit_shim_env({

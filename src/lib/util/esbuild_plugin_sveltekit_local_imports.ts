@@ -26,11 +26,11 @@ export const esbuild_plugin_sveltekit_local_imports = (): esbuild.Plugin => ({
 
 			const parsed = await parse_specifier(path, importer);
 			console.log(blue('[sveltekit_imports] EXIT'), parsed);
-			const {specifier, source_path, namespace} = parsed;
+			const {specifier, source_id, namespace} = parsed;
 
 			// const resolved = await build.resolve(specifier, rest);
 			// console.log(`resolved`, resolved);
-			return {path: specifier, namespace, pluginData: {source_path}};
+			return {path: specifier, namespace, pluginData: {source_id}};
 		});
 		// TODO BLOCK can we remove this?
 		build.onLoad(
@@ -42,16 +42,16 @@ export const esbuild_plugin_sveltekit_local_imports = (): esbuild.Plugin => ({
 		);
 		build.onLoad(
 			{filter: /.*/u, namespace: 'sveltekit_local_imports_ts'},
-			async ({path, pluginData: {source_path}}) => {
-				console.log(red(`LOAD TS path, pluginData`), path, source_path);
-				return {contents: readFileSync(source_path), loader: 'ts'};
+			async ({path, pluginData: {source_id}}) => {
+				console.log(red(`LOAD TS path, pluginData`), path, source_id);
+				return {contents: readFileSync(source_id), loader: 'ts'};
 			},
 		);
 		build.onLoad(
 			{filter: /.*/u, namespace: 'sveltekit_local_imports_js'},
-			async ({path, pluginData: {source_path}}) => {
-				console.log(red(`LOAD JS path, pluginData`), path, source_path);
-				return {contents: readFileSync(source_path), loader: 'js'};
+			async ({path, pluginData: {source_id}}) => {
+				console.log(red(`LOAD JS path, pluginData`), path, source_id);
+				return {contents: readFileSync(source_id), loader: 'js'};
 			},
 		);
 	},
