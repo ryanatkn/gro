@@ -4,13 +4,10 @@ import type {Timings} from '@feltjs/util/timings.js';
 import type {TaskContext} from '../task/task.js';
 import type {GroConfig} from '../config/config.js';
 
-/*
-
-Gro `Plugin`s enable custom behavior during `gro dev` and `gro build`.
-In contrast, `Adapter`s use the results of `gro build` to produce final artifacts.
-
-*/
-
+/**
+ * Gro `Plugin`s enable custom behavior during `gro dev` and `gro build`.
+ * In contrast, `Adapter`s use the results of `gro build` to produce final artifacts.
+ */
 export interface Plugin<TPluginContext extends PluginContext = PluginContext> {
 	name: string;
 	setup?: (ctx: TPluginContext) => void | Promise<void>;
