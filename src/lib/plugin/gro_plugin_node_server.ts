@@ -1,5 +1,5 @@
 import {spawnRestartableProcess, type RestartableProcess} from '@feltjs/util/process.js';
-import {existsSync} from 'node:fs';
+import {existsSync, readFileSync} from 'node:fs';
 import * as esbuild from 'esbuild';
 import {cwd} from 'node:process';
 import {yellow, red, blue, green, cyan} from 'kleur/colors';
@@ -12,7 +12,7 @@ import {
 	NODE_SERVER_BUILD_BASE_PATH,
 	NODE_SERVER_BUILD_NAME,
 } from '../build/build_config_defaults.js';
-import {paths} from '../path/paths.js';
+import {paths, replace_extension} from '../path/paths.js';
 import type {BuildName} from '../build/build_config.js';
 import {watch_dir, type WatchNodeFs} from '../fs/watch_dir.js';
 import {load_sveltekit_config} from '../util/sveltekit_config.js';
@@ -81,77 +81,126 @@ export const create_plugin = ({
 			});
 
 			// TODO BLOCK hoist/refactor
-			const esbuild_plugin_sveltekit_imports = (): esbuild.Plugin => ({
-				name: 'sveltekit_imports',
+			const esbuild_plugin_sveltekit_local_imports = (): esbuild.Plugin => ({
+				name: 'sveltekit_local_imports',
 				setup: (build) => {
-					// TODO BLOCK add .js as necessary and map from .ts?
-					build.onResolve({filter: /.*/u}, async (args) => {
+					build.onResolve({filter: /^(\/|.)/u}, async ({path, ...rest}) => {
+						const {importer} = rest;
 						console.log(
 							blue('[sveltekit_imports] path, importer'),
 							green('1'),
-							yellow(args.path),
+							yellow(path),
 							'\n',
+							green(importer),
 						);
-						// TODO BLOCK handle this being '' for the entry
-						console.log(`{args.importer}`, {importer: args.importer});
-
-						const {path: original_path, ...rest} = args;
-						let path = original_path;
-
-						// const ext = extname(path);
-						// if (ext !== '.ts' && ext !== '.js' && ext !== '.svelte') path += '.ts'; // TODO BLOCK tricky because of files with `.(schema|task)` etc
-
-						// TODO BLOCK copypasta from loader - probably a helper that returns {id, specifier} (entryPoint and final path)
-						// The specifier `path` has now been mapped to its final form, so we can inspect it.
-						const path_is_relative = path[0] === '.';
-						const path_is_absolute = path[0] === '/';
-						if (!path_is_relative && !path_is_absolute) {
-							// Handle external specifiers imported by internal code.
-							console.log(red(`ERRRRRRRRRRRRRRRRRRR path`), path);
-							throw new Error('TODO'); // TODO BLOCK
+						console.log(`rest`, rest);
+						if (!importer) {
+							return {
+								path,
+								namespace: 'sveltekit_local_imports_entrypoint',
+							};
 						}
 
-						// TODO BLOCK needs to be relative?
-						let js_path = path_is_relative ? join(args.importer, '../', path) : path;
-						if (!path.endsWith('.js')) js_path += '.js'; // TODO BLOCK handle `.ts` imports too, and svelte, and ignore `.(schema|task.` etc, same helpers as esbuild plugin for server
-						if (existsSync(js_path)) {
-							path = js_path;
+						// map the path relative to the `importer`, and add the correct extension
+						let mapped = path;
+						let source_path = mapped;
+						const is_js = mapped.endsWith('.js');
+						const is_ts = mapped.endsWith('.ts');
+						let namespace;
+						if (is_ts) {
+							console.log(`is_ts`, is_ts);
+							mapped = replace_extension(mapped, '.js');
+							namespace = 'sveltekit_local_imports_ts';
+						} else if (is_js) {
+							console.log(`is_js`, is_js);
+							const maybe_ts = replace_extension(mapped, '.ts');
+							console.log(`maybe_ts`, maybe_ts);
+							if (existsSync(maybe_ts)) {
+								console.log('YES TS');
+								source_path = maybe_ts;
+								namespace = 'sveltekit_local_imports_ts';
+							} else {
+								console.log('NOT TS');
+								namespace = 'sveltekit_local_imports_js';
+							}
 						} else {
-							const ts_path = js_path.slice(0, -3) + '.ts';
-							if (existsSync(ts_path)) {
-								path = ts_path;
+							console.log('is_NEITHER', mapped);
+							if (existsSync(path + '.ts')) {
+								mapped += '.js';
+								source_path += '.ts';
+								namespace = 'sveltekit_local_imports_ts';
+							} else if (existsSync(path + '.js')) {
+								mapped += '.js';
+								source_path += '.js';
+								namespace = 'sveltekit_local_imports_js';
 							}
 						}
 
-						console.log(
-							blue('[sveltekit_imports] ABSOLUTE path'),
-							green('22a'),
-							yellow(path),
-							original_path,
-						);
-						if (path === original_path) {
-							console.log(blue('[sveltekit_imports] RESOLVED ABSOLUTE'), path);
-							return {path};
+						let mapped_to_importer;
+						if (importer[0] === '.') {
+							console.log(`>>>>>>>>>>`, {
+								mapped,
+								importer,
+								source_path,
+							});
+							mapped_to_importer = join(dirname(mapped), importer);
+							source_path = join(dirname(source_path), importer);
+							console.log(`mapped_to_importer1`, cyan(mapped_to_importer));
+							console.log(`source_path`, yellow(source_path));
+						} else {
+							mapped_to_importer = relative(dirname(importer), mapped);
+							console.log(`mapped_to_importer2`, cyan(mapped_to_importer));
 						}
-						const absolute_path = path; // TODO BLOCK refactor
-						path = relative(dirname(args.importer), absolute_path);
-						if (path[0] !== '.') path = './' + path;
-						console.log(
-							blue('[sveltekit_imports] RELATIVE path'),
-							green('22b'),
-							yellow(path),
-							args.importer,
-						);
-
-						const resolved = await build.resolve(path, rest);
-						console.log(
-							blue('[sveltekit_imports] RESOLVED path'),
-							green('333'),
-							yellow(path),
-							resolved,
-						);
-						return resolved;
+						console.log(`mapped`, yellow(mapped));
+						console.log(green(`DONE`), {
+							path: mapped_to_importer,
+							namespace,
+							pluginData: {source_path},
+						});
+						return {path: mapped_to_importer, namespace, pluginData: {source_path}};
 					});
+					// TODO BLOCK can we remove this?
+					build.onLoad(
+						{filter: /.*/u, namespace: 'sveltekit_local_imports_entrypoint'},
+						async ({path}) => {
+							console.log(red(`LOAD entrypoint path`), path);
+							return {contents: readFileSync(path), loader: 'ts'};
+						},
+					);
+					build.onLoad(
+						{filter: /.*/u, namespace: 'sveltekit_local_imports_ts'},
+						async ({path, pluginData: {source_path}}) => {
+							console.log(red(`LOAD TS path, pluginData`), path, source_path);
+							return {contents: readFileSync(source_path), loader: 'ts'};
+						},
+					);
+					build.onLoad(
+						{filter: /.*/u, namespace: 'sveltekit_local_imports_js'},
+						async ({path, pluginData: {source_path}}) => {
+							console.log(red(`LOAD JS path, pluginData`), path, source_path);
+							return {contents: readFileSync(source_path), loader: 'js'};
+						},
+					);
+					// build.onLoad(
+					// 	{filter: /.*/u, namespace: 'sveltekit_local_imports_ts'},
+					// 	async ({path}) => {
+					// 		console.log(`LOAD path`, path);
+					// 		let final_path;
+					// 		let loader: esbuild.Loader | undefined = undefined;
+					// 		if (existsSync(path)) {
+					// 			final_path = path;
+					// 		} else {
+					// 			const ts_path = replace_extension(path, '.ts');
+					// 			if (existsSync(ts_path)) {
+					// 				final_path = ts_path;
+					// 				loader = 'ts';
+					// 			} else {
+					// 				throw Error('CANNOT LOAD PATH ' + path);
+					// 			}
+					// 		}
+					// 		return {contents: readFileSync(final_path), loader};
+					// 	},
+					// );
 				},
 			});
 
@@ -176,7 +225,7 @@ export const create_plugin = ({
 						ambient_env,
 					}),
 					esbuild_plugin_sveltekit_shim_alias(),
-					esbuild_plugin_sveltekit_imports(),
+					esbuild_plugin_sveltekit_local_imports(),
 					{
 						name: 'external_worker',
 						setup: (build) => {
@@ -208,7 +257,7 @@ export const create_plugin = ({
 											ambient_env,
 										}),
 										esbuild_plugin_sveltekit_shim_alias(),
-										esbuild_plugin_sveltekit_imports(),
+										esbuild_plugin_sveltekit_local_imports(),
 									],
 								});
 								print_build_result(log, build_result);
