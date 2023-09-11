@@ -2,8 +2,8 @@ import {spawnRestartableProcess, type RestartableProcess} from '@feltjs/util/pro
 import {existsSync} from 'node:fs';
 import * as esbuild from 'esbuild';
 import {cwd} from 'node:process';
-import {yellow, red, magenta} from 'kleur/colors';
-import {extname, join, relative} from 'node:path';
+import {yellow, red, blue} from 'kleur/colors';
+import {extname, join} from 'node:path';
 import {stripEnd} from '@feltjs/util/string.js';
 import {escapeRegexp} from '@feltjs/util/regexp.js';
 
@@ -68,22 +68,22 @@ export const create_plugin = ({
 					// TODO BLOCK construct matcher with $lib and each `config.alias` as well as paths that start with `.` or `/` I think?
 					const aliases: Record<string, string> = {$lib: 'src/lib', ...alias};
 					const alias_prefixes = Object.keys(aliases).map((a) => escapeRegexp(a));
-					console.log(magenta('[sveltekit_shim_alias]'), `alias_prefixes`, alias_prefixes);
+					console.log(blue('[sveltekit_shim_alias]'), `alias_prefixes`, alias_prefixes);
 					const matcher = new RegExp('^(' + alias_prefixes.join('|') + ')', 'u');
-					console.log(magenta('[sveltekit_shim_alias]'), `matcher`, matcher);
+					console.log(blue('[sveltekit_shim_alias]'), `matcher`, matcher);
 					build.onResolve({filter: matcher}, async (args) => {
-						// console.log(magenta('[sveltekit_shim_alias]'), `[sveltekit_shim_alias] args`, args);
+						// console.log(blue('[sveltekit_shim_alias]'), `[sveltekit_shim_alias] args`, args);
 						const {path: specifier, ...rest} = args;
 						const matches = matcher.exec(specifier)!;
-						console.log(magenta('[sveltekit_shim_alias]'), `matcher.exec(specifier)`, matches);
+						console.log(blue('[sveltekit_shim_alias]'), `matcher.exec(specifier)`, matches);
 						const prefix = matches[1];
 						const aliased = aliases[prefix];
-						console.log(magenta('[sveltekit_shim_alias]'), `prefix`, prefix);
-						console.log(magenta('[sveltekit_shim_alias]'), `aliased`, aliased);
+						console.log(blue('[sveltekit_shim_alias]'), `prefix`, prefix);
+						console.log(blue('[sveltekit_shim_alias]'), `aliased`, aliased);
 						// console.log(yellow(`[sveltekit_shim_alias] enter path`), specifier);
 
 						let path = dir + aliased + specifier.substring(prefix.length);
-						console.log(magenta('[sveltekit_shim_alias]'), `ALIASED path`, path);
+						console.log(blue('[sveltekit_shim_alias]'), `ALIASED path`, path);
 						const ext = extname(path);
 						if (ext !== '.ts' && ext !== '.js' && ext !== '.svelte') path += '.ts'; // TODO BLOCK tricky because of files with `.(schema|task)` etc
 						if (!existsSync(path)) throw Error('not found: ' + path); // TODO BLOCK remove
