@@ -39,8 +39,9 @@ export const esbuild_plugin_external_worker = ({
 	name: 'external_worker',
 	setup: (build) => {
 		build.onResolve({filter: /\.worker(|\.js|\.ts)$/u}, async ({path, importer, ...rest}) => {
+			console.log(red('[external_worker] ENTER'), yellow(path), '\n', importer);
 			const parsed = await parse_specifier(path, importer);
-			console.log(red('[external_worker] ENTER'), yellow(path), '\n', importer, parsed);
+			console.log(`parsed`, parsed);
 			console.log(`rest:`, rest);
 			const {final_path, source_path, namespace} = parsed;
 
