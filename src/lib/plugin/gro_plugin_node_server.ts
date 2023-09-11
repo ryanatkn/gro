@@ -86,13 +86,34 @@ export const create_plugin = ({
 
 						let path = dir + aliased + specifier.substring(prefix.length);
 						console.log(blue('[sveltekit_shim_alias]'), `ALIASED path`, path);
-						const ext = extname(path);
-						if (ext !== '.ts' && ext !== '.js' && ext !== '.svelte') path += '.ts'; // TODO BLOCK tricky because of files with `.(schema|task)` etc
-						if (!existsSync(path)) throw Error('not found: ' + path); // TODO BLOCK remove
-						// console.log(yellow(`path`), path);
+
+						// const ext = extname(path);
+						// if (ext !== '.ts' && ext !== '.js' && ext !== '.svelte') path += '.ts'; // TODO BLOCK tricky because of files with `.(schema|task)` etc
+
+						// TODO BLOCK copypasta from loader
+						// The specifier `path` has now been mapped to its final form, so we can inspect it.
+						const path_is_relative = path[0] === '.';
+						const path_is_absolute = path[0] === '/';
+						if (!path_is_relative && !path_is_absolute) {
+							// Handle external specifiers imported by internal code.
+							throw new Error('TODO'); // TODO BLOCK
+						}
+
+						let js_path = path_is_relative ? join(args.importer, '../', path) : path;
+						if (!path.endsWith('.js')) js_path += '.js'; // TODO BLOCK handle `.ts` imports too, and svelte, and ignore `.(schema|task.` etc, same helpers as esbuild plugin for server
+						if (existsSync(js_path)) {
+							path = js_path;
+						} else {
+							const ts_path = js_path.slice(0, -3) + '.ts';
+							if (existsSync(ts_path)) {
+								path = ts_path;
+							}
+						}
+
+						console.log(blue('[sveltekit_shim_alias]'), yellow(`path`), path);
 						if (path === specifier) return {path};
 						const resolved = await build.resolve(path, rest);
-						// console.log(yellow(`[sveltekit_shim_alias] resolved path\n`), path, '->\n', resolved);
+						console.log(blue('[sveltekit_shim_alias] resolved'), resolved);
 						// if (resolved.external) {
 						// TODO BLOCK figure this out
 						// return {...resolved, path: './password_worker.js'};
