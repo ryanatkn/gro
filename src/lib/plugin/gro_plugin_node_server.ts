@@ -241,7 +241,7 @@ const create_sveltekit_shim_app_plugin = (): esbuild.Plugin => ({
 	setup: (build) => {
 		build.onResolve(
 			{filter: /^\$app\/(environment|forms|navigation|paths|stores)$/u},
-			({path, ...rest}) => build.resolve(to_sveltekit_app_specifier(path)!, rest),
+			({path, ...rest}) => build.resolve(to_sveltekit_app_specifier(path) && (null as any), rest),
 		);
 	},
 });
