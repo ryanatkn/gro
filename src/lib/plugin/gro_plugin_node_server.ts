@@ -5,6 +5,7 @@ import {cwd} from 'node:process';
 import {yellow, red} from 'kleur/colors';
 import {extname, join, relative} from 'node:path';
 import {stripEnd} from '@feltjs/util/string.js';
+import {escapeRegexp} from '@feltjs/util/regexp.js';
 
 import type {Plugin, PluginContext} from './plugin.js';
 import {
@@ -18,7 +19,6 @@ import {load_sveltekit_config} from '../util/sveltekit_config.js';
 import {esbuild_plugin_sveltekit_shim_app} from '../util/esbuild_plugin_sveltekit_shim_app.js';
 import {esbuild_plugin_sveltekit_shim_env} from '../util/esbuild_plugin_sveltekit_shim_env.js';
 import {print_build_result} from '../util/esbuild.js';
-import {escape_for_regexp} from '../util/regexp.js';
 
 export interface Options {
 	dir?: string;
@@ -67,7 +67,7 @@ export const create_plugin = ({
 				setup: (build) => {
 					// TODO BLOCK construct matcher with $lib and each `config.alias` as well as paths that start with `.` or `/` I think?
 					const aliases: Record<string, string> = {$lib: 'src/lib', ...alias};
-					const alias_prefixes = Object.keys(aliases).map((a) => escape_for_regexp(a));
+					const alias_prefixes = Object.keys(aliases).map((a) => escapeRegexp(a));
 					console.log(`alias_prefixes`, alias_prefixes);
 					const matcher = new RegExp('^(' + alias_prefixes.join('|') + ')', 'u');
 					console.log(`matcher`, matcher);
