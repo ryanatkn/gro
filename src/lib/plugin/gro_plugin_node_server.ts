@@ -144,9 +144,7 @@ export const create_plugin = ({
 								source_path,
 							});
 							mapped_to_importer = join(dirname(mapped), importer);
-							source_path = join(dirname(source_path), importer);
 							console.log(`mapped_to_importer1`, cyan(mapped_to_importer));
-							console.log(`source_path`, yellow(source_path));
 						} else {
 							mapped_to_importer = relative(dirname(importer), mapped);
 							console.log(`mapped_to_importer2`, cyan(mapped_to_importer));
