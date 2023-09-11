@@ -18,6 +18,7 @@ import {load_sveltekit_config} from '../util/sveltekit_config.js';
 import {esbuild_plugin_sveltekit_shim_app} from '../util/esbuild_plugin_sveltekit_shim_app.js';
 import {esbuild_plugin_sveltekit_shim_env} from '../util/esbuild_plugin_sveltekit_shim_env.js';
 import {print_build_result} from '../util/esbuild.js';
+import {escape_for_regexp} from '../util/regexp.js';
 
 const dir = cwd() + '/';
 
@@ -65,10 +66,14 @@ export const create_plugin = ({
 				name: 'sveltekit_shim_alias',
 				setup: (build) => {
 					// TODO BLOCK construct matcher with $lib and each `config.alias` as well as paths that start with `.` or `/` I think?
-					const matcher = /^\$lib\//u;
+					const prefixes = [escape_for_regexp('$lib')];
+					console.log(`prefixes`, prefixes);
+					const matcher = new RegExp('^(' + prefixes.join('|') + ')', 'u');
+					console.log(`matcher`, matcher);
 					build.onResolve({filter: matcher}, async (args) => {
 						// console.log(`[sveltekit_shim_alias] args`, args);
 						const {path: specifier, ...rest} = args;
+						console.log(`matcher.exec(specifier)`, matcher.exec(specifier));
 						// console.log(yellow(`[sveltekit_shim_alias] enter path`), specifier);
 
 						let path = dir + 'src/' + specifier.slice(1);
