@@ -94,11 +94,29 @@ test__parse_specifier('parses from a directory 2 shallower', async () => {
 	});
 });
 
-test__parse_specifier.only('parses a relative ts specifier', async () => {
+test__parse_specifier('parses a relative ts specifier', async () => {
 	assert.equal(await parse_specifier('./test_ts.ts', dir + 'importer.ts'), {
 		final_path: './test_ts.js',
 		source_path: dir + 'test_ts.ts',
 		mapped_path: dir + 'test_ts.js',
+		namespace: 'sveltekit_local_imports_ts',
+	});
+});
+
+test__parse_specifier('parses a relative ts specifier 2 deeper', async () => {
+	assert.equal(await parse_specifier('./a/b/test_ts.ts', dir + 'importer.ts'), {
+		final_path: './a/b/test_ts.js',
+		source_path: dir + 'a/b/test_ts.ts',
+		mapped_path: dir + 'a/b/test_ts.js',
+		namespace: 'sveltekit_local_imports_ts',
+	});
+});
+
+test__parse_specifier('parses a relative ts specifier 2 shallower', async () => {
+	assert.equal(await parse_specifier('../../test_ts.ts', dir + 'importer.ts'), {
+		final_path: './test_ts.js',
+		source_path: join(dir, '../../test_ts.ts'),
+		mapped_path: join(dir, '../../test_ts.js'),
 		namespace: 'sveltekit_local_imports_ts',
 	});
 });
@@ -108,6 +126,24 @@ test__parse_specifier('parses a ts specifier with a relative importer', async ()
 		final_path: './test_ts.js',
 		source_path: dir + 'test_ts.ts',
 		mapped_path: dir + 'test_ts.js',
+		namespace: 'sveltekit_local_imports_ts',
+	});
+});
+
+test__parse_specifier('parses a ts specifier with a relative importer 2 deeper', async () => {
+	assert.equal(await parse_specifier('./a/b/test_ts.ts', dir + 'importer.ts'), {
+		final_path: './a/b/test_ts.js',
+		source_path: dir + 'a/b/test_ts.ts',
+		mapped_path: dir + 'a/b/test_ts.js',
+		namespace: 'sveltekit_local_imports_ts',
+	});
+});
+
+test__parse_specifier('parses a ts specifier with a relative importer 2 shallower', async () => {
+	assert.equal(await parse_specifier('../../test_ts.ts', dir + 'importer.ts'), {
+		final_path: './test_ts.js',
+		source_path: join(dir, '../../test_ts.ts'),
+		mapped_path: join(dir, '../../test_ts.js'),
 		namespace: 'sveltekit_local_imports_ts',
 	});
 });
