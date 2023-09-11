@@ -140,15 +140,7 @@ export const create_plugin = ({
 									args.path,
 									args.importer,
 								);
-								// return null;
-								// return args;
-								// const {path, ...rest} = args;
-								// const resolved = await build.resolve(path, {
-								// 	namespace: 'external_worker',
-								// 	importer: args.importer,
-								// 	resolveDir: args.resolveDir,
-								// 	kind: args.kind,
-								// });
+
 								// TODO BLOCK make sure this isn't called more than once if 2 files import it (probably need to cache)
 								const build_result = await esbuild.build({
 									// TODO BLOCK refactor options with above
@@ -167,32 +159,14 @@ export const create_plugin = ({
 									],
 								});
 								print_build_result(log, build_result);
-								// console.log(`resolved`, resolved);
-								// console.log(red(`ignoring rest`), path, rest);
 								return {path, external: true};
-								// const {path, ...rest} = args;
-								// const resolved = await build.resolve(path, rest);
-								// return {path: resolved.path, external: true};
 							});
-							// build.onLoad({filter: /.*/u, namespace}, (args) => {
-							// 	console.log(red(`args`), args);
-							// 	return {
-							// 		loader: 'ts',
-							// 		contents: readFileSync('src/lib/server/password_worker.ts', 'utf8'),
-							// 	};
-							// });
 						},
 					},
 				],
 			});
 			timing_to_esbuild_create_context();
-			// build.on('build', ({source_file, build_config}) => {
-			// 	console.log(`source_file.id`, source_file.id);
-			// 	if (source_file.id.endsWith('/gro/do/close.json')) {
-			// 		console.log('CLOSE', source_file);
-			// 		console.log(`build_config`, build_config);
-			// 	}
-			// });
+
 			// TODO BLOCK can we watch dependencies of all of the files through esbuild?
 			if (watch) {
 				watcher = watch_dir({
