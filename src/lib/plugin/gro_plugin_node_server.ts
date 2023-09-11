@@ -122,10 +122,10 @@ export const create_plugin = ({
 							const matcher = /\.worker(|\.js|\.ts)$/u;
 
 							build.onResolve({filter: matcher}, async (args) => {
-								console.log(red(`args.path, args.importer`), args.path, args.importer);
-								let path = relative(join(args.importer, '../'), args.path);
+								console.log(red(`args.path, args.importer\n`), args.path, '\n', args.importer);
+								let path = join(args.importer, '../', args.path);
 								console.log(`path`, path);
-								if (path[0] !== '.') path = './' + path;
+								if (path[0] !== '.' && path[0] !== '/') path = './' + path;
 								if (!path.endsWith('.js')) {
 									const ext = extname(path);
 									if (ext === '.ts') {
