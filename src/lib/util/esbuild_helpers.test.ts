@@ -94,5 +94,27 @@ test__parse_specifier('parses from a directory 2 shallower', async () => {
 	});
 });
 
+test__parse_specifier('parses a relative ts specifier', async () => {
+	assert.equal(await parse_specifier('./test_ts.ts', dir + 'importer.ts'), {
+		final_path: './test_ts.js',
+		source_path: dir + 'test_ts.ts',
+		mapped_path: dir + 'test_ts.js',
+		namespace: 'sveltekit_local_imports_ts',
+	});
+});
+
+test__parse_specifier('parses a ts specifier with a relative importer', async () => {
+	assert.equal(await parse_specifier(dir + 'test_ts.ts', './importer.ts'), {
+		final_path: './test_ts.js',
+		source_path: dir + 'test_ts.ts',
+		mapped_path: dir + 'test_ts.js',
+		namespace: 'sveltekit_local_imports_ts',
+	});
+});
+
+// TODO BLOCK does relative for both need to throw?
+// how else could it do it without a base path?
+// do we need that usecase though? need to test more with esbuild
+
 test__parse_specifier.run();
 /* parse_specifier_result */
