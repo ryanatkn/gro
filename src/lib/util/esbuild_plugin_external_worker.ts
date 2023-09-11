@@ -1,0 +1,70 @@
+import * as esbuild from 'esbuild';
+import {yellow, red} from 'kleur/colors';
+import type {Logger} from '@feltjs/util/log.js';
+
+import {parse_specifier, print_build_result} from './esbuild.js';
+import {esbuild_plugin_sveltekit_shim_alias} from './esbuild_plugin_sveltekit_shim_alias.js';
+import {esbuild_plugin_sveltekit_shim_env} from './esbuild_plugin_sveltekit_shim_env.js';
+import {esbuild_plugin_sveltekit_shim_app} from './esbuild_plugin_sveltekit_shim_app.js';
+import {esbuild_plugin_sveltekit_local_imports} from './esbuild_plugin_sveltekit_local_imports.js';
+
+export interface Options {
+	dev: boolean;
+	log: Logger;
+	build_options: Pick<
+		esbuild.BuildOptions,
+		'outdir' | 'outbase' | 'format' | 'platform' | 'packages' | 'bundle' | 'target'
+	>;
+	dir: string;
+	alias?: Record<string, string>;
+	public_prefix?: string;
+	private_prefix?: string;
+	env_dir?: string;
+	env_files?: string[];
+	ambient_env?: Record<string, string>;
+}
+
+export const esbuild_plugin_external_worker = ({
+	dev,
+	log,
+	build_options,
+	dir,
+	alias,
+	public_prefix,
+	private_prefix,
+	env_dir,
+	env_files,
+	ambient_env,
+}: Options): esbuild.Plugin => ({
+	name: 'external_worker',
+	setup: (build) => {
+		build.onResolve({filter: /\.worker(|\.js|\.ts)$/u}, async ({path, importer, ...rest}) => {
+			const parsed = await parse_specifier(path, importer);
+			console.log(red('[external_worker] ENTER'), yellow(path), '\n', importer, parsed);
+			console.log(`rest:`, rest);
+			const {final_path, source_path, namespace} = parsed;
+
+			// TODO BLOCK make sure this isn't called more than once if 2 files import it (probably need to cache)
+			const build_result = await esbuild.build({
+				...build_options,
+				entryPoints: [source_path],
+				plugins: [
+					esbuild_plugin_sveltekit_shim_app(),
+					esbuild_plugin_sveltekit_shim_env({
+						dev,
+						public_prefix,
+						private_prefix,
+						env_dir,
+						env_files,
+						ambient_env,
+					}),
+					esbuild_plugin_sveltekit_shim_alias({dir, alias}),
+					esbuild_plugin_sveltekit_local_imports(),
+				],
+			});
+			print_build_result(log, build_result);
+
+			return {path: final_path, external: true, namespace};
+		});
+	},
+});

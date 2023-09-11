@@ -21,6 +21,7 @@ const config: GroConfigCreator = async () => {
 		has_node_server(),
 		has_sveltekit_frontend(),
 	]);
+
 	const partial: GroConfigPartial = {
 		builds: [enable_node_server ? NODE_SERVER_BUILD_CONFIG : null],
 		plugin: async () => [
