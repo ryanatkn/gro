@@ -8,8 +8,8 @@ import {exists} from './exists.js';
 
 export interface ParsedSpecifier {
 	final_path: string;
-	mapped_path: string;
 	source_path: string;
+	mapped_path: string;
 	namespace: string;
 }
 
@@ -40,7 +40,7 @@ export const parse_specifier = async (path: string, importer: string): Promise<P
 	let final_path = relative(dirname(importer_absolute), mapped_path);
 	if (final_path[0] !== '.') final_path = './' + final_path;
 
-	return {final_path, mapped_path, source_path, namespace};
+	return {final_path, source_path, mapped_path, namespace};
 };
 
 export const print_build_result = (log: Logger, build_result: esbuild.BuildResult): void => {

@@ -102,7 +102,7 @@ export const create_plugin = ({
 
 						const parsed = await parse_specifier(path, importer);
 						console.log(blue('[sveltekit_imports] EXIT'), parsed);
-						const {final_path, namespace, source_path} = parsed;
+						const {final_path, source_path, namespace} = parsed;
 
 						// const resolved = await build.resolve(final_path, rest);
 						// console.log(`resolved`, resolved);
