@@ -32,9 +32,10 @@ export const task: Task<Args> = {
 		// TODO possibly detect if the git workspace is clean, and ask for confirmation if not,
 		// because we're not doing things like `gro gen` here because that's a dev/CI concern
 
-		if (install) {
-			await spawn('npm', ['i'], {env: {...process.env, NODE_ENV: 'development'}});
-		}
+		// TODO BLOCK put this back
+		// if (install) {
+		// 	await spawn('npm', ['i'], {env: {...process.env, NODE_ENV: 'development'}});
+		// }
 
 		await clean_fs({dist: true});
 

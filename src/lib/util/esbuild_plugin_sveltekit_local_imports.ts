@@ -12,10 +12,11 @@ export const esbuild_plugin_sveltekit_local_imports = (): esbuild.Plugin => ({
 			console.log(
 				blue('[sveltekit_imports] ENTER'),
 				'\nimporting ' + yellow(path),
-				'\nfrom ' + green(importer),
+				'\nfrom ' + yellow(importer),
 			);
 			console.log(`rest`, rest);
 			if (!importer) {
+				console.log(blue('[sveltekit_imports] EXIT EARLY without importer'), yellow(path));
 				return {
 					path,
 					namespace: 'sveltekit_local_imports_entrypoint',
@@ -23,7 +24,7 @@ export const esbuild_plugin_sveltekit_local_imports = (): esbuild.Plugin => ({
 			}
 
 			const parsed = await parse_specifier(path, importer);
-			console.log(blue('[sveltekit_imports] EXIT'), parsed);
+			console.log(blue('[sveltekit_imports] EXIT'), yellow(parsed.specifier), parsed);
 			const {specifier, source_id, namespace} = parsed;
 
 			// const resolved = await build.resolve(specifier, rest);

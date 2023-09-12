@@ -1,5 +1,5 @@
 import * as esbuild from 'esbuild';
-import {yellow, red} from 'kleur/colors';
+import {yellow, red, green} from 'kleur/colors';
 import type {Logger} from '@feltjs/util/log.js';
 
 import {parse_specifier, print_build_result} from './esbuild_helpers.js';
@@ -39,13 +39,20 @@ export const esbuild_plugin_external_worker = ({
 	name: 'external_worker',
 	setup: (build) => {
 		build.onResolve({filter: /\.worker(|\.js|\.ts)$/u}, async ({path, importer, ...rest}) => {
-			console.log(red('[external_worker] ENTER'), yellow(path), '\n', importer);
+			console.log(
+				red('[external_worker] ENTER'),
+				'\nimporting ' + yellow(path),
+				'\nfrom ' + yellow(importer),
+			);
+			console.log(`rest:`, rest);
 			const parsed = await parse_specifier(path, importer);
 			console.log(`parsed`, parsed);
-			console.log(`rest:`, rest);
 			const {specifier, source_id, namespace} = parsed;
 
 			// TODO BLOCK make sure this isn't called more than once if 2 files import it (probably need to cache)
+			console.log(
+				'------------------------\n------------------------\n------------------------\nBUILDING\n------------------------\n------------------------\n-------------------------',
+			);
 			const build_result = await esbuild.build({
 				...build_options,
 				entryPoints: [source_id],
@@ -63,8 +70,17 @@ export const esbuild_plugin_external_worker = ({
 					esbuild_plugin_sveltekit_local_imports(),
 				],
 			});
+			console.log(
+				'------------------------\n------------------------\n------------------------\nBUILD RESULT\n------------------------\n------------------------\n-------------------------\n',
+				build_result,
+			);
 			print_build_result(log, build_result);
-
+			// if (path !== specifier) {
+			// 	const resolved = await build.resolve(source_id, {importer, kind: 'import-statement'});
+			// 	console.log(`resolved`, resolved);
+			// 	return resolved;
+			// }
+			// console.log(red('[external_worker] resolved'), resolved);
 			return {path: specifier, external: true, namespace};
 		});
 	},
