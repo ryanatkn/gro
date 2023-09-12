@@ -14,7 +14,7 @@ export const Args = z
 export type Args = z.infer<typeof Args>;
 
 export const task: Task<Args> = {
-	summary: 'run eslint on the source files',
+	summary: 'run eslint on the given directories and files',
 	Args,
 	run: async ({log, args}): Promise<void> => {
 		if (!find_cli('eslint')) {
