@@ -7,10 +7,11 @@ import {to_gen_import_path} from './run_gen.js';
 await lexer.init;
 
 // This module hackily merges type imports into a minimal set of normalized declarations.
-// A proper implementation would parse with TypeScript;
-// this one should handle most imports but will fail with comments inline in import statements,
+// A proper implementation would parse with TypeScript.
+// This one uses `es-module-lexer` and should handle most imports
+// but will fail with comments inline in import statements,
 // which, given the usecases, users should be able to notice and fix for themselves
-// in the very rare cases they do such an odd thing.
+// in the very rare cases they do such an odd thing. There may be other corner cases too.
 // We could probably safely strip comments before the `from`,
 // but this is already much better than minimal `importTs` processing,
 // and if users do such a strange thing they can probably fix it.
