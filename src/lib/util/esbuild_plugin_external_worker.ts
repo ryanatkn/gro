@@ -80,7 +80,11 @@ export const esbuild_plugin_external_worker = ({
 			// 	console.log(`resolved`, resolved);
 			// 	return resolved;
 			// }
-			// console.log(red('[external_worker] resolved'), resolved);
+			console.log(
+				red('[external_worker] resolved\n'),
+				'\nimporting ' + yellow(specifier),
+				'\nfrom ' + yellow(importer),
+			);
 			return {path: specifier, external: true, namespace};
 		});
 	},
