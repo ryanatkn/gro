@@ -2,7 +2,6 @@ import {toArray} from '@feltjs/util/array.js';
 import type {Timings} from '@feltjs/util/timings.js';
 
 import type {TaskContext} from '../task/task.js';
-import type {GroConfig} from '../config/config.js';
 
 /**
  * Gro `Plugin`s enable custom behavior during `gro dev` and `gro build`.
@@ -23,7 +22,6 @@ export interface ToConfigPlugins<TPluginContext extends PluginContext = PluginCo
 }
 
 export interface PluginContext<TArgs = any> extends TaskContext<TArgs> {
-	config: GroConfig;
 	dev: boolean;
 	timings: Timings;
 }

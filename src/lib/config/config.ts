@@ -101,10 +101,8 @@ Caveats
 
 let cached_config: Promise<GroConfig> | undefined;
 
-export const load_config = async (): Promise<GroConfig> => {
-	if (cached_config) return cached_config;
-	return (cached_config = _load_config());
-};
+export const load_config = (): Promise<GroConfig> =>
+	cached_config || (cached_config = _load_config());
 
 const _load_config = async (): Promise<GroConfig> => {
 	const log = new SystemLogger(printLogLabel('config'));
