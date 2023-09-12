@@ -12,10 +12,8 @@ await lexer.init;
 // but will fail with comments inline in import statements,
 // which, given the usecases, users should be able to notice and fix for themselves
 // in the very rare cases they do such an odd thing. There may be other corner cases too.
-// We could probably safely strip comments before the `from`,
-// but this is already much better than minimal `importTs` processing,
-// and if users do such a strange thing they can probably fix it.
-// Prettier makes this less gnarly than it appears because
+// We could probably safely strip comments before the `from`.
+// Prettier makes this less gnarly than it would otherwise be because
 // it gives good parse errors and makes formatting consistent.
 
 export const normalize_type_imports = async (
