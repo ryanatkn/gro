@@ -13,8 +13,8 @@ await lexer.init;
 // which, given the usecases, users should be able to notice and fix for themselves
 // in the very rare cases they do such an odd thing. There may be other corner cases too.
 // We could probably safely strip comments before the `from`.
-// Prettier makes this less gnarly than it would otherwise be because
-// it gives good parse errors and makes formatting consistent.
+// Formatting with Prettier makes this less gnarly than it would otherwise be because
+// it gives good parse errors and makes formatting consistent, but it does make it slower.
 
 export const normalize_type_imports = async (
 	raw_imports: string[],
