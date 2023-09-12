@@ -44,9 +44,7 @@ so the `Adapter` hooks and `adapt` config property both have access to
 [the normal task environment](../task/README.md) and more:
 
 ```ts
-export interface AdapterContext<TArgs = any> extends TaskContext<TArgs> {
-	timings: Timings;
-}
+export interface AdapterContext<TArgs = any> extends TaskContext<TArgs> {}
 ```
 
 ## config.adapt

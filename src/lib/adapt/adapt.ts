@@ -1,5 +1,4 @@
 import {toArray} from '@feltjs/util/array.js';
-import type {Timings} from '@feltjs/util/timings.js';
 
 import type {TaskContext} from '../task/task.js';
 
@@ -25,9 +24,8 @@ export interface ToConfigAdapters<TArgs = any> {
 		| Promise<Adapter<TArgs> | null | Array<Adapter<TArgs> | null>>;
 }
 
-export interface AdapterContext<TArgs = any> extends TaskContext<TArgs> {
-	timings: Timings;
-}
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface AdapterContext<TArgs = any> extends TaskContext<TArgs> {}
 
 export const adapt = async (ctx: AdapterContext): Promise<readonly Adapter[]> => {
 	const {config, timings} = ctx;
