@@ -81,7 +81,7 @@ Each input must be a file path (absolute or relative to `src/`),
 or a filter function with the signature `(id: string) => boolean`.
 To define filters, it's convenient to use the
 [`createFilter` helper](https://github.com/rollup/plugins/tree/master/packages/pluginutils#createFilter)
-from `@rollup/pluginutils`.
+from [`@rollup/pluginutils`](https://github.com/rollup/plugins).
 
 ### `plugin`
 
