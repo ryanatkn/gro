@@ -4,7 +4,7 @@ import {stripEnd, stripStart} from '@feltjs/util/string.js';
 import {gray} from 'kleur/colors';
 import type {Flavored} from '@feltjs/util/types.js';
 
-import type {BuildName} from '../build/build_config.js';
+import type {BuildName} from '../config/build_config.js';
 
 /*
 

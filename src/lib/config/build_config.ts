@@ -5,7 +5,7 @@ import type {Result} from '@feltjs/util/result.js';
 import type {Flavored} from '@feltjs/util/types.js';
 
 import {paths} from '../path/paths.js';
-import {validate_input_files} from '../config/config.js';
+import {validate_input_files} from './config.js';
 
 // See `../docs/config.md` for documentation.
 
