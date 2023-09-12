@@ -27,9 +27,7 @@ test__to_hash.run();
  * Copied from https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto/digest
  * and compared against our implementation for extra assurances, because cryptography.
  */
-const to_hash_from_mdn_example = async (data: Buffer): Promise<string> => {
-	const digested = await webcrypto.subtle.digest('SHA-256', data);
-	return Array.from(new Uint8Array(digested))
+const to_hash_from_mdn_example = async (data: Buffer): Promise<string> =>
+	Array.from(new Uint8Array(await webcrypto.subtle.digest('SHA-256', data)))
 		.map((h) => h.toString(16).padStart(2, '0'))
 		.join('');
-};
