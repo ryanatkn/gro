@@ -57,8 +57,7 @@
   },
   "peerDependencies": {
     "esbuild": "^0.18.0",
-    "svelte": ">=4",
-    "typescript": ">=5"
+    "svelte": ">=4"
   },
   "devDependencies": {
     "@changesets/changelog-git": "^0.1.14",
