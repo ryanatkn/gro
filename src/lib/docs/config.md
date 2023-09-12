@@ -77,11 +77,7 @@ in `.gro/dev/foo/` and `.gro/prod/foo/`, respectively.
 > Ideally this would be configurable, but doing so would slow Gro down in many cases.
 
 The `input` property specifies the source code entry points for the build.
-Each input must be a file path (absolute or relative to `src/`),
-or a filter function with the signature `(id: string) => boolean`.
-To define filters, it's convenient to use the
-[`createFilter` helper](https://github.com/rollup/plugins/tree/master/packages/pluginutils#createFilter)
-from [`@rollup/pluginutils`](https://github.com/rollup/plugins).
+It follows the same rules as [`entryPoints` in `esbuild`](https://esbuild.github.io/api/#input).
 
 ### `plugin`
 
