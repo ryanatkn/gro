@@ -8,7 +8,6 @@ import {copyFileSync, existsSync, readdirSync, renameSync, rmSync} from 'node:fs
 
 import type {Task} from './task/task.js';
 import {GIT_DIRNAME, paths, print_path, SVELTEKIT_BUILD_DIRNAME} from './path/paths.js';
-import {clean_fs} from './util/clean.js';
 import {to_raw_rest_args} from './task/args.js';
 import {
 	GIT_DEPLOY_SOURCE_BRANCH,
@@ -182,9 +181,6 @@ export const task: Task<Args> = {
 
 		// Clean up any existing worktree.
 		await clean_git_worktree();
-
-		// Rebuild everything
-		clean_fs({build: true}, log);
 
 		if (cleanAndExit) {
 			log.info(green('all clean'));

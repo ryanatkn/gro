@@ -8,13 +8,6 @@ import {clean_fs} from './util/clean.js';
 
 export const Args = z
 	.object({
-		clean: z.boolean({description: 'read this instead of no-clean'}).optional().default(true),
-		'no-clean': z
-			.boolean({
-				description: 'opt out of cleaning before building; warning! this may break your build!',
-			})
-			.optional()
-			.default(false),
 		install: z.boolean({description: 'read this instead of no-install'}).optional().default(true),
 		'no-install': z
 			.boolean({
@@ -31,7 +24,7 @@ export const task: Task<Args> = {
 	Args,
 	run: async (ctx): Promise<void> => {
 		const {
-			args: {clean, install},
+			args: {install},
 			config,
 			log,
 		} = ctx;
@@ -43,13 +36,7 @@ export const task: Task<Args> = {
 			await spawn('npm', ['i'], {env: {...process.env, NODE_ENV: 'development'}});
 		}
 
-		// TODO BLOCK review cleaning, might want a fully clean build every time
-		// Clean in the default case, but not if the caller passes `clean=false`,
-		// which is `no-watch` from the CLI.
-		// This is used by `gro publish` and `gro deploy` because they call `clean_fs` themselves.
-		if (clean) {
-			clean_fs({dist: true}, log);
-		}
+		clean_fs({dist: true}, log);
 
 		const plugins = await Plugins.create({...ctx, config, dev: false, watch: false});
 
