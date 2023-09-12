@@ -10,11 +10,9 @@ export const esbuild_plugin_sveltekit_local_imports = (): esbuild.Plugin => ({
 		build.onResolve({filter: /^(\/|\.)/u}, async ({path, ...rest}) => {
 			const {importer} = rest;
 			console.log(
-				blue('[sveltekit_imports] ENTER path, importer'),
-				green('1'),
-				yellow(path),
-				'\n',
-				green(importer),
+				blue('[sveltekit_imports] ENTER'),
+				'\nimporting ' + yellow(path),
+				'\nfrom ' + green(importer),
 			);
 			console.log(`rest`, rest);
 			if (!importer) {

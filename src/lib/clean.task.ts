@@ -37,6 +37,7 @@ export const task: Task<Args> = {
 		const {dist, sveltekit, nodemodules, git, git_origin} = args;
 
 		clean_fs({build: !dist, dist, sveltekit, nodemodules}, log);
+		console.log(`dist`, dist);
 
 		// lop off stale git branches
 		if (git) {
