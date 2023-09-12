@@ -6,11 +6,7 @@ import {clean_fs} from './util/clean.js';
 
 export const Args = z
 	.object({
-		dist: z.boolean({description: 'read this instead of no-dist'}).default(true),
-		'no-dist': z
-			.boolean({description: 'opt out of deleting the Gro dist directory dist/'})
-			.optional()
-			.default(false),
+		dist: z.boolean({description: 'read this instead of no-dist'}).default(false),
 		sveltekit: z
 			.boolean({description: 'delete the SvelteKit directory .svelte-kit/ and Vite cache'})
 			.default(false),
@@ -36,8 +32,7 @@ export const task: Task<Args> = {
 	run: async ({log, args}): Promise<void> => {
 		const {dist, sveltekit, nodemodules, git, git_origin} = args;
 
-		clean_fs({build: !dist, dist, sveltekit, nodemodules}, log);
-		console.log(`dist`, dist);
+		await clean_fs({build: !dist, dist, sveltekit, nodemodules});
 
 		// lop off stale git branches
 		if (git) {

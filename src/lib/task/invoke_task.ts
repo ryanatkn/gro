@@ -85,7 +85,7 @@ export const invoke_task = async (
 					`→ ${cyan(task.name)} ${(task.mod.task.summary && gray(task.mod.task.summary)) || ''}`,
 				);
 
-				const timing_to_run_task = start_timing(timings, 'run task ' + task_name);
+				const timing_to_run_task = start_timing(timings, 'run task ' + task_name); // TODO BLOCK hack
 				const result = await run_task(
 					task,
 					{...args, ...to_forwarded_args(`gro ${task.name}`)},

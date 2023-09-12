@@ -1,5 +1,5 @@
-import type {SystemLogger} from '@feltjs/util/log.js';
-import {existsSync, rmSync} from 'node:fs';
+import {rm} from 'node:fs/promises';
+import type {RmOptions} from 'node:fs';
 
 import {
 	NODE_MODULES_DIRNAME,
@@ -7,10 +7,9 @@ import {
 	SVELTEKIT_DEV_DIRNAME,
 	SVELTEKIT_BUILD_DIRNAME,
 	SVELTEKIT_VITE_CACHE_PATH,
-	print_path,
 } from '../path/paths.js';
 
-export const clean_fs = (
+export const clean_fs = async (
 	{
 		build = false,
 		dist = false,
@@ -22,26 +21,23 @@ export const clean_fs = (
 		sveltekit?: boolean;
 		nodemodules?: boolean;
 	},
-	log: SystemLogger,
-): void => {
+	rm_options: RmOptions = {force: true, recursive: true},
+): Promise<void> => {
+	const promises: Array<Promise<void>> = [];
+
 	if (build) {
-		remove_dir(paths.build, log);
+		promises.push(rm(paths.build, rm_options));
 	} else if (dist) {
-		remove_dir(paths.dist, log);
+		promises.push(rm(paths.dist, rm_options));
 	}
 	if (sveltekit) {
-		remove_dir(SVELTEKIT_DEV_DIRNAME, log);
-		remove_dir(SVELTEKIT_BUILD_DIRNAME, log);
-		remove_dir(SVELTEKIT_VITE_CACHE_PATH, log);
+		promises.push(rm(SVELTEKIT_DEV_DIRNAME, rm_options));
+		promises.push(rm(SVELTEKIT_BUILD_DIRNAME, rm_options));
+		promises.push(rm(SVELTEKIT_VITE_CACHE_PATH, rm_options));
 	}
 	if (nodemodules) {
-		remove_dir(NODE_MODULES_DIRNAME, log);
+		promises.push(rm(NODE_MODULES_DIRNAME, rm_options));
 	}
-};
 
-export const remove_dir = (path: string, log: SystemLogger): void => {
-	if (existsSync(path)) {
-		log.info('removing', print_path(path));
-		rmSync(path, {recursive: true});
-	}
+	await Promise.all(promises);
 };
