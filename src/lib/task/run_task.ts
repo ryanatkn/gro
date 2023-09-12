@@ -1,5 +1,6 @@
 import {cyan, red} from 'kleur/colors';
 import {printLogLabel, SystemLogger} from '@feltjs/util/log.js';
+import type {Timings} from '@feltjs/util/timings.js';
 
 import type {TaskModuleMeta} from './task_module.js';
 import {TaskError} from './task.js';
@@ -24,6 +25,7 @@ export const run_task = async (
 	unparsed_args: Args,
 	invoke_task: typeof base_invoke_task,
 	config: GroConfig,
+	timings: Timings,
 ): Promise<RunTaskResult> => {
 	const {task} = task_meta.mod;
 	const log = new SystemLogger(printLogLabel(task_meta.name));
@@ -51,11 +53,12 @@ export const run_task = async (
 	let output: unknown;
 	try {
 		output = await task.run({
-			config,
 			args,
+			config,
 			log,
+			timings,
 			invoke_task: (invoked_task_name, invoked_args = {}, invoked_config) =>
-				invoke_task(invoked_task_name, invoked_args as Args, invoked_config || config), // TODO typecast
+				invoke_task(invoked_task_name, invoked_args as Args, invoked_config || config, timings), // TODO typecast - maybe `Args.parse` here?
 		});
 	} catch (err) {
 		return {

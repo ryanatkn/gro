@@ -1,6 +1,6 @@
 import {red} from 'kleur/colors';
 import {printError} from '@feltjs/util/print.js';
-import {Timings} from '@feltjs/util/timings.js';
+import type {Timings} from '@feltjs/util/timings.js';
 import type {Logger} from '@feltjs/util/log.js';
 import {UnreachableError} from '@feltjs/util/error.js';
 import type {Options as JsonSchemaToTypeScriptOptions} from '@ryanatkn/json-schema-to-typescript';
@@ -29,11 +29,11 @@ export const GEN_NO_PROD_MESSAGE = 'gen runs only during development';
 export const run_gen = async (
 	gen_modules: GenModuleMeta[],
 	log: Logger,
+	timings: Timings,
 	format_file?: (id: string, content: string) => Promise<string>,
 ): Promise<GenResults> => {
 	let input_count = 0;
 	let output_count = 0;
-	const timings = new Timings();
 	const timing_for_run_gen = timings.start('run_gen');
 	const gen_schemas_options = to_gen_schemas_options(gen_modules);
 	const imports = to_gen_context_imports(gen_modules);

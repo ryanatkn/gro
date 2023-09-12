@@ -1,5 +1,5 @@
 import {red} from 'kleur/colors';
-import {Timings} from '@feltjs/util/timings.js';
+import type {Timings} from '@feltjs/util/timings.js';
 import {UnreachableError} from '@feltjs/util/error.js';
 import type {Result} from '@feltjs/util/result.js';
 import {printError} from '@feltjs/util/print.js';
@@ -41,7 +41,6 @@ export type FindModulesResult = Result<
 	{
 		source_ids_by_input_path: Map<string, string[]>;
 		source_id_path_data_by_input_path: Map<string, PathData>;
-		timings: Timings<FindModulesTimings>;
 	},
 	FindModulesFailure
 >;
@@ -59,12 +58,10 @@ export type FindModulesFailure =
 			input_directories_with_no_files: string[];
 			reasons: string[];
 	  };
-type FindModulesTimings = 'map input paths' | 'find files';
 
 export type LoadModulesResult<TModuleMeta extends ModuleMeta> = Result<
 	{
 		modules: TModuleMeta[];
-		timings: Timings<LoadModulesTimings>;
 	},
 	{
 		type: 'load_module_failures';
@@ -72,10 +69,8 @@ export type LoadModulesResult<TModuleMeta extends ModuleMeta> = Result<
 		reasons: string[];
 		// still return the modules and timings, deferring to the caller
 		modules: TModuleMeta[];
-		timings: Timings<LoadModulesTimings>;
 	}
 >;
-type LoadModulesTimings = 'load modules';
 
 /*
 
@@ -86,13 +81,13 @@ export const find_modules = async (
 	input_paths: string[],
 	find_files: (id: string) => Promise<Map<string, PathStats>>,
 	get_possible_source_ids?: (input_path: string) => string[],
+	timings?: Timings,
 ): Promise<FindModulesResult> => {
 	// Check which extension variation works - if it's a directory, prefer others first!
-	const timings = new Timings<FindModulesTimings>();
-	const timingToMapInputPaths = timings.start('map input paths');
+	const timingToMapInputPaths = timings?.start('map input paths');
 	const {source_id_path_data_by_input_path, unmapped_input_paths} =
 		load_source_path_data_by_input_path(input_paths, get_possible_source_ids);
-	timingToMapInputPaths();
+	timingToMapInputPaths?.();
 
 	// Error if any input path could not be mapped.
 	if (unmapped_input_paths.length) {
@@ -113,10 +108,10 @@ export const find_modules = async (
 	}
 
 	// Find all of the files for any directories.
-	const timingToFindFiles = timings.start('find files');
+	const timingToFindFiles = timings?.start('find files');
 	const {source_ids_by_input_path, input_directories_with_no_files} =
 		await load_source_ids_by_input_path(source_id_path_data_by_input_path, (id) => find_files(id));
-	timingToFindFiles();
+	timingToFindFiles?.();
 
 	// Error if any input path has no files. (means we have an empty directory)
 	return input_directories_with_no_files.length
@@ -135,7 +130,7 @@ export const find_modules = async (
 					),
 				),
 		  }
-		: {ok: true, source_ids_by_input_path, source_id_path_data_by_input_path, timings};
+		: {ok: true, source_ids_by_input_path, source_id_path_data_by_input_path};
 };
 
 /*
@@ -151,9 +146,9 @@ export const load_modules = async <
 >(
 	source_ids_by_input_path: Map<string, string[]>, // TODO maybe make this a flat array and remove `input_path`?
 	load_module_by_id: (source_id: SourceId) => Promise<LoadModuleResult<TModuleMeta>>,
+	timings?: Timings,
 ): Promise<LoadModulesResult<TModuleMeta>> => {
-	const timings = new Timings<LoadModulesTimings>();
-	const timing_to_load_modules = timings.start('load modules');
+	const timing_to_load_modules = timings?.start('load modules');
 	const modules: TModuleMeta[] = [];
 	const load_module_failures: LoadModuleFailure[] = [];
 	const reasons: string[] = [];
@@ -189,7 +184,7 @@ export const load_modules = async <
 			}
 		}
 	}
-	timing_to_load_modules();
+	timing_to_load_modules?.();
 
 	return load_module_failures.length
 		? {
@@ -198,7 +193,6 @@ export const load_modules = async <
 				load_module_failures,
 				reasons,
 				modules,
-				timings,
 		  }
-		: {ok: true, modules, timings};
+		: {ok: true, modules};
 };

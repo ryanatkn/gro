@@ -1,7 +1,6 @@
 import {red, green, gray} from 'kleur/colors';
-import {printMs, printError, printTimings} from '@feltjs/util/print.js';
+import {printMs, printError} from '@feltjs/util/print.js';
 import {plural} from '@feltjs/util/string.js';
-import {createStopwatch, Timings} from '@feltjs/util/timings.js';
 import {z} from 'zod';
 
 import {TaskError, type Task} from './task/task.js';
@@ -30,11 +29,11 @@ export type Args = z.infer<typeof Args>;
 export const task: Task<Args> = {
 	summary: 'run code generation scripts',
 	Args,
-	run: async ({log, args}): Promise<void> => {
+	run: async ({args, log, timings}): Promise<void> => {
 		const {_: raw_input_paths, check} = args;
 
-		const total_timing = createStopwatch();
-		const timings = new Timings();
+		// TODO BLOCK  should be a timing around this
+		// const timing_to_gen = timings.start('gen');
 
 		// resolve the input paths relative to src/lib/
 		const input_paths = resolve_raw_input_paths(raw_input_paths);
@@ -46,7 +45,6 @@ export const task: Task<Args> = {
 			throw new TaskError('Failed to find gen modules.');
 		}
 		log.info('gen files', Array.from(find_modules_result.source_ids_by_input_path.values()).flat());
-		timings.merge(find_modules_result.timings);
 		const load_modules_result = await load_modules(
 			find_modules_result.source_ids_by_input_path,
 			load_gen_module,
@@ -55,11 +53,10 @@ export const task: Task<Args> = {
 			log_error_reasons(log, load_modules_result.reasons);
 			throw new TaskError('Failed to load gen modules.');
 		}
-		timings.merge(load_modules_result.timings);
 
 		// run `gen` on each of the modules
 		const stopTimingToGenerateCode = timings.start('generate code'); // TODO this ignores `gen_results.elapsed` - should it return `Timings` instead?
-		const gen_results = await run_gen(load_modules_result.modules, log, format_file);
+		const gen_results = await run_gen(load_modules_result.modules, log, timings, format_file);
 		stopTimingToGenerateCode();
 
 		const failCount = gen_results.failures.length;
@@ -120,8 +117,6 @@ export const task: Task<Args> = {
 				} input file${plural(gen_results.successes.length)}`,
 			),
 		);
-		printTimings(timings, log);
-		log.info(`🕒 ${printMs(total_timing())}`);
 
 		if (failCount) {
 			for (const result of gen_results.failures) {

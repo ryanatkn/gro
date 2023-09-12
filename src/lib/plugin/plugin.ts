@@ -1,5 +1,4 @@
 import {toArray} from '@feltjs/util/array.js';
-import type {Timings} from '@feltjs/util/timings.js';
 
 import type {TaskContext} from '../task/task.js';
 
@@ -24,7 +23,6 @@ export interface ToConfigPlugins<TPluginContext extends PluginContext = PluginCo
 export interface PluginContext<TArgs = object> extends TaskContext<TArgs> {
 	dev: boolean;
 	watch: boolean;
-	timings: Timings;
 }
 
 export class Plugins<TPluginContext extends PluginContext> {

@@ -1,5 +1,3 @@
-import {Timings} from '@feltjs/util/timings.js';
-import {printTimings} from '@feltjs/util/print.js';
 import {z} from 'zod';
 import {spawn} from '@feltjs/util/process.js';
 
@@ -33,12 +31,10 @@ export const task: Task<Args> = {
 	Args,
 	run: async (ctx): Promise<void> => {
 		const {
+			args: {clean, install},
 			config,
 			log,
-			args: {clean, install},
 		} = ctx;
-
-		const timings = new Timings(); // TODO BLOCK belongs in ctx? then `printTimings` could be hoisted
 
 		// TODO BLOCK gen like in dev?
 
@@ -54,15 +50,13 @@ export const task: Task<Args> = {
 			clean_fs({dist: true}, log);
 		}
 
-		const plugins = await Plugins.create({...ctx, config, dev: false, watch: false, timings});
+		const plugins = await Plugins.create({...ctx, config, dev: false, watch: false});
 
 		await plugins.setup();
 		await plugins.teardown();
 
 		// Adapt the build to final ouputs.
-		const adapters = await adapt({...ctx, timings});
+		const adapters = await adapt(ctx);
 		if (!adapters.length) log.info('no adapters to `adapt`');
-
-		printTimings(timings, log);
 	},
 };

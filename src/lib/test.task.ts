@@ -1,5 +1,3 @@
-import {printTimings} from '@feltjs/util/print.js';
-import {Timings} from '@feltjs/util/timings.js';
 import {yellow} from 'kleur/colors';
 import {z} from 'zod';
 import {run} from 'uvu/run';
@@ -26,7 +24,7 @@ export type Args = z.infer<typeof Args>;
 export const task: Task<Args> = {
 	summary: 'run tests',
 	Args,
-	run: async ({log, args}): Promise<void> => {
+	run: async ({args, log, timings}): Promise<void> => {
 		const {_: patterns, bail, cwd, ignore} = args;
 
 		if (!find_cli('uvu')) {
@@ -34,7 +32,6 @@ export const task: Task<Args> = {
 			return;
 		}
 
-		const timings = new Timings();
 		const timeToRunUvu = timings.start('run tests with uvu');
 
 		// uvu doesn't work with esm loaders and TypeScript files,
@@ -49,8 +46,6 @@ export const task: Task<Args> = {
 		await run(suites, {bail});
 
 		timeToRunUvu();
-
-		printTimings(timings, log);
 
 		if (process.exitCode) {
 			throw new TaskError('Tests failed.');

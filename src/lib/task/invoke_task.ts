@@ -42,8 +42,9 @@ import {load_config, type GroConfig} from '../config/config.js';
  */
 export const invoke_task = async (
 	task_name: string,
-	args: Args,
+	args: Args, // TODO BLOCK Args.parse here?
 	config?: GroConfig,
+	timings = new Timings(),
 ): Promise<void> => {
 	const log = new SystemLogger(printLogLabel(task_name || 'gro'));
 	SystemLogger.level = 'debug'; // TODO BLOCK remove this
@@ -57,7 +58,6 @@ export const invoke_task = async (
 	}
 
 	const total_timing = createStopwatch();
-	const timings = new Timings();
 
 	// Resolve the input path for the provided task name.
 	const input_path = resolve_raw_input_path(task_name || paths.lib);
@@ -67,7 +67,6 @@ export const invoke_task = async (
 	const find_modules_result = await find_task_modules([input_path], undefined, [gro_dist_dir]);
 	if (find_modules_result.ok) {
 		// Found a match either in the current working directory or Gro's directory.
-		timings.merge(find_modules_result.timings);
 		const path_data = find_modules_result.source_id_path_data_by_input_path.get(input_path)!; // this is null safe because result is ok
 
 		if (!path_data.isDirectory) {
@@ -80,7 +79,6 @@ export const invoke_task = async (
 			);
 			if (load_modules_result.ok) {
 				// We found a task module. Run it!
-				timings.merge(load_modules_result.timings);
 				// `path_data` is not a directory, so there's a single task module here.
 				const task = load_modules_result.modules[0];
 				log.info(
@@ -93,6 +91,7 @@ export const invoke_task = async (
 					{...args, ...to_forwarded_args(`gro ${task.name}`)},
 					invoke_task,
 					config || (await load_config()),
+					timings,
 				);
 				timingToRunTask();
 				if (result.ok) {
@@ -128,11 +127,7 @@ export const invoke_task = async (
 				// Find all of the possible matches in the Gro directory as well,
 				// and log everything out.
 				// Ignore any errors - the directory may not exist or have any files!
-				const gro_dir_find_modules_result = await to_gro_dir_find_modules_result(
-					input_path,
-					timings,
-					log,
-				);
+				const gro_dir_find_modules_result = await to_gro_dir_find_modules_result(input_path, log);
 				// Then log the current working directory matches.
 				await log_available_tasks(
 					log,
@@ -155,11 +150,7 @@ export const invoke_task = async (
 		} else {
 			// If there's a matching directory in the current working directory,
 			// but it has no matching files, we still want to search Gro's directory.
-			const gro_dir_find_modules_result = await to_gro_dir_find_modules_result(
-				input_path,
-				timings,
-				log,
-			);
+			const gro_dir_find_modules_result = await to_gro_dir_find_modules_result(input_path, log);
 			if (!gro_dir_find_modules_result.ok) {
 				// Log the original errors, not the Gro-specific ones.
 				log_error_reasons(log, find_modules_result.reasons);
@@ -177,17 +168,12 @@ export const invoke_task = async (
 	log.info(`🕒 ${printMs(total_timing())}`);
 };
 
-const to_gro_dir_find_modules_result = async (
-	input_path: string,
-	timings: Timings,
-	log: Logger,
-) => {
+const to_gro_dir_find_modules_result = async (input_path: string, log: Logger) => {
 	const gro_dir_input_path = to_gro_input_path(input_path);
 	const gro_dir_find_modules_result = await find_modules([gro_dir_input_path], (id) =>
 		find_files(id, (path) => is_task_path(path), undefined, true),
 	);
 	if (gro_dir_find_modules_result.ok) {
-		timings.merge(gro_dir_find_modules_result.timings);
 		const gro_path_data =
 			gro_dir_find_modules_result.source_id_path_data_by_input_path.get(gro_dir_input_path)!;
 		// Log the Gro matches.

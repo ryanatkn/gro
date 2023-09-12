@@ -1,5 +1,3 @@
-import {printTimings} from '@feltjs/util/print.js';
-import {Timings} from '@feltjs/util/timings.js';
 import {z} from 'zod';
 
 import type {Task} from './task/task.js';
@@ -25,10 +23,9 @@ export const task: Task<Args> = {
 	summary: 'start SvelteKit and other dev plugins',
 	Args,
 	run: async (ctx) => {
-		const {log, args} = ctx;
-		const {watch} = args;
-
-		const timings = new Timings();
+		const {
+			args: {watch},
+		} = ctx;
 
 		// TODO BLOCK enable this
 		// await invoke_task('gen');
@@ -36,7 +33,7 @@ export const task: Task<Args> = {
 		// TODO BLOCK the server plugin infers `watch` based on `dev` here, should be explicitly a prop
 
 		console.log('CREATING PLUGINS');
-		const plugins = await Plugins.create({...ctx, dev: true, watch, timings});
+		const plugins = await Plugins.create({...ctx, dev: true, watch});
 
 		console.log('SETTING UP PLUGINS');
 		await plugins.setup();
@@ -45,7 +42,5 @@ export const task: Task<Args> = {
 		if (!watch) {
 			await plugins.teardown(); // maybe detect process exit and teardown
 		}
-
-		printTimings(timings, log);
 	},
 };

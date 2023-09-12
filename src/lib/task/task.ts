@@ -1,6 +1,7 @@
 import type {Logger} from '@feltjs/util/log.js';
 import {stripEnd, stripStart} from '@feltjs/util/string.js';
 import type {z} from 'zod';
+import type {Timings} from '@feltjs/util/timings.js';
 
 import type {Args} from '../task/args.js';
 import {LIB_DIRNAME} from '../path/paths.js';
@@ -16,9 +17,10 @@ export interface Task<
 }
 
 export interface TaskContext<TArgs = object> {
+	args: TArgs;
 	config: GroConfig;
 	log: Logger;
-	args: TArgs;
+	timings: Timings;
 	invoke_task: (task_name: string, args?: object, config?: GroConfig) => Promise<void>;
 }
 
