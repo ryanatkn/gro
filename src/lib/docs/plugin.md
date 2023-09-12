@@ -21,4 +21,9 @@ export interface Plugin<TPluginContext extends PluginContext = PluginContext> {
 	setup?: (ctx: TPluginContext) => void | Promise<void>;
 	teardown?: (ctx: TPluginContext) => void | Promise<void>;
 }
+
+export interface PluginContext<TArgs = object> extends TaskContext<TArgs> {
+	dev: boolean;
+	watch: boolean;
+}
 ```
