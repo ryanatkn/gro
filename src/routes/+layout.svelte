@@ -4,10 +4,6 @@
 	const name: A = 'gro';
 </script>
 
-<svelte:head>
-	<link rel="shortcut icon" href="/favicon.png" />
-</svelte:head>
-
 <main>
 	<h1>{name}</h1>
 	<slot />
