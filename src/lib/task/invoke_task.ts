@@ -201,7 +201,7 @@ const sveltekit_stubbed_specifiers = new Map([
 	['$app/stores', '@feltjs/gro/util/sveltekit_shim_app_stores.js'],
 ]);
 
-// TODO this is a hack to avoid timings failing for the same key,
+// TODO BLOCK this is a hack to avoid timings failing for the same key,
 // we may want to just internally increment instead of throwing,
 // and throwing at all is almost certainly the wrong thing (just log)
 const start_timing = (timings: Timings, key: string): (() => number) => {
