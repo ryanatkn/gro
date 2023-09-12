@@ -36,7 +36,8 @@ export const task: Task<Args> = {
 			log,
 		} = ctx;
 
-		// TODO BLOCK gen like in dev?
+		// TODO possibly detect if the git workspace is clean, and ask for confirmation if not,
+		// because we're not doing things like `gro gen` here because that's a dev/CI concern
 
 		if (install) {
 			await spawn('npm', ['i'], {env: {...process.env, NODE_ENV: 'development'}});

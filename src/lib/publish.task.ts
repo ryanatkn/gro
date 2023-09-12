@@ -57,8 +57,7 @@ export const task: Task<Args> = {
 		await spawn('git', ['checkout', branch]);
 		await spawn('git', ['pull', 'origin', branch]);
 
-		// Rebuild everything
-		clean_fs({build: true}, log);
+		// TODO BLOCK do we still need this?
 		if (is_this_project_gro) {
 			const buildResult = await spawn('npm', ['run', 'build']);
 			if (!buildResult.ok) throw Error('Failed to build Gro');
@@ -92,7 +91,7 @@ export const task: Task<Args> = {
 		}
 
 		// Build to create the final artifacts:
-		await invoke_task('build', to_raw_rest_args());
+		await invoke_task('build', to_raw_rest_args()); // TODO BLOCK this args forwarding is wrong, won't pass validation
 
 		if (dry) {
 			log.info('publishing branch ' + branch);
