@@ -4,16 +4,8 @@ import {z} from 'zod';
 import type {Task} from './task/task.js';
 import {clean_fs} from './util/clean.js';
 
-// TODO customize
-const ORIGIN = 'origin';
-
 export const Args = z
 	.object({
-		build: z.boolean({description: 'read this instead of no-build'}).default(true),
-		'no-build': z
-			.boolean({description: 'opt out of deleting the Gro build directory .gro/'})
-			.optional()
-			.default(false),
 		dist: z.boolean({description: 'read this instead of no-dist'}).default(true),
 		'no-dist': z
 			.boolean({description: 'opt out of deleting the Gro dist directory dist/'})
@@ -29,6 +21,11 @@ export const Args = z
 					'run "git remote prune" to delete local branches referencing nonexistent remote branches',
 			})
 			.default(false),
+		git_origin: z
+			.string({
+				description: 'the origin to "git remote prune"',
+			})
+			.default('origin'),
 	})
 	.strict();
 export type Args = z.infer<typeof Args>;
@@ -37,14 +34,13 @@ export const task: Task<Args> = {
 	summary: 'remove temporary dev and build files, and optionally prune git branches',
 	Args,
 	run: async ({log, args}): Promise<void> => {
-		const {build, dist, sveltekit, nodemodules, git} = args;
+		const {dist, sveltekit, nodemodules, git, git_origin} = args;
 
-		// TODO document with mdsvex
-		clean_fs({build, dist, sveltekit, nodemodules}, log);
+		clean_fs({build: !dist, dist, sveltekit, nodemodules}, log);
 
-		// lop off unwanted git branches
+		// lop off stale git branches
 		if (git) {
-			await spawn('git', ['remote', 'prune', ORIGIN]);
+			await spawn('git', ['remote', 'prune', git_origin]);
 		}
 	},
 };

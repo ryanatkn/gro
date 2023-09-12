@@ -4,7 +4,6 @@ import {green, cyan} from 'kleur/colors';
 import {existsSync} from 'node:fs';
 
 import {TaskError, type Task} from './task/task.js';
-import {clean_fs} from './util/clean.js';
 import {is_this_project_gro} from './path/paths.js';
 import {to_raw_rest_args} from './task/args.js';
 import {GIT_DEPLOY_SOURCE_BRANCH} from './config/build_config_defaults.js';
