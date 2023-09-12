@@ -20,7 +20,7 @@ export const task: Task<Args> = {
 			if (!svelteCheckResult?.ok) {
 				throw new TaskError(`Failed to typecheck. ${printSpawnResult(svelteCheckResult!)}`);
 			}
-		} else {
+		} else if (find_cli('tsc')) {
 			// tsc
 			const forwarded = to_forwarded_args('tsc');
 			if (!forwarded.noEmit) forwarded.noEmit = true;
@@ -30,6 +30,8 @@ export const task: Task<Args> = {
 			if (!svelteCheckResult?.ok) {
 				throw new TaskError(`Failed to typecheck. ${printSpawnResult(svelteCheckResult!)}`);
 			}
+		} else {
+			throw new TaskError(`Failed to typecheck because neither tsc nor svelte-check was found`);
 		}
 	},
 };
