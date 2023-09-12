@@ -2,8 +2,9 @@ import {webcrypto} from 'node:crypto';
 
 const {subtle} = webcrypto;
 
-// TODO add a helper that converts from a string to call `to_hash` using browser APIs
-
+/**
+ * @see https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto
+ */
 export const to_hash = async (
 	data: Buffer,
 	algorithm: 'SHA-1' | 'SHA-256' | 'SHA-384' | 'SHA-512' = 'SHA-256',
