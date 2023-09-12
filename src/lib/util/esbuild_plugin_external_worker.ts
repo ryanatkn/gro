@@ -1,6 +1,7 @@
 import * as esbuild from 'esbuild';
 import {yellow, red, green} from 'kleur/colors';
 import type {Logger} from '@feltjs/util/log.js';
+import {basename} from 'node:path';
 
 import {parse_specifier, print_build_result} from './esbuild_helpers.js';
 import {esbuild_plugin_sveltekit_shim_alias} from './esbuild_plugin_sveltekit_shim_alias.js';
@@ -49,7 +50,7 @@ export const esbuild_plugin_external_worker = ({
 			console.log(`parsed`, parsed);
 			const {specifier, source_id, namespace} = parsed;
 
-			// TODO BLOCK make sure this isn't called more than once if 2 files import it (probably need to cache)
+			// TODO BLOCK build only once -- how to cache? since `setup` is called only once, maybe state by source_id? promise with final specifier and namespace
 			console.log(
 				'------------------------\n------------------------\n------------------------\nBUILDING\n------------------------\n------------------------\n-------------------------',
 			);
@@ -75,17 +76,18 @@ export const esbuild_plugin_external_worker = ({
 				build_result,
 			);
 			print_build_result(log, build_result);
-			// if (path !== specifier) {
-			// 	const resolved = await build.resolve(source_id, {importer, kind: 'import-statement'});
-			// 	console.log(`resolved`, resolved);
-			// 	return resolved;
-			// }
+
+			// TODO BLOCK does this work in all cases?
+			// the idea is that we're outputting a new file that's external and a sibling to the main outfile.
+			// what about conflicting file names? need to alias them or something?
+			const final_specifier = './' + basename(specifier);
 			console.log(
 				red('[external_worker] resolved\n'),
-				'\nimporting ' + yellow(specifier),
+				'\nimporting ' + yellow(final_specifier),
 				'\nfrom ' + yellow(importer),
+				'\nvia ' + yellow(specifier),
 			);
-			return {path: specifier, external: true, namespace};
+			return {path: final_specifier, external: true, namespace};
 		});
 	},
 });

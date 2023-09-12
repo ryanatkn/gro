@@ -136,11 +136,8 @@ export const create_plugin = ({
 			}
 
 			server_process = spawnRestartableProcess('node', [server_outfile]);
-			console.log(`spawned`, server_process);
 		},
 		teardown: async () => {
-			console.log('TEARING DOWN');
-
 			if (server_process) {
 				await server_process.kill();
 				server_process = null;
