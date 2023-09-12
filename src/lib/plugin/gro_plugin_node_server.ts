@@ -40,17 +40,14 @@ export const create_plugin = ({
 	env_files,
 	ambient_env,
 	sveltekit_config: sveltekit_config_option,
-}: Partial<Options> = {}): Plugin<PluginContext<object>> => {
+}: Partial<Options> = {}): Plugin<PluginContext> => {
 	let build_ctx: esbuild.BuildContext;
 	let watcher: WatchNodeFs;
 	let server_process: RestartableProcess | null = null;
 
 	return {
 		name: 'gro_plugin_node_server',
-		setup: async ({dev, timings, config, log}) => {
-			console.log(`[gro_plugin_node_server] dev`, dev); // TODO BLOCK
-			const watch = dev; // TODO BLOCK watch option? default to dev?
-
+		setup: async ({dev, watch, timings, config, log}) => {
 			const sveltekit_config = sveltekit_config_option ?? (await load_sveltekit_config(dir));
 			const alias = sveltekit_config?.kit?.alias;
 			const public_prefix = sveltekit_config?.kit?.env?.publicPrefix;

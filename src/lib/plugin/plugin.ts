@@ -21,8 +21,9 @@ export interface ToConfigPlugins<TPluginContext extends PluginContext = PluginCo
 		| Promise<Plugin<TPluginContext> | null | Array<Plugin<TPluginContext> | null>>;
 }
 
-export interface PluginContext<TArgs = any> extends TaskContext<TArgs> {
+export interface PluginContext<TArgs = object> extends TaskContext<TArgs> {
 	dev: boolean;
+	watch: boolean;
 	timings: Timings;
 }
 

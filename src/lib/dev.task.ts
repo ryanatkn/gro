@@ -3,7 +3,6 @@ import {Timings} from '@feltjs/util/timings.js';
 import {z} from 'zod';
 
 import type {Task} from './task/task.js';
-import {load_config} from './config/config.js';
 import {Plugins, type PluginContext} from './plugin/plugin.js';
 
 export const Args = z
@@ -35,10 +34,9 @@ export const task: Task<Args> = {
 		// await invoke_task('gen');
 
 		// TODO BLOCK the server plugin infers `watch` based on `dev` here, should be explicitly a prop
-		const dev_task_context: DevTaskContext = {...ctx, dev: true, timings};
 
 		console.log('CREATING PLUGINS');
-		const plugins = await Plugins.create(dev_task_context);
+		const plugins = await Plugins.create({...ctx, dev: true, watch, timings});
 
 		console.log('SETTING UP PLUGINS');
 		await plugins.setup();

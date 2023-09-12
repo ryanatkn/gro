@@ -46,15 +46,15 @@ export const task: Task<Args> = {
 			await spawn('npm', ['i'], {env: {...process.env, NODE_ENV: 'development'}});
 		}
 
-		// Clean in the default case, but not if the caller passes a `false` `clean` arg,
+		// TODO BLOCK review cleaning, might want a fully clean build every time
+		// Clean in the default case, but not if the caller passes `clean=false`,
+		// which is `no-watch` from the CLI.
 		// This is used by `gro publish` and `gro deploy` because they call `clean_fs` themselves.
 		if (clean) {
 			clean_fs({dist: true}, log);
 		}
 
-		// TODO delete prod builds (what about config/system tho?)
-
-		const plugins = await Plugins.create({...ctx, config, dev: false, timings});
+		const plugins = await Plugins.create({...ctx, config, dev: false, watch: false, timings});
 
 		await plugins.setup();
 		await plugins.teardown();
