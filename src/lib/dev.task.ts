@@ -30,17 +30,12 @@ export const task: Task<Args> = {
 		// TODO BLOCK enable this
 		// await invoke_task('gen');
 
-		// TODO BLOCK the server plugin infers `watch` based on `dev` here, should be explicitly a prop
-
-		console.log('CREATING PLUGINS');
 		const plugins = await Plugins.create({...ctx, dev: true, watch});
 
-		console.log('SETTING UP PLUGINS');
 		await plugins.setup();
-		console.log('PLUGINS DONE SETTING UP');
 
 		if (!watch) {
-			await plugins.teardown(); // maybe detect process exit and teardown
+			await plugins.teardown();
 		}
 	},
 };
