@@ -17,13 +17,13 @@ export const create_adapter = ({
 	const output_dir = stripEnd(dir, '/');
 	return {
 		name: 'gro_adapter_generic_build',
-		adapt: async ({config, dev, log}) => {
+		adapt: async ({config, log}) => {
 			const build_config = config.builds.find((b) => b.name === build_name);
 			if (!build_config) {
 				throw Error(`Unknown build config: ${build_name}`);
 			}
 
-			copy_dist(build_config, dev, output_dir, log);
+			copy_dist(build_config, output_dir, log);
 		},
 	};
 };

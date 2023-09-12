@@ -4,6 +4,7 @@ import type {z} from 'zod';
 
 import type {Args} from '../task/args.js';
 import {LIB_DIRNAME} from '../path/paths.js';
+import type {GroConfig} from '../config/config.js';
 
 export interface Task<
 	TArgs = Args, // same as `z.infer<typeof Args>`
@@ -15,10 +16,10 @@ export interface Task<
 }
 
 export interface TaskContext<TArgs = object> {
+	config: GroConfig;
 	log: Logger;
 	args: TArgs;
-	// TODO BLOCK should this have `config` on it? probably? would be able to remove loading in tasks
-	invoke_task: (task_name: string, args?: object) => Promise<void>;
+	invoke_task: (task_name: string, args?: object, config?: GroConfig) => Promise<void>;
 }
 
 export const TASK_FILE_SUFFIX_TS = '.task.ts';

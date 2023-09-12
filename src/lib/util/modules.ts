@@ -150,8 +150,7 @@ export const load_modules = async <
 	TModuleMeta extends ModuleMeta<ModuleType>,
 >(
 	source_ids_by_input_path: Map<string, string[]>, // TODO maybe make this a flat array and remove `input_path`?
-	dev: boolean,
-	load_module_by_id: (source_id: SourceId, dev: boolean) => Promise<LoadModuleResult<TModuleMeta>>,
+	load_module_by_id: (source_id: SourceId) => Promise<LoadModuleResult<TModuleMeta>>,
 ): Promise<LoadModulesResult<TModuleMeta>> => {
 	const timings = new Timings<LoadModulesTimings>();
 	const timing_to_load_modules = timings.start('load modules');
@@ -160,7 +159,7 @@ export const load_modules = async <
 	const reasons: string[] = [];
 	for (const [input_path, source_ids] of source_ids_by_input_path) {
 		for (const id of source_ids) {
-			const result = await load_module_by_id(id, dev); // eslint-disable-line no-await-in-loop
+			const result = await load_module_by_id(id); // eslint-disable-line no-await-in-loop
 			if (result.ok) {
 				modules.push(result.mod);
 			} else {

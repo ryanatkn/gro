@@ -26,7 +26,7 @@ the build process has two discrete steps:
 1. [`Plugin`](../plugin/plugin.ts)s run and output production artifacts,
    deferring to tools like SvelteKit and Vite without modifications when possible
 2. [`Adapter`](../adapt/adapt.ts)s run to perform any finalization for production,
-   like running `npm link` for Node libraries or adding `.nojekyll` for GitHub pages
+   like running `npm link` for Node libraries or adding `.nojekyll` for GitHub Pages
 
 An adapter is an object with an `adapt` hook:
 
@@ -45,8 +45,6 @@ so the `Adapter` hooks and `adapt` config property both have access to
 
 ```ts
 export interface AdapterContext<TArgs = any> extends TaskContext<TArgs> {
-	config: GroConfig;
-	dev: boolean;
 	timings: Timings;
 }
 ```
@@ -80,18 +78,6 @@ const config: GroConfigCreator = async () => {
 
 		// this works: note it does not have to import anything, or be async:
 		adapt: () => ({name: 'my-adapter', adapt: () => {}}),
-
-		// both `adapt` and the `Adapter` hooks receive the task context extended with the config:
-		adapt: ({dev, config}) => {
-			return dev
-				? {
-						name: 'my-adapter',
-						adapt: () => {
-							copySync(/* ... */);
-						},
-				  }
-				: toProdAdapters(config);
-		},
 
 		// it's ok to return nothing
 		adapt: () => null,

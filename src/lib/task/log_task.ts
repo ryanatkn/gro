@@ -17,11 +17,7 @@ export const log_available_tasks = async (
 	const source_ids = Array.from(source_ids_by_input_path.values()).flat();
 	if (source_ids.length) {
 		// Load all of the tasks so we can print their summary, and args for the `--help` flag.
-		const load_modules_result = await load_modules(
-			source_ids_by_input_path,
-			true,
-			load_task_module,
-		);
+		const load_modules_result = await load_modules(source_ids_by_input_path, load_task_module);
 		if (!load_modules_result.ok) {
 			log_error_reasons(log, load_modules_result.reasons);
 			process.exit(1);

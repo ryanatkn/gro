@@ -176,7 +176,6 @@ test__load_modules('fail with load_module_failures', async () => {
 			[pathBar1, [idBar1, idBar2]],
 			[pathBaz1, [idBaz1, idBaz2]],
 		]),
-		true,
 		async (id) => {
 			if (id === idBar2) {
 				return {

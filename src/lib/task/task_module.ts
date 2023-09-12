@@ -62,5 +62,5 @@ export const load_task_modules = async (
 > => {
 	const find_modules_result = await find_task_modules(input_paths, extensions, root_dirs);
 	if (!find_modules_result.ok) return find_modules_result;
-	return load_modules(find_modules_result.source_ids_by_input_path, true, load_task_module);
+	return load_modules(find_modules_result.source_ids_by_input_path, load_task_module);
 };

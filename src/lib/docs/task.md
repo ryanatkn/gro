@@ -157,6 +157,7 @@ export interface Task<
 import type {TaskContext} from '@feltjs/gro';
 
 export interface TaskContext<TArgs = object> {
+	config: GroConfig;
 	log: Logger;
 	args: TArgs;
 	invoke_task: (task_name: string, args?: object) => Promise<void>;

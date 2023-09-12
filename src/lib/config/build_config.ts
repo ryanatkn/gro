@@ -29,7 +29,6 @@ export const normalize_build_configs = (
 	partials: ReadonlyArray<BuildConfigPartial | null>,
 ): BuildConfig[] => {
 	// This array may be mutated inside this function, but the objects inside remain immutable.
-	// The system build is ignored for dev mode.
 	const build_configs: BuildConfig[] = [];
 	for (const partial of partials) {
 		if (!partial) continue;

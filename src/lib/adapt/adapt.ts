@@ -2,20 +2,16 @@ import {toArray} from '@feltjs/util/array.js';
 import type {Timings} from '@feltjs/util/timings.js';
 
 import type {TaskContext} from '../task/task.js';
-import type {GroConfig} from '../config/config.js';
 
-/*
-
-Adapting builds for production deployments is a concept borrowed from SvelteKit:
-https://kit.svelte.dev/docs#adapters
-
-The general idea is the same:
-adapters are little plugins that take production builds as inputs and produce final outputs.
-
-The goal is to remove all of this from Gro: see https://github.com/feltjs/gro/issues/329
-
-*/
-
+/**
+ * Adapting builds for production deployments is a concept borrowed from SvelteKit:
+ * https://kit.svelte.dev/docs#adapters
+ *
+ * The general idea is the same:
+ * adapters are little plugins that take production builds as inputs and produce final outputs.
+ * They defer to the underlying tools like SvelteKit and Vite
+ * and avoid abstracting them as much as possible.
+ */
 export interface Adapter<TArgs = any> {
 	name: string;
 	adapt: (ctx: AdapterContext<TArgs>) => void | Promise<void>;
@@ -30,8 +26,6 @@ export interface ToConfigAdapters<TArgs = any> {
 }
 
 export interface AdapterContext<TArgs = any> extends TaskContext<TArgs> {
-	config: GroConfig;
-	dev: boolean;
 	timings: Timings;
 }
 

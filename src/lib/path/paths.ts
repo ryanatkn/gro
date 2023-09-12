@@ -116,20 +116,14 @@ export const lib_path_to_import_id = (base_path: string, p = paths): SourceId =>
 	}
 };
 
-export const to_build_out_dir = (dev: boolean, build_dir = paths.build): string =>
-	stripEnd(build_dir, '/') + '/' + to_build_out_dirname(dev);
-export const to_build_out_dirname = (dev: boolean): BuildOutDirname =>
-	dev ? BUILD_DIRNAME_DEV : BUILD_DIRNAME_PROD;
-export const BUILD_DIRNAME_DEV = 'dev';
-export const BUILD_DIRNAME_PROD = 'prod';
-export type BuildOutDirname = 'dev' | 'prod';
+export const to_build_out_dir = (build_dir = paths.build): string => stripEnd(build_dir, '/') + '/';
 
+// TODO BLOCK remove? or use for node server plugin?
 export const to_build_out_path = (
-	dev: boolean,
 	build_name: BuildName,
 	base_path = '',
 	build_dir = paths.build,
-): string => `${to_build_out_dir(dev, build_dir)}/${build_name}/${base_path}`;
+): string => `${to_build_out_dir(build_dir)}/${build_name}/${base_path}`;
 
 export const to_build_base_path = (build_id: BuildId, build_dir = paths.build): string => {
 	const root_path = stripStart(build_id, build_dir);

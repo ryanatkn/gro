@@ -21,6 +21,7 @@ import {find_task_modules, load_task_module} from './task_module.js';
 import {load_gro_package_json} from '../util/package_json.js';
 import {log_available_tasks, log_error_reasons} from './log_task.js';
 import {find_files} from '../util/find_files.js';
+import {load_config, type GroConfig} from '../config/config.js';
 
 /**
  * Invokes Gro tasks by name using the filesystem as the source.
@@ -39,7 +40,11 @@ import {find_files} from '../util/find_files.js';
  * there are some subtle differences in the complex logical branches.
  * The comments describe each condition.
  */
-export const invoke_task = async (task_name: string, args: Args): Promise<void> => {
+export const invoke_task = async (
+	task_name: string,
+	args: Args,
+	config?: GroConfig,
+): Promise<void> => {
 	const log = new SystemLogger(printLogLabel(task_name || 'gro'));
 	SystemLogger.level = 'debug'; // TODO BLOCK remove this
 	log.info('invoking', task_name ? cyan(task_name) : 'gro');
@@ -71,7 +76,6 @@ export const invoke_task = async (task_name: string, args: Args): Promise<void> 
 			// Try to load the task module.
 			const load_modules_result = await load_modules(
 				find_modules_result.source_ids_by_input_path,
-				true,
 				load_task_module,
 			);
 			if (load_modules_result.ok) {
@@ -82,11 +86,13 @@ export const invoke_task = async (task_name: string, args: Args): Promise<void> 
 				log.info(
 					`→ ${cyan(task.name)} ${(task.mod.task.summary && gray(task.mod.task.summary)) || ''}`,
 				);
+
 				const timingToRunTask = timings.start('run task');
 				const result = await run_task(
 					task,
 					{...args, ...to_forwarded_args(`gro ${task.name}`)},
 					invoke_task,
+					config || (await load_config()),
 				);
 				timingToRunTask();
 				if (result.ok) {

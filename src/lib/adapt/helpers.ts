@@ -7,13 +7,13 @@ import {to_build_out_path, print_path} from '../path/paths.js';
 
 export const copy_dist = (
 	build_config: BuildConfig,
-	dev: boolean,
 	dist_out_dir: string,
 	log: Logger,
 	filter?: IdStatsFilter,
 	rebase_path = '',
 ): void => {
-	const build_out_dir = to_build_out_path(dev, build_config.name, rebase_path);
+	// TODO BLOCK remove this? see its comments
+	const build_out_dir = to_build_out_path(build_config.name, rebase_path);
 	log.info(`copying ${print_path(build_out_dir)} to ${print_path(dist_out_dir)}`);
 	cpSync(build_out_dir, dist_out_dir, {
 		force: false,

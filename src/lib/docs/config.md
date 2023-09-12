@@ -49,8 +49,8 @@ export interface GroConfigPartial {
 	readonly builds: (BuildConfigPartial | null)[] | BuildConfigPartial | null;
 	readonly plugin?: ToConfigPlugins;
 	readonly adapt?: ToConfigAdapters;
-	readonly target?: EcmaScriptTarget; // defaults to 'es2020'
-	readonly sourcemap?: boolean; // defaults to true in `dev`, false for prod
+	readonly target?: EcmaScriptTarget; // defaults to 'esnext'
+	readonly sourcemap?: boolean;
 }
 ```
 

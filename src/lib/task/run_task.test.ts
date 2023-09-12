@@ -2,6 +2,7 @@ import {suite} from 'uvu';
 import * as assert from 'uvu/assert';
 
 import {run_task} from './run_task.js';
+import {load_config} from '../config/config.js';
 
 /* test__run_task */
 const test__run_task = suite('run_task');
@@ -20,6 +21,7 @@ test__run_task('passes args and returns output', async () => {
 		},
 		args,
 		() => Promise.resolve(),
+		await load_config(),
 	);
 	assert.ok(result.ok);
 	assert.is(result.output, args);
@@ -47,6 +49,7 @@ test__run_task('invokes a sub task', async () => {
 			invoked_task_name = invokingTaskName;
 			invoked_args = invokingArgs;
 		},
+		await load_config(),
 	);
 	assert.ok(result.ok);
 	assert.is(invoked_task_name, 'bar/testTask');
@@ -71,6 +74,7 @@ test__run_task('failing task', async () => {
 		},
 		{_: []},
 		async () => {}, // eslint-disable-line @typescript-eslint/no-empty-function
+		await load_config(),
 	);
 	assert.ok(!result.ok);
 	assert.ok(result.reason);

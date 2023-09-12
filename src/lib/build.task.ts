@@ -4,7 +4,6 @@ import {z} from 'zod';
 import {spawn} from '@feltjs/util/process.js';
 
 import type {Task} from './task/task.js';
-import {load_config} from './config/config.js';
 import {adapt} from './adapt/adapt.js';
 import {Plugins} from './plugin/plugin.js';
 import {clean_fs} from './util/clean.js';
@@ -34,11 +33,12 @@ export const task: Task<Args> = {
 	Args,
 	run: async (ctx): Promise<void> => {
 		const {
+			config,
 			log,
 			args: {clean, install},
 		} = ctx;
 
-		const timings = new Timings(); // TODO belongs in ctx
+		const timings = new Timings(); // TODO BLOCK belongs in ctx? then `printTimings` could be hoisted
 
 		// TODO BLOCK gen like in dev?
 
@@ -54,17 +54,13 @@ export const task: Task<Args> = {
 
 		// TODO delete prod builds (what about config/system tho?)
 
-		const timing_to_load_config = timings.start('load config');
-		const config = await load_config();
-		timing_to_load_config();
-
 		const plugins = await Plugins.create({...ctx, config, dev: false, timings});
 
 		await plugins.setup();
 		await plugins.teardown();
 
 		// Adapt the build to final ouputs.
-		const adapters = await adapt({...ctx, config, dev: false, timings});
+		const adapters = await adapt({...ctx, timings});
 		if (!adapters.length) log.info('no adapters to `adapt`');
 
 		printTimings(timings, log);

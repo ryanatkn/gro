@@ -6,6 +6,7 @@ import {TaskError} from './task.js';
 import type {Args} from './args.js';
 import type {invoke_task as base_invoke_task} from './invoke_task.js';
 import {log_task_help} from './log_task.js';
+import type {GroConfig} from '../config/config.js';
 
 export type RunTaskResult =
 	| {
@@ -22,6 +23,7 @@ export const run_task = async (
 	task_meta: TaskModuleMeta,
 	unparsed_args: Args,
 	invoke_task: typeof base_invoke_task,
+	config: GroConfig,
 ): Promise<RunTaskResult> => {
 	const {task} = task_meta.mod;
 	const log = new SystemLogger(printLogLabel(task_meta.name));
@@ -49,10 +51,11 @@ export const run_task = async (
 	let output: unknown;
 	try {
 		output = await task.run({
+			config,
 			args,
 			log,
-			invoke_task: (invoked_task_name, invoked_args = {}) =>
-				invoke_task(invoked_task_name, invoked_args as Args), // TODO typecast
+			invoke_task: (invoked_task_name, invoked_args = {}, invoked_config) =>
+				invoke_task(invoked_task_name, invoked_args as Args, invoked_config || config), // TODO typecast
 		});
 	} catch (err) {
 		return {

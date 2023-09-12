@@ -49,7 +49,6 @@ export const task: Task<Args> = {
 		timings.merge(find_modules_result.timings);
 		const load_modules_result = await load_modules(
 			find_modules_result.source_ids_by_input_path,
-			true,
 			load_gen_module,
 		);
 		if (!load_modules_result.ok) {
