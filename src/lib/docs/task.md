@@ -28,6 +28,9 @@ and defers composition to the user in regular TypeScript modules.
   and in code the task object's `run` function has access to CLI args;
   to view [the available tasks](https://github.com/feltjs/gro/blob/main/src/lib/docs/tasks.md)
   run `gro` with no arguments
+- tasks optionally use [zod](https://github.com/colinhacks/zod) schemas
+  for `args` types, runtime parsing with helpful validation errors,
+  and automatic help output, with DRY co-located definitions
 - it's easy to hook into or override any of Gro's builtin tasks,
   like [`gro test`](../test.task.ts) and [`gro gen`](../gen.task.ts)
   (tasks are copy-paste friendly! just update the imports)
@@ -133,32 +136,30 @@ so instead of running `gro some/taskname/taskname` you simply run `gro some/task
 This is useful because tasks may have associated files (see the args docs below),
 and putting them into a directory together can help make projects easier to navigate.
 
-### types `Task` and `TaskContext`
+### type `Task`
 
 ```ts
-// usage:
-// import {type Task, type TaskContext} from '@feltjs/gro';
+import type {Task} from '@feltjs/gro';
 
 export interface Task<
 	TArgs = Args, // same as `z.infer<typeof Args>`
-	TEvents = object,
 	TArgsSchema extends z.ZodType<any, z.ZodTypeDef, any> = z.ZodType<any, z.ZodTypeDef, any>,
 > {
-	run: (ctx: TaskContext<TArgs, TEvents>) => Promise<unknown>;
+	run: (ctx: TaskContext<TArgs>) => Promise<unknown>;
 	summary?: string;
 	Args?: TArgsSchema;
 }
+```
 
-export interface TaskContext<TArgs = object, TEvents = object> {
-	dev: boolean;
+### type `TaskContext`
+
+```ts
+import type {TaskContext} from '@feltjs/gro';
+
+export interface TaskContext<TArgs = object> {
 	log: Logger;
 	args: TArgs;
-	events: StrictEventEmitter<EventEmitter, TEvents>;
-	invoke_task: (
-		task_name: string,
-		args?: object,
-		events?: StrictEventEmitter<EventEmitter, TEvents>,
-	) => Promise<void>;
+	invoke_task: (task_name: string, args?: object) => Promise<void>;
 }
 ```
 

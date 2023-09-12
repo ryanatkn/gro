@@ -4,7 +4,7 @@ import {
 	has_node_server,
 	NODE_SERVER_BUILD_CONFIG,
 	has_node_library,
-} from '../build/build_config_defaults.js';
+} from './build_config_defaults.js';
 
 /**
  * This is the default config that's passed to `src/gro.config.ts`

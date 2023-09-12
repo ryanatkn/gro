@@ -14,8 +14,8 @@ export type {
 	GroConfigCreatorOptions,
 } from './config/config.js';
 // also export the build config stuff
-export {normalize_build_configs, validate_build_configs} from './build/build_config.js';
-export type {BuildConfig, BuildName, BuildConfigPartial} from './build/build_config.js';
+export {normalize_build_configs, validate_build_configs} from './config/build_config.js';
+export type {BuildConfig, BuildName, BuildConfigPartial} from './config/build_config.js';
 
 // these seem useful and generic enough to export to users
 export {TaskError} from './task/task.js';

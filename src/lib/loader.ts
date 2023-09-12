@@ -70,6 +70,7 @@ export const load: LoadHook = async (url, context, nextLoad) => {
 	} else if (ts_matcher.test(url)) {
 		const loaded = await nextLoad(url, {...context, format: 'module'});
 		// TODO maybe do path mapping in an esbuild plugin here instead of the resolve hook?
+		// TODO BLOCK benchmark async
 		const transformed = transformSync(loaded.source!.toString(), transformOptions); // eslint-disable-line @typescript-eslint/no-base-to-string
 		return {format: 'module', shortCircuit: true, source: transformed.code};
 	} else if (svelte_matcher.test(url)) {

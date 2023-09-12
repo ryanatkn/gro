@@ -14,7 +14,7 @@ and usage in [the default config](../config/gro.config.default.ts).
 
 ## adapters
 
-Gro borrows the `Adapter` concept from SvelteKit to help us control our builds.
+Gro borrows the `Adapter` concept from SvelteKit to help us finalize builds.
 When we run:
 
 ```bash
@@ -23,25 +23,17 @@ gro build
 
 the build process has two discrete steps:
 
-1. [`Builder`](../build/builder.ts)s run and output production artifacts to `.gro/prod/{build_name}` for each build
-2. [`Adapter`](../adapt/adapt.ts)s run and output, umm, anything?
-   like SvelteKit apps, Node libraries, Node servers, & more !
-
-> as we're thinking about them, `Adapter`s should not modify the content of `.gro/prod/`;
-> adapters take these builds as inputs, and without changing them,
-> they output whatever you want, for as long as you want, as messily as you want;
-> just no messing with the source, that is forbidden —
-> this design lets you run many adapters on one build,
-> which means composability & power & efficiency;
-> if you find yourself wanting to modify builds in place, try a `Builder` instead
-> (the API probably needs improvements and helpers) — open issues if you want to discuss!
+1. [`Plugin`](../plugin/plugin.ts)s run and output production artifacts,
+   deferring to tools like SvelteKit and Vite without modifications when possible
+2. [`Adapter`](../adapt/adapt.ts)s run to perform any finalization for production,
+   like running `npm link` for Node libraries or adding `.nojekyll` for GitHub pages
 
 An adapter is an object with an `adapt` hook:
 
 ```ts
-export interface Adapter<TArgs = any, TEvents = any> {
+export interface Adapter<TArgs = any> {
 	name: string;
-	adapt: (ctx: AdapterContext<TArgs, TEvents>) => void | Promise<void>;
+	adapt: (ctx: AdapterContext<TArgs>) => void | Promise<void>;
 }
 ```
 
@@ -52,8 +44,10 @@ so the `Adapter` hooks and `adapt` config property both have access to
 [the normal task environment](../task/README.md) and more:
 
 ```ts
-export interface AdapterContext<TArgs = any, TEvents = any> extends TaskContext<TArgs, TEvents> {
+export interface AdapterContext<TArgs = any> extends TaskContext<TArgs> {
 	config: GroConfig;
+	dev: boolean;
+	timings: Timings;
 }
 ```
 

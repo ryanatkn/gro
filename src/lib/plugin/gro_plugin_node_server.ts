@@ -8,9 +8,9 @@ import type {Plugin, PluginContext} from './plugin.js';
 import {
 	NODE_SERVER_BUILD_BASE_PATH,
 	NODE_SERVER_BUILD_NAME,
-} from '../build/build_config_defaults.js';
+} from '../config/build_config_defaults.js';
 import {paths} from '../path/paths.js';
-import type {BuildName} from '../build/build_config.js';
+import type {BuildName} from '../config/build_config.js';
 import {watch_dir, type WatchNodeFs} from '../util/watch_dir.js';
 import {load_sveltekit_config} from '../util/sveltekit_config.js';
 import {esbuild_plugin_sveltekit_shim_app} from '../util/esbuild_plugin_sveltekit_shim_app.js';
@@ -60,6 +60,12 @@ export const create_plugin = ({
 			// const compiler_options = sveltekit_config?.compilerOptions;
 
 			const server_outfile = outdir + '/' + base_build_path;
+			console.log(
+				`outdir, base_build_path, server_outfile`,
+				outdir,
+				base_build_path,
+				server_outfile,
+			);
 
 			const build_config = config.builds.find((c) => c.name === build_name);
 			if (!build_config) throw Error('could not find build config ' + build_name);

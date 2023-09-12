@@ -1,7 +1,7 @@
 import {Logger, SystemLogger, printLogLabel} from '@feltjs/util/log.js';
 import {omitUndefined} from '@feltjs/util/object.js';
 import type {Result} from '@feltjs/util/result.js';
-import type {Assignable} from '@feltjs/util/types.js';
+import type {Assignable, Flavored} from '@feltjs/util/types.js';
 import {toArray} from '@feltjs/util/array.js';
 import {existsSync} from 'node:fs';
 
@@ -11,9 +11,8 @@ import {
 	validate_build_configs,
 	type BuildConfig,
 	type BuildConfigPartial,
-} from '../build/build_config.js';
+} from './build_config.js';
 import type {ToConfigAdapters} from '../adapt/adapt.js';
-import type {EcmaScriptTarget} from '../build/helpers.js';
 import createDefaultConfig from './gro.config.default.js';
 import type {ToConfigPlugins} from '../plugin/plugin.js';
 
@@ -183,3 +182,18 @@ export const normalize_config = (config: GroConfigPartial): GroConfig => {
 		target: config.target || 'esnext',
 	};
 };
+
+export const validate_input_files = (files: string[]): Result<object, {reason: string}> => {
+	const results = files.map((input): null | {ok: false; reason: string} => {
+		if (!existsSync(input)) {
+			return {ok: false, reason: `Input file does not exist: ${input}`};
+		}
+		return null;
+	});
+	for (const result of results) {
+		if (result) return result;
+	}
+	return {ok: true};
+};
+
+export type EcmaScriptTarget = Flavored<string, 'EcmaScriptTarget'>;
