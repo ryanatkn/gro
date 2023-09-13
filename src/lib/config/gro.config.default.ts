@@ -16,18 +16,16 @@ import {
  * - if `src/lib/server/server.ts`, assumes a Node  server
  */
 const config: GroConfigCreator = async () => {
-	const [enable_node_library, enable_node_server, enable_sveltekit_frontend] = await Promise.all([
+	const [enable_library, enable_server, enable_sveltekit_frontend] = await Promise.all([
 		has_library(),
 		has_server(),
 		has_sveltekit_frontend(),
 	]);
 
 	const partial: GroConfigPartial = {
-		builds: [enable_node_server ? SERVER_BUILD_CONFIG : null],
+		builds: [enable_server ? SERVER_BUILD_CONFIG : null],
 		plugin: async () => [
-			enable_node_server
-				? (await import('../plugin/gro_plugin_node_server.js')).create_plugin()
-				: null,
+			enable_server ? (await import('../plugin/gro_plugin_server.js')).create_plugin() : null,
 			enable_sveltekit_frontend
 				? (await import('../plugin/gro_plugin_sveltekit_frontend.js')).create_plugin()
 				: null,
@@ -35,12 +33,10 @@ const config: GroConfigCreator = async () => {
 			// (await import('../plugin/gro_plugin_gen.js')).create_plugin(),
 		],
 		adapt: async () => [
-			enable_node_library
-				? (await import('../adapt/gro_adapter_library.js')).create_adapter()
-				: null,
+			enable_library ? (await import('../adapt/gro_adapter_library.js')).create_adapter() : null,
 			enable_sveltekit_frontend
 				? (await import('../adapt/gro_adapter_sveltekit_frontend.js')).create_adapter({
-						host_target: enable_node_server ? 'node' : 'github_pages',
+						host_target: enable_server ? 'node' : 'github_pages',
 				  })
 				: null,
 		],

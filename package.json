@@ -239,9 +239,9 @@
       "default": "./dist/path/paths.js",
       "types": "./dist/path/paths.d.ts"
     },
-    "./plugin/gro_plugin_node_server.js": {
-      "default": "./dist/plugin/gro_plugin_node_server.js",
-      "types": "./dist/plugin/gro_plugin_node_server.d.ts"
+    "./plugin/gro_plugin_server.js": {
+      "default": "./dist/plugin/gro_plugin_server.js",
+      "types": "./dist/plugin/gro_plugin_server.d.ts"
     },
     "./plugin/gro_plugin_sveltekit_frontend.js": {
       "default": "./dist/plugin/gro_plugin_sveltekit_frontend.js",

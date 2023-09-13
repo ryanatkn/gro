@@ -43,7 +43,7 @@ export const create_plugin = ({
 	let server_process: RestartableProcess | null = null;
 
 	return {
-		name: 'gro_plugin_node_server',
+		name: 'gro_plugin_server',
 		setup: async ({dev, watch, timings, config, log}) => {
 			const sveltekit_config = sveltekit_config_option ?? (await load_sveltekit_config(dir));
 			const alias = sveltekit_config?.kit?.alias;
