@@ -8,7 +8,13 @@ import {parse_specifier} from './esbuild_helpers.js';
 export const esbuild_plugin_sveltekit_local_imports = (): esbuild.Plugin => ({
 	name: 'sveltekit_local_imports',
 	setup: (build) => {
-		build.onResolve({filter: /^(\/|\.)/u}, async ({path, importer, resolveDir, ...rest}) => {
+		build.onResolve({filter: /^(\/|\.)/u}, async (args) => {
+			const {path, ...rest} = args;
+			// TODO BLOCK allowlist or blocklist?
+			if (path.endsWith('.svelte')) {
+				return {path};
+			}
+			const {importer, resolveDir} = rest;
 			console.log(
 				blue('[sveltekit_imports] ENTER'),
 				'\nimporting ' + yellow(path),

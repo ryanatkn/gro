@@ -54,7 +54,8 @@ export const create_plugin = ({
 			const env_dir = sveltekit_config?.kit?.env?.dir;
 			// TODO BLOCK need to compile for SSR, hoisted option? `import.meta.env.SSR` fallback?
 			// TODO BLOCK sourcemap as a hoisted option? disable for production by default
-			const svelte_options = sveltekit_config?.compilerOptions;
+			const svelte_compile_options = sveltekit_config?.compilerOptions;
+			const svelte_preprocessors = sveltekit_config?.preprocess;
 
 			const server_outfile = join(outdir, base_build_path);
 			console.log(
@@ -96,7 +97,7 @@ export const create_plugin = ({
 					esbuild_plugin_external_worker({
 						dev,
 						build_options,
-						svelte_options,
+						svelte_compile_options,
 						dir,
 						alias,
 						public_prefix,
@@ -106,9 +107,9 @@ export const create_plugin = ({
 						ambient_env,
 						log,
 					}),
+					esbuild_plugin_svelte({dir, svelte_compile_options, svelte_preprocessors}),
 					// TODO BLOCK maybe move this ahead of worker, if we call resolve internally
 					esbuild_plugin_sveltekit_local_imports(),
-					esbuild_plugin_svelte({dir, svelte_options}),
 				],
 			});
 			timing_to_esbuild_create_context();

@@ -1,27 +1,46 @@
 import type * as esbuild from 'esbuild';
-import {compile, type CompileOptions} from 'svelte/compiler';
+import {compile, preprocess, type CompileOptions, type PreprocessorGroup} from 'svelte/compiler';
 import {readFile} from 'node:fs/promises';
 import {relative} from 'node:path';
 import {cwd} from 'node:process';
 
 export interface Options {
 	dir?: string;
-	svelte_options?: CompileOptions;
+	// These `svelte_` prefixes are unnecessary and verbose
+	// but they align with the upstream APIs,
+	// so it's simpler overall like for project-wide searching.
+	svelte_compile_options?: CompileOptions;
+	svelte_preprocessors?: PreprocessorGroup | PreprocessorGroup[];
 }
 
-export const esbuild_plugin_svelte = ({dir = cwd(), svelte_options}: Options): esbuild.Plugin => ({
+export const esbuild_plugin_svelte = ({
+	dir = cwd(),
+	svelte_compile_options,
+	svelte_preprocessors,
+}: Options): esbuild.Plugin => ({
 	name: 'svelte',
 	setup: (build) => {
+		console.log('SVELTE SETUP');
 		build.onLoad({filter: /\.svelte$/u}, async ({path}) => {
+			console.log(`SVELLTE path`, path);
 			const source_id = relative(dir, path);
-			const source = await readFile(source_id, 'utf8');
+			const raw_source = await readFile(source_id, 'utf8');
+			let source: string | undefined;
+			console.log(`source_id, source`, source_id, raw_source);
 			try {
+				const preprocessed = svelte_preprocessors
+					? await preprocess(raw_source, svelte_preprocessors, {filename: source_id})
+					: null;
+				// TODO handle preprocessor sourcemaps
+				const source = preprocessed?.code ?? raw_source;
+
 				const {
 					js: {code, map},
 					warnings,
-				} = compile(source, svelte_options);
+				} = compile(source, svelte_compile_options);
 				const contents = map ? code + '//# sourceMappingURL=' + map.toUrl() : code;
 				console.log('COMPILED SVELTE WITH SOURCEMAP', !!map);
+
 				return {
 					contents,
 					warnings: warnings.map((w) => to_sveltekit_message(source_id, source, w)),
@@ -33,7 +52,7 @@ export const esbuild_plugin_svelte = ({dir = cwd(), svelte_options}: Options): e
 				} else {
 					console.log('SVELTE NO CODE');
 				}
-				return {errors: [to_sveltekit_message(source_id, source, err)]};
+				return {errors: [to_sveltekit_message(source_id, source ?? raw_source, err)]};
 			}
 		});
 	},

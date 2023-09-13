@@ -3,7 +3,7 @@ import {yellow, red, magenta} from 'kleur/colors';
 import type {Logger} from '@feltjs/util/log.js';
 import {basename} from 'node:path';
 import {cwd} from 'node:process';
-import type {CompileOptions} from 'svelte/compiler';
+import type {CompileOptions, PreprocessorGroup} from 'svelte/compiler';
 
 import {parse_specifier, print_build_result} from './esbuild_helpers.js';
 import {esbuild_plugin_sveltekit_shim_alias} from './esbuild_plugin_sveltekit_shim_alias.js';
@@ -15,7 +15,8 @@ import {esbuild_plugin_svelte} from './esbuild_plugin_svelte.js';
 export interface Options {
 	dev: boolean;
 	build_options: esbuild.BuildOptions;
-	svelte_options?: CompileOptions;
+	svelte_compile_options?: CompileOptions;
+	svelte_preprocessors?: PreprocessorGroup | PreprocessorGroup[];
 	dir?: string;
 	alias?: Record<string, string>;
 	public_prefix?: string;
@@ -29,7 +30,8 @@ export interface Options {
 export const esbuild_plugin_external_worker = ({
 	dev,
 	build_options,
-	svelte_options,
+	svelte_compile_options,
+	svelte_preprocessors,
 	dir = cwd(),
 	alias,
 	public_prefix,
@@ -60,8 +62,8 @@ export const esbuild_plugin_external_worker = ({
 						ambient_env,
 					}),
 					esbuild_plugin_sveltekit_shim_alias({dir, alias}),
+					esbuild_plugin_svelte({dir, svelte_compile_options, svelte_preprocessors}),
 					esbuild_plugin_sveltekit_local_imports(),
-					esbuild_plugin_svelte({dir, svelte_options}),
 				],
 				...build_options,
 			});
