@@ -10,13 +10,13 @@ import {transform, type TransformOptions} from 'esbuild';
 import {compile} from 'svelte/compiler';
 import {fileURLToPath, pathToFileURL} from 'node:url';
 import {join} from 'node:path';
-import {existsSync} from 'node:fs';
 import {cwd} from 'node:process';
 import type {LoadHook, ResolveHook} from 'node:module';
 
 import {render_env_shim_module} from './util/sveltekit_shim_env.js';
 import {to_sveltekit_app_specifier} from './util/sveltekit_shim_app.js';
 import {load_sveltekit_config} from './util/sveltekit_config.js';
+import {exists} from './util/exists.js';
 
 const dir = cwd() + '/';
 
@@ -130,11 +130,11 @@ export const resolve: ResolveHook = async (specifier, context, nextResolve) => {
 	// TODO BLOCK needs to be relative?
 	let js_path = path_is_relative ? join(parent_path, '../', path) : path;
 	if (!path.endsWith('.js')) js_path += '.js'; // TODO BLOCK handle `.ts` imports too, and svelte, and ignore `.(schema|task.` etc, same helpers as esbuild plugin for server
-	if (existsSync(js_path)) {
+	if (await exists(js_path)) {
 		path = js_path;
 	} else {
 		const ts_path = js_path.slice(0, -3) + '.ts';
-		if (existsSync(ts_path)) {
+		if (await exists(ts_path)) {
 			path = ts_path;
 		}
 	}

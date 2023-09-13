@@ -1,7 +1,6 @@
 import {spawn} from '@feltjs/util/process.js';
 import {z} from 'zod';
 import {green, cyan} from 'kleur/colors';
-import {existsSync} from 'node:fs';
 
 import {TaskError, type Task} from './task/task.js';
 import {is_this_project_gro} from './path/paths.js';
@@ -9,6 +8,7 @@ import {to_raw_rest_args} from './task/args.js';
 import {GIT_DEPLOY_SOURCE_BRANCH} from './config/build_config_defaults.js';
 import {load_package_json} from './util/package_json.js';
 import {find_cli, spawn_cli} from './util/cli.js';
+import {exists} from './util/exists.js';
 
 // publish.task.ts
 // - usage: `gro publish patch`
@@ -42,7 +42,7 @@ export const task: Task<Args> = {
 			log.info(green('dry run!'));
 		}
 
-		const changelogExists = existsSync(changelog);
+		const changelogExists = await exists(changelog);
 		let version!: string;
 
 		// Ensure Changesets is installed:
@@ -105,7 +105,7 @@ export const task: Task<Args> = {
 			);
 		}
 
-		if (!changelogExists && existsSync(changelog)) {
+		if (!changelogExists && (await exists(changelog))) {
 			await spawn('git', ['add', changelog]);
 		}
 		await spawn('git', ['commit', '-a', '-m', `publish v${version}`]);

@@ -1,9 +1,11 @@
 #!/usr/bin/env node
 
-import {existsSync, realpathSync} from 'node:fs';
+import {realpathSync} from 'node:fs';
 import {join, resolve} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {spawn} from '@feltjs/util/process.js';
+
+import {exists} from '../util/exists.js';
 
 /*
 
@@ -42,7 +44,7 @@ const main = async (): Promise<void> => {
 	let path;
 
 	const gro_bin_path = resolve('node_modules/.bin/gro');
-	if (existsSync(gro_bin_path)) {
+	if (await exists(gro_bin_path)) {
 		// case 1
 		// Prefer any locally installed version of Gro.
 		path = join(realpathSync(gro_bin_path), '../invoke.js');
@@ -52,7 +54,7 @@ const main = async (): Promise<void> => {
 		// If the local dist is not yet built it will fall back to the global.
 		const file_path = fileURLToPath(import.meta.url);
 		const base_path = 'dist/cli';
-		if (existsSync(`${base_path}/gro.js`) && existsSync(`${base_path}/invoke.js`)) {
+		if ((await exists(`${base_path}/gro.js`)) && (await exists(`${base_path}/invoke.js`))) {
 			path = join(file_path, `../../../${base_path}/invoke.js`);
 		} else {
 			// case 3
