@@ -84,10 +84,10 @@ export const find_modules = async (
 	timings?: Timings,
 ): Promise<FindModulesResult> => {
 	// Check which extension variation works - if it's a directory, prefer others first!
-	const timingToMapInputPaths = timings?.start('map input paths');
+	const timing_to_map_input_paths = timings?.start('map input paths');
 	const {source_id_path_data_by_input_path, unmapped_input_paths} =
 		await load_source_path_data_by_input_path(input_paths, get_possible_source_ids);
-	timingToMapInputPaths?.();
+	timing_to_map_input_paths?.();
 
 	// Error if any input path could not be mapped.
 	if (unmapped_input_paths.length) {
@@ -108,10 +108,10 @@ export const find_modules = async (
 	}
 
 	// Find all of the files for any directories.
-	const timingToFindFiles = timings?.start('find files');
+	const timing_to_find_files = timings?.start('find files');
 	const {source_ids_by_input_path, input_directories_with_no_files} =
 		await load_source_ids_by_input_path(source_id_path_data_by_input_path, (id) => find_files(id));
-	timingToFindFiles?.();
+	timing_to_find_files?.();
 
 	// Error if any input path has no files. (means we have an empty directory)
 	return input_directories_with_no_files.length
