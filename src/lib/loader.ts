@@ -26,7 +26,6 @@ const dir = cwd() + '/';
 
 console.log('LOADER ENTRY ' + dir);
 
-let sveltekit_config: Config | undefined | null;
 let alias: Record<string, string> | undefined;
 let base_url: '' | `/${string}` | undefined;
 let env_dir: string | undefined;
@@ -36,15 +35,16 @@ let svelte_compile_options: CompileOptions | undefined;
 let svelte_preprocessors: PreprocessorGroup | PreprocessorGroup[] | undefined;
 const init_sveltekit_config = async (): Promise<void> => {
 	console.log('init_sveltekit_config');
-	sveltekit_config = await load_sveltekit_config(dir);
-	alias = sveltekit_config?.kit?.alias;
-	base_url = sveltekit_config?.kit?.paths?.base;
-	env_dir = sveltekit_config?.kit?.env?.dir;
-	private_prefix = sveltekit_config?.kit?.env?.privatePrefix;
-	public_prefix = sveltekit_config?.kit?.env?.publicPrefix;
-	svelte_compile_options = sveltekit_config?.compilerOptions;
-	svelte_preprocessors = sveltekit_config?.preprocess;
+	const config = await load_sveltekit_config(dir);
+	alias = config?.kit?.alias;
+	base_url = config?.kit?.paths?.base;
+	env_dir = config?.kit?.env?.dir;
+	private_prefix = config?.kit?.env?.privatePrefix;
+	public_prefix = config?.kit?.env?.publicPrefix;
+	svelte_compile_options = config?.compilerOptions;
+	svelte_preprocessors = config?.preprocess;
 };
+await init_sveltekit_config(); // always load it to keep things simple ahead
 
 const env_matcher = /src\/lib\/\$env\/(static|dynamic)\/(public|private)$/u;
 const ts_matcher = /\.(ts|tsx|mts|cts)$/u;
@@ -101,7 +101,6 @@ export const resolve: ResolveHook = async (specifier, context, nextResolve) => {
 	// TODO BLOCK fast path for externals,
 	// e.g. ///home/ryan/dev/gro/node_modules/svelte/src/compiler/compile/nodes/Comment.js
 	console.log('RESOLVING ' + specifier, context.parentURL);
-	if (sveltekit_config === undefined) await init_sveltekit_config();
 	// TODO BLOCK better detection of cyclic lazily-loaded config files (include Vite, maybe Gro)
 	if (specifier.endsWith('svelte.config.js')) {
 		return nextResolve(specifier, context);
