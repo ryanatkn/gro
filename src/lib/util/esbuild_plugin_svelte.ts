@@ -74,15 +74,15 @@ const to_sveltekit_message = (
 		location = {
 			file: source_id,
 			line: start.line,
+			lineText,
 			column: start.column,
 			length: lineEnd - start.column,
-			lineText,
 		};
 	}
 	return {text: message, location};
 };
 
-// is not exported by Svelte
+// these are not exported by Svelte
 interface SvelteError {
 	message: string;
 	start?: LineInfo;
