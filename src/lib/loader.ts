@@ -22,7 +22,7 @@ import {to_define_import_meta_env, transform_options} from './util/esbuild_helpe
 
 const dir = cwd() + '/';
 
-const sveltekit_config = await load_sveltekit_config(dir); // was lazy-loaded, but can't be imported during `resolve`, fails silently
+const sveltekit_config = await load_sveltekit_config(dir); // was lazy-loaded, but can't be imported during `resolve`, fails silently - maybe add a hardcoded override?
 const alias = sveltekit_config?.kit?.alias;
 const public_prefix = sveltekit_config?.kit?.env?.publicPrefix;
 const private_prefix = sveltekit_config?.kit?.env?.privatePrefix;

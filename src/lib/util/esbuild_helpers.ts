@@ -83,6 +83,9 @@ export const print_build_result = (log: Logger, build_result: esbuild.BuildResul
 const import_meta_env = 'import.meta' + '.env'; // eslint-disable-line no-useless-concat
 
 // TODO maybe this belongs in a new `vite_helpers.ts`?
+/**
+ * @see https://esbuild.github.io/api/#define
+ */
 export const to_define_import_meta_env = (
 	dev: boolean,
 	base_url = '/', // TODO BLOCK source from Vite config (or SvelteKit? SvelteKit's `base` is different though, '' vs '/' and full URLs too)
