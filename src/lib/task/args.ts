@@ -79,13 +79,13 @@ export const to_forwarded_args = (
 	raw_rest_args?: string[],
 ): Args => to_forwarded_args_by_command(reset, raw_rest_args)[command];
 
-let forwarded_args_by_command: Record<string, Args> | undefined;
+let forwarded_args_by_command: Record<string, Args> | null = null;
 
 export const to_forwarded_args_by_command = (
 	reset = false,
 	raw_rest_args = to_raw_rest_args(),
 ): Record<string, Args> => {
-	if (reset) forwarded_args_by_command = undefined;
+	if (reset) forwarded_args_by_command = null;
 	if (forwarded_args_by_command) return forwarded_args_by_command;
 	// Parse each segment of `argv` separated by `--`.
 	const argvs: string[][] = [];
