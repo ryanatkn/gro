@@ -24,8 +24,8 @@ export const load_env = async (
 
 const load = async (path: string): Promise<Record<string, string> | null> => {
 	if (!(await exists(path))) return null;
-	const content = await readFile(path, 'utf8');
-	const parsed = dotenv.parse(content);
+	const source = await readFile(path, 'utf8');
+	const parsed = dotenv.parse(source);
 	return parsed;
 };
 

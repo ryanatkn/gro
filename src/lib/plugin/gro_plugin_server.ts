@@ -2,6 +2,7 @@ import {spawnRestartableProcess, type RestartableProcess} from '@feltjs/util/pro
 import * as esbuild from 'esbuild';
 import {cwd} from 'node:process';
 import type {Config as SvelteKitConfig} from '@sveltejs/kit';
+import {join} from 'node:path';
 
 import type {Plugin, PluginContext} from './plugin.js';
 import {SERVER_BUILD_BASE_PATH, SERVER_BUILD_NAME} from '../config/build_config_defaults.js';
@@ -16,6 +17,7 @@ import {esbuild_plugin_sveltekit_shim_alias} from '../util/esbuild_plugin_svelte
 import {esbuild_plugin_external_worker} from '../util/esbuild_plugin_external_worker.js';
 import {esbuild_plugin_sveltekit_local_imports} from '../util/esbuild_plugin_sveltekit_local_imports.js';
 import {exists} from '../util/exists.js';
+import {esbuild_plugin_svelte} from '../util/esbuild_plugin_svelte.js';
 
 export interface Options {
 	dir?: string;
@@ -29,9 +31,9 @@ export interface Options {
 }
 
 export const create_plugin = ({
-	dir = cwd() + '/',
+	dir = cwd(),
 	build_name = SERVER_BUILD_NAME,
-	outdir = dir + '.gro/dev/' + build_name,
+	outdir = join(dir, '.gro/dev/' + build_name),
 	outbase = paths.lib,
 	base_build_path = SERVER_BUILD_BASE_PATH,
 	env_files,
@@ -50,10 +52,11 @@ export const create_plugin = ({
 			const public_prefix = sveltekit_config?.kit?.env?.publicPrefix;
 			const private_prefix = sveltekit_config?.kit?.env?.privatePrefix;
 			const env_dir = sveltekit_config?.kit?.env?.dir;
-			// TODO BLOCK support Svelte imports?
-			// const compiler_options = sveltekit_config?.compilerOptions;
+			// TODO BLOCK need to compile for SSR, hoisted option? `import.meta.env.SSR` fallback?
+			// TODO BLOCK sourcemap as a hoisted option? disable for production by default
+			const svelte_options = sveltekit_config?.compilerOptions;
 
-			const server_outfile = outdir + '/' + base_build_path;
+			const server_outfile = join(outdir, base_build_path);
 			console.log(
 				`outdir, base_build_path, server_outfile`,
 				outdir,
@@ -66,10 +69,7 @@ export const create_plugin = ({
 
 			const timing_to_esbuild_create_context = timings.start('create build context');
 
-			const build_options: Pick<
-				esbuild.BuildOptions,
-				'outdir' | 'outbase' | 'format' | 'platform' | 'packages' | 'bundle' | 'target'
-			> = {
+			const build_options: esbuild.BuildOptions = {
 				outdir,
 				outbase,
 				format: 'esm',
@@ -95,8 +95,8 @@ export const create_plugin = ({
 					esbuild_plugin_sveltekit_shim_alias({dir, alias}),
 					esbuild_plugin_external_worker({
 						dev,
-						log,
 						build_options,
+						svelte_options,
 						dir,
 						alias,
 						public_prefix,
@@ -104,9 +104,11 @@ export const create_plugin = ({
 						env_dir,
 						env_files,
 						ambient_env,
+						log,
 					}),
 					// TODO BLOCK maybe move this ahead of worker, if we call resolve internally
 					esbuild_plugin_sveltekit_local_imports(),
+					esbuild_plugin_svelte({dir, svelte_options}),
 				],
 			});
 			timing_to_esbuild_create_context();
