@@ -33,14 +33,6 @@ export const LIB_DIR = LIB_PATH + '/';
 
 export const CONFIG_PATH = SOURCE_DIR + 'gro.config.ts';
 
-export const JS_EXTENSION = '.js';
-export const TS_EXTENSION = '.ts';
-export const CSS_EXTENSION = '.css';
-export const JSON_EXTENSION = '.json';
-export const JSON_JS_EXTENSION = '.json.js';
-export const SOURCEMAP_EXTENSION = '.map';
-export const JS_SOURCEMAP_EXTENSION = '.js.map';
-
 export const README_FILENAME = 'README.md';
 export const SVELTEKIT_CONFIG_FILENAME = 'svelte.config.js';
 export const SVELTEKIT_DEV_DIRNAME = '.svelte-kit';
@@ -108,19 +100,6 @@ export const lib_path_to_import_id = (base_path: string, p = paths): SourceId =>
 // Can be used to map a source id from e.g. the cwd to gro's.
 export const replace_root_dir = (id: string, root_dir: string, p = paths): string =>
 	join(root_dir, to_root_path(id, p));
-
-// TODO This function loses information,
-// and it's also hardcoded to Gro's default file types and output conventions.
-// Maybe this points to a configurable system? Users can define their own extensions in Gro.
-// Maybe `extensionConfigs: FilerExtensionConfig[]`.
-// Or maybe just follow the lead of Rollup/esbuild?
-// TODO BLOCK use this in `parse_specifier`? delete if not
-export const to_build_extension = (source_id: SourceId): string =>
-	source_id.endsWith(TS_EXTENSION)
-		? replace_extension(source_id, JS_EXTENSION)
-		: source_id.endsWith(JSON_EXTENSION)
-		? source_id + JS_EXTENSION
-		: source_id;
 
 export const print_path = (path: string, p = paths, prefix = './'): string =>
 	gray(`${prefix}${to_root_path(path, p)}`);

@@ -29,6 +29,7 @@ export interface Options {
 	ambient_env?: Record<string, string>;
 	sveltekit_config?: SvelteKitConfig;
 	// TODO BLOCK tsconfig, including for Svelte preprocessor? esbuild `importsNotUsedAsValues` in particular
+	// maybe use vite `loadConfig`? use other Vite options?
 }
 
 export const create_plugin = ({

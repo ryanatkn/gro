@@ -83,7 +83,7 @@ export const get_possible_source_ids = (
 			if (input_path.startsWith(root_dir)) continue; // avoid duplicates
 			const is_gro_dist = root_dir === gro_dist_dir; // TODO hacky to handle Gro importing its JS tasks from dist/
 			for (const possible_source_id of ids) {
-				if (is_gro_dist && !possible_source_id.endsWith(JS_EXTENSION)) continue;
+				if (is_gro_dist && !possible_source_id.endsWith('.js')) continue;
 				// TODO hacky to handle Gro importing its JS tasks from dist/
 				possible_source_ids.push(
 					is_gro_dist
