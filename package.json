@@ -239,9 +239,9 @@
       "default": "./dist/path/module.js",
       "types": "./dist/path/module.d.ts"
     },
-    "./path/path_data.js": {
-      "default": "./dist/path/path_data.js",
-      "types": "./dist/path/path_data.d.ts"
+    "./path/path.js": {
+      "default": "./dist/path/path.js",
+      "types": "./dist/path/path.d.ts"
     },
     "./path/paths.js": {
       "default": "./dist/path/paths.js",
@@ -310,10 +310,6 @@
     "./util/exists.js": {
       "default": "./dist/util/exists.js",
       "types": "./dist/util/exists.d.ts"
-    },
-    "./util/filter.js": {
-      "default": "./dist/util/filter.js",
-      "types": "./dist/util/filter.d.ts"
     },
     "./util/find_files.js": {
       "default": "./dist/util/find_files.js",
