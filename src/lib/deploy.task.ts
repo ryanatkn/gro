@@ -8,7 +8,6 @@ import {copyFile, readdir, rename, rm} from 'node:fs/promises';
 
 import type {Task} from './task/task.js';
 import {GIT_DIRNAME, paths, print_path, SVELTEKIT_BUILD_DIRNAME} from './path/paths.js';
-import {to_raw_rest_args} from './task/args.js';
 import {
 	GIT_DEPLOY_SOURCE_BRANCH,
 	GIT_DEPLOY_TARGET_BRANCH,
@@ -63,6 +62,13 @@ export const Args = z
 				description: 'if true, resets the target branch back to the first commit before deploying',
 			})
 			.default(false),
+		install: z.boolean({description: 'readable dual of no-install'}).optional().default(true),
+		'no-install': z
+			.boolean({
+				description: 'opt out of npm installing before building',
+			})
+			.optional()
+			.default(false),
 	})
 	.strict();
 export type Args = z.infer<typeof Args>;
@@ -71,7 +77,7 @@ export const task: Task<Args> = {
 	summary: 'deploy to a branch',
 	Args,
 	run: async ({args, log, invoke_task}): Promise<void> => {
-		const {source, target, origin, dir, dry, clean: cleanAndExit, force, dangerous, reset} = args;
+		const {source, target, origin, dir, dry, clean, force, dangerous, reset, install} = args;
 
 		if (!force && target !== GIT_DEPLOY_TARGET_BRANCH) {
 			throw Error(
@@ -183,14 +189,14 @@ export const task: Task<Args> = {
 		// Clean up any existing worktree.
 		await clean_git_worktree();
 
-		if (cleanAndExit) {
+		if (clean) {
 			log.info(green('all clean'));
 			return;
 		}
 
 		try {
 			// Run the build.
-			await invoke_task('build', to_raw_rest_args());
+			await invoke_task('build', {install});
 
 			// Make sure the expected dir exists after building.
 			if (!(await exists(dir))) {

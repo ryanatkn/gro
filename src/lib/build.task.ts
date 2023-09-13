@@ -23,15 +23,18 @@ export const task: Task<Args> = {
 	summary: 'build the project',
 	Args,
 	run: async (ctx): Promise<void> => {
-		const {config, log} = ctx;
+		const {
+			config,
+			log,
+			args: {install},
+		} = ctx;
 
 		// TODO possibly detect if the git workspace is clean, and ask for confirmation if not,
 		// because we're not doing things like `gro gen` here because that's a dev/CI concern
 
-		// TODO BLOCK put this back
-		// if (install) {
-		// 	await spawn('npm', ['i'], {env: {...process.env, NODE_ENV: 'development'}});
-		// }
+		if (install) {
+			await spawn('npm', ['i'], {env: {...process.env, NODE_ENV: 'development'}});
+		}
 
 		await clean_fs({dist: true});
 

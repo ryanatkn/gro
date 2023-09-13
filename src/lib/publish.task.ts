@@ -4,7 +4,6 @@ import {green, cyan} from 'kleur/colors';
 
 import {TaskError, type Task} from './task/task.js';
 import {is_this_project_gro} from './path/paths.js';
-import {to_raw_rest_args} from './task/args.js';
 import {GIT_DEPLOY_SOURCE_BRANCH} from './config/build_config_defaults.js';
 import {load_package_json} from './util/package_json.js';
 import {find_cli, spawn_cli} from './util/cli.js';
@@ -29,6 +28,13 @@ export const Args = z
 					'build and prepare to publish without actually publishing, for diagnostic and testing purposes',
 			})
 			.default(false),
+		install: z.boolean({description: 'readable dual of no-install'}).optional().default(true),
+		'no-install': z
+			.boolean({
+				description: 'opt out of npm installing before building',
+			})
+			.optional()
+			.default(false),
 	})
 	.strict();
 export type Args = z.infer<typeof Args>;
@@ -37,7 +43,7 @@ export const task: Task<Args> = {
 	summary: 'bump version, publish to npm, and git push',
 	Args,
 	run: async ({args, log, invoke_task}): Promise<void> => {
-		const {branch, changelog, dry} = args;
+		const {branch, changelog, dry, install} = args;
 		if (dry) {
 			log.info(green('dry run!'));
 		}
@@ -55,12 +61,6 @@ export const task: Task<Args> = {
 		await spawn('git', ['fetch', 'origin', branch]);
 		await spawn('git', ['checkout', branch]);
 		await spawn('git', ['pull', 'origin', branch]);
-
-		// TODO BLOCK do we still need this?
-		if (is_this_project_gro) {
-			const buildResult = await spawn('npm', ['run', 'build']);
-			if (!buildResult.ok) throw Error('Failed to build Gro');
-		}
 
 		// Check before proceeding.
 		await invoke_task('check');
@@ -90,7 +90,7 @@ export const task: Task<Args> = {
 		}
 
 		// Build to create the final artifacts:
-		await invoke_task('build', to_raw_rest_args()); // TODO BLOCK this args forwarding is wrong, won't pass validation
+		await invoke_task('build', {install});
 
 		if (dry) {
 			log.info('publishing branch ' + branch);
