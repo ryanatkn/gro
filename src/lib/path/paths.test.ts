@@ -10,7 +10,6 @@ import {
 	to_root_path,
 	source_id_to_base_path,
 	base_path_to_source_id,
-	to_build_extension,
 } from './paths.js';
 
 /* test__create_paths */
@@ -74,16 +73,3 @@ test__base_path_to_source_id('does not change extension', () => {
 
 test__base_path_to_source_id.run();
 /* test__base_path_to_source_id */
-
-/* test__to_build_extension */
-const test__to_build_extension = suite('to_build_extension');
-
-test__to_build_extension('basic behavior', () => {
-	assert.is(to_build_extension('foo/bar.ts'), 'foo/bar.js');
-	assert.is(to_build_extension('foo/bar.json'), 'foo/bar.json.js');
-	assert.is(to_build_extension('foo/bar.css'), 'foo/bar.css');
-	assert.is(to_build_extension('foo/bar.png'), 'foo/bar.png');
-});
-
-test__to_build_extension.run();
-/* test__to_build_extension */

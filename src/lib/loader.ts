@@ -17,6 +17,7 @@ import {render_env_shim_module} from './util/sveltekit_shim_env.js';
 import {to_sveltekit_app_specifier} from './util/sveltekit_shim_app.js';
 import {load_sveltekit_config} from './util/sveltekit_config.js';
 import {exists} from './util/exists.js';
+import {NODE_MODULES_DIRNAME} from './path/paths.js';
 
 const dir = cwd() + '/';
 
@@ -86,7 +87,10 @@ export const load: LoadHook = async (url, context, nextLoad) => {
 
 export const resolve: ResolveHook = async (specifier, context, nextResolve) => {
 	const parent_path = context.parentURL && fileURLToPath(context.parentURL);
-	if (!parent_path?.startsWith(dir) || parent_path.startsWith(dir + 'node_modules/')) {
+	if (
+		!parent_path?.startsWith(dir) ||
+		parent_path.startsWith(join(dir, NODE_MODULES_DIRNAME) + '/')
+	) {
 		return nextResolve(specifier, context);
 	}
 

@@ -11,7 +11,6 @@ import {
 	LIB_PATH,
 	is_this_project_gro,
 	gro_dist_dir,
-	JS_EXTENSION,
 	paths,
 } from './paths.js';
 import {to_path_data, type PathData, type PathStats} from './path.js';

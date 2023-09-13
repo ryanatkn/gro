@@ -6,6 +6,7 @@ import {fileURLToPath} from 'node:url';
 import {spawn} from '@feltjs/util/process.js';
 
 import {exists} from '../util/exists.js';
+import {NODE_MODULES_DIRNAME} from '../path/paths.js';
 
 /*
 
@@ -43,7 +44,7 @@ When using the global CLI, this uses the global Gro installation.
 const main = async (): Promise<void> => {
 	let path;
 
-	const gro_bin_path = resolve('node_modules/.bin/gro');
+	const gro_bin_path = resolve(NODE_MODULES_DIRNAME, '.bin/gro');
 	if (await exists(gro_bin_path)) {
 		// case 1
 		// Prefer any locally installed version of Gro.

@@ -1,13 +1,15 @@
 import {execSync, type SpawnOptions} from 'node:child_process';
 import {spawn, type SpawnResult} from '@feltjs/util/process.js';
+import {join} from 'node:path';
 
 import {exists} from './exists.js';
+import {NODE_MODULES_DIRNAME} from '../path/paths.js';
 
 /**
  * Looks for the CLI `name`, first local to the cwd and then globally.
  */
 export const find_cli = async (name: string): Promise<'local' | 'global' | null> => {
-	if (await exists(`node_modules/.bin/${name}`)) {
+	if (await exists(join(NODE_MODULES_DIRNAME, `.bin/${name}`))) {
 		return 'local';
 	}
 	try {
