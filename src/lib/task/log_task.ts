@@ -68,6 +68,7 @@ export const log_task_help = (log: Logger, meta: TaskModuleMeta): void => {
 	);
 	if (task.Args) {
 		const properties = to_arg_properties(task.Args._def, meta);
+		// TODO hacky padding
 		const longest_task_name = Math.max(
 			ARGS_PROPERTY_NAME.length,
 			to_max_length(properties, (p) => p.name),
@@ -152,7 +153,7 @@ const to_args_schema_description = ({_def}: ZodTypeAny): string => {
 	return '';
 };
 const to_args_schema_default = ({_def}: ZodTypeAny): any => {
-	if (_def.default_value) return _def.default_value();
+	if (_def.defaultValue) return _def.defaultValue();
 	if ('innerType' in _def) {
 		return to_args_schema_default(_def.innerType);
 	}
