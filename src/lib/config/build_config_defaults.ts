@@ -1,5 +1,5 @@
 import type {BuildConfig, BuildName} from './build_config.js';
-import {base_path_to_source_id, LIB_DIR, LIB_DIRNAME} from '../path/paths.js';
+import {base_path_to_source_id, LIB_DIR, LIB_DIRNAME} from '../util/paths.js';
 import {exists} from '../util/exists.js';
 
 export const GIT_DEPLOY_SOURCE_BRANCH = 'main'; // deploy and publish FROM this branch

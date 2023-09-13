@@ -8,8 +8,8 @@ import {
 	type FindModulesResult,
 } from '../util/modules.js';
 import type {Gen, GenResults, GenFile} from './gen.js';
-import {get_possible_source_ids} from '../path/input_path.js';
-import {paths} from '../path/paths.js';
+import {get_possible_source_ids} from '../util/input_path.js';
+import {paths} from '../util/paths.js';
 import {find_files} from '../util/find_files.js';
 import {exists} from '../util/exists.js';
 

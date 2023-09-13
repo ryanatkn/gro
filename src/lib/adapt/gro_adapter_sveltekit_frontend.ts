@@ -2,7 +2,7 @@ import {stripEnd} from '@feltjs/util/string.js';
 
 import type {Adapter} from './adapt.js';
 import {ensure_nojekyll, type HostTarget} from './helpers.js';
-import {SVELTEKIT_BUILD_DIRNAME} from '../path/paths.js';
+import {SVELTEKIT_BUILD_DIRNAME} from '../util/paths.js';
 
 export interface Options {
 	dir: string;

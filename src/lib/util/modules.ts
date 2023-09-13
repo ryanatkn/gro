@@ -4,12 +4,9 @@ import {UnreachableError} from '@feltjs/util/error.js';
 import type {Result} from '@feltjs/util/result.js';
 import {printError} from '@feltjs/util/print.js';
 
-import {
-	load_source_path_data_by_input_path,
-	load_source_ids_by_input_path,
-} from '../path/input_path.js';
-import type {PathStats, PathData} from '../path/path.js';
-import {paths_from_id, print_path, print_path_or_gro_path, type SourceId} from '../path/paths.js';
+import {load_source_path_data_by_input_path, load_source_ids_by_input_path} from './input_path.js';
+import type {PathStats, PathData} from './path.js';
+import {paths_from_id, print_path, print_path_or_gro_path, type SourceId} from './paths.js';
 
 export interface ModuleMeta<TModule extends Record<string, any> = Record<string, any>> {
 	id: string;
@@ -74,7 +71,7 @@ export type LoadModulesResult<TModuleMeta extends ModuleMeta> = Result<
 
 /*
 
-Finds modules from input paths. (see `src/lib/path/input_path.ts` for more)
+Finds modules from input paths. (see `src/lib/util/input_path.ts` for more)
 
 */
 export const find_modules = async (

@@ -4,7 +4,7 @@ import type {Result} from '@feltjs/util/result.js';
 import type {Assignable, Flavored} from '@feltjs/util/types.js';
 import {toArray} from '@feltjs/util/array.js';
 
-import {paths} from '../path/paths.js';
+import {paths} from '../util/paths.js';
 import {
 	normalize_build_configs,
 	validate_build_configs,

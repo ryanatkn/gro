@@ -2,7 +2,7 @@ import {suite} from 'uvu';
 import * as assert from 'uvu/assert';
 
 import {find_files} from './find_files.js';
-import {paths} from '../path/paths.js';
+import {paths} from './paths.js';
 
 /* test__find_files */
 const test__find_files = suite('find_files');

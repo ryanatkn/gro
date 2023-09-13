@@ -3,7 +3,7 @@ import {spawn, type SpawnResult} from '@feltjs/util/process.js';
 import {join} from 'node:path';
 
 import {exists} from './exists.js';
-import {NODE_MODULES_DIRNAME} from '../path/paths.js';
+import {NODE_MODULES_DIRNAME} from './paths.js';
 
 /**
  * Looks for the CLI `name`, first local to the cwd and then globally.

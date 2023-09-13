@@ -3,7 +3,7 @@ import {join, basename, dirname} from 'node:path';
 import {z} from 'zod';
 
 import {gen_module_meta, to_gen_module_type} from './gen_module.js';
-import type {SourceId} from '../path/paths.js';
+import type {SourceId} from '../util/paths.js';
 
 export type GenResult = {
 	origin_id: string;

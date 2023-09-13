@@ -1,6 +1,6 @@
 import {stripStart} from '@feltjs/util/string.js';
 
-import {source_id_to_base_path, paths, paths_from_id, gro_dist_dir} from '../path/paths.js';
+import {source_id_to_base_path, paths, paths_from_id, gro_dist_dir} from '../util/paths.js';
 import {
 	load_module,
 	load_modules,
@@ -16,7 +16,7 @@ import {
 	type Task,
 	TASK_FILE_SUFFIX_JS,
 } from './task.js';
-import {get_possible_source_ids} from '../path/input_path.js';
+import {get_possible_source_ids} from '../util/input_path.js';
 import {find_files} from '../util/find_files.js';
 
 export interface TaskModule {

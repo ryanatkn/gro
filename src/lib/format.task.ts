@@ -3,7 +3,7 @@ import {z} from 'zod';
 
 import {TaskError, type Task} from './task/task.js';
 import {format_directory} from './format/format_directory.js';
-import {paths} from './path/paths.js';
+import {paths} from './util/paths.js';
 
 export const Args = z
 	.object({

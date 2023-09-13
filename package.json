@@ -223,22 +223,6 @@
       "default": "./dist/gen/type_imports.js",
       "types": "./dist/gen/type_imports.d.ts"
     },
-    "./path/input_path.js": {
-      "default": "./dist/path/input_path.js",
-      "types": "./dist/path/input_path.d.ts"
-    },
-    "./path/module.js": {
-      "default": "./dist/path/module.js",
-      "types": "./dist/path/module.d.ts"
-    },
-    "./path/path.js": {
-      "default": "./dist/path/path.js",
-      "types": "./dist/path/path.d.ts"
-    },
-    "./path/paths.js": {
-      "default": "./dist/path/paths.js",
-      "types": "./dist/path/paths.d.ts"
-    },
     "./plugin/gro_plugin_server.js": {
       "default": "./dist/plugin/gro_plugin_server.js",
       "types": "./dist/plugin/gro_plugin_server.d.ts"
@@ -307,6 +291,14 @@
       "default": "./dist/util/find_files.js",
       "types": "./dist/util/find_files.d.ts"
     },
+    "./util/input_path.js": {
+      "default": "./dist/util/input_path.js",
+      "types": "./dist/util/input_path.d.ts"
+    },
+    "./util/module.js": {
+      "default": "./dist/util/module.js",
+      "types": "./dist/util/module.d.ts"
+    },
     "./util/modules.js": {
       "default": "./dist/util/modules.js",
       "types": "./dist/util/modules.d.ts"
@@ -314,6 +306,14 @@
     "./util/package_json.js": {
       "default": "./dist/util/package_json.js",
       "types": "./dist/util/package_json.d.ts"
+    },
+    "./util/path.js": {
+      "default": "./dist/util/path.js",
+      "types": "./dist/util/path.d.ts"
+    },
+    "./util/paths.js": {
+      "default": "./dist/util/paths.js",
+      "types": "./dist/util/paths.d.ts"
     },
     "./util/schema.js": {
       "default": "./dist/util/schema.js",

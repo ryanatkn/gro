@@ -1,8 +1,8 @@
 import chokidar, {type WatchOptions} from 'chokidar';
 import {stat} from 'node:fs/promises';
 
-import type {PathStats, PathFilter} from '../path/path.js';
-import {SOURCE_DIR, SOURCE_DIRNAME, paths, source_id_to_base_path} from '../path/paths.js';
+import type {PathStats, PathFilter} from './path.js';
+import {SOURCE_DIR, SOURCE_DIRNAME, paths, source_id_to_base_path} from './paths.js';
 
 export interface WatchNodeFs {
 	init: () => Promise<void>;

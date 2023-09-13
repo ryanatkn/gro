@@ -3,7 +3,7 @@ import {z} from 'zod';
 
 import {TaskError, type Task} from './task/task.js';
 import {print_command_args, serialize_args, to_forwarded_args} from './task/args.js';
-import {SOURCE_DIRNAME} from './path/paths.js';
+import {SOURCE_DIRNAME} from './util/paths.js';
 import {find_cli, spawn_cli} from './util/cli.js';
 
 export const Args = z

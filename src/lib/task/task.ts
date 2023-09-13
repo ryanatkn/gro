@@ -4,7 +4,7 @@ import type {z} from 'zod';
 import type {Timings} from '@feltjs/util/timings.js';
 
 import type {Args} from '../task/args.js';
-import {LIB_DIRNAME} from '../path/paths.js';
+import {LIB_DIRNAME} from '../util/paths.js';
 import type {GroConfig} from '../config/config.js';
 
 export interface Task<

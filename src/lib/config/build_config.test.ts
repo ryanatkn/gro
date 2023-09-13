@@ -3,7 +3,7 @@ import * as assert from 'uvu/assert';
 import {join} from 'node:path';
 
 import {normalize_build_configs, validate_build_configs} from './build_config.js';
-import {paths} from '../path/paths.js';
+import {paths} from '../util/paths.js';
 
 const input = [paths.source.substring(0, paths.source.length - 1)]; // TODO fix when trailing slash is removed
 const FAKE_CONFIG_INPUT_RAW = 'otherGro.config2.ts';

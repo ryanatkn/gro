@@ -6,7 +6,7 @@ import {join} from 'node:path';
 
 import type {Plugin, PluginContext} from './plugin.js';
 import {SERVER_BUILD_BASE_PATH, SERVER_BUILD_NAME} from '../config/build_config_defaults.js';
-import {paths} from '../path/paths.js';
+import {paths} from '../util/paths.js';
 import type {BuildName} from '../config/build_config.js';
 import {watch_dir, type WatchNodeFs} from '../util/watch_dir.js';
 import {load_sveltekit_config} from '../util/sveltekit_config.js';

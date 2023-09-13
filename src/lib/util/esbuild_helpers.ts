@@ -3,7 +3,7 @@ import type {Logger} from '@feltjs/util/log.js';
 import type * as esbuild from 'esbuild';
 import {dirname, extname, join, relative} from 'node:path';
 
-import {replace_extension} from '../path/paths.js';
+import {replace_extension} from './paths.js';
 import {exists} from './exists.js';
 
 export interface ParsedSpecifier {

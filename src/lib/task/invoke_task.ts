@@ -5,7 +5,7 @@ import {printMs, printTimings} from '@feltjs/util/print.js';
 
 import {to_forwarded_args, type Args} from './args.js';
 import {run_task} from './run_task.js';
-import {resolve_raw_input_path} from '../path/input_path.js';
+import {resolve_raw_input_path} from '../util/input_path.js';
 import {is_task_path} from './task.js';
 import {
 	paths,
@@ -15,7 +15,7 @@ import {
 	print_path_or_gro_path,
 	gro_dist_dir,
 	to_gro_input_path,
-} from '../path/paths.js';
+} from '../util/paths.js';
 import {find_modules, load_modules} from '../util/modules.js';
 import {find_task_modules, load_task_module} from './task_module.js';
 import {load_gro_package_json} from '../util/package_json.js';
@@ -29,7 +29,7 @@ import {load_config, type GroConfig} from '../config/config.js';
  * When a task is invoked,
  * Gro first searches for tasks in the current working directory.
  * and falls back to searching Gro's directory, if the two are different.
- * See `src/lib/path/input_path.ts` for info about what "task_name" can refer to.
+ * See `src/lib/util/input_path.ts` for info about what "task_name" can refer to.
  * If it matches a directory, all of the tasks within it are logged,
  * both in the current working directory and Gro.
  *

@@ -14,7 +14,7 @@ import {
 	paths,
 } from './paths.js';
 import {to_path_data, type PathData, type PathStats} from './path.js';
-import {exists} from '../util/exists.js';
+import {exists} from './exists.js';
 
 /**
  * Raw input paths are paths that users provide to Gro to reference files

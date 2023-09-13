@@ -2,7 +2,7 @@ import {join} from 'node:path';
 import type {Json} from '@feltjs/util/json.js';
 import {readFile} from 'node:fs/promises';
 
-import {paths, gro_paths, is_this_project_gro} from '../path/paths.js';
+import {paths, gro_paths, is_this_project_gro} from './paths.js';
 
 // This is a single entrypoint for getting the `package.json` of both the current project and Gro.
 // It's cached but can be reloaded with `force_refresh` flag.

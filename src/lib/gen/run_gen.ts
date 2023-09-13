@@ -20,7 +20,7 @@ import {
 	to_gen_result,
 	type RawGenResult,
 } from './gen.js';
-import {print_path, source_id_to_base_path} from '../path/paths.js';
+import {print_path, source_id_to_base_path} from '../util/paths.js';
 import {gen_schemas, to_schemas_from_modules} from './gen_schemas.js';
 import {to_json_schema_resolver} from '../util/schema.js';
 

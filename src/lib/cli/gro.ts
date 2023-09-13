@@ -6,7 +6,7 @@ import {fileURLToPath} from 'node:url';
 import {spawn} from '@feltjs/util/process.js';
 
 import {exists} from '../util/exists.js';
-import {NODE_MODULES_DIRNAME} from '../path/paths.js';
+import {NODE_MODULES_DIRNAME} from '../util/paths.js';
 
 /*
 

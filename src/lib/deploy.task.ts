@@ -7,7 +7,7 @@ import {execSync} from 'node:child_process';
 import {copyFile, readdir, rename, rm} from 'node:fs/promises';
 
 import type {Task} from './task/task.js';
-import {GIT_DIRNAME, paths, print_path, SVELTEKIT_BUILD_DIRNAME} from './path/paths.js';
+import {GIT_DIRNAME, paths, print_path, SVELTEKIT_BUILD_DIRNAME} from './util/paths.js';
 import {
 	GIT_DEPLOY_SOURCE_BRANCH,
 	GIT_DEPLOY_TARGET_BRANCH,

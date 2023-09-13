@@ -19,7 +19,7 @@ import {render_env_shim_module} from './util/sveltekit_shim_env.js';
 import {to_sveltekit_app_specifier} from './util/sveltekit_shim_app.js';
 import {load_sveltekit_config} from './util/sveltekit_config.js';
 import {exists} from './util/exists.js';
-import {NODE_MODULES_DIRNAME} from './path/paths.js';
+import {NODE_MODULES_DIRNAME} from './util/paths.js';
 import {to_define_import_meta_env, transform_options} from './util/esbuild_helpers.js';
 
 const dir = cwd() + '/';

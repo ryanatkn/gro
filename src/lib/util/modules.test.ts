@@ -6,7 +6,7 @@ import {find_modules, load_modules, load_module} from './modules.js';
 import * as modTest1 from './fixtures/test1.foo.js';
 import * as modTestBaz1 from './fixtures/baz1/test1.baz.js';
 import * as modTestBaz2 from './fixtures/baz2/test2.baz.js';
-import {get_possible_source_ids} from '../path/input_path.js';
+import {get_possible_source_ids} from './input_path.js';
 import {find_files} from './find_files.js';
 
 /* test__load_module */

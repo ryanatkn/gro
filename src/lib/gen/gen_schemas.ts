@@ -13,7 +13,7 @@ import {
 } from './gen_module.js';
 import {normalize_type_imports} from './type_imports.js';
 import {infer_schema_types, is_json_schema, type JsonSchema} from '../util/schema.js';
-import {to_root_path} from '../path/paths.js';
+import {to_root_path} from '../util/paths.js';
 
 export const gen_schemas = async (
 	mod: SchemaGenModule,
