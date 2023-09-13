@@ -8,7 +8,7 @@ import {clean_fs} from './util/clean.js';
 
 export const Args = z
 	.object({
-		install: z.boolean({description: 'read this instead of no-install'}).optional().default(true),
+		install: z.boolean({description: 'readable dual of no-install'}).optional().default(true),
 		'no-install': z
 			.boolean({
 				description: 'opt out of npm installing before building',

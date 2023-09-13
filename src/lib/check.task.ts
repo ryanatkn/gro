@@ -6,18 +6,15 @@ import {log_error_reasons} from './task/log_task.js';
 
 export const Args = z
 	.object({
-		typecheck: z
-			.boolean({description: 'read this instead of no-typecheck'})
-			.optional()
-			.default(true),
+		typecheck: z.boolean({description: 'readable dual of no-typecheck'}).optional().default(true),
 		'no-typecheck': z.boolean({description: 'opt out of typechecking'}).optional().default(false),
-		test: z.boolean({description: 'read this instead of no-test'}).optional().default(true),
+		test: z.boolean({description: 'readable dual of no-test'}).optional().default(true),
 		'no-test': z.boolean({description: 'opt out of running tests'}).optional().default(false),
-		gen: z.boolean({description: 'read this instead of no-gen'}).optional().default(true),
+		gen: z.boolean({description: 'readable dual of no-gen'}).optional().default(true),
 		'no-gen': z.boolean({description: 'opt out of gen check'}).optional().default(false),
-		format: z.boolean({description: 'read this instead of no-format'}).optional().default(true),
+		format: z.boolean({description: 'readable dual of no-format'}).optional().default(true),
 		'no-format': z.boolean({description: 'opt out of format check'}).optional().default(false),
-		lint: z.boolean({description: 'read this instead of no-lint'}).optional().default(true),
+		lint: z.boolean({description: 'readable dual of no-lint'}).optional().default(true),
 		'no-lint': z.boolean({description: 'opt out of linting'}).optional().default(false),
 	})
 	.strict();
