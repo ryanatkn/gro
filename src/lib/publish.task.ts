@@ -72,7 +72,7 @@ export const task: Task<Args> = {
 		if (dry) {
 			log.info('dry run, skipping changeset version');
 		} else {
-			const pkgBefore = load_package_json();
+			const pkgBefore = await load_package_json();
 			if (typeof pkgBefore.version !== 'string') {
 				throw new TaskError('failed to find package.json version');
 			}
@@ -82,7 +82,7 @@ export const task: Task<Args> = {
 				throw Error('npm version failed: no commits were made: see the error above');
 			}
 
-			const pkgAfter = load_package_json(true);
+			const pkgAfter = await load_package_json(true);
 			version = pkgAfter.version as string;
 			if (pkgBefore.version === version) {
 				throw new TaskError('changeset version failed: are there any changes?');

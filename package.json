@@ -107,10 +107,6 @@
     ]
   },
   "exports": {
-    ".": {
-      "default": "./dist/index.js",
-      "types": "./dist/index.d.ts"
-    },
     "./build.task.js": {
       "default": "./dist/build.task.js",
       "types": "./dist/build.task.d.ts"

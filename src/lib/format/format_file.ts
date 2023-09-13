@@ -6,7 +6,7 @@ import {load_package_json} from '../util/package_json.js';
 export const format_file = async (id: string, content: string): Promise<string> => {
 	const parser = infer_parser(id);
 	if (!parser) return content;
-	const config = load_package_json().prettier as Record<string, any>;
+	const config = (await load_package_json()).prettier as Record<string, any>;
 	return prettier.format(content, {...config, parser});
 };
 

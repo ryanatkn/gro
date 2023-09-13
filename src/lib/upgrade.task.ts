@@ -21,7 +21,7 @@ export const task: Task<Args> = {
 	run: async ({args, log}): Promise<void> => {
 		const {_, dry} = args;
 
-		const pkg = load_package_json();
+		const pkg = await load_package_json();
 
 		const deps = toDeps(pkg).filter((d) => !_.includes(d.key));
 
