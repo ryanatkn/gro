@@ -20,6 +20,7 @@ export interface Options {
 	svelte_compile_options?: CompileOptions;
 	svelte_preprocessors?: PreprocessorGroup | PreprocessorGroup[];
 	alias?: Record<string, string>;
+	base_url?: '' | `/${string}` | undefined;
 	public_prefix?: string;
 	private_prefix?: string;
 	env_dir?: string;
@@ -35,6 +36,7 @@ export const esbuild_plugin_external_worker = ({
 	svelte_compile_options,
 	svelte_preprocessors,
 	alias,
+	base_url,
 	public_prefix,
 	private_prefix,
 	env_dir,
@@ -66,7 +68,7 @@ export const esbuild_plugin_external_worker = ({
 					esbuild_plugin_svelte({dir, svelte_compile_options, svelte_preprocessors}),
 					esbuild_plugin_sveltekit_local_imports(),
 				],
-				define: to_define_import_meta_env(dev),
+				define: to_define_import_meta_env(dev, base_url),
 				...build_options,
 			});
 			builds.set(source_id, building);

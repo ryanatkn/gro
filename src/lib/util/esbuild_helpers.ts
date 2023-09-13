@@ -11,17 +11,22 @@ export const print_build_result = (log: Logger, build_result: esbuild.BuildResul
 	}
 };
 
-// This is weird to avoid a SvelteKit warning,
+// This concatenates weirdly to avoid a SvelteKit warning,
 // because SvelteKit detects usage as a string and not the AST.
 const import_meta_env = 'import.meta' + '.env'; // eslint-disable-line no-useless-concat
 
-// TODO maybe this belongs in a new `vite_helpers.ts`?
 /**
+ * Creates an esbuild `define` shim for Vite's `import.meta\.env`.
  * @see https://esbuild.github.io/api/#define
+ * @param dev
+ * @param base_url - best-effort shim from SvelteKit's `base` to Vite's `import.meta\.env.BASE_URL`
+ * @param ssr
+ * @param mode
+ * @returns
  */
 export const to_define_import_meta_env = (
 	dev: boolean,
-	base_url = '/', // TODO BLOCK source from Vite config (or SvelteKit? SvelteKit's `base` is different though, '' vs '/' and full URLs too)
+	base_url: '' | `/${string}` | undefined,
 	ssr = true,
 	mode = dev ? 'development' : 'production',
 ): Record<string, string> => ({
@@ -30,7 +35,7 @@ export const to_define_import_meta_env = (
 	[import_meta_env + 'PROD']: JSON.stringify(!dev),
 	[import_meta_env + 'SSR']: JSON.stringify(ssr),
 	[import_meta_env + 'MODE']: JSON.stringify(mode),
-	[import_meta_env + 'BASE_URL']: JSON.stringify(base_url),
+	[import_meta_env + 'BASE_URL']: JSON.stringify(base_url || '/'), // it appears SvelteKit's `''` translates to Vite's `'/'`, so this intentionally falls back for falsy values, not just undefined
 });
 
 export const transform_options: esbuild.TransformOptions = {

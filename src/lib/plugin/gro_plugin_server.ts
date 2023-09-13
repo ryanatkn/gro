@@ -49,12 +49,14 @@ export const create_plugin = ({
 	return {
 		name: 'gro_plugin_server',
 		setup: async ({dev, watch, timings, config, log}) => {
+			// TODO BLOCK maybe cache this and return the parsed data on an object? see also the loader
 			const sveltekit_config = sveltekit_config_option ?? (await load_sveltekit_config(dir));
 			console.log(`sveltekit_config`, sveltekit_config);
 			const alias = sveltekit_config?.kit?.alias;
-			const public_prefix = sveltekit_config?.kit?.env?.publicPrefix;
-			const private_prefix = sveltekit_config?.kit?.env?.privatePrefix;
+			const base_url = sveltekit_config?.kit?.paths?.base;
 			const env_dir = sveltekit_config?.kit?.env?.dir;
+			const private_prefix = sveltekit_config?.kit?.env?.privatePrefix;
+			const public_prefix = sveltekit_config?.kit?.env?.publicPrefix;
 			// TODO BLOCK need to compile for SSR, hoisted option? `import.meta\.env.SSR` fallback?
 			// TODO BLOCK sourcemap as a hoisted option? disable for production by default
 			const svelte_compile_options = sveltekit_config?.compilerOptions;
@@ -104,6 +106,7 @@ export const create_plugin = ({
 						svelte_compile_options,
 						svelte_preprocessors,
 						alias,
+						base_url,
 						public_prefix,
 						private_prefix,
 						env_dir,
@@ -115,7 +118,7 @@ export const create_plugin = ({
 					// TODO BLOCK maybe move this ahead of worker, if we call resolve internally
 					esbuild_plugin_sveltekit_local_imports(),
 				],
-				define: to_define_import_meta_env(dev),
+				define: to_define_import_meta_env(dev, base_url),
 				...build_options,
 			});
 			timing_to_esbuild_create_context();

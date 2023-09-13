@@ -8,7 +8,7 @@ usage in Gro: node --loader ./dist/loader.js foo.ts
 
 import * as esbuild from 'esbuild';
 import {loadConfigFromFile} from 'vite';
-import {compile} from 'svelte/compiler';
+import {compile, preprocess, type CompileOptions, type PreprocessorGroup} from 'svelte/compiler';
 import {fileURLToPath, pathToFileURL} from 'node:url';
 import {join} from 'node:path';
 import {cwd} from 'node:process';
@@ -27,19 +27,23 @@ const dir = cwd() + '/';
 console.log('LOADER ENTRY ' + dir);
 
 let sveltekit_config: Config | undefined | null;
-let alias: any;
-let public_prefix: any;
-let private_prefix: any;
-let env_dir: any;
-let compiler_options: any;
+let alias: Record<string, string> | undefined;
+let base_url: '' | `/${string}` | undefined;
+let env_dir: string | undefined;
+let private_prefix: string | undefined;
+let public_prefix: string | undefined;
+let svelte_compile_options: CompileOptions | undefined;
+let svelte_preprocessors: PreprocessorGroup | PreprocessorGroup[] | undefined;
 const init_sveltekit_config = async (): Promise<void> => {
 	console.log('init_sveltekit_config');
 	sveltekit_config = await load_sveltekit_config(dir);
 	alias = sveltekit_config?.kit?.alias;
-	public_prefix = sveltekit_config?.kit?.env?.publicPrefix;
-	private_prefix = sveltekit_config?.kit?.env?.privatePrefix;
+	base_url = sveltekit_config?.kit?.paths?.base;
 	env_dir = sveltekit_config?.kit?.env?.dir;
-	compiler_options = sveltekit_config?.compilerOptions;
+	private_prefix = sveltekit_config?.kit?.env?.privatePrefix;
+	public_prefix = sveltekit_config?.kit?.env?.publicPrefix;
+	svelte_compile_options = sveltekit_config?.compilerOptions;
+	svelte_preprocessors = sveltekit_config?.preprocess;
 };
 
 const env_matcher = /src\/lib\/\$env\/(static|dynamic)\/(public|private)$/u;
@@ -71,7 +75,7 @@ export const load: LoadHook = async (url, context, nextLoad) => {
 		// eslint-disable-next-line @typescript-eslint/no-base-to-string
 		const transformed = await esbuild.transform(loaded.source!.toString(), {
 			...transform_options,
-			define: to_define_import_meta_env(true), // TODO BLOCK other options from config
+			define: to_define_import_meta_env(true, base_url), // TODO BLOCK other options from config
 		});
 		return {format: 'module', shortCircuit: true, source: transformed.code};
 	} else if (svelte_matcher.test(url)) {
@@ -79,7 +83,14 @@ export const load: LoadHook = async (url, context, nextLoad) => {
 		// TODO maybe do path mapping in a Svelte preprocessor here instead of the resolve hook?
 		// TODO include `filename` and `outputFilename` and enable sourcemaps
 		// TODO cache by content hash
-		const transformed = compile(loaded.source!.toString(), compiler_options); // eslint-disable-line @typescript-eslint/no-base-to-string
+		console.log(`Svelte preprocess url`, url);
+		const raw_source = loaded.source!.toString(); // eslint-disable-line @typescript-eslint/no-base-to-string
+		const preprocessed = svelte_preprocessors
+			? await preprocess(raw_source, svelte_preprocessors, {filename: url}) // TODO BLOCK make this a path?
+			: null;
+		// TODO handle preprocessor sourcemaps
+		const source = preprocessed?.code ?? raw_source;
+		const transformed = compile(source, svelte_compile_options);
 		return {format: 'module', shortCircuit: true, source: transformed.js.code};
 	}
 
