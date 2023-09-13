@@ -7,11 +7,13 @@ usage in Gro: node --loader ./dist/loader.js foo.ts
 */
 
 import * as esbuild from 'esbuild';
+import {loadConfigFromFile} from 'vite';
 import {compile} from 'svelte/compiler';
 import {fileURLToPath, pathToFileURL} from 'node:url';
 import {join} from 'node:path';
 import {cwd} from 'node:process';
 import type {LoadHook, ResolveHook} from 'node:module';
+import type {Config} from '@sveltejs/kit';
 
 import {render_env_shim_module} from './util/sveltekit_shim_env.js';
 import {to_sveltekit_app_specifier} from './util/sveltekit_shim_app.js';
@@ -22,18 +24,30 @@ import {to_define_import_meta_env, transform_options} from './util/esbuild_helpe
 
 const dir = cwd() + '/';
 
-const sveltekit_config = await load_sveltekit_config(dir); // was lazy-loaded, but can't be imported during `resolve`, fails silently - maybe add a hardcoded override?
-const alias = sveltekit_config?.kit?.alias;
-const public_prefix = sveltekit_config?.kit?.env?.publicPrefix;
-const private_prefix = sveltekit_config?.kit?.env?.privatePrefix;
-const env_dir = sveltekit_config?.kit?.env?.dir;
-const compiler_options = sveltekit_config?.compilerOptions;
+console.log('LOADER ENTRY ' + dir);
+
+let sveltekit_config: Config | undefined | null;
+let alias: any;
+let public_prefix: any;
+let private_prefix: any;
+let env_dir: any;
+let compiler_options: any;
+const init_sveltekit_config = async (): Promise<void> => {
+	console.log('init_sveltekit_config');
+	sveltekit_config = await load_sveltekit_config(dir);
+	alias = sveltekit_config?.kit?.alias;
+	public_prefix = sveltekit_config?.kit?.env?.publicPrefix;
+	private_prefix = sveltekit_config?.kit?.env?.privatePrefix;
+	env_dir = sveltekit_config?.kit?.env?.dir;
+	compiler_options = sveltekit_config?.compilerOptions;
+};
 
 const env_matcher = /src\/lib\/\$env\/(static|dynamic)\/(public|private)$/u;
 const ts_matcher = /\.(ts|tsx|mts|cts)$/u;
 const svelte_matcher = /\.(svelte)$/u;
 
 export const load: LoadHook = async (url, context, nextLoad) => {
+	console.log(`ENTER load`, url, context);
 	const matched_env = env_matcher.exec(url);
 	if (matched_env) {
 		const mode: 'static' | 'dynamic' = matched_env[1] as any;
@@ -73,6 +87,14 @@ export const load: LoadHook = async (url, context, nextLoad) => {
 };
 
 export const resolve: ResolveHook = async (specifier, context, nextResolve) => {
+	// TODO BLOCK fast path for externals,
+	// e.g. ///home/ryan/dev/gro/node_modules/svelte/src/compiler/compile/nodes/Comment.js
+	console.log('RESOLVING ' + specifier, context.parentURL);
+	if (sveltekit_config === undefined) await init_sveltekit_config();
+	// TODO BLOCK better detection of cyclic lazily-loaded config files (include Vite, maybe Gro)
+	if (specifier.endsWith('svelte.config.js')) {
+		return nextResolve(specifier, context);
+	}
 	const parent_path = context.parentURL && fileURLToPath(context.parentURL);
 	if (
 		!parent_path?.startsWith(dir) ||
