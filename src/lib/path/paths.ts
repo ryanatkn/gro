@@ -67,6 +67,7 @@ export type SourceId = Flavored<string, 'SourceId'>;
 export type BuildId = Flavored<string, 'BuildId'>;
 
 export const create_paths = (root_dir: string): Paths => {
+	// TODO remove reliance on trailing slash towards windows support
 	const root = stripEnd(root_dir, '/') + '/';
 	return {
 		root,

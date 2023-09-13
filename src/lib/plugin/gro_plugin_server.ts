@@ -49,6 +49,7 @@ export const create_plugin = ({
 		name: 'gro_plugin_server',
 		setup: async ({dev, watch, timings, config, log}) => {
 			const sveltekit_config = sveltekit_config_option ?? (await load_sveltekit_config(dir));
+			console.log(`sveltekit_config`, sveltekit_config);
 			const alias = sveltekit_config?.kit?.alias;
 			const public_prefix = sveltekit_config?.kit?.env?.publicPrefix;
 			const private_prefix = sveltekit_config?.kit?.env?.privatePrefix;
@@ -98,8 +99,9 @@ export const create_plugin = ({
 					esbuild_plugin_external_worker({
 						dev,
 						build_options,
-						svelte_compile_options,
 						dir,
+						svelte_compile_options,
+						svelte_preprocessors,
 						alias,
 						public_prefix,
 						private_prefix,

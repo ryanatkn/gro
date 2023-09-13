@@ -15,9 +15,9 @@ import {esbuild_plugin_svelte} from './esbuild_plugin_svelte.js';
 export interface Options {
 	dev: boolean;
 	build_options: esbuild.BuildOptions;
+	dir?: string;
 	svelte_compile_options?: CompileOptions;
 	svelte_preprocessors?: PreprocessorGroup | PreprocessorGroup[];
-	dir?: string;
 	alias?: Record<string, string>;
 	public_prefix?: string;
 	private_prefix?: string;
@@ -30,9 +30,9 @@ export interface Options {
 export const esbuild_plugin_external_worker = ({
 	dev,
 	build_options,
+	dir = cwd(),
 	svelte_compile_options,
 	svelte_preprocessors,
-	dir = cwd(),
 	alias,
 	public_prefix,
 	private_prefix,
