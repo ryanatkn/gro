@@ -1,5 +1,5 @@
 import * as esbuild from 'esbuild';
-import {yellow, red, green, magenta} from 'kleur/colors';
+import {yellow, red, magenta} from 'kleur/colors';
 import type {Logger} from '@feltjs/util/log.js';
 import {basename} from 'node:path';
 
