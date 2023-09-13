@@ -73,7 +73,7 @@ export const get_possible_source_ids = (
 			if (!input_path.endsWith(extension)) {
 				possible_source_ids.push(input_path + extension);
 				// Support task directories, so `src/a/a.task.ts` works like `src/a.task.ts`.
-				possible_source_ids.push(input_path + '/' + basename(input_path) + extension);
+				possible_source_ids.push(join(input_path, basename(input_path) + extension));
 			}
 		}
 	}

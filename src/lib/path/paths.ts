@@ -4,8 +4,6 @@ import {stripEnd, stripStart} from '@feltjs/util/string.js';
 import {gray} from 'kleur/colors';
 import type {Flavored} from '@feltjs/util/types.js';
 
-import type {BuildName} from '../config/build_config.js';
-
 /*
 
 A path `id` is an absolute path to the source/.gro/dist directory.
@@ -91,16 +89,6 @@ export const to_root_path = (id: string, p = paths): string => stripStart(id, p.
 export const source_id_to_base_path = (source_id: SourceId, p = paths): string =>
 	stripStart(source_id, p.source);
 
-// '/home/me/app/.gro/[prod|dev]/build_name/foo/bar/baz.js' → '/home/me/app/src/foo/bar/baz.ts'
-export const build_id_to_source_id = (
-	build_id: BuildId,
-	build_dir = paths.build,
-	p = paths,
-): SourceId => {
-	const base_path = to_build_base_path(build_id, build_dir);
-	return base_path_to_source_id(to_source_extension(base_path), p);
-};
-
 // 'foo/bar/baz.ts' → '/home/me/app/src/foo/bar/baz.ts'
 export const base_path_to_source_id = (base_path: string, p = paths): SourceId =>
 	p.source + base_path;
@@ -116,31 +104,6 @@ export const lib_path_to_import_id = (base_path: string, p = paths): SourceId =>
 	}
 };
 
-export const to_build_out_dir = (build_dir = paths.build): string => stripEnd(build_dir, '/') + '/';
-
-// TODO BLOCK remove? or use for node server plugin?
-export const to_build_out_path = (
-	build_name: BuildName,
-	base_path = '',
-	build_dir = paths.build,
-): string => `${to_build_out_dir(build_dir)}/${build_name}/${base_path}`;
-
-export const to_build_base_path = (build_id: BuildId, build_dir = paths.build): string => {
-	const root_path = stripStart(build_id, build_dir);
-	let separator_count = 0;
-	for (let i = 0; i < root_path.length; i++) {
-		if (root_path[i] === '/') separator_count++;
-		if (separator_count === 2) {
-			// `2` to strip the dev/prod directory and the build name directory
-			return root_path.substring(i + 1);
-		}
-	}
-	// TODO ? errors on inputs like `terser` - should that be allowed to be a `build_id`??
-	// can reproduce by removing a dependency (when turned off I think?)
-	// throw Error(`Invalid build id, cannot convert to build base path: ${build_id}`);
-	return build_id;
-};
-
 // Can be used to map a source id from e.g. the cwd to gro's.
 export const replace_root_dir = (id: string, root_dir: string, p = paths): string =>
 	join(root_dir, to_root_path(id, p));
@@ -150,59 +113,13 @@ export const replace_root_dir = (id: string, root_dir: string, p = paths): strin
 // Maybe this points to a configurable system? Users can define their own extensions in Gro.
 // Maybe `extensionConfigs: FilerExtensionConfig[]`.
 // Or maybe just follow the lead of Rollup/esbuild?
+// TODO BLOCK use this in `parse_specifier`? delete if not
 export const to_build_extension = (source_id: SourceId): string =>
 	source_id.endsWith(TS_EXTENSION)
 		? replace_extension(source_id, JS_EXTENSION)
 		: source_id.endsWith(JSON_EXTENSION)
 		? source_id + JS_EXTENSION
 		: source_id;
-
-// This implementation is complicated but it's fast.
-// TODO see `to_build_extension` comments for discussion about making this generic and configurable
-export const to_source_extension = (build_id: BuildId): string => {
-	const len = build_id.length;
-	let i = len;
-	let extension_count = 1;
-	let char: string | undefined;
-	let extension1: string | null = null;
-	let extension2: string | null = null;
-	while (true) {
-		i--;
-		if (i < 0) break;
-		char = build_id[i];
-		if (char === '/') break;
-		if (char === '.') {
-			const current_extension = build_id.substring(i);
-			if (extension_count === 1) {
-				extension1 = current_extension;
-				extension_count = 2;
-			} else if (extension_count === 2) {
-				extension2 = current_extension;
-				extension_count = 3;
-			} else {
-				// don't handle any more extensions
-				break;
-			}
-		}
-	}
-	switch (extension2) {
-		case JSON_JS_EXTENSION:
-			return build_id.substring(0, len - extension1!.length);
-		case JS_SOURCEMAP_EXTENSION:
-			return build_id.substring(0, len - extension2.length) + TS_EXTENSION;
-		default:
-			break;
-	}
-	switch (extension1) {
-		case SOURCEMAP_EXTENSION:
-			return build_id.substring(0, len - extension1.length);
-		case JS_EXTENSION:
-			return build_id.substring(0, len - extension1.length) + TS_EXTENSION;
-		default:
-			break;
-	}
-	return build_id;
-};
 
 export const print_path = (path: string, p = paths, prefix = './'): string =>
 	gray(`${prefix}${to_root_path(path, p)}`);
