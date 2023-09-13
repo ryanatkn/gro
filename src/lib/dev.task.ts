@@ -11,7 +11,6 @@ export const Args = z
 				description:
 					'opt out of running a long-lived process to watch files and rebuild on changes',
 			})
-			.optional() // TODO behavior differs now with zod, because of `default` this does nothing
 			.default(false),
 	})
 	.strict();

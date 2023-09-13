@@ -27,12 +27,9 @@ export const Args = z
 					'build and prepare to publish without actually publishing, for diagnostic and testing purposes',
 			})
 			.default(false),
-		install: z.boolean({description: 'readable dual of no-install'}).optional().default(true),
+		install: z.boolean({description: 'readable dual of no-install'}).default(true),
 		'no-install': z
-			.boolean({
-				description: 'opt out of npm installing before building',
-			})
-			.optional()
+			.boolean({description: 'opt out of npm installing before building'})
 			.default(false),
 	})
 	.strict();

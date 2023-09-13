@@ -7,10 +7,7 @@ import {load_package_json, type PackageJson} from './util/package_json.js';
 export const Args = z
 	.object({
 		_: z.array(z.string(), {description: 'names of deps to exclude from the upgrade'}).default([]),
-		dry: z
-			.boolean({description: 'if true, print out the planned upgrades'})
-			.optional() // TODO behavior differs now with zod, because of `default` this does nothing
-			.default(false),
+		dry: z.boolean({description: 'if true, print out the planned upgrades'}).default(false),
 	})
 	.strict();
 export type Args = z.infer<typeof Args>;

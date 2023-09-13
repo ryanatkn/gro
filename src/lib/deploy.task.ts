@@ -55,19 +55,17 @@ export const Args = z
 			.default(false),
 		dangerous: z
 			.boolean({description: 'caution!! enables destruction of branches like main and master'})
-			.optional() // TODO behavior differs now with zod, because of `default` this does nothing
 			.default(false),
 		reset: z
 			.boolean({
 				description: 'if true, resets the target branch back to the first commit before deploying',
 			})
 			.default(false),
-		install: z.boolean({description: 'readable dual of no-install'}).optional().default(true),
+		install: z.boolean({description: 'readable dual of no-install'}).default(true),
 		'no-install': z
 			.boolean({
 				description: 'opt out of npm installing before building',
 			})
-			.optional()
 			.default(false),
 	})
 	.strict();

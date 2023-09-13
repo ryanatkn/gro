@@ -6,16 +6,16 @@ import {log_error_reasons} from './task/log_task.js';
 
 export const Args = z
 	.object({
-		typecheck: z.boolean({description: 'readable dual of no-typecheck'}).optional().default(true),
-		'no-typecheck': z.boolean({description: 'opt out of typechecking'}).optional().default(false),
-		test: z.boolean({description: 'readable dual of no-test'}).optional().default(true),
-		'no-test': z.boolean({description: 'opt out of running tests'}).optional().default(false),
-		gen: z.boolean({description: 'readable dual of no-gen'}).optional().default(true),
-		'no-gen': z.boolean({description: 'opt out of gen check'}).optional().default(false),
-		format: z.boolean({description: 'readable dual of no-format'}).optional().default(true),
-		'no-format': z.boolean({description: 'opt out of format check'}).optional().default(false),
-		lint: z.boolean({description: 'readable dual of no-lint'}).optional().default(true),
-		'no-lint': z.boolean({description: 'opt out of linting'}).optional().default(false),
+		typecheck: z.boolean({description: 'readable dual of no-typecheck'}).default(true),
+		'no-typecheck': z.boolean({description: 'opt out of typechecking'}).default(false),
+		test: z.boolean({description: 'readable dual of no-test'}).default(true),
+		'no-test': z.boolean({description: 'opt out of running tests'}).default(false),
+		gen: z.boolean({description: 'readable dual of no-gen'}).default(true),
+		'no-gen': z.boolean({description: 'opt out of gen check'}).default(false),
+		format: z.boolean({description: 'readable dual of no-format'}).default(true),
+		'no-format': z.boolean({description: 'opt out of format check'}).default(false),
+		lint: z.boolean({description: 'readable dual of no-lint'}).default(true),
+		'no-lint': z.boolean({description: 'opt out of linting'}).default(false),
 	})
 	.strict();
 export type Args = z.infer<typeof Args>;
