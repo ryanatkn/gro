@@ -1,14 +1,14 @@
 import type * as esbuild from 'esbuild';
-import {yellow, red, blue, green} from 'kleur/colors';
+import {yellow, blue, magenta} from 'kleur/colors';
 import {readFileSync} from 'node:fs';
+import {dirname} from 'node:path';
 
 import {parse_specifier} from './esbuild_helpers.js';
 
 export const esbuild_plugin_sveltekit_local_imports = (): esbuild.Plugin => ({
 	name: 'sveltekit_local_imports',
 	setup: (build) => {
-		build.onResolve({filter: /^(\/|\.)/u}, async ({path, ...rest}) => {
-			const {importer} = rest;
+		build.onResolve({filter: /^(\/|\.)/u}, async ({path, importer, resolveDir, ...rest}) => {
 			console.log(
 				blue('[sveltekit_imports] ENTER'),
 				'\nimporting ' + yellow(path),
@@ -23,34 +23,35 @@ export const esbuild_plugin_sveltekit_local_imports = (): esbuild.Plugin => ({
 				};
 			}
 
-			const parsed = await parse_specifier(path, importer);
+			const parsed = await parse_specifier(path, importer, resolveDir);
 			console.log(blue('[sveltekit_imports] EXIT'), yellow(parsed.specifier), parsed);
 			const {specifier, source_id, namespace} = parsed;
 
-			// const resolved = await build.resolve(specifier, rest);
-			// console.log(`resolved`, resolved);
 			return {path: specifier, namespace, pluginData: {source_id}};
 		});
 		// TODO BLOCK can we remove this?
 		build.onLoad(
 			{filter: /.*/u, namespace: 'sveltekit_local_imports_entrypoint'},
 			async ({path}) => {
-				console.log(red(`LOAD entrypoint path`), path);
-				return {contents: readFileSync(path), loader: 'ts'};
+				const resolveDir = dirname(path);
+				console.log(magenta(`>>>>LOAD entrypoint path`), path);
+				return {contents: readFileSync(path), loader: 'ts', resolveDir};
 			},
 		);
 		build.onLoad(
 			{filter: /.*/u, namespace: 'sveltekit_local_imports_ts'},
 			async ({path, pluginData: {source_id}}) => {
-				console.log(red(`LOAD TS path, pluginData`), path, source_id);
-				return {contents: readFileSync(source_id), loader: 'ts'};
+				const resolveDir = dirname(source_id);
+				console.log(magenta(`>>>>LOAD TS path, pluginData`), path, source_id);
+				return {contents: readFileSync(source_id), loader: 'ts', resolveDir};
 			},
 		);
 		build.onLoad(
 			{filter: /.*/u, namespace: 'sveltekit_local_imports_js'},
 			async ({path, pluginData: {source_id}}) => {
-				console.log(red(`LOAD JS path, pluginData`), path, source_id);
-				return {contents: readFileSync(source_id), loader: 'js'};
+				const resolveDir = dirname(source_id);
+				console.log(magenta(`>>>>LOAD JS path, pluginData`), path, source_id);
+				return {contents: readFileSync(source_id), loader: 'js', resolveDir};
 			},
 		);
 	},

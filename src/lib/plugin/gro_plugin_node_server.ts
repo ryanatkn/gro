@@ -108,6 +108,7 @@ export const create_plugin = ({
 						env_files,
 						ambient_env,
 					}),
+					// TODO BLOCK maybe move this ahead of worker, if we call resolve internally
 					esbuild_plugin_sveltekit_local_imports(),
 				],
 			});

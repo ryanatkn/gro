@@ -8,6 +8,8 @@ import {exists} from './exists.js';
 
 export interface ParsedSpecifier {
 	specifier: string;
+	// TODO BLOCK see below
+	// specifier_id: string;
 	source_id: string;
 	namespace: string;
 }
@@ -16,15 +18,14 @@ export interface ParsedSpecifier {
  * Maps `path` relative to the `importer`, and infer the correct extension.
  * If no `.js` file is found for the `path` on the filesystem, it assumes `.ts`.
  */
-export const parse_specifier = async (path: string, importer: string): Promise<ParsedSpecifier> => {
-	const path_is_relative = path[0] === '.';
-	const importer_is_relative = importer[0] === '.';
-	if (path_is_relative && importer_is_relative) {
-		throw Error('parse_specifier failed, either path or importer must be absolute');
-	}
-
-	const path_absolute = path_is_relative ? join(dirname(importer), path) : path;
-	const importer_absolute = importer_is_relative ? join(dirname(path), importer) : importer;
+export const parse_specifier = async (
+	path: string,
+	importer: string,
+	dir: string,
+): Promise<ParsedSpecifier> => {
+	if (!dir) throw Error('DELETEME'); // TODO BLOCK
+	const path_absolute = path[0] === '.' ? join(dir, path) : path;
+	const importer_absolute = importer[0] === '.' ? join(dirname(path), importer) : importer;
 
 	const ext = extname(path_absolute);
 	const is_js = ext === '.js';
@@ -56,6 +57,9 @@ export const parse_specifier = async (path: string, importer: string): Promise<P
 
 	let specifier = relative(dirname(importer_absolute), mapped_path);
 	if (specifier[0] !== '.') specifier = './' + specifier;
+
+	// const specifier_id = join(dirname(importer_absolute), specifier);
+	// specifier_id,
 
 	return {specifier, source_id, namespace};
 };

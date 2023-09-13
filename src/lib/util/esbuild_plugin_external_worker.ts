@@ -1,5 +1,5 @@
 import * as esbuild from 'esbuild';
-import {yellow, red, green} from 'kleur/colors';
+import {yellow, red, green, magenta} from 'kleur/colors';
 import type {Logger} from '@feltjs/util/log.js';
 import {basename} from 'node:path';
 
@@ -39,22 +39,14 @@ export const esbuild_plugin_external_worker = ({
 }: Options): esbuild.Plugin => ({
 	name: 'external_worker',
 	setup: (build) => {
-		build.onResolve({filter: /\.worker(|\.js|\.ts)$/u}, async ({path, importer, ...rest}) => {
-			console.log(
-				red('[external_worker] ENTER'),
-				'\nimporting ' + yellow(path),
-				'\nfrom ' + yellow(importer),
-			);
-			console.log(`rest:`, rest);
-			const parsed = await parse_specifier(path, importer);
-			console.log(`parsed`, parsed);
-			const {specifier, source_id, namespace} = parsed;
-
-			// TODO BLOCK build only once -- how to cache? since `setup` is called only once, maybe state by source_id? promise with final specifier and namespace
+		const builds: Map<string, Promise<esbuild.BuildResult>> = new Map();
+		const build_worker = async (source_id: string): Promise<esbuild.BuildResult> => {
+			if (builds.has(source_id)) return builds.get(source_id)!;
+			//
 			console.log(
 				'------------------------\n------------------------\n------------------------\nBUILDING\n------------------------\n------------------------\n-------------------------',
 			);
-			const build_result = await esbuild.build({
+			const building = esbuild.build({
 				...build_options,
 				entryPoints: [source_id],
 				plugins: [
@@ -71,23 +63,46 @@ export const esbuild_plugin_external_worker = ({
 					esbuild_plugin_sveltekit_local_imports(),
 				],
 			});
-			console.log(
-				'------------------------\n------------------------\n------------------------\nBUILD RESULT\n------------------------\n------------------------\n-------------------------\n',
-				build_result,
-			);
-			print_build_result(log, build_result);
+			builds.set(source_id, building);
+			return building;
+		};
 
-			// TODO BLOCK does this work in all cases?
-			// the idea is that we're outputting a new file that's external and a sibling to the main outfile.
-			// what about conflicting file names? need to alias them or something?
-			const final_specifier = './' + basename(specifier);
-			console.log(
-				red('[external_worker] resolved\n'),
-				'\nimporting ' + yellow(final_specifier),
-				'\nfrom ' + yellow(importer),
-				'\nvia ' + yellow(specifier),
-			);
-			return {path: final_specifier, external: true, namespace};
-		});
+		build.onResolve(
+			{filter: /\.worker(|\.js|\.ts)$/u},
+			async ({path, importer, resolveDir, ...rest}) => {
+				console.log(magenta('.'.repeat(50) + '\nexternal_worker\n' + '.'.repeat(50)));
+				console.log(
+					red('[external_worker] ENTER'),
+					'\nimporting ' + yellow(path),
+					'\nfrom ' + yellow(importer),
+				);
+				console.log(`rest:`, rest);
+				const parsed = await parse_specifier(path, importer, resolveDir);
+				console.log(`parsed`, parsed);
+				const {specifier, source_id, namespace} = parsed;
+
+				const build_result = await build_worker(source_id);
+				print_build_result(log, build_result);
+
+				console.log(`build OPTS build.initialOptions.outdir`, build.initialOptions.outdir);
+				console.log(`build OPTS build.initialOptions.outbase`, build.initialOptions.outbase);
+
+				// TODO what about conflicting file names? need to alias them or something? rare enough to ignore?
+				const final_specifier = './' + basename(specifier);
+				console.log(
+					red('[external_worker] resolved\n'),
+					'\nimporting ' + yellow(final_specifier),
+					'\nfrom ' + yellow(importer),
+					'\nvia ' + yellow(specifier),
+				);
+				// TODO BLOCK
+				// const FINAL_SPEC = await parse_specifier(
+				// 	specifier_id,
+				// 	build.initialOptions.outdir + '/ignored',
+				// );
+				// console.log(`FINAL_SPEC`, FINAL_SPEC);
+				return {path: final_specifier, external: true, namespace};
+			},
+		);
 	},
 });
