@@ -75,18 +75,13 @@ export const to_raw_rest_args = (argv = process.argv): string[] => {
  */
 export const to_forwarded_args = (
 	command: string,
-	reset?: boolean,
 	raw_rest_args?: string[],
-): Args => to_forwarded_args_by_command(reset, raw_rest_args)[command];
-
-let forwarded_args_by_command: Record<string, Args> | null = null;
+	cache = to_forwarded_args_by_command(raw_rest_args),
+): Args => cache[command] || {};
 
 export const to_forwarded_args_by_command = (
-	reset = false,
 	raw_rest_args = to_raw_rest_args(),
 ): Record<string, Args> => {
-	if (reset) forwarded_args_by_command = null;
-	if (forwarded_args_by_command) return forwarded_args_by_command;
 	// Parse each segment of `argv` separated by `--`.
 	const argvs: string[][] = [];
 	let arr: string[] | undefined;
@@ -103,7 +98,7 @@ export const to_forwarded_args_by_command = (
 	if (arr?.length) argvs.push(arr);
 	// Add each segment of parsed `argv` keyed by the first rest arg,
 	// which is assumed to be the CLI command that gets forwarded the args.
-	forwarded_args_by_command = {};
+	const forwarded_args_by_command: Record<string, Args> = {};
 	for (const argv of argvs) {
 		const args = mri(argv);
 		let command = args._.shift();

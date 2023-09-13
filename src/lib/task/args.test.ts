@@ -39,7 +39,7 @@ test__to_forwarded_args_by_command('basic behavior', () => {
 			'gro d -b a --c 5 -- '
 		).split(' '),
 	);
-	assert.equal(to_forwarded_args_by_command(true, raw_rest_args), {
+	assert.equal(to_forwarded_args_by_command(raw_rest_args), {
 		eslint: {_: ['a'], b: 'c'},
 		'gro a': {a: true},
 		tsc: {b: true},
@@ -47,7 +47,7 @@ test__to_forwarded_args_by_command('basic behavior', () => {
 		groc: {m: true, n: 'nn'},
 		'gro d': {b: 'a', c: 5},
 	});
-	assert.equal(to_forwarded_args('gro b', true, raw_rest_args), {
+	assert.equal(to_forwarded_args('gro b', raw_rest_args), {
 		'2': 't2a',
 		t: true,
 		t2: 't2b',
