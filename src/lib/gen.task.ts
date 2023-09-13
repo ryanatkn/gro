@@ -66,7 +66,7 @@ export const task: Task<Args> = {
 			if (!failCount) {
 				log.info('checking generated files for changes');
 				const stopTimingToCheckResults = timings.start('check results for changes');
-				const checkGenModulesResults = checkGenModules(gen_results);
+				const checkGenModulesResults = await checkGenModules(gen_results);
 				stopTimingToCheckResults();
 
 				let hasUnexpectedChanges = false;

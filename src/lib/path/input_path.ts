@@ -1,6 +1,6 @@
 import {join, isAbsolute, basename} from 'node:path';
 import {stripEnd, stripStart} from '@feltjs/util/string.js';
-import {existsSync, statSync} from 'node:fs';
+import {statSync} from 'node:fs';
 
 import {
 	lib_path_to_import_id,
@@ -15,6 +15,7 @@ import {
 	paths,
 } from './paths.js';
 import {to_path_data, type PathData, type PathStats} from './path.js';
+import {exists} from '../util/exists.js';
 
 /**
  * Raw input paths are paths that users provide to Gro to reference files
@@ -101,13 +102,13 @@ export const get_possible_source_ids = (
  * and stopping at the first match.
  * Parameterized by `exists` and `stat` so it's fs-agnostic.
  */
-export const load_source_path_data_by_input_path = (
+export const load_source_path_data_by_input_path = async (
 	input_paths: string[],
 	get_possible_source_ids_for_input_path?: (input_path: string) => string[],
-): {
+): Promise<{
 	source_id_path_data_by_input_path: Map<string, PathData>;
 	unmapped_input_paths: string[];
-} => {
+}> => {
 	const source_id_path_data_by_input_path = new Map<string, PathData>();
 	const unmapped_input_paths: string[] = [];
 	for (const input_path of input_paths) {
@@ -117,7 +118,7 @@ export const load_source_path_data_by_input_path = (
 			? get_possible_source_ids_for_input_path(input_path)
 			: [input_path];
 		for (const possible_source_id of possible_source_ids) {
-			if (!existsSync(possible_source_id)) continue;
+			if (!(await exists(possible_source_id))) continue; // eslint-disable-line no-await-in-loop
 			const stats = statSync(possible_source_id);
 			if (stats.isDirectory()) {
 				if (!dir_path_data) {

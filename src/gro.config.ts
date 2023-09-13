@@ -19,7 +19,7 @@ const config: GroConfigCreator = async () => {
 				// (await import('./lib/adapt/gro_adapter_sveltekit_frontend.js')).create_adapter({
 				// 	host_target: 'github_pages',
 				// }),
-				(await import('./lib/adapt/gro_adapter_node_library.js')).create_adapter(),
+				(await import('./lib/adapt/gro_adapter_library.js')).create_adapter(),
 			]),
 	};
 	return partial;

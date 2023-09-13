@@ -175,9 +175,9 @@
       "default": "./dist/adapt/gro_adapter_generic_build.js",
       "types": "./dist/adapt/gro_adapter_generic_build.d.ts"
     },
-    "./adapt/gro_adapter_node_library.js": {
-      "default": "./dist/adapt/gro_adapter_node_library.js",
-      "types": "./dist/adapt/gro_adapter_node_library.d.ts"
+    "./adapt/gro_adapter_library.js": {
+      "default": "./dist/adapt/gro_adapter_library.js",
+      "types": "./dist/adapt/gro_adapter_library.d.ts"
     },
     "./adapt/gro_adapter_sveltekit_frontend.js": {
       "default": "./dist/adapt/gro_adapter_sveltekit_frontend.js",

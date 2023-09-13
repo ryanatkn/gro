@@ -8,7 +8,7 @@ import {find_cli, spawn_cli} from '../util/cli.js';
 
 export const create_adapter = (): Adapter => {
 	return {
-		name: 'gro_adapter_node_library',
+		name: 'gro_adapter_library',
 		adapt: async ({log, timings}) => {
 			if (!(await find_cli('svelte-package'))) {
 				throw Error(`Failed to find svelte-package: install @sveltejs/package locally or globally`);

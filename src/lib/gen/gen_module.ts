@@ -1,4 +1,4 @@
-import {existsSync, readFileSync} from 'node:fs';
+import {readFile} from 'node:fs/promises';
 
 import {
 	type ModuleMeta,
@@ -11,6 +11,7 @@ import type {Gen, GenResults, GenFile} from './gen.js';
 import {get_possible_source_ids} from '../path/input_path.js';
 import {paths} from '../path/paths.js';
 import {find_files} from '../util/find_files.js';
+import {exists} from '../util/exists.js';
 
 export const GEN_FILE_PATTERN_TEXT = 'gen';
 export const GEN_FILE_PATTERN = '.' + GEN_FILE_PATTERN_TEXT + '.';
@@ -77,11 +78,13 @@ export type CheckGenModuleResult =
 			has_changed: true;
 	  };
 
-export const checkGenModules = (gen_results: GenResults): CheckGenModuleResult[] =>
-	gen_results.successes.map((result) => result.files.map((file) => checkGenModule(file))).flat();
+export const checkGenModules = (gen_results: GenResults): Promise<CheckGenModuleResult[]> =>
+	Promise.all(
+		gen_results.successes.map((result) => result.files.map((file) => checkGenModule(file))).flat(),
+	);
 
-export const checkGenModule = (file: GenFile): CheckGenModuleResult => {
-	if (!existsSync(file.id)) {
+export const checkGenModule = async (file: GenFile): Promise<CheckGenModuleResult> => {
+	if (!(await exists(file.id))) {
 		return {
 			file,
 			existing_content: null,
@@ -89,7 +92,7 @@ export const checkGenModule = (file: GenFile): CheckGenModuleResult => {
 			has_changed: true,
 		};
 	}
-	const existing_content = readFileSync(file.id, 'utf8');
+	const existing_content = await readFile(file.id, 'utf8');
 	return {
 		file,
 		existing_content,

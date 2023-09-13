@@ -5,7 +5,7 @@ Gro uses `Adapter`s to convert production builds into final artifacts.
 
 Gro has a number of builtin adapters:
 
-- [`@feltjs/gro_adapter_node_library`](../adapt/gro_adapter_node_library.ts)
+- [`@feltjs/gro_adapter_library`](../adapt/gro_adapter_library.ts)
 - [`@feltjs/gro_adapter_sveltekit_frontend `](../adapt/gro_adapter_sveltekit_frontend.ts)
 - [`@feltjs/gro_adapter_generic_build`](../adapt/gro_adapter_generic_build.ts)
 
@@ -67,7 +67,7 @@ const config: GroConfigCreator = async () => {
 	return {
 		adapt: async () => [
 			(await import('@feltjs/gro/gro_adapter_sveltekit_frontend.js')).create_adapter(),
-			(await import('@feltjs/gro/gro_adapter_node_library.js')).create_adapter(),
+			(await import('@feltjs/gro/gro_adapter_library.js')).create_adapter(),
 			(await import('@feltjs/gro/groAdapterApiServer.js')).create_adapter(),
 		],
 

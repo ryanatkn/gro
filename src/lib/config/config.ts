@@ -3,7 +3,6 @@ import {omitUndefined} from '@feltjs/util/object.js';
 import type {Result} from '@feltjs/util/result.js';
 import type {Assignable, Flavored} from '@feltjs/util/types.js';
 import {toArray} from '@feltjs/util/array.js';
-import {existsSync} from 'node:fs';
 
 import {paths} from '../path/paths.js';
 import {
@@ -15,6 +14,7 @@ import {
 import type {ToConfigAdapters} from '../adapt/adapt.js';
 import createDefaultConfig from './gro.config.default.js';
 import type {ToConfigPlugins} from '../plugin/plugin.js';
+import {exists} from '../util/exists.js';
 
 /*
 
@@ -109,22 +109,17 @@ const _load_config = async (): Promise<GroConfig> => {
 
 	const options: GroConfigCreatorOptions = {log, config: null as any};
 	const default_config = await create_config(createDefaultConfig, options, '');
-	console.log(`default_config`, default_config, default_config.builds[0]);
 	(options as Assignable<GroConfigCreatorOptions, 'config'>).config = default_config;
 
 	const config_path = paths.config;
 	let config: GroConfig;
-	console.log(`_load_config configSourceId`, config_path);
-	if (existsSync(config_path)) {
-		console.log('_load_config EXISTS');
+	if (await exists(config_path)) {
 		const config_module = await import(config_path);
 		validate_config_module(config_module, config_path);
 		config = await create_config(config_module.default, options, config_path, default_config);
 	} else {
-		console.log('_load_config DOESNT EXIST');
 		config = default_config;
 	}
-	console.log(`_load_config final config`, config, config.builds[0]);
 	return config;
 };
 
@@ -141,7 +136,7 @@ export const create_config = async (
 
 	const config = normalize_config(extended_config);
 
-	const validate_result = validate_config(config);
+	const validate_result = await validate_config(config);
 	if (!validate_result.ok) {
 		throw Error(`Invalid Gro config at '${path}': ${validate_result.reason}`);
 	}
@@ -163,8 +158,10 @@ export const validate_config_module: (
 	}
 };
 
-export const validate_config = (config: GroConfig): Result<object, {reason: string}> => {
-	const build_configs_result = validate_build_configs(config.builds);
+export const validate_config = async (
+	config: GroConfig,
+): Promise<Result<object, {reason: string}>> => {
+	const build_configs_result = await validate_build_configs(config.builds);
 	if (!build_configs_result.ok) return build_configs_result;
 	return {ok: true};
 };
@@ -181,13 +178,17 @@ export const normalize_config = (config: GroConfigPartial): GroConfig => {
 	};
 };
 
-export const validate_input_files = (files: string[]): Result<object, {reason: string}> => {
-	const results = files.map((input): null | {ok: false; reason: string} => {
-		if (!existsSync(input)) {
-			return {ok: false, reason: `Input file does not exist: ${input}`};
-		}
-		return null;
-	});
+export const validate_input_files = async (
+	files: string[],
+): Promise<Result<object, {reason: string}>> => {
+	const results = await Promise.all(
+		files.map(async (input): Promise<{ok: false; reason: string} | null> => {
+			if (!(await exists(input))) {
+				return {ok: false, reason: `Input file does not exist: ${input}`};
+			}
+			return null;
+		}),
+	);
 	for (const result of results) {
 		if (result) return result;
 	}

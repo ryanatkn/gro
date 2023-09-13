@@ -1,14 +1,10 @@
 import {spawnRestartableProcess, type RestartableProcess} from '@feltjs/util/process.js';
-import {existsSync} from 'node:fs';
 import * as esbuild from 'esbuild';
 import {cwd} from 'node:process';
 import type {Config as SvelteKitConfig} from '@sveltejs/kit';
 
 import type {Plugin, PluginContext} from './plugin.js';
-import {
-	NODE_SERVER_BUILD_BASE_PATH,
-	NODE_SERVER_BUILD_NAME,
-} from '../config/build_config_defaults.js';
+import {SERVER_BUILD_BASE_PATH, SERVER_BUILD_NAME} from '../config/build_config_defaults.js';
 import {paths} from '../path/paths.js';
 import type {BuildName} from '../config/build_config.js';
 import {watch_dir, type WatchNodeFs} from '../util/watch_dir.js';
@@ -19,6 +15,7 @@ import {print_build_result} from '../util/esbuild_helpers.js';
 import {esbuild_plugin_sveltekit_shim_alias} from '../util/esbuild_plugin_sveltekit_shim_alias.js';
 import {esbuild_plugin_external_worker} from '../util/esbuild_plugin_external_worker.js';
 import {esbuild_plugin_sveltekit_local_imports} from '../util/esbuild_plugin_sveltekit_local_imports.js';
+import {exists} from '../util/exists.js';
 
 export interface Options {
 	dir?: string;
@@ -33,10 +30,10 @@ export interface Options {
 
 export const create_plugin = ({
 	dir = cwd() + '/',
-	build_name = NODE_SERVER_BUILD_NAME,
+	build_name = SERVER_BUILD_NAME,
 	outdir = dir + '.gro/dev/' + build_name,
 	outbase = paths.lib,
-	base_build_path = NODE_SERVER_BUILD_BASE_PATH,
+	base_build_path = SERVER_BUILD_BASE_PATH,
 	env_files,
 	ambient_env,
 	sveltekit_config: sveltekit_config_option,
@@ -132,7 +129,7 @@ export const create_plugin = ({
 			console.log('INITIAL REBUILD');
 			await build_ctx.rebuild();
 
-			if (!existsSync(server_outfile)) {
+			if (!(await exists(server_outfile))) {
 				throw Error(`Node server failed to start due to missing file: ${server_outfile}`);
 			}
 

@@ -3,8 +3,7 @@ import {statSync} from 'node:fs';
 import {sortMap, compareSimpleMapEntries} from '@feltjs/util/map.js';
 import {stripEnd, stripStart} from '@feltjs/util/string.js';
 
-import type {PathStats} from '../path/path.js';
-import type {PathFilter} from './filter.js';
+import type {PathStats, PathFilter} from '../path/path.js';
 
 export const find_files = async (
 	dir: string,

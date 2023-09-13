@@ -630,7 +630,7 @@
 
 ## 0.34.0
 
-- **break**: remove `cjs` and `esm` options from `gro_adapter_node_library`;
+- **break**: remove `cjs` and `esm` options from `gro_adapter_library`;
   for now only ESM is supported, to be revisited when we support package exports;
   in the meantime users can fork the adapter for commonjs outputs
   ([#251](https://github.com/feltjs/gro/pull/251))
@@ -673,7 +673,7 @@
 
 ## 0.31.0
 
-- **break**: change `gro_adapter_node_library` option `type` to boolean `bundle`
+- **break**: change `gro_adapter_library` option `type` to boolean `bundle`
   ([#239](https://github.com/feltjs/gro/pull/239))
 - support outputting Svelte source files in production builds
   ([#239](https://github.com/feltjs/gro/pull/239))
@@ -891,7 +891,7 @@
 - **break**: redesign `gro publish` and `gro deploy`
   ([#187](https://github.com/feltjs/gro/pull/187))
 - **break**: add [`Adapter` system](/src/lib/docs/adapt.md) and
-  [Node library adapter](/src/lib/adapt/gro_adapter_node_library.ts)
+  [Node library adapter](/src/lib/adapt/gro_adapter_library.ts)
   ([#187](https://github.com/feltjs/gro/pull/187))
 - **break**: add a default `"node"` build named `"node"` if one is not defined
   ([#187](https://github.com/feltjs/gro/pull/187))

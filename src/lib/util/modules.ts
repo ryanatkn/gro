@@ -86,7 +86,7 @@ export const find_modules = async (
 	// Check which extension variation works - if it's a directory, prefer others first!
 	const timingToMapInputPaths = timings?.start('map input paths');
 	const {source_id_path_data_by_input_path, unmapped_input_paths} =
-		load_source_path_data_by_input_path(input_paths, get_possible_source_ids);
+		await load_source_path_data_by_input_path(input_paths, get_possible_source_ids);
 	timingToMapInputPaths?.();
 
 	// Error if any input path could not be mapped.

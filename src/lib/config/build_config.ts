@@ -45,9 +45,9 @@ const normalize_build_config_input = (input: BuildConfigPartial['input']): Build
 	toArray(input).map((v) => resolve(paths.source, v));
 
 // TODO make a zod schema and parse
-export const validate_build_configs = (
+export const validate_build_configs = async (
 	build_configs: BuildConfig[],
-): Result<object, {reason: string}> => {
+): Promise<Result<object, {reason: string}>> => {
 	if (!Array.isArray(build_configs)) {
 		return {
 			ok: false,
@@ -73,7 +73,7 @@ export const validate_build_configs = (
 			};
 		}
 		names.add(build_config.name);
-		const validated_input = validate_input_files(build_config.input);
+		const validated_input = await validate_input_files(build_config.input); // eslint-disable-line no-await-in-loop
 		if (!validated_input.ok) return validated_input;
 	}
 	return {ok: true};
