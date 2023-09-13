@@ -4,7 +4,7 @@ import {printError} from '@feltjs/util/print.js';
 import {green, red} from 'kleur/colors';
 import {z} from 'zod';
 import {execSync} from 'node:child_process';
-import {copyFileSync, existsSync, readdirSync, renameSync, rmSync} from 'node:fs';
+import {copyFile, readdir, rename, rm} from 'node:fs/promises';
 
 import type {Task} from './task/task.js';
 import {GIT_DIRNAME, paths, print_path, SVELTEKIT_BUILD_DIRNAME} from './path/paths.js';
@@ -13,6 +13,7 @@ import {
 	GIT_DEPLOY_SOURCE_BRANCH,
 	GIT_DEPLOY_TARGET_BRANCH,
 } from './config/build_config_defaults.js';
+import {exists} from './util/exists.js';
 
 // docs at ./docs/deploy.md
 
@@ -192,13 +193,13 @@ export const task: Task<Args> = {
 			await invoke_task('build', to_raw_rest_args());
 
 			// Make sure the expected dir exists after building.
-			if (!existsSync(dir)) {
+			if (!(await exists(dir))) {
 				log.error(red('directory to deploy does not exist after building:'), dir);
 				return;
 			}
 
 			// Update the initial file.
-			copyFileSync(INITIAL_FILE, join(dir, INITIAL_FILE));
+			await copyFile(INITIAL_FILE, join(dir, INITIAL_FILE));
 		} catch (err) {
 			log.error(red('build failed'), 'but', green('no changes were made to git'), printError(err));
 			if (dry) {
@@ -216,20 +217,24 @@ export const task: Task<Args> = {
 		try {
 			// Set up the deployment worktree
 			await spawn('git', ['worktree', 'add', WORKTREE_DIRNAME, target]);
+
 			// Pull the remote deploy branch, ignoring failures
 			await spawn('git', ['pull', origin, target], GIT_ARGS);
+
 			// Populate the worktree dir with the new files.
 			// We're doing this rather than copying the directory
 			// because we need to preserve the existing worktree directory, or git breaks.
 			// TODO there is be a better way but what is it
-			for (const path of readdirSync(WORKTREE_DIR)) {
-				if (path !== GIT_DIRNAME) {
-					rmSync(`${WORKTREE_DIR}/${path}`, {recursive: true});
-				}
-			}
-			for (const path of readdirSync(dir)) {
-				renameSync(`${dir}/${path}`, `${WORKTREE_DIR}/${path}`);
-			}
+			await Promise.all(
+				(await readdir(WORKTREE_DIR))
+					.map((path) =>
+						path === GIT_DIRNAME ? null : rm(`${WORKTREE_DIR}/${path}`, {recursive: true}),
+					)
+					.concat(
+						(await readdir(dir)).map((path) => rename(`${dir}/${path}`, `${WORKTREE_DIR}/${path}`)),
+					),
+			);
+
 			// commit the changes
 			await spawn('git', ['add', '.', '-f'], GIT_ARGS);
 			await spawn('git', ['commit', '-m', 'deployment'], GIT_ARGS);
@@ -241,9 +246,11 @@ export const task: Task<Args> = {
 		}
 
 		// Clean up and efficiently reconstruct dist/ for users
-		rmSync(`${WORKTREE_DIR}/${GIT_DIRNAME}`, {recursive: true});
-		rmSync(dir, {recursive: true});
-		renameSync(WORKTREE_DIR, dir);
+		await Promise.all([
+			rm(`${WORKTREE_DIR}/${GIT_DIRNAME}`, {recursive: true}),
+			rm(dir, {recursive: true}),
+		]);
+		await rename(WORKTREE_DIR, dir);
 		await clean_git_worktree();
 
 		log.info(green('deployed')); // TODO log a different message if "Everything up-to-date"

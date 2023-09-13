@@ -12,7 +12,7 @@ export const task: Task<Args> = {
 	summary: 'run tsc on the project without emitting any files',
 	Args,
 	run: async ({log}): Promise<void> => {
-		if (find_cli('svelte-check')) {
+		if (await find_cli('svelte-check')) {
 			// svelte-check
 			const serialized = serialize_args(to_forwarded_args('svelte-check'));
 			log.info(print_command_args(['svelte-check'].concat(serialized)));
@@ -20,7 +20,7 @@ export const task: Task<Args> = {
 			if (!svelteCheckResult?.ok) {
 				throw new TaskError(`Failed to typecheck. ${printSpawnResult(svelteCheckResult!)}`);
 			}
-		} else if (find_cli('tsc')) {
+		} else if (await find_cli('tsc')) {
 			// tsc
 			const forwarded = to_forwarded_args('tsc');
 			if (!forwarded.noEmit) forwarded.noEmit = true;

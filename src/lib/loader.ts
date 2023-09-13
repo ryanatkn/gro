@@ -57,8 +57,8 @@ export const load: LoadHook = async (url, context, nextLoad) => {
 		return {
 			format: 'module',
 			shortCircuit: true,
-			// TODO BLOCK how to get `dev`, because `DEV` is production for Gro!
-			source: render_env_shim_module(
+			// TODO BLOCK how to get `dev`? does esm-env work or is it always prod for gro?
+			source: await render_env_shim_module(
 				true,
 				mode,
 				visibility,

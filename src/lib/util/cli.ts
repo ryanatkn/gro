@@ -1,12 +1,13 @@
 import {execSync, type SpawnOptions} from 'node:child_process';
 import {spawn, type SpawnResult} from '@feltjs/util/process.js';
-import {existsSync} from 'node:fs';
+
+import {exists} from './exists.js';
 
 /**
  * Looks for the CLI `name`, first local to the cwd and then globally.
  */
-export const find_cli = (name: string): 'local' | 'global' | null => {
-	if (existsSync(`node_modules/.bin/${name}`)) {
+export const find_cli = async (name: string): Promise<'local' | 'global' | null> => {
+	if (await exists(`node_modules/.bin/${name}`)) {
 		return 'local';
 	}
 	try {
@@ -25,7 +26,7 @@ export const spawn_cli = async (
 	args: any[] = [],
 	options?: SpawnOptions | undefined,
 ): Promise<SpawnResult | undefined> => {
-	const found = find_cli(name);
+	const found = await find_cli(name);
 	if (!found) return;
 	const command = found === 'local' ? 'npx' : name;
 	const final_args = found === 'local' ? [name].concat(args) : args;

@@ -5,7 +5,7 @@ import {load_env} from './env.js';
 /**
  * Generates a module shim for SvelteKit's `$env` imports.
  */
-export const render_env_shim_module = (
+export const render_env_shim_module = async (
 	dev: boolean,
 	mode: 'static' | 'dynamic',
 	visibility: 'public' | 'private',
@@ -14,8 +14,8 @@ export const render_env_shim_module = (
 	env_dir?: string,
 	env_files?: string[],
 	ambient_env?: Record<string, string | undefined>,
-): string => {
-	const env = load_env(
+): Promise<string> => {
+	const env = await load_env(
 		dev,
 		visibility,
 		public_prefix,

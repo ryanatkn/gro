@@ -17,7 +17,7 @@ export const task: Task<Args> = {
 	summary: 'run eslint on the given directories and files',
 	Args,
 	run: async ({log, args}): Promise<void> => {
-		if (!find_cli('eslint')) {
+		if (!(await find_cli('eslint'))) {
 			log.info('ESLint is not installed; skipping linting');
 			return;
 		}

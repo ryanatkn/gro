@@ -1,8 +1,10 @@
 import dotenv from 'dotenv';
-import {readFileSync, existsSync} from 'node:fs';
+import {readFile} from 'node:fs/promises';
 import {resolve} from 'node:path';
 
-export const load_env = (
+import {exists} from './exists.js';
+
+export const load_env = async (
 	dev: boolean,
 	visibility: 'public' | 'private',
 	public_prefix: string,
@@ -10,20 +12,19 @@ export const load_env = (
 	env_dir?: string,
 	env_files = ['.env', '.env.' + (dev ? 'development' : 'production')],
 	ambient_env = process.env,
-): Record<string, string> => {
-	const envs: Array<Record<string, string | undefined>> = [];
-	for (const path of env_files) {
-		const resolved = env_dir === undefined ? path : resolve(env_dir, path);
-		const loaded = load(resolved);
-		if (loaded) envs.push(loaded);
-	}
+): Promise<Record<string, string>> => {
+	const envs: Array<Record<string, string | undefined>> = await Promise.all(
+		env_files
+			.map(async (path) => (await load(env_dir === undefined ? path : resolve(env_dir, path)))!)
+			.filter(Boolean),
+	);
 	envs.push(ambient_env);
 	return merge_envs(envs, visibility, public_prefix, private_prefix);
 };
 
-const load = (path: string): null | Record<string, string> => {
-	if (!existsSync(path)) return null;
-	const content = readFileSync(path, 'utf8');
+const load = async (path: string): Promise<Record<string, string> | null> => {
+	if (!(await exists(path))) return null;
+	const content = await readFile(path, 'utf8');
 	const parsed = dotenv.parse(content);
 	return parsed;
 };

@@ -24,13 +24,13 @@ export const esbuild_plugin_sveltekit_shim_env = ({
 		const namespace = 'sveltekit_shim_env';
 		const filter = /^\$env\/(static|dynamic)\/(public|private)$/u;
 		build.onResolve({filter}, ({path}) => ({path, namespace}));
-		build.onLoad({filter: /.*/u, namespace}, ({path}) => {
+		build.onLoad({filter: /.*/u, namespace}, async ({path}) => {
 			const matches = filter.exec(path);
 			const mode = matches![1] as 'static' | 'dynamic';
 			const visibility = matches![2] as 'public' | 'private';
 			return {
 				loader: 'ts',
-				contents: render_env_shim_module(
+				contents: await render_env_shim_module(
 					dev,
 					mode,
 					visibility,
