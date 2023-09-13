@@ -18,7 +18,7 @@ export interface ParsedSpecifier {
  * Maps `path` relative to the `importer`, and infer the correct extension.
  * If no `.js` file is found for the `path` on the filesystem, it assumes `.ts`.
  */
-export const parse_specifier = async (
+export const resolve_specifier = async (
 	path: string,
 	importer: string,
 	dir: string,

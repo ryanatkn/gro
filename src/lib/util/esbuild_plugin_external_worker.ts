@@ -5,7 +5,11 @@ import {basename} from 'node:path';
 import {cwd} from 'node:process';
 import type {CompileOptions, PreprocessorGroup} from 'svelte/compiler';
 
-import {parse_specifier, print_build_result, to_define_import_meta_env} from './esbuild_helpers.js';
+import {
+	resolve_specifier,
+	print_build_result,
+	to_define_import_meta_env,
+} from './esbuild_helpers.js';
 import {esbuild_plugin_sveltekit_shim_alias} from './esbuild_plugin_sveltekit_shim_alias.js';
 import {esbuild_plugin_sveltekit_shim_env} from './esbuild_plugin_sveltekit_shim_env.js';
 import {esbuild_plugin_sveltekit_shim_app} from './esbuild_plugin_sveltekit_shim_app.js';
@@ -82,7 +86,7 @@ export const esbuild_plugin_external_worker = ({
 					'\nfrom ' + yellow(importer),
 				);
 				console.log(`rest:`, rest);
-				const parsed = await parse_specifier(path, importer, resolveDir);
+				const parsed = await resolve_specifier(path, importer, resolveDir);
 				console.log(`parsed`, parsed);
 				const {specifier, source_id, namespace} = parsed;
 
@@ -101,7 +105,7 @@ export const esbuild_plugin_external_worker = ({
 					'\nvia ' + yellow(specifier),
 				);
 				// TODO BLOCK
-				// const FINAL_SPEC = await parse_specifier(
+				// const FINAL_SPEC = await resolve_specifier(
 				// 	specifier_id,
 				// 	build.initialOptions.outdir + '/ignored',
 				// );
