@@ -75,8 +75,8 @@ export const to_raw_rest_args = (argv = process.argv): string[] => {
  */
 export const to_forwarded_args = (
 	command: string,
-	reset = false,
-	raw_rest_args = to_raw_rest_args(),
+	reset?: boolean,
+	raw_rest_args?: string[],
 ): Args => to_forwarded_args_by_command(reset, raw_rest_args)[command] || {};
 
 let forwarded_args_by_command: Record<string, Args> | undefined;
