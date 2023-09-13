@@ -1,8 +1,7 @@
 import chokidar, {type WatchOptions} from 'chokidar';
-import {statSync} from 'node:fs';
+import {stat} from 'node:fs/promises';
 
-import type {PathStats} from '../path/path_data.js';
-import type {PathFilter} from './filter.js';
+import type {PathStats, PathFilter} from '../path/path.js';
 import {SOURCE_DIR, SOURCE_DIRNAME, paths, source_id_to_base_path} from '../path/paths.js';
 
 export interface WatchNodeFs {
@@ -41,18 +40,18 @@ export const watch_dir = (options: Options): WatchNodeFs => {
 		init: async () => {
 			watcher = chokidar.watch(dir, chokidar_options);
 
-			watcher.on('add', (path, s) => {
-				const stats = s || statSync(path);
+			watcher.on('add', async (path, s) => {
+				const stats = s || (await stat(path));
 				if (filter && !filter(path, stats)) return;
 				on_change({type: 'create', path: toBasePath(path), stats});
 			});
-			watcher.on('addDir', (path, s) => {
-				const stats = s || statSync(path);
+			watcher.on('addDir', async (path, s) => {
+				const stats = s || (await stat(path));
 				if (filter && !filter(path, stats)) return;
 				on_change({type: 'create', path: toBasePath(path), stats});
 			});
-			watcher.on('change', (path, s) => {
-				const stats = s || statSync(path);
+			watcher.on('change', async (path, s) => {
+				const stats = s || (await stat(path));
 				if (filter && !filter(path, stats)) return;
 				on_change({type: 'update', path: toBasePath(path), stats});
 			});

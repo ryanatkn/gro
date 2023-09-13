@@ -8,7 +8,7 @@ import {
 	load_source_path_data_by_input_path,
 	load_source_ids_by_input_path,
 } from '../path/input_path.js';
-import type {PathStats, PathData} from '../path/path_data.js';
+import type {PathStats, PathData} from '../path/path.js';
 import {paths_from_id, print_path, print_path_or_gro_path, type SourceId} from '../path/paths.js';
 
 export interface ModuleMeta<TModule extends Record<string, any> = Record<string, any>> {

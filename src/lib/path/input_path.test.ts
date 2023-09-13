@@ -8,7 +8,7 @@ import {
 	load_source_ids_by_input_path,
 	get_possible_source_ids,
 } from './input_path.js';
-import type {PathStats} from './path_data.js';
+import type {PathStats} from './path.js';
 import {paths} from './paths.js';
 
 /* test__resolve_raw_input_path */

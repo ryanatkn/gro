@@ -2,14 +2,14 @@ import type {Logger} from '@feltjs/util/log.js';
 import {cpSync, existsSync, mkdirSync, statSync, writeFileSync} from 'node:fs';
 
 import type {BuildConfig} from '../config/build_config.js';
-import type {IdStatsFilter} from '../util/filter.js';
+import type {PathFilter} from '../path/path.js';
 import {to_build_out_path, print_path} from '../path/paths.js';
 
 export const copy_dist = (
 	build_config: BuildConfig,
 	dist_out_dir: string,
 	log: Logger,
-	filter?: IdStatsFilter,
+	filter?: PathFilter,
 	rebase_path = '',
 ): void => {
 	// TODO BLOCK remove this? see its comments
