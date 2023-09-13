@@ -1,6 +1,6 @@
 import type * as esbuild from 'esbuild';
 import {yellow, blue, magenta} from 'kleur/colors';
-import {readFileSync} from 'node:fs';
+import {readFile} from 'node:fs/promises';
 import {dirname} from 'node:path';
 
 import {parse_specifier} from './esbuild_helpers.js';
@@ -35,7 +35,7 @@ export const esbuild_plugin_sveltekit_local_imports = (): esbuild.Plugin => ({
 			async ({path}) => {
 				const resolveDir = dirname(path);
 				console.log(magenta(`>>>>LOAD entrypoint path`), path);
-				return {contents: readFileSync(path), loader: 'ts', resolveDir};
+				return {contents: await readFile(path), loader: 'ts', resolveDir};
 			},
 		);
 		build.onLoad(
@@ -43,7 +43,7 @@ export const esbuild_plugin_sveltekit_local_imports = (): esbuild.Plugin => ({
 			async ({path, pluginData: {source_id}}) => {
 				const resolveDir = dirname(source_id);
 				console.log(magenta(`>>>>LOAD TS path, pluginData`), path, source_id);
-				return {contents: readFileSync(source_id), loader: 'ts', resolveDir};
+				return {contents: await readFile(source_id), loader: 'ts', resolveDir};
 			},
 		);
 		build.onLoad(
@@ -51,7 +51,7 @@ export const esbuild_plugin_sveltekit_local_imports = (): esbuild.Plugin => ({
 			async ({path, pluginData: {source_id}}) => {
 				const resolveDir = dirname(source_id);
 				console.log(magenta(`>>>>LOAD JS path, pluginData`), path, source_id);
-				return {contents: readFileSync(source_id), loader: 'js', resolveDir};
+				return {contents: await readFile(source_id), loader: 'js', resolveDir};
 			},
 		);
 	},

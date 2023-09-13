@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import {realpathSync} from 'node:fs';
+import {realpath} from 'node:fs/promises';
 import {join, resolve} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {spawn} from '@feltjs/util/process.js';
@@ -47,7 +47,7 @@ const main = async (): Promise<void> => {
 	if (await exists(gro_bin_path)) {
 		// case 1
 		// Prefer any locally installed version of Gro.
-		path = join(realpathSync(gro_bin_path), '../invoke.js');
+		path = join(await realpath(gro_bin_path), '../invoke.js');
 	} else {
 		// case 2
 		// If running Gro inside its own repo, require the local dist.

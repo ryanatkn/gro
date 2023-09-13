@@ -7,7 +7,6 @@ Gro has a number of builtin adapters:
 
 - [`@feltjs/gro_adapter_library`](../adapt/gro_adapter_library.ts)
 - [`@feltjs/gro_adapter_sveltekit_frontend `](../adapt/gro_adapter_sveltekit_frontend.ts)
-- [`@feltjs/gro_adapter_generic_build`](../adapt/gro_adapter_generic_build.ts)
 
 Also see [`config.adapt` in the config docs](config.md#adapt)
 and usage in [the default config](../config/gro.config.default.ts).

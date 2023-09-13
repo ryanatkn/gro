@@ -171,10 +171,6 @@
       "default": "./dist/adapt/adapt.js",
       "types": "./dist/adapt/adapt.d.ts"
     },
-    "./adapt/gro_adapter_generic_build.js": {
-      "default": "./dist/adapt/gro_adapter_generic_build.js",
-      "types": "./dist/adapt/gro_adapter_generic_build.d.ts"
-    },
     "./adapt/gro_adapter_library.js": {
       "default": "./dist/adapt/gro_adapter_library.js",
       "types": "./dist/adapt/gro_adapter_library.d.ts"

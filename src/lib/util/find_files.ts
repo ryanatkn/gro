@@ -1,5 +1,5 @@
 import glob from 'tiny-glob';
-import {statSync} from 'node:fs';
+import {stat} from 'node:fs/promises';
 import {sortMap, compareSimpleMapEntries} from '@feltjs/util/map.js';
 import {stripEnd, stripStart} from '@feltjs/util/string.js';
 
@@ -15,12 +15,14 @@ export const find_files = async (
 	const final_dir = stripEnd(dir, '/');
 	const globbed = await glob(final_dir + '/**/*', {absolute: true, filesOnly});
 	const paths: Map<string, PathStats> = new Map();
-	for (const g of globbed) {
-		const path = stripStart(g, final_dir + '/');
-		const stats = statSync(g);
-		if (!filter || stats.isDirectory() || filter(path, stats)) {
-			paths.set(path, stats);
-		}
-	}
+	await Promise.all(
+		globbed.map(async (g) => {
+			const path = stripStart(g, final_dir + '/');
+			const stats = await stat(g);
+			if (!filter || stats.isDirectory() || filter(path, stats)) {
+				paths.set(path, stats);
+			}
+		}),
+	);
 	return sort ? sortMap(paths, sort) : paths;
 };

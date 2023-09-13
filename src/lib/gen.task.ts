@@ -2,6 +2,8 @@ import {red, green, gray} from 'kleur/colors';
 import {printMs, printError} from '@feltjs/util/print.js';
 import {plural} from '@feltjs/util/string.js';
 import {z} from 'zod';
+import {dirname} from 'node:path';
+import {mkdir, writeFile} from 'node:fs/promises';
 
 import {TaskError, type Task} from './task/task.js';
 import {run_gen} from './gen/run_gen.js';
@@ -11,8 +13,6 @@ import {load_modules} from './util/modules.js';
 import {format_file} from './format/format_file.js';
 import {print_path} from './path/paths.js';
 import {log_error_reasons} from './task/log_task.js';
-import {mkdirSync, writeFileSync} from 'node:fs';
-import {dirname} from 'node:path';
 
 export const Args = z
 	.object({
@@ -31,9 +31,6 @@ export const task: Task<Args> = {
 	Args,
 	run: async ({args, log, timings}): Promise<void> => {
 		const {_: raw_input_paths, check} = args;
-
-		// TODO BLOCK  should be a timing around this
-		// const timing_to_gen = timings.start('gen');
 
 		// resolve the input paths relative to src/lib/
 		const input_paths = resolve_raw_input_paths(raw_input_paths);
@@ -93,13 +90,22 @@ export const task: Task<Args> = {
 			// write generated files to disk
 			log.info('writing generated files to disk');
 			const stopTimingToOutputResults = timings.start('output results');
-			for (const result of gen_results.successes) {
-				for (const file of result.files) {
-					log.info('writing', print_path(file.id), 'generated from', print_path(file.origin_id));
-					mkdirSync(dirname(file.id), {recursive: true});
-					writeFileSync(file.id, file.content);
-				}
-			}
+			await Promise.all(
+				gen_results.successes
+					.map((result) =>
+						result.files.map(async (file) => {
+							log.info(
+								'writing',
+								print_path(file.id),
+								'generated from',
+								print_path(file.origin_id),
+							);
+							await mkdir(dirname(file.id), {recursive: true});
+							await writeFile(file.id, file.content);
+						}),
+					)
+					.flat(),
+			);
 			stopTimingToOutputResults();
 		}
 
