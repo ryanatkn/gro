@@ -3,7 +3,7 @@ import {yellow, blue, magenta} from 'kleur/colors';
 import {readFile} from 'node:fs/promises';
 import {dirname} from 'node:path';
 
-import {resolve_specifier} from './esbuild_helpers.js';
+import {resolve_specifier} from './resolve_specifier.js';
 
 export const esbuild_plugin_sveltekit_local_imports = (): esbuild.Plugin => ({
 	name: 'sveltekit_local_imports',

@@ -1,7 +1,7 @@
 import {suite} from 'uvu';
 import * as assert from 'uvu/assert';
 
-import {resolve_specifier} from './esbuild_helpers.js';
+import {resolve_specifier} from './resolve_specifier.js';
 import {paths} from './paths.js';
 import {join} from 'node:path';
 

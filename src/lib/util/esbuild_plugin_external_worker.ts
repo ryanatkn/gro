@@ -5,11 +5,8 @@ import {basename} from 'node:path';
 import {cwd} from 'node:process';
 import type {CompileOptions, PreprocessorGroup} from 'svelte/compiler';
 
-import {
-	resolve_specifier,
-	print_build_result,
-	to_define_import_meta_env,
-} from './esbuild_helpers.js';
+import {print_build_result, to_define_import_meta_env} from './esbuild_helpers.js';
+import {resolve_specifier} from './resolve_specifier.js';
 import {esbuild_plugin_sveltekit_shim_alias} from './esbuild_plugin_sveltekit_shim_alias.js';
 import {esbuild_plugin_sveltekit_shim_env} from './esbuild_plugin_sveltekit_shim_env.js';
 import {esbuild_plugin_sveltekit_shim_app} from './esbuild_plugin_sveltekit_shim_app.js';
