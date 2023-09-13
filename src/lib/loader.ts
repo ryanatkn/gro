@@ -6,7 +6,7 @@ usage in Gro: node --loader ./dist/loader.js foo.ts
 
 */
 
-import {transform, type TransformOptions} from 'esbuild';
+import * as esbuild from 'esbuild';
 import {compile} from 'svelte/compiler';
 import {fileURLToPath, pathToFileURL} from 'node:url';
 import {join} from 'node:path';
@@ -18,6 +18,7 @@ import {to_sveltekit_app_specifier} from './util/sveltekit_shim_app.js';
 import {load_sveltekit_config} from './util/sveltekit_config.js';
 import {exists} from './util/exists.js';
 import {NODE_MODULES_DIRNAME} from './path/paths.js';
+import {to_define_import_meta_env, transform_options} from './util/esbuild_helpers.js';
 
 const dir = cwd() + '/';
 
@@ -27,24 +28,6 @@ const public_prefix = sveltekit_config?.kit?.env?.publicPrefix;
 const private_prefix = sveltekit_config?.kit?.env?.privatePrefix;
 const env_dir = sveltekit_config?.kit?.env?.dir;
 const compiler_options = sveltekit_config?.compilerOptions;
-
-const transformOptions: TransformOptions = {
-	target: 'esnext',
-	// TODO add support - runtime lookup to `source-map-support`,
-	// maybe caching everything here to the filesystem, both source and sourcemaps,
-	// or perhaps compile the sourcemaps lazily only when retrieved
-	sourcemap: false,
-	format: 'esm',
-	loader: 'ts',
-	charset: 'utf8',
-	// TODO load local tsconfig
-	tsconfigRaw: {
-		compilerOptions: {
-			importsNotUsedAsValues: 'error',
-			preserveValueImports: true,
-		},
-	},
-};
 
 const env_matcher = /src\/lib\/\$env\/(static|dynamic)\/(public|private)$/u;
 const ts_matcher = /\.(ts|tsx|mts|cts)$/u;
@@ -71,7 +54,11 @@ export const load: LoadHook = async (url, context, nextLoad) => {
 	} else if (ts_matcher.test(url)) {
 		const loaded = await nextLoad(url, {...context, format: 'module'});
 		// TODO maybe do path mapping in an esbuild plugin here instead of the resolve hook?
-		const transformed = await transform(loaded.source!.toString(), transformOptions); // eslint-disable-line @typescript-eslint/no-base-to-string
+		// eslint-disable-next-line @typescript-eslint/no-base-to-string
+		const transformed = await esbuild.transform(loaded.source!.toString(), {
+			...transform_options,
+			define: to_define_import_meta_env(true), // TODO BLOCK other options from config
+		});
 		return {format: 'module', shortCircuit: true, source: transformed.code};
 	} else if (svelte_matcher.test(url)) {
 		const loaded = await nextLoad(url, {...context, format: 'module'});

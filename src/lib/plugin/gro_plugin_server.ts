@@ -12,7 +12,7 @@ import {watch_dir, type WatchNodeFs} from '../util/watch_dir.js';
 import {load_sveltekit_config} from '../util/sveltekit_config.js';
 import {esbuild_plugin_sveltekit_shim_app} from '../util/esbuild_plugin_sveltekit_shim_app.js';
 import {esbuild_plugin_sveltekit_shim_env} from '../util/esbuild_plugin_sveltekit_shim_env.js';
-import {print_build_result} from '../util/esbuild_helpers.js';
+import {print_build_result, to_define_import_meta_env} from '../util/esbuild_helpers.js';
 import {esbuild_plugin_sveltekit_shim_alias} from '../util/esbuild_plugin_sveltekit_shim_alias.js';
 import {esbuild_plugin_external_worker} from '../util/esbuild_plugin_external_worker.js';
 import {esbuild_plugin_sveltekit_local_imports} from '../util/esbuild_plugin_sveltekit_local_imports.js';
@@ -55,7 +55,7 @@ export const create_plugin = ({
 			const public_prefix = sveltekit_config?.kit?.env?.publicPrefix;
 			const private_prefix = sveltekit_config?.kit?.env?.privatePrefix;
 			const env_dir = sveltekit_config?.kit?.env?.dir;
-			// TODO BLOCK need to compile for SSR, hoisted option? `import.meta.env.SSR` fallback?
+			// TODO BLOCK need to compile for SSR, hoisted option? `import.meta\.env.SSR` fallback?
 			// TODO BLOCK sourcemap as a hoisted option? disable for production by default
 			const svelte_compile_options = sveltekit_config?.compilerOptions;
 			const svelte_preprocessors = sveltekit_config?.preprocess;
@@ -73,6 +73,7 @@ export const create_plugin = ({
 
 			const timing_to_esbuild_create_context = timings.start('create build context');
 
+			// TODO BLOCK source overrides from build_options: build_options_option
 			const build_options: esbuild.BuildOptions = {
 				outdir,
 				outbase,
@@ -84,7 +85,6 @@ export const create_plugin = ({
 			};
 
 			build_ctx = await esbuild.context({
-				...build_options,
 				entryPoints: build_config.input,
 				plugins: [
 					esbuild_plugin_sveltekit_shim_app(),
@@ -115,6 +115,8 @@ export const create_plugin = ({
 					// TODO BLOCK maybe move this ahead of worker, if we call resolve internally
 					esbuild_plugin_sveltekit_local_imports(),
 				],
+				define: to_define_import_meta_env(dev),
+				...build_options,
 			});
 			timing_to_esbuild_create_context();
 

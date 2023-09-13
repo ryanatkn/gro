@@ -5,7 +5,7 @@ import {basename} from 'node:path';
 import {cwd} from 'node:process';
 import type {CompileOptions, PreprocessorGroup} from 'svelte/compiler';
 
-import {parse_specifier, print_build_result} from './esbuild_helpers.js';
+import {parse_specifier, print_build_result, to_define_import_meta_env} from './esbuild_helpers.js';
 import {esbuild_plugin_sveltekit_shim_alias} from './esbuild_plugin_sveltekit_shim_alias.js';
 import {esbuild_plugin_sveltekit_shim_env} from './esbuild_plugin_sveltekit_shim_env.js';
 import {esbuild_plugin_sveltekit_shim_app} from './esbuild_plugin_sveltekit_shim_app.js';
@@ -65,6 +65,7 @@ export const esbuild_plugin_external_worker = ({
 					esbuild_plugin_svelte({dir, svelte_compile_options, svelte_preprocessors}),
 					esbuild_plugin_sveltekit_local_imports(),
 				],
+				define: to_define_import_meta_env(dev),
 				...build_options,
 			});
 			builds.set(source_id, building);
