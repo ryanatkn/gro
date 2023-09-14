@@ -1,4 +1,4 @@
-import {join, basename, extname, sep} from 'node:path';
+import {join, basename, extname} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {stripEnd, stripStart} from '@feltjs/util/string.js';
 import {gray} from 'kleur/colors';
@@ -24,23 +24,23 @@ the `path_parts` are `['foo', 'foo/bar', 'foo/bar/baz.ts']`.
 export const SOURCE_DIRNAME = 'src';
 export const BUILD_DIRNAME = '.gro';
 export const LIB_DIRNAME = 'lib';
-export const DIST_DIRNAME = BUILD_DIRNAME + sep + 'dist';
-export const SOURCE_DIR = SOURCE_DIRNAME + sep;
-export const BUILD_DIR = BUILD_DIRNAME + sep;
-export const DIST_DIR = DIST_DIRNAME + sep;
+export const DIST_DIRNAME = BUILD_DIRNAME + '/dist';
+export const SOURCE_DIR = SOURCE_DIRNAME + '/';
+export const BUILD_DIR = BUILD_DIRNAME + '/';
+export const DIST_DIR = DIST_DIRNAME + '/';
 export const LIB_PATH = SOURCE_DIR + LIB_DIRNAME;
-export const LIB_DIR = LIB_PATH + sep;
+export const LIB_DIR = LIB_PATH + '/';
 
 export const CONFIG_PATH = SOURCE_DIR + 'gro.config.ts';
 
 export const README_FILENAME = 'README.md';
 export const SVELTEKIT_CONFIG_FILENAME = 'svelte.config.js';
 export const SVELTEKIT_DEV_DIRNAME = '.svelte-kit';
-export const SVELTEKIT_TSCONFIG = SVELTEKIT_DEV_DIRNAME + sep + 'tsconfig.json';
+export const SVELTEKIT_TSCONFIG = SVELTEKIT_DEV_DIRNAME + '/tsconfig.json';
 export const SVELTEKIT_BUILD_DIRNAME = 'build';
 export const SVELTEKIT_APP_DIRNAME = 'app'; // same as /svelte.config.cjs `kit.appDir`
 export const NODE_MODULES_DIRNAME = 'node_modules';
-export const SVELTEKIT_VITE_CACHE_PATH = NODE_MODULES_DIRNAME + sep + '.vite';
+export const SVELTEKIT_VITE_CACHE_PATH = NODE_MODULES_DIRNAME + '/.vite';
 export const GITHUB_DIRNAME = '.github';
 export const GIT_DIRNAME = '.git';
 export const TSCONFIG_FILENAME = 'tsconfig.json';
@@ -59,7 +59,7 @@ export type BuildId = Flavored<string, 'BuildId'>;
 
 export const create_paths = (root_dir: string): Paths => {
 	// TODO remove reliance on trailing slash towards windows support
-	const root = stripEnd(root_dir, sep) + sep;
+	const root = stripEnd(root_dir, '/') + '/';
 	return {
 		root,
 		source: root + SOURCE_DIR,
@@ -90,9 +90,9 @@ export const base_path_to_source_id = (base_path: string, p = paths): SourceId =
 // 'foo/bar/baz.ts' → '/home/me/app/dist/foo/bar/baz.ts'
 export const lib_path_to_import_id = (base_path: string, p = paths): SourceId => {
 	if (p.root === gro_paths.root) {
-		return join(gro_dist_dir, base_path);
+		return p.root + 'dist/' + base_path;
 	} else {
-		return base_path_to_source_id(join(LIB_DIRNAME, base_path), p);
+		return base_path_to_source_id(LIB_DIRNAME + '/' + base_path, p);
 	}
 };
 
@@ -117,23 +117,22 @@ export const replace_extension = (path: string, new_extension: string): string =
 };
 
 const filename = fileURLToPath(import.meta.url);
-// TODO hacky
 const gro_dir = join(
 	filename,
-	filename.includes(`${sep}gro${sep}src${sep}lib${sep}`)
+	filename.includes('/gro/src/lib/')
 		? '../../../../'
-		: filename.includes(`${sep}gro${sep}dist${sep}`)
+		: filename.includes('/gro/dist/')
 		? '../../../'
 		: '../',
 );
-export const gro_dir_basename = basename(gro_dir) + sep;
-export const paths = create_paths(process.cwd() + sep);
+export const gro_dir_basename = basename(gro_dir) + '/';
+export const paths = create_paths(process.cwd() + '/');
 export const is_this_project_gro = gro_dir === paths.root;
 export const gro_paths = is_this_project_gro ? paths : create_paths(gro_dir);
-export const gro_dist_dir = join(gro_paths.root, 'dist') + sep; // this is the SvelteKit output dir, whereas `gro_paths.dist` is Gro's build output directory that will be removed
+export const gro_dist_dir = gro_paths.root + 'dist/'; // this is the SvelteKit output dir, whereas `gro_paths.dist` is Gro's build output directory that will be removed
 
 // TODO BLOCK hacky, `gro_dist_dir`
 export const to_gro_input_path = (input_path: string): string => {
 	const base_path = input_path === paths.lib.slice(0, -1) ? '' : stripStart(input_path, paths.lib);
-	return gro_dist_dir + base_path; // TODO BLOCK join, but trailing slash may get messed up
+	return gro_dist_dir + base_path;
 };
