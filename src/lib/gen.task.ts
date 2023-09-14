@@ -7,7 +7,7 @@ import {mkdir, writeFile} from 'node:fs/promises';
 
 import {TaskError, type Task} from './task/task.js';
 import {run_gen} from './gen/run_gen.js';
-import {load_gen_module, checkGenModules, find_gen_modules} from './gen/gen_module.js';
+import {load_gen_module, check_gen_modules, find_gen_modules} from './gen/gen_module.js';
 import {resolve_raw_input_paths} from './util/input_path.js';
 import {load_modules} from './util/modules.js';
 import {format_file} from './format/format_file.js';
@@ -63,11 +63,11 @@ export const task: Task<Args> = {
 			if (!failCount) {
 				log.info('checking generated files for changes');
 				const stopTimingToCheckResults = timings.start('check results for changes');
-				const checkGenModulesResults = await checkGenModules(gen_results);
+				const check_gen_modulesResults = await check_gen_modules(gen_results);
 				stopTimingToCheckResults();
 
 				let hasUnexpectedChanges = false;
-				for (const result of checkGenModulesResults) {
+				for (const result of check_gen_modulesResults) {
 					if (!result.has_changed) continue;
 					hasUnexpectedChanges = true;
 					log.error(

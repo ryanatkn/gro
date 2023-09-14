@@ -78,12 +78,14 @@ export type CheckGenModuleResult =
 			has_changed: true;
 	  };
 
-export const checkGenModules = (gen_results: GenResults): Promise<CheckGenModuleResult[]> =>
+export const check_gen_modules = (gen_results: GenResults): Promise<CheckGenModuleResult[]> =>
 	Promise.all(
-		gen_results.successes.map((result) => result.files.map((file) => checkGenModule(file))).flat(),
+		gen_results.successes
+			.map((result) => result.files.map((file) => check_gen_module(file)))
+			.flat(),
 	);
 
-export const checkGenModule = async (file: GenFile): Promise<CheckGenModuleResult> => {
+export const check_gen_module = async (file: GenFile): Promise<CheckGenModuleResult> => {
 	if (!(await exists(file.id))) {
 		return {
 			file,
