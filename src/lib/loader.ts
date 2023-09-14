@@ -9,7 +9,7 @@ usage in Gro: node --loader ./dist/loader.js foo.ts
 import * as esbuild from 'esbuild';
 import {compile, preprocess} from 'svelte/compiler';
 import {fileURLToPath, pathToFileURL} from 'node:url';
-import {join} from 'node:path';
+import {dirname, join} from 'node:path';
 import {cwd} from 'node:process';
 import type {LoadHook, ResolveHook} from 'node:module';
 import {escapeRegexp} from '@feltjs/util/regexp.js';
@@ -139,7 +139,7 @@ export const resolve: ResolveHook = async (specifier, context, nextResolve) => {
 	// await import.meta.resolve(path);
 
 	const importer = fileURLToPath(parent_url);
-	const resolved = await resolve_specifier(path, importer);
+	const {source_id} = await resolve_specifier(path, importer);
 
-	return {url: pathToFileURL(resolved.specifier).href, format: 'module', shortCircuit: true};
+	return {url: pathToFileURL(source_id).href, format: 'module', shortCircuit: true};
 };

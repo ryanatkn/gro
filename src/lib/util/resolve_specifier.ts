@@ -12,7 +12,8 @@ export interface ResolvedSpecifier {
 export const default_passthrough_extensions = new Set(['.svelte']); // mutate if you dare, it's probably ok, maybe we should add config
 
 /**
- * Maps `path` relative to the `importer`, and infer the correct extension.
+ * Maps a `path` import specifier relative to the `importer`,
+ * and infer the correct extension following Vite conventions.
  * If no `.js` file is found for the `path` on the filesystem, it assumes `.ts`.
  * @param path
  * @param importer - either must be absolute or a `dir` must be provided
