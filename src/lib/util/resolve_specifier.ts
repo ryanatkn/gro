@@ -34,12 +34,11 @@ export const resolve_specifier = async (
 		throw Error('resolve_specifier requires either an absolute importer or a dir');
 	}
 	console.log(`path, importer, dir`, {path, importer, dir});
-	const final_dir = dir || dirname(importer);
-	console.log(`final_dir`, final_dir);
-	const path_id = path[0] === '/' ? path : join(final_dir, path); // TODO BLOCK this is wrong, it's relative to importer not dir
-	console.log(`path_id`, path_id);
-	const importer_id = importer_is_absolute ? importer : join(dirname(path_id), importer);
+	const importer_id = importer_is_absolute ? importer : join(dir!, importer);
 	console.log(`importer_id`, importer_id);
+	const importer_dir = dirname(importer_id);
+	const path_id = path[0] === '/' ? path : join(importer_dir, path);
+	console.log(`path_id`, path_id);
 
 	const ext = extname(path_id);
 	const is_js = ext === '.js';
@@ -68,7 +67,7 @@ export const resolve_specifier = async (
 	console.log(`mapped_path`, mapped_path);
 	console.log(`source_id`, source_id);
 
-	let specifier = relative(dirname(importer_id), mapped_path); // dirname of `importer_id` may not be `dir`
+	let specifier = relative(importer_dir, mapped_path); // dirname of `importer_id` may not be `dir`
 	if (specifier[0] !== '.') specifier = './' + specifier;
 
 	console.log(`resolve_specifier`, specifier);
