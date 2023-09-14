@@ -40,7 +40,7 @@ test__resolve_specifier('resolves a ts specifier from a relative importer', asyn
 	);
 });
 
-test__resolve_specifier.only('resolves a relative ts specifier from a relative importer', async () => {
+test__resolve_specifier('resolves a relative ts specifier from a relative importer', async () => {
 	assert.equal(await resolve_specifier('./test_ts.ts', '../../importer.ts', join(dir, 'a', 'b')), {
 		specifier: './test_ts.js',
 		source_id: join(dir, 'test_ts.ts'),
@@ -186,7 +186,7 @@ test__resolve_specifier(
 	async () => {
 		let err;
 		try {
-			await resolve_specifier('./test_ts.ts', './importer.ts', dir);
+			await resolve_specifier('./test_ts.ts', './importer.ts');
 		} catch (_err) {
 			err = _err;
 		}
