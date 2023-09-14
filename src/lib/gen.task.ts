@@ -38,8 +38,13 @@ export const task: Task<Args> = {
 		// load all of the gen modules
 		const find_modules_result = await find_gen_modules(input_paths);
 		if (!find_modules_result.ok) {
-			log_error_reasons(log, find_modules_result.reasons);
-			throw new TaskError('Failed to find gen modules.');
+			if (find_modules_result.type === 'input_directories_with_no_files') {
+				log.info('no gen modules found');
+				return;
+			} else {
+				log_error_reasons(log, find_modules_result.reasons);
+				throw new TaskError('Failed to find gen modules.');
+			}
 		}
 		log.info('gen files', Array.from(find_modules_result.source_ids_by_input_path.values()).flat());
 		const load_modules_result = await load_modules(

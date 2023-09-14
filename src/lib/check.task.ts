@@ -1,8 +1,6 @@
 import {z} from 'zod';
 
-import {TaskError, type Task} from './task/task.js';
-import {find_gen_modules} from './gen/gen_module.js';
-import {log_error_reasons} from './task/log_task.js';
+import type {Task} from './task/task.js';
 
 export const Args = z
 	.object({
@@ -23,7 +21,7 @@ export type Args = z.infer<typeof Args>;
 export const task: Task<Args> = {
 	summary: 'check that everything is ready to commit',
 	Args,
-	run: async ({log, args, invoke_task}) => {
+	run: async ({args, invoke_task}) => {
 		const {typecheck, test, gen, format, lint} = args;
 
 		if (typecheck) {
@@ -35,15 +33,7 @@ export const task: Task<Args> = {
 		}
 
 		if (gen) {
-			// Check for stale code generation if the project has any gen files.
-			const find_gen_modules_result = await find_gen_modules();
-			if (find_gen_modules_result.ok) {
-				log.info('checking that generated files have not changed');
-				await invoke_task('gen', {check: true});
-			} else if (find_gen_modules_result.type !== 'input_directories_with_no_files') {
-				log_error_reasons(log, find_gen_modules_result.reasons);
-				throw new TaskError('Failed to find gen modules.');
-			}
+			await invoke_task('gen', {check: true});
 		}
 
 		if (format) {
