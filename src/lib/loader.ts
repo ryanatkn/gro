@@ -9,7 +9,7 @@ usage in Gro after `npm run build`: node --loader ./dist/loader.js foo.ts
 import * as esbuild from 'esbuild';
 import {compile, preprocess} from 'svelte/compiler';
 import {fileURLToPath, pathToFileURL} from 'node:url';
-import {join} from 'node:path';
+import {join, relative} from 'node:path';
 import {cwd} from 'node:process';
 import type {LoadHook, ResolveHook} from 'node:module';
 import {escapeRegexp} from '@feltjs/util/regexp.js';
@@ -20,7 +20,6 @@ import {init_sveltekit_config} from './util/sveltekit_config.js';
 import {NODE_MODULES_DIRNAME} from './util/paths.js';
 import {to_define_import_meta_env, transform_options} from './util/esbuild_helpers.js';
 import {resolve_specifier} from './util/resolve_specifier.js';
-import {stripStart} from '@feltjs/util/string.js';
 
 // TODO sourcemaps, including esbuild, svelte, and the svelte preprocessors
 // TODO cache by options+content hash (not straightforward because of the options, but should be doable without that much complexity)
@@ -78,7 +77,7 @@ export const load: LoadHook = async (url, context, nextLoad) => {
 		const raw_source = loaded.source!.toString(); // eslint-disable-line @typescript-eslint/no-base-to-string
 		const preprocessed = svelte_preprocessors
 			? await preprocess(raw_source, svelte_preprocessors, {
-					filename: stripStart(fileURLToPath(url), dir),
+					filename: relative(dir, fileURLToPath(url)),
 			  })
 			: null;
 		const source = preprocessed?.code ?? raw_source;
