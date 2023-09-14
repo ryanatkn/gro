@@ -5,37 +5,44 @@ import {exists} from './exists.js';
 
 export interface ResolvedSpecifier {
 	specifier: string;
-	// TODO BLOCK see below
-	// specifier_id: string;
 	source_id: string;
 	namespace: string;
 }
 
+export const default_passthrough_extensions = new Set(['.svelte']); // mutate if you dare, it's probably ok, maybe we should add config
+
 /**
  * Maps `path` relative to the `importer`, and infer the correct extension.
  * If no `.js` file is found for the `path` on the filesystem, it assumes `.ts`.
+ * @param path
+ * @param importer - either must be absolute or a `dir` must be provided
+ * @param dir - if defined, enables relative importers like from esbuild plugins
+ * @param passthrough_extensions - used to support specifiers that have no file extention, which Vite supports, so we do our best effort
+ * @returns
  */
 export const resolve_specifier = async (
 	path: string,
 	importer: string,
-	dir: string,
+	dir?: string,
+	passthrough_extensions = default_passthrough_extensions, // TODO BLOCK param? include .js? see below for diff logic for js tho
 ): Promise<ResolvedSpecifier> => {
-	// TODO BLOCK ?
-	if (!dir) throw Error('DELETEME'); // TODO BLOCK
-	const path_absolute = path[0] === '.' ? join(dir, path) : path;
-	const importer_absolute = importer[0] === '.' ? join(dirname(path), importer) : importer;
+	const importer_is_absolute = importer[0] === '/';
+	if (!dir && !importer_is_absolute) {
+		// TODO this restriction could be relaxed with a more complex implementation
+		// to use a relative importer and absolute path, but we have no usecases
+		throw Error('resolve_specifier requires either an absolute importer or a dir');
+	}
+	const final_dir = dir || dirname(importer);
+	console.log(`path, importer, dir, final_dir`, path, importer, dir, final_dir);
+	const path_id = path[0] === '/' ? path : join(final_dir, path);
+	const importer_id = importer_is_absolute ? importer : join(dirname(path), importer);
 
-	const ext = extname(path_absolute);
+	const ext = extname(path_id);
 	const is_js = ext === '.js';
 	const is_ts = ext === '.ts';
-	const passthrough_extensions = new Set(['.svelte']); // TODO BLOCK param? include .js? see below for diff logic for js tho
 	const passthrough = passthrough_extensions.has(ext);
 	const js_path =
-		is_js || passthrough
-			? path_absolute
-			: is_ts
-			? replace_extension(path_absolute, '.js')
-			: path_absolute + '.js';
+		is_js || passthrough ? path_id : is_ts ? replace_extension(path_id, '.js') : path_id + '.js';
 
 	let mapped_path;
 	let source_id;
@@ -49,19 +56,12 @@ export const resolve_specifier = async (
 		// assume `.ts`, so other plugins like for `.svelte` and `.json` must be added earlier
 		namespace = 'sveltekit_local_imports_ts';
 		source_id =
-			is_ts || passthrough
-				? path_absolute
-				: is_js
-				? replace_extension(path_absolute, '.ts')
-				: path_absolute + '.ts';
+			is_ts || passthrough ? path_id : is_js ? replace_extension(path_id, '.ts') : path_id + '.ts';
 		mapped_path = replace_extension(source_id, '.js');
 	}
 
-	let specifier = relative(dirname(importer_absolute), mapped_path);
+	let specifier = relative(dirname(importer_id), mapped_path); // dirname of `importer_id` may not be `dir`
 	if (specifier[0] !== '.') specifier = './' + specifier;
-
-	// const specifier_id = join(dirname(importer_absolute), specifier);
-	// specifier_id,
 
 	return {specifier, source_id, namespace};
 };

@@ -9,7 +9,7 @@ usage in Gro: node --loader ./dist/loader.js foo.ts
 import * as esbuild from 'esbuild';
 import {compile, preprocess} from 'svelte/compiler';
 import {fileURLToPath, pathToFileURL} from 'node:url';
-import {join, sep} from 'node:path';
+import {join} from 'node:path';
 import {cwd} from 'node:process';
 import type {LoadHook, ResolveHook} from 'node:module';
 import {escapeRegexp} from '@feltjs/util/regexp.js';
@@ -23,7 +23,7 @@ import {to_define_import_meta_env, transform_options} from './util/esbuild_helpe
 import {resolve_specifier} from './util/resolve_specifier.js';
 
 const dir = cwd() + '/';
-const node_modules_matcher = new RegExp(escapeRegexp(sep + NODE_MODULES_DIRNAME + sep), 'u');
+const node_modules_matcher = new RegExp(escapeRegexp('/' + NODE_MODULES_DIRNAME + '/'), 'u');
 
 const {
 	alias,
@@ -90,8 +90,6 @@ export const load: LoadHook = async (url, context, nextLoad) => {
 };
 
 export const resolve: ResolveHook = async (specifier, context, nextResolve) => {
-	// TODO BLOCK fast path for externals,
-	// e.g. ///home/ryan/dev/gro/node_modules/svelte/src/compiler/compile/nodes/Comment.js
 	const parent_url = context.parentURL;
 	if (!parent_url || node_modules_matcher.test(parent_url)) {
 		return nextResolve(specifier, context);
@@ -141,7 +139,7 @@ export const resolve: ResolveHook = async (specifier, context, nextResolve) => {
 	// await import.meta.resolve(path);
 
 	const importer = fileURLToPath(parent_url);
-	const resolved = await resolve_specifier(path, importer); // TODO BLOCK maybe the directory is optional if there's an absolute path?
+	const resolved = await resolve_specifier(path, importer);
 
 	return {url: pathToFileURL(resolved.specifier).href, format: 'module', shortCircuit: true};
 };
