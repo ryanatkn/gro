@@ -27,7 +27,7 @@ export const esbuild_plugin_svelte = ({
 				const preprocessed = svelte_preprocessors
 					? await preprocess(source, svelte_preprocessors, {filename})
 					: null;
-				// TODO handle preprocessor sourcemaps, same as in loader
+				// TODO handle preprocessor sourcemaps, same as in loader - merge?
 				if (preprocessed?.code) source = preprocessed?.code;
 				const {js, warnings} = compile(source, svelte_compile_options);
 				const contents = js.map ? js.code + '//# sourceMappingURL=' + js.map.toUrl() : js.code;
