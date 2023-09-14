@@ -26,6 +26,7 @@ test__find_files('basic behavior', async () => {
 			'test2.foo.ts',
 			'test_ts.ts',
 			'test_js.js',
+			'test_file.other.ext',
 			'baz2/test2.baz.ts',
 			'baz1/test1.baz.ts',
 			'bar2/test2.bar.ts',

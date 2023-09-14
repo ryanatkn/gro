@@ -55,7 +55,10 @@ export const load: LoadHook = async (url, context, nextLoad) => {
 
 	if (ts_matcher.test(url)) {
 		// ts
-		const loaded = await nextLoad(url, context);
+		const loaded = await nextLoad(
+			url,
+			context.format === 'module' ? context : {...context, format: 'module'}, // TODO dunno why this is needed, specifically with tests
+		);
 		const transformed = await esbuild.transform(
 			loaded.source!.toString(), // eslint-disable-line @typescript-eslint/no-base-to-string
 			final_ts_transform_options,
@@ -63,7 +66,10 @@ export const load: LoadHook = async (url, context, nextLoad) => {
 		return {format: 'module', shortCircuit: true, source: transformed.code};
 	} else if (svelte_matcher.test(url)) {
 		// svelte
-		const loaded = await nextLoad(url, context);
+		const loaded = await nextLoad(
+			url,
+			context.format === 'module' ? context : {...context, format: 'module'}, // TODO dunno why this is needed, specifically with tests
+		);
 		const raw_source = loaded.source!.toString(); // eslint-disable-line @typescript-eslint/no-base-to-string
 		const preprocessed = svelte_preprocessors
 			? await preprocess(raw_source, svelte_preprocessors, {

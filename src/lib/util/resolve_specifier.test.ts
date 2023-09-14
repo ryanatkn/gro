@@ -10,6 +10,20 @@ const test__resolve_specifier = suite('resolve_specifier');
 
 const dir = paths.lib + 'util/fixtures/';
 
+test__resolve_specifier(
+	'resolves a specifier to a file that exists with an unknown file extension',
+	async () => {
+		assert.equal(
+			await resolve_specifier(join(dir, 'test_file.other.ext'), join(dir, 'importer.ts')),
+			{
+				specifier: './test_file.other.ext',
+				source_id: join(dir, 'test_file.other.ext'),
+				namespace: 'file',
+			},
+		);
+	},
+);
+
 test__resolve_specifier('resolves a ts specifier without a directory', async () => {
 	assert.equal(await resolve_specifier(join(dir, 'test_ts.ts'), join(dir, 'importer.ts')), {
 		specifier: './test_ts.js',

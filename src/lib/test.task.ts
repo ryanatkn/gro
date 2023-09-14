@@ -24,15 +24,13 @@ export type Args = z.infer<typeof Args>;
 export const task: Task<Args> = {
 	summary: 'run tests',
 	Args,
-	run: async ({args, log, timings}): Promise<void> => {
+	run: async ({args, log}): Promise<void> => {
 		const {_: patterns, bail, cwd, ignore} = args;
 
 		if (!(await find_cli('uvu'))) {
 			log.warn(yellow('uvu is not installed, skipping tests'));
 			return;
 		}
-
-		const timeToRunUvu = timings.start('run tests with uvu');
 
 		// uvu doesn't work with esm loaders and TypeScript files,
 		// so we use its `parse` and `run` APIs directly instead of its CLI.
@@ -44,8 +42,6 @@ export const task: Task<Args> = {
 			suites.push(...parsed.suites);
 		}
 		await run(suites, {bail});
-
-		timeToRunUvu();
 
 		if (process.exitCode) {
 			throw new TaskError('Tests failed.');

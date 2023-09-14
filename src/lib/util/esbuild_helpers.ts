@@ -48,5 +48,4 @@ export const ts_transform_options: esbuild.TransformOptions = {
 	loader: 'ts',
 	charset: 'utf8',
 	// TODO load local tsconfig
-	// tsconfigRaw:
 };
