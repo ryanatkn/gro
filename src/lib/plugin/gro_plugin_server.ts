@@ -9,7 +9,7 @@ import {SERVER_BUILD_BASE_PATH, SERVER_BUILD_NAME} from '../config/build_config_
 import {paths} from '../util/paths.js';
 import type {BuildName} from '../config/build_config.js';
 import {watch_dir, type WatchNodeFs} from '../util/watch_dir.js';
-import {load_sveltekit_config} from '../util/sveltekit_config.js';
+import {init_sveltekit_config} from '../util/sveltekit_config.js';
 import {esbuild_plugin_sveltekit_shim_app} from '../util/esbuild_plugin_sveltekit_shim_app.js';
 import {esbuild_plugin_sveltekit_shim_env} from '../util/esbuild_plugin_sveltekit_shim_env.js';
 import {print_build_result, to_define_import_meta_env} from '../util/esbuild_helpers.js';
@@ -50,17 +50,19 @@ export const create_plugin = ({
 		name: 'gro_plugin_server',
 		setup: async ({dev, watch, timings, config, log}) => {
 			// TODO BLOCK maybe cache this and return the parsed data on an object? see also the loader
-			const sveltekit_config = sveltekit_config_option ?? (await load_sveltekit_config(dir));
+			const {
+				sveltekit_config,
+				alias,
+				base_url,
+				env_dir,
+				private_prefix,
+				public_prefix,
+				svelte_compile_options,
+				svelte_preprocessors,
+			} = await init_sveltekit_config(sveltekit_config_option ?? dir);
 			console.log(`sveltekit_config`, sveltekit_config);
-			const alias = sveltekit_config?.kit?.alias;
-			const base_url = sveltekit_config?.kit?.paths?.base;
-			const env_dir = sveltekit_config?.kit?.env?.dir;
-			const private_prefix = sveltekit_config?.kit?.env?.privatePrefix;
-			const public_prefix = sveltekit_config?.kit?.env?.publicPrefix;
 			// TODO BLOCK need to compile for SSR, hoisted option? `import.meta\.env.SSR` fallback?
 			// TODO BLOCK sourcemap as a hoisted option? disable for production by default
-			const svelte_compile_options = sveltekit_config?.compilerOptions;
-			const svelte_preprocessors = sveltekit_config?.preprocess;
 
 			const server_outfile = join(outdir, base_build_path);
 			console.log(

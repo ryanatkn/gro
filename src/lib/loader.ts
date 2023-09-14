@@ -7,50 +7,41 @@ usage in Gro: node --loader ./dist/loader.js foo.ts
 */
 
 import * as esbuild from 'esbuild';
-import {loadConfigFromFile} from 'vite';
-import {compile, preprocess, type CompileOptions, type PreprocessorGroup} from 'svelte/compiler';
+import {compile, preprocess} from 'svelte/compiler';
 import {fileURLToPath, pathToFileURL} from 'node:url';
-import {join} from 'node:path';
+import {join, sep} from 'node:path';
 import {cwd} from 'node:process';
 import type {LoadHook, ResolveHook} from 'node:module';
-import type {Config} from '@sveltejs/kit';
 
 import {render_env_shim_module} from './util/sveltekit_shim_env.js';
 import {to_sveltekit_app_specifier} from './util/sveltekit_shim_app.js';
-import {load_sveltekit_config} from './util/sveltekit_config.js';
+import {init_sveltekit_config} from './util/sveltekit_config.js';
 import {exists} from './util/exists.js';
 import {NODE_MODULES_DIRNAME} from './util/paths.js';
 import {to_define_import_meta_env, transform_options} from './util/esbuild_helpers.js';
+import {escapeRegexp} from '@feltjs/util/regexp.js';
 
 const dir = cwd() + '/';
+const node_modules_matcher = new RegExp(escapeRegexp(sep + NODE_MODULES_DIRNAME + sep), 'u');
 
-console.log('LOADER ENTRY ' + dir);
-
-let alias: Record<string, string> | undefined;
-let base_url: '' | `/${string}` | undefined;
-let env_dir: string | undefined;
-let private_prefix: string | undefined;
-let public_prefix: string | undefined;
-let svelte_compile_options: CompileOptions | undefined;
-let svelte_preprocessors: PreprocessorGroup | PreprocessorGroup[] | undefined;
-const init_sveltekit_config = async (): Promise<void> => {
-	console.log('init_sveltekit_config');
-	const config = await load_sveltekit_config(dir);
-	alias = config?.kit?.alias;
-	base_url = config?.kit?.paths?.base;
-	env_dir = config?.kit?.env?.dir;
-	private_prefix = config?.kit?.env?.privatePrefix;
-	public_prefix = config?.kit?.env?.publicPrefix;
-	svelte_compile_options = config?.compilerOptions;
-	svelte_preprocessors = config?.preprocess;
-};
-await init_sveltekit_config(); // always load it to keep things simple ahead
+const {
+	alias,
+	base_url,
+	env_dir,
+	private_prefix,
+	public_prefix,
+	svelte_compile_options,
+	svelte_preprocessors,
+} = await init_sveltekit_config(dir); // always load it to keep things simple ahead
 
 const env_matcher = /src\/lib\/\$env\/(static|dynamic)\/(public|private)$/u;
 const ts_matcher = /\.(ts|tsx|mts|cts)$/u;
 const svelte_matcher = /\.(svelte)$/u;
 
 export const load: LoadHook = async (url, context, nextLoad) => {
+	if (node_modules_matcher.test(url)) {
+		return nextLoad(url, context);
+	}
 	console.log(`ENTER load`, url, context);
 	const matched_env = env_matcher.exec(url);
 	if (matched_env) {
@@ -100,18 +91,11 @@ export const load: LoadHook = async (url, context, nextLoad) => {
 export const resolve: ResolveHook = async (specifier, context, nextResolve) => {
 	// TODO BLOCK fast path for externals,
 	// e.g. ///home/ryan/dev/gro/node_modules/svelte/src/compiler/compile/nodes/Comment.js
+	const parent_url = context.parentURL;
+	if (!parent_url || node_modules_matcher.test(parent_url)) {
+		return nextResolve(specifier, context);
+	}
 	console.log('RESOLVING ' + specifier, context.parentURL);
-	// TODO BLOCK better detection of cyclic lazily-loaded config files (include Vite, maybe Gro)
-	if (specifier.endsWith('svelte.config.js')) {
-		return nextResolve(specifier, context);
-	}
-	const parent_path = context.parentURL && fileURLToPath(context.parentURL);
-	if (
-		!parent_path?.startsWith(dir) ||
-		parent_path.startsWith(join(dir, NODE_MODULES_DIRNAME) + '/')
-	) {
-		return nextResolve(specifier, context);
-	}
 
 	if (
 		specifier === '$env/static/public' ||
@@ -121,7 +105,11 @@ export const resolve: ResolveHook = async (specifier, context, nextResolve) => {
 	) {
 		// The returned `url` is validated before `load` is called,
 		// so we need a slightly roundabout strategy to pass through the specifier for virtual files.
-		return {url: 'file:///' + dir + 'src/lib/' + specifier, format: 'module', shortCircuit: true};
+		return {
+			url: pathToFileURL(join(dir, 'src/lib', specifier)).href,
+			format: 'module',
+			shortCircuit: true,
+		};
 	}
 
 	const shimmed = to_sveltekit_app_specifier(specifier);
@@ -129,13 +117,15 @@ export const resolve: ResolveHook = async (specifier, context, nextResolve) => {
 		return nextResolve(shimmed, context);
 	}
 
+	// TODO BLOCK resolve_specifier
+	const importer = fileURLToPath(parent_url);
 	let path = specifier;
 
 	// Map the specifier with the SvelteKit aliases.
 	const aliases = {$lib: 'src/lib', ...alias};
 	for (const [from, to] of Object.entries(aliases)) {
 		if (path.startsWith(from)) {
-			path = dir + to + path.substring(from.length);
+			path = join(dir, to, path.substring(from.length));
 			break;
 		}
 	}
@@ -151,7 +141,7 @@ export const resolve: ResolveHook = async (specifier, context, nextResolve) => {
 	// TODO `import.meta.resolves` was supposedly unflagged for Node 20.6 but I'm still seeing it as undefined
 	// await import.meta.resolve(path);
 	// TODO BLOCK needs to be relative?
-	let js_path = path_is_relative ? join(parent_path, '../', path) : path;
+	let js_path = path_is_relative ? join(importer, '../', path) : path;
 	if (!path.endsWith('.js')) js_path += '.js'; // TODO BLOCK handle `.ts` imports too, and svelte, and ignore `.(schema|task.` etc, same helpers as esbuild plugin for server
 	if (await exists(js_path)) {
 		path = js_path;
