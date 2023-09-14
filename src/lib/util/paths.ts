@@ -4,6 +4,8 @@ import {stripEnd, stripStart} from '@feltjs/util/string.js';
 import {gray} from 'kleur/colors';
 import type {Flavored} from '@feltjs/util/types.js';
 
+// TODO for Windows support we might need to change every `/` here to `sep`? https://github.com/grogarden/gro/issues/319
+
 /*
 
 A path `id` is an absolute path to the source/.gro/dist directory.
