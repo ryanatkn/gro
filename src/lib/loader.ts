@@ -12,6 +12,7 @@ import {fileURLToPath, pathToFileURL} from 'node:url';
 import {join, sep} from 'node:path';
 import {cwd} from 'node:process';
 import type {LoadHook, ResolveHook} from 'node:module';
+import {escapeRegexp} from '@feltjs/util/regexp.js';
 
 import {render_env_shim_module} from './util/sveltekit_shim_env.js';
 import {to_sveltekit_app_specifier} from './util/sveltekit_shim_app.js';
@@ -19,7 +20,7 @@ import {init_sveltekit_config} from './util/sveltekit_config.js';
 import {exists} from './util/exists.js';
 import {NODE_MODULES_DIRNAME} from './util/paths.js';
 import {to_define_import_meta_env, transform_options} from './util/esbuild_helpers.js';
-import {escapeRegexp} from '@feltjs/util/regexp.js';
+import {resolve_specifier} from './util/resolve_specifier.js';
 
 const dir = cwd() + '/';
 const node_modules_matcher = new RegExp(escapeRegexp(sep + NODE_MODULES_DIRNAME + sep), 'u');
@@ -95,6 +96,7 @@ export const resolve: ResolveHook = async (specifier, context, nextResolve) => {
 	if (!parent_url || node_modules_matcher.test(parent_url)) {
 		return nextResolve(specifier, context);
 	}
+
 	console.log('RESOLVING ' + specifier, context.parentURL);
 
 	if (
@@ -118,10 +120,10 @@ export const resolve: ResolveHook = async (specifier, context, nextResolve) => {
 	}
 
 	// TODO BLOCK resolve_specifier
-	const importer = fileURLToPath(parent_url);
 	let path = specifier;
 
-	// Map the specifier with the SvelteKit aliases.
+	// Map the path with the SvelteKit aliases.
+	// TODO BLOCK extract a more efficient helper and use it in both places
 	const aliases = {$lib: 'src/lib', ...alias};
 	for (const [from, to] of Object.entries(aliases)) {
 		if (path.startsWith(from)) {
@@ -131,26 +133,15 @@ export const resolve: ResolveHook = async (specifier, context, nextResolve) => {
 	}
 
 	// The specifier `path` has now been mapped to its final form, so we can inspect it.
-	const path_is_relative = path[0] === '.';
-	const path_is_absolute = path[0] === '/';
-	if (!path_is_relative && !path_is_absolute) {
-		// Handle external specifiers imported by internal code.
-		return nextResolve(specifier, context);
+	if (path[0] !== '.' && path[0] !== '/') {
+		return nextResolve(path, context);
 	}
 
-	// TODO `import.meta.resolves` was supposedly unflagged for Node 20.6 but I'm still seeing it as undefined
+	// TODO `import.meta.resolve` was supposedly unflagged for Node 20.6 but I'm still seeing it as undefined
 	// await import.meta.resolve(path);
-	// TODO BLOCK needs to be relative?
-	let js_path = path_is_relative ? join(importer, '../', path) : path;
-	if (!path.endsWith('.js')) js_path += '.js'; // TODO BLOCK handle `.ts` imports too, and svelte, and ignore `.(schema|task.` etc, same helpers as esbuild plugin for server
-	if (await exists(js_path)) {
-		path = js_path;
-	} else {
-		const ts_path = js_path.slice(0, -3) + '.ts';
-		if (await exists(ts_path)) {
-			path = ts_path;
-		}
-	}
 
-	return {url: pathToFileURL(path).href, format: 'module', shortCircuit: true};
+	const importer = fileURLToPath(parent_url);
+	const resolved = await resolve_specifier(path, importer); // TODO BLOCK maybe the directory is optional if there's an absolute path?
+
+	return {url: pathToFileURL(resolved.specifier).href, format: 'module', shortCircuit: true};
 };
