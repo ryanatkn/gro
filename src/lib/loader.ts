@@ -44,40 +44,25 @@ const final_ts_transform_options: esbuild.TransformOptions = {
 
 const aliases = Object.entries({$lib: 'src/lib', ...alias});
 
-const env_matcher = /src\/lib\/\$env\/(static|dynamic)\/(public|private)$/u;
 const ts_matcher = /\.(ts|tsx|mts|cts)$/u;
 const svelte_matcher = /\.(svelte)$/u;
+const env_matcher = /src\/lib\/\$env\/(static|dynamic)\/(public|private)$/u;
 
 export const load: LoadHook = async (url, context, nextLoad) => {
 	if (node_modules_matcher.test(url)) {
 		return nextLoad(url, context);
 	}
 
-	const matched_env = env_matcher.exec(url);
-	if (matched_env) {
-		const mode: 'static' | 'dynamic' = matched_env[1] as any;
-		const visibility: 'public' | 'private' = matched_env[2] as any;
-		return {
-			format: 'module',
-			shortCircuit: true,
-			source: await render_env_shim_module(
-				true,
-				mode,
-				visibility,
-				public_prefix,
-				private_prefix,
-				env_dir,
-			),
-		};
-	} else if (ts_matcher.test(url)) {
+	if (ts_matcher.test(url)) {
+		// ts
 		const loaded = await nextLoad(url, {...context, format: 'module'});
-		// eslint-disable-next-line @typescript-eslint/no-base-to-string
 		const transformed = await esbuild.transform(
-			loaded.source!.toString(),
+			loaded.source!.toString(), // eslint-disable-line @typescript-eslint/no-base-to-string
 			final_ts_transform_options,
 		);
 		return {format: 'module', shortCircuit: true, source: transformed.code};
 	} else if (svelte_matcher.test(url)) {
+		// svelte
 		const loaded = await nextLoad(url, {...context, format: 'module'});
 		const raw_source = loaded.source!.toString(); // eslint-disable-line @typescript-eslint/no-base-to-string
 		const preprocessed = svelte_preprocessors
@@ -88,6 +73,25 @@ export const load: LoadHook = async (url, context, nextLoad) => {
 		const source = preprocessed?.code ?? raw_source;
 		const transformed = compile(source, svelte_compile_options);
 		return {format: 'module', shortCircuit: true, source: transformed.js.code};
+	} else {
+		// neither ts nor svelte
+		const matched_env = env_matcher.exec(url);
+		if (matched_env) {
+			const mode: 'static' | 'dynamic' = matched_env[1] as any;
+			const visibility: 'public' | 'private' = matched_env[2] as any;
+			return {
+				format: 'module',
+				shortCircuit: true,
+				source: await render_env_shim_module(
+					true,
+					mode,
+					visibility,
+					public_prefix,
+					private_prefix,
+					env_dir,
+				),
+			};
+		}
 	}
 
 	return nextLoad(url, context);
