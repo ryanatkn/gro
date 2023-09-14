@@ -38,7 +38,7 @@ export const to_define_import_meta_env = (
 	[import_meta_env + 'BASE_URL']: JSON.stringify(base_url || '/'), // it appears SvelteKit's `''` translates to Vite's `'/'`, so this intentionally falls back for falsy values, not just undefined
 });
 
-export const transform_options: esbuild.TransformOptions = {
+export const ts_transform_options: esbuild.TransformOptions = {
 	target: 'esnext',
 	// TODO add support - runtime lookup to `source-map-support`,
 	// maybe caching everything here to the filesystem, both source and sourcemaps,
@@ -47,11 +47,6 @@ export const transform_options: esbuild.TransformOptions = {
 	format: 'esm',
 	loader: 'ts',
 	charset: 'utf8',
-	// TODO BLOCK load local tsconfig
-	tsconfigRaw: {
-		compilerOptions: {
-			importsNotUsedAsValues: 'error',
-			preserveValueImports: true,
-		},
-	},
+	// TODO load local tsconfig
+	// tsconfigRaw:
 };

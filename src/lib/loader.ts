@@ -18,7 +18,7 @@ import {render_env_shim_module} from './util/sveltekit_shim_env.js';
 import {to_sveltekit_app_specifier} from './util/sveltekit_shim_app.js';
 import {init_sveltekit_config} from './util/sveltekit_config.js';
 import {NODE_MODULES_DIRNAME} from './util/paths.js';
-import {to_define_import_meta_env, transform_options} from './util/esbuild_helpers.js';
+import {to_define_import_meta_env, ts_transform_options} from './util/esbuild_helpers.js';
 import {resolve_specifier} from './util/resolve_specifier.js';
 
 // TODO sourcemaps, including esbuild, svelte, and the svelte preprocessors
@@ -36,6 +36,11 @@ const {
 	svelte_compile_options,
 	svelte_preprocessors,
 } = await init_sveltekit_config(dir); // always load it to keep things simple ahead
+
+const final_ts_transform_options: esbuild.TransformOptions = {
+	...ts_transform_options,
+	define: to_define_import_meta_env(true, base_url),
+};
 
 const aliases = Object.entries({$lib: 'src/lib', ...alias});
 
@@ -67,10 +72,10 @@ export const load: LoadHook = async (url, context, nextLoad) => {
 	} else if (ts_matcher.test(url)) {
 		const loaded = await nextLoad(url, {...context, format: 'module'});
 		// eslint-disable-next-line @typescript-eslint/no-base-to-string
-		const transformed = await esbuild.transform(loaded.source!.toString(), {
-			...transform_options,
-			define: to_define_import_meta_env(true, base_url),
-		});
+		const transformed = await esbuild.transform(
+			loaded.source!.toString(),
+			final_ts_transform_options,
+		);
 		return {format: 'module', shortCircuit: true, source: transformed.code};
 	} else if (svelte_matcher.test(url)) {
 		const loaded = await nextLoad(url, {...context, format: 'module'});
