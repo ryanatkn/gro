@@ -6,11 +6,11 @@
 			"request": "launch",
 			"name": "gro",
 			"program": "${workspaceFolder}/dist/cli/gro.js",
-			"args": ["dev"],
-			// "args": ["test", "Filer.test.js$"],
+			"args": ["test", "resolve_specifier.test"],
 			"runtimeArgs": [],
+			// TODO need to add support sourcemaps to fix this, need to add back since we removed the build system
 			// enables breakpoints in TS source
-			"outFiles": ["${workspaceRoot}/dist/**/*.js", "${workspaceRoot}/.gro/dev/**/*.js"],
+			"outFiles": ["${workspaceRoot}/dist/**/*.js"],
 			"env": {
 				"NODE_ENV": "development"
 			}

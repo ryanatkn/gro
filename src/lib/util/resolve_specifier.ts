@@ -9,14 +9,7 @@ export interface ResolvedSpecifier {
 	namespace: string;
 }
 
-/**
- * Used by `resolve_specifier` to support Vite's extensionless imports pattern.
- * In a future breaking change, we may force a file extension for all imports,
- * but the tsconfig.json `moduleResolution` option is recommended by SvelteKit
- * to be `"bundler"` future compatibility, not `"NodeNext"` which enforces file extensions.
- * @see https://kit.svelte.dev/docs/packaging#typescript
- */
-export const default_passthrough_extensions = new Set(['.svelte', '.json']); // mutate if you dare, it's probably ok, maybe we should add config
+const default_passthrough_extensions = new Set(['.svelte', '.json']); // TODO BLOCK delete
 
 /**
  * Maps a `path` import specifier relative to the `importer`,
@@ -40,14 +33,18 @@ export const resolve_specifier = async (
 		// to use a relative importer and absolute path, but we have no usecases
 		throw Error('resolve_specifier requires either an absolute importer or a dir');
 	}
+	console.log(`path, importer, dir`, {path, importer, dir});
 	const final_dir = dir || dirname(importer);
-	console.log(`path, importer, dir, final_dir`, {path, importer, dir, final_dir});
-	const path_id = path[0] === '/' ? path : join(final_dir, path);
-	const importer_id = importer_is_absolute ? importer : join(dirname(path), importer);
+	console.log(`final_dir`, final_dir);
+	const path_id = path[0] === '/' ? path : join(final_dir, path); // TODO BLOCK this is wrong, it's relative to importer not dir
+	console.log(`path_id`, path_id);
+	const importer_id = importer_is_absolute ? importer : join(dirname(path_id), importer);
+	console.log(`importer_id`, importer_id);
 
 	const ext = extname(path_id);
 	const is_js = ext === '.js';
 	const is_ts = ext === '.ts';
+	// TODO BLOCK instead of passthrough, maybe just check for `.ts` then `.js` then the original, then fallback to ts? or is that an error?
 	const passthrough = passthrough_extensions.has(ext);
 	const js_path =
 		is_js || passthrough ? path_id : is_ts ? replace_extension(path_id, '.js') : path_id + '.js';
@@ -56,6 +53,7 @@ export const resolve_specifier = async (
 	let source_id;
 	let namespace;
 	if (await exists(js_path)) {
+		// TODO BLOCK I think this is wrong, should be ts first -- maybe just explicit all the way?
 		// a `.js` version exists on the filesystem, so use it
 		namespace = 'sveltekit_local_imports_js';
 		mapped_path = js_path;
@@ -67,10 +65,12 @@ export const resolve_specifier = async (
 			is_ts || passthrough ? path_id : is_js ? replace_extension(path_id, '.ts') : path_id + '.ts';
 		mapped_path = replace_extension(source_id, '.js');
 	}
+	console.log(`mapped_path`, mapped_path);
+	console.log(`source_id`, source_id);
 
 	let specifier = relative(dirname(importer_id), mapped_path); // dirname of `importer_id` may not be `dir`
 	if (specifier[0] !== '.') specifier = './' + specifier;
 
-	console.log(`resolve_specifier returning`, {specifier, source_id, namespace});
+	console.log(`resolve_specifier`, specifier);
 	return {specifier, source_id, namespace};
 };
