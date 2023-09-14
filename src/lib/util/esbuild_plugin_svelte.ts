@@ -20,39 +20,23 @@ export const esbuild_plugin_svelte = ({
 }: Options): esbuild.Plugin => ({
 	name: 'svelte',
 	setup: (build) => {
-		console.log('SVELTE SETUP');
 		build.onLoad({filter: /\.svelte$/u}, async ({path}) => {
-			console.log(`SVELLTE path`, path);
-			const source_id = relative(dir, path);
-			const raw_source = await readFile(source_id, 'utf8');
-			let source: string | undefined;
-			console.log(`source_id, source`, source_id, raw_source);
+			let source = await readFile(path, 'utf8');
 			try {
+				const filename = relative(dir, path);
 				const preprocessed = svelte_preprocessors
-					? await preprocess(raw_source, svelte_preprocessors, {filename: source_id})
+					? await preprocess(source, svelte_preprocessors, {filename})
 					: null;
-				// TODO handle preprocessor sourcemaps
-				const source = preprocessed?.code ?? raw_source;
-
-				const {
-					js: {code, map},
-					warnings,
-				} = compile(source, svelte_compile_options);
-				const contents = map ? code + '//# sourceMappingURL=' + map.toUrl() : code;
-				console.log('COMPILED SVELTE WITH SOURCEMAP', !!map);
-
+				// TODO handle preprocessor sourcemaps, same as in loader
+				if (preprocessed?.code) source = preprocessed?.code;
+				const {js, warnings} = compile(source, svelte_compile_options);
+				const contents = js.map ? js.code + '//# sourceMappingURL=' + js.map.toUrl() : js.code;
 				return {
 					contents,
-					warnings: warnings.map((w) => to_sveltekit_message(source_id, source, w)),
+					warnings: warnings.map((w) => to_sveltekit_message(filename, source, w)),
 				};
 			} catch (err) {
-				console.log(`err`, err); // TODO BLOCK replace with svelte type if this has `code` on it - Warning
-				if (err.code) {
-					console.log('SVELTE YES HAS CODE');
-				} else {
-					console.log('SVELTE NO CODE');
-				}
-				return {errors: [to_sveltekit_message(source_id, source ?? raw_source, err)]};
+				return {errors: [to_sveltekit_message(path, source, err)]};
 			}
 		});
 	},
@@ -63,7 +47,7 @@ export const esbuild_plugin_svelte = ({
  * https://esbuild.github.io/plugins/#svelte-plugin
  */
 const to_sveltekit_message = (
-	source_id: string,
+	path: string,
 	source: string,
 	{message, start, end}: SvelteError,
 ): esbuild.PartialMessage => {
@@ -72,7 +56,7 @@ const to_sveltekit_message = (
 		const lineText = source.split(/\r\n|\r|\n/gu)[start.line - 1];
 		const lineEnd = start.line === end.line ? end.column : lineText.length;
 		location = {
-			file: source_id,
+			file: path,
 			line: start.line,
 			lineText,
 			column: start.column,
