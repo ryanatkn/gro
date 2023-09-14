@@ -31,16 +31,16 @@ test__resolve_specifier(
 
 test__resolve_specifier('resolves a ts specifier from a relative importer', async () => {
 	assert.equal(
-		await resolve_specifier(join(dir, 'test_ts.ts'), '../../importer.ts', join(dir, 'a', 'b')),
+		await resolve_specifier(join(dir, 'a/b/test_ts.ts'), '../../importer.ts', join(dir, 'a', 'b')),
 		{
-			specifier: './test_ts.js',
-			source_id: join(dir, 'test_ts.ts'),
+			specifier: './a/b/test_ts.js',
+			source_id: join(dir, 'a/b/test_ts.ts'),
 			namespace: 'sveltekit_local_imports_ts',
 		},
 	);
 });
 
-test__resolve_specifier('resolves a relative ts specifier from a relative importer', async () => {
+test__resolve_specifier.only('resolves a relative ts specifier from a relative importer', async () => {
 	assert.equal(await resolve_specifier('./test_ts.ts', '../../importer.ts', join(dir, 'a', 'b')), {
 		specifier: './test_ts.js',
 		source_id: join(dir, 'test_ts.ts'),

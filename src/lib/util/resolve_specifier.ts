@@ -9,7 +9,14 @@ export interface ResolvedSpecifier {
 	namespace: string;
 }
 
-export const default_passthrough_extensions = new Set(['.svelte']); // mutate if you dare, it's probably ok, maybe we should add config
+/**
+ * Used by `resolve_specifier` to support Vite's extensionless imports pattern.
+ * In a future breaking change, we may force a file extension for all imports,
+ * but the tsconfig.json `moduleResolution` option is recommended by SvelteKit
+ * to be `"bundler"` future compatibility, not `"NodeNext"` which enforces file extensions.
+ * @see https://kit.svelte.dev/docs/packaging#typescript
+ */
+export const default_passthrough_extensions = new Set(['.svelte', '.json']); // mutate if you dare, it's probably ok, maybe we should add config
 
 /**
  * Maps a `path` import specifier relative to the `importer`,
@@ -25,7 +32,7 @@ export const resolve_specifier = async (
 	path: string,
 	importer: string,
 	dir?: string,
-	passthrough_extensions = default_passthrough_extensions, // TODO BLOCK param? include .js? see below for diff logic for js tho
+	passthrough_extensions = default_passthrough_extensions, 
 ): Promise<ResolvedSpecifier> => {
 	const importer_is_absolute = importer[0] === '/';
 	if (!dir && !importer_is_absolute) {
@@ -34,7 +41,7 @@ export const resolve_specifier = async (
 		throw Error('resolve_specifier requires either an absolute importer or a dir');
 	}
 	const final_dir = dir || dirname(importer);
-	console.log(`path, importer, dir, final_dir`, path, importer, dir, final_dir);
+	console.log(`path, importer, dir, final_dir`, {path, importer, dir, final_dir});
 	const path_id = path[0] === '/' ? path : join(final_dir, path);
 	const importer_id = importer_is_absolute ? importer : join(dirname(path), importer);
 
@@ -64,5 +71,6 @@ export const resolve_specifier = async (
 	let specifier = relative(dirname(importer_id), mapped_path); // dirname of `importer_id` may not be `dir`
 	if (specifier[0] !== '.') specifier = './' + specifier;
 
+	console.log(`resolve_specifier returning`, {specifier, source_id, namespace});
 	return {specifier, source_id, namespace};
 };
