@@ -6,7 +6,7 @@ import {exists} from './exists.js';
 export interface ResolvedSpecifier {
 	specifier: string;
 	source_id: string;
-	namespace: string;
+	namespace: string | undefined;
 }
 
 /**
@@ -46,7 +46,6 @@ export const resolve_specifier = async (
 		// unrecognized extension and the file exists
 		mapped_path = path_id;
 		source_id = path_id;
-		namespace = 'file'; // default esbuild namespace
 	} else if (is_ts) {
 		// explicitly ts
 		mapped_path = replace_extension(path_id, '.js');

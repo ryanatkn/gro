@@ -18,7 +18,7 @@ test__resolve_specifier(
 			{
 				specifier: './test_file.other.ext',
 				source_id: join(dir, 'test_file.other.ext'),
-				namespace: 'file',
+				namespace: undefined,
 			},
 		);
 	},

@@ -9,18 +9,12 @@ export const esbuild_plugin_sveltekit_local_imports = (): esbuild.Plugin => ({
 	name: 'sveltekit_local_imports',
 	setup: (build) => {
 		build.onResolve({filter: /^(\/|\.)/u}, async (args) => {
-			const {path, ...rest} = args;
-			// TODO BLOCK allowlist or blocklist?
-			if (path.endsWith('.svelte')) {
-				return {path};
-			}
-			const {importer, resolveDir} = rest;
+			const {path, importer, resolveDir} = args;
 			console.log(
 				blue('[sveltekit_imports] ENTER'),
 				'\nimporting ' + yellow(path),
 				'\nfrom ' + yellow(importer),
 			);
-			console.log(`rest`, rest);
 			if (!importer) {
 				console.log(blue('[sveltekit_imports] EXIT EARLY without importer'), yellow(path));
 				return {
@@ -33,7 +27,7 @@ export const esbuild_plugin_sveltekit_local_imports = (): esbuild.Plugin => ({
 			console.log(blue('[sveltekit_imports] EXIT'), yellow(parsed.specifier), parsed);
 			const {specifier, source_id, namespace} = parsed;
 
-			return {path: specifier, namespace, pluginData: {source_id}};
+			return namespace ? {path: specifier, namespace, pluginData: {source_id}} : {path};
 		});
 		// TODO BLOCK can we remove this?
 		build.onLoad(
