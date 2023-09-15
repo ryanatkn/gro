@@ -354,17 +354,18 @@ What makes Gro different?
   - When a task name is given to Gro,
     it first searches `src/lib/` in the current working directory and
     falls back to searching the Gro directory.
-    This allows your code to use Gro's builtin tasks or override them by covention.
+    This allows your code and CLI commands to use Gro's builtin tasks
+    or override or extend them without changing how you invoke them.
     Gro reserves no special behavior for its own commands -
     `gro test`, `gro gen`, and all the rest are just tasks that all follow the same rules.
-    (see its task at [`src/test.task.ts`](../test.task.ts))
+    (see its task at [`src/test.task.ts`](../test.task.ts)).
   - When a directory is given to Gro,
     it prints all of the tasks found inside it,
     both relative to the current working directory and Gro's directory.
     So when you run `gro` by itself,
     it prints all tasks available both in your project and Gro.
   - The trailing `.task.ts` in the file path provided to `gro` is optional,
-    so for example, `gro foo/bar` is the same as `gro foo/bar.task.ts`.
+    so for example, `gro foo/bar` is the same as `gro foo/bar.task.ts`, a nice convenience.
 
 ## :turtle:<sub>:turtle:</sub><sub><sub>:turtle:</sub></sub>
 
