@@ -22,9 +22,7 @@ export const task: Task<Args> = {
 			}
 		} else if (await find_cli('tsc')) {
 			// tsc
-			const forwarded = to_forwarded_args('tsc');
-			if (!forwarded.noEmit) forwarded.noEmit = true;
-			const serialized = serialize_args(forwarded);
+			const serialized = serialize_args(to_forwarded_args('tsc'));
 			log.info(print_command_args(['tsc'].concat(serialized)));
 			const svelteCheckResult = await spawn_cli('tsc', serialized);
 			if (!svelteCheckResult?.ok) {

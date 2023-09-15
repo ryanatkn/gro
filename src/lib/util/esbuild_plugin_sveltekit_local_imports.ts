@@ -10,11 +10,12 @@ export const esbuild_plugin_sveltekit_local_imports = (): esbuild.Plugin => ({
 	setup: (build) => {
 		build.onResolve({filter: /^(\/|\.)/u}, async (args) => {
 			const {path, importer, resolveDir} = args;
-			console.log(
-				blue('[sveltekit_imports] ENTER'),
-				'\nimporting ' + yellow(path),
-				'\nfrom ' + yellow(importer),
-			);
+			// console.log(
+			// 	blue('[sveltekit_imports] ENTER'),
+			// 	'\nimporting ' + yellow(path),
+			// 	'\nfrom ' + yellow(importer),
+			// 	'\nwith resolveDir ' + yellow(resolveDir),
+			// );
 			if (!importer) {
 				console.log(blue('[sveltekit_imports] EXIT EARLY without importer'), yellow(path));
 				return {
@@ -23,9 +24,17 @@ export const esbuild_plugin_sveltekit_local_imports = (): esbuild.Plugin => ({
 				};
 			}
 
-			const parsed = await resolve_specifier(path, importer, resolveDir);
-			console.log(blue('[sveltekit_imports] EXIT'), yellow(parsed.specifier), parsed);
-			const {specifier, source_id, namespace} = parsed;
+			const {specifier, source_id, namespace} = await resolve_specifier(path, importer, resolveDir);
+			if (specifier.includes('src/') || source_id.includes('vocab/vocab/'))
+				console.log(
+					blue('[sveltekit_imports] EXIT'),
+					'\nimporting ' + yellow(path),
+					'\nfrom ' + yellow(importer),
+					'\nwith resolveDir ' + yellow(resolveDir),
+					'\nspecifier ' + yellow(specifier),
+					'\nsource_id ' + source_id,
+					'\nnamespace ' + namespace,
+				);
 
 			return namespace ? {path: specifier, namespace, pluginData: {source_id}} : {path};
 		});

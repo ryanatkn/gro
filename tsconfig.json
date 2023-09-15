@@ -12,7 +12,6 @@
 		"noImplicitReturns": true,
 		"noImplicitOverride": true,
 		"noFallthroughCasesInSwitch": true,
-		"allowSyntheticDefaultImports": true,
 		"resolveJsonModule": true,
 		"sourceMap": true,
 		"importHelpers": true,
