@@ -144,8 +144,7 @@ export const resolve: ResolveHook = async (specifier, context, nextResolve) => {
 		return nextResolve(path, context);
 	}
 
-	const importer = fileURLToPath(parent_url);
-	const {source_id} = await resolve_specifier(path, dirname(importer));
+	const {source_id} = await resolve_specifier(path, dirname(fileURLToPath(parent_url)));
 
 	return {url: pathToFileURL(source_id).href, format: 'module', shortCircuit: true};
 };
