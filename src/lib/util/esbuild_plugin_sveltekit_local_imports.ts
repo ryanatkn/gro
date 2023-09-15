@@ -1,7 +1,7 @@
 import type * as esbuild from 'esbuild';
 import {yellow, blue, magenta} from 'kleur/colors';
 import {readFile} from 'node:fs/promises';
-import {dirname} from 'node:path';
+import {dirname, join} from 'node:path';
 
 import {resolve_specifier} from './resolve_specifier.js';
 
@@ -10,12 +10,12 @@ export const esbuild_plugin_sveltekit_local_imports = (): esbuild.Plugin => ({
 	setup: (build) => {
 		build.onResolve({filter: /^(\/|\.)/u}, async (args) => {
 			const {path, importer, resolveDir} = args;
-			// console.log(
-			// 	blue('[sveltekit_imports] ENTER'),
-			// 	'\nimporting ' + yellow(path),
-			// 	'\nfrom ' + yellow(importer),
-			// 	'\nwith resolveDir ' + yellow(resolveDir),
-			// );
+			console.log(
+				blue('[sveltekit_imports] ENTER'),
+				'\n    specifying path  ' + yellow(path),
+				'\n    from importer    ' + yellow(importer),
+				'\n    with resolveDir  ' + yellow(resolveDir),
+			);
 			if (!importer) {
 				console.log(blue('[sveltekit_imports] EXIT EARLY without importer'), yellow(path));
 				return {
@@ -24,19 +24,18 @@ export const esbuild_plugin_sveltekit_local_imports = (): esbuild.Plugin => ({
 				};
 			}
 
-			const {specifier, source_id, namespace} = await resolve_specifier(path, importer, resolveDir);
-			if (specifier.includes('src/') || source_id.includes('vocab/vocab/'))
-				console.log(
-					blue('[sveltekit_imports] EXIT'),
-					'\nimporting path  ' + yellow(path),
-					'\nfrom importer   ' + yellow(importer),
-					'\nwith resolveDir ' + yellow(resolveDir),
-					'\nspecifier       ' + yellow(specifier),
-					'\nsource_id       ' + source_id,
-					'\nnamespace       ' + namespace,
-				);
+			const {specifier, source_id, namespace} = await resolve_specifier(
+				path,
+				dirname(importer[0] === '/' ? importer : join(resolveDir, importer)),
+			);
+			console.log(
+				blue('    [sveltekit_imports] EXIT'),
+				'\n        specifier       ' + yellow(specifier),
+				'\n        source_id       ' + source_id,
+				'\n        namespace       ' + namespace,
+			);
 
-			return namespace ? {path: specifier, namespace, pluginData: {source_id}} : {path};
+			return namespace ? {path: specifier, namespace, pluginData: {source_id, resolveDir}} : {path};
 		});
 		// TODO BLOCK can we remove this?
 		build.onLoad(
@@ -49,16 +48,14 @@ export const esbuild_plugin_sveltekit_local_imports = (): esbuild.Plugin => ({
 		);
 		build.onLoad(
 			{filter: /.*/u, namespace: 'sveltekit_local_imports_ts'},
-			async ({path, pluginData: {source_id}}) => {
-				const resolveDir = dirname(source_id);
+			async ({path, pluginData: {source_id, resolveDir}}) => {
 				console.log(magenta(`>>>>LOAD TS path, pluginData`), {path, source_id, resolveDir});
 				return {contents: await readFile(source_id), loader: 'ts', resolveDir};
 			},
 		);
 		build.onLoad(
 			{filter: /.*/u, namespace: 'sveltekit_local_imports_js'},
-			async ({path, pluginData: {source_id}}) => {
-				const resolveDir = dirname(source_id);
+			async ({path, pluginData: {source_id, resolveDir}}) => {
 				console.log(magenta(`>>>>LOAD JS path, pluginData`), {path, source_id, resolveDir});
 				return {contents: await readFile(source_id), loader: 'js', resolveDir};
 			},

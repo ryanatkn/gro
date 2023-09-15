@@ -1,4 +1,4 @@
-import {dirname, extname, join, relative} from 'node:path';
+import {extname, join, relative} from 'node:path';
 
 import {replace_extension} from './paths.js';
 import {exists} from './exists.js';
@@ -14,25 +14,12 @@ export interface ResolvedSpecifier {
  * and infer the correct extension following Vite conventions.
  * If no `.js` file is found for the `path` on the filesystem, it assumes `.ts`.
  * @param path
- * @param importer - either must be absolute or a `dir` must be provided
  * @param dir - if defined, enables relative importers like from esbuild plugins
  * @param passthrough_extensions - used to support specifiers that have no file extention, which Vite supports, so we do our best effort
  * @returns
  */
-export const resolve_specifier = async (
-	path: string,
-	importer: string,
-	dir?: string,
-): Promise<ResolvedSpecifier> => {
-	const importer_is_absolute = importer[0] === '/';
-	if (!dir && !importer_is_absolute) {
-		// TODO this restriction could be relaxed with a more complex implementation
-		// to use a relative importer and absolute path, but we have no usecases
-		throw Error('resolve_specifier requires either an absolute importer or a dir');
-	}
-	const importer_id = importer_is_absolute ? importer : join(dir!, importer);
-	const importer_dir = dirname(importer_id);
-	const path_id = path[0] === '/' ? path : join(importer_dir, path);
+export const resolve_specifier = async (path: string, dir: string): Promise<ResolvedSpecifier> => {
+	const path_id = path[0] === '/' ? path : join(dir, path);
 
 	let mapped_path;
 	let source_id;
@@ -66,7 +53,7 @@ export const resolve_specifier = async (
 		}
 	}
 
-	let specifier = relative(importer_dir, mapped_path);
+	let specifier = relative(dir, mapped_path);
 	if (specifier[0] !== '.') specifier = './' + specifier;
 
 	return {specifier, source_id, namespace};
