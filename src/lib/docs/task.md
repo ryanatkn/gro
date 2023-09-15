@@ -348,7 +348,7 @@ What makes Gro different?
   and `gro` prints the `summary` property of each task it finds.
   There's lots more to explore here, like task composition
   and improved DX with new capabilities.
-- Tasks support validated and typesafe CLI args with colocated Zod schemas and no boilerplate.
+- Tasks support validated and typesafe CLI args with colocated Zod schemas and minimal boilerplate.
 - Module resolution differs:
   - When a task name is given to Gro,
     it first searches `src/lib/` in the current working directory and
