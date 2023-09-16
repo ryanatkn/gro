@@ -38,20 +38,21 @@ It includes:
   - see the [Gro config docs](/src/lib/docs/config.md) and
     [the default config](https://github.com/feltjs/gro/blob/main/src/lib/config/gro.config.default.ts)
   - [configurable plugins](/src/lib/docs/plugin.md) and [adapters](/src/lib/docs/adapt.md)
-    to support SvelteKit, auto-restarting Node servers, and other external build processes -
-    ideally would use SvelteKit/Vite instead
-  - example usage in a starter project:
-    [`@feltjs/felt-template`](https://github.com/feltjs/felt-template)
+    to support SvelteKit, auto-restarting Node servers, and other external build processes
+  - see [`@feltjs/felt-template`](https://github.com/feltjs/felt-template)
+    for a simple starter project example, and
+    [`@feltjs/felt`](https://github.com/feltjs/felt) for a more complex example with custom tasks
 - [task runner](/src/lib/docs/task.md) that uses the filesystem convention `*.task.ts`
   - lots of [common default tasks](/src/lib/docs/tasks.md) that projects can easily override and compose
 - [testing](/src/lib/docs/test.md) with [`uvu`](https://github.com/lukeed/uvu)
 - codegen by convention with [`gen`](/src/lib/docs/gen.md)
-  - includes automatic type generation using [JSON Schema](https://json-schema.org/) and
+  - supports automatic type generation by convention with `.schema.` files
+    using [JSON Schema](https://json-schema.org/) and
     [json-schema-to-typescript](https://github.com/bcherny/json-schema-to-typescript)
 - linting with [ESLint](https://github.com/eslint/eslint)
   (we also maintain [`@feltjs/eslint-config`](https://github.com/feltjs/eslint-config))
-- formatting with [Prettier](https://github.com/prettier/prettier):
-  it's not always pretty, but it's always formatted
+- formatting with [Prettier](https://github.com/prettier/prettier)
+  (it's not always pretty, but it's always consistent, and it saves a lot of time)
 
 ## docs
 
