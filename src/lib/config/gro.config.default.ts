@@ -22,7 +22,7 @@ const config: GroConfigCreator = async () => {
 		plugin: async () => [
 			enable_server
 				? (await import('../plugin/gro_plugin_server.js')).create_plugin({
-						entry_points: [SERVER_SOURCE_BASE_PATH],
+						entry_points: [SERVER_SOURCE_ID],
 				  })
 				: null,
 			enable_sveltekit_frontend
@@ -47,7 +47,6 @@ export default config;
 export const has_library = (): Promise<boolean> => exists(LIB_DIR);
 
 export const has_server = (): Promise<boolean> => exists(SERVER_SOURCE_ID);
-export const SERVER_SOURCE_BASE_PATH = LIB_DIRNAME + '/server/server.ts';
-export const SERVER_SOURCE_ID = base_path_to_source_id(SERVER_SOURCE_BASE_PATH);
+export const SERVER_SOURCE_ID = base_path_to_source_id(LIB_DIRNAME + '/server/server.ts');
 
 export const has_sveltekit_frontend = (): Promise<boolean> => exists('src/routes');
