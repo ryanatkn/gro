@@ -60,6 +60,9 @@ export const parse_args = <
 	return parsed;
 };
 
+/**
+ * Serializes parsed `Args` for CLI commands.
+ */
 export const serialize_args = (args: Args): string[] => {
 	const result: string[] = [];
 	const add_value = (name: string, value: string | number | boolean | undefined): void => {
