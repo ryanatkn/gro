@@ -64,7 +64,7 @@ export const log_task_help = (log: Logger, meta: TaskModuleMeta): void => {
 	printed.push(
 		cyan(name),
 		'help',
-		cyan(`\ngro ${name}`) + `: ${task.summary || '(no summary available)'}`,
+		cyan(`\n\ngro ${name}`) + `: ${task.summary || '(no summary available)'}`,
 	);
 	if (task.Args) {
 		const properties = to_arg_properties(task.Args._def, meta);
@@ -78,14 +78,14 @@ export const log_task_help = (log: Logger, meta: TaskModuleMeta): void => {
 		for (const property of properties) {
 			const name = property.name === '_' ? ARGS_PROPERTY_NAME : property.name;
 			printed.push(
-				`\n${green(pad(name, longest_task_name))} `,
+				`\n    ${green(pad(name, longest_task_name))} `,
 				gray(pad(property.schema.type, longest_type)) + ' ',
 				pad(printValue(property.schema.default), longest_default) + ' ',
 				property.schema.description || '(no description available)',
 			);
 		}
 	}
-	log.info(...printed);
+	log.info(...printed, '\n');
 };
 
 interface ArgSchemaProperty {

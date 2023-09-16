@@ -41,8 +41,7 @@ export const Args = z
 		dir: z.string({description: 'the SvelteKit build directory'}).default(SVELTEKIT_BUILD_DIRNAME),
 		dry: z
 			.boolean({
-				description:
-					'build and prepare to deploy without actually deploying, for diagnostic and testing purposes',
+				description: 'build and prepare to deploy without actually deploying',
 			})
 			.default(false),
 		clean: z

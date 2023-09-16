@@ -23,8 +23,7 @@ export const Args = z
 			.default('CHANGELOG.md'),
 		dry: z
 			.boolean({
-				description:
-					'build and prepare to publish without actually publishing, for diagnostic and testing purposes',
+				description: 'build and prepare to publish without actually publishing',
 			})
 			.default(false),
 		install: z.boolean({description: 'dual of no-install'}).default(true),
