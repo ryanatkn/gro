@@ -25,12 +25,16 @@ const ORIGIN = 'origin';
 const INITIAL_FILE = 'package.json'; // this is a single file that's copied into the new branch to bootstrap it
 const TEMP_PREFIX = '__TEMP__';
 const GIT_ARGS = {cwd: WORKTREE_DIR};
-const DANGEROUS_BRANCHES = ['main', 'master'];
+const SOURCE_BRANCH = 'main';
+const TARGET_BRANCH = 'deploy';
+const DANGEROUS_BRANCHES = [SOURCE_BRANCH, 'master'];
 
 export const Args = z
 	.object({
-		source: z.string({description: 'source branch to build and deploy from'}).default('main'),
-		target: z.string({description: 'target branch to deploy to'}).default('deploy'),
+		source: z
+			.string({description: 'source branch to build and deploy from'})
+			.default(SOURCE_BRANCH),
+		target: z.string({description: 'target branch to deploy to'}).default(TARGET_BRANCH),
 		origin: z.string({description: 'git origin to deploy to'}).default(ORIGIN),
 		dir: z.string({description: 'the SvelteKit build directory'}).default(SVELTEKIT_BUILD_DIRNAME),
 		dry: z
@@ -70,10 +74,10 @@ export const task: Task<Args> = {
 	run: async ({args, log, invoke_task}): Promise<void> => {
 		const {source, target, origin, dir, dry, clean, force, dangerous, reset, install} = args;
 
-		if (!force && target !== GIT_DEPLOY_TARGET_BRANCH) {
+		if (!force && target !== TARGET_BRANCH) {
 			throw Error(
 				`Warning! You are deploying to a custom target branch '${target}',` +
-					` instead of the default '${GIT_DEPLOY_TARGET_BRANCH}' branch.` +
+					` instead of the default '${TARGET_BRANCH}' branch.` +
 					` This will destroy your '${target}' branch!` +
 					` If you understand and are OK with deleting your branch '${target}',` +
 					` both locally and remotely, pass --force to suppress this error.`,
