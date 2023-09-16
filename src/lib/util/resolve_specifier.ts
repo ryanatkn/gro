@@ -6,7 +6,7 @@ import {exists} from './exists.js';
 export interface ResolvedSpecifier {
 	specifier: string;
 	source_id: string;
-	namespace: string | undefined;
+	namespace: undefined | 'sveltekit_local_imports_ts' | 'sveltekit_local_imports_js';
 }
 
 /**
@@ -23,7 +23,7 @@ export const resolve_specifier = async (path: string, dir: string): Promise<Reso
 
 	let mapped_path;
 	let source_id;
-	let namespace;
+	let namespace: ResolvedSpecifier['namespace'];
 
 	const ext = extname(path_id);
 	const is_js = ext === '.js';
