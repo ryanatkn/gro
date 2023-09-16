@@ -68,7 +68,7 @@ export const log_task_help = (log: Logger, meta: TaskModuleMeta): void => {
 	);
 	if (task.Args) {
 		const properties = to_arg_properties(task.Args._def, meta);
-		// TODO hacky padding
+		// TODO hacky padding for some quick and dirty tables
 		const longest_task_name = Math.max(
 			ARGS_PROPERTY_NAME.length,
 			to_max_length(properties, (p) => p.name),
