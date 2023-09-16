@@ -137,7 +137,7 @@ export const is_this_project_gro = gro_dir === paths.root;
 export const gro_paths = is_this_project_gro ? paths : create_paths(gro_dir);
 export const gro_dist_dir = gro_paths.root + 'dist/'; // this is the SvelteKit output dir, whereas `gro_paths.dist` is Gro's build output directory that will be removed
 
-// TODO BLOCK hacky, `gro_dist_dir`
+// TODO hacky
 export const to_gro_input_path = (input_path: string): string => {
 	const base_path = input_path === paths.lib.slice(0, -1) ? '' : stripStart(input_path, paths.lib);
 	return gro_dist_dir + base_path;

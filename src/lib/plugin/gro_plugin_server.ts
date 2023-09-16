@@ -17,6 +17,8 @@ import {esbuild_plugin_sveltekit_local_imports} from '../util/esbuild_plugin_sve
 import {exists} from '../util/exists.js';
 import {esbuild_plugin_svelte} from '../util/esbuild_plugin_svelte.js';
 
+// TODO sourcemap as a hoisted option? disable for production by default - or like `outpaths`, passed a `dev` param
+
 export interface Options {
 	/**
 	 * same as esbuild's `entryPoints`
@@ -89,7 +91,6 @@ export const create_plugin = ({
 	return {
 		name: 'gro_plugin_server',
 		setup: async ({dev, watch, timings, log}) => {
-			// TODO BLOCK maybe cache this and return the parsed data on an object? see also the loader
 			const {
 				alias,
 				base_url,
@@ -99,17 +100,14 @@ export const create_plugin = ({
 				svelte_compile_options,
 				svelte_preprocessors,
 			} = await init_sveltekit_config(sveltekit_config_option ?? dir);
-			// TODO BLOCK need to compile for SSR, hoisted option? `import.meta\.env.SSR` fallback?
-			// TODO BLOCK sourcemap as a hoisted option? disable for production by default
 
 			const {outbase, outdir, outname} = outpaths(dev);
-			console.log(`outdir, outname`, outdir, outname);
 
 			const server_outpath = join(outdir, outname);
 
 			const timing_to_esbuild_create_context = timings.start('create build context');
 
-			// TODO BLOCK source overrides from build_options: build_options_option
+			// TODO BLOCK source overrides from build_options: build_options_option - or maybe a callback that can gets the base and return a new one?
 			const build_options: esbuild.BuildOptions = {
 				outdir,
 				outbase,
@@ -149,7 +147,6 @@ export const create_plugin = ({
 						log,
 					}),
 					esbuild_plugin_svelte({dir, svelte_compile_options, svelte_preprocessors}),
-					// TODO BLOCK maybe move this ahead of worker, if we call resolve internally
 					esbuild_plugin_sveltekit_local_imports(),
 				],
 				define: to_define_import_meta_env(dev, base_url),
