@@ -8,7 +8,6 @@ import {copyFile, readdir, rename, rm} from 'node:fs/promises';
 
 import type {Task} from './task/task.js';
 import {GIT_DIRNAME, paths, print_path, SVELTEKIT_BUILD_DIRNAME} from './util/paths.js';
-import {GIT_DEPLOY_SOURCE_BRANCH, GIT_DEPLOY_TARGET_BRANCH} from './config/gro.config.default.js';
 import {exists} from './util/exists.js';
 
 // docs at ./docs/deploy.md
@@ -30,10 +29,8 @@ const DANGEROUS_BRANCHES = ['main', 'master'];
 
 export const Args = z
 	.object({
-		source: z
-			.string({description: 'source branch to build and deploy from'})
-			.default(GIT_DEPLOY_SOURCE_BRANCH),
-		target: z.string({description: 'target branch to deploy to'}).default(GIT_DEPLOY_TARGET_BRANCH),
+		source: z.string({description: 'source branch to build and deploy from'}).default('main'),
+		target: z.string({description: 'target branch to deploy to'}).default('deploy'),
 		origin: z.string({description: 'git origin to deploy to'}).default(ORIGIN),
 		dir: z.string({description: 'the SvelteKit build directory'}).default(SVELTEKIT_BUILD_DIRNAME),
 		dry: z
