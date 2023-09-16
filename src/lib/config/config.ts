@@ -4,6 +4,8 @@ import create_default_config from './gro.config.default.js';
 import type {ToConfigPlugins} from '../plugin/plugin.js';
 import {exists} from '../util/exists.js';
 
+// TODO move the config to the root out of src/
+
 /*
 
 See `../docs/config.md` for documentation.
@@ -11,15 +13,6 @@ See `../docs/config.md` for documentation.
 The Gro config tells Gro how to build and manage a project.
 Dependent projects can optionally define one at `src/gro.config.ts`.
 If none is provided, the fallback is located at `gro/src/lib/config/gro.config.default.ts`.
-
-The prevailing pattern in web development is to put config files like this in the root directory,
-but Gro opts to put it in `src/`.
-This choice keeps things simple and flexible because:
-
-- a project's Gro config may share any amount of code and types bidirectionally
-	with the project's source code
-- the config itself is defined in TypeScript
-- isolating all buildable source code in `src/` avoids a lot of tooling complexity
 
 */
 
