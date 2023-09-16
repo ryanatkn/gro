@@ -5,7 +5,6 @@ import type {Config as SvelteKitConfig} from '@sveltejs/kit';
 import {join} from 'node:path';
 
 import type {Plugin, PluginContext} from './plugin.js';
-import {SERVER_BUILD_BASE_PATH} from '../config/gro.config.default.js';
 import {paths} from '../util/paths.js';
 import {watch_dir, type WatchNodeFs} from '../util/watch_dir.js';
 import {init_sveltekit_config} from '../util/sveltekit_config.js';
@@ -17,18 +16,44 @@ import {esbuild_plugin_external_worker} from '../util/esbuild_plugin_external_wo
 import {esbuild_plugin_sveltekit_local_imports} from '../util/esbuild_plugin_sveltekit_local_imports.js';
 import {exists} from '../util/exists.js';
 import {esbuild_plugin_svelte} from '../util/esbuild_plugin_svelte.js';
-import type {EcmaScriptTarget} from '$lib/config/config.js';
 
 export interface Options {
+	/**
+	 * same as esbuild's `entryPoints`
+	 */
 	entry_points: string[];
+	/**
+	 * @default cwd
+	 */
 	dir?: string;
+	/**
+	 * @default `${dir}/.gro/dev/server`
+	 */
 	outdir?: string;
+	/**
+	 * @default 'src/lib'
+	 */
 	outbase?: string;
-	base_build_path?: string; // defaults to 'server/server.js'
+	/**
+	 * @default 'server/server.js'
+	 */
+	base_build_path?: string;
+	/**
+	 * @default SvelteKit's `.env`, `.env.development`, and `.env.production`
+	 */
 	env_files?: string[];
+	/**
+	 * @default process.env
+	 */
 	ambient_env?: Record<string, string>;
+	/**
+	 * @default loaded from `${cwd}/svelte.config.js`
+	 */
 	sveltekit_config?: SvelteKitConfig;
-	target: EcmaScriptTarget;
+	/**
+	 * @default 'esnext'
+	 */
+	target: string;
 }
 
 export const create_plugin = ({
@@ -36,7 +61,7 @@ export const create_plugin = ({
 	dir = cwd(),
 	outdir = join(dir, '.gro/dev/server'),
 	outbase = paths.lib,
-	base_build_path = SERVER_BUILD_BASE_PATH,
+	base_build_path = 'server/server.js',
 	env_files,
 	ambient_env,
 	sveltekit_config: sveltekit_config_option,
@@ -51,7 +76,6 @@ export const create_plugin = ({
 		setup: async ({dev, watch, timings, log}) => {
 			// TODO BLOCK maybe cache this and return the parsed data on an object? see also the loader
 			const {
-				sveltekit_config,
 				alias,
 				base_url,
 				env_dir,
@@ -60,7 +84,6 @@ export const create_plugin = ({
 				svelte_compile_options,
 				svelte_preprocessors,
 			} = await init_sveltekit_config(sveltekit_config_option ?? dir);
-			console.log(`sveltekit_config`, sveltekit_config);
 			// TODO BLOCK need to compile for SSR, hoisted option? `import.meta\.env.SSR` fallback?
 			// TODO BLOCK sourcemap as a hoisted option? disable for production by default
 

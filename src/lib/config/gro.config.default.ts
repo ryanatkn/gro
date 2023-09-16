@@ -1,4 +1,4 @@
-import type {GroConfigCreator, GroConfigPartial} from './config.js';
+import type {GroConfigCreator} from './config.js';
 import {base_path_to_source_id, LIB_DIR, LIB_DIRNAME} from '../util/paths.js';
 import {exists} from '../util/exists.js';
 
@@ -7,7 +7,7 @@ import {exists} from '../util/exists.js';
  * if it exists in the current project, and if not, this is the final config.
  * It looks at the project and tries to do the right thing:
  *
- * - if `src/routes` and `src/app.html`, assumes a SvelteKit frontend
+ * - if `src/routes`, assumes a SvelteKit frontend
  * - if `src/lib`, assumes a Node library
  * - if `src/lib/server/server.ts`, assumes a Node  server
  */
@@ -18,7 +18,7 @@ const config: GroConfigCreator = async () => {
 		has_sveltekit_frontend(),
 	]);
 
-	const partial: GroConfigPartial = {
+	return {
 		plugin: async () => [
 			enable_server
 				? (await import('../plugin/gro_plugin_server.js')).create_plugin({
@@ -40,7 +40,6 @@ const config: GroConfigCreator = async () => {
 				: null,
 		],
 	};
-	return partial;
 };
 
 export default config;
@@ -50,13 +49,5 @@ export const has_library = (): Promise<boolean> => exists(LIB_DIR);
 export const has_server = (): Promise<boolean> => exists(SERVER_SOURCE_ID);
 export const SERVER_SOURCE_BASE_PATH = LIB_DIRNAME + '/server/server.ts';
 export const SERVER_SOURCE_ID = base_path_to_source_id(SERVER_SOURCE_BASE_PATH);
-export const SERVER_BUILD_BASE_PATH = 'server/server.js';
 
-export const has_sveltekit_frontend = (): Promise<boolean> =>
-	every_path_exists(SVELTEKIT_FRONTEND_PATHS);
-const SVELTEKIT_FRONTEND_PATHS = ['src/app.html', 'src/routes'];
-
-const every_path_exists = async (paths: string[]): Promise<boolean> => {
-	const p = await Promise.all(paths.map((path) => exists(path)));
-	return p.every(Boolean);
-};
+export const has_sveltekit_frontend = (): Promise<boolean> => exists('src/routes');

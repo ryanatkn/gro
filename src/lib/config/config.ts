@@ -1,11 +1,6 @@
-import {Logger, SystemLogger, printLogLabel} from '@feltjs/util/log.js';
-import {omitUndefined} from '@feltjs/util/object.js';
-import type {Result} from '@feltjs/util/result.js';
-import type {Assignable, Flavored} from '@feltjs/util/types.js';
-
 import {paths} from '../util/paths.js';
 import type {ToConfigAdapters} from '../adapt/adapt.js';
-import createDefaultConfig from './gro.config.default.js';
+import create_default_config from './gro.config.default.js';
 import type {ToConfigPlugins} from '../plugin/plugin.js';
 import {exists} from '../util/exists.js';
 
@@ -33,22 +28,12 @@ export interface GroConfig {
 	readonly adapt: ToConfigAdapters;
 }
 
-export interface GroConfigPartial {
-	readonly plugin?: ToConfigPlugins;
-	readonly adapt?: ToConfigAdapters;
-}
-
 export interface GroConfigModule {
-	readonly default: GroConfigPartial | GroConfigCreator;
+	readonly default: GroConfig | GroConfigCreator;
 }
 
 export interface GroConfigCreator {
-	(options: GroConfigCreatorOptions): GroConfigPartial | Promise<GroConfigPartial>;
-}
-export interface GroConfigCreatorOptions {
-	// env: NodeJS.ProcessEnv; // TODO?
-	readonly log: Logger;
-	readonly config: GroConfig; // default config is available for user config code
+	(default_config: GroConfig): GroConfig | Promise<GroConfig>;
 }
 
 /*
@@ -92,37 +77,20 @@ export const load_config = (): Promise<GroConfig> =>
 	cached_config || (cached_config = _load_config());
 
 const _load_config = async (): Promise<GroConfig> => {
-	const log = new SystemLogger(printLogLabel('config'));
-
-	const options: GroConfigCreatorOptions = {log, config: null as any};
-	// TODO BLOCK simplify this
-	const default_config = await create_config(createDefaultConfig, options);
-	(options as Assignable<GroConfigCreatorOptions, 'config'>).config = default_config;
+	const default_config = await create_default_config({} as any); // hacky so the default config demonstrates the same code a user would write
 
 	const config_path = paths.config;
 	let config: GroConfig;
 	if (await exists(config_path)) {
 		const config_module = await import(config_path);
 		validate_config_module(config_module, config_path);
-		config = await create_config(config_module.default, options, default_config);
+		config =
+			typeof config_module.default === 'function'
+				? await config_module.default(default_config)
+				: config_module.default;
 	} else {
 		config = default_config;
 	}
-	return config;
-};
-
-export const create_config = async (
-	config_or_creator: GroConfigPartial | GroConfigCreator,
-	options: GroConfigCreatorOptions,
-	base_config?: GroConfig,
-): Promise<GroConfig> => {
-	const config_partial =
-		typeof config_or_creator === 'function' ? await config_or_creator(options) : config_or_creator;
-
-	const extended_config = base_config ? {...base_config, ...config_partial} : config_partial;
-
-	const config = normalize_config(extended_config);
-
 	return config;
 };
 
@@ -139,30 +107,3 @@ export const validate_config_module: (
 		);
 	}
 };
-
-export const normalize_config = (config: GroConfigPartial): GroConfig => {
-	return {
-		plugin: () => null,
-		adapt: () => null,
-		...omitUndefined(config),
-	};
-};
-
-export const validate_input_files = async (
-	files: string[],
-): Promise<Result<object, {reason: string}>> => {
-	const results = await Promise.all(
-		files.map(async (input): Promise<{ok: false; reason: string} | null> => {
-			if (!(await exists(input))) {
-				return {ok: false, reason: `Input file does not exist: ${input}`};
-			}
-			return null;
-		}),
-	);
-	for (const result of results) {
-		if (result) return result;
-	}
-	return {ok: true};
-};
-
-export type EcmaScriptTarget = Flavored<string, 'EcmaScriptTarget'>;
