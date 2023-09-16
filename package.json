@@ -191,6 +191,14 @@
       "default": "./dist/cli/invoke.js",
       "types": "./dist/cli/invoke.d.ts"
     },
+    "./config/build_config_defaults.js": {
+      "default": "./dist/config/build_config_defaults.js",
+      "types": "./dist/config/build_config_defaults.d.ts"
+    },
+    "./config/build_config.js": {
+      "default": "./dist/config/build_config.js",
+      "types": "./dist/config/build_config.d.ts"
+    },
     "./config/config.js": {
       "default": "./dist/config/config.js",
       "types": "./dist/config/config.d.ts"
@@ -275,6 +283,26 @@
       "default": "./dist/util/env.js",
       "types": "./dist/util/env.d.ts"
     },
+    "./util/esbuild_helpers.js": {
+      "default": "./dist/util/esbuild_helpers.js",
+      "types": "./dist/util/esbuild_helpers.d.ts"
+    },
+    "./util/esbuild_plugin_external_worker.js": {
+      "default": "./dist/util/esbuild_plugin_external_worker.js",
+      "types": "./dist/util/esbuild_plugin_external_worker.d.ts"
+    },
+    "./util/esbuild_plugin_svelte.js": {
+      "default": "./dist/util/esbuild_plugin_svelte.js",
+      "types": "./dist/util/esbuild_plugin_svelte.d.ts"
+    },
+    "./util/esbuild_plugin_sveltekit_local_imports.js": {
+      "default": "./dist/util/esbuild_plugin_sveltekit_local_imports.js",
+      "types": "./dist/util/esbuild_plugin_sveltekit_local_imports.d.ts"
+    },
+    "./util/esbuild_plugin_sveltekit_shim_alias.js": {
+      "default": "./dist/util/esbuild_plugin_sveltekit_shim_alias.js",
+      "types": "./dist/util/esbuild_plugin_sveltekit_shim_alias.d.ts"
+    },
     "./util/esbuild_plugin_sveltekit_shim_app.js": {
       "default": "./dist/util/esbuild_plugin_sveltekit_shim_app.js",
       "types": "./dist/util/esbuild_plugin_sveltekit_shim_app.d.ts"
@@ -283,10 +311,6 @@
       "default": "./dist/util/esbuild_plugin_sveltekit_shim_env.js",
       "types": "./dist/util/esbuild_plugin_sveltekit_shim_env.d.ts"
     },
-    "./util/esbuild.js": {
-      "default": "./dist/util/esbuild.js",
-      "types": "./dist/util/esbuild.d.ts"
-    },
     "./util/exists.js": {
       "default": "./dist/util/exists.js",
       "types": "./dist/util/exists.d.ts"
@@ -294,6 +318,10 @@
     "./util/find_files.js": {
       "default": "./dist/util/find_files.js",
       "types": "./dist/util/find_files.d.ts"
+    },
+    "./util/hash.js": {
+      "default": "./dist/util/hash.js",
+      "types": "./dist/util/hash.d.ts"
     },
     "./util/input_path.js": {
       "default": "./dist/util/input_path.js",
@@ -318,6 +346,10 @@
     "./util/paths.js": {
       "default": "./dist/util/paths.js",
       "types": "./dist/util/paths.d.ts"
+    },
+    "./util/resolve_specifier.js": {
+      "default": "./dist/util/resolve_specifier.js",
+      "types": "./dist/util/resolve_specifier.d.ts"
     },
     "./util/schema.js": {
       "default": "./dist/util/schema.js",
