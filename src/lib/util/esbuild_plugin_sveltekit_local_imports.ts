@@ -43,6 +43,7 @@ export const esbuild_plugin_sveltekit_local_imports = (): esbuild.Plugin => ({
 			async ({path}) => {
 				const resolveDir = dirname(path);
 				console.log(magenta(`>>>>LOAD entrypoint path`), path);
+				// TODO BLOCK can we return the source id as path, or does that make it in the source?
 				return {contents: await readFile(path), loader: 'ts', resolveDir};
 			},
 		);

@@ -3,7 +3,7 @@ import {z} from 'zod';
 import {green, cyan} from 'kleur/colors';
 
 import {TaskError, type Task} from './task/task.js';
-import {GIT_DEPLOY_SOURCE_BRANCH} from './config/build_config_defaults.js';
+import {GIT_DEPLOY_SOURCE_BRANCH} from './config/gro.config.default.js';
 import {load_package_json} from './util/package_json.js';
 import {find_cli, spawn_cli} from './util/cli.js';
 import {exists} from './util/exists.js';

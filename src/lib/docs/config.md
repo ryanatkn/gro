@@ -24,20 +24,6 @@ See [`src/lib/config/config.ts`](/src/lib/config/config.ts) for the config types
 
 ## examples
 
-Here's a config for a simple Node project:
-
-```ts
-import type {GroConfigCreator} from '@feltjs/gro';
-
-const config: GroConfigCreator = async () => {
-	return {
-		builds: [{name: 'server', input: 'index.ts'}],
-	};
-};
-
-export default config;
-```
-
 Here's [Gro's own internal config](/src/gro.config.ts) and
 here's [the default config](/src/lib/config/gro.config.default.ts)
 that's used for projects that do not define one at `src/gro.config.ts`.
@@ -46,38 +32,12 @@ The [`GroConfigPartial`](/src/gro.config.ts) is the return value of config files
 
 ```ts
 export interface GroConfigPartial {
-	readonly builds: (BuildConfigPartial | null)[] | BuildConfigPartial | null;
 	readonly plugin?: ToConfigPlugins;
 	readonly adapt?: ToConfigAdapters;
 	readonly target?: EcmaScriptTarget; // defaults to 'esnext'
 	readonly sourcemap?: boolean;
 }
 ```
-
-### `builds`
-
-The `builds` property of the Gro config
-is an array of build configs that describe a project's outputs.
-Here's the [`BuildConfigPartial`](/src/lib/config/build_config.ts) type,
-which is the user-facing version of the [`BuildConfig`](/src/lib/config/build_config.ts):
-
-```ts
-export interface BuildConfigPartial {
-	readonly name: string;
-	readonly input: BuildConfigInput | BuildConfigInput[];
-}
-```
-
-The `name` property can be anything and maps to the build's output directory name.
-By defining `"name": "foo",`, running `gro dev` or `gro build` creates builds
-in `.gro/dev/foo/` and `.gro/prod/foo/`, respectively.
-
-> Importantly, **Gro requires a Node build named `"node"`**
-> that it uses to run things like tests, tasks, and codegen.
-> Ideally this would be configurable, but doing so would slow Gro down in many cases.
-
-The `input` property specifies the source code entry points for the build.
-It follows the same rules as [`entryPoints` in `esbuild`](https://esbuild.github.io/api/#input).
 
 ### `plugin`
 

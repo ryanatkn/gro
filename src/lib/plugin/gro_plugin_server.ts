@@ -5,9 +5,8 @@ import type {Config as SvelteKitConfig} from '@sveltejs/kit';
 import {join} from 'node:path';
 
 import type {Plugin, PluginContext} from './plugin.js';
-import {SERVER_BUILD_BASE_PATH, SERVER_BUILD_NAME} from '../config/build_config_defaults.js';
+import {SERVER_BUILD_BASE_PATH} from '../config/gro.config.default.js';
 import {paths} from '../util/paths.js';
-import type {BuildName} from '../config/build_config.js';
 import {watch_dir, type WatchNodeFs} from '../util/watch_dir.js';
 import {init_sveltekit_config} from '../util/sveltekit_config.js';
 import {esbuild_plugin_sveltekit_shim_app} from '../util/esbuild_plugin_sveltekit_shim_app.js';
@@ -20,8 +19,8 @@ import {exists} from '../util/exists.js';
 import {esbuild_plugin_svelte} from '../util/esbuild_plugin_svelte.js';
 
 export interface Options {
+	entry_points: string[];
 	dir?: string;
-	build_name?: BuildName; // defaults to 'server'
 	outdir?: string;
 	outbase?: string;
 	base_build_path?: string; // defaults to 'server/server.js'
@@ -33,9 +32,9 @@ export interface Options {
 }
 
 export const create_plugin = ({
+	entry_points,
 	dir = cwd(),
-	build_name = SERVER_BUILD_NAME,
-	outdir = join(dir, '.gro/dev/' + build_name),
+	outdir = join(dir, '.gro/dev/server'),
 	outbase = paths.lib,
 	base_build_path = SERVER_BUILD_BASE_PATH,
 	env_files,
@@ -72,9 +71,6 @@ export const create_plugin = ({
 				server_outfile,
 			);
 
-			const build_config = config.builds.find((c) => c.name === build_name);
-			if (!build_config) throw Error('could not find build config ' + build_name);
-
 			const timing_to_esbuild_create_context = timings.start('create build context');
 
 			// TODO BLOCK source overrides from build_options: build_options_option
@@ -89,7 +85,7 @@ export const create_plugin = ({
 			};
 
 			build_ctx = await esbuild.context({
-				entryPoints: build_config.input,
+				entryPoints: entry_points,
 				plugins: [
 					esbuild_plugin_sveltekit_shim_app(),
 					esbuild_plugin_sveltekit_shim_env({

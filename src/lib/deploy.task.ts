@@ -8,10 +8,7 @@ import {copyFile, readdir, rename, rm} from 'node:fs/promises';
 
 import type {Task} from './task/task.js';
 import {GIT_DIRNAME, paths, print_path, SVELTEKIT_BUILD_DIRNAME} from './util/paths.js';
-import {
-	GIT_DEPLOY_SOURCE_BRANCH,
-	GIT_DEPLOY_TARGET_BRANCH,
-} from './config/build_config_defaults.js';
+import {GIT_DEPLOY_SOURCE_BRANCH, GIT_DEPLOY_TARGET_BRANCH} from './config/gro.config.default.js';
 import {exists} from './util/exists.js';
 
 // docs at ./docs/deploy.md

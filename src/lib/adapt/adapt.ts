@@ -3,12 +3,12 @@ import {toArray} from '@feltjs/util/array.js';
 import type {TaskContext} from '../task/task.js';
 
 /**
- * Adapting builds for production deployments is a concept borrowed from SvelteKit:
+ * Adapting for production deployments is a concept borrowed from SvelteKit:
  * https://kit.svelte.dev/docs#adapters
  *
  * The general idea is the same:
  * adapters are little plugins that take production builds as inputs and produce final outputs.
- * They defer to the underlying tools like SvelteKit and Vite
+ * They defer to the underlying tools like SvelteKit, Vite, and esbuild
  * and avoid abstracting them as much as possible.
  */
 export interface Adapter<TArgs = any> {

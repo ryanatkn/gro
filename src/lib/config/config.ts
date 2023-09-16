@@ -2,15 +2,8 @@ import {Logger, SystemLogger, printLogLabel} from '@feltjs/util/log.js';
 import {omitUndefined} from '@feltjs/util/object.js';
 import type {Result} from '@feltjs/util/result.js';
 import type {Assignable, Flavored} from '@feltjs/util/types.js';
-import {toArray} from '@feltjs/util/array.js';
 
 import {paths} from '../util/paths.js';
-import {
-	normalize_build_configs,
-	validate_build_configs,
-	type BuildConfig,
-	type BuildConfigPartial,
-} from './build_config.js';
 import type {ToConfigAdapters} from '../adapt/adapt.js';
 import createDefaultConfig from './gro.config.default.js';
 import type {ToConfigPlugins} from '../plugin/plugin.js';
@@ -36,7 +29,6 @@ This choice keeps things simple and flexible because:
 */
 
 export interface GroConfig {
-	readonly builds: BuildConfig[];
 	readonly plugin: ToConfigPlugins;
 	readonly adapt: ToConfigAdapters;
 	readonly target: EcmaScriptTarget;
@@ -44,7 +36,6 @@ export interface GroConfig {
 }
 
 export interface GroConfigPartial {
-	readonly builds?: Array<BuildConfigPartial | null> | BuildConfigPartial | null; // allow `null` for convenience
 	readonly plugin?: ToConfigPlugins;
 	readonly adapt?: ToConfigAdapters;
 	readonly target?: EcmaScriptTarget;
@@ -108,7 +99,7 @@ const _load_config = async (): Promise<GroConfig> => {
 	const log = new SystemLogger(printLogLabel('config'));
 
 	const options: GroConfigCreatorOptions = {log, config: null as any};
-	const default_config = await create_config(createDefaultConfig, options, '');
+	const default_config = await create_config(createDefaultConfig, options);
 	(options as Assignable<GroConfigCreatorOptions, 'config'>).config = default_config;
 
 	const config_path = paths.config;
@@ -116,7 +107,7 @@ const _load_config = async (): Promise<GroConfig> => {
 	if (await exists(config_path)) {
 		const config_module = await import(config_path);
 		validate_config_module(config_module, config_path);
-		config = await create_config(config_module.default, options, config_path, default_config);
+		config = await create_config(config_module.default, options, default_config);
 	} else {
 		config = default_config;
 	}
@@ -126,7 +117,6 @@ const _load_config = async (): Promise<GroConfig> => {
 export const create_config = async (
 	config_or_creator: GroConfigPartial | GroConfigCreator,
 	options: GroConfigCreatorOptions,
-	path: string,
 	base_config?: GroConfig,
 ): Promise<GroConfig> => {
 	const config_partial =
@@ -135,11 +125,6 @@ export const create_config = async (
 	const extended_config = base_config ? {...base_config, ...config_partial} : config_partial;
 
 	const config = normalize_config(extended_config);
-
-	const validate_result = await validate_config(config);
-	if (!validate_result.ok) {
-		throw Error(`Invalid Gro config at '${path}': ${validate_result.reason}`);
-	}
 
 	return config;
 };
@@ -158,22 +143,12 @@ export const validate_config_module: (
 	}
 };
 
-export const validate_config = async (
-	config: GroConfig,
-): Promise<Result<object, {reason: string}>> => {
-	const build_configs_result = await validate_build_configs(config.builds);
-	if (!build_configs_result.ok) return build_configs_result;
-	return {ok: true};
-};
-
 export const normalize_config = (config: GroConfigPartial): GroConfig => {
-	const build_configs = normalize_build_configs(toArray(config.builds || null));
 	return {
 		sourcemap: true,
 		plugin: () => null,
 		adapt: () => null,
 		...omitUndefined(config),
-		builds: build_configs,
 		target: config.target || 'esnext',
 	};
 };
