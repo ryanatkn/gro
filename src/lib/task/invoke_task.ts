@@ -85,7 +85,7 @@ export const invoke_task = async (
 					`→ ${cyan(task.name)} ${(task.mod.task.summary && gray(task.mod.task.summary)) || ''}`,
 				);
 
-				const timing_to_run_task = start_timing(timings, 'run task ' + task_name); // TODO BLOCK hack
+				const timing_to_run_task = timings.start('run task ' + task_name);
 				const result = await run_task(
 					task,
 					{...args, ...to_forwarded_args(`gro ${task.name}`)},
@@ -200,17 +200,3 @@ const sveltekit_stubbed_specifiers = new Map([
 	['$app/paths', '@feltjs/gro/util/sveltekit_shim_app_paths.js'],
 	['$app/stores', '@feltjs/gro/util/sveltekit_shim_app_stores.js'],
 ]);
-
-// TODO BLOCK this is a hack to avoid timings failing for the same key,
-// we may want to just internally increment instead of throwing,
-// and throwing at all is almost certainly the wrong thing (just log)
-const start_timing = (timings: Timings, key: string): (() => number) => {
-	let i = 0;
-	while (true) {
-		try {
-			return timings.start(key + (i ? ' ' + i : ''));
-		} catch (err) {
-			i++;
-		}
-	}
-};

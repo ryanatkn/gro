@@ -143,9 +143,10 @@ import type {Task} from '@feltjs/gro';
 
 export interface Task<
 	TArgs = Args, // same as `z.infer<typeof Args>`
-	TArgsSchema extends z.ZodType<any, z.ZodTypeDef, any> = z.ZodType<any, z.ZodTypeDef, any>,
+	TArgsSchema extends z.ZodType = z.ZodType,
+	TReturn = unknown,
 > {
-	run: (ctx: TaskContext<TArgs>) => Promise<unknown>;
+	run: (ctx: TaskContext<TArgs>) => Promise<TReturn>;
 	summary?: string;
 	Args?: TArgsSchema;
 }
@@ -157,10 +158,11 @@ export interface Task<
 import type {TaskContext} from '@feltjs/gro';
 
 export interface TaskContext<TArgs = object> {
+	args: TArgs;
 	config: GroConfig;
 	log: Logger;
-	args: TArgs;
-	invoke_task: (task_name: string, args?: object) => Promise<void>;
+	timings: Timings;
+	invoke_task: (task_name: string, args?: Args, config?: GroConfig) => Promise<void>;
 }
 ```
 

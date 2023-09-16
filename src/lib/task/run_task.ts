@@ -55,7 +55,7 @@ export const run_task = async (
 			log,
 			timings,
 			invoke_task: (invoked_task_name, invoked_args = {}, invoked_config) =>
-				invoke_task(invoked_task_name, invoked_args as Args, invoked_config || config, timings), // TODO typecast - maybe `Args.parse` here?
+				invoke_task(invoked_task_name, invoked_args, invoked_config || config, timings),
 		});
 	} catch (err) {
 		return {

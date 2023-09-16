@@ -2,13 +2,15 @@ import {magenta} from 'kleur/colors';
 import mri from 'mri';
 import type {z} from 'zod';
 
-// These extend the CLI args for tasks.
-// Anything can be assigned to a task's `args`. It's just a mutable POJO dictionary.
-// Downstream tasks will see args that upstream events mutate,
-// unless `invoke_task` is called with modified args.
-// Upstream tasks can use listeners to respond to downstream events and values.
-// It's a beautiful mutable spaghetti mess. cant get enough
-// The raw CLI ares are handled by `mri` - https://github.com/lukeed/mri
+/**
+ * These extend the CLI args for tasks.
+ * Anything can be assigned to a task's `args`. It's just a mutable POJO dictionary.
+ * Downstream tasks will see args that upstream events mutate,
+ * unless `invoke_task` is called with modified args.
+ * Upstream tasks can use listeners to respond to downstream events and values.
+ * It's a beautiful mutable spaghetti mess. cant get enough
+ * The raw CLI ares are handled by `mri` - https://github.com/lukeed/mri
+ */
 export interface Args {
 	_?: string[];
 	help?: boolean;
