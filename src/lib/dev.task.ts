@@ -2,6 +2,7 @@ import {z} from 'zod';
 
 import type {Task} from './task/task.js';
 import {Plugins, type PluginContext} from './plugin/plugin.js';
+import {clean_fs} from './util/clean.js';
 
 export const Args = z
 	.object({
@@ -25,6 +26,8 @@ export const task: Task<Args> = {
 		const {
 			args: {watch},
 		} = ctx;
+
+		await clean_fs({build_dev: true});
 
 		// TODO BLOCK enable this
 		// await invoke_task('gen');

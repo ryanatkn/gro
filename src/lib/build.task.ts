@@ -35,7 +35,7 @@ export const task: Task<Args> = {
 			await spawn('npm', ['i'], {env: {...process.env, NODE_ENV: 'development'}});
 		}
 
-		await clean_fs({dist: true});
+		await clean_fs({build_dist: true});
 
 		const plugins = await Plugins.create({...ctx, config, dev: false, watch: false});
 

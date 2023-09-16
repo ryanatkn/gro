@@ -26,10 +26,12 @@ the `path_parts` are `['foo', 'foo/bar', 'foo/bar/baz.ts']`.
 export const SOURCE_DIRNAME = 'src';
 export const BUILD_DIRNAME = '.gro';
 export const LIB_DIRNAME = 'lib';
-export const DIST_DIRNAME = BUILD_DIRNAME + '/dist';
+export const BUILD_DIST_DIRNAME = BUILD_DIRNAME + '/dist';
+export const BUILD_DEV_DIRNAME = BUILD_DIRNAME + '/dev';
 export const SOURCE_DIR = SOURCE_DIRNAME + '/';
 export const BUILD_DIR = BUILD_DIRNAME + '/';
-export const DIST_DIR = DIST_DIRNAME + '/';
+export const BUILD_DIST_DIR = BUILD_DIST_DIRNAME + '/';
+export const BUILD_DEV_DIR = BUILD_DEV_DIRNAME + '/';
 export const LIB_PATH = SOURCE_DIR + LIB_DIRNAME;
 export const LIB_DIR = LIB_PATH + '/';
 
@@ -52,7 +54,8 @@ export interface Paths {
 	source: string;
 	lib: string;
 	build: string;
-	dist: string;
+	build_dist: string;
+	build_dev: string;
 	config: string;
 }
 
@@ -67,7 +70,8 @@ export const create_paths = (root_dir: string): Paths => {
 		source: root + SOURCE_DIR,
 		lib: root + LIB_DIR,
 		build: root + BUILD_DIR,
-		dist: root + DIST_DIR,
+		build_dist: root + BUILD_DIST_DIR,
+		build_dev: root + BUILD_DEV_DIR,
 		config: root + CONFIG_PATH,
 	};
 };

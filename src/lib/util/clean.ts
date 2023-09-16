@@ -12,12 +12,14 @@ import {
 export const clean_fs = async (
 	{
 		build = false,
-		dist = false,
+		build_dev = false,
+		build_dist = false,
 		sveltekit = false,
 		nodemodules = false,
 	}: {
 		build?: boolean;
-		dist?: boolean;
+		build_dev?: boolean;
+		build_dist?: boolean;
 		sveltekit?: boolean;
 		nodemodules?: boolean;
 	},
@@ -27,8 +29,12 @@ export const clean_fs = async (
 
 	if (build) {
 		promises.push(rm(paths.build, rm_options));
-	} else if (dist) {
-		promises.push(rm(paths.dist, rm_options));
+	} else {
+		if (build_dev) {
+			promises.push(rm(paths.build_dev, rm_options));
+		} else if (build_dist) {
+			promises.push(rm(paths.build_dist, rm_options));
+		}
 	}
 	if (sveltekit) {
 		promises.push(rm(SVELTEKIT_DEV_DIRNAME, rm_options));

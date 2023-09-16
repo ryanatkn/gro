@@ -5,7 +5,7 @@ import type {Config as SvelteKitConfig} from '@sveltejs/kit';
 import {join} from 'node:path';
 
 import type {Plugin, PluginContext} from './plugin.js';
-import {paths} from '../util/paths.js';
+import {BUILD_DEV_DIRNAME, BUILD_DIST_DIRNAME, paths} from '../util/paths.js';
 import {watch_dir, type WatchNodeFs} from '../util/watch_dir.js';
 import {init_sveltekit_config} from '../util/sveltekit_config.js';
 import {esbuild_plugin_sveltekit_shim_app} from '../util/esbuild_plugin_sveltekit_shim_app.js';
@@ -27,17 +27,11 @@ export interface Options {
 	 */
 	dir?: string;
 	/**
-	 * @default `${dir}/.gro/dev/server`
+	 * Returns the `Outpaths` given a `dev` param.
+	 * Decoupling this from plugin creation allows it to be created generically,
+	 * so the build and dev tasks can be the source of truth for `dev`.
 	 */
-	outdir?: string;
-	/**
-	 * @default 'src/lib'
-	 */
-	outbase?: string;
-	/**
-	 * @default 'server/server.js'
-	 */
-	base_build_path?: string;
+	outpaths: CreateOutpaths;
 	/**
 	 * @default SvelteKit's `.env`, `.env.development`, and `.env.production`
 	 */
@@ -56,12 +50,33 @@ export interface Options {
 	target: string;
 }
 
+export interface Outpaths {
+	/**
+	 * @default `${dir}/.gro/dev/server`
+	 */
+	outdir: string;
+	/**
+	 * @default 'src/lib'
+	 */
+	outbase: string;
+	/**
+	 * @default 'server.js'
+	 */
+	outname: string;
+}
+
+export interface CreateOutpaths {
+	(dev: boolean): Outpaths;
+}
+
 export const create_plugin = ({
 	entry_points,
 	dir = cwd(),
-	outdir = join(dir, '.gro/dev/server'),
-	outbase = paths.lib,
-	base_build_path = 'server/server.js',
+	outpaths = (dev) => ({
+		outdir: join(dir, dev ? BUILD_DEV_DIRNAME : BUILD_DIST_DIRNAME),
+		outbase: paths.lib + 'server',
+		outname: 'server.js',
+	}),
 	env_files,
 	ambient_env,
 	sveltekit_config: sveltekit_config_option,
@@ -87,13 +102,10 @@ export const create_plugin = ({
 			// TODO BLOCK need to compile for SSR, hoisted option? `import.meta\.env.SSR` fallback?
 			// TODO BLOCK sourcemap as a hoisted option? disable for production by default
 
-			const server_outfile = join(outdir, base_build_path);
-			console.log(
-				`outdir, base_build_path, server_outfile`,
-				outdir,
-				base_build_path,
-				server_outfile,
-			);
+			const {outbase, outdir, outname} = outpaths(dev);
+			console.log(`outdir, outname`, outdir, outname);
+
+			const server_outpath = join(outdir, outname);
 
 			const timing_to_esbuild_create_context = timings.start('create build context');
 
@@ -163,11 +175,12 @@ export const create_plugin = ({
 			console.log('INITIAL REBUILD');
 			await build_ctx.rebuild();
 
-			if (!(await exists(server_outfile))) {
-				throw Error(`Node server failed to start due to missing file: ${server_outfile}`);
+			console.log(`outdir, outname`, outdir, outname);
+			if (!(await exists(server_outpath))) {
+				throw Error(`Node server failed to start due to missing file: ${server_outpath}`);
 			}
 
-			server_process = spawnRestartableProcess('node', [server_outfile]);
+			server_process = spawnRestartableProcess('node', [server_outpath]);
 		},
 		teardown: async () => {
 			if (server_process) {

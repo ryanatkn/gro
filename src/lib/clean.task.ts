@@ -6,7 +6,8 @@ import {clean_fs} from './util/clean.js';
 
 export const Args = z
 	.object({
-		dist: z.boolean({description: 'dual of no-dist'}).default(false),
+		build_dev: z.boolean({description: 'delete the Gro build dev directory'}).default(false),
+		build_dist: z.boolean({description: 'delete the Gro build dist directory'}).default(false),
 		sveltekit: z
 			.boolean({description: 'delete the SvelteKit directory .svelte-kit/ and Vite cache'})
 			.default(false),
@@ -30,9 +31,15 @@ export const task: Task<Args> = {
 	summary: 'remove temporary dev and build files, and optionally prune git branches',
 	Args,
 	run: async ({args}): Promise<void> => {
-		const {dist, sveltekit, nodemodules, git, git_origin} = args;
+		const {build_dev, build_dist, sveltekit, nodemodules, git, git_origin} = args;
 
-		await clean_fs({build: !dist, dist, sveltekit, nodemodules});
+		await clean_fs({
+			build: !build_dev && !build_dist,
+			build_dev,
+			build_dist,
+			sveltekit,
+			nodemodules,
+		});
 
 		// lop off stale git branches
 		if (git) {
