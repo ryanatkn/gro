@@ -17,6 +17,7 @@ import {esbuild_plugin_external_worker} from '../util/esbuild_plugin_external_wo
 import {esbuild_plugin_sveltekit_local_imports} from '../util/esbuild_plugin_sveltekit_local_imports.js';
 import {exists} from '../util/exists.js';
 import {esbuild_plugin_svelte} from '../util/esbuild_plugin_svelte.js';
+import type {EcmaScriptTarget} from '$lib/config/config.js';
 
 export interface Options {
 	entry_points: string[];
@@ -27,8 +28,7 @@ export interface Options {
 	env_files?: string[];
 	ambient_env?: Record<string, string>;
 	sveltekit_config?: SvelteKitConfig;
-	// TODO BLOCK tsconfig, including for Svelte preprocessor? esbuild `importsNotUsedAsValues` in particular
-	// maybe use vite `loadConfig`? use other Vite options?
+	target: EcmaScriptTarget;
 }
 
 export const create_plugin = ({
@@ -40,6 +40,7 @@ export const create_plugin = ({
 	env_files,
 	ambient_env,
 	sveltekit_config: sveltekit_config_option,
+	target = 'esnext',
 }: Partial<Options> = {}): Plugin<PluginContext> => {
 	let build_ctx: esbuild.BuildContext;
 	let watcher: WatchNodeFs;
@@ -47,7 +48,7 @@ export const create_plugin = ({
 
 	return {
 		name: 'gro_plugin_server',
-		setup: async ({dev, watch, timings, config, log}) => {
+		setup: async ({dev, watch, timings, log}) => {
 			// TODO BLOCK maybe cache this and return the parsed data on an object? see also the loader
 			const {
 				sveltekit_config,
@@ -81,7 +82,7 @@ export const create_plugin = ({
 				platform: 'node',
 				packages: 'external',
 				bundle: true,
-				target: config.target,
+				target,
 			};
 
 			build_ctx = await esbuild.context({

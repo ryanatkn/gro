@@ -1,7 +1,5 @@
-import {join} from 'node:path';
-
 import type {GroConfigCreator, GroConfigPartial} from './config.js';
-import {base_path_to_source_id, LIB_DIR, LIB_DIRNAME, paths} from '../util/paths.js';
+import {base_path_to_source_id, LIB_DIR, LIB_DIRNAME} from '../util/paths.js';
 import {exists} from '../util/exists.js';
 
 /**
@@ -24,7 +22,7 @@ const config: GroConfigCreator = async () => {
 		plugin: async () => [
 			enable_server
 				? (await import('../plugin/gro_plugin_server.js')).create_plugin({
-						entry_points: [join(paths.source, SERVER_SOURCE_BASE_PATH)],
+						entry_points: [SERVER_SOURCE_BASE_PATH],
 				  })
 				: null,
 			enable_sveltekit_frontend

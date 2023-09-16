@@ -7,12 +7,9 @@
 limitations:
 
 - [Windows is not yet supported](https://github.com/feltjs/gro/issues/319)
-- Gro is actively used but has few users,
-  so you'll likely find problems and undesirable limitations --
+- Gro has been actively used for years but has few users,
+  so you'll likely encounter problems and undesirable limitations --
   please open issues!
-  - example: there are definitely things that should be configurable that aren't
-  - gro wants all source code and assets to be in `src/` or `node_modules/`,
-    which may annoy
 
 ## about
 

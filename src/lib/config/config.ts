@@ -31,15 +31,11 @@ This choice keeps things simple and flexible because:
 export interface GroConfig {
 	readonly plugin: ToConfigPlugins;
 	readonly adapt: ToConfigAdapters;
-	readonly target: EcmaScriptTarget;
-	readonly sourcemap: boolean;
 }
 
 export interface GroConfigPartial {
 	readonly plugin?: ToConfigPlugins;
 	readonly adapt?: ToConfigAdapters;
-	readonly target?: EcmaScriptTarget;
-	readonly sourcemap?: boolean;
 }
 
 export interface GroConfigModule {
@@ -99,6 +95,7 @@ const _load_config = async (): Promise<GroConfig> => {
 	const log = new SystemLogger(printLogLabel('config'));
 
 	const options: GroConfigCreatorOptions = {log, config: null as any};
+	// TODO BLOCK simplify this
 	const default_config = await create_config(createDefaultConfig, options);
 	(options as Assignable<GroConfigCreatorOptions, 'config'>).config = default_config;
 
@@ -145,11 +142,9 @@ export const validate_config_module: (
 
 export const normalize_config = (config: GroConfigPartial): GroConfig => {
 	return {
-		sourcemap: true,
 		plugin: () => null,
 		adapt: () => null,
 		...omitUndefined(config),
-		target: config.target || 'esnext',
 	};
 };
 
