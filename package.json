@@ -179,10 +179,6 @@
       "default": "./dist/adapt/gro_adapter_sveltekit_frontend.js",
       "types": "./dist/adapt/gro_adapter_sveltekit_frontend.d.ts"
     },
-    "./adapt/helpers.js": {
-      "default": "./dist/adapt/helpers.js",
-      "types": "./dist/adapt/helpers.d.ts"
-    },
     "./cli/gro.js": {
       "default": "./dist/cli/gro.js",
       "types": "./dist/cli/gro.d.ts"
@@ -190,14 +186,6 @@
     "./cli/invoke.js": {
       "default": "./dist/cli/invoke.js",
       "types": "./dist/cli/invoke.d.ts"
-    },
-    "./config/build_config_defaults.js": {
-      "default": "./dist/config/build_config_defaults.js",
-      "types": "./dist/config/build_config_defaults.d.ts"
-    },
-    "./config/build_config.js": {
-      "default": "./dist/config/build_config.js",
-      "types": "./dist/config/build_config.d.ts"
     },
     "./config/config.js": {
       "default": "./dist/config/config.js",
