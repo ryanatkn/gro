@@ -5,7 +5,7 @@ import {Plugins, type PluginContext} from './plugin/plugin.js';
 
 export const Args = z
 	.object({
-		watch: z.boolean({description: 'readable dual of no-watch'}).default(true),
+		watch: z.boolean({description: 'dual of no-watch'}).default(true),
 		'no-watch': z
 			.boolean({
 				description:

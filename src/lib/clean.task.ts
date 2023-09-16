@@ -6,7 +6,7 @@ import {clean_fs} from './util/clean.js';
 
 export const Args = z
 	.object({
-		dist: z.boolean({description: 'readable dual of no-dist'}).default(false),
+		dist: z.boolean({description: 'dual of no-dist'}).default(false),
 		sveltekit: z
 			.boolean({description: 'delete the SvelteKit directory .svelte-kit/ and Vite cache'})
 			.default(false),

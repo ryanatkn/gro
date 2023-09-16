@@ -61,7 +61,7 @@ export const Args = z
 				description: 'if true, resets the target branch back to the first commit before deploying',
 			})
 			.default(false),
-		install: z.boolean({description: 'readable dual of no-install'}).default(true),
+		install: z.boolean({description: 'dual of no-install'}).default(true),
 		'no-install': z
 			.boolean({
 				description: 'opt out of npm installing before building',

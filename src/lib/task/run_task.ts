@@ -3,11 +3,11 @@ import {printLogLabel, SystemLogger} from '@feltjs/util/log.js';
 import type {Timings} from '@feltjs/util/timings.js';
 
 import type {TaskModuleMeta} from './task_module.js';
-import {TaskError} from './task.js';
-import type {Args} from './args.js';
+import {parse_args, type Args} from './args.js';
 import type {invoke_task as base_invoke_task} from './invoke_task.js';
 import {log_task_help} from './log_task.js';
 import type {GroConfig} from '../config/config.js';
+import {TaskError} from './task.js';
 
 export type RunTaskResult =
 	| {
@@ -35,18 +35,15 @@ export const run_task = async (
 		return {ok: true, output: null};
 	}
 
-	let args = unparsed_args; // may be reassigned to parsed version ahead
-
 	// Parse and validate args.
+	let args = unparsed_args;
 	if (task.Args) {
-		const parsed = task.Args.safeParse(args);
-		if (parsed.success) {
-			args = parsed.data;
-		} else {
-			// TODO this is really messy
+		const parsed = parse_args(unparsed_args, task.Args);
+		if (!parsed.success) {
 			log.error(red(`Args validation failed:`), '\n', parsed.error.format());
 			throw new TaskError(`Task args failed validation`);
 		}
+		args = parsed.data;
 	}
 
 	// Run the task.

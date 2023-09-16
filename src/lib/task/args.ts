@@ -1,5 +1,6 @@
 import {magenta} from 'kleur/colors';
 import mri from 'mri';
+import type {z} from 'zod';
 
 // These extend the CLI args for tasks.
 // Anything can be assigned to a task's `args`. It's just a mutable POJO dictionary.
@@ -21,6 +22,43 @@ export interface ArgSchema {
 	default: ArgValue;
 	description: string;
 }
+
+/**
+ * Parses user input args with a Zod schema.
+ * Sets the correct source of truth for `no-` versions of args,
+ * to the opposite of the unprefixed versions when not included in `unparsed_args`.
+ * This is needed because CLI args don't have a normal way of setting falsy values,
+ * so instead the args parser `mri` will pass through the truthy versions of args
+ * without the `no-` prefix.
+ * When we declare task args schemas,
+ * we need include both versions with their defaults to get correct `--help` output.
+ * Parsing like this also ensures data consistency for both versions because `mri` only creates one.
+ * A simpler implementation could replace `mri`, but it handles some finicky details well.
+ */
+export const parse_args = <
+	TOutput extends Record<string, ArgValue> = Args,
+	TInput extends Record<string, ArgValue> = Args,
+>(
+	unparsed_args: TInput,
+	schema: z.ZodType<TOutput, z.ZodTypeDef, TInput>,
+): z.SafeParseReturnType<TInput, TOutput> => {
+	const parsed = schema.safeParse(unparsed_args);
+	if (parsed.success) {
+		// mutate `data` with the correct source of truth for `no-` prefixed args
+		const {data} = parsed;
+		for (const key in parsed.data) {
+			if (key.startsWith('no-')) {
+				const base_key = key.substring(3);
+				if (!(key in unparsed_args)) {
+					(data as any)[key] = !data[base_key];
+				} else if (!(base_key in unparsed_args)) {
+					(data as any)[base_key] = !data[key];
+				}
+			}
+		}
+	}
+	return parsed;
+};
 
 export const serialize_args = (args: Args): string[] => {
 	const result: string[] = [];
