@@ -42,7 +42,7 @@ import {load_config, type GroConfig} from '../config/config.js';
  */
 export const invoke_task = async (
 	task_name: string,
-	args: Args, // TODO BLOCK Args.parse here?
+	args: Args,
 	config?: GroConfig,
 	timings = new Timings(),
 ): Promise<void> => {
