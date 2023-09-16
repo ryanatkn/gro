@@ -20,12 +20,16 @@ Here's [Gro's own internal config](/src/gro.config.ts) and
 here's [the default config](/src/lib/config/gro.config.default.ts)
 that's used for projects that do not define one at `src/gro.config.ts`.
 
-The [`GroConfigPartial`](/src/gro.config.ts) is the return value of config files:
+The default export of a Gro config is `GroConfig | GroConfigCreator`:
 
 ```ts
-export interface GroConfigPartial {
-	readonly plugin?: ToConfigPlugins;
-	readonly adapt?: ToConfigAdapters;
+export interface GroConfig {
+	readonly plugin: ToConfigPlugins;
+	readonly adapt: ToConfigAdapters;
+}
+
+export interface GroConfigCreator {
+	(default_config: GroConfig): GroConfig | Promise<GroConfig>;
 }
 ```
 

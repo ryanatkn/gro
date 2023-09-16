@@ -28,48 +28,13 @@ export interface GroConfig {
 	readonly adapt: ToConfigAdapters;
 }
 
-export interface GroConfigModule {
-	readonly default: GroConfig | GroConfigCreator;
-}
-
 export interface GroConfigCreator {
 	(default_config: GroConfig): GroConfig | Promise<GroConfig>;
 }
 
-/*
-
-Loading the config is a fairly complex process.
-
-First, we look for a config source file relative to the current working directory.
-If none is found, we fall back to the default config provided by Gro.
-
-Now that we've located the config file, we need to import it,
-but we have a TypeScript file id, not importable JavaScript.
-
-First we translate the TS id to the JS id in the build directory.
-Then we check if the JS config file is built.
-
-If it exists, we import the config file and use it to create and return the config.
-
-If it doesn't exist, we're in an unbuilt project.
-In this case, we bootstrap the config by performing a minimal build
-of the config file and its dependency tree to a temporary directory,
-then import the temporary JS config file, then delete the temporary directory,
-and finally create and return the config.
-
-Caveats
-
-- The built config or its built dependencies might be stale! For now `gro dev` is the fix.
-- The bootstrap process creates the config outside of the normal build process.
-	Things can go wrong if the config or its dependencies need special build behavior
-	that's not handled by the default TS->JS build.
-	This was previously solved by using the bootstrapped config to compile the project,
-	and then the compiled config was imported and created and returned,
-	but this duplicates building in the normal case where `invoke_task` loads the config,
-	and it fixes only a subset of issues caused by the config needing special build behavior.
-	Instead, we simply return the bootstrapped config and expect it to be correct.
-
-*/
+export interface GroConfigModule {
+	readonly default: GroConfig | GroConfigCreator;
+}
 
 let cached_config: Promise<GroConfig> | undefined;
 
