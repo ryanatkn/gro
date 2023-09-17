@@ -65,7 +65,7 @@ test__throttle('throttles with a delay', async () => {
 			await wait();
 			results.push(a + c + '_done');
 		},
-		0,
+		1,
 		(a, b) => a + b,
 	);
 	const promise1 = fn('a', 0, '1');
