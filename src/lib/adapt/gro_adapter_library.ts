@@ -13,7 +13,6 @@ export const create_adapter = (): Adapter => {
 			if (!(await find_cli('svelte-package'))) {
 				throw Error(`Failed to find svelte-package: install @sveltejs/package locally or globally`);
 			}
-			console.log(`to_forwarded_args('svelte-package')`, to_forwarded_args('svelte-package'));
 			const serialized_args = serialize_args(to_forwarded_args('svelte-package'));
 			log.info(print_command_args(serialized_args));
 			await spawn_cli('svelte-package', serialized_args);

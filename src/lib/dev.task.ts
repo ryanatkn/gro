@@ -29,7 +29,7 @@ export const task: Task<Args> = {
 
 		await clean_fs({build_dev: true});
 
-		// TODO BLOCK enable this
+		// TODO BLOCK re-enable
 		// await invoke_task('gen');
 
 		const plugins = await Plugins.create({...ctx, dev: true, watch});
