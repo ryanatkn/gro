@@ -18,6 +18,7 @@ import {esbuild_plugin_sveltekit_local_imports} from '../util/esbuild_plugin_sve
 import {exists} from '../util/exists.js';
 import {esbuild_plugin_svelte} from '../util/esbuild_plugin_svelte.js';
 import {stripBefore} from '@feltjs/util/string.js';
+import {throttle} from '$lib/util/throttle.js';
 
 // TODO sourcemap as a hoisted option? disable for production by default - or like `outpaths`, passed a `dev` param
 
@@ -164,43 +165,44 @@ export const plugin = ({
 
 			timing_to_esbuild_create_context();
 
-			const on_build_result = (build_result: esbuild.BuildResult) => {
+			const rebuild = throttle(async () => {
+				console.log('CALLING REBUILD');
+				const build_result = await build_ctx.rebuild();
+				console.log('DONE BUILDING');
 				const {metafile} = build_result;
 				if (!metafile) return;
 				print_build_result(log, build_result);
 				deps = parse_deps(metafile.inputs, dir);
-				console.log(`deps`, deps);
-			};
+				console.log('RESTARTING!!!!!!!!!!!!!!!!!!!!\n!!!!!!!!!!!!!!!!!!!');
+				server_process?.restart();
+			}, 4000); // TODO BLOCK delay?
 
 			console.log('INITIAL REBUILD');
-			on_build_result(await build_ctx.rebuild());
+			await rebuild();
 
 			// TODO BLOCK handle src/ paths (configure esbuild ?)
 			if (watch) {
 				let watcher_ready = false;
+				// TODO maybe reuse this watcher globally via an option,
+				// because it watches all of `$lib`, and that means it excludes `$routes`
+				// while also including a lot of client files we don't care about,
+				// but we can't discern which of `$lib` to watch ahead of time
 				watcher = watch_dir({
 					dir: paths.lib,
-					on_change: async (change) => {
-						if (!watcher_ready || !deps?.has(change.path)) {
-							console.log('NOT REBUILDING');
-							return;
-						}
-						console.log('YES REBUILDING!!');
-						on_build_result(await build_ctx.rebuild());
-						console.log('RESTARTING!!!!!!!!!!!!!!!!!!!!\n!!!!!!!!!!!!!!!!!!!');
-						server_process?.restart();
+					on_change: (change) => {
+						if (!watcher_ready || !deps?.has(change.path)) return;
+						void rebuild();
 					},
 				});
 				await watcher.init();
 				watcher_ready = true;
-				console.log(`WATCHING paths.lib`, paths.lib);
 			}
 
-			console.log(`outdir, outname`, outdir, outname);
 			if (!(await exists(server_outpath))) {
 				throw Error(`Node server failed to start due to missing file: ${server_outpath}`);
 			}
 
+			console.log('STARTING NODE SERVER');
 			server_process = spawnRestartableProcess('node', [server_outpath]);
 		},
 		teardown: async () => {

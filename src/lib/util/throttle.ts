@@ -4,11 +4,15 @@ import {wait} from '@feltjs/util/async.js';
 
 /**
  * Throttles calls to a promise-returning function.
- * If the throttled function is called while the promise is pending,
- * it's queued up to run after the promise completes,
- * and only the last call is executed.
- * Calls except the most recent made during the pending promise are discarded.
+ * Immediately invokes the throttled `fn` on the first call.
+ * If it's called while the promise is already pending,
+ * a call is queued up to run after the promise completes,
+ * and only the last call is invoked.
+ * In other words, calls except the most recent made during the pending promise are discarded.
  * This is distinct from a queue where every call to the throttled function eventually runs.
+ * Unlike most debouncing, this calls the throttled function
+ * both on the leading and trailing edges of the delay window.
+ * The `to_cache_key` helper can be called to conveniently batch similar calls by an arbitrary key.
  * @param fn - any promise-returning function
  * @param delay - delay this many milliseconds after the previous call finishes
  * @param to_cache_key - grouped on this `Map` key returned from this function
