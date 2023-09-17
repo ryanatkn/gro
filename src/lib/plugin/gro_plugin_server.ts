@@ -179,21 +179,24 @@ export const plugin = ({
 			console.log('INITIAL REBUILD');
 			on_build_result(await build_ctx.rebuild());
 
+			// TODO BLOCK handle src/ paths (configure esbuild ?)
 			if (watch) {
-				let watch_ready = false;
+				let watcher_ready = false;
 				watcher = watch_dir({
 					dir: paths.lib,
 					on_change: async (change) => {
-						if (!watch_ready) return;
-						console.log(`change`, change.type, change.path);
-						return;
+						if (!watcher_ready || !deps?.has(change.path)) {
+							console.log('NOT REBUILDING');
+							return;
+						}
+						console.log('YES REBUILDING!!');
 						on_build_result(await build_ctx.rebuild());
 						console.log('RESTARTING!!!!!!!!!!!!!!!!!!!!\n!!!!!!!!!!!!!!!!!!!');
 						server_process?.restart();
 					},
 				});
 				await watcher.init();
-				watch_ready = true;
+				watcher_ready = true;
 				console.log(`WATCHING paths.lib`, paths.lib);
 			}
 
