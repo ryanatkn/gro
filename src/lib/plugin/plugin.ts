@@ -37,7 +37,7 @@ export class Plugins<TPluginContext extends PluginContext> {
 	): Promise<Plugins<TPluginContext>> {
 		const {timings} = ctx;
 		const timing_to_create = timings.start('plugins.create');
-		const instances: Plugin[] = toArray(await ctx.config.plugin(ctx)).filter(Boolean) as any;
+		const instances: Plugin[] = toArray(await ctx.config.plugins(ctx)).filter(Boolean) as any;
 		const plugins = new Plugins(ctx, instances);
 		timing_to_create();
 		return plugins;

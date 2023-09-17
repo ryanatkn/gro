@@ -82,8 +82,8 @@ const to_gen_files = (origin_id: SourceId, raw_result: RawGenResult): GenFile[] 
 	return [to_gen_file(origin_id, raw_result)];
 };
 
-const to_gen_file = (origin_id: SourceId, rawGenFile: RawGenFile): GenFile => {
-	const {content, filename, format = true} = rawGenFile;
+const to_gen_file = (origin_id: SourceId, raw_gen_file: RawGenFile): GenFile => {
+	const {content, filename, format = true} = raw_gen_file;
 	const id = to_output_file_id(origin_id, filename);
 	return {id, content, origin_id, format};
 };
@@ -92,7 +92,7 @@ const to_output_file_id = (origin_id: SourceId, raw_file_name: string | undefine
 	if (raw_file_name === '') {
 		throw Error(`Output file name cannot be an empty string`);
 	}
-	const filename = raw_file_name || toOutputFileName(basename(origin_id));
+	const filename = raw_file_name || to_output_file_name(basename(origin_id));
 	const dir = dirname(origin_id);
 	const output_file_id = join(dir, filename);
 	if (output_file_id === origin_id) {
@@ -101,7 +101,7 @@ const to_output_file_id = (origin_id: SourceId, raw_file_name: string | undefine
 	return output_file_id;
 };
 
-export const toOutputFileName = (filename: string): string => {
+export const to_output_file_name = (filename: string): string => {
 	const {pattern, text} = gen_module_meta[to_gen_module_type(filename)];
 	const parts = filename.split('.');
 	const gen_pattern_index = parts.indexOf(text);

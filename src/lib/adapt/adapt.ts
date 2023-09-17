@@ -30,9 +30,9 @@ export interface AdapterContext<TArgs = any> extends TaskContext<TArgs> {}
 export const adapt = async (ctx: AdapterContext): Promise<readonly Adapter[]> => {
 	const {config, timings} = ctx;
 	const timing_to_create_adapters = timings.start('create adapters');
-	const adapters: Array<Adapter<any>> = toArray(await config.adapt(ctx)).filter(Boolean) as Array<
-		Adapter<any>
-	>;
+	const adapters: Array<Adapter<any>> = toArray(await config.adapters(ctx)).filter(
+		Boolean,
+	) as Array<Adapter<any>>;
 	timing_to_create_adapters();
 
 	if (adapters.length) {

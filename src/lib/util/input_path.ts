@@ -35,7 +35,7 @@ import {exists} from './exists.js';
  *
  * In the future we may want to support globbing or regexps.
  */
-export const resolve_raw_input_path = (raw_input_path: string): string => {
+export const resolve_input_path = (raw_input_path: string): string => {
 	if (isAbsolute(raw_input_path)) return stripEnd(raw_input_path, '/');
 	// Allow prefix `./` and just remove it if it's there.
 	let base_path = stripEnd(stripStart(raw_input_path, './'), '/');
@@ -52,8 +52,8 @@ export const resolve_raw_input_path = (raw_input_path: string): string => {
 	return lib_path_to_import_id(base_path, paths);
 };
 
-export const resolve_raw_input_paths = (raw_input_paths: string[]): string[] =>
-	(raw_input_paths.length ? raw_input_paths : ['./']).map((p) => resolve_raw_input_path(p));
+export const resolve_input_paths = (raw_input_paths?: string[]): string[] =>
+	raw_input_paths?.length ? raw_input_paths.map((p) => resolve_input_path(p)) : [paths.source];
 
 /**
  * Gets a list of possible source ids for each input path with `extensions`,

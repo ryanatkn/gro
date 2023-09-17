@@ -3,7 +3,7 @@ import {spawn, spawnProcess, type SpawnedProcess} from '@feltjs/util/process.js'
 import type {Plugin, PluginContext} from './plugin.js';
 import {print_command_args, serialize_args, to_forwarded_args} from '../task/args.js';
 
-export const create_plugin = (): Plugin<PluginContext> => {
+export const plugin = (): Plugin<PluginContext> => {
 	let sveltekit_process: SpawnedProcess | null = null;
 	return {
 		name: 'gro_plugin_sveltekit_frontend',

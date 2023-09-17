@@ -6,13 +6,13 @@ import type {GroConfig} from './lib/config/config.js';
  * The default should be referenced as an example implementation, not this one.
  */
 const config: GroConfig = {
-	plugin: async () => [
+	plugins: async () => [
 		// TODO BLOCK enable
-		// (await import('./lib/plugin/gro_plugin_sveltekit_frontend.js')).create_plugin(),
+		// (await import('./lib/plugin/gro_plugin_sveltekit_frontend.js')).plugin(),
 		// TODO replace with an esbuild plugin, see the module for more
-		// (await import('./lib/plugin/gro_plugin_gen.js')).create_plugin(),
+		// (await import('./lib/plugin/gro_plugin_gen.js')).plugin(),
 	],
-	adapt: async () =>
+	adapters: async () =>
 		Promise.all([
 			// TODO BLOCK enable
 			// (await import('./lib/adapt/gro_adapter_sveltekit_frontend.js')).create_adapter({

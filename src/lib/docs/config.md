@@ -20,12 +20,36 @@ Here's [Gro's own internal config](/src/gro.config.ts) and
 here's [the default config](/src/lib/config/gro.config.default.ts)
 that's used for projects that do not define one at `src/gro.config.ts`.
 
-The default export of a Gro config is `GroConfig | GroConfigCreator`:
+The default export of a Gro config is `GroConfig | GroConfigCreator`.
+Here's how to define a user config that overrides the default adapters and plugins:
+
+```ts
+import type {GroConfigCreator} from '@feltjs/gro';
+
+const config: GroConfigCreator = async (default_config) => {
+	const final_config = {
+		...default_config,
+		adapters: () => {
+			const default_adapters = await default_config.adapters();
+			return default_adapters.concat(create_some_custom_adapter());
+		},
+		plugins: () => {
+			const default_plugins = await default_config.plugins();
+			return default_plugins.concat(create_some_custom_plugin());
+		},
+	};
+	return final_config;
+};
+
+export default config;
+```
+
+## details
 
 ```ts
 export interface GroConfig {
-	readonly plugin: ToConfigPlugins;
-	readonly adapt: ToConfigAdapters;
+	readonly plugins: ToConfigPlugins;
+	readonly adapters: ToConfigAdapters;
 }
 
 export interface GroConfigCreator {
@@ -33,10 +57,10 @@ export interface GroConfigCreator {
 }
 ```
 
-### `plugin`
+## `plugins`
 
 The `plugin` property is a function that returns any number of `Plugin` instances.
-Read more about `plugin` and the `Plugin` in
+Read more about plugins and the `Plugin` in
 [plugin.md](plugin.md), [dev.md](dev.md#plugin), and [build.md](build.md#plugin).
 
 ```ts
@@ -49,10 +73,10 @@ export interface ToConfigPlugins<TPluginContext extends PluginContext = PluginCo
 }
 ```
 
-### `adapt`
+## `adapters`
 
-The `adapt` property is a function that returns any number of `Adapter` instances.
-Read more about `adapt` and the `Adapter` in [adapt.md](adapt.md) and [build.md](build.md#adapt).
+The `adapters` property is a function that returns any number of `Adapter` instances.
+Read more about adapters and the `Adapter` in [adapt.md](adapt.md) and [build.md](build.md#adapt).
 
 ```ts
 export interface ToConfigAdapters<TArgs = any> {

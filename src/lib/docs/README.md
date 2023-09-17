@@ -8,7 +8,6 @@
 - [deploy](deploy.md)
 - [dev](dev.md)
 - [gen](gen.md)
-- [options](options.md)
 - [plugin](plugin.md)
 - [publish](publish.md)
 - [task](task.md)

@@ -2,7 +2,7 @@ import {dirname, relative, basename} from 'node:path';
 import {toPathParts, toPathSegments} from '@feltjs/util/path-parsing.js';
 import {stripStart} from '@feltjs/util/string.js';
 
-import {type Gen, toOutputFileName} from '../gen/gen.js';
+import {type Gen, to_output_file_name} from '../gen/gen.js';
 import {paths, base_path_to_source_id} from '../util/paths.js';
 import {find_files} from '../util/find_files.js';
 
@@ -24,7 +24,7 @@ export const gen: Gen = async ({origin_id}) => {
 	const relative_dir = dirname(relative_path);
 
 	// TODO should this be passed in the context, like `defaultOutputFileName`?
-	const output_file_name = toOutputFileName(origin_base);
+	const output_file_name = to_output_file_name(origin_base);
 
 	// TODO this is GitHub-specific
 	const root_link = `[${root_path}](/../..)`;

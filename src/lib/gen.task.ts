@@ -8,7 +8,7 @@ import {mkdir, writeFile} from 'node:fs/promises';
 import {TaskError, type Task} from './task/task.js';
 import {run_gen} from './gen/run_gen.js';
 import {load_gen_module, check_gen_modules, find_gen_modules} from './gen/gen_module.js';
-import {resolve_raw_input_paths} from './util/input_path.js';
+import {resolve_input_paths} from './util/input_path.js';
 import {load_modules} from './util/modules.js';
 import {format_file} from './format/format_file.js';
 import {print_path} from './util/paths.js';
@@ -33,7 +33,7 @@ export const task: Task<Args> = {
 		const {_: raw_input_paths, check} = args;
 
 		// resolve the input paths relative to src/lib/
-		const input_paths = resolve_raw_input_paths(raw_input_paths);
+		const input_paths = resolve_input_paths(raw_input_paths);
 
 		// load all of the gen modules
 		const find_modules_result = await find_gen_modules(input_paths);

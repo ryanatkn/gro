@@ -14,10 +14,10 @@ What is a `Task`? See [`task.md`](./task.md).
 - [dev](../dev.task.ts) - start SvelteKit and other dev plugins
 - [format](../format.task.ts) - format source files
 - [gen](../gen.task.ts) - run code generation scripts
-- [lint](../lint.task.ts) - run eslint on the source files
+- [lint](../lint.task.ts) - run eslint on the given directories and files
 - [publish](../publish.task.ts) - bump version, publish to npm, and git push
 - [test](../test.task.ts) - run tests
-- [typecheck](../typecheck.task.ts) - typecheck the project without emitting any files
+- [typecheck](../typecheck.task.ts) - run tsc on the project without emitting any files
 - [upgrade](../upgrade.task.ts) - upgrade deps
 
 ## usage

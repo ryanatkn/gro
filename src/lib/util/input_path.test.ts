@@ -3,52 +3,52 @@ import * as assert from 'uvu/assert';
 import {resolve} from 'node:path';
 
 import {
-	resolve_raw_input_path,
-	resolve_raw_input_paths,
+	resolve_input_path,
+	resolve_input_paths,
 	load_source_ids_by_input_path,
 	get_possible_source_ids,
 } from './input_path.js';
 import type {PathStats} from './path.js';
 import {paths} from './paths.js';
 
-/* test__resolve_raw_input_path */
-const test__resolve_raw_input_path = suite('resolve_raw_input_path');
+/* test__resolve_input_path */
+const test__resolve_input_path = suite('resolve_input_path');
 
-test__resolve_raw_input_path('basic behavior', () => {
+test__resolve_input_path('basic behavior', () => {
 	const target = resolve('dist/foo/bar.ts');
-	assert.is(resolve_raw_input_path('foo/bar.ts'), target);
-	assert.is(resolve_raw_input_path('src/lib/foo/bar.ts'), target);
-	assert.is(resolve_raw_input_path('./src/lib/foo/bar.ts'), target);
-	assert.is(resolve_raw_input_path('./foo/bar.ts'), target); // questionable
-	assert.is(resolve_raw_input_path(target), target);
-	assert.is.not(resolve_raw_input_path('bar.ts'), target);
+	assert.is(resolve_input_path('foo/bar.ts'), target);
+	assert.is(resolve_input_path('src/lib/foo/bar.ts'), target);
+	assert.is(resolve_input_path('./src/lib/foo/bar.ts'), target);
+	assert.is(resolve_input_path('./foo/bar.ts'), target); // questionable
+	assert.is(resolve_input_path(target), target);
+	assert.is.not(resolve_input_path('bar.ts'), target);
 });
 
-test__resolve_raw_input_path('directories', () => {
+test__resolve_input_path('directories', () => {
 	const target_dir = resolve('dist/foo/bar');
-	assert.is(resolve_raw_input_path('foo/bar'), target_dir);
-	assert.is(resolve_raw_input_path('foo/bar/'), target_dir);
-	assert.is(resolve_raw_input_path('./foo/bar'), target_dir);
-	assert.is(resolve_raw_input_path('./foo/bar/'), target_dir);
-	assert.is.not(resolve_raw_input_path('bar'), target_dir);
+	assert.is(resolve_input_path('foo/bar'), target_dir);
+	assert.is(resolve_input_path('foo/bar/'), target_dir);
+	assert.is(resolve_input_path('./foo/bar'), target_dir);
+	assert.is(resolve_input_path('./foo/bar/'), target_dir);
+	assert.is.not(resolve_input_path('bar'), target_dir);
 });
 
-test__resolve_raw_input_path.run();
-/* test__resolve_raw_input_path */
+test__resolve_input_path.run();
+/* test__resolve_input_path */
 
-/* test__resolve_raw_input_paths */
-const test__resolve_raw_input_paths = suite('resolve_raw_input_paths');
+/* test__resolve_input_paths */
+const test__resolve_input_paths = suite('resolve_input_paths');
 
-test__resolve_raw_input_paths('resolves multiple input path forms', () => {
-	assert.equal(resolve_raw_input_paths(['foo/bar.ts', 'baz', './']), [
+test__resolve_input_paths('resolves multiple input path forms', () => {
+	assert.equal(resolve_input_paths(['foo/bar.ts', 'baz', './']), [
 		resolve('dist/foo/bar.ts'),
 		resolve('dist/baz'),
 		resolve('dist') + '/',
 	]);
 });
 
-test__resolve_raw_input_paths.run();
-/* test__resolve_raw_input_paths */
+test__resolve_input_paths.run();
+/* test__resolve_input_paths */
 
 /* test__get_possible_source_ids */
 const test__get_possible_source_ids = suite('get_possible_source_ids');

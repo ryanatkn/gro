@@ -6,12 +6,12 @@ import {SVELTEKIT_BUILD_DIRNAME} from '../util/paths.js';
 import {exists} from '../util/exists.js';
 
 export interface Options {
-	dir: string;
+	dir?: string;
 	/**
 	 * Used for finalizing a SvelteKit build like adding a `.nojekyll` file for GitHub Pages.
 	 * @default 'github_pages'
 	 */
-	host_target: HostTarget;
+	host_target?: HostTarget;
 }
 
 export type HostTarget = 'github_pages' | 'static' | 'node';
@@ -19,7 +19,7 @@ export type HostTarget = 'github_pages' | 'static' | 'node';
 export const create_adapter = ({
 	dir = SVELTEKIT_BUILD_DIRNAME,
 	host_target = 'github_pages',
-}: Partial<Options> = {}): Adapter => {
+}: Options = {}): Adapter => {
 	const output_dir = stripEnd(dir, '/');
 	return {
 		name: 'gro_adapter_sveltekit_frontend',

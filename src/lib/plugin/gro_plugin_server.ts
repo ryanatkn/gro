@@ -2,7 +2,7 @@ import {spawnRestartableProcess, type RestartableProcess} from '@feltjs/util/pro
 import * as esbuild from 'esbuild';
 import {cwd} from 'node:process';
 import type {Config as SvelteKitConfig} from '@sveltejs/kit';
-import {join} from 'node:path';
+import {join, resolve} from 'node:path';
 
 import type {Plugin, PluginContext} from './plugin.js';
 import {BUILD_DEV_DIRNAME, BUILD_DIST_DIRNAME, paths} from '../util/paths.js';
@@ -33,7 +33,7 @@ export interface Options {
 	 * Decoupling this from plugin creation allows it to be created generically,
 	 * so the build and dev tasks can be the source of truth for `dev`.
 	 */
-	outpaths: CreateOutpaths;
+	outpaths?: CreateOutpaths;
 	/**
 	 * @default SvelteKit's `.env`, `.env.development`, and `.env.production`
 	 */
@@ -49,7 +49,7 @@ export interface Options {
 	/**
 	 * @default 'esnext'
 	 */
-	target: string;
+	target?: string;
 }
 
 export interface Outpaths {
@@ -71,7 +71,7 @@ export interface CreateOutpaths {
 	(dev: boolean): Outpaths;
 }
 
-export const create_plugin = ({
+export const plugin = ({
 	entry_points,
 	dir = cwd(),
 	outpaths = (dev) => ({
@@ -83,7 +83,7 @@ export const create_plugin = ({
 	ambient_env,
 	sveltekit_config: sveltekit_config_option,
 	target = 'esnext',
-}: Partial<Options> = {}): Plugin<PluginContext> => {
+}: Options): Plugin<PluginContext> => {
 	let build_ctx: esbuild.BuildContext;
 	let watcher: WatchNodeFs;
 	let server_process: RestartableProcess | null = null;
@@ -119,7 +119,7 @@ export const create_plugin = ({
 			};
 
 			build_ctx = await esbuild.context({
-				entryPoints: entry_points,
+				entryPoints: entry_points.map((e) => resolve(dir, e)),
 				plugins: [
 					esbuild_plugin_sveltekit_shim_app(),
 					esbuild_plugin_sveltekit_shim_env({

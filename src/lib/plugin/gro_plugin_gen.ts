@@ -18,7 +18,7 @@ export interface TaskArgs extends Args {
 	watch?: boolean;
 }
 
-export const create_plugin = (): Plugin<PluginContext<TaskArgs>> => {
+export const plugin = (): Plugin<PluginContext<TaskArgs>> => {
 	let generating = false;
 	let regen = false;
 	let on_filer_build: ((e: FilerEvents['build']) => void) | undefined;

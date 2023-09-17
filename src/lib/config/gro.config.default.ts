@@ -20,19 +20,19 @@ const config: GroConfigCreator = async () => {
 	]);
 
 	return {
-		plugin: async () => [
+		plugins: async () => [
 			enable_server
-				? (await import('../plugin/gro_plugin_server.js')).create_plugin({
+				? (await import('../plugin/gro_plugin_server.js')).plugin({
 						entry_points: [SERVER_SOURCE_ID],
 				  })
 				: null,
 			enable_sveltekit_frontend
-				? (await import('../plugin/gro_plugin_sveltekit_frontend.js')).create_plugin()
+				? (await import('../plugin/gro_plugin_sveltekit_frontend.js')).plugin()
 				: null,
 			// TODO replace with an esbuild plugin, see the module for more
-			// (await import('../plugin/gro_plugin_gen.js')).create_plugin(),
+			// (await import('../plugin/gro_plugin_gen.js')).plugin(),
 		],
-		adapt: async () => [
+		adapters: async () => [
 			enable_library ? (await import('../adapt/gro_adapter_library.js')).create_adapter() : null,
 			enable_sveltekit_frontend
 				? (await import('../adapt/gro_adapter_sveltekit_frontend.js')).create_adapter({

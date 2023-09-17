@@ -5,7 +5,7 @@ import {printMs, printTimings} from '@feltjs/util/print.js';
 
 import {to_forwarded_args, type Args} from './args.js';
 import {run_task} from './run_task.js';
-import {resolve_raw_input_path} from '../util/input_path.js';
+import {resolve_input_path} from '../util/input_path.js';
 import {is_task_path} from './task.js';
 import {
 	paths,
@@ -60,7 +60,7 @@ export const invoke_task = async (
 	const total_timing = createStopwatch();
 
 	// Resolve the input path for the provided task name.
-	const input_path = resolve_raw_input_path(task_name || paths.lib);
+	const input_path = resolve_input_path(task_name || paths.lib);
 
 	// Find the task or directory specified by the `input_path`.
 	// Fall back to searching the Gro directory as well.
