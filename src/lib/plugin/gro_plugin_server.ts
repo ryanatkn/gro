@@ -116,7 +116,6 @@ export const plugin = ({
 
 			const timing_to_esbuild_create_context = timings.start('create build context');
 
-			// TODO BLOCK probably implement granular watching with the `metafile` - https://esbuild.github.io/api/#analyze
 			const build_options = esbuild_build_options({
 				outdir,
 				outbase,
@@ -125,16 +124,11 @@ export const plugin = ({
 				packages: 'external',
 				bundle: true,
 				target,
-				metafile: true,
+				metafile: watch,
 			});
 
-			console.log(
-				`entry_points.map((e) => resolve(dir, e))`,
-				entry_points.map((e) => resolve(dir, e)),
-			);
-
 			build_ctx = await esbuild.context({
-				entryPoints: entry_points.map((e) => resolve(dir, e)),
+				entryPoints: entry_points.map((path) => resolve(dir, path)),
 				plugins: [
 					esbuild_plugin_sveltekit_shim_app(),
 					esbuild_plugin_sveltekit_shim_env({
@@ -171,8 +165,10 @@ export const plugin = ({
 			timing_to_esbuild_create_context();
 
 			const on_build_result = (build_result: esbuild.BuildResult) => {
+				const {metafile} = build_result;
+				if (!metafile) return;
 				print_build_result(log, build_result);
-				deps = parse_deps(build_result.metafile!.inputs);
+				deps = parse_deps(metafile.inputs, dir);
 				console.log(`deps`, deps);
 			};
 
@@ -222,11 +218,15 @@ export const plugin = ({
 	};
 };
 
-const parse_deps = (metafile_inputs: Record<string, unknown>): Set<string> => {
-	const deps = new Set();
+/**
+ * The esbuild metafile contains the paths in `entryPoints` relative to the `dir`
+ * even though we're resolving them to absolute paths before passing them to esbuild,
+ * so we resolve them here relative to the `dir`.
+ */
+const parse_deps = (metafile_inputs: Record<string, unknown>, dir: string): Set<string> => {
+	const deps = new Set<string>();
 	for (const key in metafile_inputs) {
-		const source_id = stripBefore(key, ':');
-		deps.add(source_id);
+		deps.add(resolve(dir, stripBefore(key, ':')));
 	}
 	return deps;
 };
