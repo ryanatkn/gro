@@ -1,50 +1,63 @@
 import {wait} from '@feltjs/util/async.js';
 
-// TODO maybe support return values? gets tricky: what should it return for the skipped ones?
+// TODO maybe support non-promise return values?
 
 /**
- * Throttles calls to a promise-returning function.
- * Immediately invokes the throttled `fn` on the first call.
- * If it's called while the promise is already pending,
- * a call is queued up to run after the promise completes,
+ * Throttles calls to a callback that returns a void promise.
+ * Immediately invokes the callback on the first call.
+ * If the throttled function is called while the promise is already pending,
+ * the call is queued to run after the pending promise completes plus `delay`,
  * and only the last call is invoked.
- * In other words, calls except the most recent made during the pending promise are discarded.
- * This is distinct from a queue where every call to the throttled function eventually runs.
- * Unlike most debouncing, this calls the throttled function
+ * In other words, all calls and their args are discarded
+ * during the pending window except for the most recent.
+ * Unlike debouncing, this calls the throttled callback
  * both on the leading and trailing edges of the delay window.
- * The `to_cache_key` helper can be called to conveniently batch similar calls by an arbitrary key.
- * @param fn - any promise-returning function
- * @param delay - delay this many milliseconds after the previous call finishes
- * @param to_cache_key - grouped on this `Map` key returned from this function
- * @returns return value of of `fn`.
+ * It also differs from a queue where every call to the throttled callback eventually runs.
+ * @param cb - any function that returns a void promise
+ * @param delay - delay this many milliseconds between the pending call finishing and the next starting
+ * @returns same as `cb`
  */
-export const throttle = <TArgs extends any[]>(
-	fn: (...args: TArgs) => Promise<void>,
-	delay = 0,
-	to_cache_key?: (...args: TArgs) => any,
-): ((...args: TArgs) => Promise<void>) => {
-	const cache: Map<string, {id: number; promise: Promise<void>}> = new Map();
-	let _id = 0;
-	return async (...args) => {
-		const id = _id++;
-		const cache_key = to_cache_key ? to_cache_key(...args) : null;
-		let cached = cache.get(cache_key);
-		if (cached) {
-			cached.id = id; // queue this one up
-			await cached.promise;
-			if (cached.id !== id) return; // a later call supercedes this one
+export const throttle = <T extends (...args: any[]) => Promise<void>>(cb: T, delay = 0): T => {
+	let pending_promise: Promise<void> | null = null;
+	let next_args: any[] | null = null;
+	let next_promise: Promise<void> | null = null;
+	let next_promise_resolve: ((value: any) => void) | null = null;
+
+	const defer = (args: any[]): Promise<void> => {
+		next_args = args;
+		if (!next_promise) {
+			next_promise = new Promise((resolve) => {
+				next_promise_resolve = resolve;
+			});
 		}
-		const result = fn(...args);
-		const promise = result.then(async () => {
-			if (delay) await wait(delay);
-			if (id === cached!.id) {
-				cache.delete(cache_key); // delete only when we're done with this `cache_key`
-			}
-		});
-		if (!cached) {
-			cached = {promise, id};
-			cache.set(cache_key, cached);
-		}
-		return result;
+		return next_promise;
 	};
+
+	const flush = async (): Promise<void> => {
+		if (!next_promise_resolve) return;
+		const result = await call(next_args!);
+		next_args = null;
+		next_promise = null;
+		const resolve = next_promise_resolve;
+		next_promise_resolve = null;
+		resolve(result); // resolve last to prevent synchronous call issues
+	};
+
+	const call = (args: any[]): Promise<void> => {
+		pending_promise = cb(...args);
+		void pending_promise.then(async () => {
+			await wait(delay);
+			pending_promise = null;
+			await flush();
+		});
+		return pending_promise;
+	};
+
+	return ((...args) => {
+		if (pending_promise) {
+			return defer(args);
+		} else {
+			return call(args);
+		}
+	}) as T;
 };

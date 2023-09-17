@@ -175,7 +175,7 @@ export const plugin = ({
 				deps = parse_deps(metafile.inputs, dir);
 				console.log('RESTARTING!!!!!!!!!!!!!!!!!!!!\n!!!!!!!!!!!!!!!!!!!');
 				server_process?.restart();
-			}, 4000); // TODO BLOCK delay?
+			}, 2000); // TODO BLOCK delay?
 
 			console.log('INITIAL REBUILD');
 			await rebuild();
