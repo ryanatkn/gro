@@ -6,7 +6,7 @@ import {join, resolve} from 'node:path';
 import {identity} from '@feltjs/util/function.js';
 
 import type {Plugin, PluginContext} from './plugin.js';
-import {BUILD_DEV_DIRNAME, BUILD_DIST_DIRNAME, paths} from '../util/paths.js';
+import {BUILD_DEV_DIRNAME, BUILD_DIST_DIRNAME, paths, type SourceId} from '../util/paths.js';
 import {watch_dir, type WatchNodeFs} from '../util/watch_dir.js';
 import {init_sveltekit_config} from '../util/sveltekit_config.js';
 import {esbuild_plugin_sveltekit_shim_app} from '../util/esbuild_plugin_sveltekit_shim_app.js';
@@ -17,6 +17,7 @@ import {esbuild_plugin_external_worker} from '../util/esbuild_plugin_external_wo
 import {esbuild_plugin_sveltekit_local_imports} from '../util/esbuild_plugin_sveltekit_local_imports.js';
 import {exists} from '../util/exists.js';
 import {esbuild_plugin_svelte} from '../util/esbuild_plugin_svelte.js';
+import {stripBefore} from '@feltjs/util/string.js';
 
 // TODO sourcemap as a hoisted option? disable for production by default - or like `outpaths`, passed a `dev` param
 
@@ -94,6 +95,7 @@ export const plugin = ({
 	let build_ctx: esbuild.BuildContext;
 	let watcher: WatchNodeFs;
 	let server_process: RestartableProcess | null = null;
+	let deps: Set<SourceId> | null = null;
 
 	return {
 		name: 'gro_plugin_server',
@@ -123,7 +125,13 @@ export const plugin = ({
 				packages: 'external',
 				bundle: true,
 				target,
+				metafile: true,
 			});
+
+			console.log(
+				`entry_points.map((e) => resolve(dir, e))`,
+				entry_points.map((e) => resolve(dir, e)),
+			);
 
 			build_ctx = await esbuild.context({
 				entryPoints: entry_points.map((e) => resolve(dir, e)),
@@ -162,23 +170,32 @@ export const plugin = ({
 
 			timing_to_esbuild_create_context();
 
-			// TODO BLOCK can we watch dependencies of all of the files through esbuild?
+			const on_build_result = (build_result: esbuild.BuildResult) => {
+				print_build_result(log, build_result);
+				deps = parse_deps(build_result.metafile!.inputs);
+				console.log(`deps`, deps);
+			};
+
+			console.log('INITIAL REBUILD');
+			on_build_result(await build_ctx.rebuild());
+
 			if (watch) {
+				let watch_ready = false;
 				watcher = watch_dir({
 					dir: paths.lib,
 					on_change: async (change) => {
-						console.log(`change`, change);
-						const result = await build_ctx.rebuild(); // TODO BLOCK
-						print_build_result(log, result);
-						// server_process?.restart();
+						if (!watch_ready) return;
+						console.log(`change`, change.type, change.path);
+						return;
+						on_build_result(await build_ctx.rebuild());
+						console.log('RESTARTING!!!!!!!!!!!!!!!!!!!!\n!!!!!!!!!!!!!!!!!!!');
+						server_process?.restart();
 					},
 				});
-				// await watcher.init();
+				await watcher.init();
+				watch_ready = true;
 				console.log(`WATCHING paths.lib`, paths.lib);
 			}
-
-			console.log('INITIAL REBUILD');
-			await build_ctx.rebuild();
 
 			console.log(`outdir, outname`, outdir, outname);
 			if (!(await exists(server_outpath))) {
@@ -200,4 +217,13 @@ export const plugin = ({
 			}
 		},
 	};
+};
+
+const parse_deps = (metafile_inputs: Record<string, unknown>): Set<string> => {
+	const deps = new Set();
+	for (const key in metafile_inputs) {
+		const source_id = stripBefore(key, ':');
+		deps.add(source_id);
+	}
+	return deps;
 };

@@ -1,4 +1,4 @@
-import {join, basename, extname} from 'node:path';
+import {join, basename, extname, relative} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {stripEnd, stripStart} from '@feltjs/util/string.js';
 import {gray} from 'kleur/colors';
@@ -59,6 +59,7 @@ export interface Paths {
 	config: string;
 }
 
+// TODO upstream to util, and probably add `Path`/`FilePath` and `FileUrl`
 export type SourceId = Flavored<string, 'SourceId'>;
 export type BuildId = Flavored<string, 'BuildId'>;
 
@@ -82,14 +83,13 @@ export const is_gro_id = (id: string): boolean => id.startsWith(gro_paths.root);
 // '/home/me/app/src/foo/bar/baz.ts' → 'src/foo/bar/baz.ts'
 export const to_root_path = (id: string, p = paths): string => stripStart(id, p.root);
 
-// TODO this is more like `toBasePath`
 // '/home/me/app/src/foo/bar/baz.ts' → 'foo/bar/baz.ts'
 export const source_id_to_base_path = (source_id: SourceId, p = paths): string =>
-	stripStart(source_id, p.source);
+	relative(p.source, source_id);
 
 // 'foo/bar/baz.ts' → '/home/me/app/src/foo/bar/baz.ts'
 export const base_path_to_source_id = (base_path: string, p = paths): SourceId =>
-	p.source + base_path;
+	join(p.source, base_path);
 
 // To run Gro's tasks from its own project, we resolve from dist/ instead of src/.
 // 'foo/bar/baz.ts' → '/home/me/app/src/lib/foo/bar/baz.ts'
