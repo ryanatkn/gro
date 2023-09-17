@@ -28,8 +28,8 @@ export interface PluginContext<TArgs = object> extends TaskContext<TArgs> {
 export class Plugins<TPluginContext extends PluginContext> {
 	/* prefer `Plugins.create` to the constructor */
 	constructor(
-		private readonly ctx: TPluginContext,
-		private readonly instances: readonly Plugin[],
+		private ctx: TPluginContext,
+		private instances: Plugin[],
 	) {}
 
 	static async create<TPluginContext extends PluginContext>(

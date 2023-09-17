@@ -27,7 +27,7 @@ export interface ToConfigAdapters<TArgs = any> {
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface AdapterContext<TArgs = any> extends TaskContext<TArgs> {}
 
-export const adapt = async (ctx: AdapterContext): Promise<readonly Adapter[]> => {
+export const adapt = async (ctx: AdapterContext): Promise<Adapter[]> => {
 	const {config, timings} = ctx;
 	const timing_to_create_adapters = timings.start('create adapters');
 	const adapters: Array<Adapter<any>> = toArray(await config.adapters(ctx)).filter(

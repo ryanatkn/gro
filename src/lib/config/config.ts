@@ -17,8 +17,8 @@ If none is provided, the fallback is located at `gro/src/lib/config/gro.config.d
 */
 
 export interface GroConfig {
-	readonly plugins: ToConfigPlugins;
-	readonly adapters: ToConfigAdapters;
+	plugins: ToConfigPlugins;
+	adapters: ToConfigAdapters;
 }
 
 export interface GroConfigCreator {

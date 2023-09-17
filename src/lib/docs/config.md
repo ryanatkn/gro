@@ -48,8 +48,8 @@ export default config;
 
 ```ts
 export interface GroConfig {
-	readonly plugins: ToConfigPlugins;
-	readonly adapters: ToConfigAdapters;
+	plugins: ToConfigPlugins;
+	adapters: ToConfigAdapters;
 }
 
 export interface GroConfigCreator {
