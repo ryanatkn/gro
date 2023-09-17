@@ -58,6 +58,12 @@ export interface Options {
 	 * @default identity
 	 */
 	esbuild_build_options?: (base_options: esbuild.BuildOptions) => esbuild.BuildOptions;
+	/**
+	 * Milliseconds to throttle rebuilds.
+	 * Should be longer than it takes to build to avoid backpressure.
+	 * @default 1000
+	 */
+	rebuild_throttle_delay?: number; // TODO could detect the backpressure problem and at least warn, shouldn't be a big deal
 }
 
 export interface Outpaths {
@@ -92,6 +98,7 @@ export const plugin = ({
 	sveltekit_config: sveltekit_config_option,
 	target = 'esnext',
 	esbuild_build_options = identity,
+	rebuild_throttle_delay = 1000,
 }: Options): Plugin<PluginContext> => {
 	let build_ctx: esbuild.BuildContext;
 	let watcher: WatchNodeFs;
@@ -166,21 +173,16 @@ export const plugin = ({
 			timing_to_esbuild_create_context();
 
 			const rebuild = throttle(async () => {
-				console.log('CALLING REBUILD');
 				const build_result = await build_ctx.rebuild();
-				console.log('DONE BUILDING');
 				const {metafile} = build_result;
 				if (!metafile) return;
 				print_build_result(log, build_result);
 				deps = parse_deps(metafile.inputs, dir);
-				console.log('RESTARTING!!!!!!!!!!!!!!!!!!!!\n!!!!!!!!!!!!!!!!!!!');
 				server_process?.restart();
-			}, 2000); // TODO BLOCK delay?
+			}, rebuild_throttle_delay);
 
-			console.log('INITIAL REBUILD');
 			await rebuild();
 
-			// TODO BLOCK handle src/ paths (configure esbuild ?)
 			if (watch) {
 				let watcher_ready = false;
 				// TODO maybe reuse this watcher globally via an option,
@@ -202,13 +204,13 @@ export const plugin = ({
 				throw Error(`Node server failed to start due to missing file: ${server_outpath}`);
 			}
 
-			console.log('STARTING NODE SERVER');
 			server_process = spawnRestartableProcess('node', [server_outpath]);
 		},
 		teardown: async () => {
 			if (server_process) {
-				await server_process.kill();
+				const s = server_process; // avoid possible issue where a build is in progress, don't want to issue a restart, could be fixed upstream in `spawnRestartableProcess`
 				server_process = null;
+				await s.kill();
 			}
 			if (watcher) {
 				await watcher.close();
