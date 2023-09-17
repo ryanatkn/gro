@@ -1,4 +1,7 @@
+// TODO this became unused with https://github.com/grogarden/gro/pull/382
+// because we no longer have a normal system build - replace with an esbuild plugin
 // @ts-nocheck
+
 import {spawn} from '@feltjs/util/process.js';
 
 import type {FilerEvents} from '../build/Filer.js';
@@ -8,9 +11,6 @@ import {source_id_to_base_path} from '../util/paths.js';
 import {find_gen_modules, is_gen_path} from '../gen/gen_module.js';
 import {filter_dependents} from '../build/source_file.js';
 import {throttle} from '../util/throttle.js';
-
-// TODO this became unused with https://github.com/grogarden/gro/pull/382
-// because we no longer have a normal system build - replace with an esbuild plugin
 
 const FLUSH_DEBOUNCE_DELAY = 500;
 
@@ -27,26 +27,22 @@ export const plugin = (): Plugin<PluginContext<TaskArgs>> => {
 		queued_files.add(gen_file_name);
 		void flush_gen_queue();
 	};
-	const flush_gen_queue = throttle(
-		async () => {
-			// hacky way to avoid concurrent `gro gen` calls
-			if (generating) {
-				regen = true;
-				return;
-			}
-			generating = true;
-			const files = Array.from(queued_files);
-			queued_files.clear();
-			await gen(files);
-			generating = false;
-			if (regen) {
-				regen = false;
-				void flush_gen_queue();
-			}
-		},
-		undefined,
-		FLUSH_DEBOUNCE_DELAY,
-	);
+	const flush_gen_queue = throttle(async () => {
+		// hacky way to avoid concurrent `gro gen` calls
+		if (generating) {
+			regen = true;
+			return;
+		}
+		generating = true;
+		const files = Array.from(queued_files);
+		queued_files.clear();
+		await gen(files);
+		generating = false;
+		if (regen) {
+			regen = false;
+			void flush_gen_queue();
+		}
+	}, FLUSH_DEBOUNCE_DELAY);
 	const gen = (files: string[] = []) => spawn('npx', ['gro', 'gen', ...files]);
 
 	return {

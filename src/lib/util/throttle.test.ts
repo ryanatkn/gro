@@ -31,6 +31,7 @@ test__throttle('discards all but one concurrent call', async () => {
 			await wait();
 			results.push(a + c + '_done');
 		},
+		0,
 		(a, b) => a + b,
 	);
 	const promise_a1 = fn('a', 0, '1');
@@ -64,8 +65,8 @@ test__throttle('throttles with a delay', async () => {
 			await wait();
 			results.push(a + c + '_done');
 		},
+		0,
 		(a, b) => a + b,
-		1,
 	);
 	const promise1 = fn('a', 0, '1');
 	assert.equal(results, ['a1_run']);

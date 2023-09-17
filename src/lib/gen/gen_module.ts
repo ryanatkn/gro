@@ -105,6 +105,8 @@ export const check_gen_module = async (file: GenFile): Promise<CheckGenModuleRes
 
 export const find_gen_modules = (
 	input_paths: string[] = [paths.source],
+	// TODO improve this API to allow config, maybe just a simple `gen` filter function, so the user could return a Rollup pluginutils filter,
+	// gets a little tricky with the `get_possible_source_ids` API usage, which would probably need to change
 	extensions: string[] = [GEN_FILE_PATTERN, GEN_SCHEMA_FILE_PATTERN],
 	root_dirs: string[] = [],
 ): Promise<FindModulesResult> =>

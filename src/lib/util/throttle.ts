@@ -9,15 +9,15 @@ import {wait} from '@feltjs/util/async.js';
  * and only the last call is executed.
  * Calls except the most recent made during the pending promise are discarded.
  * This is distinct from a queue where every call to the throttled function eventually runs.
- * @param fn Any promise-returning function.
- * @param to_cache_key Throttled calls are grouped by the `Map` key returned from this function.
- * @param delay Throttled calls delay this many milliseconds after the previous call finishes.
- * @returns Same as `fn`.
+ * @param fn - any promise-returning function
+ * @param delay - delay this many milliseconds after the previous call finishes
+ * @param to_cache_key - grouped on this `Map` key returned from this function
+ * @returns return value of of `fn`.
  */
 export const throttle = <TArgs extends any[]>(
 	fn: (...args: TArgs) => Promise<void>,
-	to_cache_key?: (...args: TArgs) => any,
 	delay = 0,
+	to_cache_key?: (...args: TArgs) => any,
 ): ((...args: TArgs) => Promise<void>) => {
 	const cache: Map<string, {id: number; promise: Promise<void>}> = new Map();
 	let _id = 0;
