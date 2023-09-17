@@ -3,6 +3,7 @@ import * as esbuild from 'esbuild';
 import {cwd} from 'node:process';
 import type {Config as SvelteKitConfig} from '@sveltejs/kit';
 import {join, resolve} from 'node:path';
+import {identity} from '@feltjs/util/function.js';
 
 import type {Plugin, PluginContext} from './plugin.js';
 import {BUILD_DEV_DIRNAME, BUILD_DIST_DIRNAME, paths} from '../util/paths.js';
@@ -50,6 +51,11 @@ export interface Options {
 	 * @default 'esnext'
 	 */
 	target?: string;
+	/**
+	 * Optionally map the esbuild options.
+	 * @default identity
+	 */
+	esbuild_build_options?: (base_options: esbuild.BuildOptions) => esbuild.BuildOptions;
 }
 
 export interface Outpaths {
@@ -83,6 +89,7 @@ export const plugin = ({
 	ambient_env,
 	sveltekit_config: sveltekit_config_option,
 	target = 'esnext',
+	esbuild_build_options = identity,
 }: Options): Plugin<PluginContext> => {
 	let build_ctx: esbuild.BuildContext;
 	let watcher: WatchNodeFs;
@@ -107,8 +114,7 @@ export const plugin = ({
 
 			const timing_to_esbuild_create_context = timings.start('create build context');
 
-			// TODO BLOCK source overrides from build_options: build_options_option - or maybe a callback that can gets the base and return a new one?
-			const build_options: esbuild.BuildOptions = {
+			const build_options = esbuild_build_options({
 				outdir,
 				outbase,
 				format: 'esm',
@@ -116,7 +122,7 @@ export const plugin = ({
 				packages: 'external',
 				bundle: true,
 				target,
-			};
+			});
 
 			build_ctx = await esbuild.context({
 				entryPoints: entry_points.map((e) => resolve(dir, e)),
@@ -152,6 +158,7 @@ export const plugin = ({
 				define: to_define_import_meta_env(dev, base_url),
 				...build_options,
 			});
+
 			timing_to_esbuild_create_context();
 
 			// TODO BLOCK can we watch dependencies of all of the files through esbuild?
