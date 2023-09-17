@@ -16,10 +16,7 @@ and the rest of the args are forwarded to the task's `run` function.
 */
 
 // handle uncaught errors
-attachProcessErrorHandlers((err) => {
-	console.log(`err!!!!!!!!!!!!!!!!!!!!!!!!!`, err);
-	return err?.constructor?.name === 'TaskError' ? 'TaskError' : null;
-});
+attachProcessErrorHandlers((err) => (err?.constructor?.name === 'TaskError' ? 'TaskError' : null));
 
 // This is often wasteful but we're just going for correctness right now.
 await sveltekit_sync();
