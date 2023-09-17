@@ -114,6 +114,7 @@ export const plugin = ({
 
 			const timing_to_esbuild_create_context = timings.start('create build context');
 
+			// TODO BLOCK probably implement granular watching with the `metafile` - https://esbuild.github.io/api/#analyze
 			const build_options = esbuild_build_options({
 				outdir,
 				outbase,
