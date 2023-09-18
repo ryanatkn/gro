@@ -74,7 +74,7 @@ export const to_package_exports = (paths: string[]): PackageJsonExports => {
 			};
 		} else if (path.endsWith('.svelte')) {
 			exports['./' + path] = {
-				default: IMPORT_PREFIX + path,
+				svelte: IMPORT_PREFIX + path,
 				types: IMPORT_PREFIX + path + '.d.ts',
 			};
 		} else {
