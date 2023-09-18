@@ -42,7 +42,7 @@ export const load_gro_package_json = async (force_refresh = false): Promise<Pack
 };
 
 export const write_package_json = async (pkg: PackageJson): Promise<void> => {
-	await writeFile(join(paths.root, 'package.json'), JSON.stringify(pkg, null, 2));
+	await writeFile(join(paths.root, 'package.json'), JSON.stringify(pkg, null, 2) + '\n');
 };
 
 export const update_package_json = async (
