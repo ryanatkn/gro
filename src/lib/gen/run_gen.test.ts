@@ -13,65 +13,65 @@ const log = new Logger('test__gen'); // TODO test logger?
 const test__gen = suite('gen');
 
 test__gen('basic behavior', async () => {
-	const source_idA = resolve('src/foo.gen.ts');
-	const source_idBC = resolve('src/bar/bc');
-	let fileA: undefined | {filename: string; content: string};
-	let fileB: undefined | {filename: string; content: string};
-	let fileC1: undefined | {filename: string; content: string};
-	let fileC2: undefined | {filename: string; content: string};
-	const modA: GenModuleMeta = {
+	const source_id_a = resolve('src/foo.gen.ts');
+	const source_id_bc = resolve('src/bar/bc');
+	let file_a: undefined | {filename: string; content: string};
+	let file_b: undefined | {filename: string; content: string};
+	let file_c1: undefined | {filename: string; content: string};
+	let file_c2: undefined | {filename: string; content: string};
+	const mod_a: GenModuleMeta = {
 		type: 'basic',
-		id: source_idA,
+		id: source_id_a,
 		mod: {
 			gen: async (ctx) => {
-				assert.is(ctx.origin_id, source_idA);
-				if (fileA) throw Error('Already generated fileA');
-				fileA = {
+				assert.is(ctx.origin_id, source_id_a);
+				if (file_a) throw Error('Already generated file_a');
+				file_a = {
 					filename: 'foo.ts',
-					content: 'fileA',
+					content: 'file_a',
 				};
-				return fileA.content; // here we return the shorthand version
+				return file_a.content; // here we return the shorthand version
 			},
 		},
 	};
-	const modB: GenModuleMeta = {
+	const mod_b: GenModuleMeta = {
 		type: 'basic',
-		id: join(source_idBC, 'modB.gen.ts'),
+		id: join(source_id_bc, 'mod_b.gen.ts'),
 		mod: {
 			gen: async (ctx) => {
-				assert.is(ctx.origin_id, modB.id);
-				if (fileB) throw Error('Already generated fileB');
-				fileB = {
+				assert.is(ctx.origin_id, mod_b.id);
+				if (file_b) throw Error('Already generated file_b');
+				file_b = {
 					filename: 'outputB.ts',
-					content: 'fileB',
+					content: 'file_b',
 				};
-				return fileB;
+				return file_b;
 			},
 		},
 	};
-	const modC: GenModuleMeta = {
+	const mod_c: GenModuleMeta = {
 		type: 'basic',
-		id: join(source_idBC, 'modC.gen.ts'),
+		id: join(source_id_bc, 'mod_c.gen.ts'),
 		mod: {
 			gen: async (ctx) => {
-				assert.is(ctx.origin_id, modC.id);
-				if (fileC1) throw Error('Already generated fileC1');
-				if (fileC2) throw Error('Already generated fileC2');
-				fileC1 = {
+				assert.is(ctx.origin_id, mod_c.id);
+				if (file_c1) throw Error('Already generated file_c1');
+				if (file_c2) throw Error('Already generated file_c2');
+				file_c1 = {
 					filename: 'outputC1.ts',
-					content: 'fileC1',
+					content: 'file_c1',
 				};
-				fileC2 = {
+				file_c2 = {
 					filename: 'outputC2.ts',
-					content: 'fileC2',
+					content: 'file_c2',
 				};
-				return [fileC1, fileC2];
+				return [file_c1, file_c2];
 			},
 		},
 	};
-	const gen_modulesByInputPath = [modA, modB, modC];
+	const gen_modules_by_input_path = [mod_a, mod_b, mod_c];
 	const gen_results = await run_gen(
-		gen_modulesByInputPath,
+		gen_modules_by_input_path,
 		log,
 		new Timings(),
 		async (id, content) => (id.endsWith('outputB.ts') ? `${content}/*FORMATTED*/` : content),
@@ -85,59 +85,59 @@ test__gen('basic behavior', async () => {
 	assert.is(gen_results.results[1], gen_results.successes[1]);
 	assert.is(gen_results.results[2], gen_results.successes[2]);
 
-	const resultA = gen_results.results[0];
-	assert.ok(resultA?.ok);
-	assert.ok(fileA);
-	assert.equal(resultA.files, [
+	const result_a = gen_results.results[0];
+	assert.ok(result_a?.ok);
+	assert.ok(file_a);
+	assert.equal(result_a.files, [
 		{
-			content: fileA.content,
-			id: join(modA.id, '../', fileA.filename),
-			origin_id: modA.id,
+			content: file_a.content,
+			id: join(mod_a.id, '../', file_a.filename),
+			origin_id: mod_a.id,
 			format: true,
 		},
 	]);
 
-	const resultB = gen_results.results[1];
-	assert.ok(resultB?.ok);
-	assert.ok(fileB);
-	assert.equal(resultB.files, [
+	const result_b = gen_results.results[1];
+	assert.ok(result_b?.ok);
+	assert.ok(file_b);
+	assert.equal(result_b.files, [
 		{
-			content: `${fileB.content}/*FORMATTED*/`,
-			id: join(modB.id, '../', fileB.filename),
-			origin_id: modB.id,
+			content: `${file_b.content}/*FORMATTED*/`,
+			id: join(mod_b.id, '../', file_b.filename),
+			origin_id: mod_b.id,
 			format: true,
 		},
 	]);
-	const resultC = gen_results.results[2];
-	assert.ok(resultC?.ok);
-	assert.ok(fileC1);
-	assert.ok(fileC2);
-	assert.equal(resultC.files, [
+	const result_c = gen_results.results[2];
+	assert.ok(result_c?.ok);
+	assert.ok(file_c1);
+	assert.ok(file_c2);
+	assert.equal(result_c.files, [
 		{
-			content: fileC1.content,
-			id: join(modC.id, '../', fileC1.filename),
-			origin_id: modC.id,
+			content: file_c1.content,
+			id: join(mod_c.id, '../', file_c1.filename),
+			origin_id: mod_c.id,
 			format: true,
 		},
 		{
-			content: fileC2.content,
-			id: join(modC.id, '../', fileC2.filename),
-			origin_id: modC.id,
+			content: file_c2.content,
+			id: join(mod_c.id, '../', file_c2.filename),
+			origin_id: mod_c.id,
 			format: true,
 		},
 	]);
 });
 
 test__gen('failing gen function', async () => {
-	const source_idA = resolve('src/foo.gen.ts');
+	const source_id_a = resolve('src/foo.gen.ts');
 	const source_idB = resolve('src/bar/baz');
-	let fileB: undefined | {filename: string; content: string}; // no fileA because it's never generated
+	let file_b: undefined | {filename: string; content: string}; // no file_a because it's never generated
 	let genError; // this error should be passed through to the result
 	// This is the failing gen module.
 	// It's ordered first to test that its failure doesn't cascade.
-	const modA: GenModuleMeta = {
+	const mod_a: GenModuleMeta = {
 		type: 'basic',
-		id: source_idA,
+		id: source_id_a,
 		mod: {
 			gen: async () => {
 				genError = Error('This fails for testing');
@@ -145,23 +145,23 @@ test__gen('failing gen function', async () => {
 			},
 		},
 	};
-	const modB: GenModuleMeta = {
+	const mod_b: GenModuleMeta = {
 		type: 'basic',
-		id: join(source_idB, 'modB.gen.ts'),
+		id: join(source_idB, 'mod_b.gen.ts'),
 		mod: {
 			gen: async (ctx) => {
-				assert.is(ctx.origin_id, modB.id);
-				if (fileB) throw Error('Already generated fileB');
-				fileB = {
+				assert.is(ctx.origin_id, mod_b.id);
+				if (file_b) throw Error('Already generated file_b');
+				file_b = {
 					filename: 'outputB.ts',
-					content: 'fileB',
+					content: 'file_b',
 				};
-				return fileB;
+				return file_b;
 			},
 		},
 	};
-	const gen_modulesByInputPath: GenModuleMeta[] = [modA, modB];
-	const gen_results = await run_gen(gen_modulesByInputPath, log, new Timings());
+	const gen_modules_by_input_path: GenModuleMeta[] = [mod_a, mod_b];
+	const gen_results = await run_gen(gen_modules_by_input_path, log, new Timings());
 	assert.is(gen_results.input_count, 2);
 	assert.is(gen_results.output_count, 1);
 	assert.is(gen_results.successes.length, 1);
@@ -170,20 +170,20 @@ test__gen('failing gen function', async () => {
 	assert.is(gen_results.results[0], gen_results.failures[0]);
 	assert.is(gen_results.results[1], gen_results.successes[0]);
 
-	const resultA = gen_results.results[0];
-	assert.ok(resultA);
-	assert.ok(!resultA?.ok);
-	assert.ok(resultA.reason);
-	assert.ok(resultA.error);
+	const result_a = gen_results.results[0];
+	assert.ok(result_a);
+	assert.ok(!result_a?.ok);
+	assert.ok(result_a.reason);
+	assert.ok(result_a.error);
 
-	const resultB = gen_results.results[1];
-	assert.ok(resultB?.ok);
-	assert.ok(fileB);
-	assert.equal(resultB.files, [
+	const result_b = gen_results.results[1];
+	assert.ok(result_b?.ok);
+	assert.ok(file_b);
+	assert.equal(result_b.files, [
 		{
-			content: fileB.content,
-			id: join(modB.id, '../', fileB.filename),
-			origin_id: modB.id,
+			content: file_b.content,
+			id: join(mod_b.id, '../', file_b.filename),
+			origin_id: mod_b.id,
 			format: true,
 		},
 	]);
