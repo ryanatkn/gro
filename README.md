@@ -104,7 +104,7 @@ gro # prints available tasks - defers to the project's locally installed version
 Run a task: gro [name]
 View help:  gro [name] --help
 
-14 tasks in gro/src:
+14 tasks in ./src/lib:
 
 build      build the project
 check      check that everything is ready to commit
@@ -112,13 +112,13 @@ clean      remove temporary dev and build files, and optionally prune git branch
 commit     commit and push to a new branch
 deploy     deploy to a branch
 dev        start SvelteKit and other dev plugins
+exports    writes the exports property of package.json for the lib
 format     format source files
 gen        run code generation scripts
-help       alias for `gro` with no task name provided
-lint       run eslint on the source files
+lint       run eslint on the given directories and files
 publish    bump version, publish to npm, and git push
 test       run tests
-typecheck  typecheck the project without emitting any files
+typecheck  run tsc on the project without emitting any files
 upgrade    upgrade deps
 ```
 
