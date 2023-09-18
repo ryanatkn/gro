@@ -54,7 +54,7 @@ export const esbuild_plugin_external_worker = ({
 			const building = esbuild.build({
 				entryPoints: [source_id],
 				plugins: [
-					esbuild_plugin_sveltekit_shim_app({base_url, assets_url}),
+					esbuild_plugin_sveltekit_shim_app({dev, base_url, assets_url}),
 					esbuild_plugin_sveltekit_shim_env({
 						dev,
 						public_prefix,

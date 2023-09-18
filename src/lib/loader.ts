@@ -16,7 +16,9 @@ import {escapeRegexp} from '@feltjs/util/regexp.js';
 
 import {render_env_shim_module} from './util/sveltekit_shim_env.js';
 import {
+	render_sveltekit_shim_app_environment,
 	render_sveltekit_shim_app_paths,
+	sveltekit_shim_app_environment_matcher,
 	sveltekit_shim_app_paths_matcher,
 	sveltekit_shim_app_specifiers,
 } from './util/sveltekit_shim_app.js';
@@ -55,10 +57,18 @@ const env_matcher = /src\/lib\/\$env\/(static|dynamic)\/(public|private)$/u;
 
 export const load: LoadHook = async (url, context, nextLoad) => {
 	if (sveltekit_shim_app_paths_matcher.test(url)) {
+		// $app/paths shim
 		return {
 			format: 'module',
 			shortCircuit: true,
 			source: render_sveltekit_shim_app_paths(base_url, assets_url),
+		};
+	} else if (sveltekit_shim_app_environment_matcher.test(url)) {
+		// $app/environment shim
+		return {
+			format: 'module',
+			shortCircuit: true,
+			source: render_sveltekit_shim_app_environment(true),
 		};
 	} else if (node_modules_matcher.test(url)) {
 		return nextLoad(url, context);
@@ -133,8 +143,8 @@ export const resolve: ResolveHook = async (specifier, context, nextResolve) => {
 		};
 	}
 
-	const shimmed = sveltekit_shim_app_specifiers.get(specifier) ?? null;
-	if (shimmed !== null) {
+	const shimmed = sveltekit_shim_app_specifiers.get(specifier);
+	if (shimmed !== undefined) {
 		return nextResolve(shimmed, context);
 	}
 
