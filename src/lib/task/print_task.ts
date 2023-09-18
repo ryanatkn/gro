@@ -55,7 +55,7 @@ export const log_error_reasons = (log: Logger, reasons: string[]): void => {
 
 const ARGS_PROPERTY_NAME = '[...args]';
 
-export const log_task_help = (log: Logger, meta: TaskModuleMeta): void => {
+export const print_task_help = (log: Logger, meta: TaskModuleMeta): void => {
 	const {
 		name,
 		mod: {task},

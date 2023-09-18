@@ -12,7 +12,7 @@ import {resolve_input_paths} from './util/input_path.js';
 import {load_modules} from './util/modules.js';
 import {format_file} from './format/format_file.js';
 import {print_path} from './util/paths.js';
-import {log_error_reasons} from './task/log_task.js';
+import {log_error_reasons} from './task/print_task.js';
 
 export const Args = z
 	.object({

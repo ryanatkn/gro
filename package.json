@@ -239,9 +239,9 @@
       "default": "./dist/task/invoke_task.js",
       "types": "./dist/task/invoke_task.d.ts"
     },
-    "./task/log_task.js": {
-      "default": "./dist/task/log_task.js",
-      "types": "./dist/task/log_task.d.ts"
+    "./task/print_task.js": {
+      "default": "./dist/task/print_task.js",
+      "types": "./dist/task/print_task.d.ts"
     },
     "./task/run_task.js": {
       "default": "./dist/task/run_task.js",
