@@ -80,6 +80,8 @@ export const create_paths = (root_dir: string): Paths => {
 export const paths_from_id = (id: string): Paths => (is_gro_id(id) ? gro_paths : paths);
 export const is_gro_id = (id: string): boolean => id.startsWith(gro_paths.root);
 
+// TODO maybe infer `p` for the functions that take in ids using `paths_from_id`?
+
 // '/home/me/app/src/foo/bar/baz.ts' → 'src/foo/bar/baz.ts'
 export const to_root_path = (id: string, p = paths): string => stripStart(id, p.root);
 
@@ -100,6 +102,25 @@ export const lib_path_to_import_id = (base_path: string, p = paths): SourceId =>
 	} else {
 		return base_path_to_source_id(LIB_DIRNAME + '/' + base_path, p);
 	}
+};
+
+export const import_id_to_source_id = (import_id: string): string => {
+	console.log(`import_id`, import_id);
+	const p = paths_from_id(import_id);
+	console.log(`paths`, p);
+	if (p.root === gro_paths.root) {
+		const base_path = stripStart(import_id, gro_sveltekit_dist_dir);
+		console.log(`base_path`, base_path);
+		return base_path_to_source_id(base_path, p);
+	} else {
+		return import_id;
+	}
+};
+
+// TODO BLOCK look at `import_id_to_source_id`
+export const to_gro_input_path = (input_path: string): string => {
+	const base_path = input_path === paths.lib.slice(0, -1) ? '' : stripStart(input_path, paths.lib);
+	return gro_sveltekit_dist_dir + base_path;
 };
 
 // Can be used to map a source id from e.g. the cwd to gro's.
@@ -136,9 +157,3 @@ export const paths = create_paths(process.cwd() + '/');
 export const is_this_project_gro = gro_dir === paths.root;
 export const gro_paths = is_this_project_gro ? paths : create_paths(gro_dir);
 export const gro_sveltekit_dist_dir = gro_paths.root + SVELTEKIT_DIST_DIRNAME + '/';
-
-// TODO hacky
-export const to_gro_input_path = (input_path: string): string => {
-	const base_path = input_path === paths.lib.slice(0, -1) ? '' : stripStart(input_path, paths.lib);
-	return gro_sveltekit_dist_dir + base_path;
-};
