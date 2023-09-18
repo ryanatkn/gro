@@ -25,12 +25,12 @@ export const task: Task<Args> = {
 	run: async (ctx) => {
 		const {
 			args: {watch},
+			invoke_task,
 		} = ctx;
 
 		await clean_fs({build_dev: true});
 
-		// TODO BLOCK re-enable
-		// await invoke_task('gen');
+		await invoke_task('gen');
 
 		const plugins = await Plugins.create({...ctx, dev: true, watch});
 

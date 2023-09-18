@@ -7,17 +7,15 @@ import type {GroConfig} from './lib/config/config.js';
  */
 const config: GroConfig = {
 	plugins: async () => [
-		// TODO BLOCK re-enable
-		// (await import('./lib/plugin/gro_plugin_sveltekit_frontend.js')).plugin(),
+		(await import('./lib/plugin/gro_plugin_sveltekit_frontend.js')).plugin(),
 		// TODO replace with an esbuild plugin, see the module for more
 		// (await import('./lib/plugin/gro_plugin_gen.js')).plugin(),
 	],
 	adapters: async () =>
 		Promise.all([
-			// TODO BLOCK re-enable
-			// (await import('./lib/adapt/gro_adapter_sveltekit_frontend.js')).create_adapter({
-			// 	host_target: 'github_pages',
-			// }),
+			(await import('./lib/adapt/gro_adapter_sveltekit_frontend.js')).create_adapter({
+				host_target: 'github_pages',
+			}),
 			(await import('./lib/adapt/gro_adapter_library.js')).create_adapter(),
 		]),
 };

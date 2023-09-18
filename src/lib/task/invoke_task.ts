@@ -47,7 +47,6 @@ export const invoke_task = async (
 	timings = new Timings(),
 ): Promise<void> => {
 	const log = new SystemLogger(printLogLabel(task_name || 'gro'));
-	SystemLogger.level = 'debug'; // TODO BLOCK re-enable (remove)
 	log.info('invoking', task_name ? cyan(task_name) : 'gro');
 
 	// Check if the caller just wants to see the version.

@@ -15,8 +15,7 @@ const config: GroConfigCreator = async () => {
 	const [enable_library, enable_server, enable_sveltekit_frontend] = await Promise.all([
 		has_library(),
 		has_server(),
-		false, // TODO BLOCK re-enable
-		// has_sveltekit_frontend(),
+		has_sveltekit_frontend(),
 	]);
 
 	return {
