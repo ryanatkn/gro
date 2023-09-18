@@ -6,14 +6,18 @@ import {
 	paths,
 	README_FILENAME,
 	SVELTEKIT_CONFIG_FILENAME,
+	VITE_CONFIG_FILENAME,
 	TSCONFIG_FILENAME,
+	CONFIG_PATH,
 } from '../util/paths.js';
 import {print_command_args, serialize_args, to_forwarded_args} from '../task/args.js';
 
 const DEFAULT_EXTENSIONS = 'ts,js,json,svelte,html,css,md,yml';
 const DEFAULT_ROOT_PATHS = `${[
 	README_FILENAME,
+	CONFIG_PATH,
 	SVELTEKIT_CONFIG_FILENAME,
+	VITE_CONFIG_FILENAME,
 	TSCONFIG_FILENAME,
 	GITHUB_DIRNAME,
 ].join(',')}/**/*`;

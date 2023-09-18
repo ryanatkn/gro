@@ -9,9 +9,9 @@ export const Args = z
 		build_dev: z.boolean({description: 'delete the Gro build dev directory'}).default(false),
 		build_dist: z.boolean({description: 'delete the Gro build dist directory'}).default(false),
 		sveltekit: z
-			.boolean({description: 'delete the SvelteKit directory .svelte-kit/ and Vite cache'})
+			.boolean({description: 'delete the SvelteKit directory and Vite cache'})
 			.default(false),
-		nodemodules: z.boolean({description: 'delete node_modules/'}).default(false),
+		nodemodules: z.boolean({description: 'delete the node_modules directory'}).default(false),
 		git: z
 			.boolean({
 				description:

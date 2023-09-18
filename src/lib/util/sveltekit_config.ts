@@ -3,13 +3,15 @@ import type {CompileOptions, PreprocessorGroup} from 'svelte/compiler';
 import {join} from 'node:path';
 import {cwd} from 'node:process';
 
+import {SVELTEKIT_CONFIG_FILENAME} from './paths.js';
+
 /**
  * Loads a SvelteKit config at `dir`.
  * @returns
  */
 export const load_sveltekit_config = async (dir: string = cwd()): Promise<Config | null> => {
 	try {
-		return (await import(join(dir, 'svelte.config.js'))).default;
+		return (await import(join(dir, SVELTEKIT_CONFIG_FILENAME))).default;
 	} catch (err) {
 		return null;
 	}
