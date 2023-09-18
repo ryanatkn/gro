@@ -111,6 +111,7 @@ export const plugin = ({
 			const {
 				alias,
 				base_url,
+				assets_url,
 				env_dir,
 				private_prefix,
 				public_prefix,
@@ -138,7 +139,7 @@ export const plugin = ({
 			build_ctx = await esbuild.context({
 				entryPoints: entry_points.map((path) => resolve(dir, path)),
 				plugins: [
-					esbuild_plugin_sveltekit_shim_app(),
+					esbuild_plugin_sveltekit_shim_app({base_url, assets_url}),
 					esbuild_plugin_sveltekit_shim_env({
 						dev,
 						public_prefix,

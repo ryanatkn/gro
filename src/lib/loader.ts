@@ -15,7 +15,11 @@ import type {LoadHook, ResolveHook} from 'node:module';
 import {escapeRegexp} from '@feltjs/util/regexp.js';
 
 import {render_env_shim_module} from './util/sveltekit_shim_env.js';
-import {to_sveltekit_app_specifier} from './util/sveltekit_shim_app.js';
+import {
+	render_sveltekit_shim_app_paths,
+	sveltekit_shim_app_paths_matcher,
+	sveltekit_shim_app_specifiers,
+} from './util/sveltekit_shim_app.js';
 import {init_sveltekit_config} from './util/sveltekit_config.js';
 import {NODE_MODULES_DIRNAME} from './util/paths.js';
 import {to_define_import_meta_env, ts_transform_options} from './util/esbuild_helpers.js';
@@ -30,6 +34,7 @@ const node_modules_matcher = new RegExp(escapeRegexp('/' + NODE_MODULES_DIRNAME 
 const {
 	alias,
 	base_url,
+	assets_url,
 	env_dir,
 	private_prefix,
 	public_prefix,
@@ -49,11 +54,15 @@ const svelte_matcher = /\.(svelte)$/u;
 const env_matcher = /src\/lib\/\$env\/(static|dynamic)\/(public|private)$/u;
 
 export const load: LoadHook = async (url, context, nextLoad) => {
-	if (node_modules_matcher.test(url)) {
+	if (sveltekit_shim_app_paths_matcher.test(url)) {
+		return {
+			format: 'module',
+			shortCircuit: true,
+			source: render_sveltekit_shim_app_paths(base_url, assets_url),
+		};
+	} else if (node_modules_matcher.test(url)) {
 		return nextLoad(url, context);
-	}
-
-	if (ts_matcher.test(url)) {
+	} else if (ts_matcher.test(url)) {
 		// ts
 		const loaded = await nextLoad(
 			url,
@@ -124,7 +133,7 @@ export const resolve: ResolveHook = async (specifier, context, nextResolve) => {
 		};
 	}
 
-	const shimmed = to_sveltekit_app_specifier(specifier);
+	const shimmed = sveltekit_shim_app_specifiers.get(specifier) ?? null;
 	if (shimmed !== null) {
 		return nextResolve(shimmed, context);
 	}

@@ -2,6 +2,8 @@ import {yellow, red} from 'kleur/colors';
 import type {Logger} from '@feltjs/util/log.js';
 import type * as esbuild from 'esbuild';
 
+import type {ParsedSveltekitConfig} from './sveltekit_config.js';
+
 export const print_build_result = (log: Logger, build_result: esbuild.BuildResult): void => {
 	for (const error of build_result.errors) {
 		log.error(red('esbuild error'), error);
@@ -26,7 +28,7 @@ const import_meta_env = 'import.meta' + '.env'; // eslint-disable-line no-useles
  */
 export const to_define_import_meta_env = (
 	dev: boolean,
-	base_url: '' | `/${string}` | undefined,
+	base_url: ParsedSveltekitConfig['base_url'],
 	ssr = true,
 	mode = dev ? 'development' : 'production',
 ): Record<string, string> => ({

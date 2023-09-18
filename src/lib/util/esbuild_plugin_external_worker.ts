@@ -11,6 +11,7 @@ import {esbuild_plugin_sveltekit_shim_env} from './esbuild_plugin_sveltekit_shim
 import {esbuild_plugin_sveltekit_shim_app} from './esbuild_plugin_sveltekit_shim_app.js';
 import {esbuild_plugin_sveltekit_local_imports} from './esbuild_plugin_sveltekit_local_imports.js';
 import {esbuild_plugin_svelte} from './esbuild_plugin_svelte.js';
+import type {ParsedSveltekitConfig} from './sveltekit_config.js';
 
 export interface Options {
 	dev: boolean;
@@ -19,7 +20,8 @@ export interface Options {
 	svelte_compile_options?: CompileOptions;
 	svelte_preprocessors?: PreprocessorGroup | PreprocessorGroup[];
 	alias?: Record<string, string>;
-	base_url?: '' | `/${string}` | undefined;
+	base_url?: ParsedSveltekitConfig['base_url'];
+	assets_url?: ParsedSveltekitConfig['assets_url'];
 	public_prefix?: string;
 	private_prefix?: string;
 	env_dir?: string;
@@ -36,6 +38,7 @@ export const esbuild_plugin_external_worker = ({
 	svelte_preprocessors,
 	alias,
 	base_url,
+	assets_url,
 	public_prefix,
 	private_prefix,
 	env_dir,
@@ -51,7 +54,7 @@ export const esbuild_plugin_external_worker = ({
 			const building = esbuild.build({
 				entryPoints: [source_id],
 				plugins: [
-					esbuild_plugin_sveltekit_shim_app(),
+					esbuild_plugin_sveltekit_shim_app({base_url, assets_url}),
 					esbuild_plugin_sveltekit_shim_env({
 						dev,
 						public_prefix,
