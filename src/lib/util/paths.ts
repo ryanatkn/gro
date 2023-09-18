@@ -25,6 +25,7 @@ the `path_parts` are `['foo', 'foo/bar', 'foo/bar/baz.ts']`.
 // TODO this is kinda gross - do we want to maintain the convention to have the trailing slash in most usage?
 export const SOURCE_DIRNAME = 'src';
 export const BUILD_DIRNAME = '.gro';
+export const SVELTEKIT_DIST_DIRNAME = 'dist';
 export const LIB_DIRNAME = 'lib';
 export const BUILD_DIST_DIRNAME = BUILD_DIRNAME + '/dist';
 export const BUILD_DEV_DIRNAME = BUILD_DIRNAME + '/dev';
@@ -135,10 +136,10 @@ export const gro_dir_basename = basename(gro_dir) + '/';
 export const paths = create_paths(process.cwd() + '/');
 export const is_this_project_gro = gro_dir === paths.root;
 export const gro_paths = is_this_project_gro ? paths : create_paths(gro_dir);
-export const gro_dist_dir = gro_paths.root + 'dist/'; // this is the SvelteKit output dir, whereas `gro_paths.dist` is Gro's build output directory that will be removed
+export const gro_sveltekit_dist_dir = gro_paths.root + SVELTEKIT_DIST_DIRNAME + '/';
 
 // TODO hacky
 export const to_gro_input_path = (input_path: string): string => {
 	const base_path = input_path === paths.lib.slice(0, -1) ? '' : stripStart(input_path, paths.lib);
-	return gro_dist_dir + base_path;
+	return gro_sveltekit_dist_dir + base_path;
 };

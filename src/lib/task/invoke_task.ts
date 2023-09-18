@@ -13,14 +13,14 @@ import {
 	is_this_project_gro,
 	print_path,
 	print_path_or_gro_path,
-	gro_dist_dir,
+	gro_sveltekit_dist_dir,
 	to_gro_input_path,
 } from '../util/paths.js';
 import {find_modules, load_modules} from '../util/modules.js';
 import {find_task_modules, load_task_module} from './task_module.js';
 import {load_gro_package_json} from '../util/package_json.js';
 import {log_available_tasks, log_error_reasons} from './log_task.js';
-import {find_files} from '../util/find_files.js';
+import {search_fs} from '../util/search_fs.js';
 import {load_config, type GroConfig} from '../config/config.js';
 
 /**
@@ -63,7 +63,9 @@ export const invoke_task = async (
 
 	// Find the task or directory specified by the `input_path`.
 	// Fall back to searching the Gro directory as well.
-	const find_modules_result = await find_task_modules([input_path], undefined, [gro_dist_dir]);
+	const find_modules_result = await find_task_modules([input_path], undefined, [
+		gro_sveltekit_dist_dir,
+	]);
 	if (find_modules_result.ok) {
 		// Found a match either in the current working directory or Gro's directory.
 		const path_data = find_modules_result.source_id_path_data_by_input_path.get(input_path)!; // this is null safe because result is ok
@@ -170,7 +172,7 @@ export const invoke_task = async (
 const to_gro_dir_find_modules_result = async (input_path: string, log: Logger) => {
 	const gro_dir_input_path = to_gro_input_path(input_path);
 	const gro_dir_find_modules_result = await find_modules([gro_dir_input_path], (id) =>
-		find_files(id, (path) => is_task_path(path), undefined, true),
+		search_fs(id, {filter: (path) => is_task_path(path)}),
 	);
 	if (gro_dir_find_modules_result.ok) {
 		const gro_path_data =

@@ -10,11 +10,12 @@ import {
 	LIB_DIR,
 	LIB_PATH,
 	is_this_project_gro,
-	gro_dist_dir,
+	gro_sveltekit_dist_dir,
 	paths,
 } from './paths.js';
-import {to_path_data, type PathData, type PathStats} from './path.js';
+import {to_path_data, type PathData} from './path.js';
 import {exists} from './exists.js';
+import {search_fs} from './search_fs.js';
 
 /**
  * Raw input paths are paths that users provide to Gro to reference files
@@ -80,13 +81,13 @@ export const get_possible_source_ids = (
 		const ids = possible_source_ids.slice(); // make a copy or infinitely loop!
 		for (const root_dir of root_dirs) {
 			if (input_path.startsWith(root_dir)) continue; // avoid duplicates
-			const is_gro_dist = root_dir === gro_dist_dir; // TODO hacky to handle Gro importing its JS tasks from dist/
+			const is_gro_dist = root_dir === gro_sveltekit_dist_dir; // TODO hacky to handle Gro importing its JS tasks from dist/
 			for (const possible_source_id of ids) {
 				if (is_gro_dist && !possible_source_id.endsWith('.js')) continue;
 				// TODO hacky to handle Gro importing its JS tasks from dist/
 				possible_source_ids.push(
 					is_gro_dist
-						? gro_dist_dir + stripStart(possible_source_id, paths.lib)
+						? gro_sveltekit_dist_dir + stripStart(possible_source_id, paths.lib)
 						: replace_root_dir(possible_source_id, root_dir, paths),
 				);
 			}
@@ -144,7 +145,7 @@ export const load_source_path_data_by_input_path = async (
  */
 export const load_source_ids_by_input_path = async (
 	source_id_path_data_by_input_path: Map<string, PathData>,
-	find_files: (id: string) => Promise<Map<string, PathStats>>,
+	custom_search_fs = search_fs,
 ): Promise<{
 	source_ids_by_input_path: Map<string, string[]>;
 	input_directories_with_no_files: string[];
@@ -155,7 +156,7 @@ export const load_source_ids_by_input_path = async (
 	for (const [input_path, path_data] of source_id_path_data_by_input_path) {
 		const {id} = path_data;
 		if (path_data.isDirectory) {
-			const files = await find_files(id); // eslint-disable-line no-await-in-loop
+			const files = await custom_search_fs(id, {files_only: false}); // eslint-disable-line no-await-in-loop
 			if (files.size) {
 				const source_ids: string[] = [];
 				let has_files = false;

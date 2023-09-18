@@ -1,24 +1,22 @@
 import {suite} from 'uvu';
 import * as assert from 'uvu/assert';
 
-import {find_files} from './find_files.js';
+import {search_fs} from './search_fs.js';
 import {paths} from './paths.js';
 
-/* test__find_files */
-const test__find_files = suite('find_files');
+/* test__search_fs */
+const test__search_fs = suite('search_fs');
 
-test__find_files('basic behavior', async () => {
+test__search_fs('basic behavior', async () => {
 	const ignoredPath = 'test1.foo.ts';
 	let hasIgnoredPath = false;
-	const result = await find_files(
-		'./src/lib/util/fixtures',
-		(path) => {
+	const result = await search_fs('./src/lib/util/fixtures', {
+		filter: (path) => {
 			if (!hasIgnoredPath) hasIgnoredPath = path.endsWith(ignoredPath);
 			return !path.endsWith(ignoredPath);
 		},
-		(a, b) => -a[0].localeCompare(b[0]),
-		true,
-	);
+		sort: (a, b) => -a[0].localeCompare(b[0]),
+	});
 	assert.ok(hasIgnoredPath); // makes sure the test isn't wrong
 	assert.equal(
 		Array.from(result.keys()),
@@ -37,5 +35,5 @@ test__find_files('basic behavior', async () => {
 
 // TODO more tests
 
-test__find_files.run();
-/* test__find_files */
+test__search_fs.run();
+/* test__search_fs */

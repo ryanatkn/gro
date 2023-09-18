@@ -1,6 +1,11 @@
 import {stripStart} from '@feltjs/util/string.js';
 
-import {source_id_to_base_path, paths, paths_from_id, gro_dist_dir} from '../util/paths.js';
+import {
+	source_id_to_base_path,
+	paths,
+	paths_from_id,
+	gro_sveltekit_dist_dir,
+} from '../util/paths.js';
 import {
 	load_module,
 	load_modules,
@@ -17,7 +22,7 @@ import {
 	TASK_FILE_SUFFIX_JS,
 } from './task.js';
 import {get_possible_source_ids} from '../util/input_path.js';
-import {find_files} from '../util/find_files.js';
+import {search_fs} from '../util/search_fs.js';
 
 export interface TaskModule {
 	task: Task;
@@ -37,7 +42,9 @@ export const load_task_module = async (id: string): Promise<LoadModuleResult<Tas
 		...result,
 		mod: {
 			...result.mod,
-			name: to_task_name(stripStart(source_id_to_base_path(id, paths_from_id(id)), gro_dist_dir)), // TODO hacky, handles the gro/dist/ ids not just source ids anymore
+			name: to_task_name(
+				stripStart(source_id_to_base_path(id, paths_from_id(id)), gro_sveltekit_dist_dir),
+			), // TODO hacky, handles the gro/dist/ ids not just source ids anymore
 		},
 	};
 };
@@ -49,7 +56,7 @@ export const find_task_modules = async (
 ): Promise<ReturnType<typeof find_modules>> =>
 	find_modules(
 		input_paths,
-		(id) => find_files(id, (path) => is_task_path(path), undefined, true),
+		(id) => search_fs(id, {filter: (path) => is_task_path(path)}),
 		(input_path) => get_possible_source_ids(input_path, extensions, root_dirs),
 	);
 

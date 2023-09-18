@@ -10,7 +10,7 @@ import {
 import type {Gen, GenResults, GenFile} from './gen.js';
 import {get_possible_source_ids} from '../util/input_path.js';
 import {paths} from '../util/paths.js';
-import {find_files} from '../util/find_files.js';
+import {search_fs} from '../util/search_fs.js';
 import {exists} from '../util/exists.js';
 
 export const GEN_FILE_PATTERN_TEXT = 'gen';
@@ -112,6 +112,6 @@ export const find_gen_modules = (
 ): Promise<FindModulesResult> =>
 	find_modules(
 		input_paths,
-		(id) => find_files(id, (path) => extensions.some((e) => path.includes(e)), undefined, true),
+		(id) => search_fs(id, {filter: (path) => extensions.some((e) => path.includes(e))}),
 		(input_path) => get_possible_source_ids(input_path, extensions, root_dirs),
 	);

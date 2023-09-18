@@ -5,8 +5,9 @@ import type {Result} from '@feltjs/util/result.js';
 import {printError} from '@feltjs/util/print.js';
 
 import {load_source_path_data_by_input_path, load_source_ids_by_input_path} from './input_path.js';
-import type {PathStats, PathData} from './path.js';
+import type {PathData} from './path.js';
 import {paths_from_id, print_path, print_path_or_gro_path, type SourceId} from './paths.js';
+import {search_fs} from './search_fs.js';
 
 export interface ModuleMeta<TModule extends Record<string, any> = Record<string, any>> {
 	id: string;
@@ -76,7 +77,7 @@ Finds modules from input paths. (see `src/lib/util/input_path.ts` for more)
 */
 export const find_modules = async (
 	input_paths: string[],
-	find_files: (id: string) => Promise<Map<string, PathStats>>,
+	custom_search_fs = search_fs,
 	get_possible_source_ids?: (input_path: string) => string[],
 	timings?: Timings,
 ): Promise<FindModulesResult> => {
@@ -105,10 +106,10 @@ export const find_modules = async (
 	}
 
 	// Find all of the files for any directories.
-	const timing_to_find_files = timings?.start('find files');
+	const timing_to_search_fs = timings?.start('find files');
 	const {source_ids_by_input_path, input_directories_with_no_files} =
-		await load_source_ids_by_input_path(source_id_path_data_by_input_path, (id) => find_files(id));
-	timing_to_find_files?.();
+		await load_source_ids_by_input_path(source_id_path_data_by_input_path, custom_search_fs);
+	timing_to_search_fs?.();
 
 	// Error if any input path has no files. (means we have an empty directory)
 	return input_directories_with_no_files.length
