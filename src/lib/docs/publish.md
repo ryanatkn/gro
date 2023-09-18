@@ -64,7 +64,7 @@ gro publish --help # view the options
 gro publish -- svelte-package -w # forward options
 ```
 
-See the [svelte-package docs](https://kit.svelte.dev/docs/packaging) for more.
+See [the SvelteKit packaging docs](https://kit.svelte.dev/docs/packaging) for more.
 
 If `changeset publish` fails during `gro publish`,
 the task exits without pushing anything to the remote origin.
