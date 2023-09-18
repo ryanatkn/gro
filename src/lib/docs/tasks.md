@@ -12,7 +12,7 @@ What is a `Task`? See [`task.md`](./task.md).
 - [commit](../commit.task.ts) - commit and push to a new branch
 - [deploy](../deploy.task.ts) - deploy to a branch
 - [dev](../dev.task.ts) - start SvelteKit and other dev plugins
-- [exports](../exports.task.ts) - writes the exports property of package.json
+- [exports](../exports.task.ts) - writes the exports property of package.json for the lib
 - [format](../format.task.ts) - format source files
 - [gen](../gen.task.ts) - run code generation scripts
 - [lint](../lint.task.ts) - run eslint on the given directories and files
