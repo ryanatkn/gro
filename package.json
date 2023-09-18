@@ -84,7 +84,7 @@
     "ignorePatterns": [
       "gro.config.ts",
       "svelte.config.js",
-      "vite.config.js"
+      "vite.config.ts"
     ],
     "rules": {
       "no-console": 1
