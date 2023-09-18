@@ -184,6 +184,7 @@ export const plugin = ({
 
 			await rebuild();
 
+			// uses chokidar instead of esbuild's watcher for efficiency
 			if (watch) {
 				let watcher_ready = false;
 				// TODO maybe reuse this watcher globally via an option,
