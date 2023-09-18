@@ -1,7 +1,7 @@
 # config
 
 Gro supports SvelteKit apps, Node libraries, and Node servers with minimal abstraction
-with the help of an optional config file that lives at `$PROJECT/src/gro.config.ts`.
+with the help of an optional config file that lives at `$PROJECT/gro.config.ts`.
 If a project does not define a config, Gro imports a default config from
 [`src/lib/config/gro.config.default.ts`](/src/lib/config/gro.config.default.ts),
 which looks at your project for the familiar patterns and tries to do the right thing.
@@ -16,9 +16,9 @@ See [`src/lib/config/config.ts`](/src/lib/config/config.ts) for the config types
 
 ## examples
 
-Here's [Gro's own internal config](/src/gro.config.ts) and
+Here's [Gro's own internal config](/gro.config.ts) and
 here's [the default config](/src/lib/config/gro.config.default.ts)
-that's used for projects that do not define one at `src/gro.config.ts`.
+that's used for projects that do not define one at `gro.config.ts`.
 
 The default export of a Gro config is `GroConfig | GroConfigCreator`.
 Here's how to define a user config that overrides the default adapters and plugins:

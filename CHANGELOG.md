@@ -226,7 +226,7 @@
 
 ## 0.63.0
 
-- **break**: change `src/gro.config.ts` to export a default value instead of a `config` property
+- **break**: change `gro.config.ts` to export a default value instead of a `config` property
   ([#348](https://github.com/feltjs/gro/pull/348))
 - **break**: change `plugin/gro_plugin_server.ts` to a no-op outside of dev mode
   ([#347](https://github.com/feltjs/gro/pull/347))
@@ -1105,7 +1105,7 @@
   - events aren't great for everything;
     this PR also documents a value mapping pattern convention for tasks in `src/lib/task/README.md`
 - `gro build` now correctly builds only `Build_Config`s that have `dist: true`,
-  allowing users to customize the `dist/` output in each `gro build` via `src/gro.config.ts`
+  allowing users to customize the `dist/` output in each `gro build` via `gro.config.ts`
   ([#144](https://github.com/feltjs/gro/pull/144))
 
 ## 0.11.2
@@ -1135,7 +1135,7 @@
 
 ## 0.10.0
 
-- **break**: change `src/gro.config.ts` to export a `config` identifer instead of `default`
+- **break**: change `gro.config.ts` to export a `config` identifer instead of `default`
   ([#137](https://github.com/feltjs/gro/pull/137))
 
 ## 0.9.5
@@ -1274,7 +1274,7 @@
 
 - change the `build/` directory to `.gro/` and support multiple builds
   ([#59](https://github.com/feltjs/gro/pull/59))
-- add support for a config file at `src/gro.config.ts` for custom builds
+- add support for a config file at `gro.config.ts` for custom builds
   ([#67](https://github.com/feltjs/gro/pull/67),
   [#68](https://github.com/feltjs/gro/pull/68),
   [#82](https://github.com/feltjs/gro/pull/82),

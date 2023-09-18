@@ -36,7 +36,7 @@ export const BUILD_DEV_DIR = BUILD_DEV_DIRNAME + '/';
 export const LIB_PATH = SOURCE_DIR + LIB_DIRNAME;
 export const LIB_DIR = LIB_PATH + '/';
 
-export const CONFIG_PATH = SOURCE_DIR + 'gro.config.ts';
+export const CONFIG_PATH = 'gro.config.ts';
 
 export const README_FILENAME = 'README.md';
 export const SVELTEKIT_CONFIG_FILENAME = 'svelte.config.js';

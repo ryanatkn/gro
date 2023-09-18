@@ -3,7 +3,7 @@ import {base_path_to_source_id, LIB_DIR, LIB_DIRNAME} from '../util/paths.js';
 import {exists} from '../util/exists.js';
 
 /**
- * This is the default config that's passed to `src/gro.config.ts`
+ * This is the default config that's passed to `gro.config.ts`
  * if it exists in the current project, and if not, this is the final config.
  * It looks at the project and tries to do the right thing:
  *
