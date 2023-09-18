@@ -42,7 +42,7 @@ test__gen('basic behavior', async () => {
 				assert.is(ctx.origin_id, mod_b.id);
 				if (file_b) throw Error('Already generated file_b');
 				file_b = {
-					filename: 'outputB.ts',
+					filename: 'output_b.ts',
 					content: 'file_b',
 				};
 				return file_b;
@@ -58,11 +58,11 @@ test__gen('basic behavior', async () => {
 				if (file_c1) throw Error('Already generated file_c1');
 				if (file_c2) throw Error('Already generated file_c2');
 				file_c1 = {
-					filename: 'outputC1.ts',
+					filename: 'output_c1.ts',
 					content: 'file_c1',
 				};
 				file_c2 = {
-					filename: 'outputC2.ts',
+					filename: 'output_c2.ts',
 					content: 'file_c2',
 				};
 				return [file_c1, file_c2];
@@ -74,7 +74,7 @@ test__gen('basic behavior', async () => {
 		gen_modules_by_input_path,
 		log,
 		new Timings(),
-		async (id, content) => (id.endsWith('outputB.ts') ? `${content}/*FORMATTED*/` : content),
+		async (id, content) => (id.endsWith('output_b.ts') ? `${content}/*FORMATTED*/` : content),
 	);
 	assert.is(gen_results.input_count, 3);
 	assert.is(gen_results.output_count, 4);
@@ -153,7 +153,7 @@ test__gen('failing gen function', async () => {
 				assert.is(ctx.origin_id, mod_b.id);
 				if (file_b) throw Error('Already generated file_b');
 				file_b = {
-					filename: 'outputB.ts',
+					filename: 'output_b.ts',
 					content: 'file_b',
 				};
 				return file_b;
