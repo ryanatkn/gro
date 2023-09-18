@@ -61,7 +61,10 @@ commits the changes, and then pushes the commit and tag.
 ```bash
 gro publish
 gro publish --help # view the options
+gro publish -- svelte-package -w # forward options
 ```
+
+See the [svelte-package docs](https://kit.svelte.dev/docs/packaging) for more.
 
 If `changeset publish` fails during `gro publish`,
 the task exits without pushing anything to the remote origin.
