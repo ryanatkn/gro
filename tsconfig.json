@@ -3,6 +3,7 @@
 	"compilerOptions": {
 		"types": ["@sveltejs/kit"],
 		"moduleResolution": "bundler",
+		"noEmit": true,
 		"strict": true,
 		"useUnknownInCatchVariables": false,
 		"exactOptionalPropertyTypes": false,
@@ -17,8 +18,7 @@
 		"importHelpers": true,
 		"skipLibCheck": true,
 		"allowJs": true,
-		"checkJs": true,
-		"noEmit": true
+		"checkJs": true
 	},
 	"include": [
 		"./gro.config.ts",
