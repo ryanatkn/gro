@@ -19,29 +19,33 @@ and [Vite](https://github.com/vitejs/vite)
 for making web frontends, servers, and libraries.
 It includes:
 
-- limited but functional
+- tools and patterns for
   [developing](/src/lib/docs/dev.md),
   [building](/src/lib/docs/build.md),
   [testing](/src/lib/docs/test.md),
   [deploying](/src/lib/docs/deploy.md),
   and [publishing](/src/lib/docs/publish.md)
-  for [Svelte](https://github.com/sveltejs/svelte)/[SvelteKit](https://github.com/sveltejs/kit)
-  apps along with Node servers, JS/TS/Svelte libraries, and other things
+  [SvelteKit](https://github.com/sveltejs/kit) frontends, Node servers, and libraries
   - integrated [TypeScript](https://github.com/microsoft/typescript),
     [Svelte](https://github.com/sveltejs/svelte),
     and [SvelteKit](https://github.com/sveltejs/kit)
-  - defers completely to SvelteKit for the frontend build and
-    [`@sveltejs/package`](https://kit.svelte.dev/docs/packaging) for the library build
-  - supports [SvelteKit module imports](https://kit.svelte.dev/docs/modules) for
-    `$lib`, `$env`, and `$app` in tasks, tests, Node server builds,
-    and other code outside of the SvelteKit frontend (`$app` is mocked to best effort)
-  - see the [Gro config docs](/src/lib/docs/config.md) and
-    [the default config](https://github.com/feltjs/gro/blob/main/src/lib/config/gro.config.default.ts)
+  - defers completely to SvelteKit and Vite for the frontend and
+    [`@sveltejs/package`](https://kit.svelte.dev/docs/packaging) for the library
+  - provides a [Node loader](/src/lib/loader.ts) and
+    [esbuild plugins for the server](/src/lib/plugin/gro_plugin_server.ts)
+    - supports importing SSR'd Svelte files in tests and tasks
+    - supports [SvelteKit module imports](https://kit.svelte.dev/docs/modules) for
+      `$lib`, `$env`, and `$app` in tasks, tests, Node servers,
+      and other code outside of the SvelteKit frontend,
+      so you can use SvelteKit patterns everywhere
+      (these are best-effort shims, not perfect)
   - [configurable plugins](/src/lib/docs/plugin.md) and [adapters](/src/lib/docs/adapt.md)
     to support SvelteKit, auto-restarting Node servers, and other external build processes
-  - see [`@feltjs/felt-template`](https://github.com/feltjs/felt-template)
-    for a simple starter project example, and
-    [`@feltjs/felt`](https://github.com/feltjs/felt) for a more complex example with custom tasks
+    - see the [Gro config docs](/src/lib/docs/config.md) and
+      [the default config](https://github.com/feltjs/gro/blob/main/src/lib/config/gro.config.default.ts)
+    - see [`@feltjs/felt-template`](https://github.com/feltjs/felt-template)
+      for a simple starter project example, and
+      [`@feltjs/felt`](https://github.com/feltjs/felt) for a more complex example with custom tasks
 - [task runner](/src/lib/docs/task.md) that uses the filesystem convention `*.task.ts`
   - lots of [common default tasks](/src/lib/docs/tasks.md) that projects can easily override and compose
 - [testing](/src/lib/docs/test.md) with [`uvu`](https://github.com/lukeed/uvu)
@@ -52,7 +56,7 @@ It includes:
 - linting with [ESLint](https://github.com/eslint/eslint)
   (we also maintain [`@feltjs/eslint-config`](https://github.com/feltjs/eslint-config))
 - formatting with [Prettier](https://github.com/prettier/prettier)
-  (it's not always pretty, but it's always consistent, and it saves a lot of time)
+  (it's not always pretty, but it's always consistent and it saves a lot of time)
 
 ## docs
 
