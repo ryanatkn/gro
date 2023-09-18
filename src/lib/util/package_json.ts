@@ -59,12 +59,29 @@ export const to_package_exports = (paths: string[]): PackageJsonExports => {
 		.sort((a, b) => (a === 'index.ts' ? -1 : b === 'index.ts' ? 1 : a.localeCompare(b)));
 	const exports: PackageJsonExports = {};
 	for (const path of sorted) {
-		const js_path = replace_extension(path, '.js');
-		const key = path === 'index.ts' ? '.' : './' + js_path;
-		exports[key] = {
-			default: IMPORT_PREFIX + js_path,
-			types: IMPORT_PREFIX + replace_extension(path, '.d.ts'),
-		};
+		if (path.endsWith('.ts')) {
+			const js_path = replace_extension(path, '.js');
+			const key = path === 'index.ts' ? '.' : './' + js_path;
+			exports[key] = {
+				default: IMPORT_PREFIX + js_path,
+				types: IMPORT_PREFIX + replace_extension(path, '.d.ts'),
+			};
+		} else if (path.endsWith('.js')) {
+			const key = path === 'index.js' ? '.' : './' + path;
+			exports[key] = {
+				default: IMPORT_PREFIX + path,
+				types: IMPORT_PREFIX + replace_extension(path, '.d.ts'), // assuming JSDoc types
+			};
+		} else if (path.endsWith('.svelte')) {
+			exports['./' + path] = {
+				default: IMPORT_PREFIX + path,
+				types: IMPORT_PREFIX + path + '.d.ts',
+			};
+		} else {
+			exports['./' + path] = {
+				default: IMPORT_PREFIX + path,
+			};
+		}
 	}
 	return exports;
 };
