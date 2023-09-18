@@ -30,6 +30,9 @@ import {resolve_specifier} from './util/resolve_specifier.js';
 // TODO sourcemaps, including esbuild, svelte, and the svelte preprocessors
 // TODO cache by options+content hash (not straightforward because of the options, but should be doable without that much complexity)
 
+// dev is always true in the loader
+const dev = true;
+
 const dir = cwd() + '/';
 const node_modules_matcher = new RegExp(escapeRegexp('/' + NODE_MODULES_DIRNAME + '/'), 'u');
 
@@ -46,7 +49,7 @@ const {
 
 const final_ts_transform_options: esbuild.TransformOptions = {
 	...ts_transform_options,
-	define: to_define_import_meta_env(true, base_url),
+	define: to_define_import_meta_env(dev, base_url),
 };
 
 const aliases = Object.entries({$lib: 'src/lib', ...alias});
@@ -68,7 +71,7 @@ export const load: LoadHook = async (url, context, nextLoad) => {
 		return {
 			format: 'module',
 			shortCircuit: true,
-			source: render_sveltekit_shim_app_environment(true),
+			source: render_sveltekit_shim_app_environment(dev),
 		};
 	} else if (node_modules_matcher.test(url)) {
 		return nextLoad(url, context);
@@ -108,7 +111,7 @@ export const load: LoadHook = async (url, context, nextLoad) => {
 				format: 'module',
 				shortCircuit: true,
 				source: await render_env_shim_module(
-					true,
+					dev,
 					mode,
 					visibility,
 					public_prefix,
