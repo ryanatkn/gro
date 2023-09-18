@@ -28,7 +28,7 @@ import {to_define_import_meta_env, ts_transform_options} from './util/esbuild_he
 import {resolve_specifier} from './util/resolve_specifier.js';
 
 // TODO sourcemaps, including esbuild, svelte, and the svelte preprocessors
-// TODO cache by options+content hash (not straightforward because of the options, but should be doable without that much complexity)
+// TODO cache by options+content hash (not straightforward because of the options, but should be doable without that much complexity, see the builtin module cache)
 
 // dev is always true in the loader
 const dev = true;
