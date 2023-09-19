@@ -35,6 +35,7 @@ To set up a repo, first run
 
 ```bash
 changeset init
+npx changeset init # if installed only locally
 ```
 
 If your package is public, configure the `access` property:
