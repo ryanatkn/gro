@@ -128,7 +128,8 @@ export const replace_root_dir = (id: string, root_dir: string, p = paths): strin
 	join(root_dir, to_root_path(id, p));
 
 export const print_path = (path: string, p = paths, prefix = './'): string => {
-	return gray(`${prefix}${to_root_path(path, p)}`);
+	const root_path = path === gro_sveltekit_dist_dir ? 'gro' : to_root_path(path, p);
+	return gray(`${prefix}${root_path}`);
 };
 
 export const print_path_or_gro_path = (path: string, from_paths = paths): string => {
@@ -136,7 +137,7 @@ export const print_path_or_gro_path = (path: string, from_paths = paths): string
 	if (from_paths === gro_paths || inferred_paths === from_paths) {
 		return print_path(path, inferred_paths, '');
 	}
-	return gray(gro_dir_basename) + print_path(path, gro_paths, '');
+	return print_path(path, gro_paths, '');
 };
 
 export const replace_extension = (path: string, new_extension: string): string => {

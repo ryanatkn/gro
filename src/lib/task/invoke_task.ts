@@ -1,4 +1,4 @@
-import {cyan, red, gray, green} from 'kleur/colors';
+import {cyan, red, gray} from 'kleur/colors';
 import {Logger, SystemLogger, printLogLabel} from '@feltjs/util/log.js';
 import {createStopwatch, Timings} from '@feltjs/util/timings.js';
 import {printMs, printTimings} from '@feltjs/util/print.js';
@@ -108,9 +108,7 @@ export const invoke_task = async (
 			}
 		} else {
 			// The input path matches a directory. Log the tasks but don't run them.
-			console.log(green(`[invoke_task] path_data.id`), path_data.id);
 			if (is_this_project_gro) {
-				console.log(green(`[invoke_task] 1`));
 				// Is the Gro directory the same as the cwd? Log the matching files.
 				await log_available_tasks(
 					log,
@@ -119,7 +117,6 @@ export const invoke_task = async (
 				);
 			} else if (is_gro_id(path_data.id)) {
 				// TODO delete this?
-				console.log(green(`[invoke_task] 2`));
 				// Does the Gro directory contain the matching files? Log them.
 				await log_available_tasks(
 					log,
@@ -127,7 +124,6 @@ export const invoke_task = async (
 					find_modules_result.source_ids_by_input_path,
 				);
 			} else {
-				console.log(green(`[invoke_task] 3`));
 				// The Gro directory is not the same as the cwd
 				// and it doesn't contain the matching files.
 				// Find all of the possible matches in the Gro directory as well,
