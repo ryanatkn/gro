@@ -19,6 +19,8 @@ and [Vite](https://github.com/vitejs/vite)
 for making web frontends, servers, and libraries.
 It includes:
 
+- [task runner](/src/lib/docs/task.md) that uses the filesystem convention `*.task.ts`
+  - lots of [common default tasks](/src/lib/docs/tasks.md) that projects can easily override and compose
 - tools and patterns for
   [developing](/src/lib/docs/dev.md),
   [building](/src/lib/docs/build.md),
@@ -46,8 +48,6 @@ It includes:
     - see [`@feltjs/felt-template`](https://github.com/feltjs/felt-template)
       for a simple starter project example, and
       [`@feltjs/felt`](https://github.com/feltjs/felt) for a more complex example with custom tasks
-- [task runner](/src/lib/docs/task.md) that uses the filesystem convention `*.task.ts`
-  - lots of [common default tasks](/src/lib/docs/tasks.md) that projects can easily override and compose
 - [testing](/src/lib/docs/test.md) with [`uvu`](https://github.com/lukeed/uvu)
 - codegen by convention with [`gen`](/src/lib/docs/gen.md)
   - supports automatic type generation by convention with `.schema.` files
