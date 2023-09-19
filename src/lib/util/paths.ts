@@ -110,7 +110,7 @@ export const lib_path_to_import_id = (base_path: string, p = paths): SourceId =>
 // or a `gro/dist/` file id in node_modules when inside another project.
 export const import_id_to_lib_path = (import_id: string, p = paths_from_id(import_id)): string => {
 	if (p.root === gro_paths.root) {
-		const stripped = stripStart(import_id, is_this_project_gro ? p.lib : gro_sveltekit_dist_dir);
+		const stripped = stripStart(stripStart(import_id, p.lib), gro_sveltekit_dist_dir); // TODO hacky, needs more work to clarify related things
 		const lib_path = is_this_project_gro ? stripped : replace_extension(stripped, '.ts');
 		return lib_path;
 	} else {
