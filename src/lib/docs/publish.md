@@ -72,6 +72,16 @@ See [the Changesets docs](https://github.com/changesets/changesets) for more.
 The publish task builds the project, bumps the version, publishes to npm,
 commits the changes, and then pushes the commit and tag.
 
+First add `"dist"` to the `"files"` property of `package.json`:
+
+```json
+"files": [
+  "dist"
+],
+```
+
+Then publish:
+
 ```bash
 gro publish
 gro publish --help # view the options
