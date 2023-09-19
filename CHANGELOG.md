@@ -1,5 +1,11 @@
 # @feltjs/gro
 
+## 0.82.1
+
+### Patch Changes
+
+- 0e104e0: fix deploy task
+
 ## 0.82.0
 
 ### Minor Changes

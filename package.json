@@ -1,7 +1,7 @@
 {
   "name": "@feltjs/gro",
   "description": "task runner and toolkit extending SvelteKit",
-  "version": "0.82.0",
+  "version": "0.82.1",
   "bin": {
     "gro": "./dist/cli/gro.js"
   },
