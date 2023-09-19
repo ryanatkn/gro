@@ -1,5 +1,12 @@
 # @feltjs/gro
 
+## 0.82.0
+
+### Minor Changes
+
+- c33ee5a: replace the build system with a loader and esbuild plugins and integrate svelte-package
+- 5ae21fc: rename VocabSchema to JsonSchema
+
 ## 0.81.2
 
 ### Patch Changes
