@@ -2,4 +2,4 @@
 '@feltjs/gro': minor
 ---
 
-use svelte-package to publish node libraries
+replace the build system with a loader and esbuild plugins and integrate svelte-package
