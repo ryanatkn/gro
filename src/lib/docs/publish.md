@@ -35,6 +35,20 @@ To set up a repo, first run
 
 ```bash
 changeset init
+npx changeset init # if installed only locally
+```
+
+Optionally configure and install a custom changelog package
+in the `"changelog"` property of the newly created `.changeset/config.json`:
+
+```diff
+# .changeset/config.json
+- "changelog": "@changesets/cli/changelog",
++ "changelog": "@changesets/changelog-git",
+```
+
+```bash
+npm i -D @changesets/changelog-git  # a minimal package that requires no GitHub auth
 ```
 
 If your package is public, configure the `access` property:
@@ -57,6 +71,16 @@ See [the Changesets docs](https://github.com/changesets/changesets) for more.
 
 The publish task builds the project, bumps the version, publishes to npm,
 commits the changes, and then pushes the commit and tag.
+
+First add `"dist"` to the `"files"` property of `package.json`:
+
+```json
+"files": [
+  "dist"
+],
+```
+
+Then publish:
 
 ```bash
 gro publish

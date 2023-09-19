@@ -12,6 +12,7 @@ import {exists} from './util/exists.js';
 
 // docs at ./docs/deploy.md
 
+// TODO use the `gro deploy -- gro build --no-install` pattern to remove the `install`/`no-install` args (needs testing, maybe a custom override for `gro ` prefixes)
 // TODO support other kinds of deployments
 // TODO add a flag to delete the existing deployment branch to avoid bloat (and maybe run `git gc --auto`)
 
@@ -227,13 +228,12 @@ export const task: Task<Args> = {
 			// because we need to preserve the existing worktree directory, or git breaks.
 			// TODO there is be a better way but what is it
 			await Promise.all(
-				(await readdir(WORKTREE_DIR))
-					.map((path) =>
-						path === GIT_DIRNAME ? null : rm(`${WORKTREE_DIR}/${path}`, {recursive: true}),
-					)
-					.concat(
-						(await readdir(dir)).map((path) => rename(`${dir}/${path}`, `${WORKTREE_DIR}/${path}`)),
-					),
+				(await readdir(WORKTREE_DIR)).map((path) =>
+					path === GIT_DIRNAME ? null : rm(`${WORKTREE_DIR}/${path}`, {recursive: true}),
+				),
+			);
+			await Promise.all(
+				(await readdir(dir)).map((path) => rename(`${dir}/${path}`, `${WORKTREE_DIR}/${path}`)),
 			);
 
 			// commit the changes
