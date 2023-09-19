@@ -118,6 +118,7 @@ export const invoke_task = async (
 					find_modules_result.source_ids_by_input_path,
 				);
 			} else if (is_gro_id(path_data.id)) {
+				// TODO delete this?
 				console.log(green(`[invoke_task] 2`));
 				// Does the Gro directory contain the matching files? Log them.
 				await log_available_tasks(

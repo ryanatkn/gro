@@ -1,4 +1,4 @@
-import {blue, cyan, gray, green, red} from 'kleur/colors';
+import {cyan, gray, green, red} from 'kleur/colors';
 import type {Logger} from '@feltjs/util/log.js';
 import {plural} from '@feltjs/util/string.js';
 import {printValue} from '@feltjs/util/print.js';

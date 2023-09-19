@@ -1,12 +1,4 @@
-import {stripStart} from '@feltjs/util/string.js';
-
-import {
-	source_id_to_base_path,
-	paths,
-	paths_from_id,
-	gro_sveltekit_dist_dir,
-	import_id_to_source_id,
-} from '../util/paths.js';
+import {paths} from '../util/paths.js';
 import {
 	load_module,
 	load_modules,
@@ -24,7 +16,6 @@ import {
 } from './task.js';
 import {get_possible_source_ids} from '../util/input_path.js';
 import {search_fs} from '../util/search_fs.js';
-import {cyan} from 'kleur/colors';
 
 export interface TaskModule {
 	task: Task;
@@ -38,12 +29,6 @@ export const validate_task_module = (mod: Record<string, any>): mod is TaskModul
 	!!mod.task && typeof mod.task.run === 'function';
 
 export const load_task_module = async (id: string): Promise<LoadModuleResult<TaskModuleMeta>> => {
-	console.log(cyan(`[load_task_module] id`), id);
-	console.log(cyan(`[load_task_module] gro_sveltekit_dist_dir`), gro_sveltekit_dist_dir);
-	console.log(
-		cyan(`[load_task_module] source_id_to_base_path(id, paths_from_id(id))`),
-		source_id_to_base_path(id, paths_from_id(id)),
-	);
 	const result = await load_module(id, validate_task_module);
 	if (!result.ok) return result;
 	return {...result, mod: {...result.mod, name: to_task_name(id)}};

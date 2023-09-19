@@ -1,7 +1,7 @@
 import {join, basename, extname, relative} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {stripEnd, stripStart} from '@feltjs/util/string.js';
-import {yellow, gray} from 'kleur/colors';
+import {gray} from 'kleur/colors';
 import type {Flavored} from '@feltjs/util/types.js';
 
 // TODO for Windows support we might need to change every `/` here to `sep`? https://github.com/grogarden/gro/issues/319
@@ -108,19 +108,16 @@ export const lib_path_to_import_id = (base_path: string, p = paths): SourceId =>
 // An `import_id` can be a source_id in a project,
 // or a Gro source_id when running inside Gro,
 // or a `gro/dist/` file id in node_modules when inside another project.
-export const import_id_to_source_id = (import_id: string): string => {
-	console.log(yellow(`[import_id_to_source_id] import_id`), import_id);
-	const p = paths_from_id(import_id);
+export const import_id_to_lib_path = (import_id: string, p = paths_from_id(import_id)): string => {
 	if (p.root === gro_paths.root) {
-		const base_path = stripStart(import_id, gro_sveltekit_dist_dir);
-		console.log(yellow(`[import_id_to_source_id] base_path`), base_path);
-		return base_path_to_source_id(base_path, p);
+		const stripped = stripStart(import_id, is_this_project_gro ? p.lib : gro_sveltekit_dist_dir);
+		const lib_path = is_this_project_gro ? stripped : replace_extension(stripped, '.ts');
+		return lib_path;
 	} else {
-		return import_id;
+		return stripStart(import_id, p.lib);
 	}
 };
 
-// TODO BLOCK look at `import_id_to_source_id`
 export const to_gro_input_path = (input_path: string): string => {
 	const base_path = input_path === paths.lib.slice(0, -1) ? '' : stripStart(input_path, paths.lib);
 	return gro_sveltekit_dist_dir + base_path;
@@ -131,7 +128,6 @@ export const replace_root_dir = (id: string, root_dir: string, p = paths): strin
 	join(root_dir, to_root_path(id, p));
 
 export const print_path = (path: string, p = paths, prefix = './'): string => {
-	console.log(yellow(`[print_path]`), path);
 	return gray(`${prefix}${to_root_path(path, p)}`);
 };
 
