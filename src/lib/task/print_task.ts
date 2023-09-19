@@ -1,4 +1,4 @@
-import {cyan, gray, green, red} from 'kleur/colors';
+import {blue, cyan, gray, green, red} from 'kleur/colors';
 import type {Logger} from '@feltjs/util/log.js';
 import {plural} from '@feltjs/util/string.js';
 import {printValue} from '@feltjs/util/print.js';
@@ -60,7 +60,6 @@ export const print_task_help = (log: Logger, meta: TaskModuleMeta): void => {
 		name,
 		mod: {task},
 	} = meta;
-	console.log(`[print_task_help name`, name);
 	const printed: string[] = [];
 	printed.push(
 		cyan(name),

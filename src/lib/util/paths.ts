@@ -1,7 +1,7 @@
 import {join, basename, extname, relative} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {stripEnd, stripStart} from '@feltjs/util/string.js';
-import {gray} from 'kleur/colors';
+import {yellow, gray} from 'kleur/colors';
 import type {Flavored} from '@feltjs/util/types.js';
 
 // TODO for Windows support we might need to change every `/` here to `sep`? https://github.com/grogarden/gro/issues/319
@@ -89,6 +89,7 @@ export const to_root_path = (id: string, p = paths): string => stripStart(id, p.
 export const source_id_to_base_path = (source_id: SourceId, p = paths): string =>
 	relative(p.source, source_id);
 
+// TODO base_path is an obsolete concept, it was a remnant from forcing `src/`
 // 'foo/bar/baz.ts' → '/home/me/app/src/foo/bar/baz.ts'
 export const base_path_to_source_id = (base_path: string, p = paths): SourceId =>
 	join(p.source, base_path);
@@ -108,11 +109,11 @@ export const lib_path_to_import_id = (base_path: string, p = paths): SourceId =>
 // or a Gro source_id when running inside Gro,
 // or a `gro/dist/` file id in node_modules when inside another project.
 export const import_id_to_source_id = (import_id: string): string => {
-	console.log(`[import_id_to_source_id] import_id`, import_id);
+	console.log(yellow(`[import_id_to_source_id] import_id`), import_id);
 	const p = paths_from_id(import_id);
 	if (p.root === gro_paths.root) {
 		const base_path = stripStart(import_id, gro_sveltekit_dist_dir);
-		console.log(`[import_id_to_source_id] base_path`, base_path);
+		console.log(yellow(`[import_id_to_source_id] base_path`), base_path);
 		return base_path_to_source_id(base_path, p);
 	} else {
 		return import_id;
@@ -129,8 +130,10 @@ export const to_gro_input_path = (input_path: string): string => {
 export const replace_root_dir = (id: string, root_dir: string, p = paths): string =>
 	join(root_dir, to_root_path(id, p));
 
-export const print_path = (path: string, p = paths, prefix = './'): string =>
-	gray(`${prefix}${to_root_path(path, p)}`);
+export const print_path = (path: string, p = paths, prefix = './'): string => {
+	console.log(yellow(`[print_path]`), path);
+	return gray(`${prefix}${to_root_path(path, p)}`);
+};
 
 export const print_path_or_gro_path = (path: string, from_paths = paths): string => {
 	const inferred_paths = paths_from_id(path);

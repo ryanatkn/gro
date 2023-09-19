@@ -6,6 +6,7 @@ import type {Timings} from '@feltjs/util/timings.js';
 import type {Args} from '../task/args.js';
 import {LIB_DIRNAME} from '../util/paths.js';
 import type {GroConfig} from '../config/config.js';
+import {red} from 'kleur/colors';
 
 export interface Task<
 	TArgs = Args, // same as `z.infer<typeof Args>`
@@ -32,12 +33,12 @@ export const is_task_path = (path: string): boolean =>
 	path.endsWith(TASK_FILE_SUFFIX_TS) || path.endsWith(TASK_FILE_SUFFIX_JS);
 
 export const to_task_name = (base_path: string): string => {
-	console.log(`[to_task_name] base_path`, base_path);
+	console.log(red(`[to_task_name] base_path`), base_path);
 	const name = stripStart(
 		stripEnd(stripEnd(base_path, TASK_FILE_SUFFIX_TS), TASK_FILE_SUFFIX_JS),
 		LIB_DIRNAME + '/',
 	);
-	console.log(`[to_task_name] name`, name);
+	console.log(red(`[to_task_name] name`), name);
 	return name;
 };
 
