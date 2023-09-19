@@ -12,6 +12,7 @@ import {exists} from './util/exists.js';
 
 // docs at ./docs/deploy.md
 
+// TODO use the `gro deploy -- gro build --no-install` pattern to remove the `install`/`no-install` args (needs testing, maybe a custom override for `gro ` prefixes)
 // TODO support other kinds of deployments
 // TODO add a flag to delete the existing deployment branch to avoid bloat (and maybe run `git gc --auto`)
 
