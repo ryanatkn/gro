@@ -29,11 +29,11 @@ It includes:
   - integrated [TypeScript](https://github.com/microsoft/typescript),
     [Svelte](https://github.com/sveltejs/svelte),
     and [SvelteKit](https://github.com/sveltejs/kit)
-  - defers completely to SvelteKit and Vite for the frontend and
+  - defers to SvelteKit and Vite for the frontend and
     [`@sveltejs/package`](https://kit.svelte.dev/docs/packaging) for the library
   - provides a [Node loader](/src/lib/loader.ts) and
     [esbuild plugins for the server](/src/lib/plugin/gro_plugin_server.ts)
-    - supports importing SSR'd Svelte files in tests and tasks
+    - supports importing TypeScript and SSR'd Svelte files in tests and tasks
     - supports [SvelteKit module imports](https://kit.svelte.dev/docs/modules) for
       `$lib`, `$env`, and `$app` in tasks, tests, Node servers,
       and other code outside of the SvelteKit frontend,
