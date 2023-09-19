@@ -1,8 +1,11 @@
-<svelte:head>
-	<link rel="shortcut icon" href="/favicon.png" />
-</svelte:head>
+<script lang="ts">
+	// make sure TypeScript works
+	type A = 'gro';
+	const name: A = 'gro';
+</script>
 
 <main>
+	<h1>{name}</h1>
 	<slot />
 </main>
 

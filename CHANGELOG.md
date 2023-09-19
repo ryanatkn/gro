@@ -68,7 +68,7 @@
 
 ## 0.76.0
 
-- **break**: change `toJsonSchema` to not suffix with `.json`, and add the `bundleSchemas` helper
+- **break**: change `toJsonSchema` to not suffix with `.json`, and add the `bundle_schemas` helper
   ([#372](https://github.com/feltjs/gro/pull/372))
 
 ## 0.75.5
@@ -94,7 +94,7 @@
 
 ## 0.75.1
 
-- export `toGenContextImports` from `lib/runGen`
+- export `to_gen_context_imports` from `lib/run_gen`
   ([commit](https://github.com/feltjs/gro/commit/980f75bf43f77cb3107b446c079cc401c88b3f94))
 
 ## 0.75.0
@@ -226,9 +226,9 @@
 
 ## 0.63.0
 
-- **break**: change `src/gro.config.ts` to export a default value instead of a `config` property
+- **break**: change `gro.config.ts` to export a default value instead of a `config` property
   ([#348](https://github.com/feltjs/gro/pull/348))
-- **break**: change `plugin/gro-plugin-api-server.ts` to a no-op outside of dev mode
+- **break**: change `plugin/gro_plugin_server.ts` to a no-op outside of dev mode
   ([#347](https://github.com/feltjs/gro/pull/347))
 - fix `gro deploy` for unfetched branches
   ([#350](https://github.com/feltjs/gro/pull/350))
@@ -364,7 +364,7 @@
 
 ## 0.52.1
 
-- fix args type for `invokeTask`
+- fix args type for `invoke_task`
   ([#314](https://github.com/feltjs/gro/pull/314))
 
 ## 0.52.0
@@ -372,10 +372,10 @@
 - **break**: validate task `args` from schemas,
   setting defaults automatically and disallowing additional properties
   ([#313](https://github.com/feltjs/gro/pull/313))
-- **break**: change `invokeTask` to no longer forward `args` automatically
+- **break**: change `invoke_task` to no longer forward `args` automatically
   ([#313](https://github.com/feltjs/gro/pull/313))
 - **break**: add generic agnostic command args forwarding
-  [using the `--` pattern](src/docs/task.md#task-args-forwarding)
+  [using the `--` pattern](src/lib/docs/task.md#task-args-forwarding)
   ([#313](https://github.com/feltjs/gro/pull/313))
 - **break**: remove `-v` alias for `gro --version`
   ([#313](https://github.com/feltjs/gro/pull/313))
@@ -469,14 +469,14 @@
 
 ## 0.47.3
 
-- make the `throttleAsync` cache key optional
+- make the `throttle` cache key optional
   ([#290](https://github.com/feltjs/gro/pull/290))
 - attempt to fix deps broken by [#286](https://github.com/feltjs/gro/pull/286)
   ([#291](https://github.com/feltjs/gro/pull/291))
 
 ## 0.47.2
 
-- fix bug with the `throttleAsync` `delay` option
+- fix bug with the `throttle` `delay` option
   ([#289](https://github.com/feltjs/gro/pull/289))
 
 ## 0.47.1
@@ -485,7 +485,7 @@
   ([#273](https://github.com/feltjs/gro/pull/273))
 - fix writing source meta concurrently
   ([#288](https://github.com/feltjs/gro/pull/288))
-- add `utils/throttleAsync.ts`
+- add `util/throttle.ts`
   ([#288](https://github.com/feltjs/gro/pull/288))
 
 ## 0.47.0
@@ -597,7 +597,7 @@
 ## 0.36.0
 
 - **break**: fix test sourcemaps by adding
-  [`GroConfig` option `main_test`](src/docs/config.md#main_test),
+  [`GroConfig` option `main_test`](src/lib/docs/config.md#main_test),
   which initializes projects with a conventional `lib/main.test.ts`
   for installing sourcemaps and other global test concerns (update: reverted in 0.37.0)
   ([#259](https://github.com/feltjs/gro/pull/259))
@@ -630,13 +630,13 @@
 
 ## 0.34.0
 
-- **break**: remove `cjs` and `esm` options from `gro_adapter_node_library`;
+- **break**: remove `cjs` and `esm` options from `gro_adapter_library`;
   for now only ESM is supported, to be revisited when we support package exports;
   in the meantime users can fork the adapter for commonjs outputs
   ([#251](https://github.com/feltjs/gro/pull/251))
 - **break**: disallow running some tasks in development: `gro build`, `gro deploy`, `gro publish`
   ([#251](https://github.com/feltjs/gro/pull/251))
-- rename `src/adapt/adapt.ts` module and improve docs for `adapt` and `plugin`
+- rename `src/lib/adapt/adapt.ts` module and improve docs for `adapt` and `plugin`
   ([#250](https://github.com/feltjs/gro/pull/250))
 
 ## 0.33.1
@@ -650,9 +650,9 @@
 
 - **break**: refactor `postprocess` into builders and delete `Build` and `Build_Result`
   ([#243](https://github.com/feltjs/gro/pull/243))
-- **break**: rename builders and builder utils
+- **break**: rename builders and builder util
   ([#244](https://github.com/feltjs/gro/pull/244))
-- **break**: merge `fs/path_filter.ts` and `fs/file.ts` into `fs/filter.ts`,
+- **break**: merge `util/path_filter.ts` and `util/file.ts` into `util/filter.ts`,
   rename `Id_Filter` from `File_Filter`, and add `Id_Stats_Filter`
   ([#246](https://github.com/feltjs/gro/pull/246))
 - support JSON imports
@@ -673,7 +673,7 @@
 
 ## 0.31.0
 
-- **break**: change `gro_adapter_node_library` option `type` to boolean `bundle`
+- **break**: change `gro_adapter_library` option `type` to boolean `bundle`
   ([#239](https://github.com/feltjs/gro/pull/239))
 - support outputting Svelte source files in production builds
   ([#239](https://github.com/feltjs/gro/pull/239))
@@ -728,10 +728,10 @@
 
 - **break**: remove `gro start` task
   ([#223](https://github.com/feltjs/gro/pull/223))
-- add `Plugin`s and `config.plugin` to support SvelteKit and API servers
+- add `Plugin`s and `config.plugin` to support SvelteKit and Node servers
   ([#223](https://github.com/feltjs/gro/pull/223),
   [#224](https://github.com/feltjs/gro/pull/224))
-- implement API server config and adapter
+- implement Node server config and adapter
   ([#223](https://github.com/feltjs/gro/pull/223))
 - implement library adapter
   ([#226](https://github.com/feltjs/gro/pull/226),
@@ -802,7 +802,7 @@
 
 ## 0.26.0
 
-- **break**: move utils to `@feltjs/felt-ui` and add it as a dependency
+- **break**: move util to `@feltjs/felt-ui` and add it as a dependency
   ([#206](https://github.com/feltjs/gro/pull/206))
 
 ## 0.25.2
@@ -890,8 +890,8 @@
 
 - **break**: redesign `gro publish` and `gro deploy`
   ([#187](https://github.com/feltjs/gro/pull/187))
-- **break**: add [`Adapter` system](/src/docs/adapt.md) and
-  [Node library adapter](/src/adapt/gro_adapter_node_library.ts)
+- **break**: add [`Adapter` system](/src/lib/docs/adapt.md) and
+  [Node library adapter](/src/lib/adapt/gro_adapter_library.ts)
   ([#187](https://github.com/feltjs/gro/pull/187))
 - **break**: add a default `"node"` build named `"node"` if one is not defined
   ([#187](https://github.com/feltjs/gro/pull/187))
@@ -914,7 +914,7 @@
 
 ## 0.21.4
 
-- export `UnreachableError` and time utils from root
+- export `UnreachableError` and time util from root
   ([#184](https://github.com/feltjs/gro/pull/184))
 
 ## 0.21.3
@@ -937,7 +937,7 @@
 - **break**: change `gro clean` args to longhand and
   add option `--git` to prune dead branches
   ([#180](https://github.com/feltjs/gro/pull/180))
-- fix `gro build` to copy files to `dist/` with `src/build/dist.ts` helper `copy_dist`
+- fix `gro build` to copy files to `dist/` with `src/lib/build/dist.ts` helper `copy_dist`
   ([#179](https://github.com/feltjs/gro/pull/179))
 
 ## 0.20.4
@@ -970,16 +970,16 @@
   - rename `pathExists` to `exists`
   - remove `readJson`
 - add abstract class `Fs` and implement `Memory_Fs`
-  to complement the `fs-extra` implementation at `src/fs/node.ts`
+  to complement the `fs-extra` implementation at `src/lib/util/node.ts`
   ([#173](https://github.com/feltjs/gro/pull/173))
 
 ## 0.19.0
 
 - **break**: extract the `Filesystem` interface and
-  thread it everywhere from `src/cli/invoke.ts` and tests
+  thread it everywhere from `src/lib/cli/invoke.ts` and tests
   ([#171](https://github.com/feltjs/gro/pull/171))
-- **break**: replace `src/utils/gitignore.ts` helper `is_gitignored`
-  with `src/fs/path_filter.ts` helper `to_path_filter`
+- **break**: replace `src/lib/util/gitignore.ts` helper `is_gitignored`
+  with `src/lib/util/path_filter.ts` helper `to_path_filter`
   ([#172](https://github.com/feltjs/gro/pull/172))
 
 ## 0.18.2
@@ -989,12 +989,12 @@
 
 ## 0.18.1
 
-- fix `gro start` task to work with SvelteKit and the API server if detected
+- fix `gro start` task to work with SvelteKit and the Node server if detected
   ([#169](https://github.com/feltjs/gro/pull/169))
 
 ## 0.18.0
 
-- **break**: change the interface of `gro dev` and `gro build` to support the API server
+- **break**: change the interface of `gro dev` and `gro build` to support the Node server
   ([#168](https://github.com/feltjs/gro/pull/168))
 
 ## 0.17.1
@@ -1008,16 +1008,16 @@
 
 ## 0.17.0
 
-- **break**: rename `src/utils/equal.ts` module from `deepEqual.ts`
+- **break**: rename `src/lib/util/equal.ts` module from `deepEqual.ts`
   ([#162](https://github.com/feltjs/gro/pull/162))
 - **break**: rename `Gro_Config_Partial` from `PartialGro_Config`
   and `Build_Config_Partial` from `PartialBuild_Config`
   ([#164](https://github.com/feltjs/gro/pull/164))
 - make serve task work for production SvelteKit builds
   ([#163](https://github.com/feltjs/gro/pull/163))
-- add `src/utils/gitignore.ts` with `is_gitignored` and `load_gitignore_filter`
+- add `src/lib/util/gitignore.ts` with `is_gitignored` and `load_gitignore_filter`
   ([#165](https://github.com/feltjs/gro/pull/165))
-- add helper `to_sveltekit_base_path` to `src/build/sveltekit_helpers.ts`
+- add helper `to_sveltekit_base_path` to `src/lib/build/sveltekit_helpers.ts`
   ([#163](https://github.com/feltjs/gro/pull/163))
 - default to some environment variables
   for undefined Gro config properties:
@@ -1037,7 +1037,7 @@
 
 ## 0.15.0
 
-- **break**: make `src/build.task.ts`, `src/deploy.task.ts`,
+- **break**: make `src/lib/build.task.ts`, `src/deploy.task.ts`,
   and `src/start.task.ts` work with SvelteKit
   ([#157](https://github.com/feltjs/gro/pull/157),
   [#159](https://github.com/feltjs/gro/pull/159))
@@ -1046,14 +1046,14 @@
   - default to the `deploy` branch instead of `gh-pages`
 - **break**: rename `to_env_string` and `to_env_number` from `stringFromEnv` and `numberFromEnv`
   ([#158](https://github.com/feltjs/gro/pull/158))
-- add helper `read_dir` to `src/fs/node.ts`
+- add helper `read_dir` to `src/lib/util/node.ts`
   ([#159](https://github.com/feltjs/gro/pull/159))
 
 ## 0.14.0
 
-- **break**: rename `src/fs/node.ts` from `src/fs/nodeFs.ts`
+- **break**: rename `src/lib/util/node.ts` from `src/lib/util/nodeFs.ts`
   ([#154](https://github.com/feltjs/gro/pull/154))
-- **break**: rename `src/fs/clean.ts` from `src/utils/clean.ts`
+- **break**: rename `src/lib/util/clean.ts` from `src/lib/util/clean.ts`
   ([#155](https://github.com/feltjs/gro/pull/155))
 - **break**: rename `to_array` from `ensureArray`
   ([#117](https://github.com/feltjs/gro/pull/117))
@@ -1070,29 +1070,29 @@
 
 - **break**: require Node >=14.16.0
   ([#150](https://github.com/feltjs/gro/pull/150))
-- fix false positive API server detection in default config
+- fix false positive Node server detection in default config
   ([#151](https://github.com/feltjs/gro/pull/151))
-- add `get_mime_types` and `get_extensions` returning iterators to `src/fs/mime.ts`
+- add `get_mime_types` and `get_extensions` returning iterators to `src/lib/util/mime.ts`
   ([#149](https://github.com/feltjs/gro/pull/149))
 - improve default asset paths to use registered mime types
   ([#149](https://github.com/feltjs/gro/pull/149))
 
 ## 0.12.1
 
-- fix swapped API server ports
+- fix swapped Node server ports
   ([#148](https://github.com/feltjs/gro/pull/148))
 
 ## 0.12.0
 
 - **break**: output builds to `dist/` mirroring the source tree as much as possible
   ([#147](https://github.com/feltjs/gro/pull/147))
-- **break**: rename some things around the API server
+- **break**: rename some things around the Node server
   ([#147](https://github.com/feltjs/gro/pull/147))
 - add `gro start` as an alias for `npm start`
   ([#147](https://github.com/feltjs/gro/pull/147))
-- integrate the default Gro API server with SvelteKit and Gro's build task
+- integrate the default Gro Node server with SvelteKit and Gro's build task
   ([#145](https://github.com/feltjs/gro/pull/145))
-- add task `gro server` to support the default API server use case in SvelteKit
+- add task `gro server` to support the default Node server use case in SvelteKit
   ([#145](https://github.com/feltjs/gro/pull/145))
 - remove the `gro dist` task; it's now part of `gro build`
   ([#146](https://github.com/feltjs/gro/pull/146))
@@ -1103,9 +1103,9 @@
   so tasks can communicate with each other using a normal Node `EventEmitter`
   ([#143](https://github.com/feltjs/gro/pull/143))
   - events aren't great for everything;
-    this PR also documents a value mapping pattern convention for tasks in `src/task/README.md`
+    this PR also documents a value mapping pattern convention for tasks in `src/lib/task/README.md`
 - `gro build` now correctly builds only `Build_Config`s that have `dist: true`,
-  allowing users to customize the `dist/` output in each `gro build` via `src/gro.config.ts`
+  allowing users to customize the `dist/` output in each `gro build` via `gro.config.ts`
   ([#144](https://github.com/feltjs/gro/pull/144))
 
 ## 0.11.2
@@ -1115,7 +1115,7 @@
 
 ## 0.11.1
 
-- track and clean up child processes in `src/utils/process.ts` helpers
+- track and clean up child processes in `src/lib/util/process.ts` helpers
   and expose the functionality to users as `registerGlobalSpawn`
   ([#141](https://github.com/feltjs/gro/pull/141))
 - add a confirmation prompt to `gro version`
@@ -1135,14 +1135,14 @@
 
 ## 0.10.0
 
-- **break**: change `src/gro.config.ts` to export a `config` identifer instead of `default`
+- **break**: change `gro.config.ts` to export a `config` identifer instead of `default`
   ([#137](https://github.com/feltjs/gro/pull/137))
 
 ## 0.9.5
 
 - set `process.env.NODE_ENV` when running tasks with explicit `dev` values
   ([#136](https://github.com/feltjs/gro/pull/136))
-- remove `import.meta.env.DEV` support for now despite SvelteKit alignment
+- remove `import.meta.-env.DEV` support for now despite SvelteKit alignment
   ([#136](https://github.com/feltjs/gro/pull/136))
 
 ## 0.9.4
@@ -1157,13 +1157,13 @@
 
 ## 0.9.2
 
-- fix `src/build.task.ts` ([#133](https://github.com/feltjs/gro/pull/133)):
+- fix `src/lib/build.task.ts` ([#133](https://github.com/feltjs/gro/pull/133)):
   - forward dev arg to esbuild options builder
   - fix return values of rollup plugins to respect sourcemaps
 
 ## 0.9.1
 
-- fix `src/build.task.ts` to correctly use `sourcemap` and `target` Gro config options
+- fix `src/lib/build.task.ts` to correctly use `sourcemap` and `target` Gro config options
   ([#132](https://github.com/feltjs/gro/pull/132))
 - turn sourcemaps off by default in production
   ([#132](https://github.com/feltjs/gro/pull/132))
@@ -1171,9 +1171,9 @@
 ## 0.9.0
 
 - **break**: separate the default server and primary Node builds
-  in `src/config/gro.config.default.ts`
+  in `src/lib/config/gro.config.default.ts`
   ([#131](https://github.com/feltjs/gro/pull/131))
-- **break**: rename `src/utils/toObtainable.ts` to `src/utils/obtainable.ts` to fit convention
+- **break**: rename `src/lib/util/toObtainable.ts` to `src/lib/util/obtainable.ts` to fit convention
   ([#131](https://github.com/feltjs/gro/pull/131))
 - add server auto-restart to `src/dev.task.ts`
   ([#129](https://github.com/feltjs/gro/pull/129))
@@ -1190,7 +1190,7 @@
 
 - add `src/version.task.ts` to automate versioning and publishing
   ([#127](https://github.com/feltjs/gro/pull/127))
-- change `src/build.task.ts` to work internally for Gro
+- change `src/lib/build.task.ts` to work internally for Gro
   ([#128](https://github.com/feltjs/gro/pull/128))
 
 ## 0.8.3
@@ -1210,7 +1210,7 @@
 
 ## 0.8.0
 
-- **break**: redesign prod build task `src/build.task.ts`
+- **break**: redesign prod build task `src/lib/build.task.ts`
   and remove support for CLI build inputs in favor of config
   ([#123](https://github.com/feltjs/gro/pull/123))
 - internal rename of `src/globalTypes.ts` to `src/globals.d.ts`
@@ -1226,9 +1226,9 @@
 
 ## 0.7.1
 
-- rename `src/types.ts` to `src/utils/types.ts`
+- rename `src/types.ts` to `src/lib/util/types.ts`
   ([#115](https://github.com/feltjs/gro/pull/115))
-- add `unwrap` helper to `src/utils/types.ts`
+- add `unwrap` helper to `src/lib/util/types.ts`
   ([#116](https://github.com/feltjs/gro/pull/116))
 
 ## 0.7.0
@@ -1274,7 +1274,7 @@
 
 - change the `build/` directory to `.gro/` and support multiple builds
   ([#59](https://github.com/feltjs/gro/pull/59))
-- add support for a config file at `src/gro.config.ts` for custom builds
+- add support for a config file at `gro.config.ts` for custom builds
   ([#67](https://github.com/feltjs/gro/pull/67),
   [#68](https://github.com/feltjs/gro/pull/68),
   [#82](https://github.com/feltjs/gro/pull/82),
@@ -1316,7 +1316,7 @@
   ([#86](https://github.com/feltjs/gro/pull/86),
   [#87](https://github.com/feltjs/gro/pull/87),
   [#90](https://github.com/feltjs/gro/pull/90))
-- move terminal color module to src/utils
+- move terminal color module to src/lib/util
   ([#93](https://github.com/feltjs/gro/pull/93))
 - add server caching
   ([#77](https://github.com/feltjs/gro/pull/77))
@@ -1398,12 +1398,12 @@
 ## 0.2.3
 
 - fix external module type declarations by merging
-  `src/utils/globalTypes.d.ts` into `src/globalTypes.ts`
+  `src/lib/util/globalTypes.d.ts` into `src/globalTypes.ts`
   ([#28](https://github.com/feltjs/gro/pull/28))
 
 ## 0.2.2
 
-- export `kleur/colors` from `src/utils/terminal.js`
+- export `kleur/colors` from `src/lib/util/terminal.js`
   ([#27](https://github.com/feltjs/gro/pull/27))
 
 ## 0.2.1
@@ -1439,7 +1439,7 @@
 ## 0.1.11
 
 - fix `terser` import
-- export `Unobtain` type from `utils/obtainable.ts`
+- export `Unobtain` type from `util/obtainable.ts`
 
 ## 0.1.10
 
@@ -1487,17 +1487,17 @@
 ## 0.1.3
 
 - upgrade TypeScript minor version
-- rename `utils/random.ts` functions, expanding "rand" prefix to "random"
+- rename `util/random.ts` functions, expanding "rand" prefix to "random"
 
 ## 0.1.2
 
 - upgrade TypeScript dep
-- add `utils/obtainable.ts` for decoupled lifecycle management
+- add `util/obtainable.ts` for decoupled lifecycle management
 
 ## 0.1.1
 
-- add `fs/watch_node_fs.ts` for low level filesystem watching
-- expose `remove` and `ensure_dir` in `fs/node.ts`
+- add `util/watch_dir.ts` for low level filesystem watching
+- expose `remove` and `ensure_dir` in `util/node.ts`
 
 ## 0.1.0
 
