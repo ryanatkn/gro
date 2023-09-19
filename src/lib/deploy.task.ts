@@ -227,13 +227,12 @@ export const task: Task<Args> = {
 			// because we need to preserve the existing worktree directory, or git breaks.
 			// TODO there is be a better way but what is it
 			await Promise.all(
-				(await readdir(WORKTREE_DIR))
-					.map((path) =>
-						path === GIT_DIRNAME ? null : rm(`${WORKTREE_DIR}/${path}`, {recursive: true}),
-					)
-					.concat(
-						(await readdir(dir)).map((path) => rename(`${dir}/${path}`, `${WORKTREE_DIR}/${path}`)),
-					),
+				(await readdir(WORKTREE_DIR)).map((path) =>
+					path === GIT_DIRNAME ? null : rm(`${WORKTREE_DIR}/${path}`, {recursive: true}),
+				),
+			);
+			await Promise.all(
+				(await readdir(dir)).map((path) => rename(`${dir}/${path}`, `${WORKTREE_DIR}/${path}`)),
 			);
 
 			// commit the changes
@@ -242,7 +241,6 @@ export const task: Task<Args> = {
 			await spawn('git', ['push', origin, target, '-f'], GIT_ARGS);
 		} catch (err) {
 			log.error(red('updating git failed:'), printError(err));
-			process.exit(1);
 			await clean_git_worktree();
 			throw Error(`Deploy failed in a bad state: built but not pushed. See the error above.`);
 		}
