@@ -2,7 +2,7 @@
 
 <img src="src/static/favicon.png" align="right" width="192" height="192">
 
-> task runner and toolkit extending SvelteKit 🌰
+> task runner and toolkit extending SvelteKit
 
 limitations:
 
