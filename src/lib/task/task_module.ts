@@ -38,14 +38,13 @@ export const validate_task_module = (mod: Record<string, any>): mod is TaskModul
 
 export const load_task_module = async (id: string): Promise<LoadModuleResult<TaskModuleMeta>> => {
 	console.log(`[load_task_module] id`, id);
-	console.log(`gro_sveltekit_dist_dir`, gro_sveltekit_dist_dir);
-	console.log(`paths_from_id(id)`, paths_from_id(id));
+	console.log(`[load_task_module] gro_sveltekit_dist_dir`, gro_sveltekit_dist_dir);
 	console.log(
-		`source_id_to_base_path(id, paths_from_id(id))`,
+		`[load_task_module] source_id_to_base_path(id, paths_from_id(id))`,
 		source_id_to_base_path(id, paths_from_id(id)),
 	);
 	const source_id = import_id_to_source_id(id);
-	console.log(`source_id`, source_id);
+	console.log(`[load_task_module] source_id`, source_id);
 	const result = await load_module(id, validate_task_module);
 	if (!result.ok) return result;
 	return {

@@ -33,18 +33,12 @@ export const is_task_path = (path: string): boolean =>
 
 export const to_task_name = (base_path: string): string => {
 	console.log(`[to_task_name] base_path`, base_path);
-	const stripped = stripStart(
+	const name = stripStart(
 		stripEnd(stripEnd(base_path, TASK_FILE_SUFFIX_TS), TASK_FILE_SUFFIX_JS),
 		LIB_DIRNAME + '/',
 	);
-	console.log(`[to_task_name] stripped`, stripped);
-	if (stripped === base_path) return base_path;
-	// TODO BLOCK remove this functionality
-	// Handle task directories, so `a/a.task` outputs `a` instead of `a/a`.
-	const s = stripped.split('/');
-	console.log(`[to_task_name] s`, s);
-	console.log('[to_task_name] final', s.at(-1) === s.at(-2) ? s.slice(0, -1).join('/') : stripped);
-	return s.at(-1) === s.at(-2) ? s.slice(0, -1).join('/') : stripped;
+	console.log(`[to_task_name] name`, name);
+	return name;
 };
 
 /**

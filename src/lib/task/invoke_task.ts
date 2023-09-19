@@ -108,6 +108,7 @@ export const invoke_task = async (
 			}
 		} else {
 			// The input path matches a directory. Log the tasks but don't run them.
+			console.log(`[invoke_task] path_data.id`, path_data.id);
 			if (is_this_project_gro) {
 				// Is the Gro directory the same as the cwd? Log the matching files.
 				await log_available_tasks(

@@ -128,14 +128,6 @@ export const task: Task = {
 };
 ```
 
-### task directories
-
-As a convenience, Gro interprets `src/lib/some/taskname/taskname.task.ts`
-the same as `src/lib/some/taskname.task.ts`,
-so instead of running `gro some/taskname/taskname` you simply run `gro some/taskname`.
-This is useful because tasks may have associated files (see the args docs below),
-and putting them into a directory together can help make projects easier to navigate.
-
 ### type `Task`
 
 ```ts
@@ -352,7 +344,7 @@ What makes Gro different?
   and improved DX with new capabilities.
 - Tasks support CLI args that are validated and typesafe
   via colocated Zod schemas with minimal boilerplate.
-- Module resolution differs:
+- Module resolution differs and leverages discoverability:
   - When a task name is given to Gro,
     it first searches `src/lib/` in the current working directory and
     falls back to searching the Gro directory.

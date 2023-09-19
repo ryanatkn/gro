@@ -60,7 +60,7 @@ export const print_task_help = (log: Logger, meta: TaskModuleMeta): void => {
 		name,
 		mod: {task},
 	} = meta;
-	console.log(`name`, name);
+	console.log(`[print_task_help name`, name);
 	const printed: string[] = [];
 	printed.push(
 		cyan(name),

@@ -104,13 +104,15 @@ export const lib_path_to_import_id = (base_path: string, p = paths): SourceId =>
 	}
 };
 
+// An `import_id` can be a source_id in a project,
+// or a Gro source_id when running inside Gro,
+// or a `gro/dist/` file id in node_modules when inside another project.
 export const import_id_to_source_id = (import_id: string): string => {
-	console.log(`import_id`, import_id);
+	console.log(`[import_id_to_source_id] import_id`, import_id);
 	const p = paths_from_id(import_id);
-	console.log(`paths`, p);
 	if (p.root === gro_paths.root) {
 		const base_path = stripStart(import_id, gro_sveltekit_dist_dir);
-		console.log(`base_path`, base_path);
+		console.log(`[import_id_to_source_id] base_path`, base_path);
 		return base_path_to_source_id(base_path, p);
 	} else {
 		return import_id;
