@@ -44,17 +44,9 @@ export const load_task_module = async (id: string): Promise<LoadModuleResult<Tas
 		cyan(`[load_task_module] source_id_to_base_path(id, paths_from_id(id))`),
 		source_id_to_base_path(id, paths_from_id(id)),
 	);
-	const source_id = import_id_to_source_id(id);
-	console.log(cyan(`[load_task_module] source_id`), source_id);
 	const result = await load_module(id, validate_task_module);
 	if (!result.ok) return result;
-	return {
-		...result,
-		mod: {
-			...result.mod,
-			name: to_task_name(source_id_to_base_path(source_id, paths_from_id(source_id))), // TODO BLOCK hacky, handles the gro/dist/ ids not just source ids anymore
-		},
-	};
+	return {...result, mod: {...result.mod, name: to_task_name(id)}};
 };
 
 export const find_task_modules = async (
