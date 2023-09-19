@@ -1,6 +1,6 @@
 {
   "name": "@feltjs/gro",
-  "description": "opinionated webdev toolkit",
+  "description": "task runner and toolkit extending SvelteKit",
   "version": "0.82.0",
   "bin": {
     "gro": "./dist/cli/gro.js"
@@ -36,6 +36,8 @@
     "tasks",
     "codegen",
     "svelte",
+    "sveltekit",
+    "vite",
     "typescript"
   ],
   "files": [

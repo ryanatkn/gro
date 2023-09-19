@@ -2,7 +2,7 @@
 
 <img src="src/static/favicon.png" align="right" width="192" height="192">
 
-> opinionated webdev toolkit 🌰
+> task runner and toolkit extending SvelteKit 🌰
 
 limitations:
 
@@ -13,8 +13,8 @@ limitations:
 
 ## about
 
-Gro is an opinionated webdev toolkit
-that complements [SvelteKit](https://github.com/sveltejs/kit)
+Gro is an task runner and toolkit
+extending [SvelteKit](https://github.com/sveltejs/kit)
 and [Vite](https://github.com/vitejs/vite)
 for making web frontends, servers, and libraries.
 It includes:
