@@ -41,12 +41,14 @@ npx changeset init # if installed only locally
 Optionally configure and install a custom changelog package
 in the `"changelog"` property of the newly created `.changeset/config.json`:
 
-```bash
-npm i -D @changesets/changelog-git  # a minimal package that requires no GitHub auth
+```diff
+# .changeset/config.json
+- "changelog": "@changesets/cli/changelog",
++ "changelog": "@changesets/changelog-git",
 ```
 
-```json
-"changelog": "@changesets/changelog-git",
+```bash
+npm i -D @changesets/changelog-git  # a minimal package that requires no GitHub auth
 ```
 
 If your package is public, configure the `access` property:
