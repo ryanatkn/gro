@@ -20,7 +20,7 @@ for making web frontends, servers, and libraries.
 It includes:
 
 - [task runner](/src/lib/docs/task.md) that uses the filesystem convention `*.task.ts`
-  - lots of [common default tasks](/src/lib/docs/tasks.md) that projects can easily override and compose
+  - lots of [common default tasks](/src/lib/docs/tasks.md) that users can easily override and compose
 - tools and patterns for
   [developing](/src/lib/docs/dev.md),
   [building](/src/lib/docs/build.md),
@@ -73,7 +73,7 @@ It includes:
 
 ## install
 
-> depends on node >= 16.6
+> depends on node >=20.5
 
 Normally you'll want to install Gro as a dev dependency:
 
