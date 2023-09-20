@@ -27,7 +27,7 @@ export const task: Task<Args> = {
 		const exported_paths = Array.from(exported_files.keys());
 		const exports = to_package_exports(exported_paths);
 		const exports_count = Object.keys(exports).length;
-		const changed = await update_package_json_exports(exports);
+		const changed = await update_package_json_exports(exports, !check);
 		if (check) {
 			if (changed) {
 				throw new TaskError(

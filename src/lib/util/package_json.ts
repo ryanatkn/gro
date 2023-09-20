@@ -45,6 +45,7 @@ export const serialize_package_json = (pkg: PackageJson): string =>
  */
 export const update_package_json = async (
 	update: (pkg: PackageJson) => PackageJson | Promise<PackageJson>,
+	write = true,
 ): Promise<boolean> => {
 	const original_pkg_contents = await load_package_json_contents(paths.root);
 	const original_pkg = JSON.parse(original_pkg_contents);
@@ -53,12 +54,14 @@ export const update_package_json = async (
 	if (updated_contents === original_pkg_contents) {
 		return false;
 	}
-	await write_package_json(updated_contents);
+	if (write) await write_package_json(updated_contents);
 	return true;
 };
 
-export const update_package_json_exports = (exports: PackageJsonExports): Promise<boolean> =>
-	update_package_json((pkg) => ({...pkg, exports}));
+export const update_package_json_exports = (
+	exports: PackageJsonExports,
+	write = true,
+): Promise<boolean> => update_package_json((pkg) => ({...pkg, exports}), write);
 
 export const to_package_exports = (paths: string[]): PackageJsonExports => {
 	const sorted = paths
