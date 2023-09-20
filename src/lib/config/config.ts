@@ -29,12 +29,7 @@ export interface GroConfigModule {
 	readonly default: GroConfig | GroConfigCreator;
 }
 
-let cached_config: Promise<GroConfig> | undefined;
-
-export const load_config = (): Promise<GroConfig> =>
-	cached_config || (cached_config = _load_config());
-
-const _load_config = async (): Promise<GroConfig> => {
+export const load_config = async (): Promise<GroConfig> => {
 	const default_config = await create_default_config({} as any); // hacky so the default config demonstrates the same code a user would write
 
 	const config_path = paths.config;
