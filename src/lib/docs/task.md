@@ -168,8 +168,8 @@ for its ergonomics and automatic logging and diagnostics.
 The `invoke_task` helper uses Gro's task resolution rules
 to allow user code to override builtin tasks.
 For example, Gro's `check.task.ts` calls `invoke_task('test')`
-so that it calls your `src/test.task.ts` if it exists
-and falls back to `gro/src/test.task.ts` if not.
+so that it calls your `src/lib/test.task.ts` if it exists
+and falls back to `gro/src/lib/test.task.ts` if not.
 
 It's less important to use `invoke_task` over explicit imports in user code
 because you don't need to rely on the task override rules to get desired behavior,
@@ -190,7 +190,7 @@ export const task: Task = {
 		// as documented above, the following is similar but lacks nice features:
 		// await (await import('./some/file.task.js')).run(ctx);
 
-		// runs `src/other/file.task.ts` and falls back to `gro/src/other/file.task.ts`,
+		// runs `src/lib/other/file.task.ts` and falls back to `gro/src/other/file.task.ts`,
 		// forwarding both custom args and a different event emitter (warning: spaghetti)
 		await invoke_task(
 			'other/file',
@@ -200,7 +200,7 @@ export const task: Task = {
 			optionalFsForSubtree,
 		);
 
-		// runs `gro/src/other/file.task.ts` directly, bypassing any local version
+		// runs `gro/src/lib/other/file.task.ts` directly, bypassing any local version
 		await invoke_task('gro/other/file');
 	},
 };
@@ -209,13 +209,13 @@ export const task: Task = {
 ### hook into one of [Gro's builtin tasks](../docs/tasks.md)
 
 ```bash
-# This normally loads Gro's version of the test task at `gro/src/test.task.ts`,
-# but projects can define `src/test.task.ts` to extend or replace it.
+# This normally loads Gro's version of the test task at `gro/src/lib/test.task.ts`,
+# but projects can define `src/lib/test.task.ts` to extend or replace it.
 $ gro test
 ```
 
 ```ts
-// src/test.task.ts
+// src/lib/test.task.ts
 import type {Task} from '@feltjs/gro';
 
 export const task: Task = {
@@ -249,7 +249,7 @@ Using zod has some benefits:
 - concise source of truth
 
 ```ts
-// src/dosomething.task.ts
+// src/lib/dosomething.task.ts
 import type {Task} from '@feltjs/gro';
 import type {z} from 'zod';
 
@@ -352,7 +352,7 @@ What makes Gro different?
     or override or extend them without changing how you invoke them.
     Gro reserves no special behavior for its own commands -
     `gro test`, `gro gen`, and all the rest are just tasks that all follow the same rules.
-    (see its task at [`src/test.task.ts`](../test.task.ts)).
+    (see its task at [`src/lib/test.task.ts`](../test.task.ts)).
   - When a directory is given to Gro,
     it prints all of the tasks found inside it,
     both relative to the current working directory and Gro's directory.

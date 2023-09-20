@@ -1051,7 +1051,7 @@
 ## 0.15.0
 
 - **break**: make `src/lib/build.task.ts`, `src/deploy.task.ts`,
-  and `src/start.task.ts` work with SvelteKit
+  and `src/lib/start.task.ts` work with SvelteKit
   ([#157](https://github.com/feltjs/gro/pull/157),
   [#159](https://github.com/feltjs/gro/pull/159))
   - add flag `gro deploy --clean` to reset deployment state
@@ -1188,9 +1188,9 @@
   ([#131](https://github.com/feltjs/gro/pull/131))
 - **break**: rename `src/lib/util/toObtainable.ts` to `src/lib/util/obtainable.ts` to fit convention
   ([#131](https://github.com/feltjs/gro/pull/131))
-- add server auto-restart to `src/dev.task.ts`
+- add server auto-restart to `src/lib/dev.task.ts`
   ([#129](https://github.com/feltjs/gro/pull/129))
-- improve the [clean task](https://github.com/feltjs/gro/blob/main/src/clean.task.ts)
+- improve the [clean task](https://github.com/feltjs/gro/blob/main/src/lib/clean.task.ts)
   ([#130](https://github.com/feltjs/gro/pull/130))
   - running `gro clean` with no options behaves the same, deleting `/.gro/` and `/dist/`
   - `gro clean` now accepts a number of options:
@@ -1201,7 +1201,7 @@
 
 ## 0.8.4
 
-- add `src/version.task.ts` to automate versioning and publishing
+- add `src/lib/version.task.ts` to automate versioning and publishing
   ([#127](https://github.com/feltjs/gro/pull/127))
 - change `src/lib/build.task.ts` to work internally for Gro
   ([#128](https://github.com/feltjs/gro/pull/128))
@@ -1256,7 +1256,7 @@
 
 ## 0.6.4
 
-- add `args` hooks to `src/dev.task.ts`
+- add `args` hooks to `src/lib/dev.task.ts`
   ([#112](https://github.com/feltjs/gro/pull/112))
 
 ## 0.6.3

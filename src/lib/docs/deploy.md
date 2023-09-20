@@ -1,6 +1,6 @@
 # deploy
 
-The [`gro deploy`](/src/deploy.task.ts)
+The [`gro deploy`](/src/lib/deploy.task.ts)
 task was originally designed to support static deployments to
 [GitHub pages](https://pages.github.com/),
 but what it actually does is just [build](./build.md) and push to a branch.
@@ -26,7 +26,7 @@ gro deploy --dry # prepare build/ but don't commit or push
 gro deploy --clean # if something goes wrong, use this to reset git and gro state
 ```
 
-Run `gro deploy --help` or see [`src/deploy.task.ts`](/src/deploy.task.ts) for the details.
+Run `gro deploy --help` or see [`src/lib/deploy.task.ts`](/src/lib/deploy.task.ts) for the details.
 
 For needs more advanced than pushing to a remote branch,
-projects can implement a custom `src/deploy.task.ts`.
+projects can implement a custom `src/lib/deploy.task.ts`.
