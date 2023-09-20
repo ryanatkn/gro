@@ -78,9 +78,9 @@ export const watch_dir = ({
 				on_change({type: 'delete', path: final_path, stats: DIR_STATS});
 			});
 			// wait until ready
-			let resolve;
+			let resolve: any;
 			const promise = new Promise((r) => (resolve = r));
-			watcher.once('ready', () => resolve!());
+			watcher.once('ready', () => resolve());
 			await promise;
 		},
 		close: async () => {

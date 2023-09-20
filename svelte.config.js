@@ -1,9 +1,9 @@
-import preprocess from 'svelte-preprocess';
+import {typescript} from 'svelte-preprocess';
 import staticAdapter from '@sveltejs/adapter-static';
 
 /** @type {import('@sveltejs/kit').Config} */
 export default {
-	preprocess: preprocess.typescript(),
+	preprocess: typescript(),
 	compilerOptions: {
 		immutable: true,
 	},
