@@ -1,5 +1,11 @@
 # @feltjs/gro
 
+## 0.82.6
+
+### Patch Changes
+
+- 989c39c: make `@sveltejs/package` optional and warn when adapting the library
+
 ## 0.82.5
 
 ### Patch Changes
