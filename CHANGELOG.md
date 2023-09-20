@@ -1,5 +1,11 @@
 # @feltjs/gro
 
+## 0.82.4
+
+### Patch Changes
+
+- bd02918: upgrade es-module-lexer
+
 ## 0.82.3
 
 ### Patch Changes
