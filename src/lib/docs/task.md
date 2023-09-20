@@ -32,7 +32,7 @@ and defers composition to the user in regular TypeScript modules.
   for `args` types, runtime parsing with helpful validation errors,
   and automatic help output, with DRY co-located definitions
 - it's easy to hook into or override any of Gro's builtin tasks,
-  like [`gro test`](../test.task.ts) and [`gro gen`](../gen.task.ts)
+  like [`gro test`](/src/lib/test.task.ts) and [`gro gen`](/src/lib/gen.task.ts)
   (tasks are copy-paste friendly! just update the imports)
 - the task execution environment is filesystem agnostic by default; `run` receives a
   [`TaskContext` argument](#user-content-types-task-and-taskcontext) with an `fs` property
@@ -352,7 +352,7 @@ What makes Gro different?
     or override or extend them without changing how you invoke them.
     Gro reserves no special behavior for its own commands -
     `gro test`, `gro gen`, and all the rest are just tasks that all follow the same rules.
-    (see its task at [`src/lib/test.task.ts`](../test.task.ts)).
+    (see its task at [`src/lib/test.task.ts`](/src/lib/test.task.ts)).
   - When a directory is given to Gro,
     it prints all of the tasks found inside it,
     both relative to the current working directory and Gro's directory.
