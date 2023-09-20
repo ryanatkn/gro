@@ -31,7 +31,7 @@ export const task: Task<Args> = {
 		if (check) {
 			if (changed) {
 				throw new TaskError(
-					'Failed export check. Some package.json exports have unexpectedly changed.',
+					'Failed exports check. Some package.json exports have unexpectedly changed.',
 				);
 			} else {
 				log.info('check passed, no package.json exports have changed');
