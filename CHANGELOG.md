@@ -1,5 +1,11 @@
 # @feltjs/gro
 
+## 0.82.2
+
+### Patch Changes
+
+- 8ffa6a8: improve `gro exports` ([#396](https://github.com/grogarden/gro/pull/396))
+
 ## 0.82.1
 
 ### Patch Changes
