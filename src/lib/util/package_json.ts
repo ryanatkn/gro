@@ -41,17 +41,32 @@ export const load_gro_package_json = async (force_refresh = false): Promise<Pack
 	return gro_package_json!;
 };
 
-export const write_package_json = async (pkg: PackageJson): Promise<void> => {
-	await writeFile(join(paths.root, 'package.json'), JSON.stringify(pkg, null, 2) + '\n');
+export const write_package_json = async (serialized_pkg: string): Promise<void> => {
+	await writeFile(join(paths.root, 'package.json'), serialized_pkg);
 };
 
+export const serialize_package_json = (pkg: PackageJson): string =>
+	JSON.stringify(pkg, null, 2) + '\n';
+
+/**
+ * Updates package.json. Writes to the filesystem only when contents change.
+ * @returns boolean indicating if the file changed
+ */
 export const update_package_json = async (
 	update: (pkg: PackageJson) => PackageJson | Promise<PackageJson>,
-): Promise<void> => {
-	const pkg = await load_package_json();
-	const updated = await update(pkg);
-	await write_package_json(updated);
+): Promise<boolean> => {
+	const original_pkg = await load_package_json();
+	const updated_pkg = await update(original_pkg);
+	const updated_serialized = serialize_package_json(updated_pkg);
+	if (updated_serialized === serialize_package_json(original_pkg)) {
+		return false;
+	}
+	await write_package_json(updated_serialized);
+	return true;
 };
+
+export const update_package_json_exports = (exports: PackageJsonExports): Promise<boolean> =>
+	update_package_json((pkg) => ({...pkg, exports}));
 
 export const to_package_exports = (paths: string[]): PackageJsonExports => {
 	const sorted = paths
