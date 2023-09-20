@@ -1,5 +1,11 @@
 # @feltjs/gro
 
+## 0.82.5
+
+### Patch Changes
+
+- f195ddc: import uvu dynamically to make it optional
+
 ## 0.82.4
 
 ### Patch Changes
