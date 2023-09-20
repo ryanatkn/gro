@@ -1,5 +1,11 @@
 # @feltjs/gro
 
+## 0.82.3
+
+### Patch Changes
+
+- 693e4ceb: remove config caching
+
 ## 0.82.2
 
 ### Patch Changes
