@@ -299,8 +299,9 @@ export const task: Task = {
 };
 ```
 
-Gro uses this in [`check.task.ts`](../check.task.ts)
-which is called in the npm [`"preversion"`](../../package.json) script.
+Gro uses this in [`check.task.ts`](/src/lib/check.task.ts)
+which is called during `gro publish`, and it's recommended in CI.
+(see [Gro's example `check.yml`](/.github/workflows/check.yml))
 
 ## todo
 

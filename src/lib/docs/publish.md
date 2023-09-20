@@ -15,7 +15,7 @@ npm login # and follow the instructions
 
 ## using changesets
 
-The [`gro publish` task](https://github.com/feltjs/gro/blob/main/src/publish.task.ts)
+The [`gro publish` task](https://github.com/feltjs/gro/blob/main/src/lib/publish.task.ts)
 integrates with [Changesets](https://github.com/changesets/changesets)
 to publish packages to [npm](https://npmjs.com/). Internally the task calls both
 [`changeset version`](https://github.com/changesets/changesets/blob/main/packages/cli/README.md#version)
@@ -97,3 +97,17 @@ A common failure is not being logged into npm. (see the instructions above)
 If the builds are correct but `changeset publish` failed,
 and you don't want to undo the version commit and tag,
 you can continue manually with `changeset publish` or `npm publish`.
+
+## `gro exports`
+
+[The exports task](/src/lib/exports.task.ts) is a convenience
+for declaring the modules of `lib/` in your `package.json` `"exports"`.
+
+Currently, `gro exports` is a manual step
+and it accepts a `--check` flag to throw if anything changed.
+The plan is to make exports configurable in `gro.config.ts`,
+and then it'll be automated and included as a default to `gro check`.
+
+Gro won't try to automate exports without a better config story (CLI args are not enough)
+because exporting all of `lib/` to users is not a recommended practice.
+For now, it's helpful to run the task and then update things by hand as needed before committing.

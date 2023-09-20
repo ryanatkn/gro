@@ -30,7 +30,7 @@ cwd        string             undefined          the cwd option to uvu parse
 ignore     string | string[]  undefined          the ignore option to uvu parse
 ```
 
-[`gro test`](/src/test.task.ts) runs all `*.test.ts`
+[`gro test`](/src/lib/test.task.ts) runs all `*.test.ts`
 files in your project by default using the regexp `"\\.test\\.ts$"`.
 So to add a new test, create a new file:
 
