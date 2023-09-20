@@ -11,7 +11,12 @@ export const create_adapter = (): Adapter => {
 		name: 'gro_adapter_library',
 		adapt: async ({log, timings}) => {
 			if (!(await find_cli('svelte-package'))) {
-				throw Error(`Failed to find svelte-package: install @sveltejs/package locally or globally`);
+				log.warn(
+					'failed to find svelte-package: ' +
+						'install @sveltejs/package locally or globally to publish this repo,' +
+						' or remove gro_adapter_library to suppress this warning',
+				);
+				return;
 			}
 			const serialized_args = serialize_args(to_forwarded_args('svelte-package'));
 			log.info(print_command_args(serialized_args));
