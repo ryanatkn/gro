@@ -54,5 +54,5 @@ const create_exports_filter = (include: string, exclude: string) => {
 	const exclude_matcher = exclude && new RegExp(exclude, 'u');
 	return (path: string): boolean =>
 		(!include_matcher || include_matcher.test(path)) &&
-		(!exclude_matcher || !exclude_matcher.test(path)); // eslint-disable-line @typescript-eslint/prefer-optional-chain
+		(!exclude_matcher || !exclude_matcher.test(path));
 };
