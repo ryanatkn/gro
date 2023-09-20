@@ -1,7 +1,5 @@
 import {yellow} from 'kleur/colors';
 import {z} from 'zod';
-import {run} from 'uvu/run';
-import {parse} from 'uvu/parse';
 
 import {TaskError, type Task} from './task/task.js';
 import {paths} from './util/paths.js';
@@ -31,6 +29,9 @@ export const task: Task<Args> = {
 			log.warn(yellow('uvu is not installed, skipping tests'));
 			return;
 		}
+
+		const {run} = await import('uvu/run');
+		const {parse} = await import('uvu/parse');
 
 		// uvu doesn't work with esm loaders and TypeScript files,
 		// so we use its `parse` and `run` APIs directly instead of its CLI.
