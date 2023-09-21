@@ -76,7 +76,7 @@
     "esbuild": "^0.18.0",
     "eslint": "^8.49.0",
     "eslint-plugin-svelte": "^2.33.2",
-    "svelte": "^4.2.0",
+    "svelte": "^4.2.1",
     "svelte-check": "^3.5.2",
     "svelte-preprocess": "^5.0.4",
     "svelte-preprocess-esbuild": "^3.0.1",
