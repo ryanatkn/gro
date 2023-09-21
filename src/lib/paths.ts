@@ -149,9 +149,9 @@ const filename = fileURLToPath(import.meta.url);
 const gro_dir = join(
 	filename,
 	filename.includes('/gro/src/lib/')
-		? '../../../../'
-		: filename.includes('/gro/dist/')
 		? '../../../'
+		: filename.includes('/gro/dist/')
+		? '../../'
 		: '../',
 );
 export const gro_dir_basename = basename(gro_dir) + '/';
