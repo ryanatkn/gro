@@ -7,7 +7,7 @@
 limitations:
 
 - [Windows is not yet supported](https://github.com/grogarden/gro/issues/319)
-- Gro has been actively used for years but has few users,
+- Gro has been actively used since 2019 but has few users,
   so you'll likely encounter problems and undesirable limitations --
   please open issues!
 
