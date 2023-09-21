@@ -14,8 +14,9 @@ limitations:
 ## about
 
 Gro is an task runner and toolkit
-extending [SvelteKit](https://github.com/sveltejs/kit)
-and [Vite](https://github.com/vitejs/vite)
+extending [SvelteKit](https://github.com/sveltejs/kit),
+[Vite](https://github.com/vitejs/vite),
+and [esbuild](https://github.com/evanw/esbuild)
 for making web frontends, servers, and libraries.
 It includes:
 
