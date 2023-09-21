@@ -215,17 +215,17 @@
       "default": "./dist/fixtures/baz2/test2.baz.js",
       "types": "./dist/fixtures/baz2/test2.baz.d.ts"
     },
-    "./fixtures/someTestExports.js": {
-      "default": "./dist/fixtures/someTestExports.js",
-      "types": "./dist/fixtures/someTestExports.d.ts"
+    "./fixtures/some_test_exports.js": {
+      "default": "./dist/fixtures/some_test_exports.js",
+      "types": "./dist/fixtures/some_test_exports.d.ts"
     },
-    "./fixtures/someTestExports2.js": {
-      "default": "./dist/fixtures/someTestExports2.js",
-      "types": "./dist/fixtures/someTestExports2.d.ts"
+    "./fixtures/some_test_exports2.js": {
+      "default": "./dist/fixtures/some_test_exports2.js",
+      "types": "./dist/fixtures/some_test_exports2.d.ts"
     },
-    "./fixtures/someTestExports3.js": {
-      "default": "./dist/fixtures/someTestExports3.js",
-      "types": "./dist/fixtures/someTestExports3.d.ts"
+    "./fixtures/some_test_exports3.js": {
+      "default": "./dist/fixtures/some_test_exports3.js",
+      "types": "./dist/fixtures/some_test_exports3.d.ts"
     },
     "./fixtures/someTestJson.json": {
       "default": "./dist/fixtures/someTestJson.json"
@@ -242,8 +242,16 @@
       "default": "./dist/fixtures/someTestSideEffect.js",
       "types": "./dist/fixtures/someTestSideEffect.d.ts"
     },
+    "./fixtures/test_failing_task_module.js": {
+      "default": "./dist/fixtures/test_failing_task_module.js",
+      "types": "./dist/fixtures/test_failing_task_module.d.ts"
+    },
     "./fixtures/test_file.other.ext": {
       "default": "./dist/fixtures/test_file.other.ext"
+    },
+    "./fixtures/test_invalid_task_module.js": {
+      "default": "./dist/fixtures/test_invalid_task_module.js",
+      "types": "./dist/fixtures/test_invalid_task_module.d.ts"
     },
     "./fixtures/test_js.js": {
       "default": "./dist/fixtures/test_js.js",
@@ -261,17 +269,9 @@
       "default": "./dist/fixtures/test2.foo.js",
       "types": "./dist/fixtures/test2.foo.d.ts"
     },
-    "./fixtures/testFailingTaskModule.js": {
-      "default": "./dist/fixtures/testFailingTaskModule.js",
-      "types": "./dist/fixtures/testFailingTaskModule.d.ts"
-    },
-    "./fixtures/testInvalidTaskModule.js": {
-      "default": "./dist/fixtures/testInvalidTaskModule.js",
-      "types": "./dist/fixtures/testInvalidTaskModule.d.ts"
-    },
-    "./fixtures/testTaskModule.taskFixture.js": {
-      "default": "./dist/fixtures/testTaskModule.taskFixture.js",
-      "types": "./dist/fixtures/testTaskModule.taskFixture.d.ts"
+    "./fixtures/testTaskModule.task_fixture.js": {
+      "default": "./dist/fixtures/testTaskModule.task_fixture.js",
+      "types": "./dist/fixtures/testTaskModule.task_fixture.d.ts"
     },
     "./format_directory.js": {
       "default": "./dist/format_directory.js",

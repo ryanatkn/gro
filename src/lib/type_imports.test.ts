@@ -9,7 +9,7 @@ const test__normalize_type_imports = suite('normalize_type_imports');
 test__normalize_type_imports('throws with multiple imports on the same line', async () => {
 	try {
 		await normalize_type_imports(
-			['import E3 from "./someTestExports.js"; import type E4 from "./someTestExports.js"'],
+			['import E3 from "./some_test_exports.js"; import type E4 from "./some_test_exports.js"'],
 			'virtualTestFile.ts',
 		);
 		assert.unreachable('should fail');
@@ -25,7 +25,7 @@ test__normalize_type_imports('throws with both default and named type imports', 
 	// https://www.typescriptlang.org/docs/handbook/release-notes/typescript-3-8.html
 	try {
 		await normalize_type_imports(
-			['import type E3, {E4} from "./someTestExports.js"'],
+			['import type E3, {E4} from "./some_test_exports.js"'],
 			'virtualTestFile.ts',
 		);
 		assert.unreachable('should fail');
@@ -38,7 +38,7 @@ test__normalize_type_imports('throws with both default and named type imports', 
 
 test__normalize_type_imports('throws with malformed type imports', async () => {
 	try {
-		await normalize_type_imports(['import type "./someTestExports.js"'], 'virtualTestFile.ts');
+		await normalize_type_imports(['import type "./some_test_exports.js"'], 'virtualTestFile.ts');
 		assert.unreachable('should fail');
 	} catch (err) {
 		if (err.message === 'should fail') {
@@ -50,7 +50,7 @@ test__normalize_type_imports('throws with malformed type imports', async () => {
 test__normalize_type_imports('throws with malformed type imports', async () => {
 	try {
 		await normalize_type_imports(
-			['import A from "./someTestExports.js"', 'import B from "./someTestExports.js"'],
+			['import A from "./some_test_exports.js"', 'import B from "./some_test_exports.js"'],
 			'virtualTestFile.ts',
 		);
 		assert.unreachable('should fail');
