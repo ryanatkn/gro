@@ -1,6 +1,7 @@
 import type {GroConfigCreator} from './config.js';
 import {base_path_to_source_id, LIB_DIR, LIB_DIRNAME} from '../util/paths.js';
 import {exists} from '../util/exists.js';
+import {load_package_json} from '$lib/util/package_json.js';
 
 /**
  * This is the default config that's passed to `gro.config.ts`
@@ -44,7 +45,8 @@ const config: GroConfigCreator = async () => {
 
 export default config;
 
-export const has_library = (): Promise<boolean> => exists(LIB_DIR);
+export const has_library = async (): Promise<boolean> =>
+	(await exists(LIB_DIR)) && !!(await load_package_json()).exports;
 
 export const has_server = (): Promise<boolean> => exists(SERVER_SOURCE_ID);
 export const SERVER_SOURCE_ID = base_path_to_source_id(LIB_DIRNAME + '/server/server.ts');
