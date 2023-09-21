@@ -1,7 +1,7 @@
 import {z} from 'zod';
 import {spawn} from '@feltjs/util/process.js';
 import {red, blue} from 'kleur/colors';
-import type {Config as ChangesetConfig} from '@changesets/types';
+import type {WrittenConfig} from '@changesets/types';
 import {readFile, writeFile} from 'node:fs/promises';
 
 import type {Task} from './task/task.js';
@@ -21,6 +21,9 @@ export const Args = z
 				description: 'changeset "access" config value, `AccessType`',
 			})
 			.default(RESTRICTED_ACCESS),
+		changelog: z
+			.string({description: 'changeset "changelog" config value'})
+			.default('@changesets/changelog-git'),
 	})
 	.strict();
 export type Args = z.infer<typeof Args>;
@@ -30,7 +33,7 @@ export const task: Task<Args> = {
 	Args,
 	run: async (ctx): Promise<void> => {
 		const {
-			args: {_: changset_args, path, access},
+			args: {_: changset_args, path, access, changelog},
 			log,
 		} = ctx;
 
@@ -45,8 +48,11 @@ export const task: Task<Args> = {
 				await update_changeset_config(path, (config) => {
 					const updated = {...config};
 					updated.access = access;
+					updated.changelog = changelog;
 					return updated;
 				});
+
+				await spawn('npm', ['i', '-D', '@changesets/changelog-git']);
 			}
 		}
 
@@ -55,16 +61,16 @@ export const task: Task<Args> = {
 };
 
 export interface ChangesetCallback {
-	(config: ChangesetConfig): ChangesetConfig | Promise<ChangesetConfig>;
+	(config: WrittenConfig): WrittenConfig | Promise<WrittenConfig>;
 }
 
-export interface UpdateChangesetConfig {
+export interface UpdateWrittenConfig {
 	(path: string, cb: ChangesetCallback): Promise<boolean>;
 }
 
 // TODO refactor all of this with zod and package_json helpers
 
-export const update_changeset_config: UpdateChangesetConfig = async (path, cb) => {
+export const update_changeset_config: UpdateWrittenConfig = async (path, cb) => {
 	const config_contents = await load_changeset_config_contents(path);
 	const config = parse_changeset_config(config_contents);
 
@@ -80,7 +86,7 @@ export const update_changeset_config: UpdateChangesetConfig = async (path, cb) =
 	return true;
 };
 
-export const load_changeset_config = async (): Promise<ChangesetConfig> =>
+export const load_changeset_config = async (): Promise<WrittenConfig> =>
 	JSON.parse(await load_changeset_config_contents(CHANGESET_CONFIG_PATH));
 
 const load_changeset_config_contents = (path: string): Promise<string> => readFile(path, 'utf8');
@@ -88,7 +94,7 @@ const load_changeset_config_contents = (path: string): Promise<string> => readFi
 export const write_changeset_config = (serialized: string): Promise<void> =>
 	writeFile(CHANGESET_CONFIG_PATH, serialized);
 
-export const serialize_changeset_config = (config: ChangesetConfig): string =>
+export const serialize_changeset_config = (config: WrittenConfig): string =>
 	JSON.stringify(config, null, 2) + '\n';
 
-export const parse_changeset_config = (contents: string): ChangesetConfig => JSON.parse(contents);
+export const parse_changeset_config = (contents: string): WrittenConfig => JSON.parse(contents);
