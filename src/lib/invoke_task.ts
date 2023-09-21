@@ -43,20 +43,24 @@ import {load_config, type GroConfig} from './config.js';
 export const invoke_task = async (
 	task_name: string,
 	args: Args,
-	config?: GroConfig,
+	maybe_config?: GroConfig,
 	timings = new Timings(),
 ): Promise<void> => {
 	const log = new SystemLogger(printLogLabel(task_name || 'gro'));
 	log.info('invoking', task_name ? cyan(task_name) : 'gro');
 
+	const total_timing = createStopwatch();
+
+	// Always load the config unless it's a param, so users can rely on it as an init hook.
+	const config = maybe_config || (await load_config());
+
 	// Check if the caller just wants to see the version.
 	if (!task_name && (args.version || args.v)) {
 		const gro_package_json = await load_gro_package_json();
 		log.info(`${gray('v')}${cyan(gro_package_json.version as string)}`);
+		log.info(`🕒 ${printMs(total_timing())}`);
 		return;
 	}
-
-	const total_timing = createStopwatch();
 
 	// Resolve the input path for the provided task name.
 	const input_path = resolve_input_path(task_name || paths.lib);
@@ -91,7 +95,7 @@ export const invoke_task = async (
 					task,
 					{...args, ...to_forwarded_args(`gro ${task.name}`)},
 					invoke_task,
-					config || (await load_config()),
+					config,
 					timings,
 				);
 				timing_to_run_task();
