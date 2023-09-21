@@ -14,7 +14,7 @@ import type {
 } from './some_test_exports.js'; // this is long and preserved
 import type {E3a, E3b} from './some_test_exports2.js';
 import type E4 from './some_test_exports3.js';
-import './someTestSideEffect.js'; // side effects
+import './some_test_side_effect.js'; // side effects
 
 export interface SomeTestObject {
 	a: number;

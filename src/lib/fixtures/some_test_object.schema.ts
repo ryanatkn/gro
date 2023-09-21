@@ -23,7 +23,7 @@ export const SomeTestObjectSchema: JsonSchema = {
 				`import {type E3a, type E3b} from "./some_test_exports2.js";`,
 				`import type E4 from "./some_test_exports3.js"`,
 				`import "./some_test_exports.js"; // this is long and preserved`, // should be removed
-				`import "./someTestSideEffect.js"; // side effects`, // preserve side effects
+				`import "./some_test_side_effect.js"; // side effects`, // preserve side effects
 				`const a = await import('./asdf.js');`, // ignore dynamic
 				`import  ('asdf', { assert: { type: 'json' }});`, // ignore inline dynamic
 				`import.meta.asdf;`, // ignore `import.meta`
