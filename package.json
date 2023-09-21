@@ -215,6 +215,18 @@
       "default": "./dist/fixtures/baz2/test2.baz.js",
       "types": "./dist/fixtures/baz2/test2.baz.d.ts"
     },
+    "./fixtures/some_test_exports.js": {
+      "default": "./dist/fixtures/some_test_exports.js",
+      "types": "./dist/fixtures/some_test_exports.d.ts"
+    },
+    "./fixtures/some_test_exports2.js": {
+      "default": "./dist/fixtures/some_test_exports2.js",
+      "types": "./dist/fixtures/some_test_exports2.d.ts"
+    },
+    "./fixtures/some_test_exports3.js": {
+      "default": "./dist/fixtures/some_test_exports3.js",
+      "types": "./dist/fixtures/some_test_exports3.d.ts"
+    },
     "./fixtures/some_test_json.json": {
       "default": "./dist/fixtures/some_test_json.json"
     },
@@ -229,18 +241,6 @@
     "./fixtures/some_test_side_effect.js": {
       "default": "./dist/fixtures/some_test_side_effect.js",
       "types": "./dist/fixtures/some_test_side_effect.d.ts"
-    },
-    "./fixtures/some_text_exports.js": {
-      "default": "./dist/fixtures/some_text_exports.js",
-      "types": "./dist/fixtures/some_text_exports.d.ts"
-    },
-    "./fixtures/some_text_exports2.js": {
-      "default": "./dist/fixtures/some_text_exports2.js",
-      "types": "./dist/fixtures/some_text_exports2.d.ts"
-    },
-    "./fixtures/some_text_exports3.js": {
-      "default": "./dist/fixtures/some_text_exports3.js",
-      "types": "./dist/fixtures/some_text_exports3.d.ts"
     },
     "./fixtures/test_failing_task_module.js": {
       "default": "./dist/fixtures/test_failing_task_module.js",
