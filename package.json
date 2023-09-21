@@ -17,11 +17,7 @@
     "url": "git+https://github.com/grogarden/gro.git"
   },
   "bugs": {
-<<<<<<< HEAD
     "url": "https://github.com/grogarden/gro/issues",
-=======
-    "url": "https://github.com/feltjs/gro/issues",
->>>>>>> main
     "email": "mail@ryanatkn.com"
   },
   "type": "module",
