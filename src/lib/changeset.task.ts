@@ -7,6 +7,7 @@ import {readFile, writeFile} from 'node:fs/promises';
 import type {Task} from './task/task.js';
 import {exists} from './util/exists.js';
 import {dirname} from 'node:path';
+import {load_package_json} from './util/package_json.js';
 
 const RESTRICTED_ACCESS = 'restricted';
 const PUBLIC_ACCESS = 'public';
@@ -19,9 +20,9 @@ export const Args = z
 		path: z.string({description: 'changeset config file path'}).default(CHANGESET_CONFIG_PATH),
 		access: z
 			.union([z.literal(RESTRICTED_ACCESS), z.literal(PUBLIC_ACCESS)], {
-				description: 'changeset "access" config value, `AccessType`',
+				description: `changeset "access" config value, ${PUBLIC_ACCESS} or ${RESTRICTED_ACCESS} depending on package.json#private`,
 			})
-			.default(PUBLIC_ACCESS),
+			.optional(),
 		changelog: z
 			.string({description: 'changeset "changelog" config value'})
 			.default('@changesets/changelog-git'),
@@ -38,7 +39,7 @@ export const task: Task<Args> = {
 	Args,
 	run: async (ctx): Promise<void> => {
 		const {
-			args: {_: changeset_args, path, access, changelog, install},
+			args: {_: changeset_args, path, access: access_arg, changelog, install},
 			log,
 		} = ctx;
 
@@ -46,6 +47,9 @@ export const task: Task<Args> = {
 
 		if (!inited) {
 			await spawn('npx', ['changeset', 'init']);
+
+			const access =
+				access_arg ?? (await load_package_json()).private ? RESTRICTED_ACCESS : PUBLIC_ACCESS;
 
 			const access_color = access === RESTRICTED_ACCESS ? blue : red;
 			log.info('initing changeset with ' + access_color(access) + ' access');
