@@ -7,6 +7,7 @@ What is a `Task`? See [`task.md`](./task.md).
 ## all tasks
 
 - [build](../build.task.ts) - build the project
+- [changeset](../changeset.task.ts) - call changeset with gro patterns
 - [check](../check.task.ts) - check that everything is ready to commit
 - [clean](../clean.task.ts) - remove temporary dev and build files, and optionally prune git branches
 - [commit](../commit.task.ts) - commit and push to a new branch
