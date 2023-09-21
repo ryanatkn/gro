@@ -1,5 +1,11 @@
 # @grogarden/gro
 
+## 0.82.8
+
+### Patch Changes
+
+- 5262967: always init config
+
 ## 0.82.7
 
 ### Patch Changes
