@@ -23,7 +23,7 @@ test__validate_task_module.run();
 const test__load_task_module = suite('load_task_module');
 
 test__load_task_module('basic behavior', async () => {
-	const name = 'task/fixtures/test_task_module.task_fixture.js';
+	const name = 'fixtures/test_task_module.task_fixture.js';
 	const id = resolve('src/lib/' + name);
 	const result = await load_task_module(id);
 	assert.ok(result.ok);
