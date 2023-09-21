@@ -1,4 +1,4 @@
-import {toArray} from '@feltjs/util/array.js';
+import {toArray} from '@grogarden/util/array.js';
 
 import type {TaskContext} from './task.js';
 

@@ -2,8 +2,8 @@ import {
 	compile,
 	type Options as JsonSchemaToTypeScriptOptions,
 } from '@ryanatkn/json-schema-to-typescript';
-import {stripEnd} from '@feltjs/util/string.js';
-import {traverse} from '@feltjs/util/object.js';
+import {stripEnd} from '@grogarden/util/string.js';
+import {traverse} from '@grogarden/util/object.js';
 
 import type {GenContext, RawGenResult} from './gen.js';
 import {

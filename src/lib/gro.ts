@@ -3,7 +3,7 @@
 import {realpath} from 'node:fs/promises';
 import {join, resolve} from 'node:path';
 import {fileURLToPath} from 'node:url';
-import {spawn} from '@feltjs/util/process.js';
+import {spawn} from '@grogarden/util/process.js';
 
 import {exists} from './exists.js';
 import {NODE_MODULES_DIRNAME} from './paths.js';

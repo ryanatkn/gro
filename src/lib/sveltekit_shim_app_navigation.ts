@@ -11,7 +11,7 @@ import type {
 	preloadCode as base_preloadCode,
 	preloadData as base_preloadData,
 } from '$app/navigation';
-import {noop, noop_async} from '@feltjs/util/function.js';
+import {noop, noop_async} from '@grogarden/util/function.js';
 
 export const afterNavigate: typeof base_afterNavigate = noop;
 export const beforeNavigate: typeof base_beforeNavigate = noop;

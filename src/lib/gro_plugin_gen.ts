@@ -2,7 +2,7 @@
 // because we no longer have a normal system build - replace with an esbuild plugin
 // @ts-nocheck
 
-import {spawn} from '@feltjs/util/process.js';
+import {spawn} from '@grogarden/util/process.js';
 
 import type {FilerEvents} from './build/Filer.js';
 import type {Plugin, PluginContext} from './plugin.js';

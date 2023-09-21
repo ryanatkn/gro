@@ -1,5 +1,5 @@
 import type * as esbuild from 'esbuild';
-import {escapeRegexp} from '@feltjs/util/regexp.js';
+import {escapeRegexp} from '@grogarden/util/regexp.js';
 import {cwd} from 'node:process';
 import {join} from 'node:path';
 

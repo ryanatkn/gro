@@ -1,5 +1,5 @@
-import {spawn, type SpawnResult} from '@feltjs/util/process.js';
-import type {Logger} from '@feltjs/util/log.js';
+import {spawn, type SpawnResult} from '@grogarden/util/process.js';
+import type {Logger} from '@grogarden/util/log.js';
 
 import {
 	GITHUB_DIRNAME,

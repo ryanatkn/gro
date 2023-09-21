@@ -1,8 +1,8 @@
 import glob from 'tiny-glob';
 import {stat} from 'node:fs/promises';
-import {sortMap, compareSimpleMapEntries} from '@feltjs/util/map.js';
-import {stripEnd, stripStart} from '@feltjs/util/string.js';
-import {EMPTY_OBJECT} from '@feltjs/util/object.js';
+import {sortMap, compareSimpleMapEntries} from '@grogarden/util/map.js';
+import {stripEnd, stripStart} from '@grogarden/util/string.js';
+import {EMPTY_OBJECT} from '@grogarden/util/object.js';
 
 import type {PathStats, PathFilter} from './path.js';
 

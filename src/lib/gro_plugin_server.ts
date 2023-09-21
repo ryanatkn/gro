@@ -1,10 +1,10 @@
-import {spawnRestartableProcess, type RestartableProcess} from '@feltjs/util/process.js';
+import {spawnRestartableProcess, type RestartableProcess} from '@grogarden/util/process.js';
 import * as esbuild from 'esbuild';
 import {cwd} from 'node:process';
 import type {Config as SvelteKitConfig} from '@sveltejs/kit';
 import {join, resolve} from 'node:path';
-import {identity} from '@feltjs/util/function.js';
-import {stripBefore} from '@feltjs/util/string.js';
+import {identity} from '@grogarden/util/function.js';
+import {stripBefore} from '@grogarden/util/string.js';
 
 import type {Plugin, PluginContext} from './plugin.js';
 import {BUILD_DEV_DIRNAME, BUILD_DIST_DIRNAME, paths, type SourceId} from './paths.js';

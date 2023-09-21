@@ -1,5 +1,5 @@
 import {z} from 'zod';
-import {plural} from '@feltjs/util/string.js';
+import {plural} from '@grogarden/util/string.js';
 
 import {TaskError, type Task} from './task.js';
 import {search_fs} from './search_fs.js';

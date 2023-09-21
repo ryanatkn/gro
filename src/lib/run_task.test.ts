@@ -1,6 +1,6 @@
 import {suite} from 'uvu';
 import * as assert from 'uvu/assert';
-import {Timings} from '@feltjs/util/timings.js';
+import {Timings} from '@grogarden/util/timings.js';
 
 import {run_task} from './run_task.js';
 import {load_config} from './config.js';

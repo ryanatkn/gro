@@ -1,7 +1,7 @@
 import {cyan, gray, green, red} from 'kleur/colors';
-import type {Logger} from '@feltjs/util/log.js';
-import {plural} from '@feltjs/util/string.js';
-import {printValue} from '@feltjs/util/print.js';
+import type {Logger} from '@grogarden/util/log.js';
+import {plural} from '@grogarden/util/string.js';
+import {printValue} from '@grogarden/util/print.js';
 import {ZodFirstPartyTypeKind, type ZodObjectDef, type ZodTypeAny, type ZodTypeDef} from 'zod';
 
 import type {ArgSchema} from './args.js';

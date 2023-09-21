@@ -1,4 +1,4 @@
-import {wait} from '@feltjs/util/async.js';
+import {wait} from '@grogarden/util/async.js';
 import {test} from 'uvu';
 import * as assert from 'uvu/assert';
 

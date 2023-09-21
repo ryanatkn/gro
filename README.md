@@ -239,7 +239,7 @@ Gro builds on
 [mri](https://github.com/lukeed/mri) ∙
 [chokidar](https://github.com/paulmillr/chokidar) ∙
 [zod](https://github.com/colinhacks/zod) ∙
-[@feltjs/util](https://github.com/feltjs/util) ∙
+[@grogarden/util](https://github.com/grogarden/util) ∙
 [ESLint](https://github.com/eslint/eslint) ∙
 [Prettier](https://github.com/prettier/prettier) ∙
 [svelte-check](https://github.com/sveltejs/language-tools/tree/master/packages/svelte-check) ∙

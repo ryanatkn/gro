@@ -1,4 +1,4 @@
-import {spawn, spawnProcess, type SpawnedProcess} from '@feltjs/util/process.js';
+import {spawn, spawnProcess, type SpawnedProcess} from '@grogarden/util/process.js';
 
 import type {Plugin, PluginContext} from './plugin.js';
 import {print_command_args, serialize_args, to_forwarded_args} from './args.js';

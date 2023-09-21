@@ -1,5 +1,5 @@
 import {z} from 'zod';
-import {spawn} from '@feltjs/util/process.js';
+import {spawn} from '@grogarden/util/process.js';
 import {red, blue} from 'kleur/colors';
 import type {WrittenConfig} from '@changesets/types';
 import {readFile, writeFile} from 'node:fs/promises';

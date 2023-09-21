@@ -1,5 +1,5 @@
 import {join} from 'node:path';
-import type {Json} from '@feltjs/util/json.js';
+import type {Json} from '@grogarden/util/json.js';
 import {readFile, writeFile} from 'node:fs/promises';
 
 import {

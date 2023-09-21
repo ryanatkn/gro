@@ -1,5 +1,5 @@
 import * as esbuild from 'esbuild';
-import type {Logger} from '@feltjs/util/log.js';
+import type {Logger} from '@grogarden/util/log.js';
 import {basename} from 'node:path';
 import {cwd} from 'node:process';
 import type {CompileOptions, PreprocessorGroup} from 'svelte/compiler';

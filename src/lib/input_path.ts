@@ -1,5 +1,5 @@
 import {join, isAbsolute, basename} from 'node:path';
-import {stripEnd, stripStart} from '@feltjs/util/string.js';
+import {stripEnd, stripStart} from '@grogarden/util/string.js';
 import {stat} from 'node:fs/promises';
 
 import {

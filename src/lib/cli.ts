@@ -1,5 +1,5 @@
 import {execSync, type SpawnOptions} from 'node:child_process';
-import {spawn, type SpawnResult} from '@feltjs/util/process.js';
+import {spawn, type SpawnResult} from '@grogarden/util/process.js';
 import {join} from 'node:path';
 
 import {exists} from './exists.js';

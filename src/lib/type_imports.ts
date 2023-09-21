@@ -1,4 +1,4 @@
-import {stripEnd, stripStart} from '@feltjs/util/string.js';
+import {stripEnd, stripStart} from '@grogarden/util/string.js';
 import * as lexer from 'es-module-lexer';
 
 import {format_file} from './format_file.js';

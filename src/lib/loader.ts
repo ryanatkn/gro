@@ -12,7 +12,7 @@ import {fileURLToPath, pathToFileURL} from 'node:url';
 import {dirname, join, relative} from 'node:path';
 import {cwd} from 'node:process';
 import type {LoadHook, ResolveHook} from 'node:module';
-import {escapeRegexp} from '@feltjs/util/regexp.js';
+import {escapeRegexp} from '@grogarden/util/regexp.js';
 
 import {render_env_shim_module} from './sveltekit_shim_env.js';
 import {
