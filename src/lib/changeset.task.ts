@@ -20,10 +20,14 @@ export const Args = z
 			.union([z.literal(RESTRICTED_ACCESS), z.literal(PUBLIC_ACCESS)], {
 				description: 'changeset "access" config value, `AccessType`',
 			})
-			.default(RESTRICTED_ACCESS),
+			.default(PUBLIC_ACCESS),
 		changelog: z
 			.string({description: 'changeset "changelog" config value'})
 			.default('@changesets/changelog-git'),
+		install: z.boolean({description: 'dual of no-install'}).default(true),
+		'no-install': z
+			.boolean({description: 'opt out of npm installing the changelog package'})
+			.default(false),
 	})
 	.strict();
 export type Args = z.infer<typeof Args>;
@@ -33,7 +37,7 @@ export const task: Task<Args> = {
 	Args,
 	run: async (ctx): Promise<void> => {
 		const {
-			args: {_: changset_args, path, access, changelog},
+			args: {_: changset_args, path, access, changelog, install},
 			log,
 		} = ctx;
 
@@ -51,8 +55,10 @@ export const task: Task<Args> = {
 					updated.changelog = changelog;
 					return updated;
 				});
+			}
 
-				await spawn('npm', ['i', '-D', '@changesets/changelog-git']);
+			if (install) {
+				await spawn('npm', ['i', '-D', changelog]);
 			}
 		}
 
