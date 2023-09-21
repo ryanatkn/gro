@@ -6,7 +6,7 @@
     "gro": "./dist/cli/gro.js"
   },
   "license": "MIT",
-  "homepage": "https://github.com/feltjs/gro#readme",
+  "homepage": "https://www.grogarden.org/",
   "author": {
     "name": "Ryan Atkinson",
     "email": "mail@ryanatkn.com",
