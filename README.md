@@ -192,7 +192,7 @@ gro deploy # build and push to the `deploy` branch
 To publish: (also see [`src/lib/docs/publish.md`](/src/lib/docs/publish.md))
 
 ```bash
-gro publish # flush changesets, bump version, publish to npm, and git push
+gro publish # flush changeset to changelog, bump version, publish to npm, and git push
 ```
 
 Etc:
