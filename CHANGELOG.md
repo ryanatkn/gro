@@ -1,5 +1,11 @@
 # @feltjs/gro
 
+## 0.82.9
+
+### Patch Changes
+
+- 71ea36f: infer the `gro changeset` access arg from `package.json#private`
+
 ## 0.82.8
 
 ### Patch Changes
