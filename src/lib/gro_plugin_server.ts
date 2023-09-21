@@ -4,7 +4,7 @@ import {cwd} from 'node:process';
 import type {Config as SvelteKitConfig} from '@sveltejs/kit';
 import {join, resolve} from 'node:path';
 import {identity} from '@grogarden/util/function.js';
-import {stripBefore} from '@grogarden/util/string.js';
+import {strip_before} from '@grogarden/util/string.js';
 
 import type {Plugin, PluginContext} from './plugin.js';
 import {BUILD_DEV_DIRNAME, BUILD_DIST_DIRNAME, paths, type SourceId} from './paths.js';
@@ -232,7 +232,7 @@ export const plugin = ({
 const parse_deps = (metafile_inputs: Record<string, unknown>, dir: string): Set<string> => {
 	const deps = new Set<string>();
 	for (const key in metafile_inputs) {
-		deps.add(resolve(dir, stripBefore(key, ':')));
+		deps.add(resolve(dir, strip_before(key, ':')));
 	}
 	return deps;
 };

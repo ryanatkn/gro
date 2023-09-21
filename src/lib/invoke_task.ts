@@ -1,7 +1,7 @@
 import {cyan, red, gray} from 'kleur/colors';
-import {Logger, SystemLogger, printLogLabel} from '@grogarden/util/log.js';
-import {createStopwatch, Timings} from '@grogarden/util/timings.js';
-import {printMs, printTimings} from '@grogarden/util/print.js';
+import {Logger, SystemLogger, print_log_label} from '@grogarden/util/log.js';
+import {create_stopwatch, Timings} from '@grogarden/util/timings.js';
+import {print_ms, print_timings} from '@grogarden/util/print.js';
 
 import {to_forwarded_args, type Args} from './args.js';
 import {run_task} from './run_task.js';
@@ -46,10 +46,10 @@ export const invoke_task = async (
 	maybe_config?: GroConfig,
 	timings = new Timings(),
 ): Promise<void> => {
-	const log = new SystemLogger(printLogLabel(task_name || 'gro'));
+	const log = new SystemLogger(print_log_label(task_name || 'gro'));
 	log.info('invoking', task_name ? cyan(task_name) : 'gro');
 
-	const total_timing = createStopwatch();
+	const total_timing = create_stopwatch();
 
 	// Always load the config unless it's a param, so users can rely on it as an init hook.
 	const config = maybe_config || (await load_config());
@@ -58,7 +58,7 @@ export const invoke_task = async (
 	if (!task_name && (args.version || args.v)) {
 		const gro_package_json = await load_gro_package_json();
 		log.info(`${gray('v')}${cyan(gro_package_json.version as string)}`);
-		log.info(`🕒 ${printMs(total_timing())}`);
+		log.info(`🕒 ${print_ms(total_timing())}`);
 		return;
 	}
 
@@ -170,8 +170,8 @@ export const invoke_task = async (
 		process.exit(1);
 	}
 
-	printTimings(timings, log);
-	log.info(`🕒 ${printMs(total_timing())}`);
+	print_timings(timings, log);
+	log.info(`🕒 ${print_ms(total_timing())}`);
 };
 
 const to_gro_dir_find_modules_result = async (input_path: string, log: Logger) => {

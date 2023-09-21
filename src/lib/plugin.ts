@@ -1,4 +1,4 @@
-import {toArray} from '@grogarden/util/array.js';
+import {to_array} from '@grogarden/util/array.js';
 
 import type {TaskContext} from './task.js';
 
@@ -37,7 +37,7 @@ export class Plugins<TPluginContext extends PluginContext> {
 	): Promise<Plugins<TPluginContext>> {
 		const {timings} = ctx;
 		const timing_to_create = timings.start('plugins.create');
-		const instances: Plugin[] = toArray(await ctx.config.plugins(ctx)).filter(Boolean) as any;
+		const instances: Plugin[] = to_array(await ctx.config.plugins(ctx)).filter(Boolean) as any;
 		const plugins = new Plugins(ctx, instances);
 		timing_to_create();
 		return plugins;

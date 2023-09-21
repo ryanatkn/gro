@@ -1,5 +1,5 @@
 import {red} from 'kleur/colors';
-import {printError} from '@grogarden/util/print.js';
+import {print_error} from '@grogarden/util/print.js';
 import type {Timings} from '@grogarden/util/timings.js';
 import type {Logger} from '@grogarden/util/log.js';
 import {UnreachableError} from '@grogarden/util/error.js';
@@ -83,7 +83,7 @@ export const run_gen = async (
 							} catch (err) {
 								log.error(
 									red(`Error formatting ${print_path(file.id)} via ${print_path(id)}`),
-									printError(err),
+									print_error(err),
 								);
 								return file;
 							}

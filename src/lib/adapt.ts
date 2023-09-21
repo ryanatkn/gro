@@ -1,4 +1,4 @@
-import {toArray} from '@grogarden/util/array.js';
+import {to_array} from '@grogarden/util/array.js';
 
 import type {TaskContext} from './task.js';
 
@@ -30,7 +30,7 @@ export interface AdapterContext<TArgs = any> extends TaskContext<TArgs> {}
 export const adapt = async (ctx: AdapterContext): Promise<Adapter[]> => {
 	const {config, timings} = ctx;
 	const timing_to_create_adapters = timings.start('create adapters');
-	const adapters: Array<Adapter<any>> = toArray(await config.adapters(ctx)).filter(
+	const adapters: Array<Adapter<any>> = to_array(await config.adapters(ctx)).filter(
 		Boolean,
 	) as Array<Adapter<any>>;
 	timing_to_create_adapters();

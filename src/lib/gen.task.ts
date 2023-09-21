@@ -1,5 +1,5 @@
 import {red, green, gray} from 'kleur/colors';
-import {printMs, printError} from '@grogarden/util/print.js';
+import {print_ms, print_error} from '@grogarden/util/print.js';
 import {plural} from '@grogarden/util/string.js';
 import {z} from 'zod';
 import {dirname} from 'node:path';
@@ -118,7 +118,7 @@ export const task: Task<Args> = {
 		for (const result of gen_results.results) {
 			logResult += `\n\t${result.ok ? green('✓') : red('🞩')}  ${
 				result.ok ? result.files.length : 0
-			} ${gray('in')} ${printMs(result.elapsed)} ${gray('←')} ${print_path(result.id)}`;
+			} ${gray('in')} ${print_ms(result.elapsed)} ${gray('←')} ${print_path(result.id)}`;
 		}
 		log.info(logResult);
 		log.info(
@@ -131,7 +131,7 @@ export const task: Task<Args> = {
 
 		if (failCount) {
 			for (const result of gen_results.failures) {
-				log.error(result.reason, '\n', printError(result.error));
+				log.error(result.reason, '\n', print_error(result.error));
 			}
 			throw new TaskError(`Failed to generate ${failCount} file${plural(failCount)}.`);
 		}

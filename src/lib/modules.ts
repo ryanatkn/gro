@@ -2,7 +2,7 @@ import {red} from 'kleur/colors';
 import type {Timings} from '@grogarden/util/timings.js';
 import {UnreachableError} from '@grogarden/util/error.js';
 import type {Result} from '@grogarden/util/result.js';
-import {printError} from '@grogarden/util/print.js';
+import {print_error} from '@grogarden/util/print.js';
 
 import {load_source_path_data_by_input_path, load_source_ids_by_input_path} from './input_path.js';
 import type {PathData} from './path.js';
@@ -163,7 +163,7 @@ export const load_modules = async <
 							`Module import ${print_path(id, paths_from_id(id))} failed from input ${print_path(
 								input_path,
 								paths_from_id(input_path),
-							)}: ${printError(result.error)}`,
+							)}: ${print_error(result.error)}`,
 						);
 						break;
 					}

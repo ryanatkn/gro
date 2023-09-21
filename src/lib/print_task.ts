@@ -1,7 +1,7 @@
 import {cyan, gray, green, red} from 'kleur/colors';
 import type {Logger} from '@grogarden/util/log.js';
 import {plural} from '@grogarden/util/string.js';
-import {printValue} from '@grogarden/util/print.js';
+import {print_value} from '@grogarden/util/print.js';
 import {ZodFirstPartyTypeKind, type ZodObjectDef, type ZodTypeAny, type ZodTypeDef} from 'zod';
 
 import type {ArgSchema} from './args.js';
@@ -74,13 +74,13 @@ export const print_task_help = (log: Logger, meta: TaskModuleMeta): void => {
 			to_max_length(properties, (p) => p.name),
 		);
 		const longest_type = to_max_length(properties, (p) => p.schema.type);
-		const longest_default = to_max_length(properties, (p) => printValue(p.schema.default));
+		const longest_default = to_max_length(properties, (p) => print_value(p.schema.default));
 		for (const property of properties) {
 			const name = property.name === '_' ? ARGS_PROPERTY_NAME : property.name;
 			printed.push(
 				`\n${green(pad(name, longest_task_name))} `,
 				gray(pad(property.schema.type, longest_type)) + ' ',
-				pad(printValue(property.schema.default), longest_default) + ' ',
+				pad(print_value(property.schema.default), longest_default) + ' ',
 				property.schema.description || '(no description available)',
 			);
 		}

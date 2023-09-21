@@ -1,5 +1,5 @@
 import {dirname, relative, basename} from 'node:path';
-import {toPathParts, toPathSegments} from '@grogarden/util/path-parsing.js';
+import {parse_path_parts, parse_path_segments} from '@grogarden/util/path.js';
 import {strip_start} from '@grogarden/util/string.js';
 
 import {type Gen, to_output_file_name} from '../gen.js';
@@ -27,7 +27,7 @@ export const gen: Gen = async ({origin_id, log}) => {
 	const tasks = result.modules;
 
 	// TODO need to get this from project config or something
-	const root_path = toPathSegments(paths.root).at(-1);
+	const root_path = parse_path_segments(paths.root).at(-1);
 
 	const origin_dir = dirname(origin_id);
 	const origin_base = basename(origin_id);
@@ -44,9 +44,9 @@ export const gen: Gen = async ({origin_id, log}) => {
 
 	// TODO do we want to use absolute paths instead of relative paths,
 	// because GitHub works with them and it simplifies the code?
-	const path_parts = toPathParts(relative_dir).map(
+	const path_parts = parse_path_parts(relative_dir).map(
 		(relative_path_part) =>
-			`[${toPathSegments(relative_path_part).at(-1)}](${
+			`[${parse_path_segments(relative_path_part).at(-1)}](${
 				relative(origin_dir, base_path_to_source_id(relative_path_part)) || './'
 			})`,
 	);
