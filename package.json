@@ -215,32 +215,32 @@
       "default": "./dist/fixtures/baz2/test2.baz.js",
       "types": "./dist/fixtures/baz2/test2.baz.d.ts"
     },
-    "./fixtures/some_test_exports.js": {
-      "default": "./dist/fixtures/some_test_exports.js",
-      "types": "./dist/fixtures/some_test_exports.d.ts"
+    "./fixtures/some_test_json.json": {
+      "default": "./dist/fixtures/some_test_json.json"
     },
-    "./fixtures/some_test_exports2.js": {
-      "default": "./dist/fixtures/some_test_exports2.js",
-      "types": "./dist/fixtures/some_test_exports2.d.ts"
+    "./fixtures/some_test_object.schema.js": {
+      "default": "./dist/fixtures/some_test_object.schema.js",
+      "types": "./dist/fixtures/some_test_object.schema.d.ts"
     },
-    "./fixtures/some_test_exports3.js": {
-      "default": "./dist/fixtures/some_test_exports3.js",
-      "types": "./dist/fixtures/some_test_exports3.d.ts"
+    "./fixtures/some_test_object.js": {
+      "default": "./dist/fixtures/some_test_object.js",
+      "types": "./dist/fixtures/some_test_object.d.ts"
     },
-    "./fixtures/someTestJson.json": {
-      "default": "./dist/fixtures/someTestJson.json"
+    "./fixtures/some_test_side_effect.js": {
+      "default": "./dist/fixtures/some_test_side_effect.js",
+      "types": "./dist/fixtures/some_test_side_effect.d.ts"
     },
-    "./fixtures/someTestObject.schema.js": {
-      "default": "./dist/fixtures/someTestObject.schema.js",
-      "types": "./dist/fixtures/someTestObject.schema.d.ts"
+    "./fixtures/some_text_exports.js": {
+      "default": "./dist/fixtures/some_text_exports.js",
+      "types": "./dist/fixtures/some_text_exports.d.ts"
     },
-    "./fixtures/someTestObject.js": {
-      "default": "./dist/fixtures/someTestObject.js",
-      "types": "./dist/fixtures/someTestObject.d.ts"
+    "./fixtures/some_text_exports2.js": {
+      "default": "./dist/fixtures/some_text_exports2.js",
+      "types": "./dist/fixtures/some_text_exports2.d.ts"
     },
-    "./fixtures/someTestSideEffect.js": {
-      "default": "./dist/fixtures/someTestSideEffect.js",
-      "types": "./dist/fixtures/someTestSideEffect.d.ts"
+    "./fixtures/some_text_exports3.js": {
+      "default": "./dist/fixtures/some_text_exports3.js",
+      "types": "./dist/fixtures/some_text_exports3.d.ts"
     },
     "./fixtures/test_failing_task_module.js": {
       "default": "./dist/fixtures/test_failing_task_module.js",
@@ -257,6 +257,10 @@
       "default": "./dist/fixtures/test_js.js",
       "types": "./dist/fixtures/test_js.d.ts"
     },
+    "./fixtures/test_task_module.task_fixture.js": {
+      "default": "./dist/fixtures/test_task_module.task_fixture.js",
+      "types": "./dist/fixtures/test_task_module.task_fixture.d.ts"
+    },
     "./fixtures/test_ts.js": {
       "default": "./dist/fixtures/test_ts.js",
       "types": "./dist/fixtures/test_ts.d.ts"
@@ -268,10 +272,6 @@
     "./fixtures/test2.foo.js": {
       "default": "./dist/fixtures/test2.foo.js",
       "types": "./dist/fixtures/test2.foo.d.ts"
-    },
-    "./fixtures/testTaskModule.task_fixture.js": {
-      "default": "./dist/fixtures/testTaskModule.task_fixture.js",
-      "types": "./dist/fixtures/testTaskModule.task_fixture.d.ts"
     },
     "./format_directory.js": {
       "default": "./dist/format_directory.js",
