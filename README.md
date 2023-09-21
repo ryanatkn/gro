@@ -105,9 +105,10 @@ gro # prints available tasks - defers to the project's locally installed version
 Run a task: gro [name]
 View help:  gro [name] --help
 
-14 tasks in ./src/lib:
+15 tasks in ./src/lib:
 
 build      build the project
+changeset  call changeset with gro patterns
 check      check that everything is ready to commit
 clean      remove temporary dev and build files, and optionally prune git branches
 commit     commit and push to a new branch
@@ -193,7 +194,7 @@ gro deploy # build and push to the `deploy` branch
 To publish: (also see [`src/lib/docs/publish.md`](/src/lib/docs/publish.md))
 
 ```bash
-gro publish # flush changesets, bump version, publish to npm, and git push
+gro publish # flush changeset to changelog, bump version, publish to npm, and git push
 ```
 
 Etc:
