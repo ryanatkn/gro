@@ -2,4 +2,4 @@
 '@feltjs/gro': patch
 ---
 
-add gro changeset task
+add `gro changeset` task
