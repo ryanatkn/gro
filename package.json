@@ -115,17 +115,17 @@
       "default": "./dist/adapt.js",
       "types": "./dist/adapt.d.ts"
     },
-    "./gro_adapter_library.js": {
-      "default": "./dist/gro_adapter_library.js",
-      "types": "./dist/gro_adapter_library.d.ts"
-    },
-    "./gro_adapter_sveltekit_frontend.js": {
-      "default": "./dist/gro_adapter_sveltekit_frontend.js",
-      "types": "./dist/gro_adapter_sveltekit_frontend.d.ts"
+    "./args.js": {
+      "default": "./dist/args.js",
+      "types": "./dist/args.d.ts"
     },
     "./build.task.js": {
       "default": "./dist/build.task.js",
       "types": "./dist/build.task.d.ts"
+    },
+    "./changeset.task.js": {
+      "default": "./dist/changeset.task.js",
+      "types": "./dist/changeset.task.d.ts"
     },
     "./check.task.js": {
       "default": "./dist/check.task.js",
@@ -135,13 +135,13 @@
       "default": "./dist/clean.task.js",
       "types": "./dist/clean.task.d.ts"
     },
-    "./gro.js": {
-      "default": "./dist/gro.js",
-      "types": "./dist/gro.d.ts"
+    "./clean.js": {
+      "default": "./dist/clean.js",
+      "types": "./dist/clean.d.ts"
     },
-    "./invoke.js": {
-      "default": "./dist/invoke.js",
-      "types": "./dist/invoke.d.ts"
+    "./cli.js": {
+      "default": "./dist/cli.js",
+      "types": "./dist/cli.d.ts"
     },
     "./commit.task.js": {
       "default": "./dist/commit.task.js",
@@ -151,10 +151,6 @@
       "default": "./dist/config.js",
       "types": "./dist/config.d.ts"
     },
-    "./gro.config.default.js": {
-      "default": "./dist/gro.config.default.js",
-      "types": "./dist/gro.config.default.d.ts"
-    },
     "./deploy.task.js": {
       "default": "./dist/deploy.task.js",
       "types": "./dist/deploy.task.d.ts"
@@ -162,118 +158,6 @@
     "./dev.task.js": {
       "default": "./dist/dev.task.js",
       "types": "./dist/dev.task.d.ts"
-    },
-    "./exports.task.js": {
-      "default": "./dist/exports.task.js",
-      "types": "./dist/exports.task.d.ts"
-    },
-    "./format.task.js": {
-      "default": "./dist/format.task.js",
-      "types": "./dist/format.task.d.ts"
-    },
-    "./format_directory.js": {
-      "default": "./dist/format_directory.js",
-      "types": "./dist/format_directory.d.ts"
-    },
-    "./format_file.js": {
-      "default": "./dist/format_file.js",
-      "types": "./dist/format_file.d.ts"
-    },
-    "./gen.task.js": {
-      "default": "./dist/gen.task.js",
-      "types": "./dist/gen.task.d.ts"
-    },
-    "./gen_module.js": {
-      "default": "./dist/gen_module.js",
-      "types": "./dist/gen_module.d.ts"
-    },
-    "./gen_schemas.js": {
-      "default": "./dist/gen_schemas.js",
-      "types": "./dist/gen_schemas.d.ts"
-    },
-    "./gen.js": {
-      "default": "./dist/gen.js",
-      "types": "./dist/gen.d.ts"
-    },
-    "./run_gen.js": {
-      "default": "./dist/run_gen.js",
-      "types": "./dist/run_gen.d.ts"
-    },
-    "./type_imports.js": {
-      "default": "./dist/type_imports.js",
-      "types": "./dist/type_imports.d.ts"
-    },
-    "./lint.task.js": {
-      "default": "./dist/lint.task.js",
-      "types": "./dist/lint.task.d.ts"
-    },
-    "./loader.js": {
-      "default": "./dist/loader.js",
-      "types": "./dist/loader.d.ts"
-    },
-    "./gro_plugin_gen.js": {
-      "default": "./dist/gro_plugin_gen.js",
-      "types": "./dist/gro_plugin_gen.d.ts"
-    },
-    "./gro_plugin_server.js": {
-      "default": "./dist/gro_plugin_server.js",
-      "types": "./dist/gro_plugin_server.d.ts"
-    },
-    "./gro_plugin_sveltekit_frontend.js": {
-      "default": "./dist/gro_plugin_sveltekit_frontend.js",
-      "types": "./dist/gro_plugin_sveltekit_frontend.d.ts"
-    },
-    "./plugin.js": {
-      "default": "./dist/plugin.js",
-      "types": "./dist/plugin.d.ts"
-    },
-    "./publish.task.js": {
-      "default": "./dist/publish.task.js",
-      "types": "./dist/publish.task.d.ts"
-    },
-    "./args.js": {
-      "default": "./dist/args.js",
-      "types": "./dist/args.d.ts"
-    },
-    "./invoke_task.js": {
-      "default": "./dist/invoke_task.js",
-      "types": "./dist/invoke_task.d.ts"
-    },
-    "./print_task.js": {
-      "default": "./dist/print_task.js",
-      "types": "./dist/print_task.d.ts"
-    },
-    "./run_task.js": {
-      "default": "./dist/run_task.js",
-      "types": "./dist/run_task.d.ts"
-    },
-    "./task_module.js": {
-      "default": "./dist/task_module.js",
-      "types": "./dist/task_module.d.ts"
-    },
-    "./task.js": {
-      "default": "./dist/task.js",
-      "types": "./dist/task.d.ts"
-    },
-    "./test.task.js": {
-      "default": "./dist/test.task.js",
-      "types": "./dist/test.task.d.ts"
-    },
-    "./typecheck.task.js": {
-      "default": "./dist/typecheck.task.js",
-      "types": "./dist/typecheck.task.d.ts"
-    },
-    "./upgrade.task.js": {
-      "default": "./dist/upgrade.task.js",
-      "types": "./dist/upgrade.task.d.ts"
-    },
-    "./clean.js": {
-      "default": "./dist/clean.js",
-      "types": "./dist/clean.d.ts"
-    },
-    "./cli.js": {
-      "default": "./dist/cli.js",
-      "types": "./dist/cli.d.ts"
     },
     "./env.js": {
       "default": "./dist/env.js",
@@ -311,6 +195,140 @@
       "default": "./dist/exists.js",
       "types": "./dist/exists.d.ts"
     },
+    "./exports.task.js": {
+      "default": "./dist/exports.task.js",
+      "types": "./dist/exports.task.d.ts"
+    },
+    "./fixtures/bar1/test1.bar.js": {
+      "default": "./dist/fixtures/bar1/test1.bar.js",
+      "types": "./dist/fixtures/bar1/test1.bar.d.ts"
+    },
+    "./fixtures/bar2/test2.bar.js": {
+      "default": "./dist/fixtures/bar2/test2.bar.js",
+      "types": "./dist/fixtures/bar2/test2.bar.d.ts"
+    },
+    "./fixtures/baz1/test1.baz.js": {
+      "default": "./dist/fixtures/baz1/test1.baz.js",
+      "types": "./dist/fixtures/baz1/test1.baz.d.ts"
+    },
+    "./fixtures/baz2/test2.baz.js": {
+      "default": "./dist/fixtures/baz2/test2.baz.js",
+      "types": "./dist/fixtures/baz2/test2.baz.d.ts"
+    },
+    "./fixtures/someTestExports.js": {
+      "default": "./dist/fixtures/someTestExports.js",
+      "types": "./dist/fixtures/someTestExports.d.ts"
+    },
+    "./fixtures/someTestExports2.js": {
+      "default": "./dist/fixtures/someTestExports2.js",
+      "types": "./dist/fixtures/someTestExports2.d.ts"
+    },
+    "./fixtures/someTestExports3.js": {
+      "default": "./dist/fixtures/someTestExports3.js",
+      "types": "./dist/fixtures/someTestExports3.d.ts"
+    },
+    "./fixtures/someTestJson.json": {
+      "default": "./dist/fixtures/someTestJson.json"
+    },
+    "./fixtures/someTestObject.schema.js": {
+      "default": "./dist/fixtures/someTestObject.schema.js",
+      "types": "./dist/fixtures/someTestObject.schema.d.ts"
+    },
+    "./fixtures/someTestObject.js": {
+      "default": "./dist/fixtures/someTestObject.js",
+      "types": "./dist/fixtures/someTestObject.d.ts"
+    },
+    "./fixtures/someTestSideEffect.js": {
+      "default": "./dist/fixtures/someTestSideEffect.js",
+      "types": "./dist/fixtures/someTestSideEffect.d.ts"
+    },
+    "./fixtures/test_file.other.ext": {
+      "default": "./dist/fixtures/test_file.other.ext"
+    },
+    "./fixtures/test_js.js": {
+      "default": "./dist/fixtures/test_js.js",
+      "types": "./dist/fixtures/test_js.d.ts"
+    },
+    "./fixtures/test_ts.js": {
+      "default": "./dist/fixtures/test_ts.js",
+      "types": "./dist/fixtures/test_ts.d.ts"
+    },
+    "./fixtures/test1.foo.js": {
+      "default": "./dist/fixtures/test1.foo.js",
+      "types": "./dist/fixtures/test1.foo.d.ts"
+    },
+    "./fixtures/test2.foo.js": {
+      "default": "./dist/fixtures/test2.foo.js",
+      "types": "./dist/fixtures/test2.foo.d.ts"
+    },
+    "./fixtures/testFailingTaskModule.js": {
+      "default": "./dist/fixtures/testFailingTaskModule.js",
+      "types": "./dist/fixtures/testFailingTaskModule.d.ts"
+    },
+    "./fixtures/testInvalidTaskModule.js": {
+      "default": "./dist/fixtures/testInvalidTaskModule.js",
+      "types": "./dist/fixtures/testInvalidTaskModule.d.ts"
+    },
+    "./fixtures/testTaskModule.taskFixture.js": {
+      "default": "./dist/fixtures/testTaskModule.taskFixture.js",
+      "types": "./dist/fixtures/testTaskModule.taskFixture.d.ts"
+    },
+    "./format_directory.js": {
+      "default": "./dist/format_directory.js",
+      "types": "./dist/format_directory.d.ts"
+    },
+    "./format_file.js": {
+      "default": "./dist/format_file.js",
+      "types": "./dist/format_file.d.ts"
+    },
+    "./format.task.js": {
+      "default": "./dist/format.task.js",
+      "types": "./dist/format.task.d.ts"
+    },
+    "./gen_module.js": {
+      "default": "./dist/gen_module.js",
+      "types": "./dist/gen_module.d.ts"
+    },
+    "./gen_schemas.js": {
+      "default": "./dist/gen_schemas.js",
+      "types": "./dist/gen_schemas.d.ts"
+    },
+    "./gen.task.js": {
+      "default": "./dist/gen.task.js",
+      "types": "./dist/gen.task.d.ts"
+    },
+    "./gen.js": {
+      "default": "./dist/gen.js",
+      "types": "./dist/gen.d.ts"
+    },
+    "./gro_adapter_library.js": {
+      "default": "./dist/gro_adapter_library.js",
+      "types": "./dist/gro_adapter_library.d.ts"
+    },
+    "./gro_adapter_sveltekit_frontend.js": {
+      "default": "./dist/gro_adapter_sveltekit_frontend.js",
+      "types": "./dist/gro_adapter_sveltekit_frontend.d.ts"
+    },
+    "./gro_plugin_gen.js": {
+      "default": "./dist/gro_plugin_gen.js",
+      "types": "./dist/gro_plugin_gen.d.ts"
+    },
+    "./gro_plugin_server.js": {
+      "default": "./dist/gro_plugin_server.js",
+      "types": "./dist/gro_plugin_server.d.ts"
+    },
+    "./gro_plugin_sveltekit_frontend.js": {
+      "default": "./dist/gro_plugin_sveltekit_frontend.js",
+      "types": "./dist/gro_plugin_sveltekit_frontend.d.ts"
+    },
+    "./gro.config.default.js": {
+      "default": "./dist/gro.config.default.js",
+      "types": "./dist/gro.config.default.d.ts"
+    },
+    "./gro.js": {
+      "default": "./dist/gro.js",
+      "types": "./dist/gro.d.ts"
+    },
     "./hash.js": {
       "default": "./dist/hash.js",
       "types": "./dist/hash.d.ts"
@@ -318,6 +336,22 @@
     "./input_path.js": {
       "default": "./dist/input_path.js",
       "types": "./dist/input_path.d.ts"
+    },
+    "./invoke_task.js": {
+      "default": "./dist/invoke_task.js",
+      "types": "./dist/invoke_task.d.ts"
+    },
+    "./invoke.js": {
+      "default": "./dist/invoke.js",
+      "types": "./dist/invoke.d.ts"
+    },
+    "./lint.task.js": {
+      "default": "./dist/lint.task.js",
+      "types": "./dist/lint.task.d.ts"
+    },
+    "./loader.js": {
+      "default": "./dist/loader.js",
+      "types": "./dist/loader.d.ts"
     },
     "./module.js": {
       "default": "./dist/module.js",
@@ -339,9 +373,29 @@
       "default": "./dist/paths.js",
       "types": "./dist/paths.d.ts"
     },
+    "./plugin.js": {
+      "default": "./dist/plugin.js",
+      "types": "./dist/plugin.d.ts"
+    },
+    "./print_task.js": {
+      "default": "./dist/print_task.js",
+      "types": "./dist/print_task.d.ts"
+    },
+    "./publish.task.js": {
+      "default": "./dist/publish.task.js",
+      "types": "./dist/publish.task.d.ts"
+    },
     "./resolve_specifier.js": {
       "default": "./dist/resolve_specifier.js",
       "types": "./dist/resolve_specifier.d.ts"
+    },
+    "./run_gen.js": {
+      "default": "./dist/run_gen.js",
+      "types": "./dist/run_gen.d.ts"
+    },
+    "./run_task.js": {
+      "default": "./dist/run_task.js",
+      "types": "./dist/run_task.d.ts"
     },
     "./schema.js": {
       "default": "./dist/schema.js",
@@ -387,9 +441,33 @@
       "default": "./dist/sveltekit_sync.js",
       "types": "./dist/sveltekit_sync.d.ts"
     },
+    "./task_module.js": {
+      "default": "./dist/task_module.js",
+      "types": "./dist/task_module.d.ts"
+    },
+    "./task.js": {
+      "default": "./dist/task.js",
+      "types": "./dist/task.d.ts"
+    },
+    "./test.task.js": {
+      "default": "./dist/test.task.js",
+      "types": "./dist/test.task.d.ts"
+    },
     "./throttle.js": {
       "default": "./dist/throttle.js",
       "types": "./dist/throttle.d.ts"
+    },
+    "./type_imports.js": {
+      "default": "./dist/type_imports.js",
+      "types": "./dist/type_imports.d.ts"
+    },
+    "./typecheck.task.js": {
+      "default": "./dist/typecheck.task.js",
+      "types": "./dist/typecheck.task.d.ts"
+    },
+    "./upgrade.task.js": {
+      "default": "./dist/upgrade.task.js",
+      "types": "./dist/upgrade.task.d.ts"
     },
     "./watch_dir.js": {
       "default": "./dist/watch_dir.js",

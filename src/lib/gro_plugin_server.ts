@@ -4,6 +4,7 @@ import {cwd} from 'node:process';
 import type {Config as SvelteKitConfig} from '@sveltejs/kit';
 import {join, resolve} from 'node:path';
 import {identity} from '@feltjs/util/function.js';
+import {stripBefore} from '@feltjs/util/string.js';
 
 import type {Plugin, PluginContext} from './plugin.js';
 import {BUILD_DEV_DIRNAME, BUILD_DIST_DIRNAME, paths, type SourceId} from './paths.js';
@@ -17,8 +18,7 @@ import {esbuild_plugin_external_worker} from './esbuild_plugin_external_worker.j
 import {esbuild_plugin_sveltekit_local_imports} from './esbuild_plugin_sveltekit_local_imports.js';
 import {exists} from './exists.js';
 import {esbuild_plugin_svelte} from './esbuild_plugin_svelte.js';
-import {stripBefore} from '@feltjs/util/string.js';
-import {throttle} from '$lib/throttle.js';
+import {throttle} from './throttle.js';
 
 // TODO sourcemap as a hoisted option? disable for production by default - or like `outpaths`, passed a `dev` param
 
