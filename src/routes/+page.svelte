@@ -3,18 +3,16 @@
 </script>
 
 <div class="markup">
+	<div class="box"><blockquote>task runner and toolkit extending SvelteKit</blockquote></div>
 	<p>
-		Gro previously had a dev server with an experimental frontend for visualizing and working with
-		build data. And then SvelteKit and Vite came along!
-	</p>
-	<p>
-		It was removed in <a href="https://github.com/grogarden/gro/pull/321">PR #321</a> and is
-		archived here:
-		<a href="https://github.com/spiderspace/gro/tree/archive/devserver"
-			>https://github.com/spiderspace/gro/tree/archive/devserver</a
+		Welcome to Gro, this is a work in progress. <a href="https://github.com/grogarden/gro"
+			>https://github.com/grogarden/gro</a
 		>
 	</p>
-	<p>Vite plugins should be used going forward.</p>
+</div>
+<div hidden>
+	Mastodon verification:
+	<a rel="me" href="https://hci.social/@ryanatkn">@ryanatkn@hci.social</a>
 </div>
 
 <style>
