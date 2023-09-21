@@ -1,8 +1,8 @@
 import {red} from 'kleur/colors';
-import type {Timings} from '@feltjs/util/timings.js';
-import {UnreachableError} from '@feltjs/util/error.js';
-import type {Result} from '@feltjs/util/result.js';
-import {printError} from '@feltjs/util/print.js';
+import type {Timings} from '@grogarden/util/timings.js';
+import {UnreachableError} from '@grogarden/util/error.js';
+import type {Result} from '@grogarden/util/result.js';
+import {printError} from '@grogarden/util/print.js';
 
 import {load_source_path_data_by_input_path, load_source_ids_by_input_path} from './input_path.js';
 import type {PathData} from './path.js';

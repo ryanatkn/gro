@@ -1,22 +1,49 @@
 <script lang="ts">
+	import {base} from '$app/paths';
+
 	// TODO add website, rewriting the markdown docs as Svelte
 </script>
 
-<div class="markup">
-	<div class="box"><blockquote>task runner and toolkit extending SvelteKit</blockquote></div>
-	<p>
-		Welcome to Gro, this is a work in progress. <a href="https://github.com/grogarden/gro"
-			>https://github.com/grogarden/gro</a
-		>
-	</p>
-</div>
-<div hidden>
-	Mastodon verification:
-	<a rel="me" href="https://hci.social/@ryanatkn">@ryanatkn@hci.social</a>
-</div>
+<main>
+	<h1>gro</h1>
+	<div class="prose">
+		<div class="box spaced">
+			<blockquote>
+				task runner and toolkit extending <a href="https://kit.svelte.dev/">SvelteKit</a>
+			</blockquote>
+		</div>
+		<div class="chip spaced">work in progress!</div>
+	</div>
+	<div hidden>
+		Mastodon verification:
+		<a rel="me" href="https://hci.social/@ryanatkn">@ryanatkn@hci.social</a>
+	</div>
+	<footer>
+		<a class="panel padded_md box" href="https://github.com/grogarden/gro">
+			<img
+				alt="a pixelated green oak acorn with a glint of sun"
+				class="spaced"
+				src="{base}/favicon.png"
+				style:width="var(--icon_size_lg)"
+				style:height="var(--icon_size_lg)"
+			/>
+			<div>source code</div>
+		</a>
+	</footer>
+</main>
 
 <style>
-	.markup {
+	main {
+		margin: 0 auto;
+		max-width: var(--width_md);
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+	}
+	.prose {
 		padding: 20px;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
 	}
 </style>

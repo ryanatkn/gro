@@ -1,5 +1,5 @@
 import {yellow, red} from 'kleur/colors';
-import type {Logger} from '@feltjs/util/log.js';
+import type {Logger} from '@grogarden/util/log.js';
 import type * as esbuild from 'esbuild';
 
 import type {ParsedSveltekitConfig} from './sveltekit_config.js';

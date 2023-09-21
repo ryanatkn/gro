@@ -1,4 +1,4 @@
-import {stripEnd} from '@feltjs/util/string.js';
+import {stripEnd} from '@grogarden/util/string.js';
 import {mkdir, writeFile} from 'node:fs/promises';
 
 import type {Adapter} from './adapt.js';

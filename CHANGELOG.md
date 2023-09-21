@@ -98,7 +98,7 @@
 
 ## 0.79.0
 
-- **break**: upgrade to `@feltjs/util@0.9.0` and peer dep `svelte@4`,
+- **break**: upgrade to `@grogarden/util@0.9.0` and peer dep `svelte@4`,
   and change peer deps to avoid breaking changes
   ([#378](https://github.com/feltjs/gro/pull/378))
 
@@ -172,19 +172,19 @@
 
 ## 0.73.0
 
-- **break**: upgrade dep `@feltjs/util@0.8.0` and `esbuild@0.17.0`
+- **break**: upgrade dep `@grogarden/util@0.8.0` and `esbuild@0.17.0`
   ([#366](https://github.com/feltjs/gro/pull/366))
 - `npm i` before `gro build`, add `--no-install` flag to override
   ([#365](https://github.com/feltjs/gro/pull/365))
 
 ## 0.72.0
 
-- **break**: upgrade dep `@feltjs/util@0.7.4`
+- **break**: upgrade dep `@grogarden/util@0.7.4`
   ([commit](https://github.com/feltjs/gro/commit/731007d1533f981e524e318c00af3a6fa861e909))
 
 ## 0.71.0
 
-- **break**: upgrade dep `@feltjs/util@0.6.0`
+- **break**: upgrade dep `@grogarden/util@0.6.0`
   ([#364](https://github.com/feltjs/gro/pull/364))
 
 ## 0.70.5
@@ -197,7 +197,7 @@
 
 ## 0.70.3
 
-- upgrade `@feltjs/util`
+- upgrade `@grogarden/util`
   ([#362](https://github.com/feltjs/gro/pull/362))
 
 ## 0.70.2
@@ -252,7 +252,7 @@
 
 ## 0.67.0
 
-- upgrade `@feltjs/util@0.3.0`
+- upgrade `@grogarden/util@0.3.0`
 
 ## 0.66.1
 
@@ -260,12 +260,12 @@
 
 ## 0.66.0
 
-- **break**: upgrade `@feltjs/util`
+- **break**: upgrade `@grogarden/util`
   ([#356](https://github.com/feltjs/gro/pull/356))
 
 ## 0.65.0
 
-- **break**: depend on `@feltjs/util` instead of `@feltjs/felt-ui`
+- **break**: depend on `@grogarden/util` instead of `@feltjs/felt-ui`
   ([#355](https://github.com/feltjs/gro/pull/355))
 
 ## 0.64.0

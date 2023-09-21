@@ -1,8 +1,8 @@
 import {join, basename, extname, relative} from 'node:path';
 import {fileURLToPath} from 'node:url';
-import {stripEnd, stripStart} from '@feltjs/util/string.js';
+import {stripEnd, stripStart} from '@grogarden/util/string.js';
 import {gray} from 'kleur/colors';
-import type {Flavored} from '@feltjs/util/types.js';
+import type {Flavored} from '@grogarden/util/types.js';
 
 // TODO for Windows support we might need to change every `/` here to `sep`? https://github.com/grogarden/gro/issues/319
 

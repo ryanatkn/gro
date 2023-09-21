@@ -1,4 +1,4 @@
-import {traverse} from '@feltjs/util/object.js';
+import {traverse} from '@grogarden/util/object.js';
 import type {JSONSchema} from '@ryanatkn/json-schema-to-typescript';
 import type {ResolverOptions} from 'json-schema-ref-parser';
 

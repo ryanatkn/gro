@@ -1,4 +1,4 @@
-import {attachProcessErrorHandlers} from '@feltjs/util/process.js';
+import {attachProcessErrorHandlers} from '@grogarden/util/process.js';
 import {sveltekit_sync} from '../util/sveltekit_sync.js';
 
 import {invoke_task} from '../task/invoke_task.js';

@@ -1,8 +1,8 @@
 import {suite} from 'uvu';
 import * as assert from 'uvu/assert';
 import {resolve, join} from 'node:path';
-import {Logger} from '@feltjs/util/log.js';
-import {Timings} from '@feltjs/util/timings.js';
+import {Logger} from '@grogarden/util/log.js';
+import {Timings} from '@grogarden/util/timings.js';
 
 import type {GenModuleMeta} from './gen_module.js';
 import {run_gen} from './run_gen.js';

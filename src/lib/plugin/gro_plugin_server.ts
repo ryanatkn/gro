@@ -1,9 +1,9 @@
-import {spawnRestartableProcess, type RestartableProcess} from '@feltjs/util/process.js';
+import {spawnRestartableProcess, type RestartableProcess} from '@grogarden/util/process.js';
 import * as esbuild from 'esbuild';
 import {cwd} from 'node:process';
 import type {Config as SvelteKitConfig} from '@sveltejs/kit';
 import {join, resolve} from 'node:path';
-import {identity} from '@feltjs/util/function.js';
+import {identity} from '@grogarden/util/function.js';
 
 import type {Plugin, PluginContext} from './plugin.js';
 import {BUILD_DEV_DIRNAME, BUILD_DIST_DIRNAME, paths, type SourceId} from '../util/paths.js';
@@ -17,7 +17,7 @@ import {esbuild_plugin_external_worker} from '../util/esbuild_plugin_external_wo
 import {esbuild_plugin_sveltekit_local_imports} from '../util/esbuild_plugin_sveltekit_local_imports.js';
 import {exists} from '../util/exists.js';
 import {esbuild_plugin_svelte} from '../util/esbuild_plugin_svelte.js';
-import {stripBefore} from '@feltjs/util/string.js';
+import {stripBefore} from '@grogarden/util/string.js';
 import {throttle} from '$lib/util/throttle.js';
 
 // TODO sourcemap as a hoisted option? disable for production by default - or like `outpaths`, passed a `dev` param

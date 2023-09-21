@@ -1,6 +1,6 @@
 import {red, green, gray} from 'kleur/colors';
-import {printMs, printError} from '@feltjs/util/print.js';
-import {plural} from '@feltjs/util/string.js';
+import {printMs, printError} from '@grogarden/util/print.js';
+import {plural} from '@grogarden/util/string.js';
 import {z} from 'zod';
 import {dirname} from 'node:path';
 import {mkdir, writeFile} from 'node:fs/promises';

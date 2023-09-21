@@ -1,10 +1,10 @@
 import {red} from 'kleur/colors';
-import {printError} from '@feltjs/util/print.js';
-import type {Timings} from '@feltjs/util/timings.js';
-import type {Logger} from '@feltjs/util/log.js';
-import {UnreachableError} from '@feltjs/util/error.js';
+import {printError} from '@grogarden/util/print.js';
+import type {Timings} from '@grogarden/util/timings.js';
+import type {Logger} from '@grogarden/util/log.js';
+import {UnreachableError} from '@grogarden/util/error.js';
 import type {Options as JsonSchemaToTypeScriptOptions} from '@ryanatkn/json-schema-to-typescript';
-import {stripEnd} from '@feltjs/util/string.js';
+import {stripEnd} from '@grogarden/util/string.js';
 
 import {
 	GEN_SCHEMA_IDENTIFIER_SUFFIX,

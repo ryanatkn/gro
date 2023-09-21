@@ -1,6 +1,6 @@
 import {dirname, relative, basename} from 'node:path';
-import {toPathParts, toPathSegments} from '@feltjs/util/path-parsing.js';
-import {stripStart} from '@feltjs/util/string.js';
+import {toPathParts, toPathSegments} from '@grogarden/util/path-parsing.js';
+import {stripStart} from '@grogarden/util/string.js';
 
 import {type Gen, to_output_file_name} from '../gen/gen.js';
 import {paths, base_path_to_source_id} from '../util/paths.js';
