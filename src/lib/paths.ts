@@ -1,6 +1,6 @@
 import {join, basename, extname, relative} from 'node:path';
 import {fileURLToPath} from 'node:url';
-import {stripEnd, stripStart} from '@grogarden/util/string.js';
+import {strip_end, strip_start} from '@grogarden/util/string.js';
 import {gray} from 'kleur/colors';
 import type {Flavored} from '@grogarden/util/types.js';
 
@@ -65,7 +65,7 @@ export type BuildId = Flavored<string, 'BuildId'>;
 
 export const create_paths = (root_dir: string): Paths => {
 	// TODO remove reliance on trailing slash towards windows support
-	const root = stripEnd(root_dir, '/') + '/';
+	const root = strip_end(root_dir, '/') + '/';
 	return {
 		root,
 		source: root + SOURCE_DIR,
@@ -83,7 +83,7 @@ export const is_gro_id = (id: string): boolean => id.startsWith(gro_paths.root);
 // TODO maybe infer `p` for the functions that take in ids using `paths_from_id`?
 
 // '/home/me/app/src/foo/bar/baz.ts' → 'src/foo/bar/baz.ts'
-export const to_root_path = (id: string, p = paths): string => stripStart(id, p.root);
+export const to_root_path = (id: string, p = paths): string => strip_start(id, p.root);
 
 // '/home/me/app/src/foo/bar/baz.ts' → 'foo/bar/baz.ts'
 export const source_id_to_base_path = (source_id: SourceId, p = paths): string =>
@@ -110,16 +110,16 @@ export const lib_path_to_import_id = (base_path: string, p = paths): SourceId =>
 // or a `gro/dist/` file id in node_modules when inside another project.
 export const import_id_to_lib_path = (import_id: string, p = paths_from_id(import_id)): string => {
 	if (p.root === gro_paths.root) {
-		const stripped = stripStart(stripStart(import_id, p.lib), gro_sveltekit_dist_dir); // TODO hacky, needs more work to clarify related things
+		const stripped = strip_start(strip_start(import_id, p.lib), gro_sveltekit_dist_dir); // TODO hacky, needs more work to clarify related things
 		const lib_path = is_this_project_gro ? stripped : replace_extension(stripped, '.ts');
 		return lib_path;
 	} else {
-		return stripStart(import_id, p.lib);
+		return strip_start(import_id, p.lib);
 	}
 };
 
 export const to_gro_input_path = (input_path: string): string => {
-	const base_path = input_path === paths.lib.slice(0, -1) ? '' : stripStart(input_path, paths.lib);
+	const base_path = input_path === paths.lib.slice(0, -1) ? '' : strip_start(input_path, paths.lib);
 	return gro_sveltekit_dist_dir + base_path;
 };
 

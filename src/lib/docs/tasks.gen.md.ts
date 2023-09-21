@@ -1,6 +1,6 @@
 import {dirname, relative, basename} from 'node:path';
 import {toPathParts, toPathSegments} from '@grogarden/util/path-parsing.js';
-import {stripStart} from '@grogarden/util/string.js';
+import {strip_start} from '@grogarden/util/string.js';
 
 import {type Gen, to_output_file_name} from '../gen.js';
 import {paths, base_path_to_source_id} from '../paths.js';
@@ -33,7 +33,7 @@ export const gen: Gen = async ({origin_id, log}) => {
 	const origin_base = basename(origin_id);
 
 	const base_dir = paths.source;
-	const relative_path = stripStart(origin_id, base_dir);
+	const relative_path = strip_start(origin_id, base_dir);
 	const relative_dir = dirname(relative_path);
 
 	// TODO should this be passed in the context, like `defaultOutputFileName`?

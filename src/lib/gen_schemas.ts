@@ -2,7 +2,7 @@ import {
 	compile,
 	type Options as JsonSchemaToTypeScriptOptions,
 } from '@ryanatkn/json-schema-to-typescript';
-import {stripEnd} from '@grogarden/util/string.js';
+import {strip_end} from '@grogarden/util/string.js';
 import {traverse} from '@grogarden/util/object.js';
 
 import type {GenContext, RawGenResult} from './gen.js';
@@ -47,7 +47,7 @@ const run_schema_gen = async (
 		const schema = structuredClone(original_schema);
 
 		// Compile the schema to TypeScript.
-		const final_identifier = stripEnd(identifier, GEN_SCHEMA_IDENTIFIER_SUFFIX); // convenient to avoid name collisions
+		const final_identifier = strip_end(identifier, GEN_SCHEMA_IDENTIFIER_SUFFIX); // convenient to avoid name collisions
 		// eslint-disable-next-line no-await-in-loop
 		const result = await compile(schema, final_identifier, {
 			bannerComment: '',

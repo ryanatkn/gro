@@ -4,7 +4,7 @@ import type {Timings} from '@grogarden/util/timings.js';
 import type {Logger} from '@grogarden/util/log.js';
 import {UnreachableError} from '@grogarden/util/error.js';
 import type {Options as JsonSchemaToTypeScriptOptions} from '@ryanatkn/json-schema-to-typescript';
-import {stripEnd} from '@grogarden/util/string.js';
+import {strip_end} from '@grogarden/util/string.js';
 
 import {
 	GEN_SCHEMA_IDENTIFIER_SUFFIX,
@@ -126,7 +126,7 @@ const to_gen_schemas_options = (
 
 // TODO configurable
 export const to_gen_import_path = (id: string): string =>
-	'$' + stripEnd(source_id_to_base_path(id), GEN_SCHEMA_PATH_SUFFIX);
+	'$' + strip_end(source_id_to_base_path(id), GEN_SCHEMA_PATH_SUFFIX);
 
 export const to_gen_context_imports = (gen_modules: GenModuleMeta[]): Record<string, string> => {
 	const imports: Record<string, string> = {};
@@ -134,7 +134,7 @@ export const to_gen_context_imports = (gen_modules: GenModuleMeta[]): Record<str
 		if (gen_module.type === 'schema') {
 			const importPath = to_gen_import_path(gen_module.id);
 			for (const identifier of Object.keys(gen_module.mod)) {
-				const name = stripEnd(identifier, GEN_SCHEMA_IDENTIFIER_SUFFIX);
+				const name = strip_end(identifier, GEN_SCHEMA_IDENTIFIER_SUFFIX);
 				imports[name] = `import type {${name}} from '${importPath}';`;
 			}
 		}

@@ -1,5 +1,5 @@
 import {join, isAbsolute, basename} from 'node:path';
-import {stripEnd, stripStart} from '@grogarden/util/string.js';
+import {strip_end, strip_start} from '@grogarden/util/string.js';
 import {stat} from 'node:fs/promises';
 
 import {
@@ -37,19 +37,19 @@ import {search_fs} from './search_fs.js';
  * In the future we may want to support globbing or regexps.
  */
 export const resolve_input_path = (raw_input_path: string): string => {
-	if (isAbsolute(raw_input_path)) return stripEnd(raw_input_path, '/');
+	if (isAbsolute(raw_input_path)) return strip_end(raw_input_path, '/');
 	// Allow prefix `./` and just remove it if it's there.
-	let base_path = stripEnd(stripStart(raw_input_path, './'), '/');
+	let base_path = strip_end(strip_start(raw_input_path, './'), '/');
 	let paths;
 	// If it's prefixed with `gro/` or exactly `gro`, use the Gro paths.
 	if (is_this_project_gro || (base_path + '/').startsWith(gro_dir_basename)) {
 		paths = gro_paths;
-		base_path = stripEnd(stripStart(base_path + '/', gro_dir_basename), '/');
+		base_path = strip_end(strip_start(base_path + '/', gro_dir_basename), '/');
 	}
 	// Handle `src/lib` by itself without conflicting with `src/libFoo` names.
 	if (base_path === LIB_PATH) base_path = '';
 	// Allow prefix `src/lib/` and just remove it if it's there.
-	base_path = stripStart(base_path, LIB_DIR);
+	base_path = strip_start(base_path, LIB_DIR);
 	return lib_path_to_import_id(base_path, paths);
 };
 
@@ -87,7 +87,7 @@ export const get_possible_source_ids = (
 				// TODO hacky to handle Gro importing its JS tasks from dist/
 				possible_source_ids.push(
 					is_gro_dist
-						? gro_sveltekit_dist_dir + stripStart(possible_source_id, paths.lib)
+						? gro_sveltekit_dist_dir + strip_start(possible_source_id, paths.lib)
 						: replace_root_dir(possible_source_id, root_dir, paths),
 				);
 			}

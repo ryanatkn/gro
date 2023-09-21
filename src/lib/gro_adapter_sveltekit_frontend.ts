@@ -1,4 +1,4 @@
-import {stripEnd} from '@grogarden/util/string.js';
+import {strip_end} from '@grogarden/util/string.js';
 import {mkdir, writeFile} from 'node:fs/promises';
 
 import type {Adapter} from './adapt.js';
@@ -20,7 +20,7 @@ export const create_adapter = ({
 	dir = SVELTEKIT_BUILD_DIRNAME,
 	host_target = 'github_pages',
 }: Options = {}): Adapter => {
-	const output_dir = stripEnd(dir, '/');
+	const output_dir = strip_end(dir, '/');
 	return {
 		name: 'gro_adapter_sveltekit_frontend',
 		adapt: async () => {

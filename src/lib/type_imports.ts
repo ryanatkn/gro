@@ -1,4 +1,4 @@
-import {stripEnd, stripStart} from '@grogarden/util/string.js';
+import {strip_end, strip_start} from '@grogarden/util/string.js';
 import * as lexer from 'es-module-lexer';
 
 import {format_file} from './format_file.js';
@@ -29,7 +29,7 @@ export const normalize_type_imports = async (
 	const path = to_gen_import_path(file_id);
 
 	for (let i = 0; i < formatted_imports.length; i++) {
-		const formatted_import = stripEnd(formatted_imports[i].trim(), ';');
+		const formatted_import = strip_end(formatted_imports[i].trim(), ';');
 		const [parsed] = lexer.parse(formatted_import);
 		if (!parsed.length) {
 			throw Error(`No import found in tsImport: index ${i} in file ${file_id}: ${imports[i]}`);
@@ -101,7 +101,7 @@ const to_import_info = (imp: ParsedImport, file_id: string): ImportInfo => {
 				? raw_before_path
 				: raw_before_path.substring(0, opening_slash_index);
 		const to_default_import = (importStr: string): string =>
-			stripEnd(
+			strip_end(
 				raw_before_opening_slash.substring(importStr.length).split(/\s/u).filter(Boolean)[0] || '',
 				',',
 			);
@@ -166,11 +166,11 @@ const printImportInfo = (info: ImportInfo): string => {
 	}
 	if (hasDefault) {
 		append(
-			'import type ' + stripStart(info.default_value, 'type ') + ` from '${info.path}';` + end,
+			'import type ' + strip_start(info.default_value, 'type ') + ` from '${info.path}';` + end,
 		);
 	}
 	if (info.values.length) {
-		const strippedTypeValues = info.values.map((v) => stripStart(v, 'type '));
+		const strippedTypeValues = info.values.map((v) => strip_start(v, 'type '));
 		append(`import type { ${strippedTypeValues.join(', ')} } from '${info.path}';` + end);
 	}
 	return result;

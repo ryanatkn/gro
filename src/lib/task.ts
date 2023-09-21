@@ -1,5 +1,5 @@
 import type {Logger} from '@grogarden/util/log.js';
-import {stripEnd} from '@grogarden/util/string.js';
+import {strip_end} from '@grogarden/util/string.js';
 import type {z} from 'zod';
 import type {Timings} from '@grogarden/util/timings.js';
 
@@ -33,7 +33,7 @@ export const is_task_path = (path: string): boolean =>
 
 export const to_task_name = (id: SourceId): string => {
 	const lib_path = import_id_to_lib_path(id);
-	const name = stripEnd(stripEnd(lib_path, TASK_FILE_SUFFIX_TS), TASK_FILE_SUFFIX_JS);
+	const name = strip_end(strip_end(lib_path, TASK_FILE_SUFFIX_TS), TASK_FILE_SUFFIX_JS);
 	return name;
 };
 
