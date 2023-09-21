@@ -13,7 +13,7 @@ limitations:
 
 ## about
 
-Gro is an task runner and toolkit
+Gro is a task runner and toolkit
 extending [SvelteKit](https://github.com/sveltejs/kit),
 [Vite](https://github.com/vitejs/vite),
 and [esbuild](https://github.com/evanw/esbuild)
