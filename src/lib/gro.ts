@@ -53,7 +53,7 @@ if (await exists(gro_bin_path)) {
 	// If running Gro inside its own repo, require the local dist.
 	// If the local dist is not yet built it will fall back to the global.
 	const file_path = fileURLToPath(import.meta.url);
-	const base_path = 'dist/cli';
+	const base_path = 'dist';
 	if ((await exists(`${base_path}/gro.js`)) && (await exists(`${base_path}/invoke.js`))) {
 		path = join(file_path, `../../../${base_path}/invoke.js`);
 	} else {
