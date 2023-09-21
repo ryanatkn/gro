@@ -6,9 +6,11 @@ import type {Task} from './task/task.js';
 
 export const Args = z
 	.object({
-		_: z.array(z.string(), {
-			description: 'the git commit message, the same as git commit -m or --message',
-		}),
+		_: z
+			.array(z.string(), {
+				description: 'the git commit message, the same as git commit -m or --message',
+			})
+			.default([]),
 	})
 	.strict();
 export type Args = z.infer<typeof Args>;
