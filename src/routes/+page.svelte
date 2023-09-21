@@ -3,6 +3,7 @@
 </script>
 
 <div class="markup">
+	<div class="box"><blockquote>task runner and toolkit extending SvelteKit</blockquote></div>
 	<p>
 		Welcome to Gro, this is a work in progress. <a href="https://github.com/grogarden/gro"
 			>https://github.com/grogarden/gro</a
