@@ -104,9 +104,10 @@ gro # prints available tasks - defers to the project's locally installed version
 Run a task: gro [name]
 View help:  gro [name] --help
 
-14 tasks in ./src/lib:
+15 tasks in ./src/lib:
 
 build      build the project
+changeset  call changeset with gro patterns
 check      check that everything is ready to commit
 clean      remove temporary dev and build files, and optionally prune git branches
 commit     commit and push to a new branch
