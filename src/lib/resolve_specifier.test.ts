@@ -8,7 +8,7 @@ import {join} from 'node:path';
 /* test__resolve_specifier */
 const test__resolve_specifier = suite('resolve_specifier');
 
-const dir = paths.lib + 'util/fixtures/';
+const dir = paths.lib + 'fixtures/';
 
 test__resolve_specifier(
 	'resolves a specifier to a file that exists with an unknown file extension',

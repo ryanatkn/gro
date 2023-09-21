@@ -29,7 +29,7 @@ test__search_fs('basic behavior', async () => {
 			'baz1/test1.baz.ts',
 			'bar2/test2.bar.ts',
 			'bar1/test1.bar.ts',
-		].map((f) => paths.lib + 'util/fixtures/' + f),
+		].map((f) => paths.lib + 'fixtures/' + f),
 	);
 });
 
