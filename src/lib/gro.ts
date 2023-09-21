@@ -55,7 +55,7 @@ if (await exists(gro_bin_path)) {
 	const file_path = fileURLToPath(import.meta.url);
 	const base_path = 'dist';
 	if ((await exists(`${base_path}/gro.js`)) && (await exists(`${base_path}/invoke.js`))) {
-		path = join(file_path, `../../../${base_path}/invoke.js`);
+		path = join(file_path, `../../${base_path}/invoke.js`);
 	} else {
 		// case 3
 		// Fall back to the version associated with the running CLI.
@@ -65,7 +65,7 @@ if (await exists(gro_bin_path)) {
 
 const result = await spawn('node', [
 	'--loader',
-	join(path, '../../loader.js'),
+	join(path, '../loader.js'),
 	path,
 	...process.argv.slice(2),
 ]);
