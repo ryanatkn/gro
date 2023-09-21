@@ -6,6 +6,7 @@ import {readFile, writeFile} from 'node:fs/promises';
 
 import type {Task} from './task/task.js';
 import {exists} from './util/exists.js';
+import {dirname} from 'node:path';
 
 const RESTRICTED_ACCESS = 'restricted';
 const PUBLIC_ACCESS = 'public';
@@ -37,7 +38,7 @@ export const task: Task<Args> = {
 	Args,
 	run: async (ctx): Promise<void> => {
 		const {
-			args: {_: changset_args, path, access, changelog, install},
+			args: {_: changeset_args, path, access, changelog, install},
 			log,
 		} = ctx;
 
@@ -62,7 +63,9 @@ export const task: Task<Args> = {
 			}
 		}
 
-		await spawn('changeset', changset_args);
+		await spawn('changeset', changeset_args);
+
+		await spawn('git', ['add', dirname(CHANGESET_CONFIG_PATH)]);
 	},
 };
 
