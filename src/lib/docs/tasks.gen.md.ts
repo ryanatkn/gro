@@ -2,10 +2,10 @@ import {dirname, relative, basename} from 'node:path';
 import {toPathParts, toPathSegments} from '@feltjs/util/path-parsing.js';
 import {stripStart} from '@feltjs/util/string.js';
 
-import {type Gen, to_output_file_name} from '../gen/gen.js';
-import {paths, base_path_to_source_id} from '../util/paths.js';
-import {load_task_modules} from '../task/task_module.js';
-import {log_error_reasons} from '../task/print_task.js';
+import {type Gen, to_output_file_name} from './gen.js';
+import {paths, base_path_to_source_id} from './paths.js';
+import {load_task_modules} from './task_module.js';
+import {log_error_reasons} from './print_task.js';
 
 // This is the first simple implementation of Gro's automated docs.
 // It combines Gro's gen and task systems
@@ -73,7 +73,7 @@ ${tasks.reduce(
 ## usage
 
 \`\`\`bash
-$ gro some/task/name
+$ gro some/name
 \`\`\`
 
 ${breadcrumbs}

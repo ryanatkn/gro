@@ -685,7 +685,7 @@
   ([#251](https://github.com/grogarden/gro/pull/251))
 - **break**: disallow running some tasks in development: `gro build`, `gro deploy`, `gro publish`
   ([#251](https://github.com/grogarden/gro/pull/251))
-- rename `src/lib/adapt/adapt.ts` module and improve docs for `adapt` and `plugin`
+- rename `src/lib/adapt.ts` module and improve docs for `adapt` and `plugin`
   ([#250](https://github.com/grogarden/gro/pull/250))
 
 ## 0.33.1
@@ -940,7 +940,7 @@
 - **break**: redesign `gro publish` and `gro deploy`
   ([#187](https://github.com/grogarden/gro/pull/187))
 - **break**: add [`Adapter` system](/src/lib/docs/adapt.md) and
-  [Node library adapter](/src/lib/adapt/gro_adapter_library.ts)
+  [Node library adapter](/src/lib/gro_adapter_library.ts)
   ([#187](https://github.com/grogarden/gro/pull/187))
 - **break**: add a default `"node"` build named `"node"` if one is not defined
   ([#187](https://github.com/grogarden/gro/pull/187))
@@ -1019,16 +1019,16 @@
   - rename `pathExists` to `exists`
   - remove `readJson`
 - add abstract class `Fs` and implement `Memory_Fs`
-  to complement the `fs-extra` implementation at `src/lib/util/node.ts`
+  to complement the `fs-extra` implementation at `src/lib/node.ts`
   ([#173](https://github.com/grogarden/gro/pull/173))
 
 ## 0.19.0
 
 - **break**: extract the `Filesystem` interface and
-  thread it everywhere from `src/lib/cli/invoke.ts` and tests
+  thread it everywhere from `src/lib/invoke.ts` and tests
   ([#171](https://github.com/grogarden/gro/pull/171))
-- **break**: replace `src/lib/util/gitignore.ts` helper `is_gitignored`
-  with `src/lib/util/path_filter.ts` helper `to_path_filter`
+- **break**: replace `src/lib/gitignore.ts` helper `is_gitignored`
+  with `src/lib/path_filter.ts` helper `to_path_filter`
   ([#172](https://github.com/grogarden/gro/pull/172))
 
 ## 0.18.2
@@ -1057,14 +1057,14 @@
 
 ## 0.17.0
 
-- **break**: rename `src/lib/util/equal.ts` module from `deepEqual.ts`
+- **break**: rename `src/lib/equal.ts` module from `deepEqual.ts`
   ([#162](https://github.com/grogarden/gro/pull/162))
 - **break**: rename `Gro_Config_Partial` from `PartialGro_Config`
   and `Build_Config_Partial` from `PartialBuild_Config`
   ([#164](https://github.com/grogarden/gro/pull/164))
 - make serve task work for production SvelteKit builds
   ([#163](https://github.com/grogarden/gro/pull/163))
-- add `src/lib/util/gitignore.ts` with `is_gitignored` and `load_gitignore_filter`
+- add `src/lib/gitignore.ts` with `is_gitignored` and `load_gitignore_filter`
   ([#165](https://github.com/grogarden/gro/pull/165))
 - add helper `to_sveltekit_base_path` to `src/lib/build/sveltekit_helpers.ts`
   ([#163](https://github.com/grogarden/gro/pull/163))
@@ -1095,14 +1095,14 @@
   - default to the `deploy` branch instead of `gh-pages`
 - **break**: rename `to_env_string` and `to_env_number` from `stringFromEnv` and `numberFromEnv`
   ([#158](https://github.com/grogarden/gro/pull/158))
-- add helper `read_dir` to `src/lib/util/node.ts`
+- add helper `read_dir` to `src/lib/node.ts`
   ([#159](https://github.com/grogarden/gro/pull/159))
 
 ## 0.14.0
 
-- **break**: rename `src/lib/util/node.ts` from `src/lib/util/nodeFs.ts`
+- **break**: rename `src/lib/node.ts` from `src/lib/nodeFs.ts`
   ([#154](https://github.com/grogarden/gro/pull/154))
-- **break**: rename `src/lib/util/clean.ts` from `src/lib/util/clean.ts`
+- **break**: rename `src/lib/clean.ts` from `src/lib/clean.ts`
   ([#155](https://github.com/grogarden/gro/pull/155))
 - **break**: rename `to_array` from `ensureArray`
   ([#117](https://github.com/grogarden/gro/pull/117))
@@ -1121,7 +1121,7 @@
   ([#150](https://github.com/grogarden/gro/pull/150))
 - fix false positive Node server detection in default config
   ([#151](https://github.com/grogarden/gro/pull/151))
-- add `get_mime_types` and `get_extensions` returning iterators to `src/lib/util/mime.ts`
+- add `get_mime_types` and `get_extensions` returning iterators to `src/lib/mime.ts`
   ([#149](https://github.com/grogarden/gro/pull/149))
 - improve default asset paths to use registered mime types
   ([#149](https://github.com/grogarden/gro/pull/149))
@@ -1152,7 +1152,7 @@
   so tasks can communicate with each other using a normal Node `EventEmitter`
   ([#143](https://github.com/grogarden/gro/pull/143))
   - events aren't great for everything;
-    this PR also documents a value mapping pattern convention for tasks in `src/lib/task/README.md`
+    this PR also documents a value mapping pattern convention for tasks in `src/lib/README.md`
 - `gro build` now correctly builds only `Build_Config`s that have `dist: true`,
   allowing users to customize the `dist/` output in each `gro build` via `gro.config.ts`
   ([#144](https://github.com/grogarden/gro/pull/144))
@@ -1164,7 +1164,7 @@
 
 ## 0.11.1
 
-- track and clean up child processes in `src/lib/util/process.ts` helpers
+- track and clean up child processes in `src/lib/process.ts` helpers
   and expose the functionality to users as `registerGlobalSpawn`
   ([#141](https://github.com/grogarden/gro/pull/141))
 - add a confirmation prompt to `gro version`
@@ -1220,9 +1220,9 @@
 ## 0.9.0
 
 - **break**: separate the default server and primary Node builds
-  in `src/lib/config/gro.config.default.ts`
+  in `src/lib/gro.config.default.ts`
   ([#131](https://github.com/grogarden/gro/pull/131))
-- **break**: rename `src/lib/util/toObtainable.ts` to `src/lib/util/obtainable.ts` to fit convention
+- **break**: rename `src/lib/toObtainable.ts` to `src/lib/obtainable.ts` to fit convention
   ([#131](https://github.com/grogarden/gro/pull/131))
 - add server auto-restart to `src/lib/dev.task.ts`
   ([#129](https://github.com/grogarden/gro/pull/129))
@@ -1275,9 +1275,9 @@
 
 ## 0.7.1
 
-- rename `src/types.ts` to `src/lib/util/types.ts`
+- rename `src/types.ts` to `src/lib/types.ts`
   ([#115](https://github.com/grogarden/gro/pull/115))
-- add `unwrap` helper to `src/lib/util/types.ts`
+- add `unwrap` helper to `src/lib/types.ts`
   ([#116](https://github.com/grogarden/gro/pull/116))
 
 ## 0.7.0
@@ -1447,12 +1447,12 @@
 ## 0.2.3
 
 - fix external module type declarations by merging
-  `src/lib/util/globalTypes.d.ts` into `src/globalTypes.ts`
+  `src/lib/globalTypes.d.ts` into `src/globalTypes.ts`
   ([#28](https://github.com/grogarden/gro/pull/28))
 
 ## 0.2.2
 
-- export `kleur/colors` from `src/lib/util/terminal.js`
+- export `kleur/colors` from `src/lib/terminal.js`
   ([#27](https://github.com/grogarden/gro/pull/27))
 
 ## 0.2.1

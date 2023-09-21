@@ -1,9 +1,9 @@
 import {printSpawnResult} from '@feltjs/util/process.js';
 import {z} from 'zod';
 
-import {TaskError, type Task} from './task/task.js';
-import {format_directory} from './format/format_directory.js';
-import {paths} from './util/paths.js';
+import {TaskError, type Task} from './task.js';
+import {format_directory} from './format_directory.js';
+import {paths} from './paths.js';
 
 export const Args = z
 	.object({

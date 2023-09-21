@@ -4,8 +4,8 @@ import {red, blue} from 'kleur/colors';
 import type {WrittenConfig} from '@changesets/types';
 import {readFile, writeFile} from 'node:fs/promises';
 
-import type {Task} from './task/task.js';
-import {exists} from './util/exists.js';
+import type {Task} from './task.js';
+import {exists} from './exists.js';
 import {dirname} from 'node:path';
 
 const RESTRICTED_ACCESS = 'restricted';

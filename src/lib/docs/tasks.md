@@ -25,7 +25,7 @@ What is a `Task`? See [`task.md`](./task.md).
 ## usage
 
 ```bash
-$ gro some/task/name
+$ gro some/name
 ```
 
 > <sub>[gro](/../..) / [lib](..) / [docs](./) / tasks.md</sub>

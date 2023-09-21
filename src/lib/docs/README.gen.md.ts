@@ -2,9 +2,9 @@ import {dirname, relative, basename} from 'node:path';
 import {toPathParts, toPathSegments} from '@feltjs/util/path-parsing.js';
 import {stripStart} from '@feltjs/util/string.js';
 
-import {type Gen, to_output_file_name} from '../gen/gen.js';
-import {paths, base_path_to_source_id} from '../util/paths.js';
-import {search_fs} from '../util/search_fs.js';
+import {type Gen, to_output_file_name} from './gen.js';
+import {paths, base_path_to_source_id} from './paths.js';
+import {search_fs} from './search_fs.js';
 
 // This renders a simple index of a possibly nested directory of files.
 

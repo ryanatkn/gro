@@ -25,7 +25,7 @@ More flexibility is available when needed
 including multiple custom output files.
 
 `gen` is implemented as [a task](/src/lib/gen.task.ts)
-and [a plugin](/src/lib/plugin/gro_plugin_gen.ts),
+and [a plugin](/src/lib/gro_plugin_gen.ts),
 and runs only during development, not for production builds.
 
 Normally you'll want to commit generated files to git,
@@ -118,12 +118,12 @@ export const SomeObjectSchema: JsonSchema = {
 		a: {type: 'number'},
 		b: {type: 'string'},
 		c: {$ref: '/schemas/SomeOtherObject'},
-		d: {type: 'object', tsType: 'Dep', tsImport: `import type {Dep} from '../dep.js'`},
+		d: {type: 'object', tsType: 'Dep', tsImport: `import type {Dep} from './dep.js'`},
 		e: {
 			type: 'object',
 			tsType: 'SomeGeneric<Dep>',
 			tsImport: [
-				`import type {Dep} from '../dep.js'`,
+				`import type {Dep} from './dep.js'`,
 				`import type {SomeGeneric} from './generic.js'`,
 			],
 		},
@@ -136,7 +136,7 @@ export const SomeObjectSchema: JsonSchema = {
 Outputs `src/something.ts`:
 
 ```ts
-import type {Dep} from '../dep.js';
+import type {Dep} from './dep.js';
 import type {SomeGeneric} from './generic.js';
 
 export interface SomeObject {

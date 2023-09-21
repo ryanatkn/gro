@@ -67,7 +67,7 @@ $ gro some/dir
 ```
 
 > To learn more about the Gro CLI path conventions,
-> see [the `input_paths` comments](../util/input_path.ts)
+> see [the `input_paths` comments](../input_path.ts)
 
 ### run a task
 
@@ -369,4 +369,4 @@ Gro's task runner has many inspirations:
 - [Gulp](https://github.com/gulpjs/gulp)
 - [@mgutz](https://github.com/mgutz)' [Projmate](https://github.com/projmate/projmate-core)
 - [Grunt](https://github.com/gruntjs/grunt)
-- [npm scripts](https://docs.npmjs.com/cli/v8/using-npm/scripts)
+- [npm scripts](https://docs.npmjs.com/v8/using-npm/scripts)

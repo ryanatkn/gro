@@ -3,7 +3,7 @@
   "description": "task runner and toolkit extending SvelteKit",
   "version": "0.82.7",
   "bin": {
-    "gro": "./dist/cli/gro.js"
+    "gro": "./dist/gro.js"
   },
   "license": "MIT",
   "homepage": "https://github.com/grogarden/gro#readme",
@@ -27,7 +27,7 @@
   "scripts": {
     "start": "gro",
     "test": "gro test",
-    "build": "rm -rf .gro dist && svelte-package && chmod +x ./dist/cli/gro.js && npm link -f"
+    "build": "rm -rf .gro dist && svelte-package && chmod +x ./dist/gro.js && npm link -f"
   },
   "keywords": [
     "web",
@@ -111,17 +111,17 @@
       "default": "./dist/index.js",
       "types": "./dist/index.d.ts"
     },
-    "./adapt/adapt.js": {
-      "default": "./dist/adapt/adapt.js",
-      "types": "./dist/adapt/adapt.d.ts"
+    "./adapt.js": {
+      "default": "./dist/adapt.js",
+      "types": "./dist/adapt.d.ts"
     },
-    "./adapt/gro_adapter_library.js": {
-      "default": "./dist/adapt/gro_adapter_library.js",
-      "types": "./dist/adapt/gro_adapter_library.d.ts"
+    "./gro_adapter_library.js": {
+      "default": "./dist/gro_adapter_library.js",
+      "types": "./dist/gro_adapter_library.d.ts"
     },
-    "./adapt/gro_adapter_sveltekit_frontend.js": {
-      "default": "./dist/adapt/gro_adapter_sveltekit_frontend.js",
-      "types": "./dist/adapt/gro_adapter_sveltekit_frontend.d.ts"
+    "./gro_adapter_sveltekit_frontend.js": {
+      "default": "./dist/gro_adapter_sveltekit_frontend.js",
+      "types": "./dist/gro_adapter_sveltekit_frontend.d.ts"
     },
     "./build.task.js": {
       "default": "./dist/build.task.js",
@@ -135,25 +135,25 @@
       "default": "./dist/clean.task.js",
       "types": "./dist/clean.task.d.ts"
     },
-    "./cli/gro.js": {
-      "default": "./dist/cli/gro.js",
-      "types": "./dist/cli/gro.d.ts"
+    "./gro.js": {
+      "default": "./dist/gro.js",
+      "types": "./dist/gro.d.ts"
     },
-    "./cli/invoke.js": {
-      "default": "./dist/cli/invoke.js",
-      "types": "./dist/cli/invoke.d.ts"
+    "./invoke.js": {
+      "default": "./dist/invoke.js",
+      "types": "./dist/invoke.d.ts"
     },
     "./commit.task.js": {
       "default": "./dist/commit.task.js",
       "types": "./dist/commit.task.d.ts"
     },
-    "./config/config.js": {
-      "default": "./dist/config/config.js",
-      "types": "./dist/config/config.d.ts"
+    "./config.js": {
+      "default": "./dist/config.js",
+      "types": "./dist/config.d.ts"
     },
-    "./config/gro.config.default.js": {
-      "default": "./dist/config/gro.config.default.js",
-      "types": "./dist/config/gro.config.default.d.ts"
+    "./gro.config.default.js": {
+      "default": "./dist/gro.config.default.js",
+      "types": "./dist/gro.config.default.d.ts"
     },
     "./deploy.task.js": {
       "default": "./dist/deploy.task.js",
@@ -171,37 +171,37 @@
       "default": "./dist/format.task.js",
       "types": "./dist/format.task.d.ts"
     },
-    "./format/format_directory.js": {
-      "default": "./dist/format/format_directory.js",
-      "types": "./dist/format/format_directory.d.ts"
+    "./format_directory.js": {
+      "default": "./dist/format_directory.js",
+      "types": "./dist/format_directory.d.ts"
     },
-    "./format/format_file.js": {
-      "default": "./dist/format/format_file.js",
-      "types": "./dist/format/format_file.d.ts"
+    "./format_file.js": {
+      "default": "./dist/format_file.js",
+      "types": "./dist/format_file.d.ts"
     },
     "./gen.task.js": {
       "default": "./dist/gen.task.js",
       "types": "./dist/gen.task.d.ts"
     },
-    "./gen/gen_module.js": {
-      "default": "./dist/gen/gen_module.js",
-      "types": "./dist/gen/gen_module.d.ts"
+    "./gen_module.js": {
+      "default": "./dist/gen_module.js",
+      "types": "./dist/gen_module.d.ts"
     },
-    "./gen/gen_schemas.js": {
-      "default": "./dist/gen/gen_schemas.js",
-      "types": "./dist/gen/gen_schemas.d.ts"
+    "./gen_schemas.js": {
+      "default": "./dist/gen_schemas.js",
+      "types": "./dist/gen_schemas.d.ts"
     },
-    "./gen/gen.js": {
-      "default": "./dist/gen/gen.js",
-      "types": "./dist/gen/gen.d.ts"
+    "./gen.js": {
+      "default": "./dist/gen.js",
+      "types": "./dist/gen.d.ts"
     },
-    "./gen/run_gen.js": {
-      "default": "./dist/gen/run_gen.js",
-      "types": "./dist/gen/run_gen.d.ts"
+    "./run_gen.js": {
+      "default": "./dist/run_gen.js",
+      "types": "./dist/run_gen.d.ts"
     },
-    "./gen/type_imports.js": {
-      "default": "./dist/gen/type_imports.js",
-      "types": "./dist/gen/type_imports.d.ts"
+    "./type_imports.js": {
+      "default": "./dist/type_imports.js",
+      "types": "./dist/type_imports.d.ts"
     },
     "./lint.task.js": {
       "default": "./dist/lint.task.js",
@@ -211,49 +211,49 @@
       "default": "./dist/loader.js",
       "types": "./dist/loader.d.ts"
     },
-    "./plugin/gro_plugin_gen.js": {
-      "default": "./dist/plugin/gro_plugin_gen.js",
-      "types": "./dist/plugin/gro_plugin_gen.d.ts"
+    "./gro_plugin_gen.js": {
+      "default": "./dist/gro_plugin_gen.js",
+      "types": "./dist/gro_plugin_gen.d.ts"
     },
-    "./plugin/gro_plugin_server.js": {
-      "default": "./dist/plugin/gro_plugin_server.js",
-      "types": "./dist/plugin/gro_plugin_server.d.ts"
+    "./gro_plugin_server.js": {
+      "default": "./dist/gro_plugin_server.js",
+      "types": "./dist/gro_plugin_server.d.ts"
     },
-    "./plugin/gro_plugin_sveltekit_frontend.js": {
-      "default": "./dist/plugin/gro_plugin_sveltekit_frontend.js",
-      "types": "./dist/plugin/gro_plugin_sveltekit_frontend.d.ts"
+    "./gro_plugin_sveltekit_frontend.js": {
+      "default": "./dist/gro_plugin_sveltekit_frontend.js",
+      "types": "./dist/gro_plugin_sveltekit_frontend.d.ts"
     },
-    "./plugin/plugin.js": {
-      "default": "./dist/plugin/plugin.js",
-      "types": "./dist/plugin/plugin.d.ts"
+    "./plugin.js": {
+      "default": "./dist/plugin.js",
+      "types": "./dist/plugin.d.ts"
     },
     "./publish.task.js": {
       "default": "./dist/publish.task.js",
       "types": "./dist/publish.task.d.ts"
     },
-    "./task/args.js": {
-      "default": "./dist/task/args.js",
-      "types": "./dist/task/args.d.ts"
+    "./args.js": {
+      "default": "./dist/args.js",
+      "types": "./dist/args.d.ts"
     },
-    "./task/invoke_task.js": {
-      "default": "./dist/task/invoke_task.js",
-      "types": "./dist/task/invoke_task.d.ts"
+    "./invoke_task.js": {
+      "default": "./dist/invoke_task.js",
+      "types": "./dist/invoke_task.d.ts"
     },
-    "./task/print_task.js": {
-      "default": "./dist/task/print_task.js",
-      "types": "./dist/task/print_task.d.ts"
+    "./print_task.js": {
+      "default": "./dist/print_task.js",
+      "types": "./dist/print_task.d.ts"
     },
-    "./task/run_task.js": {
-      "default": "./dist/task/run_task.js",
-      "types": "./dist/task/run_task.d.ts"
+    "./run_task.js": {
+      "default": "./dist/run_task.js",
+      "types": "./dist/run_task.d.ts"
     },
-    "./task/task_module.js": {
-      "default": "./dist/task/task_module.js",
-      "types": "./dist/task/task_module.d.ts"
+    "./task_module.js": {
+      "default": "./dist/task_module.js",
+      "types": "./dist/task_module.d.ts"
     },
-    "./task/task.js": {
-      "default": "./dist/task/task.js",
-      "types": "./dist/task/task.d.ts"
+    "./task.js": {
+      "default": "./dist/task.js",
+      "types": "./dist/task.d.ts"
     },
     "./test.task.js": {
       "default": "./dist/test.task.js",
@@ -267,133 +267,133 @@
       "default": "./dist/upgrade.task.js",
       "types": "./dist/upgrade.task.d.ts"
     },
-    "./util/clean.js": {
-      "default": "./dist/util/clean.js",
-      "types": "./dist/util/clean.d.ts"
+    "./clean.js": {
+      "default": "./dist/clean.js",
+      "types": "./dist/clean.d.ts"
     },
-    "./util/cli.js": {
-      "default": "./dist/util/cli.js",
-      "types": "./dist/util/cli.d.ts"
+    "./cli.js": {
+      "default": "./dist/cli.js",
+      "types": "./dist/cli.d.ts"
     },
-    "./util/env.js": {
-      "default": "./dist/util/env.js",
-      "types": "./dist/util/env.d.ts"
+    "./env.js": {
+      "default": "./dist/env.js",
+      "types": "./dist/env.d.ts"
     },
-    "./util/esbuild_helpers.js": {
-      "default": "./dist/util/esbuild_helpers.js",
-      "types": "./dist/util/esbuild_helpers.d.ts"
+    "./esbuild_helpers.js": {
+      "default": "./dist/esbuild_helpers.js",
+      "types": "./dist/esbuild_helpers.d.ts"
     },
-    "./util/esbuild_plugin_external_worker.js": {
-      "default": "./dist/util/esbuild_plugin_external_worker.js",
-      "types": "./dist/util/esbuild_plugin_external_worker.d.ts"
+    "./esbuild_plugin_external_worker.js": {
+      "default": "./dist/esbuild_plugin_external_worker.js",
+      "types": "./dist/esbuild_plugin_external_worker.d.ts"
     },
-    "./util/esbuild_plugin_svelte.js": {
-      "default": "./dist/util/esbuild_plugin_svelte.js",
-      "types": "./dist/util/esbuild_plugin_svelte.d.ts"
+    "./esbuild_plugin_svelte.js": {
+      "default": "./dist/esbuild_plugin_svelte.js",
+      "types": "./dist/esbuild_plugin_svelte.d.ts"
     },
-    "./util/esbuild_plugin_sveltekit_local_imports.js": {
-      "default": "./dist/util/esbuild_plugin_sveltekit_local_imports.js",
-      "types": "./dist/util/esbuild_plugin_sveltekit_local_imports.d.ts"
+    "./esbuild_plugin_sveltekit_local_imports.js": {
+      "default": "./dist/esbuild_plugin_sveltekit_local_imports.js",
+      "types": "./dist/esbuild_plugin_sveltekit_local_imports.d.ts"
     },
-    "./util/esbuild_plugin_sveltekit_shim_alias.js": {
-      "default": "./dist/util/esbuild_plugin_sveltekit_shim_alias.js",
-      "types": "./dist/util/esbuild_plugin_sveltekit_shim_alias.d.ts"
+    "./esbuild_plugin_sveltekit_shim_alias.js": {
+      "default": "./dist/esbuild_plugin_sveltekit_shim_alias.js",
+      "types": "./dist/esbuild_plugin_sveltekit_shim_alias.d.ts"
     },
-    "./util/esbuild_plugin_sveltekit_shim_app.js": {
-      "default": "./dist/util/esbuild_plugin_sveltekit_shim_app.js",
-      "types": "./dist/util/esbuild_plugin_sveltekit_shim_app.d.ts"
+    "./esbuild_plugin_sveltekit_shim_app.js": {
+      "default": "./dist/esbuild_plugin_sveltekit_shim_app.js",
+      "types": "./dist/esbuild_plugin_sveltekit_shim_app.d.ts"
     },
-    "./util/esbuild_plugin_sveltekit_shim_env.js": {
-      "default": "./dist/util/esbuild_plugin_sveltekit_shim_env.js",
-      "types": "./dist/util/esbuild_plugin_sveltekit_shim_env.d.ts"
+    "./esbuild_plugin_sveltekit_shim_env.js": {
+      "default": "./dist/esbuild_plugin_sveltekit_shim_env.js",
+      "types": "./dist/esbuild_plugin_sveltekit_shim_env.d.ts"
     },
-    "./util/exists.js": {
-      "default": "./dist/util/exists.js",
-      "types": "./dist/util/exists.d.ts"
+    "./exists.js": {
+      "default": "./dist/exists.js",
+      "types": "./dist/exists.d.ts"
     },
-    "./util/hash.js": {
-      "default": "./dist/util/hash.js",
-      "types": "./dist/util/hash.d.ts"
+    "./hash.js": {
+      "default": "./dist/hash.js",
+      "types": "./dist/hash.d.ts"
     },
-    "./util/input_path.js": {
-      "default": "./dist/util/input_path.js",
-      "types": "./dist/util/input_path.d.ts"
+    "./input_path.js": {
+      "default": "./dist/input_path.js",
+      "types": "./dist/input_path.d.ts"
     },
-    "./util/module.js": {
-      "default": "./dist/util/module.js",
-      "types": "./dist/util/module.d.ts"
+    "./module.js": {
+      "default": "./dist/module.js",
+      "types": "./dist/module.d.ts"
     },
-    "./util/modules.js": {
-      "default": "./dist/util/modules.js",
-      "types": "./dist/util/modules.d.ts"
+    "./modules.js": {
+      "default": "./dist/modules.js",
+      "types": "./dist/modules.d.ts"
     },
-    "./util/package_json.js": {
-      "default": "./dist/util/package_json.js",
-      "types": "./dist/util/package_json.d.ts"
+    "./package_json.js": {
+      "default": "./dist/package_json.js",
+      "types": "./dist/package_json.d.ts"
     },
-    "./util/path.js": {
-      "default": "./dist/util/path.js",
-      "types": "./dist/util/path.d.ts"
+    "./path.js": {
+      "default": "./dist/path.js",
+      "types": "./dist/path.d.ts"
     },
-    "./util/paths.js": {
-      "default": "./dist/util/paths.js",
-      "types": "./dist/util/paths.d.ts"
+    "./paths.js": {
+      "default": "./dist/paths.js",
+      "types": "./dist/paths.d.ts"
     },
-    "./util/resolve_specifier.js": {
-      "default": "./dist/util/resolve_specifier.js",
-      "types": "./dist/util/resolve_specifier.d.ts"
+    "./resolve_specifier.js": {
+      "default": "./dist/resolve_specifier.js",
+      "types": "./dist/resolve_specifier.d.ts"
     },
-    "./util/schema.js": {
-      "default": "./dist/util/schema.js",
-      "types": "./dist/util/schema.d.ts"
+    "./schema.js": {
+      "default": "./dist/schema.js",
+      "types": "./dist/schema.d.ts"
     },
-    "./util/search_fs.js": {
-      "default": "./dist/util/search_fs.js",
-      "types": "./dist/util/search_fs.d.ts"
+    "./search_fs.js": {
+      "default": "./dist/search_fs.js",
+      "types": "./dist/search_fs.d.ts"
     },
-    "./util/sveltekit_config.js": {
-      "default": "./dist/util/sveltekit_config.js",
-      "types": "./dist/util/sveltekit_config.d.ts"
+    "./sveltekit_config.js": {
+      "default": "./dist/sveltekit_config.js",
+      "types": "./dist/sveltekit_config.d.ts"
     },
-    "./util/sveltekit_shim_app_environment.js": {
-      "default": "./dist/util/sveltekit_shim_app_environment.js",
-      "types": "./dist/util/sveltekit_shim_app_environment.d.ts"
+    "./sveltekit_shim_app_environment.js": {
+      "default": "./dist/sveltekit_shim_app_environment.js",
+      "types": "./dist/sveltekit_shim_app_environment.d.ts"
     },
-    "./util/sveltekit_shim_app_forms.js": {
-      "default": "./dist/util/sveltekit_shim_app_forms.js",
-      "types": "./dist/util/sveltekit_shim_app_forms.d.ts"
+    "./sveltekit_shim_app_forms.js": {
+      "default": "./dist/sveltekit_shim_app_forms.js",
+      "types": "./dist/sveltekit_shim_app_forms.d.ts"
     },
-    "./util/sveltekit_shim_app_navigation.js": {
-      "default": "./dist/util/sveltekit_shim_app_navigation.js",
-      "types": "./dist/util/sveltekit_shim_app_navigation.d.ts"
+    "./sveltekit_shim_app_navigation.js": {
+      "default": "./dist/sveltekit_shim_app_navigation.js",
+      "types": "./dist/sveltekit_shim_app_navigation.d.ts"
     },
-    "./util/sveltekit_shim_app_paths.js": {
-      "default": "./dist/util/sveltekit_shim_app_paths.js",
-      "types": "./dist/util/sveltekit_shim_app_paths.d.ts"
+    "./sveltekit_shim_app_paths.js": {
+      "default": "./dist/sveltekit_shim_app_paths.js",
+      "types": "./dist/sveltekit_shim_app_paths.d.ts"
     },
-    "./util/sveltekit_shim_app_stores.js": {
-      "default": "./dist/util/sveltekit_shim_app_stores.js",
-      "types": "./dist/util/sveltekit_shim_app_stores.d.ts"
+    "./sveltekit_shim_app_stores.js": {
+      "default": "./dist/sveltekit_shim_app_stores.js",
+      "types": "./dist/sveltekit_shim_app_stores.d.ts"
     },
-    "./util/sveltekit_shim_app.js": {
-      "default": "./dist/util/sveltekit_shim_app.js",
-      "types": "./dist/util/sveltekit_shim_app.d.ts"
+    "./sveltekit_shim_app.js": {
+      "default": "./dist/sveltekit_shim_app.js",
+      "types": "./dist/sveltekit_shim_app.d.ts"
     },
-    "./util/sveltekit_shim_env.js": {
-      "default": "./dist/util/sveltekit_shim_env.js",
-      "types": "./dist/util/sveltekit_shim_env.d.ts"
+    "./sveltekit_shim_env.js": {
+      "default": "./dist/sveltekit_shim_env.js",
+      "types": "./dist/sveltekit_shim_env.d.ts"
     },
-    "./util/sveltekit_sync.js": {
-      "default": "./dist/util/sveltekit_sync.js",
-      "types": "./dist/util/sveltekit_sync.d.ts"
+    "./sveltekit_sync.js": {
+      "default": "./dist/sveltekit_sync.js",
+      "types": "./dist/sveltekit_sync.d.ts"
     },
-    "./util/throttle.js": {
-      "default": "./dist/util/throttle.js",
-      "types": "./dist/util/throttle.d.ts"
+    "./throttle.js": {
+      "default": "./dist/throttle.js",
+      "types": "./dist/throttle.d.ts"
     },
-    "./util/watch_dir.js": {
-      "default": "./dist/util/watch_dir.js",
-      "types": "./dist/util/watch_dir.d.ts"
+    "./watch_dir.js": {
+      "default": "./dist/watch_dir.js",
+      "types": "./dist/watch_dir.d.ts"
     }
   }
 }

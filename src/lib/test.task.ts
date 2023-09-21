@@ -1,9 +1,9 @@
 import {yellow} from 'kleur/colors';
 import {z} from 'zod';
 
-import {TaskError, type Task} from './task/task.js';
-import {paths} from './util/paths.js';
-import {find_cli} from './util/cli.js';
+import {TaskError, type Task} from './task.js';
+import {paths} from './paths.js';
+import {find_cli} from './cli.js';
 
 export const Args = z
 	.object({
