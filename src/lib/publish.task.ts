@@ -6,6 +6,7 @@ import {TaskError, type Task} from './task/task.js';
 import {load_package_json} from './util/package_json.js';
 import {find_cli, spawn_cli} from './util/cli.js';
 import {exists} from './util/exists.js';
+import {is_this_project_gro} from './util/paths.js';
 
 // publish.task.ts
 // - usage: `gro publish patch`
@@ -40,6 +41,10 @@ export const task: Task<Args> = {
 		const {branch, changelog, dry, install} = args;
 		if (dry) {
 			log.info(green('dry run!'));
+		}
+
+		if (is_this_project_gro) {
+			await spawn('npm', ['run', 'build']);
 		}
 
 		const changelogExists = await exists(changelog);
