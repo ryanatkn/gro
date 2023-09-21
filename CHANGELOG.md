@@ -1,5 +1,11 @@
 # @feltjs/gro
 
+## 0.82.7
+
+### Patch Changes
+
+- 3ae04c5: add `gro changeset` task
+
 ## 0.82.6
 
 ### Patch Changes
