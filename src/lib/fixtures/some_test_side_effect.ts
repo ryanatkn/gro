@@ -1,3 +1,3 @@
-import type A from './some_text_exports.js';
+import type A from './some_test_exports.js';
 
 export const a: typeof A = {};
