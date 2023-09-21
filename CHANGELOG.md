@@ -1,5 +1,11 @@
 # @grogarden/gro
 
+## 0.83.0
+
+### Minor Changes
+
+- 8fcac65: replace `@feltjs/util` with `@grogarden/util`
+
 ## 0.82.9
 
 ### Patch Changes

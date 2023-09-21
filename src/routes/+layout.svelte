@@ -1,18 +1,14 @@
 <script lang="ts">
-	// make sure TypeScript works
-	type A = 'gro';
-	const name: A = 'gro';
+	import '@fuz.dev/fuz/style.css';
+	import '@fuz.dev/fuz/theme.css';
+
+	import Themed from '@fuz.dev/fuz/Themed.svelte';
 </script>
 
-<main>
-	<h1>{name}</h1>
-	<slot />
-</main>
+<svelte:head>
+	<title>@fuz.dev/template</title>
+</svelte:head>
 
-<style>
-	main {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-	}
-</style>
+<Themed>
+	<slot />
+</Themed>
