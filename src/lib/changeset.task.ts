@@ -68,7 +68,7 @@ export interface UpdateWrittenConfig {
 	(path: string, cb: ChangesetCallback): Promise<boolean>;
 }
 
-// TODO refactor all of this with zod and package_json helpers
+// TODO refactor all of this with zod and package_json helpers - util file helper? JSON parse pluggable
 
 export const update_changeset_config: UpdateWrittenConfig = async (path, cb) => {
 	const config_contents = await load_changeset_config_contents(path);
@@ -89,7 +89,8 @@ export const update_changeset_config: UpdateWrittenConfig = async (path, cb) => 
 export const load_changeset_config = async (): Promise<WrittenConfig> =>
 	JSON.parse(await load_changeset_config_contents(CHANGESET_CONFIG_PATH));
 
-const load_changeset_config_contents = (path: string): Promise<string> => readFile(path, 'utf8');
+export const load_changeset_config_contents = (path: string): Promise<string> =>
+	readFile(path, 'utf8');
 
 export const write_changeset_config = (serialized: string): Promise<void> =>
 	writeFile(CHANGESET_CONFIG_PATH, serialized);
