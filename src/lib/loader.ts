@@ -1,6 +1,6 @@
 /*
 
-usage: node --loader @feltjs/gro/loader.js foo.ts
+usage: node --loader @grogarden/gro/loader.js foo.ts
 
 usage in Gro after `npm run build`: node --loader ./dist/loader.js foo.ts
 

@@ -34,7 +34,7 @@ See [plugin.md](plugin.md) to learn more.
       handling a module import waterfall, locally, and http2 didn't help)
 
 <p align="center">
-  <a href="https://github.com/feltjs/gro">
+  <a href="https://github.com/grogarden/gro">
     <img src="/src/static/favicon.png" width="192" height="192">
   </a>
 </p>

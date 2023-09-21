@@ -34,7 +34,7 @@ ${Object.entries(env)
 	} else {
 		return `// shim for $env/dynamic/${visibility}
 // @see https://github.com/sveltejs/kit/issues/1485
-import {load_env} from '@feltjs/gro/util/env.js';
+import {load_env} from '@grogarden/gro/util/env.js';
 export const env = load_env(${dev}, ${JSON.stringify(visibility)}, ${JSON.stringify(
 			public_prefix,
 		)}, ${JSON.stringify(private_prefix)}, ${JSON.stringify(env_dir)}, ${JSON.stringify(

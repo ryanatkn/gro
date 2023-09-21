@@ -15,7 +15,7 @@ npm login # and follow the instructions
 
 ## using changesets
 
-The [`gro publish` task](https://github.com/feltjs/gro/blob/main/src/lib/publish.task.ts)
+The [`gro publish` task](https://github.com/grogarden/gro/blob/main/src/lib/publish.task.ts)
 integrates with [Changesets](https://github.com/changesets/changesets)
 to publish packages to [npm](https://npmjs.com/). Internally the task calls both
 [`changeset version`](https://github.com/changesets/changesets/blob/main/packages/cli/README.md#version)

@@ -1,24 +1,24 @@
 {
-  "name": "@feltjs/gro",
+  "name": "@grogarden/gro",
   "description": "task runner and toolkit extending SvelteKit",
   "version": "0.82.7",
   "bin": {
     "gro": "./dist/cli/gro.js"
   },
   "license": "MIT",
-  "homepage": "https://github.com/feltjs/gro#readme",
+  "homepage": "https://github.com/grogarden/gro#readme",
   "author": {
-    "name": "Felt Co-op",
-    "email": "team@felt.social",
-    "url": "https://www.felt.social/"
+    "name": "Ryan Atkinson",
+    "email": "mail@ryanatkn.com",
+    "url": "https://www.ryanatkn.com/"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/feltjs/gro.git"
+    "url": "git+https://github.com/grogarden/gro.git"
   },
   "bugs": {
-    "url": "https://github.com/feltjs/gro/issues",
-    "email": "team@felt.social"
+    "url": "https://github.com/grogarden/gro/issues",
+    "email": "mail@ryanatkn.com"
   },
   "type": "module",
   "engines": {

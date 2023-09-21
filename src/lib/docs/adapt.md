@@ -5,8 +5,8 @@ Gro uses `Adapter`s to convert production builds into final artifacts.
 
 Gro has a number of builtin adapters:
 
-- [`@feltjs/gro_adapter_library`](../adapt/gro_adapter_library.ts)
-- [`@feltjs/gro_adapter_sveltekit_frontend `](../adapt/gro_adapter_sveltekit_frontend.ts)
+- [`@grogarden/gro_adapter_library`](../adapt/gro_adapter_library.ts)
+- [`@grogarden/gro_adapter_sveltekit_frontend `](../adapt/gro_adapter_sveltekit_frontend.ts)
 
 Also see [`config.adapt` in the config docs](config.md#adapt)
 and usage in [the default config](../config/gro.config.default.ts).
@@ -60,14 +60,14 @@ In Gro, there's the `adapt` function property,
 a function that returns `Adapter` instances:
 
 ```ts
-import type {GroConfigCreator} from '@feltjs/gro';
+import type {GroConfigCreator} from '@grogarden/gro';
 
 const config: GroConfigCreator = async () => {
 	return {
 		adapt: async () => [
-			(await import('@feltjs/gro/gro_adapter_sveltekit_frontend.js')).create_adapter(),
-			(await import('@feltjs/gro/gro_adapter_library.js')).create_adapter(),
-			(await import('@feltjs/gro/groAdapterApiServer.js')).create_adapter(),
+			(await import('@grogarden/gro/gro_adapter_sveltekit_frontend.js')).create_adapter(),
+			(await import('@grogarden/gro/gro_adapter_library.js')).create_adapter(),
+			(await import('@grogarden/gro/groAdapterApiServer.js')).create_adapter(),
 		],
 
 		// this **does not work**, even though it's simpler!

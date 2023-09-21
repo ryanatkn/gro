@@ -24,7 +24,7 @@ The default export of a Gro config is `GroConfig | GroConfigCreator`.
 Here's how to define a user config that overrides the default adapters and plugins:
 
 ```ts
-import type {GroConfigCreator} from '@feltjs/gro';
+import type {GroConfigCreator} from '@grogarden/gro';
 
 const config: GroConfigCreator = async (default_config) => {
 	const final_config = {

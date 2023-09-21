@@ -6,7 +6,7 @@
 
 limitations:
 
-- [Windows is not yet supported](https://github.com/feltjs/gro/issues/319)
+- [Windows is not yet supported](https://github.com/grogarden/gro/issues/319)
 - Gro has been actively used for years but has few users,
   so you'll likely encounter problems and undesirable limitations --
   please open issues!
@@ -45,7 +45,7 @@ It includes:
   - [configurable plugins](/src/lib/docs/plugin.md) and [adapters](/src/lib/docs/adapt.md)
     to support SvelteKit, auto-restarting Node servers, and other external build processes
     - see the [Gro config docs](/src/lib/docs/config.md) and
-      [the default config](https://github.com/feltjs/gro/blob/main/src/lib/config/gro.config.default.ts)
+      [the default config](https://github.com/grogarden/gro/blob/main/src/lib/config/gro.config.default.ts)
     - see [`@feltjs/felt-template`](https://github.com/feltjs/felt-template)
       for a simple starter project example, and
       [`@feltjs/felt`](https://github.com/feltjs/felt) for a more complex example with custom tasks
@@ -79,13 +79,13 @@ It includes:
 Normally you'll want to install Gro as a dev dependency:
 
 ```bash
-npm i -D @feltjs/gro
+npm i -D @grogarden/gro
 ```
 
 It's handy to install globally too:
 
 ```bash
-npm i -g @feltjs/gro
+npm i -g @grogarden/gro
 ```
 
 ## usage
