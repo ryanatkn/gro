@@ -12,7 +12,10 @@
 				task runner and toolkit extending <a href="https://kit.svelte.dev/">SvelteKit</a>
 			</blockquote>
 		</div>
-		<div class="chip spaced">work in progress!</div>
+		<div class="panel spaced padded_md text_align_center">
+			this website is work in progress!<br />for now docs are in
+			<a href="https://github.com/grogarden/gro">the source repo</a>
+		</div>
 	</div>
 	<div hidden>
 		Mastodon verification:
