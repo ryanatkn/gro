@@ -95,13 +95,10 @@ Running `gro` with no args prints the tasks
 it finds in the current directory along with its default tasks:
 
 ```bash
-gro # prints available tasks - defers to the project's locally installed version of Gro
+gro # prints available tasks - defers to any local gro installation
 ```
 
-<details>
-<summary>[click to see <code>gro</code> output in an empty project]</summary>
-
-```
+```bash
 Run a task: gro [name]
 View help:  gro [name] --help
 
@@ -123,8 +120,6 @@ test       run tests
 typecheck  run tsc on the project without emitting any files
 upgrade    upgrade deps
 ```
-
-</details>
 
 Gro matches your CLI input against its filesystem conventions.
 It tries to do the right thing, where right is helpful but not surprising,
