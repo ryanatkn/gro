@@ -25,5 +25,6 @@ jobs:
           node-version: ${{ matrix.node-version }}
       - run: npm ci
       - run: npm run build
+      - run: rm src/fixtures/**.d.ts # TODO why?
       - run: npx gro check
       - run: npx gro build
