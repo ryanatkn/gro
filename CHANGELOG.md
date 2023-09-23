@@ -1,5 +1,12 @@
 # @grogarden/gro
 
+## 0.84.0
+
+### Minor Changes
+
+- b5174f3: rename to `@grogarden/gro` from `@feltjs/gro`
+- b5174f3: flatten directories
+
 ## 0.83.0
 
 ### Minor Changes
