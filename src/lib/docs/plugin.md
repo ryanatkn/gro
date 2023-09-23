@@ -10,7 +10,7 @@ but it does run with `gro dev --no-watch`.
 
 The API needs to be improved for more advanced usecases,
 currently it offers little flexibility -
-we'll follow the Vite/SvelteKit APIs. (`pre` etc)
+we'll follow the Vite/SvelteKit APIs probably. (`pre` etc)
 
 Gro's builtin plugins:
 
