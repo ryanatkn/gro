@@ -82,7 +82,7 @@ export const task: Task<Args> = {
 			}
 
 			const pkg_after = await load_package_json();
-			version = pkg_after.version as string;
+			version = pkg_after.version!;
 			if (pkgBefore.version === version) {
 				throw new TaskError('changeset version failed: are there any changes?');
 			}

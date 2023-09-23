@@ -60,6 +60,8 @@ export interface Paths {
 }
 
 // TODO upstream to util, and probably add `Path`/`FilePath` and `FileUrl`
+export type Url = Flavored<string, 'Url'>;
+export type Email = Flavored<string, 'Email'>;
 export type SourceId = Flavored<string, 'SourceId'>;
 export type BuildId = Flavored<string, 'BuildId'>;
 
