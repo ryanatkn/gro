@@ -5,6 +5,7 @@ import {resolve} from 'node:path';
 import {validate_task_module, load_task_module, load_task_modules} from './task_module.js';
 import * as actual_test_task_module from './test.task.js';
 
+// TODO if we import directly, svelte-package generates types in `src/fixtures`
 /* eslint-disable no-useless-concat */
 const test_task_module = await import('../fixtures/' + 'test_task_module.task_fixture');
 const test_invalid_task_module = await import('../fixtures/' + 'test_invalid_task_module.js');

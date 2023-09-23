@@ -6,6 +6,7 @@ import {find_modules, load_modules, load_module} from './modules.js';
 import {get_possible_source_ids} from './input_path.js';
 import {search_fs} from './search_fs.js';
 
+// TODO if we import directly, svelte-package generates types in `src/fixtures`
 /* eslint-disable no-useless-concat */
 const modTest1 = await import('../fixtures/' + 'test1.foo.js');
 const modTestBaz1 = await import('../fixtures/' + 'baz1/test1.baz.js');
