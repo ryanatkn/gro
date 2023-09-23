@@ -1,5 +1,11 @@
 # @grogarden/gro
 
+## 0.84.1
+
+### Patch Changes
+
+- edd13f7: fix types in fixtures
+
 ## 0.84.0
 
 ### Minor Changes
