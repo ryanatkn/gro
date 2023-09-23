@@ -16,7 +16,7 @@ const config: GroConfig = {
 			(await import('./src/lib/gro_adapter_sveltekit_frontend.js')).create_adapter({
 				host_target: 'github_pages',
 			}),
-			(await import('./src/lib/gro_adapter_library.js')).create_adapter(),
+			(await import('./src/lib/gro_plugin_library.js')).create_adapter(),
 		]),
 };
 

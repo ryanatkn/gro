@@ -33,7 +33,7 @@ const config: GroConfigCreator = async () => {
 			// (await import('./gro_plugin_gen.js')).plugin(),
 		],
 		adapters: async () => [
-			enable_library ? (await import('./gro_adapter_library.js')).create_adapter() : null,
+			enable_library ? (await import('./gro_plugin_library.js')).create_adapter() : null,
 			enable_sveltekit_frontend
 				? (await import('./gro_adapter_sveltekit_frontend.js')).create_adapter({
 						host_target: enable_server ? 'node' : 'github_pages',
