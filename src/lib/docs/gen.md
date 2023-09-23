@@ -1,7 +1,7 @@
 # gen
 
 > automated codegen by convention for
-> [Gro](https://github.com/feltjs/gro)
+> [Gro](https://github.com/grogarden/gro)
 
 ## motivation
 
@@ -23,7 +23,7 @@ More flexibility is available when needed
 including multiple custom output files.
 
 `gen` is implemented as [a task](/src/lib/gen.task.ts)
-and [a plugin](/src/lib/plugin/gro_plugin_gen.ts),
+and [a plugin](/src/lib/gro_plugin_gen.ts),
 and runs only during development, not for production builds.
 
 Normally you'll want to commit generated files to git,
@@ -85,7 +85,7 @@ gro gen --check # exits with error code 1 if anything is new or different; no-op
 Given `src/script.gen.ts`:
 
 ```ts
-import type {Gen} from '@feltjs/gro';
+import type {Gen} from '@grogarden/gro';
 
 export const gen: Gen = () => {
 	const message = 'generated';
@@ -116,12 +116,12 @@ export const SomeObjectSchema: JsonSchema = {
 		a: {type: 'number'},
 		b: {type: 'string'},
 		c: {$ref: '/schemas/SomeOtherObject'},
-		d: {type: 'object', tsType: 'Dep', tsImport: `import type {Dep} from '../dep.js'`},
+		d: {type: 'object', tsType: 'Dep', tsImport: `import type {Dep} from './dep.js'`},
 		e: {
 			type: 'object',
 			tsType: 'SomeGeneric<Dep>',
 			tsImport: [
-				`import type {Dep} from '../dep.js'`,
+				`import type {Dep} from './dep.js'`,
 				`import type {SomeGeneric} from './generic.js'`,
 			],
 		},
@@ -134,7 +134,7 @@ export const SomeObjectSchema: JsonSchema = {
 Outputs `src/something.ts`:
 
 ```ts
-import type {Dep} from '../dep.js';
+import type {Dep} from './dep.js';
 import type {SomeGeneric} from './generic.js';
 
 export interface SomeObject {
@@ -169,7 +169,7 @@ the default output file name is stripped of its trailing `.ts`.
 Given `src/markup.gen.html.ts`:
 
 ```ts
-import type {Gen} from '@feltjs/gro';
+import type {Gen} from '@grogarden/gro';
 
 export const gen: Gen = () => {
 	const body = 'hi';
@@ -202,7 +202,7 @@ The `gen` function can return an object with custom configuration.
 Given `src/somewhere/originalName.gen.ts`:
 
 ```ts
-import type {Gen} from '@feltjs/gro';
+import type {Gen} from '@grogarden/gro';
 
 export const gen: Gen = () => {
 	const message = 'output path can be relative and name can be anything';
@@ -227,7 +227,7 @@ The `gen` function can also return an array of files.
 Given `src/thing.gen.ts`:
 
 ```ts
-import type {Gen} from '@feltjs/gro';
+import type {Gen} from '@grogarden/gro';
 
 export const gen: Gen = () => {
 	const fieldValue = 1;
@@ -287,7 +287,7 @@ gro gen --check # exits with error code 1 if anything is new or different; no-op
 or in code:
 
 ```ts
-import type {Task} from '@feltjs/gro';
+import type {Task} from '@grogarden/gro';
 
 export const task: Task = {
 	run: async ({args, invoke_task}) => {
@@ -306,7 +306,7 @@ which is called during `gro publish`, and it's recommended in CI.
 - [x] basic functionality
 - [x] format output with Prettier
 - [x] add type generation for `.schema.` files
-- [x] [watch mode and build integration](https://github.com/feltjs/gro/pull/283),
+- [x] [watch mode and build integration](https://github.com/grogarden/gro/pull/283),
       opt out with `watch: false` for expensive gen use cases
 - [ ] properly de-dupe and combine `tsImport` statements for `.schema.` files instead of hacks
 - [ ] change the exported `gen` function to an object with a `summary` and other properties like `watch`

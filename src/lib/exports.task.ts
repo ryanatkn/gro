@@ -1,10 +1,10 @@
 import {z} from 'zod';
 import {plural} from '@grogarden/util/string.js';
 
-import {TaskError, type Task} from './task/task.js';
-import {search_fs} from './util/search_fs.js';
-import {paths} from './util/paths.js';
-import {to_package_exports, update_package_json_exports} from './util/package_json.js';
+import {TaskError, type Task} from './task.js';
+import {search_fs} from './search_fs.js';
+import {paths} from './paths.js';
+import {to_package_exports, update_package_json_exports} from './package_json.js';
 
 export const Args = z
 	.object({

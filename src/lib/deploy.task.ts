@@ -1,14 +1,14 @@
 import {join} from 'node:path';
 import {spawn} from '@grogarden/util/process.js';
-import {printError} from '@grogarden/util/print.js';
+import {print_error} from '@grogarden/util/print.js';
 import {green, red} from 'kleur/colors';
 import {z} from 'zod';
 import {execSync} from 'node:child_process';
 import {copyFile, readdir, rename, rm} from 'node:fs/promises';
 
-import type {Task} from './task/task.js';
-import {GIT_DIRNAME, paths, print_path, SVELTEKIT_BUILD_DIRNAME} from './util/paths.js';
-import {exists} from './util/exists.js';
+import type {Task} from './task.js';
+import {GIT_DIRNAME, paths, print_path, SVELTEKIT_BUILD_DIRNAME} from './paths.js';
+import {exists} from './exists.js';
 
 // docs at ./docs/deploy.md
 
@@ -203,7 +203,7 @@ export const task: Task<Args> = {
 			// Update the initial file.
 			await copyFile(INITIAL_FILE, join(dir, INITIAL_FILE));
 		} catch (err) {
-			log.error(red('build failed'), 'but', green('no changes were made to git'), printError(err));
+			log.error(red('build failed'), 'but', green('no changes were made to git'), print_error(err));
 			if (dry) {
 				log.info(red('dry deploy failed'));
 			}
@@ -241,7 +241,7 @@ export const task: Task<Args> = {
 			await spawn('git', ['commit', '-m', 'deployment'], GIT_ARGS);
 			await spawn('git', ['push', origin, target, '-f'], GIT_ARGS);
 		} catch (err) {
-			log.error(red('updating git failed:'), printError(err));
+			log.error(red('updating git failed:'), print_error(err));
 			await clean_git_worktree();
 			throw Error(`Deploy failed in a bad state: built but not pushed. See the error above.`);
 		}

@@ -1,18 +1,18 @@
 import {red, green, gray} from 'kleur/colors';
-import {printMs, printError} from '@grogarden/util/print.js';
+import {print_ms, print_error} from '@grogarden/util/print.js';
 import {plural} from '@grogarden/util/string.js';
 import {z} from 'zod';
 import {dirname} from 'node:path';
 import {mkdir, writeFile} from 'node:fs/promises';
 
-import {TaskError, type Task} from './task/task.js';
-import {run_gen} from './gen/run_gen.js';
-import {load_gen_module, check_gen_modules, find_gen_modules} from './gen/gen_module.js';
-import {resolve_input_paths} from './util/input_path.js';
-import {load_modules} from './util/modules.js';
-import {format_file} from './format/format_file.js';
-import {print_path} from './util/paths.js';
-import {log_error_reasons} from './task/print_task.js';
+import {TaskError, type Task} from './task.js';
+import {run_gen} from './run_gen.js';
+import {load_gen_module, check_gen_modules, find_gen_modules} from './gen_module.js';
+import {resolve_input_paths} from './input_path.js';
+import {load_modules} from './modules.js';
+import {format_file} from './format_file.js';
+import {print_path} from './paths.js';
+import {log_error_reasons} from './print_task.js';
 
 export const Args = z
 	.object({
@@ -118,7 +118,7 @@ export const task: Task<Args> = {
 		for (const result of gen_results.results) {
 			logResult += `\n\t${result.ok ? green('✓') : red('🞩')}  ${
 				result.ok ? result.files.length : 0
-			} ${gray('in')} ${printMs(result.elapsed)} ${gray('←')} ${print_path(result.id)}`;
+			} ${gray('in')} ${print_ms(result.elapsed)} ${gray('←')} ${print_path(result.id)}`;
 		}
 		log.info(logResult);
 		log.info(
@@ -131,7 +131,7 @@ export const task: Task<Args> = {
 
 		if (failCount) {
 			for (const result of gen_results.failures) {
-				log.error(result.reason, '\n', printError(result.error));
+				log.error(result.reason, '\n', print_error(result.error));
 			}
 			throw new TaskError(`Failed to generate ${failCount} file${plural(failCount)}.`);
 		}

@@ -1,9 +1,9 @@
 import {printSpawnResult} from '@grogarden/util/process.js';
 import {z} from 'zod';
 
-import {TaskError, type Task} from './task/task.js';
-import {print_command_args, serialize_args, to_forwarded_args} from './task/args.js';
-import {find_cli, spawn_cli} from './util/cli.js';
+import {TaskError, type Task} from './task.js';
+import {print_command_args, serialize_args, to_forwarded_args} from './args.js';
+import {find_cli, spawn_cli} from './cli.js';
 
 export const Args = z.object({}).strict();
 export type Args = z.infer<typeof Args>;
@@ -22,7 +22,9 @@ export const task: Task<Args> = {
 			}
 		} else if (await find_cli('tsc')) {
 			// tsc
-			const serialized = serialize_args(to_forwarded_args('tsc'));
+			const forwarded = to_forwarded_args('tsc');
+			if (!forwarded.noEmit) forwarded.noEmit = true;
+			const serialized = serialize_args(forwarded);
 			log.info(print_command_args(['tsc'].concat(serialized)));
 			const svelteCheckResult = await spawn_cli('tsc', serialized);
 			if (!svelteCheckResult?.ok) {

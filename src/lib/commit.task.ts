@@ -2,7 +2,7 @@ import {spawn} from '@grogarden/util/process.js';
 import {z} from 'zod';
 import {execSync} from 'node:child_process';
 
-import type {Task} from './task/task.js';
+import type {Task} from './task.js';
 
 export const Args = z
 	.object({

@@ -1,8 +1,8 @@
 import {spawn} from '@grogarden/util/process.js';
 import {z} from 'zod';
 
-import type {Task} from './task/task.js';
-import {load_package_json, type PackageJson} from './util/package_json.js';
+import type {Task} from './task.js';
+import {load_package_json, type PackageJson} from './package_json.js';
 
 export const Args = z
 	.object({

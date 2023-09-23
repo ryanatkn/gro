@@ -1,6 +1,6 @@
 /*
 
-usage: node --loader @feltjs/gro/loader.js foo.ts
+usage: node --loader @grogarden/gro/loader.js foo.ts
 
 usage in Gro after `npm run build`: node --loader ./dist/loader.js foo.ts
 
@@ -12,20 +12,20 @@ import {fileURLToPath, pathToFileURL} from 'node:url';
 import {dirname, join, relative} from 'node:path';
 import {cwd} from 'node:process';
 import type {LoadHook, ResolveHook} from 'node:module';
-import {escapeRegexp} from '@grogarden/util/regexp.js';
+import {escape_regexp} from '@grogarden/util/regexp.js';
 
-import {render_env_shim_module} from './util/sveltekit_shim_env.js';
+import {render_env_shim_module} from './sveltekit_shim_env.js';
 import {
 	render_sveltekit_shim_app_environment,
 	render_sveltekit_shim_app_paths,
 	sveltekit_shim_app_environment_matcher,
 	sveltekit_shim_app_paths_matcher,
 	sveltekit_shim_app_specifiers,
-} from './util/sveltekit_shim_app.js';
-import {init_sveltekit_config} from './util/sveltekit_config.js';
-import {NODE_MODULES_DIRNAME} from './util/paths.js';
-import {to_define_import_meta_env, ts_transform_options} from './util/esbuild_helpers.js';
-import {resolve_specifier} from './util/resolve_specifier.js';
+} from './sveltekit_shim_app.js';
+import {init_sveltekit_config} from './sveltekit_config.js';
+import {NODE_MODULES_DIRNAME} from './paths.js';
+import {to_define_import_meta_env, ts_transform_options} from './esbuild_helpers.js';
+import {resolve_specifier} from './resolve_specifier.js';
 
 // TODO sourcemaps, including esbuild, svelte, and the svelte preprocessors
 // TODO cache by options+content hash (not straightforward because of the options, but should be doable without that much complexity, see the builtin module cache)
@@ -34,7 +34,7 @@ import {resolve_specifier} from './util/resolve_specifier.js';
 const dev = true;
 
 const dir = cwd() + '/';
-const node_modules_matcher = new RegExp(escapeRegexp('/' + NODE_MODULES_DIRNAME + '/'), 'u');
+const node_modules_matcher = new RegExp(escape_regexp('/' + NODE_MODULES_DIRNAME + '/'), 'u');
 
 const {
 	alias,

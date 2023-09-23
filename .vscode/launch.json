@@ -5,7 +5,7 @@
 			"type": "node",
 			"request": "launch",
 			"name": "gro",
-			"program": "${workspaceFolder}/dist/cli/gro.js",
+			"program": "${workspaceFolder}/dist/gro.js",
 			"args": ["test", "resolve_specifier.test"],
 			"runtimeArgs": [],
 			// TODO need to add support sourcemaps to fix this, need to add back since we removed the build system

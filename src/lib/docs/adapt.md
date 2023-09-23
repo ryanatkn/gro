@@ -5,11 +5,11 @@ Gro uses `Adapter`s to convert production builds into final artifacts.
 
 Gro has a number of builtin adapters:
 
-- [`@feltjs/gro_adapter_library`](../adapt/gro_adapter_library.ts)
-- [`@feltjs/gro_adapter_sveltekit_frontend `](../adapt/gro_adapter_sveltekit_frontend.ts)
+- [`@grogarden/gro_adapter_library`](../gro_adapter_library.ts)
+- [`@grogarden/gro_adapter_sveltekit_frontend `](../gro_adapter_sveltekit_frontend.ts)
 
 Also see [`config.adapt` in the config docs](config.md#adapt)
-and usage in [the default config](../config/gro.config.default.ts).
+and usage in [the default config](../gro.config.default.ts).
 
 ## adapters
 
@@ -22,9 +22,9 @@ gro build
 
 the build process has two discrete steps:
 
-1. [`Plugin`](../plugin/plugin.ts)s run and output production artifacts,
+1. [`Plugin`](../plugin.ts)s run and output production artifacts,
    deferring to tools like SvelteKit and Vite without modifications when possible
-2. [`Adapter`](../adapt/adapt.ts)s run to perform any finalization for production,
+2. [`Adapter`](../adapt.ts)s run to perform any finalization for production,
    like running `npm link` for Node libraries or adding `.nojekyll` for GitHub Pages
 
 An adapter is an object with an `adapt` hook:
@@ -37,10 +37,10 @@ export interface Adapter<TArgs = any> {
 ```
 
 The `AdapterContext` extends
-[Gro's `TaskContext`](../task/README.md#user-content-types-task-and-taskcontext)
+[Gro's `TaskContext`](../README.md#user-content-types-task-and-taskcontext)
 with additional properties,
 so the `Adapter` hooks and `adapt` config property both have access to
-[the normal task environment](../task/README.md) and more:
+[the normal task environment](../README.md) and more:
 
 ```ts
 export interface AdapterContext<TArgs = any> extends TaskContext<TArgs> {}
@@ -60,14 +60,14 @@ In Gro, there's the `adapt` function property,
 a function that returns `Adapter` instances:
 
 ```ts
-import type {GroConfigCreator} from '@feltjs/gro';
+import type {GroConfigCreator} from '@grogarden/gro';
 
 const config: GroConfigCreator = async () => {
 	return {
 		adapt: async () => [
-			(await import('@feltjs/gro/gro_adapter_sveltekit_frontend.js')).create_adapter(),
-			(await import('@feltjs/gro/gro_adapter_library.js')).create_adapter(),
-			(await import('@feltjs/gro/groAdapterApiServer.js')).create_adapter(),
+			(await import('@grogarden/gro/gro_adapter_sveltekit_frontend.js')).create_adapter(),
+			(await import('@grogarden/gro/gro_adapter_library.js')).create_adapter(),
+			(await import('@grogarden/gro/groAdapterApiServer.js')).create_adapter(),
 		],
 
 		// this **does not work**, even though it's simpler!

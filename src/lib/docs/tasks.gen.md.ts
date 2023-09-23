@@ -1,11 +1,11 @@
 import {dirname, relative, basename} from 'node:path';
-import {toPathParts, toPathSegments} from '@grogarden/util/path-parsing.js';
-import {stripStart} from '@grogarden/util/string.js';
+import {parse_path_parts, parse_path_segments} from '@grogarden/util/path.js';
+import {strip_start} from '@grogarden/util/string.js';
 
-import {type Gen, to_output_file_name} from '../gen/gen.js';
-import {paths, base_path_to_source_id} from '../util/paths.js';
-import {load_task_modules} from '../task/task_module.js';
-import {log_error_reasons} from '../task/print_task.js';
+import {type Gen, to_output_file_name} from '../gen.js';
+import {paths, base_path_to_source_id} from '../paths.js';
+import {load_task_modules} from '../task_module.js';
+import {log_error_reasons} from '../print_task.js';
 
 // This is the first simple implementation of Gro's automated docs.
 // It combines Gro's gen and task systems
@@ -27,13 +27,13 @@ export const gen: Gen = async ({origin_id, log}) => {
 	const tasks = result.modules;
 
 	// TODO need to get this from project config or something
-	const root_path = toPathSegments(paths.root).at(-1);
+	const root_path = parse_path_segments(paths.root).at(-1);
 
 	const origin_dir = dirname(origin_id);
 	const origin_base = basename(origin_id);
 
 	const base_dir = paths.source;
-	const relative_path = stripStart(origin_id, base_dir);
+	const relative_path = strip_start(origin_id, base_dir);
 	const relative_dir = dirname(relative_path);
 
 	// TODO should this be passed in the context, like `defaultOutputFileName`?
@@ -44,9 +44,9 @@ export const gen: Gen = async ({origin_id, log}) => {
 
 	// TODO do we want to use absolute paths instead of relative paths,
 	// because GitHub works with them and it simplifies the code?
-	const path_parts = toPathParts(relative_dir).map(
+	const path_parts = parse_path_parts(relative_dir).map(
 		(relative_path_part) =>
-			`[${toPathSegments(relative_path_part).at(-1)}](${
+			`[${parse_path_segments(relative_path_part).at(-1)}](${
 				relative(origin_dir, base_path_to_source_id(relative_path_part)) || './'
 			})`,
 	);
@@ -73,7 +73,7 @@ ${tasks.reduce(
 ## usage
 
 \`\`\`bash
-$ gro some/task/name
+$ gro some/name
 \`\`\`
 
 ${breadcrumbs}

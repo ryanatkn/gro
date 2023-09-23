@@ -1,8 +1,8 @@
 import {spawn} from '@grogarden/util/process.js';
 import {z} from 'zod';
 
-import type {Task} from './task/task.js';
-import {clean_fs} from './util/clean.js';
+import type {Task} from './task.js';
+import {clean_fs} from './clean.js';
 
 export const Args = z
 	.object({

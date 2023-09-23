@@ -1,10 +1,10 @@
 import {z} from 'zod';
 import {spawn} from '@grogarden/util/process.js';
 
-import type {Task} from './task/task.js';
-import {adapt} from './adapt/adapt.js';
-import {Plugins} from './plugin/plugin.js';
-import {clean_fs} from './util/clean.js';
+import type {Task} from './task.js';
+import {adapt} from './adapt.js';
+import {Plugins} from './plugin.js';
+import {clean_fs} from './clean.js';
 
 export const Args = z
 	.object({

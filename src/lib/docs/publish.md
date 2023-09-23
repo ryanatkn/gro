@@ -11,16 +11,16 @@ npm whoami # check if you're logged in
 npm login # and follow the instructions
 ```
 
-> more about [`npm login`](https://docs.npmjs.com/cli/v6/commands/npm-adduser)
+> more about [`npm login`](https://docs.npmjs.com/v6/commands/npm-adduser)
 
 ## using changesets
 
-The [`gro publish` task](https://github.com/feltjs/gro/blob/main/src/lib/publish.task.ts)
+The [`gro publish` task](https://github.com/grogarden/gro/blob/main/src/lib/publish.task.ts)
 integrates with [Changesets](https://github.com/changesets/changesets)
 to publish packages to [npm](https://npmjs.com/). Internally the task calls both
-[`changeset version`](https://github.com/changesets/changesets/blob/main/packages/cli/README.md#version)
+[`changeset version`](https://github.com/changesets/changesets/blob/main/packages/README.md#version)
 and
-[`changeset publish`](https://github.com/changesets/changesets/blob/main/packages/cli/README.md#publish).
+[`changeset publish`](https://github.com/changesets/changesets/blob/main/packages/README.md#publish).
 
 Gro does not include Changesets as a dependency.
 Install it globally or local to your repo:
@@ -31,7 +31,7 @@ npm i -D @changesets/cli # or install local to your repo
 ```
 
 To set up a repo, first run
-[init](https://github.com/changesets/changesets/blob/main/packages/cli/README.md#init):
+[init](https://github.com/changesets/changesets/blob/main/packages/README.md#init):
 
 ```bash
 changeset init
@@ -43,7 +43,7 @@ in the `"changelog"` property of the newly created `.changeset/config.json`:
 
 ```diff
 # .changeset/config.json
-- "changelog": "@changesets/cli/changelog",
+- "changelog": "@changesets/changelog",
 + "changelog": "@changesets/changelog-git",
 ```
 
@@ -59,7 +59,7 @@ If your package is public, configure the `access` property:
 + "access": "public",
 ```
 
-To [add](https://github.com/changesets/changesets/blob/main/packages/cli/README.md#add) a changeset:
+To [add](https://github.com/changesets/changesets/blob/main/packages/README.md#add) a changeset:
 
 ```bash
 changeset

@@ -1,6 +1,6 @@
 import {z} from 'zod';
 
-import type {Task} from './task/task.js';
+import type {Task} from './task.js';
 
 export const Args = z
 	.object({

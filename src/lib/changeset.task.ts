@@ -4,10 +4,10 @@ import {red, blue} from 'kleur/colors';
 import type {WrittenConfig} from '@changesets/types';
 import {readFile, writeFile} from 'node:fs/promises';
 
-import type {Task} from './task/task.js';
-import {exists} from './util/exists.js';
+import type {Task} from './task.js';
+import {exists} from './exists.js';
 import {dirname} from 'node:path';
-import {load_package_json} from './util/package_json.js';
+import {load_package_json} from './package_json.js';
 
 const RESTRICTED_ACCESS = 'restricted';
 const PUBLIC_ACCESS = 'public';

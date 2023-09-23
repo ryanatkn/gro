@@ -6,7 +6,7 @@
 
 limitations:
 
-- [Windows is not yet supported](https://github.com/feltjs/gro/issues/319)
+- [Windows is not yet supported](https://github.com/grogarden/gro/issues/319)
 - Gro has been actively used since 2019 but it has few users,
   so you'll likely encounter problems and undesirable limitations --
   please open issues!
@@ -35,7 +35,7 @@ It includes:
   - defers to SvelteKit and Vite for the frontend and
     [`@sveltejs/package`](https://kit.svelte.dev/docs/packaging) for the library
   - provides a [Node loader](/src/lib/loader.ts) and
-    [esbuild plugins for the server](/src/lib/plugin/gro_plugin_server.ts)
+    [esbuild plugins for the server](/src/lib/gro_plugin_server.ts)
     - supports importing TypeScript and SSR'd Svelte files in tests and tasks
     - supports [SvelteKit module imports](https://kit.svelte.dev/docs/modules) for
       `$lib`, `$env`, and `$app` in tasks, tests, Node servers,
@@ -45,7 +45,7 @@ It includes:
   - [configurable plugins](/src/lib/docs/plugin.md) and [adapters](/src/lib/docs/adapt.md)
     to support SvelteKit, auto-restarting Node servers, and other external build processes
     - see the [Gro config docs](/src/lib/docs/config.md) and
-      [the default config](https://github.com/feltjs/gro/blob/main/src/lib/config/gro.config.default.ts)
+      [the default config](https://github.com/grogarden/gro/blob/main/src/lib/gro.config.default.ts)
     - see [`@feltjs/felt-template`](https://github.com/feltjs/felt-template)
       for a simple starter project example, and
       [`@feltjs/felt`](https://github.com/feltjs/felt) for a more complex example with custom tasks
@@ -79,13 +79,13 @@ It includes:
 Normally you'll want to install Gro as a dev dependency:
 
 ```bash
-npm i -D @feltjs/gro
+npm i -D @grogarden/gro
 ```
 
 It's handy to install globally too:
 
 ```bash
-npm i -g @feltjs/gro
+npm i -g @grogarden/gro
 ```
 
 ## usage

@@ -2,15 +2,15 @@ import {spawn} from '@grogarden/util/process.js';
 import {z} from 'zod';
 import {green, cyan} from 'kleur/colors';
 
-import {TaskError, type Task} from './task/task.js';
-import {load_package_json} from './util/package_json.js';
-import {find_cli, spawn_cli} from './util/cli.js';
-import {exists} from './util/exists.js';
-import {is_this_project_gro} from './util/paths.js';
+import {TaskError, type Task} from './task.js';
+import {load_package_json} from './package_json.js';
+import {find_cli, spawn_cli} from './cli.js';
+import {exists} from './exists.js';
+import {is_this_project_gro} from './paths.js';
 
 // publish.task.ts
 // - usage: `gro publish patch`
-// - forwards args to `npm version`: https://docs.npmjs.com/cli/v6/commands/npm-version
+// - forwards args to `npm version`: https://docs.npmjs.com/v6/commands/npm-version
 // - runs the production build
 // - publishes to npm from the `main` branch, configurable with `--branch`
 // - syncs commits and tags to the configured main branch
