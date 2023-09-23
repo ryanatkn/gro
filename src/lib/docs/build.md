@@ -10,7 +10,15 @@ The `gro build` task produces outputs for production:
 gro build
 ```
 
-Internally, it calls `vite build` and runs the configured Gro plugins.
+This runs the configured Gro plugins, `setup -> adapt -> teardown`, in production mode.
+
+If your project has a SvelteKit frontend,
+[the default plugin](../gro_plugin_sveltekit_frontend.ts) calls `vite build`,
+forwarding any [`-- vite [...]` args](https://vitejs.dev/config/):
+
+```bash
+gro build -- vite --config my-config.js
+```
 
 ## plugins
 
