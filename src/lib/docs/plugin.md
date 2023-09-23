@@ -3,7 +3,7 @@
 During the [`gro dev`](dev.md) and [`gro build`](build.md) tasks,
 Gro uses `Plugin`s to support custom usecases outside of the normal build pipeline.
 They run serially, in the order `setup -> adapt -> teardown`,
-and `adapt` only runs during production.
+and `adapt` only runs during production aka `gro build`.
 
 The API needs to be improved for more advanced usecases,
 currently it offers little flexibility -
