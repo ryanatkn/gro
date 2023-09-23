@@ -41,6 +41,7 @@ export const plugin = ({
 		name: 'gro_plugin_sveltekit_frontend',
 		setup: async ({dev, watch, log}) => {
 			if (dev) {
+				// development mode
 				if (watch) {
 					const serialized_args = ['vite', 'dev', ...serialize_args(to_forwarded_args('vite'))];
 					log.info(print_command_args(serialized_args));
