@@ -27,7 +27,7 @@
   "scripts": {
     "start": "gro",
     "test": "gro test",
-    "build": "rm -rf .gro dist && svelte-package && chmod +x ./dist/gro.js && npm link -f"
+    "build": "rm -rf .gro dist && svelte-package && chmod +x ./dist/gro.js && npm link -f && rm src/fixtures/baz1/test1.baz.d.ts src/fixtures/baz2/test2.baz.d.ts src/fixtures/test1.foo.d.ts src/fixtures/test_invalid_task_module.d.ts src/fixtures/test_task_module.task_fixture.d.ts"
   },
   "keywords": [
     "web",
