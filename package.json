@@ -1,7 +1,7 @@
 {
   "name": "@grogarden/gro",
   "description": "task runner and toolkit extending SvelteKit",
-  "version": "0.84.0",
+  "version": "0.84.1",
   "bin": {
     "gro": "./dist/gro.js"
   },
@@ -27,7 +27,7 @@
   "scripts": {
     "start": "gro",
     "test": "gro test",
-    "build": "rm -rf .gro dist && svelte-package && chmod +x ./dist/gro.js && npm link -f && rm src/fixtures/baz1/test1.baz.d.ts src/fixtures/baz2/test2.baz.d.ts src/fixtures/test1.foo.d.ts src/fixtures/test_invalid_task_module.d.ts src/fixtures/test_task_module.task_fixture.d.ts"
+    "build": "rm -rf .gro dist && svelte-package && chmod +x ./dist/gro.js && npm link -f"
   },
   "keywords": [
     "web",

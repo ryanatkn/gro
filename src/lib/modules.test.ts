@@ -3,11 +3,14 @@ import * as assert from 'uvu/assert';
 import {resolve, join} from 'node:path';
 
 import {find_modules, load_modules, load_module} from './modules.js';
-import * as modTest1 from '$fixtures/test1.foo.js';
-import * as modTestBaz1 from '$fixtures/baz1/test1.baz.js';
-import * as modTestBaz2 from '$fixtures/baz2/test2.baz.js';
 import {get_possible_source_ids} from './input_path.js';
 import {search_fs} from './search_fs.js';
+
+// TODO if we import directly, svelte-package generates types in `src/fixtures`
+/* eslint-disable no-useless-concat */
+const modTest1 = await import('../fixtures/' + 'test1.foo.js');
+const modTestBaz1 = await import('../fixtures/' + 'baz1/test1.baz.js');
+const modTestBaz2 = await import('../fixtures/' + 'baz2/test2.baz.js');
 
 /* test__load_module */
 const test__load_module = suite('load_module');
