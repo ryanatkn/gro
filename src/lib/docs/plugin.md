@@ -2,11 +2,17 @@
 
 During the [`gro dev`](dev.md) and [`gro build`](build.md) tasks,
 Gro uses `Plugin`s to support custom usecases outside of the normal build pipeline.
-They run serially, in the order `setup -> adapt -> teardown`,
-and `adapt` only runs during production aka `gro build`.
-Also, `teardown` does not run for `gro dev` in the default watch mode,
-but it does run with `gro dev --no-watch`.
-(and we should probably have a finalization step still run teardown if there's an uncaught exception)
+
+In this early implementation of plugins in Gro,
+plugins run serially, in the order they are returned from `plugin` in the `gro.config.ts`.
+Each step of Gro's build processes - `gro dev` for development and `gro build` for production -
+runs a method of each plugin, batched together as `setup -> adapt -> teardown`,
+with some behavioral inconsistencies:
+
+- `adapt` only runs during production aka `gro build`
+- `teardown` does not run for `gro dev` in the default `watch` mode,
+  but it does run with `gro dev --no-watch`
+- there should probably be a finalization step that runs `teardown` on uncaught exceptions
 
 The API needs to be improved for more advanced usecases,
 currently it offers little flexibility -
