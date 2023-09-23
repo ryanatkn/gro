@@ -29,3 +29,5 @@ export interface PluginContext<TArgs = object> extends TaskContext<TArgs> {
 	watch: boolean;
 }
 ```
+
+The `adapt` step only runs for production during `gro build`, taking after SvelteKit adapters.

@@ -1,5 +1,4 @@
 import {paths} from './paths.js';
-import type {ToConfigAdapters} from './adapt.js';
 import create_default_config from './gro.config.default.js';
 import type {ToConfigPlugins} from './plugin.js';
 import {exists} from './exists.js';
@@ -18,7 +17,6 @@ If none is provided, the fallback is located at `gro/src/lib/gro.config.default.
 
 export interface GroConfig {
 	plugins: ToConfigPlugins;
-	adapters: ToConfigAdapters;
 }
 
 export interface GroConfigCreator {

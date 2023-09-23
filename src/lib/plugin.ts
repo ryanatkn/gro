@@ -62,7 +62,7 @@ export class Plugins<TPluginContext extends PluginContext> {
 	async adapt(): Promise<void> {
 		const {ctx} = this;
 		const {timings} = ctx;
-		const timing_to_run_adapters = timings.start('adapt');
+		const timing_to_run_adapters = timings.start('plugins.adapt');
 		for (const plugin of this.instances) {
 			if (!plugin.adapt) continue;
 			const timing = timings.start(`adapt:${plugin.name}`);
