@@ -21,7 +21,7 @@ here's [the default config](/src/lib/gro.config.default.ts)
 that's used for projects that do not define one at `gro.config.ts`.
 
 The default export of a Gro config is `GroConfig | GroConfigCreator`.
-Here's how to define a user config that overrides the default adapters and plugins:
+Here's how to define a user config that overrides the default plugins:
 
 ```ts
 import type {GroConfigCreator} from '@grogarden/gro';
@@ -29,10 +29,6 @@ import type {GroConfigCreator} from '@grogarden/gro';
 const config: GroConfigCreator = async (default_config) => {
 	const final_config = {
 		...default_config,
-		adapters: () => {
-			const default_adapters = await default_config.adapters();
-			return default_adapters.concat(create_some_custom_adapter());
-		},
 		plugins: () => {
 			const default_plugins = await default_config.plugins();
 			return default_plugins.concat(create_some_custom_plugin());
@@ -49,7 +45,6 @@ export default config;
 ```ts
 export interface GroConfig {
 	plugins: ToConfigPlugins;
-	adapters: ToConfigAdapters;
 }
 
 export interface GroConfigCreator {
@@ -70,20 +65,5 @@ export interface ToConfigPlugins<TPluginContext extends PluginContext = PluginCo
 	):
 		| (Plugin<TPluginContext> | null | Array<Plugin<TPluginContext> | null>)
 		| Promise<Plugin<TPluginContext> | null | Array<Plugin<TPluginContext> | null>>;
-}
-```
-
-## `adapters`
-
-The `adapters` property is a function that returns any number of `Adapter` instances.
-Read more about adapters and the `Adapter` in [adapt.md](adapt.md) and [build.md](build.md#adapt).
-
-```ts
-export interface ToConfigAdapters<TArgs = any> {
-	(
-		ctx: AdapterContext<TArgs>,
-	):
-		| (Adapter<TArgs> | null | Array<Adapter<TArgs> | null>)
-		| Promise<Adapter<TArgs> | null | Array<Adapter<TArgs> | null>>;
 }
 ```

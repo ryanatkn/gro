@@ -112,10 +112,6 @@
       "default": "./dist/index.js",
       "types": "./dist/index.d.ts"
     },
-    "./adapt.js": {
-      "default": "./dist/adapt.js",
-      "types": "./dist/adapt.d.ts"
-    },
     "./args.js": {
       "default": "./dist/args.js",
       "types": "./dist/args.d.ts"
@@ -228,17 +224,13 @@
       "default": "./dist/gen.js",
       "types": "./dist/gen.d.ts"
     },
-    "./gro_adapter_library.js": {
-      "default": "./dist/gro_adapter_library.js",
-      "types": "./dist/gro_adapter_library.d.ts"
-    },
-    "./gro_adapter_sveltekit_frontend.js": {
-      "default": "./dist/gro_adapter_sveltekit_frontend.js",
-      "types": "./dist/gro_adapter_sveltekit_frontend.d.ts"
-    },
     "./gro_plugin_gen.js": {
       "default": "./dist/gro_plugin_gen.js",
       "types": "./dist/gro_plugin_gen.d.ts"
+    },
+    "./gro_plugin_library.js": {
+      "default": "./dist/gro_plugin_library.js",
+      "types": "./dist/gro_plugin_library.d.ts"
     },
     "./gro_plugin_server.js": {
       "default": "./dist/gro_plugin_server.js",

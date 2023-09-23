@@ -2,7 +2,6 @@ import {z} from 'zod';
 import {spawn} from '@grogarden/util/process.js';
 
 import type {Task} from './task.js';
-import {adapt} from './adapt.js';
 import {Plugins} from './plugin.js';
 import {clean_fs} from './clean.js';
 
@@ -24,7 +23,6 @@ export const task: Task<Args> = {
 	run: async (ctx): Promise<void> => {
 		const {
 			config,
-			log,
 			args: {install},
 		} = ctx;
 
@@ -38,12 +36,8 @@ export const task: Task<Args> = {
 		await clean_fs({build_dist: true});
 
 		const plugins = await Plugins.create({...ctx, config, dev: false, watch: false});
-
 		await plugins.setup();
+		await plugins.adapt();
 		await plugins.teardown();
-
-		// Adapt the build to final ouputs.
-		const adapters = await adapt(ctx);
-		if (!adapters.length) log.info('no adapters to `adapt`');
 	},
 };
