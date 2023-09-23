@@ -1,11 +1,14 @@
 import {spawn, spawnProcess, type SpawnedProcess} from '@grogarden/util/process.js';
 import {strip_end} from '@grogarden/util/string.js';
-import {mkdir, writeFile} from 'node:fs/promises';
+import {copyFile, mkdir, readdir, rm, writeFile} from 'node:fs/promises';
+import {dirname} from 'node:path';
 
 import type {Plugin, PluginContext} from './plugin.js';
 import {print_command_args, serialize_args, to_forwarded_args} from './args.js';
 import {SVELTEKIT_BUILD_DIRNAME} from './paths.js';
 import {exists} from './exists.js';
+import {load_package_json} from './package_json.js';
+import {load_sveltekit_config} from './sveltekit_config.js';
 
 export interface Options {
 	dir?: string;
@@ -14,13 +17,21 @@ export interface Options {
 	 * @default 'github_pages'
 	 */
 	host_target?: HostTarget;
+	/**
+	 * If `true` and the `package.json` value `private` is falsy,
+	 * includes `package.json` in the static `.well-known` directory for production builds.
+	 * Ignored during development, which isn't ideal, but being non-invasive is a priority.
+	 * @default undefined
+	 */
+	include_package_json?: boolean;
 }
 
 export type HostTarget = 'github_pages' | 'static' | 'node';
 
 export const plugin = ({
-	dir = SVELTEKIT_BUILD_DIRNAME,
+	dir = SVELTEKIT_BUILD_DIRNAME, // TODO what about cwd like other plugins? like for loading the SvelteKit config
 	host_target = 'github_pages',
+	include_package_json,
 }: Options = {}): Plugin<PluginContext> => {
 	const output_dir = strip_end(dir, '/');
 
@@ -40,9 +51,41 @@ export const plugin = ({
 					);
 				}
 			} else {
+				let including_package_json = false;
+				if (include_package_json) {
+					including_package_json = true;
+				} else if (include_package_json === undefined) {
+					const pkg = await load_package_json();
+					including_package_json = !pkg.private;
+				}
+
+				// prep before building -- ideally this wouldn't exist, would use SvelteKit/Vite instead
+				let added_package_json_path: string | undefined;
+				let added_package_json_dir: string | undefined;
+				if (including_package_json) {
+					// copy the `package.json` over to `static/.well-known/` if configured
+					const svelte_config = await load_sveltekit_config();
+					const static_assets = svelte_config?.kit?.files?.assets || 'static';
+					added_package_json_dir = strip_end(static_assets, '/') + '/.well-known';
+					added_package_json_path = added_package_json_dir + '/package.json';
+					await mkdir(dirname(added_package_json_path), {recursive: true});
+					await copyFile('./package.json', added_package_json_path);
+				}
+
+				// vite build
 				const serialized_args = ['vite', 'build', ...serialize_args(to_forwarded_args('vite'))];
 				log.info(print_command_args(serialized_args));
 				await spawn('npx', serialized_args);
+
+				// cleanup
+				if (added_package_json_path) {
+					// delete the copied file
+					await rm(added_package_json_path);
+					// if the directory of the copied file is empty, delete it
+					if (!(await readdir(added_package_json_dir!)).length) {
+						await rm(added_package_json_dir!, {recursive: true});
+					}
+				}
 			}
 		},
 		adapt: async () => {
