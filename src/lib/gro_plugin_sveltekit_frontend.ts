@@ -87,7 +87,8 @@ export const plugin = ({
 				log.info(print_command_args(serialized_args));
 				await spawn('npx', serialized_args);
 
-				// cleanup, reverting the static directory back to its original state
+				// cleanup fs hackery
+				// revert the static directory back to its original state
 				if (added_well_known_dir) {
 					// remove the whole `.well-known` directory
 					await rm(added_well_known_dir, {recursive: true});
