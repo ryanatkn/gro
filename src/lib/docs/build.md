@@ -10,7 +10,14 @@ The `gro build` task produces outputs for production:
 gro build
 ```
 
-Internally, it calls `vite build` and runs the configured Gro plugins.
+This runs the configured Gro plugins, `setup -> adapt -> teardown`, in production mode.
+
+Internally, it calls `vite build`,
+forwarding any [`-- vite [...]` args](https://vitejs.dev/config/):
+
+```bash
+gro build -- vite --config my-config.js
+```
 
 ## plugins
 
