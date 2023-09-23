@@ -3,9 +3,9 @@ import * as assert from 'uvu/assert';
 import {resolve, join} from 'node:path';
 
 import {find_modules, load_modules, load_module} from './modules.js';
-import * as modTest1 from './fixtures/test1.foo.js';
-import * as modTestBaz1 from './fixtures/baz1/test1.baz.js';
-import * as modTestBaz2 from './fixtures/baz2/test2.baz.js';
+import * as modTest1 from '$fixtures/test1.foo.js';
+import * as modTestBaz1 from '$fixtures/baz1/test1.baz.js';
+import * as modTestBaz2 from '$fixtures/baz2/test2.baz.js';
 import {get_possible_source_ids} from './input_path.js';
 import {search_fs} from './search_fs.js';
 
@@ -13,7 +13,7 @@ import {search_fs} from './search_fs.js';
 const test__load_module = suite('load_module');
 
 test__load_module('basic behavior', async () => {
-	const id = resolve('src/lib/fixtures/test1.foo.js');
+	const id = resolve('src/fixtures/test1.foo.js');
 	let validated_mod;
 	const result = await load_module(id, ((mod: any) => {
 		validated_mod = mod;
@@ -26,7 +26,7 @@ test__load_module('basic behavior', async () => {
 });
 
 test__load_module('without validation', async () => {
-	const id = resolve('src/lib/fixtures/test1.foo.js');
+	const id = resolve('src/fixtures/test1.foo.js');
 	const result = await load_module(id);
 	assert.ok(result.ok);
 	assert.is(result.mod.id, id);
@@ -34,7 +34,7 @@ test__load_module('without validation', async () => {
 });
 
 test__load_module('fails validation', async () => {
-	const id = resolve('src/lib/fixtures/test1.foo.js');
+	const id = resolve('src/fixtures/test1.foo.js');
 	let validated_mod;
 	const test_validation = (mod: Record<string, any>) => {
 		validated_mod = mod;
@@ -71,9 +71,9 @@ test__load_module.run();
 const test__find_modules = suite('find_modules');
 
 test__find_modules('with and without extension', async () => {
-	const path1 = resolve('src/lib/fixtures/test1');
-	const id1 = resolve('src/lib/fixtures/test1.foo.ts');
-	const id2 = resolve('src/lib/fixtures/test2.foo.ts');
+	const path1 = resolve('src/fixtures/test1');
+	const id1 = resolve('src/fixtures/test1.foo.ts');
+	const id2 = resolve('src/fixtures/test2.foo.ts');
 	const result = await find_modules(
 		[path1, id2],
 		(id) => search_fs(id, {files_only: false}),
@@ -97,7 +97,7 @@ test__find_modules('with and without extension', async () => {
 });
 
 test__find_modules('directory', async () => {
-	const id = resolve('src/lib/fixtures/');
+	const id = resolve('src/fixtures/');
 	const result = await find_modules([id], (id) =>
 		search_fs(id, {filter: (path) => path.includes('.foo.')}),
 	);
@@ -112,10 +112,10 @@ test__find_modules('directory', async () => {
 test__find_modules('fail with unmapped_input_paths', async () => {
 	const result = await find_modules(
 		[
-			resolve('src/lib/fixtures/bar1'),
-			resolve('src/lib/fixtures/failme1'),
-			resolve('src/lib/fixtures/bar2'),
-			resolve('src/lib/fixtures/failme2'),
+			resolve('src/fixtures/bar1'),
+			resolve('src/fixtures/failme1'),
+			resolve('src/fixtures/bar2'),
+			resolve('src/fixtures/failme2'),
 		],
 		(id) => search_fs(id, {files_only: false}),
 		(input_path) => get_possible_source_ids(input_path, ['.foo.ts']),
@@ -124,8 +124,8 @@ test__find_modules('fail with unmapped_input_paths', async () => {
 	assert.ok(result.reasons.length);
 	if (result.type === 'unmapped_input_paths') {
 		assert.equal(result.unmapped_input_paths, [
-			resolve('src/lib/fixtures/failme1'),
-			resolve('src/lib/fixtures/failme2'),
+			resolve('src/fixtures/failme1'),
+			resolve('src/fixtures/failme2'),
 		]);
 	} else {
 		throw Error('Expected to fail with unmapped_input_paths');
@@ -135,10 +135,10 @@ test__find_modules('fail with unmapped_input_paths', async () => {
 test__find_modules('fail with input_directories_with_no_files', async () => {
 	const result = await find_modules(
 		[
-			resolve('src/lib/fixtures/baz1'),
-			resolve('src/lib/fixtures/bar1'),
-			resolve('src/lib/fixtures/bar2'),
-			resolve('src/lib/fixtures/baz2'),
+			resolve('src/fixtures/baz1'),
+			resolve('src/fixtures/bar1'),
+			resolve('src/fixtures/bar2'),
+			resolve('src/fixtures/baz2'),
 		],
 		(id) => search_fs(id, {filter: (path) => !path.includes('.bar.'), files_only: false}),
 	);
@@ -146,8 +146,8 @@ test__find_modules('fail with input_directories_with_no_files', async () => {
 	assert.ok(result.reasons.length);
 	if (result.type === 'input_directories_with_no_files') {
 		assert.equal(result.input_directories_with_no_files, [
-			resolve('src/lib/fixtures/bar1'),
-			resolve('src/lib/fixtures/bar2'),
+			resolve('src/fixtures/bar1'),
+			resolve('src/fixtures/bar2'),
 		]);
 	} else {
 		throw Error('Expected to fail with input_directories_with_no_files');
@@ -161,10 +161,10 @@ test__find_modules.run();
 const test__load_modules = suite('load_modules');
 
 test__load_modules('fail with load_module_failures', async () => {
-	const path_bar1 = resolve('src/lib/fixtures/bar1');
-	const path_bar2 = resolve('src/lib/fixtures/bar2');
-	const path_baz1 = resolve('src/lib/fixtures/baz1');
-	const path_baz2 = resolve('src/lib/fixtures/baz2');
+	const path_bar1 = resolve('src/fixtures/bar1');
+	const path_bar2 = resolve('src/fixtures/bar2');
+	const path_baz1 = resolve('src/fixtures/baz1');
+	const path_baz2 = resolve('src/fixtures/baz2');
 	const id_bar1 = join(path_bar1, 'test1.bar.ts');
 	const id_bar2 = join(path_bar2, 'test2.bar.ts');
 	const id_baz1 = join(path_baz1, 'test1.baz.ts');

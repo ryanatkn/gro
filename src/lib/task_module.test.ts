@@ -4,8 +4,8 @@ import {resolve} from 'node:path';
 
 import {validate_task_module, load_task_module, load_task_modules} from './task_module.js';
 import * as actual_test_task_module from './test.task.js';
-import * as test_task_module from './fixtures/test_task_module.task_fixture.js';
-import * as test_invalid_task_module from './fixtures/test_invalid_task_module.js';
+import * as test_task_module from '$fixtures/test_task_module.task_fixture.js';
+import * as test_invalid_task_module from '$fixtures/test_invalid_task_module.js';
 
 /* test__validate_task_module */
 const test__validate_task_module = suite('validate_task_module');
@@ -34,7 +34,7 @@ test__load_task_module('basic behavior', async () => {
 });
 
 test__load_task_module('invalid module', async () => {
-	const id = resolve('src/lib/fixtures/test_invalid_task_module.js');
+	const id = resolve('src/fixtures/test_invalid_task_module.js');
 	const result = await load_task_module(id);
 	assert.ok(!result.ok);
 	if (result.type === 'invalid') {
@@ -47,7 +47,7 @@ test__load_task_module('invalid module', async () => {
 });
 
 test__load_task_module('failing module', async () => {
-	const id = resolve('src/lib/fixtures/test_failing_task_module.js');
+	const id = resolve('src/fixtures/test_failing_task_module.js');
 	const result = await load_task_module(id);
 	assert.ok(!result.ok);
 	if (result.type === 'importFailed') {

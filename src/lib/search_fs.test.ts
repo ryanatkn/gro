@@ -10,7 +10,7 @@ const test__search_fs = suite('search_fs');
 test__search_fs('basic behavior', async () => {
 	const ignoredPath = 'test1.foo.ts';
 	let hasIgnoredPath = false;
-	const result = await search_fs('./src/lib/fixtures', {
+	const result = await search_fs('./src/fixtures', {
 		filter: (path) => {
 			if (!hasIgnoredPath) hasIgnoredPath = path.endsWith(ignoredPath);
 			return !path.endsWith(ignoredPath);
@@ -39,7 +39,7 @@ test__search_fs('basic behavior', async () => {
 			'baz1/test1.baz.ts',
 			'bar2/test2.bar.ts',
 			'bar1/test1.bar.ts',
-		].map((f) => paths.lib + 'fixtures/' + f),
+		].map((f) => paths.source + 'fixtures/' + f),
 	);
 });
 
