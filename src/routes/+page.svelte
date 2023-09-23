@@ -13,7 +13,7 @@
 			</blockquote>
 		</div>
 		<div class="panel spaced padded_md text_align_center">
-			this website is work in progress!<br />for now docs are in
+			this website is a work in progress!<br />for now docs are in
 			<a href="https://github.com/grogarden/gro">the source repo</a>
 		</div>
 	</div>
