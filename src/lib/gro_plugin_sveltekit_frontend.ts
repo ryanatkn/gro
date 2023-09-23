@@ -1,7 +1,6 @@
 import {spawn, spawnProcess, type SpawnedProcess} from '@grogarden/util/process.js';
 import {strip_end} from '@grogarden/util/string.js';
-import {copyFile, mkdir, readdir, rm, writeFile} from 'node:fs/promises';
-import {dirname} from 'node:path';
+import {copyFile, mkdir, rm, writeFile} from 'node:fs/promises';
 
 import type {Plugin, PluginContext} from './plugin.js';
 import {print_command_args, serialize_args, to_forwarded_args} from './args.js';
@@ -53,6 +52,10 @@ export const plugin = ({
 					);
 				}
 			} else {
+				// build for production
+
+				// include the static `.well-known/package.json` as needed -
+				// ideally this wouldn't exist and we'd  use SvelteKit/Vite instead
 				let including_package_json = false;
 				if (well_known_package_json) {
 					including_package_json = true;
@@ -60,18 +63,22 @@ export const plugin = ({
 					const pkg = await load_package_json();
 					including_package_json = !pkg.private;
 				}
-
-				// prep before building -- ideally this wouldn't exist, would use SvelteKit/Vite instead
 				let added_package_json_path: string | undefined;
-				let added_package_json_dir: string | undefined;
+				let added_well_known_dir: string | undefined;
 				if (including_package_json) {
-					// copy the `package.json` over to `static/.well-known/` if configured
+					// copy the `package.json` over to `static/.well-known/` if configured unless it exists
 					const svelte_config = await load_sveltekit_config();
 					const static_assets = svelte_config?.kit?.files?.assets || 'static';
-					added_package_json_dir = strip_end(static_assets, '/') + '/.well-known';
-					added_package_json_path = added_package_json_dir + '/package.json';
-					await mkdir(dirname(added_package_json_path), {recursive: true});
-					await copyFile('./package.json', added_package_json_path);
+					const well_known_dir = strip_end(static_assets, '/') + '/.well-known';
+					if (!(await exists(well_known_dir))) {
+						await mkdir(well_known_dir, {recursive: true});
+						added_well_known_dir = well_known_dir;
+					}
+					const package_json_path = well_known_dir + '/package.json';
+					if (!(await exists(package_json_path))) {
+						await copyFile('./package.json', package_json_path);
+						added_package_json_path = package_json_path;
+					}
 				}
 
 				// vite build
@@ -79,14 +86,13 @@ export const plugin = ({
 				log.info(print_command_args(serialized_args));
 				await spawn('npx', serialized_args);
 
-				// cleanup
-				if (added_package_json_path) {
+				// cleanup, reverting the static directory back to its original state
+				if (added_well_known_dir) {
+					// remove the whole `.well-known` directory
+					await rm(added_well_known_dir, {recursive: true});
+				} else if (added_package_json_path) {
 					// delete the copied file
 					await rm(added_package_json_path);
-					// if the directory of the copied file is empty, delete it
-					if (!(await readdir(added_package_json_dir!)).length) {
-						await rm(added_package_json_dir!, {recursive: true});
-					}
 				}
 			}
 		},
