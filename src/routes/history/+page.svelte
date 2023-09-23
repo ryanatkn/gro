@@ -8,8 +8,8 @@
 		build data. And then SvelteKit and Vite came along!
 	</p>
 	<p>
-		It was removed in <a href="https://github.com/feltjs/gro/pull/321">PR #321</a> and is archived
-		here:
+		It was removed in <a href="https://github.com/grogarden/gro/pull/321">PR #321</a> and is
+		archived here:
 		<a href="https://github.com/spiderspace/gro/tree/archive/devserver"
 			>https://github.com/spiderspace/gro/tree/archive/devserver</a
 		>
