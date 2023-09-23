@@ -1,5 +1,5 @@
 ---
-'@grogarden/gro': patch
+'@grogarden/gro': minor
 ---
 
 rename to `@grogarden/gro` from `@feltjs/gro`
