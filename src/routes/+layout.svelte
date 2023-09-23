@@ -6,7 +6,7 @@
 </script>
 
 <svelte:head>
-	<title>@fuz.dev/template</title>
+	<title>@grogarden/gro</title>
 </svelte:head>
 
 <Themed>
