@@ -7,7 +7,7 @@ import {identity} from '@grogarden/util/function.js';
 import {strip_before} from '@grogarden/util/string.js';
 
 import type {Plugin, PluginContext} from './plugin.js';
-import {BUILD_DEV_DIRNAME, BUILD_DIST_DIRNAME, paths, type SourceId} from './paths.js';
+import {GRO_DEV_DIRNAME, GRO_DIST_DIRNAME, paths, type SourceId} from './paths.js';
 import {watch_dir, type WatchNodeFs} from './watch_dir.js';
 import {init_sveltekit_config} from './sveltekit_config.js';
 import {esbuild_plugin_sveltekit_shim_app} from './esbuild_plugin_sveltekit_shim_app.js';
@@ -89,7 +89,7 @@ export const plugin = ({
 	entry_points,
 	dir = cwd(),
 	outpaths = (dev) => ({
-		outdir: join(dir, dev ? BUILD_DEV_DIRNAME : BUILD_DIST_DIRNAME),
+		outdir: join(dir, dev ? GRO_DEV_DIRNAME : GRO_DIST_DIRNAME),
 		outbase: paths.lib + 'server',
 		outname: 'server.js',
 	}),

@@ -24,15 +24,15 @@ the `path_parts` are `['foo', 'foo/bar', 'foo/bar/baz.ts']`.
 // TODO pass these to `create_paths` and override from gro config
 // TODO this is kinda gross - do we want to maintain the convention to have the trailing slash in most usage?
 export const SOURCE_DIRNAME = 'src';
-export const BUILD_DIRNAME = '.gro';
+export const GRO_DIRNAME = '.gro';
 export const SVELTEKIT_DIST_DIRNAME = 'dist';
 export const LIB_DIRNAME = 'lib';
-export const BUILD_DIST_DIRNAME = BUILD_DIRNAME + '/dist'; // TODO BLOCK `GRO_` prefixes instead of `BUILD_`
-export const BUILD_DEV_DIRNAME = BUILD_DIRNAME + '/dev';
+export const GRO_DIST_DIRNAME = GRO_DIRNAME + '/dist';
+export const GRO_DEV_DIRNAME = GRO_DIRNAME + '/dev';
 export const SOURCE_DIR = SOURCE_DIRNAME + '/';
-export const BUILD_DIR = BUILD_DIRNAME + '/';
-export const BUILD_DIST_DIR = BUILD_DIST_DIRNAME + '/';
-export const BUILD_DEV_DIR = BUILD_DEV_DIRNAME + '/';
+export const GRO_DIR = GRO_DIRNAME + '/';
+export const GRO_DIST_DIR = GRO_DIST_DIRNAME + '/';
+export const GRO_DEV_DIR = GRO_DEV_DIRNAME + '/';
 export const LIB_PATH = SOURCE_DIR + LIB_DIRNAME;
 export const LIB_DIR = LIB_PATH + '/';
 
@@ -72,9 +72,9 @@ export const create_paths = (root_dir: string): Paths => {
 		root,
 		source: root + SOURCE_DIR,
 		lib: root + LIB_DIR,
-		build: root + BUILD_DIR,
-		build_dist: root + BUILD_DIST_DIR,
-		build_dev: root + BUILD_DEV_DIR,
+		build: root + GRO_DIR,
+		build_dist: root + GRO_DIST_DIR,
+		build_dev: root + GRO_DEV_DIR,
 		config: root + CONFIG_PATH,
 	};
 };
