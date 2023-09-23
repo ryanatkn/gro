@@ -17,7 +17,7 @@ export interface Options {
 	 */
 	host_target?: HostTarget;
 	/**
-	 * If `true`, or if `undefined` and the `package.json` value `private` is falsy,
+	 * If `true`, or if `undefined` and the `package.json` property `"private"` is falsy,
 	 * includes `package.json` in the static `.well-known` directory for production builds.
 	 * Ignored during development, which isn't ideal and should be fixed,
 	 * but being non-invasive is a priority.
