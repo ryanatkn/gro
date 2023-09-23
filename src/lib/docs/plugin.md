@@ -4,6 +4,9 @@ During the [`gro dev`](dev.md) and [`gro build`](build.md) tasks,
 Gro uses `Plugin`s to support custom usecases outside of the normal build pipeline.
 They run serially, in the order `setup -> adapt -> teardown`,
 and `adapt` only runs during production aka `gro build`.
+Also, `teardown` does not run for `gro dev` in the default watch mode,
+but it does run with `gro dev --no-watch`.
+(and we should probably have a finalization step still run teardown if there's an uncaught exception)
 
 The API needs to be improved for more advanced usecases,
 currently it offers little flexibility -
