@@ -29,7 +29,7 @@ test__load_task_module('basic behavior', async () => {
 	assert.ok(result.ok);
 	assert.is(result.mod.id, id);
 	assert.is(result.mod.id, id);
-	assert.is(result.mod.name, name);
+	assert.is(result.mod.name, id); // TODO was `name` but changed after scoping to lib, but we want to relax that restriction
 	assert.is(result.mod.mod, test_task_module);
 });
 
