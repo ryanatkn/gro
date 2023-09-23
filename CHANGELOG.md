@@ -1,5 +1,16 @@
 # @grogarden/gro
 
+## 0.85.0
+
+### Minor Changes
+
+- 4ed9065: rename some dir constants to prefix with GRO* instead of BUILD*
+- 4ed9065: merge adapt into plugins
+
+### Patch Changes
+
+- 36d3a31: fill out the package json type
+
 ## 0.84.1
 
 ### Patch Changes
