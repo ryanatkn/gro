@@ -1,20 +1,52 @@
-<div class="markup">
-	<p>
-		Gro previously had a dev server with an experimental frontend for visualizing and working with
-		build data.
-	</p>
-	<p>
-		It was removed in <a href="https://github.com/feltjs/gro/pull/321">PR #321</a> and is archived
-		here:
-		<a href="https://github.com/spiderspace/gro/tree/archive/devserver"
-			>https://github.com/spiderspace/gro/tree/archive/devserver</a
-		>
-	</p>
-	<p>Vite plugins should be used going forward.</p>
-</div>
+<script lang="ts">
+	import {base} from '$app/paths';
+
+	// TODO add website, rewriting the markdown docs as Svelte
+</script>
+
+<main>
+	<h1>gro</h1>
+	<div class="prose">
+		<div class="box spaced">
+			<blockquote>
+				task runner and toolkit extending <a href="https://kit.svelte.dev/">SvelteKit</a>
+			</blockquote>
+		</div>
+		<div class="panel spaced padded_md text_align_center">
+			this website is work in progress!<br />for now docs are in
+			<a href="https://github.com/grogarden/gro">the source repo</a>
+		</div>
+	</div>
+	<div hidden>
+		Mastodon verification:
+		<a rel="me" href="https://hci.social/@ryanatkn">@ryanatkn@hci.social</a>
+	</div>
+	<footer>
+		<a class="panel padded_md box" href="https://github.com/grogarden/gro">
+			<img
+				alt="a pixelated green oak acorn with a glint of sun"
+				class="spaced"
+				src="{base}/favicon.png"
+				style:width="var(--icon_size_lg)"
+				style:height="var(--icon_size_lg)"
+			/>
+			<div>source code</div>
+		</a>
+	</footer>
+</main>
 
 <style>
-	.markup {
+	main {
+		margin: 0 auto;
+		max-width: var(--width_md);
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+	}
+	.prose {
 		padding: 20px;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
 	}
 </style>

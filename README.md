@@ -2,84 +2,90 @@
 
 <img src="src/static/favicon.png" align="right" width="192" height="192">
 
-> opinionated webdev toolkit 🌰
+> task runner and toolkit extending SvelteKit
 
 limitations:
 
-- [Windows is not yet supported](https://github.com/feltjs/gro/issues/319)
-- [SvelteKit and Vite integration](/src/docs/sveltekit.md) is incomplete
-- Gro is actively used but has few users,
-  so you'll likely find problems and undesirable limitations --
+- [Windows is not yet supported](https://github.com/grogarden/gro/issues/319)
+- Gro has been actively used since 2019 but it has few users,
+  so you'll likely encounter problems and undesirable limitations --
   please open issues!
-  - example: there are definitely things that should be configurable that aren't
-  - gro wants all source code and assets to be in `src/` or `node_modules/`,
-    which may annoy
 
 ## about
 
-Gro is an opinionated webdev toolkit
-that complements [SvelteKit](https://github.com/sveltejs/kit)
-and [Vite](https://github.com/vitejs/vite)
+Gro is a task runner and toolkit
+extending [SvelteKit](https://github.com/sveltejs/kit),
+[Vite](https://github.com/vitejs/vite),
+and [esbuild](https://github.com/evanw/esbuild)
 for making web frontends, servers, and libraries.
 It includes:
 
-- limited but functional
-  [developing](/src/docs/dev.md),
-  [building](/src/docs/build.md),
-  [testing](/src/docs/test.md),
-  [deploying](/src/docs/deploy.md),
-  and [publishing](/src/docs/publish.md)
-  for [Svelte](https://github.com/sveltejs/svelte)/[SvelteKit](https://github.com/sveltejs/kit)
-  apps along with Node servers, JS/TS/Svelte libraries, and other things
+- [task runner](/src/lib/docs/task.md) that uses the filesystem convention `*.task.ts`
+  - lots of [common default tasks](/src/lib/docs/tasks.md) that users can easily override and compose
+- tools and patterns for
+  [developing](/src/lib/docs/dev.md),
+  [building](/src/lib/docs/build.md),
+  [testing](/src/lib/docs/test.md),
+  [deploying](/src/lib/docs/deploy.md),
+  and [publishing](/src/lib/docs/publish.md)
+  [SvelteKit](https://github.com/sveltejs/kit) frontends, Node servers, and libraries
   - integrated [TypeScript](https://github.com/microsoft/typescript),
     [Svelte](https://github.com/sveltejs/svelte),
     and [SvelteKit](https://github.com/sveltejs/kit)
-  - see the [SvelteKit integration docs](/src/docs/sveltekit.md),
-    the [Gro config docs](/src/docs/config.md), and
-    [the default config](https://github.com/feltjs/gro/blob/main/src/config/gro.config.default.ts)
-  - [configurable plugins](/src/docs/plugin.md) and [adapters](/src/docs/adapt.md)
-    to support SvelteKit, auto-restarting API servers, and other external build processes -
-    ideally would use SvelteKit/Vite instead
-  - example usage in a starter project:
-    [`@feltjs/felt-template`](https://github.com/feltjs/felt-template)
-- [task runner](/src/docs/task.md) that uses the filesystem convention `*.task.ts`
-  - lots of [common default tasks](/src/docs/tasks.md) that projects can easily override and compose
-- [testing](/src/docs/test.md) with [`uvu`](https://github.com/lukeed/uvu)
-- codegen by convention with [`gen`](/src/docs/gen.md)
-  - includes automatic type generation using [JSON Schema](https://json-schema.org/) and
+  - defers to SvelteKit and Vite for the frontend and
+    [`@sveltejs/package`](https://kit.svelte.dev/docs/packaging) for the library
+  - provides a [Node loader](/src/lib/loader.ts) and
+    [esbuild plugins for the server](/src/lib/gro_plugin_server.ts)
+    - supports importing TypeScript and SSR'd Svelte files in tests and tasks
+    - supports [SvelteKit module imports](https://kit.svelte.dev/docs/modules) for
+      `$lib`, `$env`, and `$app` in tasks, tests, Node servers,
+      and other code outside of the SvelteKit frontend,
+      so you can use SvelteKit patterns everywhere
+      (these are best-effort shims, not perfect)
+  - [configurable plugins](/src/lib/docs/plugin.md) and [adapters](/src/lib/docs/adapt.md)
+    to support SvelteKit, auto-restarting Node servers, and other external build processes
+    - see the [Gro config docs](/src/lib/docs/config.md) and
+      [the default config](https://github.com/grogarden/gro/blob/main/src/lib/gro.config.default.ts)
+    - see [`@feltjs/felt-template`](https://github.com/feltjs/felt-template)
+      for a simple starter project example, and
+      [`@feltjs/felt`](https://github.com/feltjs/felt) for a more complex example with custom tasks
+- [testing](/src/lib/docs/test.md) with [`uvu`](https://github.com/lukeed/uvu)
+- codegen by convention with [`gen`](/src/lib/docs/gen.md)
+  - supports automatic type generation by convention with `.schema.` files
+    using [JSON Schema](https://json-schema.org/) and
     [json-schema-to-typescript](https://github.com/bcherny/json-schema-to-typescript)
 - linting with [ESLint](https://github.com/eslint/eslint)
   (we also maintain [`@feltjs/eslint-config`](https://github.com/feltjs/eslint-config))
-- formatting with [Prettier](https://github.com/prettier/prettier):
-  it's not always pretty, but it's always formatted
+- formatting with [Prettier](https://github.com/prettier/prettier)
+  (it's not always pretty, but it's always consistent and it saves a lot of time)
 
 ## docs
 
-- [build](/src/docs/build.md) web frontends, servers, and libraries
-  - [unbundled development](/src/docs/dev.md)
-  - [config](/src/docs/config.md)
-  - [deploy](/src/docs/deploy.md) to a branch, like for GitHub pages
-  - [publish](/src/docs/publish.md)
-- [`Task`](/src/docs/task.md) runner
-  - [tasks](/src/docs/tasks.md) list
-- [testing](/src/docs/test.md) with [`uvu`](https://github.com/lukeed/uvu)
-- [`gen`](/src/docs/gen.md) code generation
-- all [the docs](/src/docs#readme)
+- [build](/src/lib/docs/build.md) web frontends, servers, and libraries
+  - [unbundled development](/src/lib/docs/dev.md)
+  - [config](/src/lib/docs/config.md)
+  - [deploy](/src/lib/docs/deploy.md) to a branch, like for GitHub pages
+  - [publish](/src/lib/docs/publish.md)
+- [`Task`](/src/lib/docs/task.md) runner
+  - [tasks](/src/lib/docs/tasks.md) list
+- [testing](/src/lib/docs/test.md) with [`uvu`](https://github.com/lukeed/uvu)
+- [`gen`](/src/lib/docs/gen.md) code generation
+- all [the docs](/src/lib/docs#readme)
 
 ## install
 
-> depends on node >= 16.6
+> depends on node >=20.5
 
 Normally you'll want to install Gro as a dev dependency:
 
 ```bash
-npm i -D @feltjs/gro
+npm i -D @grogarden/gro
 ```
 
 It's handy to install globally too:
 
 ```bash
-npm i -g @feltjs/gro
+npm i -g @grogarden/gro
 ```
 
 ## usage
@@ -89,35 +95,31 @@ Running `gro` with no args prints the tasks
 it finds in the current directory along with its default tasks:
 
 ```bash
-gro # prints available tasks - defers to the project's locally installed version of Gro
+gro # prints available tasks - defers to any local gro installation
 ```
 
-<details>
-<summary>[click to see <code>gro</code> output in an empty project]</summary>
-
-```
+```bash
 Run a task: gro [name]
 View help:  gro [name] --help
 
-14 tasks in gro/src:
+15 tasks in ./src/lib:
 
 build      build the project
-cert       creates a self-signed cert for https with openssl
+changeset  call changeset with gro patterns
 check      check that everything is ready to commit
 clean      remove temporary dev and build files, and optionally prune git branches
+commit     commit and push to a new branch
 deploy     deploy to a branch
 dev        start SvelteKit and other dev plugins
+exports    writes the exports property of package.json for the lib
 format     format source files
 gen        run code generation scripts
-help       alias for `gro` with no task name provided
-lint       run eslint on the source files
+lint       run eslint on the given directories and files
 publish    bump version, publish to npm, and git push
 test       run tests
-typecheck  typecheck the project without emitting any files
+typecheck  run tsc on the project without emitting any files
 upgrade    upgrade deps
 ```
-
-</details>
 
 Gro matches your CLI input against its filesystem conventions.
 It tries to do the right thing, where right is helpful but not surprising,
@@ -125,18 +127,16 @@ with some magic but not too much:
 
 ```bash
 gro # print all available tasks with the pattern `*.task.ts`
-gro help # same as `gro`
-gro --help # same as `gro`
-gro some/dir # list all tasks inside `src/some/dir`
-gro some/file # run `src/some/file.task.ts`
+gro some/dir # list all tasks inside `src/lib/some/dir`
+gro some/file # run `src/lib/some/file.task.ts`
 gro some/file.task.ts # same as above
-gro test # run `src/test.task.ts` if it exists, falling back to Gro's builtin
+gro test # run `src/lib/test.task.ts` if it exists, falling back to Gro's builtin
 gro test --help # print info about the "test" task; works for every task
 ```
 
 Gro has a number of builtin tasks that you can run with the CLI.
-To learn more [see the task docs](/src/docs/task.md)
-and [the generated task index](/src/docs/tasks.md).
+To learn more [see the task docs](/src/lib/docs/task.md)
+and [the generated task index](/src/lib/docs/tasks.md).
 
 ```bash
 gro dev # start developing in watch mode
@@ -147,7 +147,7 @@ gro dev -- vite --port 3003 # forward args by separating sections with --
 gro build # build everything for production
 ```
 
-[Testing](/src/docs/test.md) with [`uvu`](https://github.com/lukeed/uvu):
+[Testing](/src/lib/docs/test.md) with [`uvu`](https://github.com/lukeed/uvu):
 
 ```bash
 gro test # run all tests for `*.test.ts` files with `uvu`
@@ -173,24 +173,23 @@ gro format # format all of the source files using Prettier
 gro format --check # check that all source files are formatted
 ```
 
-Codegen with [`gen`](/src/docs/gen.md):
+Codegen with [`gen`](/src/lib/docs/gen.md):
 
 ```bash
 gro gen # run codegen for all `*.gen.*` files
 gro gen --check # error if any generated files are new or different
 ```
 
-To deploy: (also see [`src/docs/deploy.md`](/src/docs/deploy.md))
+To deploy: (also see [`src/lib/docs/deploy.md`](/src/lib/docs/deploy.md))
 
 ```bash
 gro deploy # build and push to the `deploy` branch
 ```
 
-To publish: (also see [`src/docs/publish.md`](/src/docs/publish.md))
+To publish: (also see [`src/lib/docs/publish.md`](/src/lib/docs/publish.md))
 
 ```bash
-gro publish patch # bump version, publish to npm, and git push
-gro publish major --and args --are forwarded --to 'npm version'
+gro publish # flush changeset to changelog, bump version, publish to npm, and git push
 ```
 
 Etc:
@@ -198,7 +197,6 @@ Etc:
 ```bash
 gro clean # delete all build artifacts from the filesystem
 gro clean --sveltekit --nodemodules --git # also deletes dirs and prunes git branches
-gro cert # uses openssl to create a self-signed certificate for local https testing
 gro upgrade excluded-dep-1 excluded-dep-2 # npm updates to the latest everything
 ```
 
@@ -206,28 +204,22 @@ gro upgrade excluded-dep-1 excluded-dep-2 # npm updates to the latest everything
 gro --version # print the Gro version
 ```
 
-For more see [`src/docs/task.md`](/src/docs/task.md) and [`src/docs`](/src/docs).
+For more see [`src/lib/docs/task.md`](/src/lib/docs/task.md) and [`src/lib/docs`](/src/lib/docs).
 
 ## develop
 
 ```bash
 npm i
-npm run bootstrap # build and link `gro` - needed only once
+npm run build # build and link `gro` - needed only once
+gro build # same as `npm run build` when the `gro` CLI is available
 gro test # make sure everything looks good - same as `npm test`
-
-# develop directly on gro:
-gro dev
-gro test # in another terminal
-gro test some.test
+gro test some.test another.test
 
 # use your development version of `gro` locally in another project:
-gro build # updates the `gro` CLI
+gro build # updates the `gro` CLI, same as `npm run build`
 cd ../otherproject
 npm link ../gro # from `otherproject/`
-gro build # from `gro/` on changes
-
-# release
-gro build # build for release and update the `gro` CLI
+gro build # from `../gro` on changes
 ```
 
 ## credits 🐢<sub>🐢</sub><sub><sub>🐢</sub></sub>
@@ -240,10 +232,9 @@ Gro builds on
 [esbuild](https://github.com/evanw/esbuild) ∙
 [uvu](https://github.com/lukeed/uvu) ∙
 [mri](https://github.com/lukeed/mri) ∙
-[fs-extra](https://github.com/jprichardson/node-fs-extra) ∙
 [chokidar](https://github.com/paulmillr/chokidar) ∙
 [zod](https://github.com/colinhacks/zod) ∙
-[@feltjs/util](https://github.com/feltjs/util) ∙
+[@grogarden/util](https://github.com/grogarden/util) ∙
 [ESLint](https://github.com/eslint/eslint) ∙
 [Prettier](https://github.com/prettier/prettier) ∙
 [svelte-check](https://github.com/sveltejs/language-tools/tree/master/packages/svelte-check) ∙
@@ -253,4 +244,4 @@ Gro builds on
 
 ## license [🐦](https://wikipedia.org/wiki/Free_and_open-source_software)
 
-public domain ⚘ [The Unlicense](license)
+[MIT](LICENSE)

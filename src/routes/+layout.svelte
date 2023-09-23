@@ -1,15 +1,14 @@
+<script lang="ts">
+	import '@fuz.dev/fuz/style.css';
+	import '@fuz.dev/fuz/theme.css';
+
+	import Themed from '@fuz.dev/fuz/Themed.svelte';
+</script>
+
 <svelte:head>
-	<link rel="shortcut icon" href="/favicon.png" />
+	<title>@grogarden/gro</title>
 </svelte:head>
 
-<main>
+<Themed>
 	<slot />
-</main>
-
-<style>
-	main {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-	}
-</style>
+</Themed>
