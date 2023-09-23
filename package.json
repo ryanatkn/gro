@@ -1,5 +1,5 @@
 {
-  "name": "gro",
+  "name": "@grogarden/gro",
   "description": "task runner and toolkit extending SvelteKit",
   "version": "0.83.0",
   "bin": {
