@@ -1,5 +1,4 @@
 import {join} from 'node:path';
-import type {Json} from '@grogarden/util/json.js';
 import {readFile, writeFile} from 'node:fs/promises';
 
 import {
@@ -8,17 +7,66 @@ import {
 	is_this_project_gro,
 	replace_extension,
 	SVELTEKIT_DIST_DIRNAME,
+	type Url,
+	type Email,
 } from './paths.js';
 
-// TODO fill out this type
+// TODO maybe define with Zod so we get good error messages for parsing?
+
+/**
+ * @see https://docs.npmjs.com/cli/v10/configuring-npm/package-json
+ */
 export interface PackageJson {
-	[key: string]: Json | undefined;
-	name: string;
-	main?: string;
-	bin?: {[key: string]: string};
+	[key: string]: unknown;
+
+	private?: boolean;
+
+	name?: string;
+	description?: string;
+	version?: string;
+	license?: string;
+	homepage?: Url;
+	repository?: string | Url | PackageJsonRepository;
+	author?: string | PackageJsonAuthor;
+	contributors?: Array<string | PackageJsonAuthor>;
+	bugs?: {url: Url; email: Email};
+	funding?: Url | PackageJsonFunding | Array<Url | PackageJsonFunding>;
+	keywords?: string[];
+
+	scripts?: Record<string, string>;
+
+	bin?: Record<string, string>;
 	files?: string[];
 	exports?: PackageJsonExports;
+
+	dependencies?: Record<string, string>;
+	devDependencies?: Record<string, string>;
+	peerDependencies?: Record<string, string>;
+	peerDependenciesMeta?: Record<string, Record<string, string>>;
+	optionalDependencies?: Record<string, string>;
+
+	engines?: Record<string, string>;
+	os?: string[];
+	cpu?: string[];
 }
+
+export interface PackageJsonRepository {
+	type: string;
+	url: Url;
+	directory?: string;
+}
+
+export interface PackageJsonAuthor {
+	name: string;
+	email?: Email;
+	url?: Url;
+}
+
+export interface PackageJsonFunding {
+	type: string;
+	url: Url;
+}
+
 export type PackageJsonExports = Record<string, Record<string, string>>;
 
 export const load_package_json = async (): Promise<PackageJson> =>
