@@ -18,12 +18,14 @@ export interface Options {
 	 */
 	host_target?: HostTarget;
 	/**
-	 * If `true` and the `package.json` value `private` is falsy,
+	 * If `true`, or if `undefined` and the `package.json` value `private` is falsy,
 	 * includes `package.json` in the static `.well-known` directory for production builds.
-	 * Ignored during development, which isn't ideal, but being non-invasive is a priority.
+	 * Ignored during development, which isn't ideal and should be fixed,
+	 * but being non-invasive is a priority.
+	 * Projects shouldn't have to configure this or be exposed to its changes to benefit.
 	 * @default undefined
 	 */
-	include_package_json?: boolean;
+	well_known_package_json?: boolean;
 }
 
 export type HostTarget = 'github_pages' | 'static' | 'node';
@@ -31,7 +33,7 @@ export type HostTarget = 'github_pages' | 'static' | 'node';
 export const plugin = ({
 	dir = SVELTEKIT_BUILD_DIRNAME, // TODO what about cwd like other plugins? like for loading the SvelteKit config
 	host_target = 'github_pages',
-	include_package_json,
+	well_known_package_json,
 }: Options = {}): Plugin<PluginContext> => {
 	const output_dir = strip_end(dir, '/');
 
@@ -52,9 +54,9 @@ export const plugin = ({
 				}
 			} else {
 				let including_package_json = false;
-				if (include_package_json) {
+				if (well_known_package_json) {
 					including_package_json = true;
-				} else if (include_package_json === undefined) {
+				} else if (well_known_package_json === undefined) {
 					const pkg = await load_package_json();
 					including_package_json = !pkg.private;
 				}
