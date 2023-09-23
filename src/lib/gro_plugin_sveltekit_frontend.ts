@@ -57,7 +57,7 @@ export const plugin = ({
 
 				// fs hackery
 				// include the static `.well-known/package.json` as needed -
-				// ideally this wouldn't exist and we'd  use SvelteKit/Vite instead
+				// ideally this wouldn't exist and we'd use SvelteKit/Vite instead
 				let including_package_json = false;
 				if (well_known_package_json) {
 					including_package_json = true;
