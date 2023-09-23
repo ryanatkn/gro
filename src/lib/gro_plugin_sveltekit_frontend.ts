@@ -21,7 +21,7 @@ export interface Options {
 	 * includes `package.json` in the static `.well-known` directory for production builds.
 	 * Ignored during development, which isn't ideal and should be fixed,
 	 * but being non-invasive is a priority.
-	 * Projects shouldn't have to configure this or be exposed to its changes to benefit.
+	 * Projects shouldn't have to configure this or be exposed to its fs hackery to benefit.
 	 * @default undefined
 	 */
 	well_known_package_json?: boolean;
