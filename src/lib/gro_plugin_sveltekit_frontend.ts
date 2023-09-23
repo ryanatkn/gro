@@ -89,6 +89,7 @@ export const plugin = ({
 				await spawn('npx', serialized_args);
 
 				// cleanup fs hackery
+				// we don't wait for `adapt` because we don't want these fs changes to leak -
 				// revert the static directory back to its original state
 				if (added_well_known_dir) {
 					// remove the whole `.well-known` directory
