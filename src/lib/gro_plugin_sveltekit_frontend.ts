@@ -54,6 +54,7 @@ export const plugin = ({
 			} else {
 				// build for production
 
+				// fs hackery
 				// include the static `.well-known/package.json` as needed -
 				// ideally this wouldn't exist and we'd  use SvelteKit/Vite instead
 				let including_package_json = false;
