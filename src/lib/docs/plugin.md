@@ -17,6 +17,7 @@ with some behavioral inconsistencies:
 The API needs to be improved for more advanced usecases,
 currently it offers little flexibility -
 we'll follow the Vite/SvelteKit APIs probably. (`pre` etc)
+Maybe let you map the array of each method batch. (is that possible with those?)
 
 Gro's builtin plugins:
 
