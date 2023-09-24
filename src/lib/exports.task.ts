@@ -43,7 +43,7 @@ export const task: Task<Args> = {
 					failure_message('The package.json has unexpectedly changed for mode `exports`.'),
 				);
 			} else {
-				log.info('check passed, no package.json exports have changed');
+				log.info('check passed for package.json in `exports` mode');
 			}
 		} else {
 			log.info(
@@ -87,7 +87,7 @@ export const task: Task<Args> = {
 							failure_message('The package.json has unexpectedly changed for mode `well_known`.'),
 						);
 					} else {
-						log.info('check passed, no package.json exports have changed');
+						log.info('check passed for package.json in `well_known` mode');
 					}
 				} else {
 					if (changed_well_known_package_json) {
