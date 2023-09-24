@@ -1,6 +1,6 @@
 import {spawn, spawnProcess, type SpawnedProcess} from '@grogarden/util/process.js';
 import {strip_end} from '@grogarden/util/string.js';
-import {mkdir, rm, writeFile} from 'node:fs/promises';
+import {mkdir, writeFile} from 'node:fs/promises';
 
 import type {Plugin, PluginContext} from './plugin.js';
 import {print_command_args, serialize_args, to_forwarded_args} from './args.js';
