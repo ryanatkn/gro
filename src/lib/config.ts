@@ -38,7 +38,7 @@ export interface GroConfigModule {
 }
 
 export const load_config = async (): Promise<GroConfig> => {
-	const default_config = await create_default_config(create_empty_config()); // hacky so the default config demonstrates the same code a user would write
+	const default_config = await create_default_config(create_empty_config());
 
 	const config_path = paths.config;
 	let config: GroConfig;
