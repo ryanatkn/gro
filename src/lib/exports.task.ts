@@ -111,4 +111,4 @@ const create_exports_filter = (include: string, exclude: string) => {
 const failure_message = (msg: string) =>
 	'Failed exports check. ' +
 	msg +
-	' Run `gro exports` manually and check the `package_json` config option.';
+	' Run `gro exports` manually to inspect the changes, and check any `package_json` config option.';
