@@ -35,25 +35,25 @@ export const task: Task<Args> = {
 		const exported_paths = Array.from(exported_files.keys());
 		const exports = to_package_exports(exported_paths);
 		const exports_count = Object.keys(exports).length;
-		const changed = await update_package_json(config.package_json, 'exports', !check);
+		const changed_exports = await update_package_json(config.package_json, 'exports', !check);
 
 		if (check) {
-			if (changed) {
+			if (changed_exports) {
 				throw new TaskError(
-					'Failed exports check. Some package.json exports have unexpectedly changed.' +
-						' Run `gro exports` manually and check the `package_json` config option.',
+					failure_message('The package.json has unexpectedly changed for mode `exports`.'),
 				);
 			} else {
 				log.info('check passed, no package.json exports have changed');
 			}
-			return;
+		} else {
+			log.info(
+				changed_exports
+					? `updated package.json exports with ${exports_count} total export${plural(
+							exports_count,
+					  )}`
+					: 'no exports in package.json changed',
+			);
 		}
-
-		log.info(
-			changed
-				? `updated package.json exports with ${exports_count} total export${plural(exports_count)}`
-				: 'no exports in package.json changed',
-		);
 
 		// add `/.well-known/package.json` as needed
 		const pkg = await load_package_json();
@@ -70,19 +70,29 @@ export const task: Task<Args> = {
 				}
 				const package_json_path = well_known_dir + '/package.json';
 				const new_contents = serialize_package_json(mapped);
-				let changed = false;
+				let changed_well_known_package_json = false;
 				if (await exists(package_json_path)) {
 					const old_contents = await readFile(package_json_path, 'utf8');
 					if (new_contents === old_contents) {
-						changed = false;
+						changed_well_known_package_json = false;
 					} else {
-						changed = true;
+						changed_well_known_package_json = true;
 					}
 				} else {
-					changed = true;
+					changed_well_known_package_json = true;
 				}
-				if (changed) {
-					await writeFile(package_json_path, new_contents);
+				if (check) {
+					if (changed_well_known_package_json) {
+						throw new TaskError(
+							failure_message('The package.json has unexpectedly changed for mode `well_known`.'),
+						);
+					} else {
+						log.info('check passed, no package.json exports have changed');
+					}
+				} else {
+					if (changed_well_known_package_json) {
+						await writeFile(package_json_path, new_contents);
+					}
 				}
 			}
 		}
@@ -97,3 +107,8 @@ const create_exports_filter = (include: string, exclude: string) => {
 		(!include_matcher || include_matcher.test(path)) &&
 		(!exclude_matcher || !exclude_matcher.test(path));
 };
+
+const failure_message = (msg: string) =>
+	'Failed exports check. ' +
+	msg +
+	' Run `gro exports` manually and check the `package_json` config option.';
