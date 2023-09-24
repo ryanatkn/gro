@@ -26,15 +26,13 @@ Here's how to define a user config that overrides the default plugins:
 ```ts
 import type {GroConfigCreator} from '@grogarden/gro';
 
-const config: GroConfigCreator = async (base_config) => {
-	const final_config = {
-		...base_config,
-		plugins: () => {
-			const default_plugins = await base_config.plugins();
-			return default_plugins.concat(create_some_custom_plugin());
-		},
+const config: GroConfigCreator = async (cfg) => {
+	const get_base_plugins = cfg.plugins;
+	cfg.plugins = () => {
+		const base_plugins = await get_base_plugins();
+		return base_plugins.concat(create_some_custom_plugin());
 	};
-	return final_config;
+	return cfg;
 };
 
 export default config;
