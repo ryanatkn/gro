@@ -22,16 +22,12 @@ export const Args = z
 			.string({description: 'file name and path of the changelog'})
 			.default('CHANGELOG.md'),
 		dry: z
-			.boolean({
-				description: 'build and prepare to publish without actually publishing',
-			})
+			.boolean({description: 'build and prepare to publish without actually publishing'})
 			.default(false),
 		check: z.boolean({description: 'dual of no-check'}).default(true),
 		'no-check': z
 			.boolean({description: 'opt out of npm checking before publishing'})
 			.default(false),
-		sync: z.boolean({description: 'dual of no-sync'}).default(true),
-		'no-sync': z.boolean({description: 'opt out of npm syncing before building'}).default(false),
 		install: z.boolean({description: 'dual of no-install'}).default(true),
 		'no-install': z
 			.boolean({description: 'opt out of npm installing before building'})
@@ -44,17 +40,17 @@ export const task: Task<Args> = {
 	summary: 'bump version, publish to npm, and git push',
 	Args,
 	run: async ({args, log, invoke_task}): Promise<void> => {
-		const {branch, changelog, dry, check, sync, install} = args;
+		const {branch, changelog, dry, check, install} = args;
 		if (dry) {
 			log.info(green('dry run!'));
 		}
 
+		// TODO hacky, ensures Gro bootstraps itself
 		if (is_this_project_gro) {
 			await spawn('npm', ['run', 'build']);
 		}
 
-		const changelogExists = await exists(changelog);
-		let version!: string;
+		const changelog_exists = await exists(changelog);
 
 		// Ensure Changesets is installed:
 		if (!(await find_cli('changeset'))) {
@@ -72,6 +68,8 @@ export const task: Task<Args> = {
 			// TODO check for clean git workspace
 			await invoke_task('check');
 		}
+
+		let version!: string;
 
 		// Bump the version so the package.json is updated before building:
 		// TODO problem here is build may fail and put us in a bad state,
@@ -98,7 +96,7 @@ export const task: Task<Args> = {
 		}
 
 		// Build to create the final artifacts:
-		await invoke_task('build', {sync, install});
+		await invoke_task('build', {install});
 
 		if (dry) {
 			log.info('publishing branch ' + branch);
@@ -113,7 +111,7 @@ export const task: Task<Args> = {
 			);
 		}
 
-		if (!changelogExists && (await exists(changelog))) {
+		if (!changelog_exists && (await exists(changelog))) {
 			await spawn('git', ['add', changelog]);
 		}
 		await spawn('git', ['commit', '-a', '-m', `publish v${version}`]);

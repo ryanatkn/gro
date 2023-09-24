@@ -5,7 +5,12 @@ import {mkdir, readFile, writeFile} from 'node:fs/promises';
 import {TaskError, type Task} from './task.js';
 import {search_fs} from './search_fs.js';
 import {paths} from './paths.js';
-import {load_package_json, to_package_exports, update_package_json} from './package_json.js';
+import {
+	load_package_json,
+	serialize_package_json,
+	to_package_exports,
+	update_package_json,
+} from './package_json.js';
 import {load_sveltekit_config} from './sveltekit_config.js';
 import {exists} from './exists.js';
 
@@ -64,7 +69,7 @@ export const task: Task<Args> = {
 					await mkdir(well_known_dir, {recursive: true});
 				}
 				const package_json_path = well_known_dir + '/package.json';
-				const new_contents = JSON.stringify(mapped, null, 2);
+				const new_contents = serialize_package_json(mapped);
 				let changed = false;
 				if (await exists(package_json_path)) {
 					const old_contents = await readFile(package_json_path, 'utf8');
