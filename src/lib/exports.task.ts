@@ -35,7 +35,10 @@ export const task: Task<Args> = {
 		const exported_paths = Array.from(exported_files.keys());
 		const exports = to_package_exports(exported_paths);
 		const exports_count = Object.keys(exports).length;
-		const changed_exports = await update_package_json(config.package_json, 'exports', !check);
+		const changed_exports = await update_package_json((pkg) => {
+			pkg.exports = exports;
+			return config.package_json(pkg, 'exports');
+		}, !check);
 
 		if (check) {
 			if (changed_exports) {

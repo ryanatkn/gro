@@ -100,13 +100,12 @@ export const serialize_package_json = (pkg: PackageJson): string =>
  * @returns boolean indicating if the file changed
  */
 export const update_package_json = async (
-	update: MapPackageJson,
-	mode: MapPackageJsonMode,
+	update: (pkg: PackageJson) => PackageJson | null | Promise<PackageJson | null>,
 	write = true,
 ): Promise<boolean> => {
 	const original_pkg_contents = await load_package_json_contents(paths.root);
 	const original_pkg = JSON.parse(original_pkg_contents);
-	const updated_pkg = await update(original_pkg, mode);
+	const updated_pkg = await update(original_pkg);
 	if (updated_pkg === null) return false;
 	const updated_contents = serialize_package_json(updated_pkg);
 	if (updated_contents === original_pkg_contents) {
