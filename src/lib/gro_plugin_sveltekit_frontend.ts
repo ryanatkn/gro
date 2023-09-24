@@ -55,7 +55,7 @@ export const plugin = ({
 			} else {
 				// build for production
 
-				// fs hackery - maybe switch to a Vite plugin
+				// fs hackery to add `/.well-known/package.json` - maybe switch to a Vite plugin
 				const pkg = await load_package_json();
 				// include the static `.well-known/package.json` as needed
 				let including_package_json = false;
