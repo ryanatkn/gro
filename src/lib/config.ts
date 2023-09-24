@@ -24,6 +24,7 @@ export interface GroConfig {
 	 * Maps the project's `package.json`.
 	 * Runs in modes 'exports' and 'well_known'.
 	 * The `pkg` argument may be mutated.
+	 * Returning `null` is a no-op for that mode.
 	 * @default identity
 	 */
 	package_json: MapPackageJson;
