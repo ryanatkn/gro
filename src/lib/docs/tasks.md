@@ -18,7 +18,7 @@ What is a `Task`? See [`task.md`](./task.md).
 - [gen](../gen.task.ts) - run code generation scripts
 - [lint](../lint.task.ts) - run eslint on the given directories and files
 - [publish](../publish.task.ts) - bump version, publish to npm, and git push
-- [sync](../sync.task.ts) - inits the local project, also calls svelte-kit sync
+- [sync](../sync.task.ts) - runs `gro gen`, `gro exports`, and optionally `npm i` to sync up
 - [test](../test.task.ts) - run tests
 - [typecheck](../typecheck.task.ts) - run tsc on the project without emitting any files
 - [upgrade](../upgrade.task.ts) - upgrade deps

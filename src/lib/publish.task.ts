@@ -26,6 +26,12 @@ export const Args = z
 				description: 'build and prepare to publish without actually publishing',
 			})
 			.default(false),
+		check: z.boolean({description: 'dual of no-check'}).default(true),
+		'no-check': z
+			.boolean({description: 'opt out of npm checking before publishing'})
+			.default(false),
+		sync: z.boolean({description: 'dual of no-sync'}).default(true),
+		'no-sync': z.boolean({description: 'opt out of npm syncing before building'}).default(false),
 		install: z.boolean({description: 'dual of no-install'}).default(true),
 		'no-install': z
 			.boolean({description: 'opt out of npm installing before building'})
@@ -38,7 +44,7 @@ export const task: Task<Args> = {
 	summary: 'bump version, publish to npm, and git push',
 	Args,
 	run: async ({args, log, invoke_task}): Promise<void> => {
-		const {branch, changelog, dry, install} = args;
+		const {branch, changelog, dry, check, sync, install} = args;
 		if (dry) {
 			log.info(green('dry run!'));
 		}
@@ -62,7 +68,10 @@ export const task: Task<Args> = {
 		await spawn('git', ['pull', 'origin', branch]);
 
 		// Check before proceeding.
-		await invoke_task('check');
+		if (check) {
+			// TODO check for clean git workspace
+			await invoke_task('check');
+		}
 
 		// Bump the version so the package.json is updated before building:
 		// TODO problem here is build may fail and put us in a bad state,
@@ -89,7 +98,7 @@ export const task: Task<Args> = {
 		}
 
 		// Build to create the final artifacts:
-		await invoke_task('build', {install});
+		await invoke_task('build', {sync, install});
 
 		if (dry) {
 			log.info('publishing branch ' + branch);
