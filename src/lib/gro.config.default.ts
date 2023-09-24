@@ -12,31 +12,30 @@ import {load_package_json} from './package_json.js';
  * - if `src/lib`, assumes a Node library
  * - if `src/lib/server/server.ts`, assumes a Node  server
  */
-const config: GroConfigCreator = async (base_config) => {
+const config: GroConfigCreator = async (cfg) => {
 	const [enable_library, enable_server, enable_sveltekit_frontend] = await Promise.all([
 		has_library(),
 		has_server(),
 		has_sveltekit_frontend(),
 	]);
 
-	return {
-		...base_config,
-		plugins: async () => [
-			enable_library ? (await import('./gro_plugin_library.js')).plugin() : null,
-			enable_server
-				? (await import('./gro_plugin_server.js')).plugin({
-						entry_points: [SERVER_SOURCE_ID],
-				  })
-				: null,
-			enable_sveltekit_frontend
-				? (await import('./gro_plugin_sveltekit_frontend.js')).plugin({
-						host_target: enable_server ? 'node' : 'github_pages',
-				  })
-				: null,
-			// TODO replace with an esbuild plugin, see the module for more
-			// (await import('./gro_plugin_gen.js')).plugin(),
-		],
-	};
+	cfg.plugins = async () => [
+		enable_library ? (await import('./gro_plugin_library.js')).plugin() : null,
+		enable_server
+			? (await import('./gro_plugin_server.js')).plugin({
+					entry_points: [SERVER_SOURCE_ID],
+			  })
+			: null,
+		enable_sveltekit_frontend
+			? (await import('./gro_plugin_sveltekit_frontend.js')).plugin({
+					host_target: enable_server ? 'node' : 'github_pages',
+			  })
+			: null,
+		// TODO replace with an esbuild plugin, see the module for more
+		// (await import('./gro_plugin_gen.js')).plugin(),
+	];
+
+	return cfg;
 };
 
 export default config;
