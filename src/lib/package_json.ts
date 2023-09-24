@@ -72,9 +72,10 @@ export type PackageJsonExports = Record<string, Record<string, string>>;
 export interface MapPackageJson {
 	(
 		pkg: PackageJson | null,
-		mode: 'exports' | 'well_known',
+		mode: MapPackageJsonMode,
 	): PackageJson | null | Promise<PackageJson | null>;
 }
+export type MapPackageJsonMode = 'exports' | 'well_known';
 
 export const load_package_json = async (): Promise<PackageJson> =>
 	is_this_project_gro
@@ -99,12 +100,13 @@ export const serialize_package_json = (pkg: PackageJson): string =>
  * @returns boolean indicating if the file changed
  */
 export const update_package_json = async (
-	update: (pkg: PackageJson) => PackageJson | null | Promise<PackageJson | null>,
+	update: MapPackageJson,
+	mode: MapPackageJsonMode,
 	write = true,
 ): Promise<boolean> => {
 	const original_pkg_contents = await load_package_json_contents(paths.root);
 	const original_pkg = JSON.parse(original_pkg_contents);
-	const updated_pkg = await update(original_pkg);
+	const updated_pkg = await update(original_pkg, mode);
 	if (updated_pkg === null) return false;
 	const updated_contents = serialize_package_json(updated_pkg);
 	if (updated_contents === original_pkg_contents) {
