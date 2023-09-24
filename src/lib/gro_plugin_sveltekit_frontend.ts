@@ -55,10 +55,9 @@ export const plugin = ({
 			} else {
 				// build for production
 
-				// fs hackery
+				// fs hackery - maybe switch to a Vite plugin
 				const pkg = await load_package_json();
-				// include the static `.well-known/package.json` as needed -
-				// ideally this wouldn't exist and we'd use SvelteKit/Vite instead
+				// include the static `.well-known/package.json` as needed
 				let including_package_json = false;
 				if (well_known_package_json) {
 					including_package_json = true;
