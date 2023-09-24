@@ -24,7 +24,7 @@ export interface Options {
 	 * Projects shouldn't have to configure this or be exposed to its fs hackery to benefit.
 	 * @default undefined
 	 */
-	well_known_package_json?: boolean;
+	well_known_package_json?: boolean | undefined;
 }
 
 export type HostTarget = 'github_pages' | 'static' | 'node';
@@ -62,8 +62,7 @@ export const plugin = ({
 				if (well_known_package_json) {
 					including_package_json = true;
 				} else if (well_known_package_json === undefined) {
-					const pkg = await load_package_json();
-					including_package_json = !pkg.private;
+					including_package_json = !(await load_package_json()).private;
 				}
 				let added_package_json_path: string | undefined;
 				let added_well_known_dir: string | undefined;
