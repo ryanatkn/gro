@@ -28,7 +28,7 @@ import type {GroConfigCreator} from '@grogarden/gro';
 
 const config: GroConfigCreator = async (cfg) => {
 	const get_base_plugins = cfg.plugins;
-	cfg.plugins = async () => {
+	cfg.plugins = async (_ctx) => {
 		const base_plugins = await get_base_plugins();
 		return base_plugins.concat(create_some_custom_plugin());
 	};
