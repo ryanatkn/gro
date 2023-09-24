@@ -94,7 +94,7 @@ export const plugin = ({
 					// remove the whole `.well-known` directory
 					await rm(added_well_known_dir, {recursive: true});
 				} else if (added_package_json_path) {
-					// delete the copied file
+					// delete only the copied file
 					await rm(added_package_json_path);
 				}
 			}
