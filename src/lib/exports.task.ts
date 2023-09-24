@@ -1,6 +1,6 @@
 import {z} from 'zod';
 import {plural, strip_end} from '@grogarden/util/string.js';
-import {mkdir, writeFile} from 'node:fs/promises';
+import {mkdir, readFile, writeFile} from 'node:fs/promises';
 
 import {TaskError, type Task} from './task.js';
 import {search_fs} from './search_fs.js';
@@ -64,8 +64,22 @@ export const task: Task<Args> = {
 					await mkdir(well_known_dir, {recursive: true});
 				}
 				const package_json_path = well_known_dir + '/package.json';
-				if (!(await exists(package_json_path))) {
-					await writeFile(package_json_path, JSON.stringify(mapped, null, 2));
+				const stringified = JSON.stringify(mapped, null, 2);
+				let changed = false;
+				if (await exists(package_json_path)) {
+					const old_contents = await readFile(package_json_path, 'utf8');
+					if (stringified === old_contents) {
+						console.log('NO CHANGE');
+						changed = false;
+					} else {
+						console.log('CHANGING');
+						changed = true;
+					}
+				} else {
+					changed = true;
+				}
+				if (changed) {
+					await writeFile(package_json_path, stringified);
 				}
 			}
 		}
