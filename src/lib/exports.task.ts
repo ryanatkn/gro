@@ -64,22 +64,20 @@ export const task: Task<Args> = {
 					await mkdir(well_known_dir, {recursive: true});
 				}
 				const package_json_path = well_known_dir + '/package.json';
-				const stringified = JSON.stringify(mapped, null, 2);
+				const new_contents = JSON.stringify(mapped, null, 2);
 				let changed = false;
 				if (await exists(package_json_path)) {
 					const old_contents = await readFile(package_json_path, 'utf8');
-					if (stringified === old_contents) {
-						console.log('NO CHANGE');
+					if (new_contents === old_contents) {
 						changed = false;
 					} else {
-						console.log('CHANGING');
 						changed = true;
 					}
 				} else {
 					changed = true;
 				}
 				if (changed) {
-					await writeFile(package_json_path, stringified);
+					await writeFile(package_json_path, new_contents);
 				}
 			}
 		}
