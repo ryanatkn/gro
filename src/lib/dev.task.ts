@@ -23,14 +23,12 @@ export const task: Task<Args> = {
 	summary: 'start SvelteKit and other dev plugins',
 	Args,
 	run: async (ctx) => {
-		const {
-			args: {watch},
-			invoke_task,
-		} = ctx;
+		const {args, invoke_task} = ctx;
+		const {watch} = args;
 
 		await clean_fs({build_dev: true});
 
-		await invoke_task('gen');
+		await invoke_task('sync');
 
 		const plugins = await Plugins.create({...ctx, dev: true, watch});
 
