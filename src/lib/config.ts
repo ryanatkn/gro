@@ -22,8 +22,8 @@ export interface GroConfig {
 	plugins: CreateConfigPlugins;
 	/**
 	 * Maps the project's `package.json`.
-	 * Runs in modes 'exports' and 'well_known'.
-	 * The `pkg` argument may be mutated.
+	 * The `pkg` argument may be mutated, but the return value is what's used.
+	 * Runs in modes 'updating_exports' and 'updating_well_known'.
 	 * Returning `null` is a no-op for that mode.
 	 * @default identity
 	 */

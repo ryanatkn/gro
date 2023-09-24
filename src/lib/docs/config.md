@@ -45,7 +45,7 @@ export interface GroConfig {
 	plugins: CreateConfigPlugins;
 	/**
 	 * Maps the project's `package.json`.
-	 * Runs in modes 'exports' and 'well_known'.
+	 * Runs in modes 'updating_exports' and 'updating_well_known'.
 	 * The `pkg` argument may be mutated.
 	 */
 	package_json: MapPackageJson;

@@ -37,7 +37,7 @@ export const task: Task<Args> = {
 		const exports_count = Object.keys(exports).length;
 		const changed_exports = await update_package_json((pkg) => {
 			pkg.exports = exports;
-			return config.package_json(pkg, 'exports');
+			return config.package_json(pkg, 'updating_exports');
 		}, !check);
 
 		if (check) {
@@ -62,7 +62,7 @@ export const task: Task<Args> = {
 		const pkg = await load_package_json();
 		const including_package_json = !pkg.private;
 		if (including_package_json) {
-			const mapped = await config.package_json(pkg, 'well_known');
+			const mapped = await config.package_json(pkg, 'updating_well_known');
 			if (mapped !== null) {
 				// copy the `package.json` over to `static/.well-known/` if configured unless it exists
 				const svelte_config = await load_sveltekit_config();
