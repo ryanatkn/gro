@@ -360,6 +360,10 @@
       "default": "./dist/sveltekit_sync.js",
       "types": "./dist/sveltekit_sync.d.ts"
     },
+    "./sync.task.js": {
+      "default": "./dist/sync.task.js",
+      "types": "./dist/sync.task.d.ts"
+    },
     "./task_module.js": {
       "default": "./dist/task_module.js",
       "types": "./dist/task_module.d.ts"
