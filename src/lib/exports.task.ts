@@ -35,7 +35,7 @@ export const task: Task<Args> = {
 			if (changed) {
 				throw new TaskError(
 					'Failed exports check. Some package.json exports have unexpectedly changed.' +
-						' Run gro exports manually and check the `package_json` config option.',
+						' Run `gro exports` manually and check the `package_json` config option.',
 				);
 			} else {
 				log.info('check passed, no package.json exports have changed');
