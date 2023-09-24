@@ -22,13 +22,15 @@ export type Args = z.infer<typeof Args>;
 export const task: Task<Args> = {
 	summary: 'run tests',
 	Args,
-	run: async ({args, log}): Promise<void> => {
+	run: async ({args, invoke_task, log}): Promise<void> => {
 		const {_: patterns, bail, cwd, ignore} = args;
 
 		if (!(await find_cli('uvu'))) {
 			log.warn(yellow('uvu is not installed, skipping tests'));
 			return;
 		}
+
+		await invoke_task('sync');
 
 		const {run} = await import('uvu/run');
 		const {parse} = await import('uvu/parse');
