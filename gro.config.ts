@@ -6,6 +6,7 @@ import type {GroConfig} from './src/lib/config.js';
  * The default should be referenced as an example implementation, not this one.
  */
 const config: GroConfig = {
+	package_json: (pkg, _mode) => pkg,
 	plugins: async () => [
 		(await import('./src/lib/gro_plugin_library.js')).plugin(),
 		(await import('./src/lib/gro_plugin_sveltekit_frontend.js')).plugin(),

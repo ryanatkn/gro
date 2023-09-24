@@ -12,7 +12,7 @@ import {load_package_json} from './package_json.js';
  * - if `src/lib`, assumes a Node library
  * - if `src/lib/server/server.ts`, assumes a Node  server
  */
-const config: GroConfigCreator = async () => {
+const config: GroConfigCreator = async (base_config) => {
 	const [enable_library, enable_server, enable_sveltekit_frontend] = await Promise.all([
 		has_library(),
 		has_server(),
@@ -20,6 +20,7 @@ const config: GroConfigCreator = async () => {
 	]);
 
 	return {
+		...base_config,
 		plugins: async () => [
 			enable_library ? (await import('./gro_plugin_library.js')).plugin() : null,
 			enable_server

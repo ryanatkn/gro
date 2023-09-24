@@ -26,11 +26,11 @@ Here's how to define a user config that overrides the default plugins:
 ```ts
 import type {GroConfigCreator} from '@grogarden/gro';
 
-const config: GroConfigCreator = async (default_config) => {
+const config: GroConfigCreator = async (base_config) => {
 	const final_config = {
-		...default_config,
+		...base_config,
 		plugins: () => {
-			const default_plugins = await default_config.plugins();
+			const default_plugins = await base_config.plugins();
 			return default_plugins.concat(create_some_custom_plugin());
 		},
 	};
@@ -44,11 +44,17 @@ export default config;
 
 ```ts
 export interface GroConfig {
-	plugins: ToConfigPlugins;
+	plugins: CreateConfigPlugins;
+	/**
+	 * Maps the project's `package.json`.
+	 * Runs in modes 'exports' and 'well_known'.
+	 * The `pkg` argument may be mutated.
+	 */
+	package_json: MapPackageJson;
 }
 
 export interface GroConfigCreator {
-	(default_config: GroConfig): GroConfig | Promise<GroConfig>;
+	(base_config: GroConfig): GroConfig | Promise<GroConfig>;
 }
 ```
 
@@ -59,7 +65,7 @@ Read more about plugins and the `Plugin` in
 [plugin.md](plugin.md), [dev.md](dev.md#plugin), and [build.md](build.md#plugin).
 
 ```ts
-export interface ToConfigPlugins<TPluginContext extends PluginContext = PluginContext> {
+export interface CreateConfigPlugins<TPluginContext extends PluginContext = PluginContext> {
 	(
 		ctx: TPluginContext,
 	):

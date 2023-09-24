@@ -4,7 +4,7 @@ import {plural} from '@grogarden/util/string.js';
 import {TaskError, type Task} from './task.js';
 import {search_fs} from './search_fs.js';
 import {paths} from './paths.js';
-import {to_package_exports, update_package_json_exports} from './package_json.js';
+import {to_package_exports, update_package_json} from './package_json.js';
 
 export const Args = z
 	.object({
@@ -22,16 +22,20 @@ export type Args = z.infer<typeof Args>;
 export const task: Task<Args> = {
 	summary: 'writes the exports property of package.json for the lib',
 	Args,
-	run: async ({args: {dir, include, exclude, check}, log}): Promise<void> => {
+	run: async ({args: {dir, include, exclude, check}, config, log}): Promise<void> => {
 		const exported_files = await search_fs(dir, {filter: create_exports_filter(include, exclude)});
 		const exported_paths = Array.from(exported_files.keys());
 		const exports = to_package_exports(exported_paths);
 		const exports_count = Object.keys(exports).length;
-		const changed = await update_package_json_exports(exports, !check);
+		const changed = await update_package_json((pkg) => {
+			pkg.exports = exports;
+			return config.package_json(pkg, 'exports');
+		}, !check);
 		if (check) {
 			if (changed) {
 				throw new TaskError(
-					'Failed exports check. Some package.json exports have unexpectedly changed.',
+					'Failed exports check. Some package.json exports have unexpectedly changed.' +
+						' Run gro exports manually and check the `package_json` config option.',
 				);
 			} else {
 				log.info('check passed, no package.json exports have changed');

@@ -69,6 +69,13 @@ export interface PackageJsonFunding {
 
 export type PackageJsonExports = Record<string, Record<string, string>>;
 
+export interface MapPackageJson {
+	(
+		pkg: PackageJson | null,
+		mode: 'exports' | 'well_known',
+	): PackageJson | null | Promise<PackageJson | null>;
+}
+
 export const load_package_json = async (): Promise<PackageJson> =>
 	is_this_project_gro
 		? load_gro_package_json()
@@ -92,12 +99,13 @@ export const serialize_package_json = (pkg: PackageJson): string =>
  * @returns boolean indicating if the file changed
  */
 export const update_package_json = async (
-	update: (pkg: PackageJson) => PackageJson | Promise<PackageJson>,
+	update: (pkg: PackageJson) => PackageJson | null | Promise<PackageJson | null>,
 	write = true,
 ): Promise<boolean> => {
 	const original_pkg_contents = await load_package_json_contents(paths.root);
 	const original_pkg = JSON.parse(original_pkg_contents);
 	const updated_pkg = await update(original_pkg);
+	if (updated_pkg === null) return false;
 	const updated_contents = serialize_package_json(updated_pkg);
 	if (updated_contents === original_pkg_contents) {
 		return false;
@@ -105,11 +113,6 @@ export const update_package_json = async (
 	if (write) await write_package_json(updated_contents);
 	return true;
 };
-
-export const update_package_json_exports = (
-	exports: PackageJsonExports,
-	write = true,
-): Promise<boolean> => update_package_json((pkg) => ({...pkg, exports}), write);
 
 export const to_package_exports = (paths: string[]): PackageJsonExports => {
 	const sorted = paths
