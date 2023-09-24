@@ -26,6 +26,8 @@ export const task: Task<Args> = {
 	run: async ({args, invoke_task}) => {
 		const {typecheck, test, gen, format, exports, lint} = args;
 
+		await invoke_task('sync');
+
 		if (typecheck) {
 			await invoke_task('typecheck');
 		}
