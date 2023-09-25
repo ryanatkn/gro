@@ -155,6 +155,9 @@ By default it includes everything from `$lib/`,
 and you can provide your own `package_json` hook to
 mutate the `pkg`, return new data, or return `null` to be a no-op.
 
+Typical usage would modify `pkg.exports` during this step to
+remove modules that aren't public API.
+
 ### when 'updating_well_known'
 
 By default Gro copies your root `package.json`
