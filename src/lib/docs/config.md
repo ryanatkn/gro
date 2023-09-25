@@ -1,7 +1,7 @@
 # config
 
 Gro supports SvelteKit apps, Node libraries, and Node servers with minimal abstraction
-with the help of an optional config file that lives at `$PROJECT/gro.config.ts`.
+with the help of an optional config file that lives at the root `gro.config.ts`.
 If a project does not define a config, Gro imports a default config from
 [`src/lib/gro.config.default.ts`](/src/lib/gro.config.default.ts),
 which looks at your project for the familiar patterns and tries to do the right thing.
@@ -20,8 +20,36 @@ Here's [Gro's own internal config](/gro.config.ts) and
 here's [the default config](/src/lib/gro.config.default.ts)
 that's used for projects that do not define one at `gro.config.ts`.
 
-The default export of a Gro config is `GroConfig | GroConfigCreator`.
-Here's how to define a user config that overrides the default plugins:
+The default export of a Gro config is `GroConfig | GroConfigCreator`:
+
+```ts
+import type {GroConfigCreator} from '@grogarden/gro';
+
+const config: GroConfigCreator = async (cfg) => {
+	// mutate `cfg` or return a new object
+	return cfg;
+};
+
+export default config;
+```
+
+```ts
+export interface GroConfigCreator {
+	(base_config: GroConfig): GroConfig | Promise<GroConfig>;
+}
+
+export interface GroConfig {
+	plugins: CreateConfigPlugins;
+	/**
+	 * Maps the project's `package.json`.
+	 * Runs in modes 'updating_exports' and 'updating_well_known'.
+	 * The `pkg` argument may be mutated.
+	 */
+	package_json: MapPackageJson;
+}
+```
+
+To define a user config that overrides the default plugins:
 
 ```ts
 import type {GroConfigCreator} from '@grogarden/gro';
@@ -36,24 +64,6 @@ const config: GroConfigCreator = async (cfg) => {
 };
 
 export default config;
-```
-
-Either of these can be the default export of `gro.config.ts`:
-
-```ts
-export interface GroConfig {
-	plugins: CreateConfigPlugins;
-	/**
-	 * Maps the project's `package.json`.
-	 * Runs in modes 'updating_exports' and 'updating_well_known'.
-	 * The `pkg` argument may be mutated.
-	 */
-	package_json: MapPackageJson;
-}
-
-export interface GroConfigCreator {
-	(base_config: GroConfig): GroConfig | Promise<GroConfig>;
-}
 ```
 
 ## `plugins`
