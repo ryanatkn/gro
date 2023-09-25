@@ -85,7 +85,7 @@ to `.well-known/package.json` in your SvelteKit static directory.
 
 > ⚠️ Warning: by default Gro outputs your root `package.json`
 > to the SvelteKit static directory in `.well-known/package.json`.
-> This may surprise some users, and may result in unwanted information leaks.
+> This may surprise some users, and could result in unwanted information leaks.
 > To mitigate issues while keeping Gro's preferred defaults,
 > which are optimized for open source projects, the file is generated during development
 > and expected to be committed to source control, so at least there's visibility.
