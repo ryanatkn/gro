@@ -72,5 +72,5 @@ export const validate_config_module: (
 
 export const create_empty_config = (): GroConfig => ({
 	package_json: identity,
-	plugins: () => Promise.resolve([]),
+	plugins: () => [],
 });

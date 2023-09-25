@@ -114,13 +114,13 @@ const config: GroConfig = {
 
 	// the default, outputs all of `$lib/` as `exports` and the full `.well-known/package.json`
 	package_json: (pkg, _when) => pkg,
-	
+
 	// disables both automatic `exports` generation to `package.json` and `.well-known/package.json`
 	package_json: () => null,
-	
+
 	// disable `.well-known/package.json` and enable writing `exports` to `package.json`
 	package_json: (pkg, when) => (when === 'updating_well_known' ? null : pkg),
-	
+
 	// disable writing `exports` to `package.json` and enable `.well-known/package.json`
 	package_json: (pkg, when) => (when === 'updating_exports' ? null : pkg),
 
