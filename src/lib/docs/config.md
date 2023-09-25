@@ -78,10 +78,10 @@ The Gro config `package_json` property is a callback function
 that lets you modify the `package.json` in different circumstances.
 
 When `when === 'updating_exports'`, Gro is writing the `"exports"`
-property of the repo's `package.json` to the filesystem as part of the build process.
+property of the repo's `package.json` to the filesystem during the dev and build tasks.
 
 When `when === 'updating_well_known'`, Gro is outputting a second `package.json`
-to `.well-known/package.json` in your SvelteKit static directory.
+to `.well-known/package.json` in your SvelteKit static directory during the dev and build tasks.
 
 > ⚠️ Warning: by default Gro outputs your root `package.json`
 > to the SvelteKit static directory in `.well-known/package.json`.
