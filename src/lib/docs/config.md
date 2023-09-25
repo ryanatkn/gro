@@ -86,19 +86,20 @@ to `.well-known/package.json` in your SvelteKit static directory during the dev 
 > ⚠️ Warning: by default Gro outputs your root `package.json`
 > to the SvelteKit static directory in `.well-known/package.json`.
 > This may surprise some users, and could result in unwanted information leaks.
-> To mitigate issues while keeping Gro's preferred defaults,
+> To mitigate the issues with Gro's preferred defaults,
 > which are optimized for open source projects,
-> the file is written to `.well-known` during development
+> the `package.json` is written to `.well-known` during development
 > and expected to be committed to source control, giving visibility and requiring a manual step.
-> To disable all Gro `package.json` behavior, just return `null`: `package_json: () => null,`.
+> To disable all of Gro's `package.json` behavior,
+> just return `null`, so `package_json: () => null,`.
 
 > Writing to `.well-known/package.json` is unstandardized behavior that
 > repurposes [.well-known URIs](https://en.wikipedia.org/wiki/Well-known_URIs) for Node packages
-> to provide a metadata convention for deployed websites.
+> to provide conventional metadata for deployed websites.
 > The motivating usecase is [a docs website](https://docs.fuz.dev/) that spans many repos
 > and avoids duplicating any sources of truth.
-> By decoupling the output json from the repo's root `package.json`
-> with the `package_json` config property, we give users full control with minimal config.
+> The `package_json` config property decouples the output json from the repo's root `package.json`
+> and gives users full control with an automation-friendly pattern.
 
 ```ts
 export interface MapPackageJson {
