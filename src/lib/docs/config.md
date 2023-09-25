@@ -163,17 +163,18 @@ Why publish this metadata to the web instead of relying on the git repo as the s
 
 - we want to give all web users and tools access to discoverable package metadata,
 - we don't want to force a dependency on git, the bespoke URLs of forge hosts like GitHub,
-	or any particular toolchains
+  or any particular toolchains
 - metadata is a much lighter dependency than an entire repo
-- the git repo is still the source of truth, but Gro adds a build step for project metadata, 
-	giving devs full control over their published artifacts
-	instead of coupling metadata directly to a source repo's `package.json`
+- the git repo is still the source of truth, but Gro adds a build step for project metadata,
+  giving devs full control over their published artifacts
+  instead of coupling metadata directly to a source repo's `package.json`
 
 > ⚠️ Outputting `.well-known/package.json` will surprise some users
 > and could result in security-relevant information leaks.
 > Gro's defaults are designed for open source projects,
 > but configuring closed private projects should remain simple.
 > To migitate these issues:
+>
 > - all `package.json` automations are disabled when `"private": true`
 > - the `package.json` is written to `.well-known` during development
 >   and it's expected to be committed to source control,
