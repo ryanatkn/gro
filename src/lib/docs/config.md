@@ -176,7 +176,7 @@ to provide conventional metadata for deployed websites.
 The motivating usecase is [a docs website](https://docs.fuz.dev/)
 that includes the metadata of many repos.
 
-Why publish this metadata to the web instead of relying on the git repo as the source of truth?
+Why publish this metadata to the web instead of relying on the git repo as the only source of truth?
 
 - we want to give all web users and tools access to discoverable package metadata
 - we don't want to force a dependency on git, the bespoke URLs of forge hosts like GitHub,
