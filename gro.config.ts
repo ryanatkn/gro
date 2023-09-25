@@ -1,4 +1,4 @@
-import { identity } from '@grogarden/util/function.js';
+import {identity} from '@grogarden/util/function.js';
 
 import type {GroConfig} from './src/lib/config.js';
 

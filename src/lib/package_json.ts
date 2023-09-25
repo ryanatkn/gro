@@ -70,13 +70,11 @@ export interface PackageJsonFunding {
 export type PackageJsonExports = Record<string, Record<string, string>>;
 
 export interface MapPackageJson {
-	(
-		pkg: PackageJson,
-		when: MapPackageJsonWhen,
-	): PackageJson | null | Promise<PackageJson | null>;
+	(pkg: PackageJson, when: MapPackageJsonWhen): PackageJson | null | Promise<PackageJson | null>;
 }
 
 export type MapPackageJsonWhen = 'updating_exports' | 'updating_well_known';
+
 export const load_package_json = async (): Promise<PackageJson> =>
 	is_this_project_gro
 		? load_gro_package_json()
@@ -85,6 +83,7 @@ export const load_package_json = async (): Promise<PackageJson> =>
 export const load_gro_package_json = async (): Promise<PackageJson> =>
 	JSON.parse(await load_package_json_contents(gro_paths.root));
 
+// TODO probably make this nullable and make callers handle failures
 const load_package_json_contents = (root_dir: string): Promise<string> =>
 	readFile(join(root_dir, 'package.json'), 'utf8');
 

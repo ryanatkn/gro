@@ -1,4 +1,3 @@
-
 import {paths} from './paths.js';
 import create_default_config from './gro.config.default.js';
 import type {CreateConfigPlugins} from './plugin.js';
@@ -34,7 +33,7 @@ export interface GroConfigCreator {
 }
 
 export const create_empty_config = (): GroConfig => ({
-	package_json: (pkg) => pkg?.private ? null : pkg,
+	package_json: (pkg) => (pkg?.private ? null : pkg),
 	plugins: () => [],
 });
 
