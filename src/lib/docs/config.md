@@ -87,9 +87,10 @@ to `.well-known/package.json` in your SvelteKit static directory.
 > to the SvelteKit static directory in `.well-known/package.json`.
 > This may surprise some users, and could result in unwanted information leaks.
 > To mitigate issues while keeping Gro's preferred defaults,
-> which are optimized for open source projects, the file is generated during development
-> and expected to be committed to source control, so at least there's visibility.
-> To disable all Gro `package.json` behavior, set `package_json: () => null,`.
+> which are optimized for open source projects,
+> the file is written to `.well-known` during development
+> and expected to be committed to source control, giving visibility and requiring a manual step.
+> To disable all Gro `package.json` behavior, just return `null`: `package_json: () => null,`.
 
 > Writing to `.well-known/package.json` is unstandardized behavior that
 > repurposes [.well-known URIs](https://en.wikipedia.org/wiki/Well-known_URIs) for Node packages
