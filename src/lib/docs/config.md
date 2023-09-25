@@ -171,7 +171,7 @@ and you can provide your own `package_json` hook to
 mutate the `pkg`, return new data, or return `null` to be a no-op.
 
 Writing to `.well-known/package.json` is unstandardized behavior that
-repurposes [Well-known URIs](https://wikipedia.org/wiki/Well-known_URIs) for Node packages
+extends [Well-known URIs](https://wikipedia.org/wiki/Well-known_URIs) for Node packages
 to provide conventional metadata for deployed websites.
 The motivating usecase is [a docs website](https://docs.fuz.dev/)
 that includes the metadata of many repos.
