@@ -179,9 +179,9 @@ that includes the metadata of many repos.
 Why publish this metadata to the web instead of relying on the git repo as the only source of truth?
 
 - we want to give all web users and tools access to discoverable package metadata
+- metadata is a much lighter dependency than an entire repo
 - we don't want to force a dependency on git, the bespoke URLs of forge hosts like GitHub,
   or any particular toolchains
-- metadata is a much lighter dependency than an entire repo
 - the git repo is still the source of truth, but Gro adds a build step for project metadata,
   giving devs full control over their published artifacts
   instead of coupling metadata directly to a source repo's `package.json`
