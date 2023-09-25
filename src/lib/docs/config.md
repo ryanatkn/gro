@@ -71,3 +71,64 @@ export interface CreateConfigPlugins<TPluginContext extends PluginContext = Plug
 		| Promise<Plugin<TPluginContext> | null | Array<Plugin<TPluginContext> | null>>;
 }
 ```
+
+## `package_json`
+
+The Gro config `package_json` property is a callback function
+that lets you modify the `package.json` in different circumstances.
+
+When `when === 'updating_exports'`, Gro is writing the `"exports"`
+property of the repo's `package.json` to the filesystem as part of the build process.
+
+When `when === 'updating_well_known'`, Gro is outputting a second `package.json`
+to `.well-known/package.json` in your SvelteKit static directory.
+
+> ⚠️ Warning: by default Gro outputs your root `package.json`
+> to the SvelteKit static directory in `.well-known/package.json`.
+> This may surprise some users, and may result in unwanted information leaks.
+> To mitigate issues while keeping Gro's preferred defaults,
+> which are optimized for open source projects, the file is generated during development
+> and expected to be committed to source control, so at least there's visibility.
+> To disable all Gro `package.json` behavior, set `package_json: () => null,`.
+
+> Writing to `.well-known/package.json` is unstandardized behavior that
+> repurposes [.well-known URIs](https://en.wikipedia.org/wiki/Well-known_URIs) for Node packages
+> to provide a metadata convention for deployed websites.
+> The motivating usecase is [a docs website](https://docs.fuz.dev/) that spans many repos
+> and avoids duplicating any sources of truth.
+> By decoupling the output json from the repo's root `package.json`
+> with the `package_json` config property, we give users full control with minimal config.
+
+```ts
+export interface MapPackageJson {
+	(
+		pkg: PackageJson | null,
+		when: MapPackageJsonWhen,
+	): PackageJson | null | Promise<PackageJson | null>;
+}
+
+export type MapPackageJsonWhen = 'updating_exports' | 'updating_well_known';
+
+const config: GroConfig = {
+	// ...
+
+	// the default, outputs all of `$lib/` as `exports` and the full `.well-known/package.json`
+	package_json: (pkg, _when) => pkg,
+	
+	// disables both automatic `exports` generation to `package.json` and `.well-known/package.json`
+	package_json: () => null,
+	
+	// disable `.well-known/package.json` and enable writing `exports` to `package.json`
+	package_json: (pkg, when) => (when === 'updating_well_known' ? null : pkg),
+	
+	// disable writing `exports` to `package.json` and enable `.well-known/package.json`
+	package_json: (pkg, when) => (when === 'updating_exports' ? null : pkg),
+
+	// change anything you want and return the final config
+	package_json: (pkg, when) => {
+		pkg.exports = Object.fromEntries(Object.entries(pkg.entries).map((e) => /* ... */));
+		if (when === 'updating_well_known') delete pkg['prettier'];
+		return pkg;
+	},
+}
+```

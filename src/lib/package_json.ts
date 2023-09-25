@@ -75,6 +75,7 @@ export interface MapPackageJson {
 		when: MapPackageJsonWhen,
 	): PackageJson | null | Promise<PackageJson | null>;
 }
+
 export type MapPackageJsonWhen = 'updating_exports' | 'updating_well_known';
 
 export const load_package_json = async (): Promise<PackageJson> =>
