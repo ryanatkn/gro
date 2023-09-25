@@ -1,3 +1,5 @@
+import { identity } from '@grogarden/util/function.js';
+
 import type {GroConfig} from './src/lib/config.js';
 
 /**
@@ -6,15 +8,7 @@ import type {GroConfig} from './src/lib/config.js';
  * The default should be referenced as an example implementation, not this one.
  */
 const config: GroConfig = {
-	// same as the default, outputs all of `$lib/` as `exports` and the full `.well-known/package.json`
-	package_json: (pkg, _when) => pkg,
-	// disables both automatic `exports` generation to `package.json` and `.well-known/package.json`
-	// package_json: () => null,
-	// disable `.well-known/package.json` and enable writing `exports` to `package.json`
-	// package_json: (pkg, when) => (when === 'updating_well_known' ? null : pkg),
-	// disable writing `exports` to `package.json` and enable `.well-known/package.json`
-	// package_json: (pkg, when) => (when === 'updating_exports' ? null : pkg),
-
+	package_json: identity,
 	plugins: async () => [
 		(await import('./src/lib/gro_plugin_library.js')).plugin(),
 		(await import('./src/lib/gro_plugin_sveltekit_frontend.js')).plugin(),
