@@ -16,13 +16,13 @@ See [`src/lib/config.ts`](/src/lib/config.ts) for the config types and implement
 
 ## examples
 
-Here's [Gro's own internal config](/gro.config.ts) and
-here's [the default config](/src/lib/gro.config.default.ts)
-that's used for projects that do not define one at `gro.config.ts`.
+[The default config](/src/lib/gro.config.default.ts)
+is used for projects that do not define one at `gro.config.ts`.
 
 A simple config that does nothing:
 
 ```ts
+// gro.config.ts
 import type {GroConfigCreator} from '@grogarden/gro';
 
 const config: GroConfigCreator = async (cfg) => {
@@ -34,7 +34,6 @@ export default config;
 ```
 
 The default export of a Gro config is `GroConfig | GroConfigCreator`:
-
 
 ```ts
 export interface GroConfigCreator {
@@ -68,6 +67,8 @@ const config: GroConfigCreator = async (cfg) => {
 
 export default config;
 ```
+
+See also [Gro's own internal config](/gro.config.ts).
 
 ## `plugins`
 
