@@ -38,7 +38,7 @@ const config: GroConfigCreator = async (cfg) => {
 export default config;
 ```
 
-## details
+Either of these can be the default export of `gro.config.ts`:
 
 ```ts
 export interface GroConfig {
@@ -74,24 +74,18 @@ export interface CreateConfigPlugins<TPluginContext extends PluginContext = Plug
 
 ## `package_json`
 
-The Gro config `package_json` property is a callback function
-that lets you modify the `package.json` in different circumstances.
+The Gro config option `package_json` hooks into Gro's `package.json` automations.
+The `gro exports` task, which is called during the dev and build tasks,
+performs two separate steps that both call `package_json` to determine their behavior:
 
-When `when === 'updating_exports'`, Gro is writing the `"exports"`
-property of the repo's `package.json` to the filesystem during the dev and build tasks.
+- when `when === 'updating_exports'`, Gro is updating the repo's `package.json` `"exports"` property
+- when `when === 'updating_well_known'`, Gro is outputting a copy of `package.json`
+  to `.well-known/package.json` in the repo's static SvelteKit directory
 
-When `when === 'updating_well_known'`, Gro is outputting a second `package.json`
-to `.well-known/package.json` in your SvelteKit static directory during the dev and build tasks.
+Similar to other tasks like gen and format, the exports task supports `gro exports --check`,
+which is called by `gro check`, to ensure the repo and Gro's automations are in sync.
 
-> ⚠️ Warning: by default Gro copies your root `package.json`
-> to the SvelteKit static directory in `.well-known/package.json`
-> unless the `package.json` has `"private": true`.
-> This may surprise some users and could result in unwanted information leaks.
-> Gro's defaults are designed for for open source projects,
-> but it should work just as well for private projects, and configuration should remain simple.
-> To mitigate the issues, the `package.json` is written to `.well-known` during development
-> and expected to be committed to source control, giving visibility and requiring a manual step.
-> To disable all of Gro's `package.json` behavior, configure `package_json: () => null,`.
+### using `package_json`
 
 ```ts
 const config: GroConfig = {
@@ -102,10 +96,10 @@ const config: GroConfig = {
 	// unless `private` is true, in which case both are disabled
 	package_json: (pkg) => pkg?.private ? null : pkg,
 
-	// outputs both regardless of the value of `private`
+	// outputs the full versions of both regardless of the value of `private`
 	package_json: (pkg) => pkg,
 
-	// disables both automatic `exports` generation to `package.json` and `.well-known/package.json`
+	// disables generation of both automatic `exports` and `.well-known/package.json`
 	package_json: () => null,
 
 	// disable `.well-known/package.json` and enable writing `exports` to `package.json`
@@ -116,8 +110,12 @@ const config: GroConfig = {
 
 	// change anything you want and return the final config
 	package_json: (pkg, when) => {
-		pkg.exports = Object.fromEntries(Object.entries(pkg.entries).map((e) => /* ... */));
-		if (when === 'updating_well_known') delete pkg['prettier'];
+		// map `exports`
+		pkg.exports = Object.fromEntries(Object.entries(pkg.exports).map((e) => /* ... */));
+		// remove properties
+		if (when === 'updating_well_known') delete pkg.prettier;
+		// add properties
+		if (when === 'updating_well_known') pkg.generated_at = Date.now();
 		return pkg;
 	},
 };
@@ -130,17 +128,56 @@ export interface MapPackageJson {
 }
 
 export type MapPackageJsonWhen = 'updating_exports' | 'updating_well_known';
-
 ```
+
+### when 'updating_exports'
+
+Gro automatically updates the `"exports"` property of your root `package.json`
+during the dev and build tasks unless `package.json` has `"private": true`.
+The motivation is to streamline package publishing by supplementing `@sveltejs/package`.
+
+The `when` param will be `'updating_exports'` during this step.
+By default it includes everything from `$lib/`,
+and you can provide your own `package_json` hook to
+mutate the `pkg`, return new data, or return `null` to be a no-op.
+
+### when 'updating_well_known'
+
+By default Gro copies your root `package.json`
+to the SvelteKit static directory in `.well-known/package.json`
+unless `package.json` has `"private": true`.
+The motivation is to provide conventional package metadata to web users and tools.
+
+The `when` param will be `'updating_exports'` during this step.
+By default it copies the root `package.json` without modifications,
+and you can provide your own `package_json` hook to
+mutate the `pkg`, return new data, or return `null` to be a no-op.
 
 Writing to `.well-known/package.json` is unstandardized behavior that
 repurposes [Well-known URIs](https://en.wikipedia.org/wiki/Well-known_URIs) for Node packages
 to provide conventional metadata for deployed websites.
-The motivating usecase is [a docs website](https://docs.fuz.dev/) that includes many repos
-and avoids duplicating any sources of truth.
-By using a conventional URI deployed to the web instead of using the git repos directly,
-we gain some benefits:
+The motivating usecase is [a docs website](https://docs.fuz.dev/)
+that includes the metadata of many repos.
 
-- the motivating usecase depends on the metadata of many repos, but not their content
-- users have full control with an automation-friendly pattern,
-  because the `package_json` config property decouples the output json from the repo's root `package.json`
+Why publish this metadata to the web instead of relying on the git repo as the source of truth?
+
+- we want to give all web users and tools access to discoverable package metadata,
+- we don't want to force a dependency on git, the bespoke URLs of forge hosts like GitHub,
+	or any particular toolchains
+- metadata is a much lighter dependency than an entire repo
+- the git repo is still the source of truth, but Gro adds a build step for project metadata, 
+	giving devs full control over their published artifacts
+	instead of coupling metadata directly to a source repo's `package.json`
+
+> ⚠️ Outputting `.well-known/package.json` will surprise some users
+> and could result in security-relevant information leaks.
+> Gro's defaults are designed for open source projects,
+> but configuring closed private projects should remain simple.
+> To migitate these issues:
+> - all `package.json` automations are disabled when `"private": true`
+> - the `package.json` is written to `.well-known` during development
+>   and it's expected to be committed to source control,
+>   giving visibility and requiring developers to opt into adding the file with git -
+>   the alternative of outputting it to the SvelteKit build may appear cleaner,
+>   but hiding that detail is too dangerous in this case
+>   (we may want to make this configurable, but that complexity has costs too)
