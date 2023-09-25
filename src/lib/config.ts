@@ -1,4 +1,3 @@
-import {identity} from '@grogarden/util/function.js';
 
 import {paths} from './paths.js';
 import create_default_config from './gro.config.default.js';
@@ -33,6 +32,11 @@ export interface GroConfig {
 export interface GroConfigCreator {
 	(base_config: GroConfig): GroConfig | Promise<GroConfig>;
 }
+
+export const create_empty_config = (): GroConfig => ({
+	package_json: (pkg) => pkg?.private ? null : pkg,
+	plugins: () => [],
+});
 
 export interface GroConfigModule {
 	readonly default: GroConfig | GroConfigCreator;
@@ -69,8 +73,3 @@ export const validate_config_module: (
 		);
 	}
 };
-
-export const create_empty_config = (): GroConfig => ({
-	package_json: identity, // TODO BLOCK what if we defaulted to not including for private repos?
-	plugins: () => [],
-});

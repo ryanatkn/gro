@@ -71,13 +71,12 @@ export type PackageJsonExports = Record<string, Record<string, string>>;
 
 export interface MapPackageJson {
 	(
-		pkg: PackageJson | null,
+		pkg: PackageJson,
 		when: MapPackageJsonWhen,
 	): PackageJson | null | Promise<PackageJson | null>;
 }
 
 export type MapPackageJsonWhen = 'updating_exports' | 'updating_well_known';
-
 export const load_package_json = async (): Promise<PackageJson> =>
 	is_this_project_gro
 		? load_gro_package_json()

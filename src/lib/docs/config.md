@@ -114,8 +114,13 @@ export type MapPackageJsonWhen = 'updating_exports' | 'updating_well_known';
 const config: GroConfig = {
 	// ...other config
 
-	// the default, outputs all of `$lib/` as `exports` and the full `.well-known/package.json`
-	package_json: (pkg, _when) => pkg,
+	// the default behavior:
+	// outputs all of `$lib/` as `exports` and the full `.well-known/package.json`,
+	// unless `private` is true, in which case both are disabled
+	package_json: (pkg) => pkg?.private ? null : pkg,
+
+	// outputs both regardless of the value of `private`
+	package_json: (pkg) => pkg,
 
 	// disables both automatic `exports` generation to `package.json` and `.well-known/package.json`
 	package_json: () => null,
