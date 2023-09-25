@@ -20,7 +20,7 @@ Here's [Gro's own internal config](/gro.config.ts) and
 here's [the default config](/src/lib/gro.config.default.ts)
 that's used for projects that do not define one at `gro.config.ts`.
 
-The default export of a Gro config is `GroConfig | GroConfigCreator`:
+A simple config that does nothing:
 
 ```ts
 import type {GroConfigCreator} from '@grogarden/gro';
@@ -32,6 +32,9 @@ const config: GroConfigCreator = async (cfg) => {
 
 export default config;
 ```
+
+The default export of a Gro config is `GroConfig | GroConfigCreator`:
+
 
 ```ts
 export interface GroConfigCreator {
