@@ -110,7 +110,7 @@ export interface MapPackageJson {
 export type MapPackageJsonWhen = 'updating_exports' | 'updating_well_known';
 
 const config: GroConfig = {
-	// ...
+	// ...other config
 
 	// the default, outputs all of `$lib/` as `exports` and the full `.well-known/package.json`
 	package_json: (pkg, _when) => pkg,
