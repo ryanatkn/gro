@@ -7,7 +7,7 @@ import type {GroConfig} from './src/lib/config.js';
  */
 const config: GroConfig = {
 	package_json: (pkg, _when) => pkg, // no-op for demo purposes
-	package_json: ((pkg, when) => when === 'well_known' ?null :  pkg),
+	package_json: (pkg, when) => (when === 'well_known' ? null : pkg),
 	plugins: async () => [
 		(await import('./src/lib/gro_plugin_library.js')).plugin(),
 		(await import('./src/lib/gro_plugin_sveltekit_frontend.js')).plugin(),

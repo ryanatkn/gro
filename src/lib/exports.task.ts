@@ -60,42 +60,39 @@ export const task: Task<Args> = {
 
 		// add `/.well-known/package.json` as needed
 		const pkg = await load_package_json();
-		const including_package_json = !pkg.private;
-		if (including_package_json) {
-			const mapped = await config.package_json(pkg, 'updating_well_known');
-			if (mapped !== null) {
-				// copy the `package.json` over to `static/.well-known/` if configured unless it exists
-				const svelte_config = await load_sveltekit_config();
-				const static_assets = svelte_config?.kit?.files?.assets || 'static';
-				const well_known_dir = strip_end(static_assets, '/') + '/.well-known';
-				if (!(await exists(well_known_dir))) {
-					await mkdir(well_known_dir, {recursive: true});
-				}
-				const package_json_path = well_known_dir + '/package.json';
-				const new_contents = serialize_package_json(mapped);
-				let changed_well_known_package_json = false;
-				if (await exists(package_json_path)) {
-					const old_contents = await readFile(package_json_path, 'utf8');
-					if (new_contents === old_contents) {
-						changed_well_known_package_json = false;
-					} else {
-						changed_well_known_package_json = true;
-					}
+		const mapped = await config.package_json(pkg, 'updating_well_known');
+		if (mapped !== null) {
+			// copy the `package.json` over to `static/.well-known/` if configured unless it exists
+			const svelte_config = await load_sveltekit_config();
+			const static_assets = svelte_config?.kit?.files?.assets || 'static';
+			const well_known_dir = strip_end(static_assets, '/') + '/.well-known';
+			if (!(await exists(well_known_dir))) {
+				await mkdir(well_known_dir, {recursive: true});
+			}
+			const package_json_path = well_known_dir + '/package.json';
+			const new_contents = serialize_package_json(mapped);
+			let changed_well_known_package_json = false;
+			if (await exists(package_json_path)) {
+				const old_contents = await readFile(package_json_path, 'utf8');
+				if (new_contents === old_contents) {
+					changed_well_known_package_json = false;
 				} else {
 					changed_well_known_package_json = true;
 				}
-				if (check) {
-					if (changed_well_known_package_json) {
-						throw new TaskError(
-							failure_message('The package.json has unexpectedly changed for mode `well_known`.'),
-						);
-					} else {
-						log.info('check passed for package.json in `well_known` mode');
-					}
+			} else {
+				changed_well_known_package_json = true;
+			}
+			if (check) {
+				if (changed_well_known_package_json) {
+					throw new TaskError(
+						failure_message('The package.json has unexpectedly changed for mode `well_known`.'),
+					);
 				} else {
-					if (changed_well_known_package_json) {
-						await writeFile(package_json_path, new_contents);
-					}
+					log.info('check passed for package.json in `well_known` mode');
+				}
+			} else {
+				if (changed_well_known_package_json) {
+					await writeFile(package_json_path, new_contents);
 				}
 			}
 		}
