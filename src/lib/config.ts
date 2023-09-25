@@ -71,6 +71,6 @@ export const validate_config_module: (
 };
 
 export const create_empty_config = (): GroConfig => ({
-	package_json: identity,
+	package_json: identity, // TODO BLOCK what if we defaulted to not including for private repos?
 	plugins: () => [],
 });
