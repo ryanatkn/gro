@@ -83,26 +83,17 @@ property of the repo's `package.json` to the filesystem during the dev and build
 When `when === 'updating_well_known'`, Gro is outputting a second `package.json`
 to `.well-known/package.json` in your SvelteKit static directory during the dev and build tasks.
 
-> ⚠️ Warning: by default Gro outputs your root `package.json`
-> to the SvelteKit static directory in `.well-known/package.json`.
-> This may surprise some users, and could result in unwanted information leaks.
-> To mitigate the issues with Gro's preferred defaults,
-> which are optimized for open source projects,
-> the `package.json` is written to `.well-known` during development
+> ⚠️ Warning: by default Gro copies your root `package.json`
+> to the SvelteKit static directory in `.well-known/package.json`
+> unless the `package.json` has `"private": true`.
+> This may surprise some users and could result in unwanted information leaks.
+> Gro's defaults are designed for for open source projects,
+> but it should work just as well for private projects, and configuration should remain simple.
+> To mitigate the issues, the `package.json` is written to `.well-known` during development
 > and expected to be committed to source control, giving visibility and requiring a manual step.
-> To disable all of Gro's `package.json` behavior,
-> just return `null`, so `package_json: () => null,`.
+> To disable all of Gro's `package.json` behavior, configure `package_json: () => null,`.
 
 ```ts
-export interface MapPackageJson {
-	(
-		pkg: PackageJson | null,
-		when: MapPackageJsonWhen,
-	): PackageJson | null | Promise<PackageJson | null>;
-}
-
-export type MapPackageJsonWhen = 'updating_exports' | 'updating_well_known';
-
 const config: GroConfig = {
 	// ...other config
 
@@ -129,13 +120,27 @@ const config: GroConfig = {
 		if (when === 'updating_well_known') delete pkg['prettier'];
 		return pkg;
 	},
+};
+
+export interface MapPackageJson {
+	(
+		pkg: PackageJson | null,
+		when: MapPackageJsonWhen,
+	): PackageJson | null | Promise<PackageJson | null>;
 }
+
+export type MapPackageJsonWhen = 'updating_exports' | 'updating_well_known';
+
 ```
 
-> Writing to `.well-known/package.json` is unstandardized behavior that
-> repurposes [.well-known URIs](https://en.wikipedia.org/wiki/Well-known_URIs) for Node packages
-> to provide conventional metadata for deployed websites.
-> The motivating usecase is [a docs website](https://docs.fuz.dev/) that spans many repos
-> and avoids duplicating any sources of truth.
-> The `package_json` config property decouples the output json from the repo's root `package.json`
-> and gives users full control with an automation-friendly pattern.
+Writing to `.well-known/package.json` is unstandardized behavior that
+repurposes [Well-known URIs](https://en.wikipedia.org/wiki/Well-known_URIs) for Node packages
+to provide conventional metadata for deployed websites.
+The motivating usecase is [a docs website](https://docs.fuz.dev/) that includes many repos
+and avoids duplicating any sources of truth.
+By using a conventional URI deployed to the web instead of using the git repos directly,
+we gain some benefits:
+
+- the motivating usecase depends on the metadata of many repos, but not their content
+- users have full control with an automation-friendly pattern,
+  because the `package_json` config property decouples the output json from the repo's root `package.json`
