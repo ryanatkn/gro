@@ -178,7 +178,7 @@ that includes the metadata of many repos.
 
 Why publish this metadata to the web instead of relying on the git repo as the source of truth?
 
-- we want to give all web users and tools access to discoverable package metadata,
+- we want to give all web users and tools access to discoverable package metadata
 - we don't want to force a dependency on git, the bespoke URLs of forge hosts like GitHub,
   or any particular toolchains
 - metadata is a much lighter dependency than an entire repo
