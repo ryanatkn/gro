@@ -1,9 +1,8 @@
-import {join} from 'node:path';
 import {spawn} from '@grogarden/util/process.js';
 import {print_error} from '@grogarden/util/print.js';
 import {green, red} from 'kleur/colors';
 import {z} from 'zod';
-import {copyFile, readdir, rename, rm} from 'node:fs/promises';
+import {readdir, rename, rm} from 'node:fs/promises';
 
 import {TaskError, type Task} from './task.js';
 import {GIT_DIRNAME, paths, print_path, SVELTEKIT_BUILD_DIRNAME} from './paths.js';
@@ -28,8 +27,8 @@ import {
 const WORKTREE_DIRNAME = 'worktree';
 const WORKTREE_DIR = `${paths.root}${WORKTREE_DIRNAME}`;
 const ORIGIN = 'origin';
-const INITIAL_FILE = 'package.json'; // TODO BLOCK create a file instead, maybe an empty index.html
-const TEMP_PREFIX = '__TEMP__';
+const INITIAL_FILE_PATH = 'index.html';
+const INITIAL_FILE_CONTENTS = '<!doctype html><html></html>';
 const GIT_ARGS = {cwd: WORKTREE_DIR};
 const SOURCE_BRANCH = 'main';
 const TARGET_BRANCH = 'deploy';
@@ -169,15 +168,14 @@ export const task: Task<Args> = {
 		await spawn(
 			`git checkout --orphan ${target} && ` +
 				// TODO there's definitely a better way to do this
-				`cp ${INITIAL_FILE} ${TEMP_PREFIX}${INITIAL_FILE} && ` +
 				`git rm -rf . && ` +
-				`mv ${TEMP_PREFIX}${INITIAL_FILE} ${INITIAL_FILE} && ` +
-				`git add ${INITIAL_FILE} && ` +
-				`git commit -m "setup" && git checkout ${source}`,
+				`echo "${INITIAL_FILE_CONTENTS}" >> ${INITIAL_FILE_PATH} && ` +
+				`git add ${INITIAL_FILE_PATH} && ` +
+				`git commit -m "init" && git checkout ${source}`,
 			[],
 			{
 				shell: true, // use `shell: true` because the above is unwieldy with standard command construction
-				stdio: 'pipe', // silence the output
+				stdio: 'ignore', // silence the output
 			},
 		);
 
@@ -198,9 +196,6 @@ export const task: Task<Args> = {
 				log.error(red('directory to deploy does not exist after building:'), dir);
 				return;
 			}
-
-			// Update the initial file.
-			await copyFile(INITIAL_FILE, join(dir, INITIAL_FILE));
 		} catch (err) {
 			log.error(red('build failed'), 'but', green('no changes were made to git'), print_error(err));
 			if (dry) {
