@@ -17,7 +17,6 @@ import {exists} from './exists.js';
 
 export const Args = z
 	.object({
-		// _ - maybe exclude?
 		dir: z.string({description: 'directory to find files'}).default(paths.lib),
 		include: z.string({description: 'regexp to match'}).default(''),
 		exclude: z
