@@ -14,6 +14,7 @@ import {
 	git_check_clean_workspace,
 	git_checkout,
 	git_fetch,
+	git_local_branch_exists,
 	git_remote_branch_exists,
 } from './git.js';
 
@@ -119,22 +120,10 @@ export const task: Task<Args> = {
 
 		// Reset the target branch?
 		if (reset) {
-			const remote_target_exists = await spawn('git', [
-				'ls-remote',
-				'--exit-code',
-				'--heads',
-				origin,
-				'refs/heads/' + target,
-			]);
-			if (remote_target_exists.ok) {
+			if (await git_remote_branch_exists(origin, target)) {
 				await spawn('git', ['push', origin, ':' + target]);
 			}
-			const local_target_exists = await spawn('git', [
-				'show-ref',
-				'--quiet',
-				'refs/heads/' + target,
-			]);
-			if (local_target_exists.ok) {
+			if (await git_local_branch_exists(target)) {
 				await spawn('git', ['branch', '-D', target]);
 			}
 		}

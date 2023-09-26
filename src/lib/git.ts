@@ -28,6 +28,17 @@ export const git_remote_branch_exists = async (
 };
 
 /**
+ * @returns a boolean indicating if the local git branch exists
+ */
+export const git_local_branch_exists = async (
+	branch: string,
+	options?: SpawnOptions,
+): Promise<boolean> => {
+	const result = await spawn('git', ['show-ref', '--quiet', 'refs/heads/' + branch], options);
+	return result.ok;
+};
+
+/**
  * @returns an error message if the git workspace has any unstaged or uncommitted changes, or `null` if it's clean
  */
 export const git_check_clean_workspace = async (options?: SpawnOptions): Promise<string | null> => {
