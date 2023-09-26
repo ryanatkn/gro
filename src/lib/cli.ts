@@ -9,11 +9,16 @@ import {NODE_MODULES_DIRNAME} from './paths.js';
  * Looks for the CLI `name`, first local to the cwd and then globally.
  */
 export const find_cli = async (name: string): Promise<'local' | 'global' | null> => {
+	console.log(`FIND CLI`, name);
 	if (await exists(join(NODE_MODULES_DIRNAME, `.bin/${name}`))) {
+		console.log('found local', name);
 		return 'local';
 	}
 	try {
+		// TODO BLOCK
+		console.log(`FIND GLOBAL CLI`, name);
 		execSync(`command -v ${name} > /dev/null 2>&1`);
+		console.log(`FOUND GLOBAL CLI`, name);
 		return 'global';
 	} catch (err) {
 		return null;
