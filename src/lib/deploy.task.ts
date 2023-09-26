@@ -5,9 +5,12 @@ import {z} from 'zod';
 import {readdir, rename, rm} from 'node:fs/promises';
 
 import {TaskError, type Task} from './task.js';
-import {GIT_DIRNAME, paths, print_path, SVELTEKIT_BUILD_DIRNAME} from './paths.js';
+import {GIT_DIRNAME, print_path, SVELTEKIT_BUILD_DIRNAME} from './paths.js';
 import {exists} from './exists.js';
 import {
+	WORKTREE_DIR,
+	WORKTREE_DIRNAME,
+	clean_git_worktree,
 	git_check_clean_workspace,
 	git_checkout,
 	git_fetch,
@@ -24,8 +27,6 @@ import {
 // gro deploy --clean && gro clean -b && gb -D deploy && git push origin :deploy
 
 // TODO customize
-const WORKTREE_DIRNAME = 'worktree';
-const WORKTREE_DIR = `${paths.root}${WORKTREE_DIRNAME}`;
 const ORIGIN = 'origin';
 const INITIAL_FILE_PATH = 'index.html';
 const INITIAL_FILE_CONTENTS = '<!doctype html><html></html>';
@@ -175,7 +176,7 @@ export const task: Task<Args> = {
 			[],
 			{
 				shell: true, // use `shell: true` because the above is unwieldy with standard command construction
-				stdio: 'ignore', // silence the output
+				stdio: 'pipe', // silence the output
 			},
 		);
 
@@ -250,10 +251,4 @@ export const task: Task<Args> = {
 
 		log.info(green('deployed')); // TODO log a different message if "Everything up-to-date"
 	},
-};
-
-// `{stdio: 'pipe'}` silences the output
-const clean_git_worktree = async (): Promise<void> => {
-	await spawn('git', ['worktree', 'remove', WORKTREE_DIRNAME, '--force'], {stdio: 'pipe'});
-	await spawn('git', ['worktree', 'prune'], {stdio: 'pipe'});
 };

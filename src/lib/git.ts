@@ -1,6 +1,8 @@
 import {spawn} from '@grogarden/util/process.js';
 import type {SpawnOptions} from 'child_process';
 
+import {paths} from './paths.js';
+
 export const git_remote_branch_exists = async (
 	origin: string,
 	branch: string,
@@ -57,4 +59,15 @@ export const git_checkout = async (branch: string, options?: SpawnOptions): Prom
 	if (!result.ok) {
 		throw Error(`git_checkout failed for branch ${branch} with code ${result.code}`);
 	}
+};
+
+export const WORKTREE_DIRNAME = 'worktree';
+export const WORKTREE_DIR = `${paths.root}${WORKTREE_DIRNAME}`;
+
+export const clean_git_worktree = async (
+	worktree_dirname = WORKTREE_DIRNAME,
+	options: SpawnOptions = {stdio: 'pipe'}, // silence the output by default
+): Promise<void> => {
+	await spawn('git', ['worktree', 'remove', worktree_dirname, '--force'], options);
+	await spawn('git', ['worktree', 'prune'], options);
 };
