@@ -35,8 +35,8 @@ import {
 
 // TODO customize
 const ORIGIN = 'origin';
-const INITIAL_FILE_PATH = 'index.html';
-const INITIAL_FILE_CONTENTS = '<!doctype html><html><body>init</body></html>';
+const INITIAL_FILE_PATH = '.gitkeep';
+const INITIAL_FILE_CONTENTS = '';
 const GIT_ARGS = {cwd: WORKTREE_DIR};
 const SOURCE_BRANCH = 'main';
 const TARGET_BRANCH = 'deploy';
