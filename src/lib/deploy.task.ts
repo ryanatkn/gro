@@ -16,13 +16,14 @@ import {
 	git_fetch,
 	git_local_branch_exists,
 	git_remote_branch_exists,
-	Git_Origin,
-	Git_Branch,
+	GitOrigin,
+	GitBranch,
 	git_delete_local_branch,
 	git_delete_remote_branch,
 	git_pull,
 	git_push,
 	git_push_to_create,
+	git_reset_branch_to_first_commit,
 } from './git.js';
 
 // docs at ./docs/deploy.md
@@ -45,11 +46,9 @@ const DANGEROUS_BRANCHES = [SOURCE_BRANCH, 'master'];
 
 export const Args = z
 	.object({
-		source: Git_Branch.describe('git source branch to build and deploy from').default(
-			SOURCE_BRANCH,
-		),
-		target: Git_Branch.describe('git target branch to deploy to').default(TARGET_BRANCH),
-		origin: Git_Origin.describe('git origin to deploy to').default(ORIGIN),
+		source: GitBranch.describe('git source branch to build and deploy from').default(SOURCE_BRANCH),
+		target: GitBranch.describe('git target branch to deploy to').default(TARGET_BRANCH),
+		origin: GitOrigin.describe('git origin to deploy to').default(ORIGIN),
 		dir: z.string({description: 'the SvelteKit build directory'}).default(SVELTEKIT_BUILD_DIRNAME),
 		dry: z
 			.boolean({
@@ -117,15 +116,12 @@ export const task: Task<Args> = {
 			// remote target branch already exists, so sync up
 			await git_fetch(origin, target); // ensure the local branch is up to date
 			await git_checkout(target); // ensure tracking
+			// TODO what if push fails because it would need `--force`?
 			await git_push(origin, target); // ensure the remote branch is up to date
 
-			// local is now synced with remote, but do we need to reset?
+			// local target branch is now synced with remote, but do we need to reset?
 			if (reset) {
-				const first_commit_hash = execSync(
-					'git rev-list --max-parents=0 --abbrev-commit HEAD',
-				).toString();
-				await spawn('git', ['reset', '--hard', first_commit_hash]);
-				await spawn('git', ['push', origin, target, '--force']);
+				await git_reset_branch_to_first_commit(origin, target);
 			}
 		} else {
 			// remote target branch does not exist
