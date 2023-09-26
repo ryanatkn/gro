@@ -121,6 +121,7 @@ export const task: Task<Args> = {
 		// Reset the target branch?
 		if (reset) {
 			if (await git_remote_branch_exists(origin, target)) {
+				// TODO BLOCK can't do this, need to reset to first commit instead
 				await spawn('git', ['push', origin, ':' + target]);
 			}
 			if (await git_local_branch_exists(target)) {
