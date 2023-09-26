@@ -3,6 +3,9 @@ import type {SpawnOptions} from 'child_process';
 
 import {paths} from './paths.js';
 
+/**
+ * @returns a boolean indicating if the remote git branch exists
+ */
 export const git_remote_branch_exists = async (
 	origin: string,
 	branch: string,
@@ -25,7 +28,7 @@ export const git_remote_branch_exists = async (
 };
 
 /**
- * @returns an error message if the git workspace has any unstaged or uncommitted changes
+ * @returns an error message if the git workspace has any unstaged or uncommitted changes, or `null` if it's clean
  */
 export const git_check_clean_workspace = async (options?: SpawnOptions): Promise<string | null> => {
 	const unstaged_result = await spawn('git', ['diff', '--exit-code', '--quiet'], options);
@@ -39,6 +42,9 @@ export const git_check_clean_workspace = async (options?: SpawnOptions): Promise
 	return null;
 };
 
+/**
+ * Calls `git fetch` and throws if anything goes wrong.
+ */
 export const git_fetch = async (
 	origin: string,
 	branch?: string,
@@ -54,6 +60,9 @@ export const git_fetch = async (
 	}
 };
 
+/**
+ * Calls `git checkout` and throws if anything goes wrong.
+ */
 export const git_checkout = async (branch: string, options?: SpawnOptions): Promise<void> => {
 	const result = await spawn('git', ['checkout', branch], options);
 	if (!result.ok) {
@@ -64,6 +73,9 @@ export const git_checkout = async (branch: string, options?: SpawnOptions): Prom
 export const WORKTREE_DIRNAME = 'worktree';
 export const WORKTREE_DIR = `${paths.root}${WORKTREE_DIRNAME}`;
 
+/**
+ * Removes the specified git worktree and then prunes.
+ */
 export const clean_git_worktree = async (
 	worktree_dirname = WORKTREE_DIRNAME,
 	options: SpawnOptions = {stdio: 'pipe'}, // silence the output by default
