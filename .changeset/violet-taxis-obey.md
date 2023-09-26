@@ -2,4 +2,4 @@
 '@grogarden/gro': minor
 ---
 
-fix `gro deploy`
+add git utils
