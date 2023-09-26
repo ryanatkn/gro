@@ -1,4 +1,4 @@
-import {printSpawnResult} from '@grogarden/util/process.js';
+import {print_spawn_result} from '@grogarden/util/process.js';
 import {z} from 'zod';
 
 import {TaskError, type Task} from './task.js';
@@ -20,10 +20,10 @@ export const task: Task<Args> = {
 	run: async ({args, log}) => {
 		const {check} = args;
 		// TODO forward prettier args
-		const formatResult = await format_directory(log, paths.source, check);
-		if (!formatResult.ok) {
+		const format_result = await format_directory(log, paths.source, check);
+		if (!format_result.ok) {
 			throw new TaskError(
-				`Failed ${check ? 'formatting check' : 'to format'}. ${printSpawnResult(formatResult)}`,
+				`Failed ${check ? 'formatting check' : 'to format'}. ${print_spawn_result(format_result)}`,
 			);
 		}
 	},

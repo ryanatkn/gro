@@ -5,10 +5,10 @@ import {z} from 'zod';
 import {readdir, rename, rm} from 'node:fs/promises';
 
 import {TaskError, type Task} from './task.js';
-import {GIT_DIRNAME, print_path, SVELTEKIT_BUILD_DIRNAME} from './paths.js';
+import {GIT_DIRNAME, paths, print_path, SVELTEKIT_BUILD_DIRNAME} from './paths.js';
 import {exists} from './exists.js';
 import {
-	WORKTREE_DIR,
+	to_worktree_dir,
 	WORKTREE_DIRNAME,
 	git_clean_worktree,
 	git_check_clean_workspace,
@@ -37,6 +37,7 @@ import {
 const ORIGIN = 'origin';
 const INITIAL_FILE_PATH = '.gitkeep';
 const INITIAL_FILE_CONTENTS = '';
+const WORKTREE_DIR = to_worktree_dir(paths.root);
 const GIT_ARGS = {cwd: WORKTREE_DIR};
 const SOURCE_BRANCH = 'main';
 const TARGET_BRANCH = 'deploy';

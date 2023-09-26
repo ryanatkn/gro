@@ -1,4 +1,4 @@
-import {spawn, spawnProcess, type SpawnedProcess} from '@grogarden/util/process.js';
+import {spawn, spawn_process, type SpawnedProcess} from '@grogarden/util/process.js';
 import {mkdir, writeFile} from 'node:fs/promises';
 
 import type {Plugin, PluginContext} from './plugin.js';
@@ -28,7 +28,7 @@ export const plugin = ({host_target = 'github_pages'}: Options = {}): Plugin<Plu
 				if (watch) {
 					const serialized_args = ['vite', 'dev', ...serialize_args(to_forwarded_args('vite'))];
 					log.info(print_command_args(serialized_args));
-					sveltekit_process = spawnProcess('npx', serialized_args);
+					sveltekit_process = spawn_process('npx', serialized_args);
 				} else {
 					log.debug(
 						`the SvelteKit frontend plugin is loaded but will not output anything` +

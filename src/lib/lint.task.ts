@@ -1,4 +1,4 @@
-import {printSpawnResult} from '@grogarden/util/process.js';
+import {print_spawn_result} from '@grogarden/util/process.js';
 import {z} from 'zod';
 
 import {TaskError, type Task} from './task.js';
@@ -27,7 +27,7 @@ export const task: Task<Args> = {
 		log.info(print_command_args(['eslint'].concat(serialized_args)));
 		const eslintResult = await spawn_cli('eslint', serialized_args);
 		if (!eslintResult?.ok) {
-			throw new TaskError(`ESLint found some problems. ${printSpawnResult(eslintResult!)}`);
+			throw new TaskError(`ESLint found some problems. ${print_spawn_result(eslintResult!)}`);
 		}
 	},
 };
