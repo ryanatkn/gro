@@ -8,106 +8,79 @@ import {
 	is_this_project_gro,
 	replace_extension,
 	DIST_DIRNAME,
-	type Url,
-	type Email,
+	Url,
+	Email,
 } from './paths.js';
 
-// TODO `[key: string]: unknown;`
+export const PackageJsonRepository = z.object({
+	type: z.string(),
+	url: Url,
+	directory: z.string().optional(),
+});
+export type PackageJsonRepository = z.infer<typeof PackageJsonRepository>;
+
+export const PackageJsonAuthor = z.object({
+	name: z.string(),
+	email: Email.optional(),
+	url: Url.optional(),
+});
+export type PackageJsonAuthor = z.infer<typeof PackageJsonAuthor>;
+
+export const PackageJsonFunding = z.object({
+	type: z.string(),
+	url: Url,
+});
+export type PackageJsonFunding = z.infer<typeof PackageJsonFunding>;
+
+export const PackageJsonExports = z.record(z.record(z.string()).optional());
+export type PackageJsonExports = z.infer<typeof PackageJsonExports>;
+
+/**
+ * @see https://docs.npmjs.com/cli/v10/configuring-npm/package-json
+ */
 export const PackageJson = z.object({
+	// TODO `[key: string]: unknown;`
 
 	// according to the npm docs, these are required
 	name: z.string(),
 	version: z.string(),
 
-	private: z.boolean({description: 'disallow npm publish, and also used by Gro to disable `package.json` automations'}).optional(),
+	private: z
+		.boolean({
+			description:
+				'disallow npm publish, and also used by Gro to disable `package.json` automations',
+		})
+		.optional(),
 
 	description: z.string().optional(),
 	license: z.string().optional(),
 	homepage: Url.optional(),
-	repository: string | Url | PackageJsonRepository.optional(),
-	author: string | PackageJsonAuthor.optional(),
-	contributors: Array<string | PackageJsonAuthor>.optional(),
-	bugs: {url: Url.optional(), email: Email}.optional(),
-	funding: Url | PackageJsonFunding | Array<Url | PackageJsonFunding>.optional(),
+	repository: z.union([z.string(), Url, PackageJsonRepository]).optional(),
+	author: z.union([z.string(), PackageJsonAuthor.optional()]),
+	contributors: z.array(z.union([z.string(), PackageJsonAuthor])).optional(),
+	bugs: z.object({url: Url.optional(), email: Email}).optional(),
+	funding: z
+		.union([Url, PackageJsonFunding, z.array(z.union([Url, PackageJsonFunding]))])
+		.optional(),
 	keywords: z.array(z.string()).optional(),
 
-	scripts: Record<string, string>.optional(),
+	scripts: z.record(z.string()).optional(),
 
-	bin: Record<string, string>.optional(),
+	bin: z.record(z.string()).optional(),
 	files: z.array(z.string()).optional(),
 	exports: PackageJsonExports.optional(),
 
-	dependencies: Record<string, string>.optional(),
-	devDependencies: Record<string, string>.optional(),
-	peerDependencies: Record<string, string>.optional(),
-	peerDependenciesMeta: Record<string, Record<string, string>>.optional(),
-	optionalDependencies: Record<string, string>.optional(),
+	dependencies: z.record(z.string()).optional(),
+	devDependencies: z.record(z.string()).optional(),
+	peerDependencies: z.record(z.string()).optional(),
+	peerDependenciesMeta: z.record(z.record(z.string())).optional(),
+	optionalDependencies: z.record(z.string()).optional(),
 
-	engines: Record<string, string>.optional(),
+	engines: z.record(z.string()).optional(),
 	os: z.array(z.string()).optional(),
 	cpu: z.array(z.string()).optional(),
-})
+});
 export type PackageJson = z.infer<typeof PackageJson>;
-
-
-/**
- * @see https://docs.npmjs.com/cli/v10/configuring-npm/package-json
- */
-export interface PackageJson {
-	[key: string]: unknown;
-
-	// 
-	name: string;
-	version: string;
-
-	// 
-	private?: boolean;
-
-	description?: string;
-	license?: string;
-	homepage?: Url;
-	repository?: string | Url | PackageJsonRepository;
-	author?: string | PackageJsonAuthor;
-	contributors?: Array<string | PackageJsonAuthor>;
-	bugs?: {url: Url; email: Email};
-	funding?: Url | PackageJsonFunding | Array<Url | PackageJsonFunding>;
-	keywords?: string[];
-
-	scripts?: Record<string, string>;
-
-	bin?: Record<string, string>;
-	files?: string[];
-	exports?: PackageJsonExports;
-
-	dependencies?: Record<string, string>;
-	devDependencies?: Record<string, string>;
-	peerDependencies?: Record<string, string>;
-	peerDependenciesMeta?: Record<string, Record<string, string>>;
-	optionalDependencies?: Record<string, string>;
-
-	engines?: Record<string, string>;
-	os?: string[];
-	cpu?: string[];
-}
-
-export interface PackageJsonRepository {
-	type: string;
-	url: Url;
-	directory?: string;
-}
-
-export interface PackageJsonAuthor {
-	name: string;
-	email?: Email;
-	url?: Url;
-}
-
-export interface PackageJsonFunding {
-	type: string;
-	url: Url;
-}
-
-export type PackageJsonExports = Record<string, Record<string, string>>;
 
 export interface MapPackageJson {
 	(pkg: PackageJson, when: MapPackageJsonWhen): PackageJson | null | Promise<PackageJson | null>;

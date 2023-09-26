@@ -3,6 +3,7 @@ import {fileURLToPath} from 'node:url';
 import {strip_end, strip_start} from '@grogarden/util/string.js';
 import {gray} from 'kleur/colors';
 import type {Flavored} from '@grogarden/util/types.js';
+import {z} from 'zod';
 
 /*
 
@@ -59,10 +60,17 @@ export interface Paths {
 }
 
 // TODO upstream to util, and probably add `Path`/`FilePath` and `FileUrl`
-export type Url = Flavored<string, 'Url'>;
-export type Email = Flavored<string, 'Email'>;
-export type SourceId = Flavored<string, 'SourceId'>;
-export type BuildId = Flavored<string, 'BuildId'>;
+export const Url = z.string();
+export type Url = Zod.infer<Flavored<typeof Url, 'Url'>>;
+
+export const Email = z.string();
+export type Email = Zod.infer<Flavored<typeof Email, 'Email'>>;
+
+export const SourceId = z.string();
+export type SourceId = Zod.infer<Flavored<typeof SourceId, 'SourceId'>>;
+
+export const BuildId = z.string();
+export type BuildId = Zod.infer<Flavored<typeof BuildId, 'BuildId'>>;
 
 export const create_paths = (root_dir: string): Paths => {
 	// TODO remove reliance on trailing slash towards windows support
