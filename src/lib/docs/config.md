@@ -127,7 +127,7 @@ const config: GroConfig = {
 		// filter `exports`
 		pkg.exports = Object.fromEntries(Object.entries(pkg.exports).filter(/* ... */));
 		// remove properties
-		if (when === 'updating_well_known') delete pkg.prettier;
+		if (when === 'updating_well_known') pkg.prettier = undefined;
 		// add properties
 		if (when === 'updating_well_known') pkg.generated_at = Date.now();
 		return pkg;
