@@ -196,3 +196,15 @@ export const git_current_branch_name = async (): Promise<string> => {
 	// TODO use `spawn` instead of `execSync`
 	return execSync('git rev-parse --abbrev-ref HEAD').toString().trim();
 };
+
+/**
+ * @returns the branch's latest commit hash
+ */
+export const git_current_commit_hash = async (branch?: string): Promise<string> => {
+	const final_branch = branch ?? (await git_current_branch_name());
+	// TODO use `spawn` instead of `execSync`
+	return execSync('git show-ref -s ' + final_branch)
+		.toString()
+		.split('\n')[0]
+		.trim();
+};
