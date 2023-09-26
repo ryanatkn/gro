@@ -64,8 +64,8 @@ It includes:
 ## docs
 
 - [build](/src/lib/docs/build.md) web frontends, servers, and libraries
-  - [unbundled development](/src/lib/docs/dev.md)
   - [config](/src/lib/docs/config.md)
+  - [dev](/src/lib/docs/dev.md)
   - [deploy](/src/lib/docs/deploy.md) to a branch, like for GitHub pages
   - [publish](/src/lib/docs/publish.md)
 - [`Task`](/src/lib/docs/task.md) runner
