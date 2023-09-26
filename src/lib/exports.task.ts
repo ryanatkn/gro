@@ -10,6 +10,7 @@ import {
 	serialize_package_json,
 	to_package_exports,
 	update_package_json,
+	type MapPackageJsonWhen,
 } from './package_json.js';
 import {load_sveltekit_config} from './sveltekit_config.js';
 import {exists} from './exists.js';
@@ -42,9 +43,7 @@ export const task: Task<Args> = {
 
 		if (check) {
 			if (changed_exports) {
-				throw new TaskError(
-					failure_message('The package.json has unexpectedly changed for `updating_exports`.'),
-				);
+				throw new TaskError(failure_message('updating_exports'));
 			} else {
 				log.info('check passed for package.json for `updating_exports`');
 			}
@@ -84,9 +83,7 @@ export const task: Task<Args> = {
 			}
 			if (check) {
 				if (changed_well_known_package_json) {
-					throw new TaskError(
-						failure_message('The package.json has unexpectedly changed for `updating_well_known`.'),
-					);
+					throw new TaskError(failure_message('updating_well_known'));
 				} else {
 					log.info('check passed for package.json for `updating_well_known`');
 				}
@@ -108,7 +105,7 @@ const create_exports_filter = (include: string, exclude: string) => {
 		(!exclude_matcher || !exclude_matcher.test(path));
 };
 
-const failure_message = (msg: string) =>
-	'Failed exports check. ' +
-	msg +
+const failure_message = (when: MapPackageJsonWhen): string =>
+	'Failed exports check.' +
+	` The package.json has unexpectedly changed for \`${when}\`.` +
 	' Run `gro exports` manually to inspect the changes, and check any `package_json` config option.';
