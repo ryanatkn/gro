@@ -134,6 +134,8 @@ const to_args_schema_type = ({_def}: ZodTypeAny): ArgSchema['type'] => {
 			return 'number';
 		case ZodFirstPartyTypeKind.ZodArray:
 			return 'string[]'; // TODO support arrays of arbitrary types, or more hardcoded ones as needed
+		case ZodFirstPartyTypeKind.ZodEnum:
+			return _def.values.map((v: string) => `'${v}'`).join(' | ');
 		case ZodFirstPartyTypeKind.ZodUnion:
 			return 'string | string[]'; // TODO support unions of arbitrary types, or more hardcoded ones as needed
 		default: {

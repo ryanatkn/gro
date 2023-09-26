@@ -20,8 +20,8 @@ export const Args = z
 		_: z.array(z.string(), {description: 'the commands to pass to changeset'}).default([]),
 		path: z.string({description: 'changeset config file path'}).default(CHANGESET_CONFIG_PATH),
 		access: z
-			.union([z.literal(RESTRICTED_ACCESS), z.literal(PUBLIC_ACCESS)], {
-				description: `changeset "access" config value, ${PUBLIC_ACCESS} or ${RESTRICTED_ACCESS} depending on package.json#private`,
+			.enum([RESTRICTED_ACCESS, PUBLIC_ACCESS], {
+				description: `changeset 'access' config value, the default depends on package.json#private`,
 			})
 			.optional(),
 		changelog: z

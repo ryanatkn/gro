@@ -20,7 +20,7 @@ export interface Args {
 export type ArgValue = string | number | boolean | undefined | Array<string | number | boolean>;
 
 export interface ArgSchema {
-	type: 'boolean' | 'string' | 'number' | 'string[]' | 'string | string[]';
+	type: string;
 	default: ArgValue;
 	description: string;
 }
