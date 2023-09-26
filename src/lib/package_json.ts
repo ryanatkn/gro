@@ -12,24 +12,30 @@ import {
 	Email,
 } from './paths.js';
 
-export const PackageJsonRepository = z.object({
-	type: z.string(),
-	url: Url,
-	directory: z.string().optional(),
-});
+export const PackageJsonRepository = z
+	.object({
+		type: z.string(),
+		url: Url,
+		directory: z.string().optional(),
+	})
+	.passthrough();
 export type PackageJsonRepository = z.infer<typeof PackageJsonRepository>;
 
-export const PackageJsonAuthor = z.object({
-	name: z.string(),
-	email: Email.optional(),
-	url: Url.optional(),
-});
+export const PackageJsonAuthor = z
+	.object({
+		name: z.string(),
+		email: Email.optional(),
+		url: Url.optional(),
+	})
+	.passthrough();
 export type PackageJsonAuthor = z.infer<typeof PackageJsonAuthor>;
 
-export const PackageJsonFunding = z.object({
-	type: z.string(),
-	url: Url,
-});
+export const PackageJsonFunding = z
+	.object({
+		type: z.string(),
+		url: Url,
+	})
+	.passthrough();
 export type PackageJsonFunding = z.infer<typeof PackageJsonFunding>;
 
 export const PackageJsonExports = z.record(z.record(z.string()).optional());
@@ -39,47 +45,49 @@ export type PackageJsonExports = z.infer<typeof PackageJsonExports>;
  * @see https://docs.npmjs.com/cli/v10/configuring-npm/package-json
  */
 export const PackageJson = z.intersection(
-	z.record(z.any()),
-	z.object({
-		// according to the npm docs, `name` and `version` are the only required properties
-		name: z.string(),
-		version: z.string(),
+	z.record(z.unknown()),
+	z
+		.object({
+			// according to the npm docs, `name` and `version` are the only required properties
+			name: z.string(),
+			version: z.string(),
 
-		private: z
-			.boolean({
-				description:
-					'disallow npm publish, and also used by Gro to disable `package.json` automations',
-			})
-			.optional(),
+			private: z
+				.boolean({
+					description:
+						'disallow npm publish, and also used by Gro to disable `package.json` automations',
+				})
+				.optional(),
 
-		description: z.string().optional(),
-		license: z.string().optional(),
-		homepage: Url.optional(),
-		repository: z.union([z.string(), Url, PackageJsonRepository]).optional(),
-		author: z.union([z.string(), PackageJsonAuthor.optional()]),
-		contributors: z.array(z.union([z.string(), PackageJsonAuthor])).optional(),
-		bugs: z.object({url: Url.optional(), email: Email}).optional(),
-		funding: z
-			.union([Url, PackageJsonFunding, z.array(z.union([Url, PackageJsonFunding]))])
-			.optional(),
-		keywords: z.array(z.string()).optional(),
+			description: z.string().optional(),
+			license: z.string().optional(),
+			homepage: Url.optional(),
+			repository: z.union([z.string(), Url, PackageJsonRepository]).optional(),
+			author: z.union([z.string(), PackageJsonAuthor.optional()]),
+			contributors: z.array(z.union([z.string(), PackageJsonAuthor])).optional(),
+			bugs: z.object({url: Url.optional(), email: Email}).passthrough().optional(),
+			funding: z
+				.union([Url, PackageJsonFunding, z.array(z.union([Url, PackageJsonFunding]))])
+				.optional(),
+			keywords: z.array(z.string()).optional(),
 
-		scripts: z.record(z.string()).optional(),
+			scripts: z.record(z.string()).optional(),
 
-		bin: z.record(z.string()).optional(),
-		files: z.array(z.string()).optional(),
-		exports: PackageJsonExports.optional(),
+			bin: z.record(z.string()).optional(),
+			files: z.array(z.string()).optional(),
+			exports: PackageJsonExports.optional(),
 
-		dependencies: z.record(z.string()).optional(),
-		devDependencies: z.record(z.string()).optional(),
-		peerDependencies: z.record(z.string()).optional(),
-		peerDependenciesMeta: z.record(z.record(z.string())).optional(),
-		optionalDependencies: z.record(z.string()).optional(),
+			dependencies: z.record(z.string()).optional(),
+			devDependencies: z.record(z.string()).optional(),
+			peerDependencies: z.record(z.string()).optional(),
+			peerDependenciesMeta: z.record(z.record(z.string())).optional(),
+			optionalDependencies: z.record(z.string()).optional(),
 
-		engines: z.record(z.string()).optional(),
-		os: z.array(z.string()).optional(),
-		cpu: z.array(z.string()).optional(),
-	}),
+			engines: z.record(z.string()).optional(),
+			os: z.array(z.string()).optional(),
+			cpu: z.array(z.string()).optional(),
+		})
+		.passthrough(),
 );
 export type PackageJson = z.infer<typeof PackageJson>;
 
