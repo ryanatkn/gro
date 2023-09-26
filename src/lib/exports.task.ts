@@ -28,7 +28,7 @@ export const Args = z
 export type Args = z.infer<typeof Args>;
 
 export const task: Task<Args> = {
-	summary: 'writes the exports property of package.json for the lib',
+	summary: 'writes the exports property of package.json and copies the file to .well-known',
 	Args,
 	run: async ({args: {dir, include, exclude, check}, config, log}): Promise<void> => {
 		const exported_files = await search_fs(dir, {filter: create_exports_filter(include, exclude)});
