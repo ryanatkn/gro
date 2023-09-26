@@ -95,6 +95,13 @@ export const task: Task<Args> = {
 			);
 		}
 
+		// TODO BLOCK
+		// const first_commit_hash = execSync(
+		// 	'git rev-list --max-parents=0 --abbrev-commit HEAD',
+		// ).toString();
+		// await spawn('git', ['reset', '--hard', first_commit_hash]);
+		// await spawn('git', ['push', origin, target, '--force']);
+
 		// Exit early if the git working directory has any unstaged or staged changes.
 		// unstaged changes: `git diff --exit-code`
 		// staged uncommitted changes: `git diff --exit-code --cached`
