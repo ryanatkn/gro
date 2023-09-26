@@ -1,16 +1,16 @@
 import {spawn} from '@grogarden/util/process.js';
+import type {SpawnOptions} from 'child_process';
 
 export const git_remote_branch_exists = async (
 	origin: string,
 	branch: string,
+	options?: SpawnOptions,
 ): Promise<boolean> => {
-	const result = await spawn('git', [
-		'ls-remote',
-		'--exit-code',
-		'--heads',
-		origin,
-		'refs/heads/' + branch,
-	]);
+	const result = await spawn(
+		'git',
+		['ls-remote', '--exit-code', '--heads', origin, 'refs/heads/' + branch],
+		options,
+	);
 	if (result.ok) {
 		return true;
 	} else if (result.code === 2) {
@@ -25,25 +25,36 @@ export const git_remote_branch_exists = async (
 /**
  * @returns an error message if the git workspace has any unstaged or uncommitted changes
  */
-export const git_check_clean_workspace = async (): Promise<string | null> => {
-	const unstaged_result = await spawn('git', ['diff', '--exit-code', '--quiet']);
+export const git_check_clean_workspace = async (options?: SpawnOptions): Promise<string | null> => {
+	const unstaged_result = await spawn('git', ['diff', '--exit-code', '--quiet'], options);
 	if (!unstaged_result.ok) {
 		return 'git has unstaged changes';
 	}
-	const staged_result = await spawn('git', ['diff', '--exit-code', '--cached', '--quiet']);
+	const staged_result = await spawn('git', ['diff', '--exit-code', '--cached', '--quiet'], options);
 	if (!staged_result.ok) {
 		return 'git has staged but uncommitted changes';
 	}
 	return null;
 };
 
-export const git_fetch = async (origin: string, branch?: string): Promise<void> => {
+export const git_fetch = async (
+	origin: string,
+	branch?: string,
+	options?: SpawnOptions,
+): Promise<void> => {
 	const args = ['fetch', origin];
 	if (branch) args.push(branch);
-	const result = await spawn('git', args);
+	const result = await spawn('git', args, options);
 	if (!result.ok) {
 		throw Error(
 			`git_fetch failed for origin ${origin} and branch ${branch} with code ${result.code}`,
 		);
+	}
+};
+
+export const git_checkout = async (branch: string, options?: SpawnOptions): Promise<void> => {
+	const result = await spawn('git', ['checkout', branch], options);
+	if (!result.ok) {
+		throw Error(`git_checkout failed for branch ${branch} with code ${result.code}`);
 	}
 };

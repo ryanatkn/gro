@@ -8,7 +8,12 @@ import {copyFile, readdir, rename, rm} from 'node:fs/promises';
 import {TaskError, type Task} from './task.js';
 import {GIT_DIRNAME, paths, print_path, SVELTEKIT_BUILD_DIRNAME} from './paths.js';
 import {exists} from './exists.js';
-import {git_check_clean_workspace, git_fetch, git_remote_branch_exists} from './git.js';
+import {
+	git_check_clean_workspace,
+	git_checkout,
+	git_fetch,
+	git_remote_branch_exists,
+} from './git.js';
 
 // docs at ./docs/deploy.md
 
@@ -23,7 +28,7 @@ import {git_check_clean_workspace, git_fetch, git_remote_branch_exists} from './
 const WORKTREE_DIRNAME = 'worktree';
 const WORKTREE_DIR = `${paths.root}${WORKTREE_DIRNAME}`;
 const ORIGIN = 'origin';
-const INITIAL_FILE = 'package.json'; // this is a single file that's copied into the new branch to bootstrap it
+const INITIAL_FILE = 'package.json'; // TODO BLOCK create a file instead, maybe an empty index.html
 const TEMP_PREFIX = '__TEMP__';
 const GIT_ARGS = {cwd: WORKTREE_DIR};
 const SOURCE_BRANCH = 'main';
@@ -143,15 +148,7 @@ export const task: Task<Args> = {
 			await git_fetch(origin, target);
 
 			// Checkout the target branch to ensure tracking.
-			const git_checkout_target_result = await spawn('git', ['checkout', target]);
-			if (!git_checkout_target_result.ok) {
-				log.error(
-					red(
-						`failed to checkout target branch ${target} code(${git_checkout_target_result.code})`,
-					),
-				);
-				return;
-			}
+			await git_checkout(target);
 		} else {
 			// Target branch does not exist remotely.
 			// Create and checkout the target branch.
