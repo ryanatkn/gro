@@ -17,7 +17,8 @@ See [`src/lib/config.ts`](/src/lib/config.ts) for the config types and implement
 ## examples
 
 [The default config](/src/lib/gro.config.default.ts)
-is used for projects that do not define one at `gro.config.ts`.
+is used for projects that do not define `gro.config.ts`.
+It's also passed as the first argument to `GroConfigCreator`.
 
 A simple config that does nothing:
 
@@ -42,11 +43,6 @@ export interface GroConfigCreator {
 
 export interface GroConfig {
 	plugins: CreateConfigPlugins;
-	/**
-	 * Maps the project's `package.json`.
-	 * Runs in modes 'updating_exports' and 'updating_well_known'.
-	 * The `pkg` argument may be mutated.
-	 */
 	package_json: MapPackageJson;
 }
 ```
@@ -202,5 +198,5 @@ Why publish this metadata to the web instead of relying on the git repo as the o
 >   and it's expected to be committed to source control,
 >   giving visibility and requiring developers to opt into adding the file with git -
 >   the alternative of outputting it to the SvelteKit build may appear cleaner,
->   but Gro's position is that hiding that detail is worse in this case
+>   but Gro's position is that hiding it is worse in this case
 >   (maybe it should be configurable, but that complexity has costs too)

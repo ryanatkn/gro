@@ -1,5 +1,4 @@
 import {spawn, spawnProcess, type SpawnedProcess} from '@grogarden/util/process.js';
-import {strip_end} from '@grogarden/util/string.js';
 import {mkdir, writeFile} from 'node:fs/promises';
 
 import type {Plugin, PluginContext} from './plugin.js';
@@ -8,7 +7,6 @@ import {SVELTEKIT_BUILD_DIRNAME} from './paths.js';
 import {exists} from './exists.js';
 
 export interface Options {
-	dir?: string;
 	/**
 	 * Used for finalizing a SvelteKit build like adding a `.nojekyll` file for GitHub Pages.
 	 * @default 'github_pages'
@@ -18,11 +16,11 @@ export interface Options {
 
 export type HostTarget = 'github_pages' | 'static' | 'node';
 
+const output_dir = SVELTEKIT_BUILD_DIRNAME;
+
 export const plugin = ({
-	dir = SVELTEKIT_BUILD_DIRNAME, // TODO what about cwd like other plugins? like for loading the SvelteKit config
 	host_target = 'github_pages',
 }: Options = {}): Plugin<PluginContext> => {
-	const output_dir = strip_end(dir, '/');
 
 	let sveltekit_process: SpawnedProcess | null = null;
 	return {
