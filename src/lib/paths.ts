@@ -4,8 +4,6 @@ import {strip_end, strip_start} from '@grogarden/util/string.js';
 import {gray} from 'kleur/colors';
 import type {Flavored} from '@grogarden/util/types.js';
 
-// TODO for Windows support we might need to change every `/` here to `sep`? https://github.com/grogarden/gro/issues/319
-
 /*
 
 A path `id` is an absolute path to the source/.gro/dist directory.
