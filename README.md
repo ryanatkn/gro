@@ -4,9 +4,9 @@
 
 > task runner and toolkit extending SvelteKit
 
-```bash
-npm i -D [@grogarden/gro](https://www.npmjs.com/package/@grogarden/gro)
-```
+[`npm i -D @grogarden/gro`](https://www.npmjs.com/package/@grogarden/gro)
+
+````
 
 limitations:
 
@@ -84,7 +84,7 @@ Normally you'll want to install Gro as a dev dependency:
 
 ```bash
 npm i -D [@grogarden/gro](https://www.npmjs.com/package/@grogarden/gro)
-```
+````
 
 It's handy to install globally too:
 
