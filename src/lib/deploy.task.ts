@@ -3,7 +3,6 @@ import {spawn} from '@grogarden/util/process.js';
 import {print_error} from '@grogarden/util/print.js';
 import {green, red} from 'kleur/colors';
 import {z} from 'zod';
-import {execSync} from 'node:child_process';
 import {copyFile, readdir, rename, rm} from 'node:fs/promises';
 
 import type {Task} from './task.js';
@@ -105,6 +104,12 @@ export const task: Task<Args> = {
 			return;
 		}
 
+		// Reset the target branch?
+		if (reset) {
+			await spawn('git', ['push', origin, ':' + target]);
+		}
+
+		// Prepare the target branch, creating as needed.
 		const gitTargetExistsResult = await spawn('git', [
 			'ls-remote',
 			'--exit-code',
@@ -203,15 +208,6 @@ export const task: Task<Args> = {
 		if (dry) {
 			log.info(green('dry deploy complete:'), 'files are available in', print_path(dir));
 			return;
-		}
-
-		// Reset the target branch?
-		if (reset) {
-			const first_commit_hash = execSync('git rev-list --max-parents=0 --abbrev-commit HEAD')
-				.toString()
-				.trim();
-			await spawn('git', ['reset', '--hard', first_commit_hash]);
-			await spawn('git', ['push', origin, target, '--force']);
 		}
 
 		try {
