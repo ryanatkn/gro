@@ -1,5 +1,11 @@
 # @grogarden/gro
 
+## 0.87.2
+
+### Patch Changes
+
+- f16eaab: passthrough unknown `PackageJson` properties
+
 ## 0.87.1
 
 ### Patch Changes
