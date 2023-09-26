@@ -61,9 +61,7 @@ export const Args = z
 			.default(false),
 		install: z.boolean({description: 'dual of no-install'}).default(true),
 		'no-install': z
-			.boolean({
-				description: 'opt out of npm installing before building',
-			})
+			.boolean({description: 'opt out of npm installing before building'})
 			.default(false),
 	})
 	.strict();

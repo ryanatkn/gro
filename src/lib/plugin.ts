@@ -13,7 +13,7 @@ export interface Plugin<TPluginContext extends PluginContext = PluginContext> {
 	teardown?: (ctx: TPluginContext) => void | Promise<void>;
 }
 
-export interface ToConfigPlugins<TPluginContext extends PluginContext = PluginContext> {
+export interface CreateConfigPlugins<TPluginContext extends PluginContext = PluginContext> {
 	(
 		ctx: TPluginContext,
 	):

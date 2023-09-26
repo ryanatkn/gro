@@ -109,6 +109,6 @@ export const write_changeset_config = (serialized: string): Promise<void> =>
 	writeFile(CHANGESET_CONFIG_PATH, serialized);
 
 export const serialize_changeset_config = (config: WrittenConfig): string =>
-	JSON.stringify(config, null, 2) + '\n';
+	JSON.stringify(config, null, '\t') + '\n';
 
 export const parse_changeset_config = (contents: string): WrittenConfig => JSON.parse(contents);

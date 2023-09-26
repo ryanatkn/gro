@@ -22,9 +22,11 @@ export const Args = z
 			.string({description: 'file name and path of the changelog'})
 			.default('CHANGELOG.md'),
 		dry: z
-			.boolean({
-				description: 'build and prepare to publish without actually publishing',
-			})
+			.boolean({description: 'build and prepare to publish without actually publishing'})
+			.default(false),
+		check: z.boolean({description: 'dual of no-check'}).default(true),
+		'no-check': z
+			.boolean({description: 'opt out of npm checking before publishing'})
 			.default(false),
 		install: z.boolean({description: 'dual of no-install'}).default(true),
 		'no-install': z
@@ -38,17 +40,17 @@ export const task: Task<Args> = {
 	summary: 'bump version, publish to npm, and git push',
 	Args,
 	run: async ({args, log, invoke_task}): Promise<void> => {
-		const {branch, changelog, dry, install} = args;
+		const {branch, changelog, dry, check, install} = args;
 		if (dry) {
 			log.info(green('dry run!'));
 		}
 
+		// TODO hacky, ensures Gro bootstraps itself
 		if (is_this_project_gro) {
 			await spawn('npm', ['run', 'build']);
 		}
 
-		const changelogExists = await exists(changelog);
-		let version!: string;
+		const changelog_exists = await exists(changelog);
 
 		// Ensure Changesets is installed:
 		if (!(await find_cli('changeset'))) {
@@ -62,7 +64,12 @@ export const task: Task<Args> = {
 		await spawn('git', ['pull', 'origin', branch]);
 
 		// Check before proceeding.
-		await invoke_task('check');
+		if (check) {
+			// TODO check for clean git workspace
+			await invoke_task('check');
+		}
+
+		let version!: string;
 
 		// Bump the version so the package.json is updated before building:
 		// TODO problem here is build may fail and put us in a bad state,
@@ -71,8 +78,8 @@ export const task: Task<Args> = {
 		if (dry) {
 			log.info('dry run, skipping changeset version');
 		} else {
-			const pkgBefore = await load_package_json();
-			if (typeof pkgBefore.version !== 'string') {
+			const pkg_before = await load_package_json();
+			if (typeof pkg_before.version !== 'string') {
 				throw new TaskError('failed to find package.json version');
 			}
 
@@ -83,7 +90,7 @@ export const task: Task<Args> = {
 
 			const pkg_after = await load_package_json();
 			version = pkg_after.version!;
-			if (pkgBefore.version === version) {
+			if (pkg_before.version === version) {
 				throw new TaskError('changeset version failed: are there any changes?');
 			}
 		}
@@ -97,14 +104,14 @@ export const task: Task<Args> = {
 			return;
 		}
 
-		const npmPublishResult = await spawn_cli('changeset', ['publish']);
-		if (!npmPublishResult?.ok) {
+		const npm_publish_result = await spawn_cli('changeset', ['publish']);
+		if (!npm_publish_result?.ok) {
 			throw new TaskError(
 				'changeset publish failed - revert the version tag or run it again manually',
 			);
 		}
 
-		if (!changelogExists && (await exists(changelog))) {
+		if (!changelog_exists && (await exists(changelog))) {
 			await spawn('git', ['add', changelog]);
 		}
 		await spawn('git', ['commit', '-a', '-m', `publish v${version}`]);

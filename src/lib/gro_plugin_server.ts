@@ -7,7 +7,14 @@ import {identity} from '@grogarden/util/function.js';
 import {strip_before} from '@grogarden/util/string.js';
 
 import type {Plugin, PluginContext} from './plugin.js';
-import {GRO_DEV_DIRNAME, GRO_DIST_DIRNAME, paths, type SourceId} from './paths.js';
+import {
+	base_path_to_source_id,
+	GRO_DEV_DIRNAME,
+	GRO_DIST_DIRNAME,
+	LIB_DIRNAME,
+	paths,
+	type SourceId,
+} from './paths.js';
 import {watch_dir, type WatchNodeFs} from './watch_dir.js';
 import {init_sveltekit_config} from './sveltekit_config.js';
 import {esbuild_plugin_sveltekit_shim_app} from './esbuild_plugin_sveltekit_shim_app.js';
@@ -22,11 +29,15 @@ import {throttle} from './throttle.js';
 
 // TODO sourcemap as a hoisted option? disable for production by default - or like `outpaths`, passed a `dev` param
 
+export const SERVER_SOURCE_ID = base_path_to_source_id(LIB_DIRNAME + '/server/server.ts');
+
+export const has_server = (path = SERVER_SOURCE_ID): Promise<boolean> => exists(path);
+
 export interface Options {
 	/**
 	 * same as esbuild's `entryPoints`
 	 */
-	entry_points: string[];
+	entry_points?: string[];
 	/**
 	 * @default cwd
 	 */
@@ -86,7 +97,7 @@ export interface CreateOutpaths {
 }
 
 export const plugin = ({
-	entry_points,
+	entry_points = [SERVER_SOURCE_ID],
 	dir = cwd(),
 	outpaths = (dev) => ({
 		outdir: join(dir, dev ? GRO_DEV_DIRNAME : GRO_DIST_DIRNAME),
@@ -99,7 +110,7 @@ export const plugin = ({
 	target = 'esnext',
 	esbuild_build_options = identity,
 	rebuild_throttle_delay = 1000,
-}: Options): Plugin<PluginContext> => {
+}: Options = {}): Plugin<PluginContext> => {
 	let build_ctx: esbuild.BuildContext;
 	let watcher: WatchNodeFs;
 	let server_process: RestartableProcess | null = null;

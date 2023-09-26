@@ -1,5 +1,4 @@
 import {spawn, spawnProcess, type SpawnedProcess} from '@grogarden/util/process.js';
-import {strip_end} from '@grogarden/util/string.js';
 import {mkdir, writeFile} from 'node:fs/promises';
 
 import type {Plugin, PluginContext} from './plugin.js';
@@ -8,7 +7,6 @@ import {SVELTEKIT_BUILD_DIRNAME} from './paths.js';
 import {exists} from './exists.js';
 
 export interface Options {
-	dir?: string;
 	/**
 	 * Used for finalizing a SvelteKit build like adding a `.nojekyll` file for GitHub Pages.
 	 * @default 'github_pages'
@@ -18,17 +16,15 @@ export interface Options {
 
 export type HostTarget = 'github_pages' | 'static' | 'node';
 
-export const plugin = ({
-	dir = SVELTEKIT_BUILD_DIRNAME,
-	host_target = 'github_pages',
-}: Options = {}): Plugin<PluginContext> => {
-	const output_dir = strip_end(dir, '/');
+const output_dir = SVELTEKIT_BUILD_DIRNAME;
 
+export const plugin = ({host_target = 'github_pages'}: Options = {}): Plugin<PluginContext> => {
 	let sveltekit_process: SpawnedProcess | null = null;
 	return {
 		name: 'gro_plugin_sveltekit_frontend',
 		setup: async ({dev, watch, log}) => {
 			if (dev) {
+				// `vite dev` in development mode
 				if (watch) {
 					const serialized_args = ['vite', 'dev', ...serialize_args(to_forwarded_args('vite'))];
 					log.info(print_command_args(serialized_args));
@@ -40,6 +36,7 @@ export const plugin = ({
 					);
 				}
 			} else {
+				// `vite build` in production mode
 				const serialized_args = ['vite', 'build', ...serialize_args(to_forwarded_args('vite'))];
 				log.info(print_command_args(serialized_args));
 				await spawn('npx', serialized_args);

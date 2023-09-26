@@ -22,8 +22,8 @@ export const render_sveltekit_shim_app_paths = (
 ): string => `// shim for $app/paths
 // @see https://github.com/sveltejs/kit/issues/1485
 
-export const assets = ${JSON.stringify(base_url)};
-export const base = ${JSON.stringify(assets_url)};
+export const assets = ${JSON.stringify(assets_url)};
+export const base = ${JSON.stringify(base_url)};
 `;
 
 // TODO improve support

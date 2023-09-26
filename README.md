@@ -74,7 +74,7 @@ It includes:
 
 ## install
 
-> depends on node >=20.5
+> depends on node >=20.7
 
 Normally you'll want to install Gro as a dev dependency:
 
