@@ -104,27 +104,6 @@ export const task: Task<Args> = {
 			);
 		}
 
-		// TODO BLOCK
-		// const first_commit_hash = execSync(
-		// 	'git rev-list --max-parents=0 --abbrev-commit HEAD',
-		// ).toString();
-		// await spawn('git', ['reset', '--hard', first_commit_hash]);
-		// await spawn('git', ['push', origin, target, '--force']);
-
-		// cases:
-		// no local branch, no remote branch
-		// no local branch, yes remote branch
-		// yes local branch, no remote branch
-		// yes local branch, yes remote branch
-		// reset or not
-
-		// fetch remote branch
-		// create local branch
-		// create remote branch
-		// reset local and remote branches
-		// update local branch
-		// push remote branch
-
 		if (false) {
 			const error_message = await git_check_clean_workspace();
 			if (error_message) throw new TaskError('Failed to deploy: ' + error_message);
@@ -139,6 +118,15 @@ export const task: Task<Args> = {
 			await git_fetch(origin, target); // ensure the local branch is up to date
 			await git_checkout(target); // ensure tracking
 			await git_push(origin, target); // ensure the remote branch is up to date
+
+			// local is now synced with remote, but do we need to reset?
+			if (reset) {
+				const first_commit_hash = execSync(
+					'git rev-list --max-parents=0 --abbrev-commit HEAD',
+				).toString();
+				await spawn('git', ['reset', '--hard', first_commit_hash]);
+				await spawn('git', ['push', origin, target, '--force']);
+			}
 		} else {
 			// remote target branch does not exist
 
