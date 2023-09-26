@@ -16,6 +16,10 @@ import {
 	git_fetch,
 	git_local_branch_exists,
 	git_remote_branch_exists,
+	Git_Origin,
+	Git_Branch,
+	git_delete_local_branch,
+	git_delete_remote_branch,
 } from './git.js';
 
 // docs at ./docs/deploy.md
@@ -38,11 +42,11 @@ const DANGEROUS_BRANCHES = [SOURCE_BRANCH, 'master'];
 
 export const Args = z
 	.object({
-		source: z
-			.string({description: 'source branch to build and deploy from'})
-			.default(SOURCE_BRANCH),
-		target: z.string({description: 'target branch to deploy to'}).default(TARGET_BRANCH),
-		origin: z.string({description: 'git origin to deploy to'}).default(ORIGIN),
+		source: Git_Branch.describe('git source branch to build and deploy from').default(
+			SOURCE_BRANCH,
+		),
+		target: Git_Branch.describe('git target branch to deploy to').default(TARGET_BRANCH),
+		origin: Git_Origin.describe('git origin to deploy to').default(ORIGIN),
 		dir: z.string({description: 'the SvelteKit build directory'}).default(SVELTEKIT_BUILD_DIRNAME),
 		dry: z
 			.boolean({
@@ -123,14 +127,31 @@ export const task: Task<Args> = {
 			if (error_message) throw new TaskError('Failed to deploy: ' + error_message);
 		}
 
+		const remote_target_exists = await git_remote_branch_exists(origin, target);
+		const local_target_exists = await git_local_branch_exists(target);
+
+		// prepare the target branch remotely and locally
+		if (remote_target_exists) {
+			// remote target branch already exists
+			await git_fetch(origin, target);
+			await git_checkout(target); // ensure tracking
+		} else {
+			// remote target branch does not exist
+			if (local_target_exists) {
+				// corner case, probably better to delete the local target if it doesn't exist remotely
+				await git_delete_local_branch(target);
+			}
+			// TODO BLOCK what about if the local branch exists here? should we just delete it?
+		}
+
 		// Reset the target branch?
 		if (reset) {
 			if (await git_remote_branch_exists(origin, target)) {
 				// TODO BLOCK can't do this, need to reset to first commit instead
-				await spawn('git', ['push', origin, ':' + target]);
+				await git_delete_remote_branch(origin, target);
 			}
 			if (await git_local_branch_exists(target)) {
-				await spawn('git', ['branch', '-D', target]);
+				await git_delete_local_branch(target);
 			}
 		}
 
@@ -143,24 +164,14 @@ export const task: Task<Args> = {
 			await git_fetch(origin, target);
 
 			// Checkout the target branch to ensure tracking.
-			await git_checkout(target);
+			await git_checkout(target); // ensure tracking
 		} else {
 			// Target branch does not exist remotely.
 			// Create and checkout the target branch.
 			await spawn('git', ['checkout', '-b', target]);
 		}
 
-		// Checkout the source branch to deploy.
-		const git_checkout_source_result = await spawn('git', ['checkout', source]);
-		if (!git_checkout_source_result.ok) {
-			log.error(
-				red(`failed to checkout source branch ${source} code(${git_checkout_source_result.code})`),
-			);
-			return;
-		}
-
-		// Set up the deployment `target` branch if necessary.
-		// If the branch already exists, this is a no-op.
+		// set up the deployment `target` branch
 		await spawn(
 			`git checkout --orphan ${target} && ` +
 				// TODO there's definitely a better way to do this
@@ -169,13 +180,14 @@ export const task: Task<Args> = {
 				`git add ${INITIAL_FILE_PATH} && ` +
 				`git commit -m "init" && git checkout ${source}`,
 			[],
-			{
-				shell: true, // use `shell: true` because the above is unwieldy with standard command construction
-				stdio: 'pipe', // silence the output
-			},
+			// use `shell: true` because the above is unwieldy with standard command construction
+			{shell: true},
 		);
 
-		// Clean up any existing worktree.
+		// branches are now ready
+		await git_checkout(source);
+
+		// clean up any existing worktree
 		await git_clean_worktree();
 
 		if (clean) {
@@ -184,10 +196,9 @@ export const task: Task<Args> = {
 		}
 
 		try {
-			// Run the build.
 			await invoke_task('build', {install});
 
-			// Make sure the expected dir exists after building.
+			// ensure the expected dir exists after building
 			if (!(await exists(dir))) {
 				log.error(red('directory to deploy does not exist after building:'), dir);
 				return;
@@ -207,10 +218,10 @@ export const task: Task<Args> = {
 		}
 
 		try {
-			// Set up the deployment worktree
+			// set up the deployment worktree
 			await spawn('git', ['worktree', 'add', WORKTREE_DIRNAME, target]);
 
-			// Pull the remote deploy branch, ignoring failures
+			// pull the remote deploy branch, ignoring failures
 			await spawn('git', ['pull', origin, target], GIT_ARGS);
 
 			// Populate the worktree dir with the new files.

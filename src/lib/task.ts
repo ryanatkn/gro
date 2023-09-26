@@ -4,7 +4,7 @@ import type {z} from 'zod';
 import type {Timings} from '@grogarden/util/timings.js';
 
 import type {Args} from './args.js';
-import {import_id_to_lib_path, type SourceId} from './paths.js';
+import {import_id_to_lib_path, type Source_Id} from './paths.js';
 import type {GroConfig} from './config.js';
 
 export interface Task<
@@ -31,7 +31,7 @@ export const TASK_FILE_SUFFIX_JS = '.task.js';
 export const is_task_path = (path: string): boolean =>
 	path.endsWith(TASK_FILE_SUFFIX_TS) || path.endsWith(TASK_FILE_SUFFIX_JS);
 
-export const to_task_name = (id: SourceId): string => {
+export const to_task_name = (id: Source_Id): string => {
 	const lib_path = import_id_to_lib_path(id);
 	const name = strip_end(strip_end(lib_path, TASK_FILE_SUFFIX_TS), TASK_FILE_SUFFIX_JS);
 	return name;
