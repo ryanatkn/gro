@@ -60,11 +60,6 @@ export const Args = z
 		dangerous: z
 			.boolean({description: 'caution!! enables destruction of branches like main and master'})
 			.default(false),
-		dirty: z
-			.boolean({
-				description: 'if true, bypasses the git check for unstaged and uncommitted changes',
-			})
-			.default(false),
 		reset: z
 			.boolean({
 				description: 'if true, resets the target branch back to the first commit before deploying',
@@ -82,7 +77,7 @@ export const task: Task<Args> = {
 	summary: 'deploy to a branch',
 	Args,
 	run: async ({args, log, invoke_task}): Promise<void> => {
-		const {source, target, origin, dir, dry, clean, force, dangerous, dirty, reset, install} = args;
+		const {source, target, origin, dir, dry, clean, force, dangerous, reset, install} = args;
 
 		if (!force && target !== TARGET_BRANCH) {
 			throw Error(
@@ -123,13 +118,9 @@ export const task: Task<Args> = {
 		// update local branch
 		// push remote branch
 
-		if (!dirty) {
+		if (false) {
 			const error_message = await git_check_clean_workspace();
-			if (error_message) {
-				throw new TaskError(
-					error_message + ' - to proceed, commit or stash the changes or pass --dirty',
-				);
-			}
+			if (error_message) throw new TaskError('Failed to deploy: ' + error_message);
 		}
 
 		// Reset the target branch?
