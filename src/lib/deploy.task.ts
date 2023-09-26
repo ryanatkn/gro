@@ -19,7 +19,6 @@ import {
 	GitOrigin,
 	GitBranch,
 	git_delete_local_branch,
-	git_delete_remote_branch,
 	git_pull,
 	git_push,
 	git_push_to_create,
@@ -181,9 +180,6 @@ export const task: Task<Args> = {
 		try {
 			// set up the deployment worktree
 			await spawn('git', ['worktree', 'add', WORKTREE_DIRNAME, target]);
-
-			// pull the remote deploy branch, ignoring failures
-			await git_pull(origin, target, GIT_ARGS); // TODO BLOCK still needed?
 
 			// Populate the worktree dir with the new files.
 			// We're doing this rather than copying the directory
