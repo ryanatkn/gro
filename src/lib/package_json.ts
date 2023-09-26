@@ -1,3 +1,4 @@
+import {z} from 'zod';
 import {join} from 'node:path';
 import {readFile, writeFile} from 'node:fs/promises';
 
@@ -11,7 +12,43 @@ import {
 	type Email,
 } from './paths.js';
 
-// TODO maybe define with Zod so we get good error messages for parsing?
+// TODO `[key: string]: unknown;`
+export const PackageJson = z.object({
+
+	// according to the npm docs, these are required
+	name: z.string(),
+	version: z.string(),
+
+	private: z.boolean({description: 'disallow npm publish, and also used by Gro to disable `package.json` automations'}).optional(),
+
+	description: z.string().optional(),
+	license: z.string().optional(),
+	homepage: Url.optional(),
+	repository: string | Url | PackageJsonRepository.optional(),
+	author: string | PackageJsonAuthor.optional(),
+	contributors: Array<string | PackageJsonAuthor>.optional(),
+	bugs: {url: Url.optional(), email: Email}.optional(),
+	funding: Url | PackageJsonFunding | Array<Url | PackageJsonFunding>.optional(),
+	keywords: z.array(z.string()).optional(),
+
+	scripts: Record<string, string>.optional(),
+
+	bin: Record<string, string>.optional(),
+	files: z.array(z.string()).optional(),
+	exports: PackageJsonExports.optional(),
+
+	dependencies: Record<string, string>.optional(),
+	devDependencies: Record<string, string>.optional(),
+	peerDependencies: Record<string, string>.optional(),
+	peerDependenciesMeta: Record<string, Record<string, string>>.optional(),
+	optionalDependencies: Record<string, string>.optional(),
+
+	engines: Record<string, string>.optional(),
+	os: z.array(z.string()).optional(),
+	cpu: z.array(z.string()).optional(),
+})
+export type PackageJson = z.infer<typeof PackageJson>;
+
 
 /**
  * @see https://docs.npmjs.com/cli/v10/configuring-npm/package-json
@@ -19,11 +56,11 @@ import {
 export interface PackageJson {
 	[key: string]: unknown;
 
-	// according to the npm docs, these are required
+	// 
 	name: string;
 	version: string;
 
-	// disallow npm publish, and also used by Gro to disable `package.json` automations
+	// 
 	private?: boolean;
 
 	description?: string;
