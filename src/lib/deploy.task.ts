@@ -19,7 +19,6 @@ import {
 	GitOrigin,
 	GitBranch,
 	git_delete_local_branch,
-	git_pull,
 	git_push,
 	git_push_to_create,
 	git_reset_branch_to_first_commit,
