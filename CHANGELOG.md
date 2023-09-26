@@ -1,5 +1,18 @@
 # @grogarden/gro
 
+## 0.86.0
+
+### Minor Changes
+
+- 5972c30: add `package.json` to the static `/.well-known` directory by default
+- 47f7599: fix `gro deploy`
+- 47f7599: add git utils
+- 5972c30: add `package_json` to the config for customizing exports and `.well-known`
+
+### Patch Changes
+
+- aff9f07: fix `gro deploy --reset` flag
+
 ## 0.85.0
 
 ### Minor Changes
