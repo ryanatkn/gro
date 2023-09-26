@@ -78,8 +78,8 @@ export const task: Task<Args> = {
 		if (dry) {
 			log.info('dry run, skipping changeset version');
 		} else {
-			const pkgBefore = await load_package_json();
-			if (typeof pkgBefore.version !== 'string') {
+			const pkg_before = await load_package_json();
+			if (typeof pkg_before.version !== 'string') {
 				throw new TaskError('failed to find package.json version');
 			}
 
@@ -90,7 +90,7 @@ export const task: Task<Args> = {
 
 			const pkg_after = await load_package_json();
 			version = pkg_after.version!;
-			if (pkgBefore.version === version) {
+			if (pkg_before.version === version) {
 				throw new TaskError('changeset version failed: are there any changes?');
 			}
 		}
@@ -104,8 +104,8 @@ export const task: Task<Args> = {
 			return;
 		}
 
-		const npmPublishResult = await spawn_cli('changeset', ['publish']);
-		if (!npmPublishResult?.ok) {
+		const npm_publish_result = await spawn_cli('changeset', ['publish']);
+		if (!npm_publish_result?.ok) {
 			throw new TaskError(
 				'changeset publish failed - revert the version tag or run it again manually',
 			);

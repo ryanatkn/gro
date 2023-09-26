@@ -131,10 +131,7 @@ const config: GroConfig = {
 };
 
 export interface MapPackageJson {
-	(
-		pkg: PackageJson | null,
-		when: MapPackageJsonWhen,
-	): PackageJson | null | Promise<PackageJson | null>;
+	(pkg: PackageJson, when: MapPackageJsonWhen): PackageJson | null | Promise<PackageJson | null>;
 }
 
 export type MapPackageJsonWhen = 'updating_exports' | 'updating_well_known';
