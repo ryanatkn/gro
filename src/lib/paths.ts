@@ -26,7 +26,7 @@ the `path_parts` are `['foo', 'foo/bar', 'foo/bar/baz.ts']`.
 export const SOURCE_DIRNAME = 'src';
 export const GRO_DIRNAME = '.gro';
 export const SVELTEKIT_DIST_DIRNAME = 'dist';
-export const LIB_DIRNAME = 'lib';
+export const LIB_DIRNAME = 'lib'; // TODO need to use Svelte config `files.lib`
 export const GRO_DIST_DIRNAME = GRO_DIRNAME + '/dist';
 export const GRO_DEV_DIRNAME = GRO_DIRNAME + '/dev';
 export const SOURCE_DIR = SOURCE_DIRNAME + '/';
@@ -41,7 +41,7 @@ export const CONFIG_PATH = 'gro.config.ts';
 export const README_FILENAME = 'README.md';
 export const SVELTEKIT_CONFIG_FILENAME = 'svelte.config.js';
 export const VITE_CONFIG_FILENAME = 'vite.config.ts';
-export const SVELTEKIT_DEV_DIRNAME = '.svelte-kit';
+export const SVELTEKIT_DEV_DIRNAME = '.svelte-kit'; // TODO use Svelte config value `outDir`
 export const SVELTEKIT_BUILD_DIRNAME = 'build';
 export const NODE_MODULES_DIRNAME = 'node_modules';
 export const SVELTEKIT_VITE_CACHE_PATH = NODE_MODULES_DIRNAME + '/.vite';

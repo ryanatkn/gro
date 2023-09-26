@@ -38,4 +38,5 @@ export default config;
 
 export const has_library = async (): Promise<boolean> => !!(await load_package_json()).exports;
 
+// TODO need to use Svelte config `files.routes`
 export const has_sveltekit_frontend = (): Promise<boolean> => exists('src/routes');

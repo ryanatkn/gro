@@ -25,6 +25,7 @@ export const load_sveltekit_config = async (dir: string = cwd()): Promise<Config
  * so these properties become first-class vocabulary inside Gro.
  */
 export interface ParsedSveltekitConfig {
+	// TODO probably fill these out with defaults
 	sveltekit_config: Config | null;
 	alias: Record<string, string> | undefined;
 	base_url: '' | `/${string}` | undefined;
