@@ -1,15 +1,15 @@
 import {spawn} from '@grogarden/util/process.js';
+import type {Flavored} from '@grogarden/util/types.js';
 import {execSync, type SpawnOptions} from 'child_process';
 import {z} from 'zod';
 
 import {paths} from './paths.js';
 
-// TODO not sure we want to use `brand`, messes up generics compared to `Flavored`, like `join` for paths
-export const GitOrigin = z.string().brand('GitOrigin');
-export type GitOrigin = z.infer<typeof GitOrigin>;
+export const GitOrigin = z.string();
+export type GitOrigin = z.infer<Flavored<typeof GitOrigin, 'GitOrigin'>>;
 
-export const GitBranch = z.string().brand('GitBranch');
-export type GitBranch = z.infer<typeof GitBranch>;
+export const GitBranch = z.string();
+export type GitBranch = z.infer<Flavored<typeof GitBranch, 'GitBranch'>>;
 
 /**
  * @returns a boolean indicating if the remote git branch exists
@@ -177,12 +177,14 @@ export const git_clean_worktree = async (
  */
 export const git_reset_branch_to_first_commit = async (
 	origin: GitOrigin,
-	target: GitBranch,
+	branch: GitBranch,
 ): Promise<void> => {
+	await git_checkout(branch);
 	// TODO use `spawn` instead of `execSync`
 	const first_commit_hash = execSync(
 		'git rev-list --max-parents=0 --abbrev-commit HEAD',
 	).toString();
 	await spawn('git', ['reset', '--hard', first_commit_hash]);
-	await spawn('git', ['push', origin, target, '--force']);
+	await spawn('git', ['push', origin, branch, '--force']);
+	await git_checkout('-');
 };
