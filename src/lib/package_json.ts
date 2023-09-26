@@ -82,7 +82,7 @@ export const PackageJson = z.object({
 });
 export type PackageJson = z.infer<typeof PackageJson>;
 
-// TODO use `PackageJson` schema below for runtime assertions
+// TODO BLOCK use `PackageJson` schema below for runtime assertions
 
 export interface MapPackageJson {
 	(pkg: PackageJson, when: MapPackageJsonWhen): PackageJson | null | Promise<PackageJson | null>;
