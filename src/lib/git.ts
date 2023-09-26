@@ -161,6 +161,7 @@ export const git_delete_remote_branch = async (
 };
 
 export const WORKTREE_DIRNAME = 'worktree';
+// TODO BLOCK parameterize path
 export const WORKTREE_DIR = `${paths.root}${WORKTREE_DIRNAME}`;
 
 /**
@@ -200,7 +201,8 @@ export const git_reset_branch_to_first_commit = async (
  * @returns the current git branch name
  */
 export const git_current_branch_name = async (): Promise<string> => {
-	return spawn_out('git rev-parse --abbrev-ref HEAD').toString().trim();
+	const {stdout} = await spawn_out('git', ['rev-parse', '--abbrev-ref', 'HEAD']);
+	return stdout.toString().trim();
 };
 
 /**
@@ -208,8 +210,6 @@ export const git_current_branch_name = async (): Promise<string> => {
  */
 export const git_current_commit_hash = async (branch?: string): Promise<string> => {
 	const final_branch = branch ?? (await git_current_branch_name());
-	return spawn_out('git show-ref -s ' + final_branch)
-		.toString()
-		.split('\n')[0]
-		.trim();
+	const {stdout} = await spawn_out('git', ['show-ref', '-s', final_branch]);
+	return stdout.toString().split('\n')[0].trim();
 };
