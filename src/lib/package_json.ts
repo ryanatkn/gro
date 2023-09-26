@@ -19,11 +19,15 @@ import {
 export interface PackageJson {
 	[key: string]: unknown;
 
+	
+	// according to the npm docs, these are required
+	name: string;
+	version: string;
+
+	// disallow npm publish, and also used by Gro to disable `package.json` automations
 	private?: boolean;
 
-	name?: string;
 	description?: string;
-	version?: string;
 	license?: string;
 	homepage?: Url;
 	repository?: string | Url | PackageJsonRepository;

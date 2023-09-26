@@ -43,10 +43,10 @@ export const task: Task<Args> = {
 		if (check) {
 			if (changed_exports) {
 				throw new TaskError(
-					failure_message('The package.json has unexpectedly changed for mode `exports`.'),
+					failure_message('The package.json has unexpectedly changed for `updating_exports`.'),
 				);
 			} else {
-				log.info('check passed for package.json in `exports` mode');
+				log.info('check passed for package.json for `updating_exports`');
 			}
 		} else {
 			log.info(
@@ -85,10 +85,10 @@ export const task: Task<Args> = {
 			if (check) {
 				if (changed_well_known_package_json) {
 					throw new TaskError(
-						failure_message('The package.json has unexpectedly changed for mode `well_known`.'),
+						failure_message('The package.json has unexpectedly changed for `updating_well_known`.'),
 					);
 				} else {
-					log.info('check passed for package.json in `well_known` mode');
+					log.info('check passed for package.json for `updating_well_known`');
 				}
 			} else {
 				if (changed_well_known_package_json) {
