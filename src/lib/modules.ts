@@ -6,7 +6,7 @@ import {print_error} from '@grogarden/util/print.js';
 
 import {load_source_path_data_by_input_path, load_source_ids_by_input_path} from './input_path.js';
 import type {PathData} from './path.js';
-import {paths_from_id, print_path, print_path_or_gro_path, type Source_Id} from './paths.js';
+import {paths_from_id, print_path, print_path_or_gro_path, type SourceId} from './paths.js';
 import {search_fs} from './search_fs.js';
 
 export interface ModuleMeta<TModule extends Record<string, any> = Record<string, any>> {
@@ -143,7 +143,7 @@ export const load_modules = async <
 	TModuleMeta extends ModuleMeta<ModuleType>,
 >(
 	source_ids_by_input_path: Map<string, string[]>, // TODO maybe make this a flat array and remove `input_path`?
-	load_module_by_id: (source_id: Source_Id) => Promise<LoadModuleResult<TModuleMeta>>,
+	load_module_by_id: (source_id: SourceId) => Promise<LoadModuleResult<TModuleMeta>>,
 	timings?: Timings,
 ): Promise<LoadModulesResult<TModuleMeta>> => {
 	const timing_to_load_modules = timings?.start('load modules');

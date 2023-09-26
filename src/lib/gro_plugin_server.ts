@@ -13,7 +13,7 @@ import {
 	GRO_DIST_DIRNAME,
 	LIB_DIRNAME,
 	paths,
-	type Source_Id,
+	type SourceId,
 } from './paths.js';
 import {watch_dir, type WatchNodeFs} from './watch_dir.js';
 import {init_sveltekit_config} from './sveltekit_config.js';
@@ -114,7 +114,7 @@ export const plugin = ({
 	let build_ctx: esbuild.BuildContext;
 	let watcher: WatchNodeFs;
 	let server_process: RestartableProcess | null = null;
-	let deps: Set<Source_Id> | null = null;
+	let deps: Set<SourceId> | null = null;
 
 	return {
 		name: 'gro_plugin_server',
