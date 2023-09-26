@@ -12,30 +12,39 @@ import {
 	Email,
 } from './paths.js';
 
-export const PackageJsonRepository = z
-	.object({
-		type: z.string(),
-		url: Url,
-		directory: z.string().optional(),
-	})
-	.passthrough();
+export const PackageJsonRepository = z.union([
+	z.string(),
+	z
+		.object({
+			type: z.string(),
+			url: Url,
+			directory: z.string().optional(),
+		})
+		.passthrough(),
+]);
 export type PackageJsonRepository = z.infer<typeof PackageJsonRepository>;
 
-export const PackageJsonAuthor = z
-	.object({
-		name: z.string(),
-		email: Email.optional(),
-		url: Url.optional(),
-	})
-	.passthrough();
+export const PackageJsonAuthor = z.union([
+	z.string(),
+	z
+		.object({
+			name: z.string(),
+			email: Email.optional(),
+			url: Url.optional(),
+		})
+		.passthrough(),
+]);
 export type PackageJsonAuthor = z.infer<typeof PackageJsonAuthor>;
 
-export const PackageJsonFunding = z
-	.object({
-		type: z.string(),
-		url: Url,
-	})
-	.passthrough();
+export const PackageJsonFunding = z.union([
+	z.string(),
+	z
+		.object({
+			type: z.string(),
+			url: Url,
+		})
+		.passthrough(),
+]);
 export type PackageJsonFunding = z.infer<typeof PackageJsonFunding>;
 
 export const PackageJsonExports = z.record(z.record(z.string()).optional());
@@ -65,7 +74,7 @@ export const PackageJson = z.intersection(
 			repository: z.union([z.string(), Url, PackageJsonRepository]).optional(),
 			author: z.union([z.string(), PackageJsonAuthor.optional()]),
 			contributors: z.array(z.union([z.string(), PackageJsonAuthor])).optional(),
-			bugs: z.object({url: Url.optional(), email: Email}).passthrough().optional(),
+			bugs: z.object({url: Url.optional(), email: Email.optional()}).passthrough().optional(),
 			funding: z
 				.union([Url, PackageJsonFunding, z.array(z.union([Url, PackageJsonFunding]))])
 				.optional(),
