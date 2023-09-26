@@ -87,7 +87,7 @@ export const WORKTREE_DIR = `${paths.root}${WORKTREE_DIRNAME}`;
 /**
  * Removes the specified git worktree and then prunes.
  */
-export const clean_git_worktree = async (
+export const git_clean_worktree = async (
 	worktree_dirname = WORKTREE_DIRNAME,
 	options: SpawnOptions = {stdio: 'pipe'}, // silence the output by default
 ): Promise<void> => {

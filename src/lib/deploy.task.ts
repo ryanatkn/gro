@@ -10,7 +10,7 @@ import {exists} from './exists.js';
 import {
 	WORKTREE_DIR,
 	WORKTREE_DIRNAME,
-	clean_git_worktree,
+	git_clean_worktree,
 	git_check_clean_workspace,
 	git_checkout,
 	git_fetch,
@@ -171,7 +171,7 @@ export const task: Task<Args> = {
 		);
 
 		// Clean up any existing worktree.
-		await clean_git_worktree();
+		await git_clean_worktree();
 
 		if (clean) {
 			log.info(green('all clean'));
@@ -227,7 +227,7 @@ export const task: Task<Args> = {
 			await spawn('git', ['push', origin, target, '-f'], GIT_ARGS);
 		} catch (err) {
 			log.error(red('updating git failed:'), print_error(err));
-			await clean_git_worktree();
+			await git_clean_worktree();
 			throw Error(`Deploy failed in a bad state: built but not pushed. See the error above.`);
 		}
 
@@ -237,7 +237,7 @@ export const task: Task<Args> = {
 			rm(dir, {recursive: true}),
 		]);
 		await rename(WORKTREE_DIR, dir);
-		await clean_git_worktree();
+		await git_clean_worktree();
 
 		log.info(green('deployed')); // TODO log a different message if "Everything up-to-date"
 	},
