@@ -12,13 +12,10 @@ export const Args = z
 		'no-gen': z.boolean({description: 'opt out of gen check'}).default(false),
 		format: z.boolean({description: 'dual of no-format'}).default(true),
 		'no-format': z.boolean({description: 'opt out of format check'}).default(false),
+		exports: z.boolean({description: 'dual of no-exports'}).default(true),
+		'no-exports': z.boolean({description: 'opt out of exports check'}).default(false),
 		lint: z.boolean({description: 'dual of no-lint'}).default(true),
 		'no-lint': z.boolean({description: 'opt out of linting'}).default(false),
-		// TODO enable this after making `exports` more configurable, and then we can automate it,
-		// maybe declarative task overrides in gro.config.ts,
-		// or more likely for this case, a callback function
-		// exports: z.boolean({description: 'dual of no-exports'}).default(true),
-		// 'no-exports': z.boolean({description: 'opt out of exports check'}).default(false),
 	})
 	.strict();
 export type Args = z.infer<typeof Args>;
@@ -27,7 +24,7 @@ export const task: Task<Args> = {
 	summary: 'check that everything is ready to commit',
 	Args,
 	run: async ({args, invoke_task}) => {
-		const {typecheck, test, gen, format, lint} = args;
+		const {typecheck, test, gen, format, exports, lint} = args;
 
 		if (typecheck) {
 			await invoke_task('typecheck');
@@ -45,10 +42,9 @@ export const task: Task<Args> = {
 			await invoke_task('format', {check: true});
 		}
 
-		// TODO see above
-		// if (exports) {
-		// 	await invoke_task('exports', {check: true});
-		// }
+		if (exports) {
+			await invoke_task('exports', {check: true});
+		}
 
 		// Run the linter last to surface every other kind of problem first.
 		// It's not the ideal order when the linter would catch errors that cause failing tests,

@@ -42,7 +42,7 @@ It includes:
       and other code outside of the SvelteKit frontend,
       so you can use SvelteKit patterns everywhere
       (these are best-effort shims, not perfect)
-  - [configurable plugins](/src/lib/docs/plugin.md) and [adapters](/src/lib/docs/adapt.md)
+  - [configurable plugins](/src/lib/docs/plugin.md)
     to support SvelteKit, auto-restarting Node servers, and other external build processes
     - see the [Gro config docs](/src/lib/docs/config.md) and
       [the default config](https://github.com/grogarden/gro/blob/main/src/lib/gro.config.default.ts)
@@ -74,7 +74,7 @@ It includes:
 
 ## install
 
-> depends on node >=20.5
+> depends on node >=20.7
 
 Normally you'll want to install Gro as a dev dependency:
 

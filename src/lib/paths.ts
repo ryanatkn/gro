@@ -24,15 +24,16 @@ the `path_parts` are `['foo', 'foo/bar', 'foo/bar/baz.ts']`.
 // TODO pass these to `create_paths` and override from gro config
 // TODO this is kinda gross - do we want to maintain the convention to have the trailing slash in most usage?
 export const SOURCE_DIRNAME = 'src';
-export const BUILD_DIRNAME = '.gro';
-export const SVELTEKIT_DIST_DIRNAME = 'dist';
-export const LIB_DIRNAME = 'lib';
-export const BUILD_DIST_DIRNAME = BUILD_DIRNAME + '/dist';
-export const BUILD_DEV_DIRNAME = BUILD_DIRNAME + '/dev';
+export const GRO_DIRNAME = '.gro';
+export const DIST_DIRNAME = 'dist';
+export const LIB_DIRNAME = 'lib'; // TODO use Svelte config `files.lib`
+export const ROUTES_DIRNAME = 'routes'; // TODO use Svelte config `files.lib`
+export const GRO_DIST_DIRNAME = GRO_DIRNAME + '/dist';
+export const GRO_DEV_DIRNAME = GRO_DIRNAME + '/dev';
 export const SOURCE_DIR = SOURCE_DIRNAME + '/';
-export const BUILD_DIR = BUILD_DIRNAME + '/';
-export const BUILD_DIST_DIR = BUILD_DIST_DIRNAME + '/';
-export const BUILD_DEV_DIR = BUILD_DEV_DIRNAME + '/';
+export const GRO_DIR = GRO_DIRNAME + '/';
+export const GRO_DIST_DIR = GRO_DIST_DIRNAME + '/';
+export const GRO_DEV_DIR = GRO_DEV_DIRNAME + '/';
 export const LIB_PATH = SOURCE_DIR + LIB_DIRNAME;
 export const LIB_DIR = LIB_PATH + '/';
 
@@ -41,7 +42,7 @@ export const CONFIG_PATH = 'gro.config.ts';
 export const README_FILENAME = 'README.md';
 export const SVELTEKIT_CONFIG_FILENAME = 'svelte.config.js';
 export const VITE_CONFIG_FILENAME = 'vite.config.ts';
-export const SVELTEKIT_DEV_DIRNAME = '.svelte-kit';
+export const SVELTEKIT_DEV_DIRNAME = '.svelte-kit'; // TODO use Svelte config value `outDir`
 export const SVELTEKIT_BUILD_DIRNAME = 'build';
 export const NODE_MODULES_DIRNAME = 'node_modules';
 export const SVELTEKIT_VITE_CACHE_PATH = NODE_MODULES_DIRNAME + '/.vite';
@@ -60,6 +61,8 @@ export interface Paths {
 }
 
 // TODO upstream to util, and probably add `Path`/`FilePath` and `FileUrl`
+export type Url = Flavored<string, 'Url'>;
+export type Email = Flavored<string, 'Email'>;
 export type SourceId = Flavored<string, 'SourceId'>;
 export type BuildId = Flavored<string, 'BuildId'>;
 
@@ -70,9 +73,9 @@ export const create_paths = (root_dir: string): Paths => {
 		root,
 		source: root + SOURCE_DIR,
 		lib: root + LIB_DIR,
-		build: root + BUILD_DIR,
-		build_dist: root + BUILD_DIST_DIR,
-		build_dev: root + BUILD_DEV_DIR,
+		build: root + GRO_DIR,
+		build_dist: root + GRO_DIST_DIR,
+		build_dev: root + GRO_DEV_DIR,
 		config: root + CONFIG_PATH,
 	};
 };
@@ -158,4 +161,4 @@ export const gro_dir_basename = basename(gro_dir) + '/';
 export const paths = create_paths(process.cwd() + '/');
 export const is_this_project_gro = gro_dir === paths.root;
 export const gro_paths = is_this_project_gro ? paths : create_paths(gro_dir);
-export const gro_sveltekit_dist_dir = gro_paths.root + SVELTEKIT_DIST_DIRNAME + '/';
+export const gro_sveltekit_dist_dir = gro_paths.root + DIST_DIRNAME + '/';

@@ -57,7 +57,7 @@ export const invoke_task = async (
 	// Check if the caller just wants to see the version.
 	if (!task_name && (args.version || args.v)) {
 		const gro_package_json = await load_gro_package_json();
-		log.info(`${gray('v')}${cyan(gro_package_json.version as string)}`);
+		log.info(`${gray('v')}${cyan(gro_package_json.version)}`);
 		log.info(`🕒 ${print_ms(total_timing())}`);
 		return;
 	}

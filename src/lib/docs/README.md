@@ -2,7 +2,6 @@
 
 > <sub>[gro](/../..) / [lib](..) / lib/docs / README.md</sub>
 
-- [adapt](adapt.md)
 - [build](build.md)
 - [config](config.md)
 - [deploy](deploy.md)

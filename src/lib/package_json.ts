@@ -1,5 +1,4 @@
 import {join} from 'node:path';
-import type {Json} from '@grogarden/util/json.js';
 import {readFile, writeFile} from 'node:fs/promises';
 
 import {
@@ -7,19 +6,77 @@ import {
 	gro_paths,
 	is_this_project_gro,
 	replace_extension,
-	SVELTEKIT_DIST_DIRNAME,
+	DIST_DIRNAME,
+	type Url,
+	type Email,
 } from './paths.js';
 
-// TODO fill out this type
+// TODO maybe define with Zod so we get good error messages for parsing?
+
+/**
+ * @see https://docs.npmjs.com/cli/v10/configuring-npm/package-json
+ */
 export interface PackageJson {
-	[key: string]: Json | undefined;
+	[key: string]: unknown;
+
+	// according to the npm docs, these are required
 	name: string;
-	main?: string;
-	bin?: {[key: string]: string};
+	version: string;
+
+	// disallow npm publish, and also used by Gro to disable `package.json` automations
+	private?: boolean;
+
+	description?: string;
+	license?: string;
+	homepage?: Url;
+	repository?: string | Url | PackageJsonRepository;
+	author?: string | PackageJsonAuthor;
+	contributors?: Array<string | PackageJsonAuthor>;
+	bugs?: {url: Url; email: Email};
+	funding?: Url | PackageJsonFunding | Array<Url | PackageJsonFunding>;
+	keywords?: string[];
+
+	scripts?: Record<string, string>;
+
+	bin?: Record<string, string>;
 	files?: string[];
 	exports?: PackageJsonExports;
+
+	dependencies?: Record<string, string>;
+	devDependencies?: Record<string, string>;
+	peerDependencies?: Record<string, string>;
+	peerDependenciesMeta?: Record<string, Record<string, string>>;
+	optionalDependencies?: Record<string, string>;
+
+	engines?: Record<string, string>;
+	os?: string[];
+	cpu?: string[];
 }
+
+export interface PackageJsonRepository {
+	type: string;
+	url: Url;
+	directory?: string;
+}
+
+export interface PackageJsonAuthor {
+	name: string;
+	email?: Email;
+	url?: Url;
+}
+
+export interface PackageJsonFunding {
+	type: string;
+	url: Url;
+}
+
 export type PackageJsonExports = Record<string, Record<string, string>>;
+
+export interface MapPackageJson {
+	(pkg: PackageJson, when: MapPackageJsonWhen): PackageJson | null | Promise<PackageJson | null>;
+}
+
+export type MapPackageJsonWhen = 'updating_exports' | 'updating_well_known';
 
 export const load_package_json = async (): Promise<PackageJson> =>
 	is_this_project_gro
@@ -29,6 +86,7 @@ export const load_package_json = async (): Promise<PackageJson> =>
 export const load_gro_package_json = async (): Promise<PackageJson> =>
 	JSON.parse(await load_package_json_contents(gro_paths.root));
 
+// TODO probably make this nullable and make callers handle failures
 const load_package_json_contents = (root_dir: string): Promise<string> =>
 	readFile(join(root_dir, 'package.json'), 'utf8');
 
@@ -44,12 +102,13 @@ export const serialize_package_json = (pkg: PackageJson): string =>
  * @returns boolean indicating if the file changed
  */
 export const update_package_json = async (
-	update: (pkg: PackageJson) => PackageJson | Promise<PackageJson>,
+	update: (pkg: PackageJson) => PackageJson | null | Promise<PackageJson | null>,
 	write = true,
 ): Promise<boolean> => {
 	const original_pkg_contents = await load_package_json_contents(paths.root);
 	const original_pkg = JSON.parse(original_pkg_contents);
 	const updated_pkg = await update(original_pkg);
+	if (updated_pkg === null) return false;
 	const updated_contents = serialize_package_json(updated_pkg);
 	if (updated_contents === original_pkg_contents) {
 		return false;
@@ -57,11 +116,6 @@ export const update_package_json = async (
 	if (write) await write_package_json(updated_contents);
 	return true;
 };
-
-export const update_package_json_exports = (
-	exports: PackageJsonExports,
-	write = true,
-): Promise<boolean> => update_package_json((pkg) => ({...pkg, exports}), write);
 
 export const to_package_exports = (paths: string[]): PackageJsonExports => {
 	const sorted = paths
@@ -96,4 +150,4 @@ export const to_package_exports = (paths: string[]): PackageJsonExports => {
 	return exports;
 };
 
-const IMPORT_PREFIX = './' + SVELTEKIT_DIST_DIRNAME + '/';
+const IMPORT_PREFIX = './' + DIST_DIRNAME + '/';

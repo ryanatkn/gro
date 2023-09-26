@@ -1,20 +1,20 @@
 import {printSpawnResult, spawn} from '@grogarden/util/process.js';
 
-import type {Adapter} from './adapt.js';
+import type {Plugin, PluginContext} from './plugin.js';
 import {TaskError} from './task.js';
 import {load_package_json} from './package_json.js';
 import {print_command_args, serialize_args, to_forwarded_args} from './args.js';
 import {find_cli, spawn_cli} from './cli.js';
 
-export const create_adapter = (): Adapter => {
+export const plugin = (): Plugin<PluginContext> => {
 	return {
-		name: 'gro_adapter_library',
+		name: 'gro_plugin_library',
 		adapt: async ({log, timings}) => {
 			if (!(await find_cli('svelte-package'))) {
 				log.warn(
 					'failed to find svelte-package: ' +
 						'install @sveltejs/package locally or globally to publish this repo,' +
-						' or remove gro_adapter_library to suppress this warning',
+						' or remove gro_plugin_library to suppress this warning',
 				);
 				return;
 			}

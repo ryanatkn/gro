@@ -9,10 +9,11 @@ import type {TaskContext} from './task.js';
 export interface Plugin<TPluginContext extends PluginContext = PluginContext> {
 	name: string;
 	setup?: (ctx: TPluginContext) => void | Promise<void>;
+	adapt?: (ctx: TPluginContext) => void | Promise<void>;
 	teardown?: (ctx: TPluginContext) => void | Promise<void>;
 }
 
-export interface ToConfigPlugins<TPluginContext extends PluginContext = PluginContext> {
+export interface CreateConfigPlugins<TPluginContext extends PluginContext = PluginContext> {
 	(
 		ctx: TPluginContext,
 	):
@@ -56,6 +57,19 @@ export class Plugins<TPluginContext extends PluginContext> {
 			timing();
 		}
 		timing_to_setup();
+	}
+
+	async adapt(): Promise<void> {
+		const {ctx} = this;
+		const {timings} = ctx;
+		const timing_to_run_adapters = timings.start('plugins.adapt');
+		for (const plugin of this.instances) {
+			if (!plugin.adapt) continue;
+			const timing = timings.start(`adapt:${plugin.name}`);
+			await plugin.adapt(ctx); // eslint-disable-line no-await-in-loop
+			timing();
+		}
+		timing_to_run_adapters();
 	}
 
 	async teardown(): Promise<void> {

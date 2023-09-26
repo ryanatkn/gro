@@ -1,8 +1,8 @@
 import {paths} from './paths.js';
-import type {ToConfigAdapters} from './adapt.js';
 import create_default_config from './gro.config.default.js';
-import type {ToConfigPlugins} from './plugin.js';
+import type {CreateConfigPlugins} from './plugin.js';
 import {exists} from './exists.js';
+import type {MapPackageJson} from './package_json.js';
 
 // TODO move the config to the root out of src/
 
@@ -17,20 +17,32 @@ If none is provided, the fallback is located at `gro/src/lib/gro.config.default.
 */
 
 export interface GroConfig {
-	plugins: ToConfigPlugins;
-	adapters: ToConfigAdapters;
+	plugins: CreateConfigPlugins;
+	/**
+	 * Maps the project's `package.json`.
+	 * The `pkg` argument may be mutated, but only the return value is used.
+	 * Runs in modes 'updating_exports' and 'updating_well_known'.
+	 * Returning `null` is a no-op for that mode.
+	 * @default identity
+	 */
+	package_json: MapPackageJson;
 }
 
 export interface GroConfigCreator {
-	(default_config: GroConfig): GroConfig | Promise<GroConfig>;
+	(base_config: GroConfig): GroConfig | Promise<GroConfig>;
 }
+
+export const create_empty_config = (): GroConfig => ({
+	package_json: (pkg) => (pkg.private ? null : pkg),
+	plugins: () => [],
+});
 
 export interface GroConfigModule {
 	readonly default: GroConfig | GroConfigCreator;
 }
 
 export const load_config = async (): Promise<GroConfig> => {
-	const default_config = await create_default_config({} as any); // hacky so the default config demonstrates the same code a user would write
+	const default_config = await create_default_config(create_empty_config());
 
 	const config_path = paths.config;
 	let config: GroConfig;
