@@ -103,10 +103,8 @@ export const task: Task<Args> = {
 			);
 		}
 
-		if (false) {
-			const error_message = await git_check_clean_workspace();
-			if (error_message) throw new TaskError('Failed to deploy: ' + error_message);
-		}
+		const error_message = await git_check_clean_workspace();
+		if (error_message) throw new TaskError('Failed to deploy: ' + error_message);
 
 		const remote_target_exists = await git_remote_branch_exists(origin, target);
 		const local_target_exists = await git_local_branch_exists(target);
@@ -145,19 +143,6 @@ export const task: Task<Args> = {
 				{shell: true},
 			);
 			await git_push_to_create(origin, target);
-		}
-
-		// local and remote branches are ready
-
-		// Reset the target branch?
-		if (reset) {
-			if (await git_remote_branch_exists(origin, target)) {
-				// TODO BLOCK can't do this, need to reset to first commit instead
-				await git_delete_remote_branch(origin, target);
-			}
-			if (await git_local_branch_exists(target)) {
-				await git_delete_local_branch(target);
-			}
 		}
 
 		// the target branch is now ready both locally and remotely
