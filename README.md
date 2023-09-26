@@ -23,7 +23,7 @@ for making web frontends, servers, and libraries.
 It includes:
 
 - [task runner](/src/lib/docs/task.md) that uses the filesystem convention `*.task.ts`
-  - lots of [common default tasks](/src/lib/docs/tasks.md) that users can easily override and compose
+  - lots of [common builtin tasks](/src/lib/docs/tasks.md) that users can easily override and compose
 - tools and patterns for
   [developing](/src/lib/docs/dev.md),
   [building](/src/lib/docs/build.md),
@@ -63,13 +63,14 @@ It includes:
 
 ## docs
 
-- [build](/src/lib/docs/build.md) web frontends, servers, and libraries
+- developing web frontends, servers, and libraries
   - [config](/src/lib/docs/config.md)
   - [dev](/src/lib/docs/dev.md)
+  - [build](/src/lib/docs/build.md) for production
   - [deploy](/src/lib/docs/deploy.md) to a branch, like for GitHub pages
   - [publish](/src/lib/docs/publish.md)
 - [`Task`](/src/lib/docs/task.md) runner
-  - [tasks](/src/lib/docs/tasks.md) list
+  - builtin [tasks](/src/lib/docs/tasks.md) list
 - [testing](/src/lib/docs/test.md) with [`uvu`](https://github.com/lukeed/uvu)
 - [`gen`](/src/lib/docs/gen.md) code generation
 - all [the docs](/src/lib/docs#readme)
@@ -94,7 +95,7 @@ npm i -g @grogarden/gro
 
 Gro has a task runner that discovers and runs TypeScript modules with the `.task.` subextension.
 Running `gro` with no args prints the tasks
-it finds in the current directory along with its default tasks:
+it finds in the current directory along with its builtin tasks:
 
 ```bash
 gro # prints available tasks - defers to any local gro installation
