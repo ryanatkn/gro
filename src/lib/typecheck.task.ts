@@ -1,4 +1,4 @@
-import {printSpawnResult} from '@grogarden/util/process.js';
+import {print_spawn_result} from '@grogarden/util/process.js';
 import {z} from 'zod';
 
 import {TaskError, type Task} from './task.js';
@@ -18,7 +18,7 @@ export const task: Task<Args> = {
 			log.info(print_command_args(['svelte-check'].concat(serialized)));
 			const svelteCheckResult = await spawn_cli('svelte-check', serialized);
 			if (!svelteCheckResult?.ok) {
-				throw new TaskError(`Failed to typecheck. ${printSpawnResult(svelteCheckResult!)}`);
+				throw new TaskError(`Failed to typecheck. ${print_spawn_result(svelteCheckResult!)}`);
 			}
 		} else if (await find_cli('tsc')) {
 			// tsc
@@ -28,7 +28,7 @@ export const task: Task<Args> = {
 			log.info(print_command_args(['tsc'].concat(serialized)));
 			const svelteCheckResult = await spawn_cli('tsc', serialized);
 			if (!svelteCheckResult?.ok) {
-				throw new TaskError(`Failed to typecheck. ${printSpawnResult(svelteCheckResult!)}`);
+				throw new TaskError(`Failed to typecheck. ${print_spawn_result(svelteCheckResult!)}`);
 			}
 		} else {
 			throw new TaskError(`Failed to typecheck because neither tsc nor svelte-check was found`);

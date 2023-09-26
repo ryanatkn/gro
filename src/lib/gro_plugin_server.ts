@@ -1,4 +1,4 @@
-import {spawnRestartableProcess, type RestartableProcess} from '@grogarden/util/process.js';
+import {spawn_restartable_process, type RestartableProcess} from '@grogarden/util/process.js';
 import * as esbuild from 'esbuild';
 import {cwd} from 'node:process';
 import type {Config as SvelteKitConfig} from '@sveltejs/kit';
@@ -217,11 +217,11 @@ export const plugin = ({
 				throw Error(`Node server failed to start due to missing file: ${server_outpath}`);
 			}
 
-			server_process = spawnRestartableProcess('node', [server_outpath]);
+			server_process = spawn_restartable_process('node', [server_outpath]);
 		},
 		teardown: async () => {
 			if (server_process) {
-				const s = server_process; // avoid possible issue where a build is in progress, don't want to issue a restart, could be fixed upstream in `spawnRestartableProcess`
+				const s = server_process; // avoid possible issue where a build is in progress, don't want to issue a restart, could be fixed upstream in `spawn_restartable_process`
 				server_process = null;
 				await s.kill();
 			}

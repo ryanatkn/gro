@@ -1,5 +1,5 @@
-import {execSync, type SpawnOptions} from 'node:child_process';
-import {spawn, type SpawnResult} from '@grogarden/util/process.js';
+import type {SpawnOptions} from 'node:child_process';
+import {spawn, spawn_out, type SpawnResult} from '@grogarden/util/process.js';
 import {join} from 'node:path';
 
 import {exists} from './exists.js';
@@ -12,12 +12,8 @@ export const find_cli = async (name: string): Promise<'local' | 'global' | null>
 	if (await exists(join(NODE_MODULES_DIRNAME, `.bin/${name}`))) {
 		return 'local';
 	}
-	try {
-		execSync(`command -v ${name} > /dev/null 2>&1`);
-		return 'global';
-	} catch (err) {
-		return null;
-	}
+	const {stdout} = await spawn_out('which', [name]);
+	return stdout === null ? null : 'global';
 };
 
 /**

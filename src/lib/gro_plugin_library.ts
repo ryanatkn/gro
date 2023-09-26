@@ -1,4 +1,4 @@
-import {printSpawnResult, spawn} from '@grogarden/util/process.js';
+import {print_spawn_result, spawn} from '@grogarden/util/process.js';
 
 import type {Plugin, PluginContext} from './plugin.js';
 import {TaskError} from './task.js';
@@ -37,7 +37,7 @@ export const plugin = (): Plugin<PluginContext> => {
 				log.info(`linking`);
 				const link_result = await spawn('npm', ['link', '-f']);
 				if (!link_result.ok) {
-					throw new TaskError(`Failed to link. ${printSpawnResult(link_result)}`);
+					throw new TaskError(`Failed to link. ${print_spawn_result(link_result)}`);
 				}
 				timing_to_npm_link();
 			}

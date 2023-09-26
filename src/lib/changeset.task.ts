@@ -4,10 +4,11 @@ import {red, blue} from 'kleur/colors';
 import type {WrittenConfig} from '@changesets/types';
 import {readFile, writeFile} from 'node:fs/promises';
 
-import type {Task} from './task.js';
+import {TaskError, type Task} from './task.js';
 import {exists} from './exists.js';
 import {dirname} from 'node:path';
 import {load_package_json} from './package_json.js';
+import {find_cli, spawn_cli} from './cli.js';
 
 const RESTRICTED_ACCESS = 'restricted';
 const PUBLIC_ACCESS = 'public';
@@ -43,10 +44,16 @@ export const task: Task<Args> = {
 			log,
 		} = ctx;
 
+		if (!(await find_cli('changeset'))) {
+			throw new TaskError(
+				'changeset command not found: install @changesets/cli locally or globally',
+			);
+		}
+
 		const inited = await exists(path);
 
 		if (!inited) {
-			await spawn('npx', ['changeset', 'init']);
+			await spawn_cli('changeset', ['init']);
 
 			const access =
 				access_arg ?? (await load_package_json()).private ? RESTRICTED_ACCESS : PUBLIC_ACCESS;
@@ -67,7 +74,7 @@ export const task: Task<Args> = {
 			}
 		}
 
-		await spawn('changeset', changeset_args);
+		await spawn_cli('changeset', changeset_args);
 
 		await spawn('git', ['add', dirname(CHANGESET_CONFIG_PATH)]);
 	},

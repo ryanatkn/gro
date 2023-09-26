@@ -52,10 +52,10 @@ export const task: Task<Args> = {
 
 		const changelog_exists = await exists(changelog);
 
-		// Ensure Changesets is installed:
 		if (!(await find_cli('changeset'))) {
-			log.error('changeset command not found: install @changesets/cli locally or globally');
-			return;
+			throw new TaskError(
+				'changeset command not found: install @changesets/cli locally or globally',
+			);
 		}
 
 		// Make sure we're on the right branch:

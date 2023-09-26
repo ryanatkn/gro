@@ -12,6 +12,11 @@
 				task runner and toolkit extending <a href="https://kit.svelte.dev/">SvelteKit</a>
 			</blockquote>
 		</div>
+		<div class="box spaced">
+			<code class="padded_md">
+				npm i -D <a href="https://www.npmjs.com/package/@grogarden/gro">@grogarden/gro</a>
+			</code>
+		</div>
 		<div class="panel spaced padded_md text_align_center">
 			this website is a work in progress!<br />for now docs are in
 			<a href="https://github.com/grogarden/gro">the source repo</a>

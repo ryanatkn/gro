@@ -1,9 +1,9 @@
-import {spawn} from '@grogarden/util/process.js';
+import {spawn, spawn_out} from '@grogarden/util/process.js';
 import type {Flavored} from '@grogarden/util/types.js';
-import {execSync, type SpawnOptions} from 'child_process';
+import type {SpawnOptions} from 'child_process';
 import {z} from 'zod';
 
-import {paths} from './paths.js';
+// TODO probably extract to `util-git`
 
 export const GitOrigin = z.string();
 export type GitOrigin = z.infer<Flavored<typeof GitOrigin, 'GitOrigin'>>;
@@ -159,7 +159,7 @@ export const git_delete_remote_branch = async (
 };
 
 export const WORKTREE_DIRNAME = 'worktree';
-export const WORKTREE_DIR = `${paths.root}${WORKTREE_DIRNAME}`;
+export const to_worktree_dir = (dir: string): string => dir + WORKTREE_DIRNAME;
 
 /**
  * Removes the specified git worktree and then prunes.
@@ -180,31 +180,41 @@ export const git_reset_branch_to_first_commit = async (
 	branch: GitBranch,
 ): Promise<void> => {
 	await git_checkout(branch);
-	// TODO use `spawn` instead of `execSync`
-	const first_commit_hash = execSync('git rev-list --max-parents=0 --abbrev-commit HEAD')
-		.toString()
-		.trim();
+	const first_commit_hash = await git_current_branch_first_commit_hash();
 	await spawn('git', ['reset', '--hard', first_commit_hash]);
 	await spawn('git', ['push', origin, branch, '--force']);
 	await git_checkout('-');
 };
 
 /**
- * @returns the current git branch name
+ * Returns the hash of the current branch's first commit or throws if something goes wrong.
  */
-export const git_current_branch_name = async (): Promise<string> => {
-	// TODO use `spawn` instead of `execSync`
-	return execSync('git rev-parse --abbrev-ref HEAD').toString().trim();
+export const git_current_branch_first_commit_hash = async (): Promise<string> => {
+	const {stdout} = await spawn_out('git', [
+		'rev-list',
+		'--max-parents=0',
+		'--abbrev-commit',
+		'HEAD',
+	]);
+	if (!stdout) throw Error('git_current_branch_first_commit_hash failed');
+	return stdout.toString().trim();
 };
 
 /**
- * @returns the branch's latest commit hash
+ * Returns the current git branch name or throws if something goes wrong.
+ */
+export const git_current_branch_name = async (): Promise<string> => {
+	const {stdout} = await spawn_out('git', ['rev-parse', '--abbrev-ref', 'HEAD']);
+	if (!stdout) throw Error('git_current_branch_name failed');
+	return stdout.toString().trim();
+};
+
+/**
+ * Returns the branch's latest commit hash or throws if something goes wrong.
  */
 export const git_current_commit_hash = async (branch?: string): Promise<string> => {
 	const final_branch = branch ?? (await git_current_branch_name());
-	// TODO use `spawn` instead of `execSync`
-	return execSync('git show-ref -s ' + final_branch)
-		.toString()
-		.split('\n')[0]
-		.trim();
+	const {stdout} = await spawn_out('git', ['show-ref', '-s', final_branch]);
+	if (!stdout) throw Error('git_current_commit_hash failed');
+	return stdout.toString().split('\n')[0].trim();
 };
