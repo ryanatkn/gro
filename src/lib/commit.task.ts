@@ -1,8 +1,8 @@
 import {spawn} from '@grogarden/util/process.js';
 import {z} from 'zod';
-import {execSync} from 'node:child_process';
 
 import type {Task} from './task.js';
+import {git_current_branch_name} from './git.js';
 
 export const Args = z
 	.object({
@@ -23,7 +23,7 @@ export const task: Task<Args> = {
 			_: [message],
 		} = args;
 
-		const branch = execSync('git rev-parse --abbrev-ref HEAD').toString();
+		const branch = await git_current_branch_name();
 		await spawn('git', ['commit', '-a', '-m', message]);
 		await spawn(
 			`git push -u origin ${branch}`,

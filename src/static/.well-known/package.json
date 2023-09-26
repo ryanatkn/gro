@@ -224,6 +224,10 @@
       "default": "./dist/gen.js",
       "types": "./dist/gen.d.ts"
     },
+    "./git.js": {
+      "default": "./dist/git.js",
+      "types": "./dist/git.d.ts"
+    },
     "./gro_plugin_gen.js": {
       "default": "./dist/gro_plugin_gen.js",
       "types": "./dist/gro_plugin_gen.d.ts"
