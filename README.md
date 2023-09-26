@@ -6,7 +6,7 @@
 
 [`npm i -D @grogarden/gro`](https://www.npmjs.com/package/@grogarden/gro)
 
-````
+[grogarden.org](https://grogarden.org)
 
 limitations:
 
@@ -84,7 +84,7 @@ Normally you'll want to install Gro as a dev dependency:
 
 ```bash
 npm i -D [@grogarden/gro](https://www.npmjs.com/package/@grogarden/gro)
-````
+```
 
 It's handy to install globally too:
 
