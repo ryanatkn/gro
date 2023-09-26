@@ -188,3 +188,11 @@ export const git_reset_branch_to_first_commit = async (
 	await spawn('git', ['push', origin, branch, '--force']);
 	await git_checkout('-');
 };
+
+/**
+ * @returns the current git branch name
+ */
+export const git_current_branch_name = async (): Promise<string> => {
+	// TODO use `spawn` instead of `execSync`
+	return execSync('git rev-parse --abbrev-ref HEAD').toString().trim();
+};
