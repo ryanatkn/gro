@@ -8,6 +8,7 @@ import {copyFile, readdir, rename, rm} from 'node:fs/promises';
 import type {Task} from './task.js';
 import {GIT_DIRNAME, paths, print_path, SVELTEKIT_BUILD_DIRNAME} from './paths.js';
 import {exists} from './exists.js';
+import {remote_branch_exists} from './git.js';
 
 // docs at ./docs/deploy.md
 
@@ -148,16 +149,8 @@ export const task: Task<Args> = {
 		// TODO refactor this with the above reset code, and extract helpers
 
 		// Prepare the target branch, creating as needed.
-		const remote_target_exists = await spawn('git', [
-			'ls-remote',
-			'--exit-code',
-			'--heads',
-			origin,
-			'refs/heads/' + target,
-		]);
-		if (remote_target_exists.ok) {
-			// Target branch exists on remote.
-
+		if (await remote_branch_exists(origin, target)) {
+			// Target branch exists remotely.
 			// Fetch the remote target deploy branch.
 			const git_fetch_target_result = await spawn('git', ['fetch', origin, target]);
 			if (!git_fetch_target_result.ok) {
@@ -177,17 +170,10 @@ export const task: Task<Args> = {
 				);
 				return;
 			}
-		} else if (remote_target_exists.code === 2) {
+		} else {
 			// Target branch does not exist remotely.
-
 			// Create and checkout the target branch.
 			await spawn('git', ['checkout', '-b', target]);
-		} else {
-			// Something went wrong.
-			log.error(
-				red(`failed to checkout target branch ${target} code(${remote_target_exists.code})`),
-			);
-			return;
 		}
 
 		// Checkout the source branch to deploy.
