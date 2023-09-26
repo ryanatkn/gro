@@ -68,7 +68,7 @@ It includes:
   - [dev](/src/lib/docs/dev.md)
   - [build](/src/lib/docs/build.md) for production
   - [deploy](/src/lib/docs/deploy.md) to a branch, like for GitHub pages
-  - [publish](/src/lib/docs/publish.md)
+  - [publish](/src/lib/docs/publish.md) to npm
 - [`Task`](/src/lib/docs/task.md) runner
   - builtin [tasks](/src/lib/docs/tasks.md) list
 - [testing](/src/lib/docs/test.md) with [`uvu`](https://github.com/lukeed/uvu)
