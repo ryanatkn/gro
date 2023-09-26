@@ -1,3 +1,4 @@
+import {z} from 'zod';
 import {join} from 'node:path';
 import {readFile, writeFile} from 'node:fs/promises';
 
@@ -7,70 +8,80 @@ import {
 	is_this_project_gro,
 	replace_extension,
 	DIST_DIRNAME,
-	type Url,
-	type Email,
+	Url,
+	Email,
 } from './paths.js';
 
-// TODO maybe define with Zod so we get good error messages for parsing?
+export const PackageJsonRepository = z.object({
+	type: z.string(),
+	url: Url,
+	directory: z.string().optional(),
+});
+export type PackageJsonRepository = z.infer<typeof PackageJsonRepository>;
+
+export const PackageJsonAuthor = z.object({
+	name: z.string(),
+	email: Email.optional(),
+	url: Url.optional(),
+});
+export type PackageJsonAuthor = z.infer<typeof PackageJsonAuthor>;
+
+export const PackageJsonFunding = z.object({
+	type: z.string(),
+	url: Url,
+});
+export type PackageJsonFunding = z.infer<typeof PackageJsonFunding>;
+
+export const PackageJsonExports = z.record(z.record(z.string()).optional());
+export type PackageJsonExports = z.infer<typeof PackageJsonExports>;
 
 /**
  * @see https://docs.npmjs.com/cli/v10/configuring-npm/package-json
  */
-export interface PackageJson {
-	[key: string]: unknown;
+export const PackageJson = z.intersection(
+	z.record(z.any()),
+	z.object({
+		// according to the npm docs, `name` and `version` are the only required properties
+		name: z.string(),
+		version: z.string(),
 
-	// according to the npm docs, these are required
-	name: string;
-	version: string;
+		private: z
+			.boolean({
+				description:
+					'disallow npm publish, and also used by Gro to disable `package.json` automations',
+			})
+			.optional(),
 
-	// disallow npm publish, and also used by Gro to disable `package.json` automations
-	private?: boolean;
+		description: z.string().optional(),
+		license: z.string().optional(),
+		homepage: Url.optional(),
+		repository: z.union([z.string(), Url, PackageJsonRepository]).optional(),
+		author: z.union([z.string(), PackageJsonAuthor.optional()]),
+		contributors: z.array(z.union([z.string(), PackageJsonAuthor])).optional(),
+		bugs: z.object({url: Url.optional(), email: Email}).optional(),
+		funding: z
+			.union([Url, PackageJsonFunding, z.array(z.union([Url, PackageJsonFunding]))])
+			.optional(),
+		keywords: z.array(z.string()).optional(),
 
-	description?: string;
-	license?: string;
-	homepage?: Url;
-	repository?: string | Url | PackageJsonRepository;
-	author?: string | PackageJsonAuthor;
-	contributors?: Array<string | PackageJsonAuthor>;
-	bugs?: {url: Url; email: Email};
-	funding?: Url | PackageJsonFunding | Array<Url | PackageJsonFunding>;
-	keywords?: string[];
+		scripts: z.record(z.string()).optional(),
 
-	scripts?: Record<string, string>;
+		bin: z.record(z.string()).optional(),
+		files: z.array(z.string()).optional(),
+		exports: PackageJsonExports.optional(),
 
-	bin?: Record<string, string>;
-	files?: string[];
-	exports?: PackageJsonExports;
+		dependencies: z.record(z.string()).optional(),
+		devDependencies: z.record(z.string()).optional(),
+		peerDependencies: z.record(z.string()).optional(),
+		peerDependenciesMeta: z.record(z.record(z.string())).optional(),
+		optionalDependencies: z.record(z.string()).optional(),
 
-	dependencies?: Record<string, string>;
-	devDependencies?: Record<string, string>;
-	peerDependencies?: Record<string, string>;
-	peerDependenciesMeta?: Record<string, Record<string, string>>;
-	optionalDependencies?: Record<string, string>;
-
-	engines?: Record<string, string>;
-	os?: string[];
-	cpu?: string[];
-}
-
-export interface PackageJsonRepository {
-	type: string;
-	url: Url;
-	directory?: string;
-}
-
-export interface PackageJsonAuthor {
-	name: string;
-	email?: Email;
-	url?: Url;
-}
-
-export interface PackageJsonFunding {
-	type: string;
-	url: Url;
-}
-
-export type PackageJsonExports = Record<string, Record<string, string>>;
+		engines: z.record(z.string()).optional(),
+		os: z.array(z.string()).optional(),
+		cpu: z.array(z.string()).optional(),
+	}),
+);
+export type PackageJson = z.infer<typeof PackageJson>;
 
 export interface MapPackageJson {
 	(pkg: PackageJson, when: MapPackageJsonWhen): PackageJson | null | Promise<PackageJson | null>;
@@ -78,6 +89,7 @@ export interface MapPackageJson {
 
 export type MapPackageJsonWhen = 'updating_exports' | 'updating_well_known';
 
+// TODO parse on load? sounds like a worse DX, maybe just log a warning?
 export const load_package_json = async (): Promise<PackageJson> =>
 	is_this_project_gro
 		? load_gro_package_json()
@@ -94,8 +106,10 @@ export const write_package_json = async (serialized_pkg: string): Promise<void> 
 	await writeFile(join(paths.root, 'package.json'), serialized_pkg);
 };
 
-export const serialize_package_json = (pkg: PackageJson): string =>
-	JSON.stringify(pkg, null, 2) + '\n';
+export const serialize_package_json = (pkg: PackageJson): string => {
+	PackageJson.parse(pkg);
+	return JSON.stringify(pkg, null, 2) + '\n';
+};
 
 /**
  * Updates package.json. Writes to the filesystem only when contents change.
@@ -147,7 +161,7 @@ export const to_package_exports = (paths: string[]): PackageJsonExports => {
 			};
 		}
 	}
-	return exports;
+	return PackageJsonExports.parse(exports);
 };
 
 const IMPORT_PREFIX = './' + DIST_DIRNAME + '/';
