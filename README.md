@@ -2,11 +2,9 @@
 
 <img src="src/static/favicon.png" align="right" width="192" height="192">
 
-> task runner and toolkit extending SvelteKit
+> task runner and toolkit extending SvelteKit - [grogarden.org](https://grogarden.org)
 
 [`npm i -D @grogarden/gro`](https://www.npmjs.com/package/@grogarden/gro)
-
-[grogarden.org](https://grogarden.org)
 
 limitations:
 
