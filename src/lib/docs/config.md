@@ -104,7 +104,7 @@ const config: GroConfig = {
 	// the default behavior:
 	// outputs all of `$lib/` as `exports` and the full `.well-known/package.json`,
 	// unless `private` is true, in which case both are disabled
-	package_json: (pkg) => pkg?.private ? null : pkg,
+	package_json: (pkg) => (pkg?.private ? null : pkg),
 
 	// outputs the full versions of both regardless of the value of `private`
 	package_json: (pkg) => pkg,

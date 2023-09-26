@@ -19,7 +19,6 @@ import {
 export interface PackageJson {
 	[key: string]: unknown;
 
-	
 	// according to the npm docs, these are required
 	name: string;
 	version: string;

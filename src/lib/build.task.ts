@@ -6,10 +6,7 @@ import {clean_fs} from './clean.js';
 
 export const Args = z
 	.object({
-		install: z.boolean({description: 'dual of no-install'}).default(true),
-		'no-install': z
-			.boolean({description: 'opt out of npm installing before building'})
-			.default(false),
+		install: z.boolean({description: 'run npm install before building'}).default(false),
 	})
 	.strict();
 export type Args = z.infer<typeof Args>;

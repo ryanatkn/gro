@@ -18,10 +18,7 @@ export type HostTarget = 'github_pages' | 'static' | 'node';
 
 const output_dir = SVELTEKIT_BUILD_DIRNAME;
 
-export const plugin = ({
-	host_target = 'github_pages',
-}: Options = {}): Plugin<PluginContext> => {
-
+export const plugin = ({host_target = 'github_pages'}: Options = {}): Plugin<PluginContext> => {
 	let sveltekit_process: SpawnedProcess | null = null;
 	return {
 		name: 'gro_plugin_sveltekit_frontend',

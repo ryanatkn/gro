@@ -16,10 +16,10 @@ export const task: Task<Args> = {
 	run: async ({args, invoke_task}): Promise<void> => {
 		const {install} = args;
 
-		// we currently always call `svelte-kit sync` in `invoke.ts`, so no need here
+		// `invoke.ts` always calls `svelte-kit sync` so no need here
 
 		if (install) {
-			await spawn('npm', ['i'], {env: {...process.env, NODE_ENV: 'development'}});
+			await spawn('npm', ['i']);
 		}
 
 		await invoke_task('gen');
