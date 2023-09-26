@@ -1,5 +1,11 @@
 # @grogarden/gro
 
+## 0.87.1
+
+### Patch Changes
+
+- 4466365: add `PackageJson` schema
+
 ## 0.87.0
 
 ### Minor Changes
