@@ -183,6 +183,13 @@ export const git_reset_branch_to_first_commit = async (
 	branch: GitBranch,
 ): Promise<void> => {
 	await git_checkout(branch);
+	const first_commit_hash = await git_current_branch_first_commit_hash();
+	await spawn('git', ['reset', '--hard', first_commit_hash]);
+	await spawn('git', ['push', origin, branch, '--force']);
+	await git_checkout('-');
+};
+
+export const git_current_branch_first_commit_hash = async (): Promise<string> => {
 	const {stdout} = await spawn_out('git', [
 		'rev-list',
 		'--max-parents', // TODO BLOCK test this is equivalent to `--max-parents=0`
@@ -190,10 +197,7 @@ export const git_reset_branch_to_first_commit = async (
 		'--abbrev-commit',
 		'HEAD',
 	]);
-	const first_commit_hash = stdout.toString().trim();
-	await spawn('git', ['reset', '--hard', first_commit_hash]);
-	await spawn('git', ['push', origin, branch, '--force']);
-	await git_checkout('-');
+	return stdout.toString().trim();
 };
 
 /**
