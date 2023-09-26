@@ -1,5 +1,12 @@
 # @grogarden/gro
 
+## 0.87.0
+
+### Minor Changes
+
+- a63ef6c: remove execSync usage
+- a63ef6c: upgrade to `@grogarden/util@0.14.0` from `0.13.0`
+
 ## 0.86.0
 
 ### Minor Changes
