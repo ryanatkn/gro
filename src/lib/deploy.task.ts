@@ -101,8 +101,8 @@ export const task: Task<Args> = {
 			);
 		}
 
-		const error_message = await git_check_clean_workspace();
-		if (error_message) throw new TaskError('Failed to deploy: ' + error_message);
+		const clean_error_message = await git_check_clean_workspace();
+		if (clean_error_message) throw new TaskError('Failed to deploy: ' + clean_error_message);
 
 		const remote_target_exists = await git_remote_branch_exists(origin, target);
 		const local_target_exists = await git_local_branch_exists(target);
