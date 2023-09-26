@@ -186,7 +186,8 @@ export const git_reset_branch_to_first_commit = async (
 		'git rev-list --max-parents=0 --abbrev-commit HEAD',
 	).toString();
 	console.log(`first_commit_hash`, first_commit_hash);
-	await spawn('git', ['reset', '--hard', first_commit_hash]);
+	execSync('git reset --hard ' + first_commit_hash);
+	// await spawn('git', ['reset', '--hard', first_commit_hash]);
 	console.log('reset to first commit');
 	await spawn('git', ['push', origin, branch, '--force']);
 	console.log('DONE');
