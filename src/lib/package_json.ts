@@ -39,9 +39,7 @@ export type PackageJsonExports = z.infer<typeof PackageJsonExports>;
  * @see https://docs.npmjs.com/cli/v10/configuring-npm/package-json
  */
 export const PackageJson = z.object({
-	// TODO `[key: string]: unknown;`
-
-	// according to the npm docs, these are required
+	// according to the npm docs, `name` and `version` are the only required properties
 	name: z.string(),
 	version: z.string(),
 
@@ -82,14 +80,13 @@ export const PackageJson = z.object({
 });
 export type PackageJson = z.infer<typeof PackageJson>;
 
-// TODO BLOCK use `PackageJson` schema below for runtime assertions
-
 export interface MapPackageJson {
 	(pkg: PackageJson, when: MapPackageJsonWhen): PackageJson | null | Promise<PackageJson | null>;
 }
 
 export type MapPackageJsonWhen = 'updating_exports' | 'updating_well_known';
 
+// TODO parse on load? sounds like a worse DX, maybe just log a warning?
 export const load_package_json = async (): Promise<PackageJson> =>
 	is_this_project_gro
 		? load_gro_package_json()
@@ -106,8 +103,10 @@ export const write_package_json = async (serialized_pkg: string): Promise<void> 
 	await writeFile(join(paths.root, 'package.json'), serialized_pkg);
 };
 
-export const serialize_package_json = (pkg: PackageJson): string =>
-	JSON.stringify(pkg, null, 2) + '\n';
+export const serialize_package_json = (pkg: PackageJson): string => {
+	PackageJson.parse(pkg);
+	return JSON.stringify(pkg, null, 2) + '\n';
+};
 
 /**
  * Updates package.json. Writes to the filesystem only when contents change.
@@ -159,7 +158,7 @@ export const to_package_exports = (paths: string[]): PackageJsonExports => {
 			};
 		}
 	}
-	return exports;
+	return PackageJsonExports.parse(exports);
 };
 
 const IMPORT_PREFIX = './' + DIST_DIRNAME + '/';
