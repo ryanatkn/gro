@@ -193,7 +193,6 @@ export const git_current_branch_first_commit_hash = async (): Promise<string> =>
 	const {stdout} = await spawn_out('git', [
 		'rev-list',
 		'--max-parents=0',
-		// '0',
 		'--abbrev-commit',
 		'HEAD',
 	]);
