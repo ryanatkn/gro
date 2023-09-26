@@ -109,6 +109,20 @@ export const task: Task<Args> = {
 		// await spawn('git', ['reset', '--hard', first_commit_hash]);
 		// await spawn('git', ['push', origin, target, '--force']);
 
+		// cases:
+		// no local branch, no remote branch
+		// no local branch, yes remote branch
+		// yes local branch, no remote branch
+		// yes local branch, yes remote branch
+		// reset or not
+
+		// fetch remote branch
+		// create local branch
+		// create remote branch
+		// reset local and remote branches
+		// update local branch
+		// push remote branch
+
 		if (!dirty) {
 			const error_message = await git_check_clean_workspace();
 			if (error_message) {
