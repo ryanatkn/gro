@@ -1,9 +1,11 @@
 import {spawn} from '@grogarden/util/process.js';
 import type {Flavored} from '@grogarden/util/types.js';
-import {execSync, type SpawnOptions} from 'child_process';
+import type {SpawnOptions} from 'child_process';
 import {z} from 'zod';
 
 import {paths} from './paths.js';
+
+// TODO probably extract to `util-git`
 
 export const GitOrigin = z.string();
 export type GitOrigin = z.infer<Flavored<typeof GitOrigin, 'GitOrigin'>>;
@@ -180,8 +182,13 @@ export const git_reset_branch_to_first_commit = async (
 	branch: GitBranch,
 ): Promise<void> => {
 	await git_checkout(branch);
-	// TODO use `spawn` instead of `execSync`
-	const first_commit_hash = execSync('git rev-list --max-parents=0 --abbrev-commit HEAD')
+	const {stdout: first_commit_hash} = await spawn_out('git', [
+		'rev-list',
+		'--max-parents', // TODO BLOCK test this is equivalent to `--max-parents=0`
+		0,
+		'--abbrev-commit',
+		'HEAD',
+	])
 		.toString()
 		.trim();
 	await spawn('git', ['reset', '--hard', first_commit_hash]);
@@ -193,8 +200,7 @@ export const git_reset_branch_to_first_commit = async (
  * @returns the current git branch name
  */
 export const git_current_branch_name = async (): Promise<string> => {
-	// TODO use `spawn` instead of `execSync`
-	return execSync('git rev-parse --abbrev-ref HEAD').toString().trim();
+	return spawn_out('git rev-parse --abbrev-ref HEAD').toString().trim();
 };
 
 /**
@@ -202,8 +208,7 @@ export const git_current_branch_name = async (): Promise<string> => {
  */
 export const git_current_commit_hash = async (branch?: string): Promise<string> => {
 	const final_branch = branch ?? (await git_current_branch_name());
-	// TODO use `spawn` instead of `execSync`
-	return execSync('git show-ref -s ' + final_branch)
+	return spawn_out('git show-ref -s ' + final_branch)
 		.toString()
 		.split('\n')[0]
 		.trim();
