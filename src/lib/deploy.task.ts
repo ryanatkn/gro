@@ -135,14 +135,15 @@ export const task: Task<Args> = {
 
 		// prepare the target branch remotely and locally
 		if (remote_target_exists) {
-			// remote target branch already exists
+			// remote target branch already exists, so sync up
 			await git_fetch(origin, target); // ensure the local branch is up to date
 			await git_checkout(target); // ensure tracking
 			await git_push(origin, target); // ensure the remote branch is up to date
 		} else {
 			// remote target branch does not exist
 
-			// corner case, probably better to delete the local target if it doesn't exist remotely
+			// corner case, it's probably usually better to delete the local target
+			// if it doesn't exist remotely, which means we don't need to deal with `reset`
 			if (local_target_exists) {
 				await git_delete_local_branch(target);
 			}
@@ -175,7 +176,7 @@ export const task: Task<Args> = {
 			}
 		}
 
-		// branches are now ready
+		// the target branch is now ready both locally and remotely
 		await git_checkout(source);
 
 		// clean up any existing worktree

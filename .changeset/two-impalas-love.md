@@ -1,5 +1,5 @@
 ---
-'@grogarden/gro': patch
+'@grogarden/gro': minor
 ---
 
-add dirty flag to gro deploy
+fix gro deploy
