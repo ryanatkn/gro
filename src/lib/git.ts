@@ -179,17 +179,12 @@ export const git_reset_branch_to_first_commit = async (
 	origin: GitOrigin,
 	branch: GitBranch,
 ): Promise<void> => {
-	console.log(`branch`, branch);
 	await git_checkout(branch);
 	// TODO use `spawn` instead of `execSync`
 	const first_commit_hash = execSync('git rev-list --max-parents=0 --abbrev-commit HEAD')
 		.toString()
 		.trim();
-	console.log(`first_commit_hash`, first_commit_hash);
-	// execSync('git reset --hard ' + first_commit_hash);
 	await spawn('git', ['reset', '--hard', first_commit_hash]);
-	console.log('reset to first commit');
 	await spawn('git', ['push', origin, branch, '--force']);
-	console.log('DONE');
 	await git_checkout('-');
 };
