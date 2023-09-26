@@ -1,5 +1,11 @@
 # @grogarden/gro
 
+## 0.87.4
+
+### Patch Changes
+
+- 284ce48: relax some PackageJson types"
+
 ## 0.87.3
 
 ### Patch Changes
