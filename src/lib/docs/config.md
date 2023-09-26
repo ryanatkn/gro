@@ -170,32 +170,37 @@ By default it copies the root `package.json` without modifications,
 and you can provide your own `package_json` hook to
 mutate the `pkg`, return new data, or return `null` to be a no-op.
 
-Writing to `.well-known/package.json` is unstandardized behavior that
-extends [Well-known URIs](https://wikipedia.org/wiki/Well-known_URIs) for Node packages
-to provide conventional metadata for deployed websites.
-The motivating usecase is [a docs website](https://docs.fuz.dev/)
-that includes the metadata of many repos.
+> Writing to `.well-known/package.json` is unstandardized behavior that
+> extends [Well-known URIs](https://wikipedia.org/wiki/Well-known_URIs) for Node packages
+> to provide conventional metadata for deployed websites.
+> One difference is that SvelteKit outputs static files relative to the configured `base` path,
+> so the `.well-known` directory may not be in the root `/`.
+> This is useful because it enables websites to provide metadata even when hosted in a namespaced
+> path like `username.github.io/projectname/.well-known`.
 
 Why publish this metadata to the web instead of relying on the git repo as the only source of truth?
 
 - we want to give all web users and tools access to discoverable package metadata
 - metadata is a much lighter dependency than an entire repo
+- some repos are deployed to multiple websites with metadata differences
+- some repos like monorepos have multiple `package.json` files
 - we don't want to force a dependency on git, the bespoke URLs of forge hosts like GitHub,
   or any particular toolchains
 - the git repo is still the source of truth, but Gro adds a build step for project metadata,
-  giving devs full control over their published artifacts
+  giving devs full control over the published artifacts
   instead of coupling metadata directly to a source repo's `package.json`
 
 > ⚠️ Outputting `.well-known/package.json` will surprise some users
-> and could result in security-relevant information leaks.
+> and could result in information leaks that compromise privacy or security.
 > Gro's defaults are designed for open source projects,
 > but configuring closed private projects should remain simple.
 > To migitate these issues:
 >
 > - all `package.json` automations are disabled when `"private": true`
+>   (templates should default to private to avoid accidental npm publishing as well)
 > - the `package.json` is written to `.well-known` during development
 >   and it's expected to be committed to source control,
 >   giving visibility and requiring developers to opt into adding the file with git -
 >   the alternative of outputting it to the SvelteKit build may appear cleaner,
->   but hiding that detail is too dangerous in this case
->   (we may want to make this configurable, but that complexity has costs too)
+>   but Gro's position is that hiding that detail is worse in this case
+>   (maybe it should be configurable, but that complexity has costs too)
