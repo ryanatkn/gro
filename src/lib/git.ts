@@ -216,6 +216,6 @@ export const git_current_branch_name = async (): Promise<string> => {
 export const git_current_commit_hash = async (branch?: string): Promise<string> => {
 	const final_branch = branch ?? (await git_current_branch_name());
 	const {stdout} = await spawn_out('git', ['show-ref', '-s', final_branch]);
-	if (!stdout) throw Error('git_current_branch_name failed');
+	if (!stdout) throw Error('git_current_commit_hash failed');
 	return stdout.toString().split('\n')[0].trim();
 };
