@@ -211,8 +211,8 @@ export const git_current_branch_name = async (): Promise<string> => {
 /**
  * @returns the branch's latest commit hash
  */
-export const git_current_commit_hash = async (maybe_branch?: string): Promise<string> => {
-	const branch = maybe_branch ?? (await git_current_branch_name());
-	const {stdout} = await spawn_out('git', ['show-ref', '-s', branch]);
+export const git_current_commit_hash = async (branch?: string): Promise<string> => {
+	const final_branch = branch ?? (await git_current_branch_name());
+	const {stdout} = await spawn_out('git', ['show-ref', '-s', final_branch]);
 	return stdout.toString().split('\n')[0].trim();
 };
