@@ -20,7 +20,7 @@ export interface GroConfig {
 	plugins: CreateConfigPlugins;
 	/**
 	 * Maps the project's `package.json`.
-	 * The `pkg` argument may be mutated, but the return value is what's used.
+	 * The `pkg` argument may be mutated, but only the return value is used.
 	 * Runs in modes 'updating_exports' and 'updating_well_known'.
 	 * Returning `null` is a no-op for that mode.
 	 * @default identity
