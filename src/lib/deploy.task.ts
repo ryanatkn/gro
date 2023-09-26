@@ -53,6 +53,11 @@ export const Args = z
 		dangerous: z
 			.boolean({description: 'caution!! enables destruction of branches like main and master'})
 			.default(false),
+		dirty: z
+			.boolean({
+				description: 'if true, bypasses the git check for unstaged and uncommitted changes',
+			})
+			.default(false),
 		reset: z
 			.boolean({
 				description: 'if true, resets the target branch back to the first commit before deploying',
@@ -70,7 +75,7 @@ export const task: Task<Args> = {
 	summary: 'deploy to a branch',
 	Args,
 	run: async ({args, log, invoke_task}): Promise<void> => {
-		const {source, target, origin, dir, dry, clean, force, dangerous, reset, install} = args;
+		const {source, target, origin, dir, dry, clean, force, dangerous, dirty, reset, install} = args;
 
 		if (!force && target !== TARGET_BRANCH) {
 			throw Error(
@@ -93,68 +98,96 @@ export const task: Task<Args> = {
 		// Exit early if the git working directory has any unstaged or staged changes.
 		// unstaged changes: `git diff --exit-code`
 		// staged uncommitted changes: `git diff --exit-code --cached`
-		const gitDiffUnstagedResult = await spawn('git', ['diff', '--exit-code', '--quiet']);
-		if (!gitDiffUnstagedResult.ok) {
-			log.error(red('git has unstaged changes: please commit or stash to proceed'));
-			return;
-		}
-		const gitDiffStagedResult = await spawn('git', ['diff', '--exit-code', '--cached', '--quiet']);
-		if (!gitDiffStagedResult.ok) {
-			log.error(red('git has staged but uncommitted changes: please commit or stash to proceed'));
-			return;
+		if (!dirty) {
+			const git_diff_unstaged_result = await spawn('git', ['diff', '--exit-code', '--quiet']);
+			if (!git_diff_unstaged_result.ok) {
+				log.error(red('git has unstaged changes: please commit or stash to proceed'));
+				return;
+			}
+			const git_diff_staged_result = await spawn('git', [
+				'diff',
+				'--exit-code',
+				'--cached',
+				'--quiet',
+			]);
+			if (!git_diff_staged_result.ok) {
+				log.error(red('git has staged but uncommitted changes: please commit or stash to proceed'));
+				return;
+			}
 		}
 
 		// Reset the target branch?
 		if (reset) {
-			await spawn('git', ['push', origin, ':' + target]);
+			const remote_target_exists = await spawn('git', [
+				'ls-remote',
+				'--exit-code',
+				'--heads',
+				origin,
+				'refs/heads/' + target,
+			]);
+			if (remote_target_exists.ok) {
+				await spawn('git', ['push', origin, ':' + target]);
+			}
+			const local_target_exists = await spawn('git', [
+				'show-ref',
+				'--quiet',
+				'refs/heads/' + target,
+			]);
+			if (local_target_exists.ok) {
+				await spawn('git', ['branch', '-D', target]);
+			}
 		}
 
+		// TODO refactor this with the above reset code, and extract helpers
+
 		// Prepare the target branch, creating as needed.
-		const gitTargetExistsResult = await spawn('git', [
+		const remote_target_exists = await spawn('git', [
 			'ls-remote',
 			'--exit-code',
 			'--heads',
 			origin,
-			target,
+			'refs/heads/' + target,
 		]);
-		if (gitTargetExistsResult.ok) {
+		if (remote_target_exists.ok) {
 			// Target branch exists on remote.
 
 			// Fetch the remote target deploy branch.
-			const gitFetchTargetResult = await spawn('git', ['fetch', origin, target]);
-			if (!gitFetchTargetResult.ok) {
+			const git_fetch_target_result = await spawn('git', ['fetch', origin, target]);
+			if (!git_fetch_target_result.ok) {
 				log.error(
-					red(`failed to fetch target branch ${target} code(${gitFetchTargetResult.code})`),
+					red(`failed to fetch target branch ${target} code(${git_fetch_target_result.code})`),
 				);
 				return;
 			}
 
 			// Checkout the target branch to ensure tracking.
-			const gitCheckoutTargetResult = await spawn('git', ['checkout', target]);
-			if (!gitCheckoutTargetResult.ok) {
+			const git_checkout_target_result = await spawn('git', ['checkout', target]);
+			if (!git_checkout_target_result.ok) {
 				log.error(
-					red(`failed to checkout target branch ${target} code(${gitCheckoutTargetResult.code})`),
+					red(
+						`failed to checkout target branch ${target} code(${git_checkout_target_result.code})`,
+					),
 				);
 				return;
 			}
-		} else if (gitTargetExistsResult.code === 2) {
+		} else if (remote_target_exists.code === 2) {
 			// Target branch does not exist remotely.
 
-			// Create and checkout the target branch. Ignore eroors in case it already exists locally.
+			// Create and checkout the target branch.
 			await spawn('git', ['checkout', '-b', target]);
 		} else {
 			// Something went wrong.
 			log.error(
-				red(`failed to checkout target branch ${target} code(${gitTargetExistsResult.code})`),
+				red(`failed to checkout target branch ${target} code(${remote_target_exists.code})`),
 			);
 			return;
 		}
 
 		// Checkout the source branch to deploy.
-		const gitCheckoutSourceResult = await spawn('git', ['checkout', source]);
-		if (!gitCheckoutSourceResult.ok) {
+		const git_checkout_source_result = await spawn('git', ['checkout', source]);
+		if (!git_checkout_source_result.ok) {
 			log.error(
-				red(`failed to checkout source branch ${source} code(${gitCheckoutSourceResult.code})`),
+				red(`failed to checkout source branch ${source} code(${git_checkout_source_result.code})`),
 			);
 			return;
 		}
