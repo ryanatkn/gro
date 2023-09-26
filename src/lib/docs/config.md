@@ -124,7 +124,7 @@ const config: GroConfig = {
 
 	// change anything you want and return the final config
 	package_json: (pkg, when) => {
-		// map `exports`
+		// filter `exports`
 		pkg.exports = Object.fromEntries(Object.entries(pkg.exports).filter(/* ... */));
 		// remove properties
 		if (when === 'updating_well_known') delete pkg.prettier;
