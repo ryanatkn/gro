@@ -5,10 +5,10 @@ import {green, red} from 'kleur/colors';
 import {z} from 'zod';
 import {copyFile, readdir, rename, rm} from 'node:fs/promises';
 
-import type {Task} from './task.js';
+import {TaskError, type Task} from './task.js';
 import {GIT_DIRNAME, paths, print_path, SVELTEKIT_BUILD_DIRNAME} from './paths.js';
 import {exists} from './exists.js';
-import {remote_branch_exists} from './git.js';
+import {check_clean_workspace, remote_branch_exists} from './git.js';
 
 // docs at ./docs/deploy.md
 
@@ -103,24 +103,12 @@ export const task: Task<Args> = {
 		// await spawn('git', ['reset', '--hard', first_commit_hash]);
 		// await spawn('git', ['push', origin, target, '--force']);
 
-		// Exit early if the git working directory has any unstaged or staged changes.
-		// unstaged changes: `git diff --exit-code`
-		// staged uncommitted changes: `git diff --exit-code --cached`
 		if (!dirty) {
-			const git_diff_unstaged_result = await spawn('git', ['diff', '--exit-code', '--quiet']);
-			if (!git_diff_unstaged_result.ok) {
-				log.error(red('git has unstaged changes: please commit or stash to proceed'));
-				return;
-			}
-			const git_diff_staged_result = await spawn('git', [
-				'diff',
-				'--exit-code',
-				'--cached',
-				'--quiet',
-			]);
-			if (!git_diff_staged_result.ok) {
-				log.error(red('git has staged but uncommitted changes: please commit or stash to proceed'));
-				return;
+			const error_message = await check_clean_workspace();
+			if (error_message) {
+				throw new TaskError(
+					error_message + ' - to proceed, commit or stash the changes or pass --dirty',
+				);
 			}
 		}
 

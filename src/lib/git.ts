@@ -18,3 +18,18 @@ export const remote_branch_exists = async (origin: string, branch: string): Prom
 		);
 	}
 };
+
+/**
+ * @returns an error message if the git workspace has any unstaged or uncommitted changes
+ */
+export const check_clean_workspace = async (): Promise<string | null> => {
+	const unstaged_result = await spawn('git', ['diff', '--exit-code', '--quiet']);
+	if (!unstaged_result.ok) {
+		return 'git has unstaged changes';
+	}
+	const staged_result = await spawn('git', ['diff', '--exit-code', '--cached', '--quiet']);
+	if (!staged_result.ok) {
+		return 'git has staged but uncommitted changes';
+	}
+	return null;
+};
