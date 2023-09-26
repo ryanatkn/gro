@@ -1,5 +1,11 @@
 # @grogarden/gro
 
+## 0.87.3
+
+### Patch Changes
+
+- 3e24565: add enum support for cli args
+
 ## 0.87.2
 
 ### Patch Changes

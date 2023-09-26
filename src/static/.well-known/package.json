@@ -1,7 +1,7 @@
 {
   "name": "@grogarden/gro",
   "description": "task runner and toolkit extending SvelteKit",
-  "version": "0.87.2",
+  "version": "0.87.3",
   "bin": {
     "gro": "./dist/gro.js"
   },
