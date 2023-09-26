@@ -8,7 +8,7 @@ import {copyFile, readdir, rename, rm} from 'node:fs/promises';
 import {TaskError, type Task} from './task.js';
 import {GIT_DIRNAME, paths, print_path, SVELTEKIT_BUILD_DIRNAME} from './paths.js';
 import {exists} from './exists.js';
-import {check_clean_workspace, remote_branch_exists} from './git.js';
+import {git_check_clean_workspace, git_remote_branch_exists} from './git.js';
 
 // docs at ./docs/deploy.md
 
@@ -104,7 +104,7 @@ export const task: Task<Args> = {
 		// await spawn('git', ['push', origin, target, '--force']);
 
 		if (!dirty) {
-			const error_message = await check_clean_workspace();
+			const error_message = await git_check_clean_workspace();
 			if (error_message) {
 				throw new TaskError(
 					error_message + ' - to proceed, commit or stash the changes or pass --dirty',
@@ -137,7 +137,7 @@ export const task: Task<Args> = {
 		// TODO refactor this with the above reset code, and extract helpers
 
 		// Prepare the target branch, creating as needed.
-		if (await remote_branch_exists(origin, target)) {
+		if (await git_remote_branch_exists(origin, target)) {
 			// Target branch exists remotely.
 			// Fetch the remote target deploy branch.
 			const git_fetch_target_result = await spawn('git', ['fetch', origin, target]);

@@ -1,6 +1,9 @@
 import {spawn} from '@grogarden/util/process.js';
 
-export const remote_branch_exists = async (origin: string, branch: string): Promise<boolean> => {
+export const git_remote_branch_exists = async (
+	origin: string,
+	branch: string,
+): Promise<boolean> => {
 	const result = await spawn('git', [
 		'ls-remote',
 		'--exit-code',
@@ -14,7 +17,8 @@ export const remote_branch_exists = async (origin: string, branch: string): Prom
 		return false;
 	} else {
 		throw Error(
-			`remote_branch_exists failed for ${branch} and origin ${origin} with code ${result.code}`,
+			`git_remote_branch_exists failed for ${branch}` +
+				` and origin ${origin} with code ${result.code}`,
 		);
 	}
 };
@@ -22,7 +26,7 @@ export const remote_branch_exists = async (origin: string, branch: string): Prom
 /**
  * @returns an error message if the git workspace has any unstaged or uncommitted changes
  */
-export const check_clean_workspace = async (): Promise<string | null> => {
+export const git_check_clean_workspace = async (): Promise<string | null> => {
 	const unstaged_result = await spawn('git', ['diff', '--exit-code', '--quiet']);
 	if (!unstaged_result.ok) {
 		return 'git has unstaged changes';
