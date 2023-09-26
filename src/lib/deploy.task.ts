@@ -233,7 +233,7 @@ export const task: Task<Args> = {
 
 		// Clean up and efficiently reconstruct dist/ for users
 		await Promise.all([
-			rm(`${WORKTREE_DIR}/${GIT_DIRNAME}`, {recursive: true}),
+			rm(`${WORKTREE_DIR}/${GIT_DIRNAME}`, {recursive: true}), // TODO probably a better way
 			rm(dir, {recursive: true}),
 		]);
 		await rename(WORKTREE_DIR, dir);
