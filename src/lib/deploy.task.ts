@@ -8,7 +8,7 @@ import {copyFile, readdir, rename, rm} from 'node:fs/promises';
 import {TaskError, type Task} from './task.js';
 import {GIT_DIRNAME, paths, print_path, SVELTEKIT_BUILD_DIRNAME} from './paths.js';
 import {exists} from './exists.js';
-import {git_check_clean_workspace, git_remote_branch_exists} from './git.js';
+import {git_check_clean_workspace, git_fetch, git_remote_branch_exists} from './git.js';
 
 // docs at ./docs/deploy.md
 
@@ -140,13 +140,7 @@ export const task: Task<Args> = {
 		if (await git_remote_branch_exists(origin, target)) {
 			// Target branch exists remotely.
 			// Fetch the remote target deploy branch.
-			const git_fetch_target_result = await spawn('git', ['fetch', origin, target]);
-			if (!git_fetch_target_result.ok) {
-				log.error(
-					red(`failed to fetch target branch ${target} code(${git_fetch_target_result.code})`),
-				);
-				return;
-			}
+			await git_fetch(origin, target);
 
 			// Checkout the target branch to ensure tracking.
 			const git_checkout_target_result = await spawn('git', ['checkout', target]);

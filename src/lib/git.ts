@@ -17,8 +17,7 @@ export const git_remote_branch_exists = async (
 		return false;
 	} else {
 		throw Error(
-			`git_remote_branch_exists failed for ${branch}` +
-				` and origin ${origin} with code ${result.code}`,
+			`git_remote_branch_exists failed for origin ${origin} and branch ${branch} with code ${result.code}`,
 		);
 	}
 };
@@ -36,4 +35,15 @@ export const git_check_clean_workspace = async (): Promise<string | null> => {
 		return 'git has staged but uncommitted changes';
 	}
 	return null;
+};
+
+export const git_fetch = async (origin: string, branch?: string): Promise<void> => {
+	const args = ['fetch', origin];
+	if (branch) args.push(branch);
+	const result = await spawn('git', args);
+	if (!result.ok) {
+		throw Error(
+			`git_fetch failed for origin ${origin} and branch ${branch} with code ${result.code}`,
+		);
+	}
 };
