@@ -90,6 +90,48 @@ export const git_checkout = async (branch: Git_Branch, options?: SpawnOptions): 
 };
 
 /**
+ * Calls `git pull` and throws if anything goes wrong.
+ */
+export const git_pull = async (
+	origin: Git_Origin,
+	branch: Git_Branch,
+	options?: SpawnOptions,
+): Promise<void> => {
+	const result = await spawn('git', ['pull', origin, branch], options);
+	if (!result.ok) {
+		throw Error(`git_pull failed for branch ${branch} with code ${result.code}`);
+	}
+};
+
+/**
+ * Calls `git push` and throws if anything goes wrong.
+ */
+export const git_push = async (
+	origin: Git_Origin,
+	branch: Git_Branch,
+	options?: SpawnOptions,
+): Promise<void> => {
+	const result = await spawn('git', ['push', origin, branch], options);
+	if (!result.ok) {
+		throw Error(`git_push failed for branch ${branch} with code ${result.code}`);
+	}
+};
+
+/**
+ * Calls `git push` and throws if anything goes wrong.
+ */
+export const git_push_to_create = async (
+	origin: Git_Origin,
+	branch: Git_Branch,
+	options?: SpawnOptions,
+): Promise<void> => {
+	const result = await spawn('git', ['push', '-u', origin, branch], options);
+	if (!result.ok) {
+		throw Error(`git_push failed for branch ${branch} with code ${result.code}`);
+	}
+};
+
+/**
  * Deletes a branch locally and throws if anything goes wrong.
  */
 export const git_delete_local_branch = async (

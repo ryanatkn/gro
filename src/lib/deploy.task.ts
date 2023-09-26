@@ -20,6 +20,9 @@ import {
 	Git_Branch,
 	git_delete_local_branch,
 	git_delete_remote_branch,
+	git_pull,
+	git_push,
+	git_push_to_create,
 } from './git.js';
 
 // docs at ./docs/deploy.md
@@ -34,7 +37,7 @@ import {
 // TODO customize
 const ORIGIN = 'origin';
 const INITIAL_FILE_PATH = 'index.html';
-const INITIAL_FILE_CONTENTS = '<!doctype html><html></html>';
+const INITIAL_FILE_CONTENTS = '<!doctype html><html><body>init</body></html>';
 const GIT_ARGS = {cwd: WORKTREE_DIR};
 const SOURCE_BRANCH = 'main';
 const TARGET_BRANCH = 'deploy';
@@ -133,16 +136,33 @@ export const task: Task<Args> = {
 		// prepare the target branch remotely and locally
 		if (remote_target_exists) {
 			// remote target branch already exists
-			await git_fetch(origin, target);
+			await git_fetch(origin, target); // ensure the local branch is up to date
 			await git_checkout(target); // ensure tracking
+			await git_push(origin, target); // ensure the remote branch is up to date
 		} else {
 			// remote target branch does not exist
+
+			// corner case, probably better to delete the local target if it doesn't exist remotely
 			if (local_target_exists) {
-				// corner case, probably better to delete the local target if it doesn't exist remotely
 				await git_delete_local_branch(target);
 			}
-			// TODO BLOCK what about if the local branch exists here? should we just delete it?
+
+			// create the target branch locally and remotely
+			await spawn(
+				`git checkout --orphan ${target} && ` +
+					// TODO there's definitely a better way to do this
+					`git rm -rf . && ` +
+					`echo "${INITIAL_FILE_CONTENTS}" >> ${INITIAL_FILE_PATH} && ` +
+					`git add ${INITIAL_FILE_PATH} && ` +
+					`git commit -m "init"`,
+				[],
+				// use `shell: true` because the above is unwieldy with standard command construction
+				{shell: true},
+			);
+			await git_push_to_create(origin, target);
 		}
+
+		// local and remote branches are ready
 
 		// Reset the target branch?
 		if (reset) {
@@ -154,35 +174,6 @@ export const task: Task<Args> = {
 				await git_delete_local_branch(target);
 			}
 		}
-
-		// TODO refactor this with the above reset code, and extract helpers
-
-		// Prepare the target branch, creating as needed.
-		if (await git_remote_branch_exists(origin, target)) {
-			// Target branch exists remotely.
-			// Fetch the remote target deploy branch.
-			await git_fetch(origin, target);
-
-			// Checkout the target branch to ensure tracking.
-			await git_checkout(target); // ensure tracking
-		} else {
-			// Target branch does not exist remotely.
-			// Create and checkout the target branch.
-			await spawn('git', ['checkout', '-b', target]);
-		}
-
-		// set up the deployment `target` branch
-		await spawn(
-			`git checkout --orphan ${target} && ` +
-				// TODO there's definitely a better way to do this
-				`git rm -rf . && ` +
-				`echo "${INITIAL_FILE_CONTENTS}" >> ${INITIAL_FILE_PATH} && ` +
-				`git add ${INITIAL_FILE_PATH} && ` +
-				`git commit -m "init" && git checkout ${source}`,
-			[],
-			// use `shell: true` because the above is unwieldy with standard command construction
-			{shell: true},
-		);
 
 		// branches are now ready
 		await git_checkout(source);
@@ -222,7 +213,7 @@ export const task: Task<Args> = {
 			await spawn('git', ['worktree', 'add', WORKTREE_DIRNAME, target]);
 
 			// pull the remote deploy branch, ignoring failures
-			await spawn('git', ['pull', origin, target], GIT_ARGS);
+			await git_pull(origin, target, GIT_ARGS); // TODO BLOCK still needed?
 
 			// Populate the worktree dir with the new files.
 			// We're doing this rather than copying the directory
