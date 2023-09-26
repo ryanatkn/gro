@@ -10,10 +10,10 @@ npm i -D [@grogarden/gro](https://www.npmjs.com/package/@grogarden/gro)
 
 limitations:
 
-- [Windows is not yet supported](https://github.com/grogarden/gro/issues/319)
 - Gro has been actively used since 2019 but it has few users,
   so you'll likely encounter problems and undesirable limitations --
   please open issues!
+- [Windows won't be supported](https://github.com/grogarden/gro/issues/319)
 
 ## about
 

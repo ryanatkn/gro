@@ -16,11 +16,15 @@ export const find_cli = async (name: string): Promise<'local' | 'global' | null>
 	}
 	try {
 		// TODO BLOCK
-		console.log(`FIND GLOBAL CLI`, name);
-		execSync(`command -v ${name} > /dev/null 2>&1`);
+		console.log(`FIND GLOBAL CLI!`, name);
+		// execSync(`command -v ${name} > /dev/null 2>&1`);
+		// console.log(`command worked`, name);
+		const spawned = await spawn('command', ['-v name > /dev/null 2>&1']);
+		console.log(`spawned`, spawned);
 		console.log(`FOUND GLOBAL CLI`, name);
 		return 'global';
 	} catch (err) {
+		console.log(`ERR CLI`, name);
 		return null;
 	}
 };
