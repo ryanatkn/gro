@@ -92,7 +92,8 @@ performs two separate steps that both call `package_json` to determine their beh
 - when `when === 'updating_well_known'`, Gro is outputting a copy of `package.json`
   to `.well-known/package.json` in the repo's static SvelteKit directory
 
-Similar to other tasks like gen and format, the exports task supports `gro exports --check`,
+Similar to other tasks like `gro gen` and `gro format`,
+the `gro exports` task supports `gro exports --check`,
 which is called by `gro check`, to ensure the repo and Gro's automations are in sync.
 
 ### using `package_json`
