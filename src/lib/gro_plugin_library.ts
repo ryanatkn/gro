@@ -35,7 +35,7 @@ export const plugin = (): Plugin<PluginContext> => {
 					}),
 				);
 				log.info(`linking`);
-				const link_result = await spawn('npm', ['link', '-f']);
+				const link_result = await spawn('npm', ['link', '-f']); // TODO don't use `-f` unless necessary or at all?
 				if (!link_result.ok) {
 					throw new TaskError(`Failed to link. ${print_spawn_result(link_result)}`);
 				}
