@@ -40,6 +40,7 @@ export const task: Task<Args> = {
 	Args,
 	run: async (ctx): Promise<void> => {
 		const {
+			invoke_task,
 			args: {_: changeset_args, path, access: access_arg, changelog, install},
 			log,
 		} = ctx;
@@ -71,6 +72,7 @@ export const task: Task<Args> = {
 
 			if (install) {
 				await spawn('npm', ['i', '-D', changelog]);
+				await invoke_task('sync');
 			}
 		}
 
