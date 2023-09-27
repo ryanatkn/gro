@@ -1,5 +1,12 @@
 # @grogarden/gro
 
+## 0.89.0
+
+### Minor Changes
+
+- 51b0a74: fix bin
+- 882cd1d: upgrade deps
+
 ## 0.88.0
 
 ### Minor Changes
