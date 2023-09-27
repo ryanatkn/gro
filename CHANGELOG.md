@@ -1,5 +1,11 @@
 # @grogarden/gro
 
+## 0.89.1
+
+### Patch Changes
+
+- 45f4734: fix import.meta.env shim
+
 ## 0.89.0
 
 ### Minor Changes
