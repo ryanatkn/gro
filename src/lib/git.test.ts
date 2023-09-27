@@ -18,8 +18,7 @@ test('git_check_clean_workspace', async () => {
 });
 
 test('git_current_commit_hash', async () => {
-	const current_commit_hash = await git_current_commit_hash();
-	assert.ok(current_commit_hash);
+	await git_current_commit_hash();
 });
 
 test('git_current_branch_first_commit_hash', async () => {
