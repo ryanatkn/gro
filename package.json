@@ -25,9 +25,10 @@
     "node": ">=20.7"
   },
   "scripts": {
-    "start": "gro",
-    "test": "gro test",
-    "build": "rm -rf .gro dist && svelte-package && chmod +x ./dist/gro.js && npm link -f"
+    "build": "rm -rf .gro dist && svelte-package && chmod +x ./dist/gro.js && npm link -f",
+    "publish": "gro publish",
+    "start": "gro dev",
+    "test": "gro test"
   },
   "keywords": [
     "web",
@@ -65,16 +66,16 @@
     "@changesets/changelog-git": "^0.1.14",
     "@changesets/types": "^5.2.1",
     "@feltjs/eslint-config": "^0.4.0",
-    "@fuz.dev/fuz": "^0.67.0",
+    "@fuz.dev/fuz": "^0.69.1",
     "@sveltejs/adapter-static": "^2.0.3",
-    "@sveltejs/kit": "^1.25.0",
+    "@sveltejs/kit": "^1.25.1",
     "@sveltejs/package": "^2.2.2",
     "@types/fs-extra": "^11.0.2",
-    "@types/node": "^20.6.3",
-    "@typescript-eslint/eslint-plugin": "^6.7.2",
-    "@typescript-eslint/parser": "^6.7.2",
+    "@types/node": "^20.7.0",
+    "@typescript-eslint/eslint-plugin": "^6.7.3",
+    "@typescript-eslint/parser": "^6.7.3",
     "esbuild": "^0.18.0",
-    "eslint": "^8.49.0",
+    "eslint": "^8.50.0",
     "eslint-plugin-svelte": "^2.33.2",
     "svelte": "^4.2.1",
     "svelte-check": "^3.5.2",
