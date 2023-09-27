@@ -101,8 +101,8 @@ export const plugin = ({
 	dir = cwd(),
 	outpaths = (dev) => ({
 		outdir: join(dir, dev ? GRO_DEV_DIRNAME : GRO_DIST_DIRNAME),
-		outbase: paths.lib + 'server',
-		outname: 'server.js',
+		outbase: paths.lib,
+		outname: 'server/server.js',
 	}),
 	env_files,
 	ambient_env,
