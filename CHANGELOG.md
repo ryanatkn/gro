@@ -1,5 +1,12 @@
 # @grogarden/gro
 
+## 0.89.2
+
+### Patch Changes
+
+- c92b109: improve `gro exports` output
+- bd0d061: fix publish script
+
 ## 0.89.1
 
 ### Patch Changes
