@@ -1,5 +1,11 @@
 # @grogarden/gro
 
+## 0.88.0
+
+### Minor Changes
+
+- 07e3772: change server plugin to output to `dist_server`
+
 ## 0.87.5
 
 ### Patch Changes
