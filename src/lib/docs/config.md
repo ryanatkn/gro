@@ -122,6 +122,13 @@ const config: GroConfig = {
 
 	// mutate anything and return the final config
 	package_json: (pkg, when) => {
+		// set `exports`
+		pkg.exports = {
+			'./Example.svelte': {
+				svelte: './dist/Example.svelte',
+				types: './dist/Example.svelte.d.ts',
+			},
+		};
 		// filter `exports`
 		pkg.exports = Object.fromEntries(Object.entries(pkg.exports).filter(/* ... */));
 		// remove properties
