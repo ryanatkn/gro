@@ -147,7 +147,7 @@ The motivation is to streamline package publishing by supplementing
 [`@sveltejs/package`](https://kit.svelte.dev/docs/packaging).
 
 The `when` param will be `'updating_exports'` during this step.
-By default it includes everything from `$lib/`,
+By default `pkg.exports` includes everything from `$lib/`,
 and you can provide your own `package_json` hook to
 mutate the `pkg`, return new data, or return `null` to be a no-op.
 
