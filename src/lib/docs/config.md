@@ -151,8 +151,7 @@ By default `pkg.exports` includes everything from `$lib/`,
 and you can provide your own `package_json` hook to
 mutate the `pkg`, return new data, or return `null` to be a no-op.
 
-Typical usage would modify `pkg.exports` during this step to
-remove modules that aren't public API.
+Typical usage would modify `pkg.exports` during this step to define the public API.
 
 ### when 'updating_well_known'
 
