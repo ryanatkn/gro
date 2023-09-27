@@ -1,6 +1,3 @@
-// TODO delete this
-/* eslint-disable no-console */
-
 import {spawn, spawn_out} from '@grogarden/util/process.js';
 import type {Flavored} from '@grogarden/util/types.js';
 import type {SpawnOptions} from 'child_process';
@@ -21,7 +18,6 @@ export const git_current_branch_name = async (): Promise<string> => {
 	const {stdout} = await spawn_out('git', ['rev-parse', '--abbrev-ref', 'HEAD']);
 	if (!stdout) throw Error('git_current_branch_name failed');
 	const branch_name = stdout.toString().trim();
-	console.log(`branch_name`, branch_name);
 	return branch_name;
 };
 
@@ -205,7 +201,6 @@ export const git_reset_branch_to_first_commit = async (
  */
 export const git_current_commit_hash = async (branch?: string): Promise<string> => {
 	const final_branch = branch ?? (await git_current_branch_name());
-	console.log(`final_branch`, final_branch);
 	const {stdout} = await spawn_out('git', ['show-ref', '-s', final_branch]);
 	if (!stdout) throw Error('git_current_commit_hash failed');
 	return stdout.toString().split('\n')[0].trim();
