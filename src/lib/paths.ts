@@ -24,7 +24,7 @@ the `path_parts` are `['foo', 'foo/bar', 'foo/bar/baz.ts']`.
 // TODO this is kinda gross - do we want to maintain the convention to have the trailing slash in most usage?
 export const SOURCE_DIRNAME = 'src';
 export const GRO_DIRNAME = '.gro';
-export const DIST_DIRNAME = 'dist';
+export const GRO_DIST_PREFIX = 'dist_'; //
 export const SERVER_DIST_PATH = 'dist_server'; // TODO should all of these be `_PATH` or should this be `DIRNAME`?
 export const LIB_DIRNAME = 'lib'; // TODO use Svelte config `files.lib`
 export const ROUTES_DIRNAME = 'routes'; // TODO use Svelte config `files.lib`
@@ -44,6 +44,7 @@ export const SVELTEKIT_CONFIG_FILENAME = 'svelte.config.js';
 export const VITE_CONFIG_FILENAME = 'vite.config.ts';
 export const SVELTEKIT_DEV_DIRNAME = '.svelte-kit'; // TODO use Svelte config value `outDir`
 export const SVELTEKIT_BUILD_DIRNAME = 'build';
+export const SVELTEKIT_DIST_DIRNAME = 'dist';
 export const NODE_MODULES_DIRNAME = 'node_modules';
 export const SVELTEKIT_VITE_CACHE_PATH = NODE_MODULES_DIRNAME + '/.vite';
 export const GITHUB_DIRNAME = '.github';
@@ -168,4 +169,4 @@ export const gro_dir_basename = basename(gro_dir) + '/';
 export const paths = create_paths(process.cwd() + '/');
 export const is_this_project_gro = gro_dir === paths.root;
 export const gro_paths = is_this_project_gro ? paths : create_paths(gro_dir);
-export const gro_sveltekit_dist_dir = gro_paths.root + DIST_DIRNAME + '/';
+export const gro_sveltekit_dist_dir = gro_paths.root + SVELTEKIT_DIST_DIRNAME + '/';
