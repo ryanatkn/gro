@@ -175,6 +175,8 @@ mutate the `pkg`, return new data, or return `null` to be a no-op.
 > Writing to `.well-known/package.json` is unstandardized behavior that
 > extends [Well-known URIs](https://wikipedia.org/wiki/Well-known_URIs) for Node packages
 > to provide conventional metadata for deployed websites.
+> [Mastodon](<https://en.wikipedia.org/wiki/Mastodon_(social_network)>) uses
+> [WebFinger](https://en.wikipedia.org/wiki/WebFinger) which uses `.well-known` for discovery.
 > One difference is that SvelteKit outputs static files relative to the configured `base` path,
 > so the `.well-known` directory may not be in the root `/`.
 > This is useful because it enables websites to provide metadata even when hosted in a namespaced
