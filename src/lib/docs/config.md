@@ -127,7 +127,7 @@ const config: GroConfig = {
 		// remove properties
 		if (when === 'updating_well_known') pkg.prettier = undefined;
 		// add properties
-		if (when === 'updating_well_known') pkg.generated_at = Date.now();
+		if (when === 'updating_well_known') pkg.created_at = new Date().toISOString();
 		return pkg;
 	},
 };
