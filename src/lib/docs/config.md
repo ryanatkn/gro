@@ -99,6 +99,7 @@ which is called by `gro check`, to ensure the repo and Gro's automations are in 
 ### using `package_json`
 
 ```ts
+// gro.config.ts
 const config: GroConfig = {
 	// ...other config
 
