@@ -2,6 +2,7 @@ import {z} from 'zod';
 
 import type {Task} from './task.js';
 
+// TODO add --workspace, git_check_clean_workspace, default to false
 export const Args = z
 	.object({
 		typecheck: z.boolean({description: 'dual of no-typecheck'}).default(true),
