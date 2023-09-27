@@ -78,6 +78,7 @@ export interface Options {
 }
 
 export interface Outpaths {
+	// TODO BLOCK change the default
 	/**
 	 * @default `${dir}/.gro/dev/server`
 	 */
