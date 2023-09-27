@@ -16,7 +16,9 @@ test('git_current_branch_name and git_local_branch_exists', async () => {
 	const branch_name = await git_current_branch_name();
 	console.log(`branch_name`, branch_name);
 	assert.ok(branch_name);
-	assert.ok(await git_local_branch_exists(branch_name));
+	const branch_name_exists = await git_local_branch_exists(branch_name);
+	console.log(`branch_name_exists`, branch_name_exists);
+	assert.ok(branch_name_exists);
 });
 
 test('git_check_clean_workspace', async () => {
