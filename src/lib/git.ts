@@ -57,7 +57,11 @@ export const git_local_branch_exists = async (
 	branch: GitBranch,
 	options?: SpawnOptions,
 ): Promise<boolean> => {
-	const result = await spawn('git', ['show-ref', '--quiet', 'refs/heads/' + branch], options);
+	const result = await spawn(
+		'git',
+		['show-ref', '--quiet', 'refs/heads/' + (branch === 'HEAD' ? 'main' : branch)], // TODO hack
+		options,
+	);
 	return result.ok;
 };
 
