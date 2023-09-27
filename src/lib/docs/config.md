@@ -124,6 +124,14 @@ const config: GroConfig = {
 	package_json: (pkg, when) => {
 		// set `exports`
 		pkg.exports = {
+			'.': {
+				default: './dist/index.js',
+				types: './dist/index.d.ts',
+			},
+			'./example.js': {
+				default: './dist/example.js',
+				types: './dist/example.d.ts',
+			},
 			'./Example.svelte': {
 				svelte: './dist/Example.svelte',
 				types: './dist/Example.svelte.d.ts',
