@@ -1,5 +1,12 @@
 # @grogarden/gro
 
+## 0.87.5
+
+### Patch Changes
+
+- dc5e0dd: sync on changeset
+- 9bc4685: fix server plugin paths
+
 ## 0.87.4
 
 ### Patch Changes
