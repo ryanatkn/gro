@@ -143,7 +143,8 @@ export type MapPackageJsonWhen = 'updating_exports' | 'updating_well_known';
 
 Gro automatically updates the `"exports"` property of your root `package.json`
 during the dev and build tasks unless `package.json` has `"private": true`.
-The motivation is to streamline package publishing by supplementing `@sveltejs/package`.
+The motivation is to streamline package publishing by supplementing
+[`@sveltejs/package`](https://kit.svelte.dev/docs/packaging).
 
 The `when` param will be `'updating_exports'` during this step.
 By default it includes everything from `$lib/`,
