@@ -134,7 +134,7 @@ const config: GroConfig = {
 		// remove properties
 		if (when === 'updating_well_known') pkg.prettier = undefined;
 		// add properties
-		if (when === 'updating_well_known') pkg.created_at = new Date().toISOString();
+		if (when === 'updating_well_known') pkg.generated_at = new Date().toISOString();
 		return pkg;
 	},
 };
@@ -203,7 +203,8 @@ Why publish this metadata to the web instead of relying on the git repo as the o
 > - all `package.json` automations are disabled when `"private": true`
 >   (templates should default to private to avoid accidental npm publishing as well)
 > - the `package.json` is written to `.well-known` during development
->   and it's expected to be committed to source control,
->   giving visibility and requiring developers to opt into adding the file with git -
+>   and it's expected to be committed to source control, giving visibility
+>   and requiring developers to either opt into adding the file with git
+>   or opt out of generating it -
 >   the alternative of outputting it to the SvelteKit build may appear cleaner,
 >   but Gro's position is that this opinionated workflow is in everyone's best interest
