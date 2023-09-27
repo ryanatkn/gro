@@ -16,7 +16,7 @@ test('git_current_branch_name and git_local_branch_exists', async () => {
 });
 
 test('git_check_clean_workspace', async () => {
-	assert.ok(await git_check_clean_workspace());
+	assert.is(await git_check_clean_workspace(), null);
 });
 
 test('git_current_branch_first_commit_hash', async () => {
