@@ -3,7 +3,7 @@
   "description": "task runner and toolkit extending SvelteKit",
   "version": "0.88.0",
   "bin": {
-    "gro": "./dist/gro.js"
+    "gro": "dist/gro.js"
   },
   "license": "MIT",
   "homepage": "https://www.grogarden.org/",
