@@ -25,6 +25,7 @@ the `path_parts` are `['foo', 'foo/bar', 'foo/bar/baz.ts']`.
 export const SOURCE_DIRNAME = 'src';
 export const GRO_DIRNAME = '.gro';
 export const DIST_DIRNAME = 'dist';
+export const SERVER_DIST_PATH = 'dist_server'; // TODO should all of these be `_PATH` or should this be `DIRNAME`?
 export const LIB_DIRNAME = 'lib'; // TODO use Svelte config `files.lib`
 export const ROUTES_DIRNAME = 'routes'; // TODO use Svelte config `files.lib`
 export const GRO_DIST_DIRNAME = GRO_DIRNAME + '/dist';

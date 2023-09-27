@@ -10,7 +10,7 @@ import type {Plugin, PluginContext} from './plugin.js';
 import {
 	base_path_to_source_id,
 	GRO_DEV_DIRNAME,
-	GRO_DIST_DIRNAME,
+	SERVER_DIST_PATH,
 	LIB_DIRNAME,
 	paths,
 	type SourceId,
@@ -78,9 +78,8 @@ export interface Options {
 }
 
 export interface Outpaths {
-	// TODO BLOCK change the default
 	/**
-	 * @default `${dir}/.gro/dev/server`
+	 * @default '.gro/dev' or 'dist_server'
 	 */
 	outdir: string;
 	/**
@@ -101,7 +100,7 @@ export const plugin = ({
 	entry_points = [SERVER_SOURCE_ID],
 	dir = cwd(),
 	outpaths = (dev) => ({
-		outdir: join(dir, dev ? GRO_DEV_DIRNAME : GRO_DIST_DIRNAME),
+		outdir: join(dir, dev ? GRO_DEV_DIRNAME : SERVER_DIST_PATH),
 		outbase: paths.lib,
 		outname: 'server/server.js',
 	}),
