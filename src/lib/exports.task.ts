@@ -52,7 +52,7 @@ export const task: Task<Args> = {
 					? `updated package.json exports with ${exports_count} total export${plural(
 							exports_count,
 					  )}`
-					: 'no exports in package.json changed',
+					: 'no changes to exports in package.json',
 			);
 		}
 
@@ -88,7 +88,10 @@ export const task: Task<Args> = {
 				}
 			} else {
 				if (changed_well_known_package_json) {
+					log.info(`updating package_json_path`, package_json_path);
 					await writeFile(package_json_path, new_contents);
+				} else {
+					log.info(`no changes to package_json_path`, package_json_path);
 				}
 			}
 		}
