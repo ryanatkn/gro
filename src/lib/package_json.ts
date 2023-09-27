@@ -7,7 +7,7 @@ import {
 	gro_paths,
 	is_this_project_gro,
 	replace_extension,
-	DIST_DIRNAME,
+	SVELTEKIT_DIST_DIRNAME,
 	Url,
 	Email,
 } from './paths.js';
@@ -181,4 +181,4 @@ export const to_package_exports = (paths: string[]): PackageJsonExports => {
 	return PackageJsonExports.parse(exports);
 };
 
-const IMPORT_PREFIX = './' + DIST_DIRNAME + '/';
+const IMPORT_PREFIX = './' + SVELTEKIT_DIST_DIRNAME + '/';

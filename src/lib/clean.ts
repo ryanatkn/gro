@@ -1,4 +1,4 @@
-import {rm} from 'node:fs/promises';
+import {rm, readdir} from 'node:fs/promises';
 import type {RmOptions} from 'node:fs';
 
 import {
@@ -7,6 +7,7 @@ import {
 	SVELTEKIT_DEV_DIRNAME,
 	SVELTEKIT_BUILD_DIRNAME,
 	SVELTEKIT_VITE_CACHE_PATH,
+	GRO_DIST_PREFIX,
 } from './paths.js';
 
 export const clean_fs = async (
@@ -34,6 +35,12 @@ export const clean_fs = async (
 			promises.push(rm(paths.build_dev, rm_options));
 		} else if (build_dist) {
 			promises.push(rm(paths.build_dist, rm_options));
+		}
+	}
+	if (build || build_dist) {
+		const paths = (await readdir('.')).filter((p) => p.startsWith(GRO_DIST_PREFIX));
+		for (const path of paths) {
+			promises.push(rm(path, rm_options));
 		}
 	}
 	if (sveltekit) {
