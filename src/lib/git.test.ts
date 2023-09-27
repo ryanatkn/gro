@@ -11,6 +11,7 @@ import {
 
 test('git_current_branch_name and git_local_branch_exists', async () => {
 	const branch_name = await git_current_branch_name();
+	console.log(`branch_name`, branch_name);
 	assert.ok(branch_name);
 	assert.ok(await git_local_branch_exists(branch_name));
 });
@@ -19,12 +20,16 @@ test('git_check_clean_workspace', async () => {
 	assert.is(await git_check_clean_workspace(), null);
 });
 
-test('git_current_branch_first_commit_hash', async () => {
-	assert.ok(await git_current_branch_first_commit_hash());
+test('git_current_commit_hash', async () => {
+	const current_commit_hash = await git_current_commit_hash();
+	console.log(`current_commit_hash`, current_commit_hash);
+	assert.ok(current_commit_hash);
 });
 
-test('git_current_commit_hash', async () => {
-	assert.ok(await git_current_commit_hash());
+test('git_current_branch_first_commit_hash', async () => {
+	const first_commit_hash = await git_current_branch_first_commit_hash();
+	console.log(`first_commit_hash`, first_commit_hash);
+	assert.ok(first_commit_hash);
 });
 
 test.run();

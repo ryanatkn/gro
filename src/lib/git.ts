@@ -12,6 +12,16 @@ export const GitBranch = z.string();
 export type GitBranch = z.infer<Flavored<typeof GitBranch, 'GitBranch'>>;
 
 /**
+ * Returns the current git branch name or throws if something goes wrong.
+ */
+export const git_current_branch_name = async (): Promise<string> => {
+	const {stdout} = await spawn_out('git', ['rev-parse', '--abbrev-ref', 'HEAD']);
+	if (!stdout) throw Error('git_current_branch_name failed');
+	const branch_name = stdout.toString().trim();
+	return branch_name === 'HEAD' ? 'main' : branch_name; // TODO hack because CI is weirdly failing with otu
+};
+
+/**
  * @returns a boolean indicating if the remote git branch exists
  */
 export const git_remote_branch_exists = async (
@@ -187,6 +197,16 @@ export const git_reset_branch_to_first_commit = async (
 };
 
 /**
+ * Returns the branch's latest commit hash or throws if something goes wrong.
+ */
+export const git_current_commit_hash = async (branch?: string): Promise<string> => {
+	const final_branch = branch ?? (await git_current_branch_name());
+	const {stdout} = await spawn_out('git', ['show-ref', '-s', final_branch]);
+	if (!stdout) throw Error('git_current_commit_hash failed');
+	return stdout.toString().split('\n')[0].trim();
+};
+
+/**
  * Returns the hash of the current branch's first commit or throws if something goes wrong.
  */
 export const git_current_branch_first_commit_hash = async (): Promise<string> => {
@@ -198,24 +218,4 @@ export const git_current_branch_first_commit_hash = async (): Promise<string> =>
 	]);
 	if (!stdout) throw Error('git_current_branch_first_commit_hash failed');
 	return stdout.toString().trim();
-};
-
-/**
- * Returns the current git branch name or throws if something goes wrong.
- */
-export const git_current_branch_name = async (): Promise<string> => {
-	const {stdout} = await spawn_out('git', ['rev-parse', '--abbrev-ref', 'HEAD']);
-	if (!stdout) throw Error('git_current_branch_name failed');
-	const branch_name = stdout.toString().trim();
-	return branch_name === 'HEAD' ? 'main' : branch_name; // TODO hack because CI is weirdly failing with otu
-};
-
-/**
- * Returns the branch's latest commit hash or throws if something goes wrong.
- */
-export const git_current_commit_hash = async (branch?: string): Promise<string> => {
-	const final_branch = branch ?? (await git_current_branch_name());
-	const {stdout} = await spawn_out('git', ['show-ref', '-s', final_branch]);
-	if (!stdout) throw Error('git_current_commit_hash failed');
-	return stdout.toString().split('\n')[0].trim();
 };
