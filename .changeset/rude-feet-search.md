@@ -1,5 +1,5 @@
 ---
-'@grogarden/gro': patch
+'@grogarden/gro': minor
 ---
 
-fix git helper `git_current_branch_name` for CI
+fix git helpers for CI
