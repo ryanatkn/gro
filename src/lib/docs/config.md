@@ -206,5 +206,4 @@ Why publish this metadata to the web instead of relying on the git repo as the o
 >   and it's expected to be committed to source control,
 >   giving visibility and requiring developers to opt into adding the file with git -
 >   the alternative of outputting it to the SvelteKit build may appear cleaner,
->   but Gro's position is that hiding it is worse in this case
->   (maybe it should be configurable, but that complexity has costs too)
+>   but Gro's position is that forcing this workflow is in everyone's best interest
