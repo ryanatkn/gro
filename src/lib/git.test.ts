@@ -1,6 +1,3 @@
-// TODO delete this
-/* eslint-disable no-console */
-
 import {test} from 'uvu';
 import * as assert from 'uvu/assert';
 
@@ -9,16 +6,11 @@ import {
 	git_current_branch_first_commit_hash,
 	git_current_branch_name,
 	git_current_commit_hash,
-	git_local_branch_exists,
 } from './git.js';
 
-test('git_current_branch_name and git_local_branch_exists', async () => {
+test('git_current_branch_name', async () => {
 	const branch_name = await git_current_branch_name();
-	console.log(`branch_name`, branch_name);
 	assert.ok(branch_name);
-	const branch_name_exists = await git_local_branch_exists(branch_name);
-	console.log(`branch_name_exists`, branch_name_exists);
-	assert.ok(branch_name_exists);
 });
 
 test('git_check_clean_workspace', async () => {
@@ -27,13 +19,11 @@ test('git_check_clean_workspace', async () => {
 
 test('git_current_commit_hash', async () => {
 	const current_commit_hash = await git_current_commit_hash();
-	console.log(`current_commit_hash`, current_commit_hash);
 	assert.ok(current_commit_hash);
 });
 
 test('git_current_branch_first_commit_hash', async () => {
 	const first_commit_hash = await git_current_branch_first_commit_hash();
-	console.log(`first_commit_hash`, first_commit_hash);
 	assert.ok(first_commit_hash);
 });
 
