@@ -23,7 +23,6 @@ export const git_current_branch_name = async (): Promise<string> => {
 	const branch_name = stdout.toString().trim();
 	console.log(`branch_name`, branch_name);
 	return branch_name;
-	// return branch_name === 'HEAD' ? 'main' : branch_name; // TODO hack because CI is weirdly failing with otu
 };
 
 /**
@@ -57,11 +56,7 @@ export const git_local_branch_exists = async (
 	branch: GitBranch,
 	options?: SpawnOptions,
 ): Promise<boolean> => {
-	const result = await spawn(
-		'git',
-		['show-ref', '--quiet', 'refs/heads/' + (branch === 'HEAD' ? 'main' : branch)], // TODO hack
-		options,
-	);
+	const result = await spawn('git', ['show-ref', '--quiet', 'refs/heads/' + branch], options);
 	return result.ok;
 };
 
