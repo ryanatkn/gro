@@ -22,7 +22,8 @@ export const git_current_branch_name = async (): Promise<string> => {
 	if (!stdout) throw Error('git_current_branch_name failed');
 	const branch_name = stdout.toString().trim();
 	console.log(`branch_name`, branch_name);
-	return branch_name === 'HEAD' ? 'main' : branch_name; // TODO hack because CI is weirdly failing with otu
+	return branch_name;
+	// return branch_name === 'HEAD' ? 'main' : branch_name; // TODO hack because CI is weirdly failing with otu
 };
 
 /**
