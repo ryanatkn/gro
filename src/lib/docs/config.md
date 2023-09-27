@@ -68,7 +68,7 @@ See also [Gro's own internal config](/gro.config.ts).
 
 ## `plugins`
 
-The `plugins` property is a function that returns any number of `Plugin` instances.
+The `plugins` property is a function that returns an array of `Plugin` instances.
 Read more about plugins and the `Plugin` in
 [plugin.md](plugin.md), [dev.md](dev.md#plugin), and [build.md](build.md#plugin).
 
