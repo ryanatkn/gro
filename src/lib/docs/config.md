@@ -120,7 +120,7 @@ const config: GroConfig = {
 	// disable writing `exports` to `package.json` and enable `.well-known/package.json`
 	package_json: (pkg, when) => (when === 'updating_exports' ? null : pkg),
 
-	// change anything you want and return the final config
+	// mutate anything and return the final config
 	package_json: (pkg, when) => {
 		// filter `exports`
 		pkg.exports = Object.fromEntries(Object.entries(pkg.exports).filter(/* ... */));
