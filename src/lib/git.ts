@@ -206,7 +206,8 @@ export const git_current_branch_first_commit_hash = async (): Promise<string> =>
 export const git_current_branch_name = async (): Promise<string> => {
 	const {stdout} = await spawn_out('git', ['rev-parse', '--abbrev-ref', 'HEAD']);
 	if (!stdout) throw Error('git_current_branch_name failed');
-	return stdout.toString().trim();
+	const branch_name = stdout.toString().trim();
+	return branch_name === 'HEAD' ? 'main' : branch_name; // TODO hack because CI is weirdly failing with otu
 };
 
 /**
