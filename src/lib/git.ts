@@ -1,3 +1,6 @@
+// TODO delete this
+/* eslint-disable no-console */
+
 import {spawn, spawn_out} from '@grogarden/util/process.js';
 import type {Flavored} from '@grogarden/util/types.js';
 import type {SpawnOptions} from 'child_process';
@@ -18,6 +21,7 @@ export const git_current_branch_name = async (): Promise<string> => {
 	const {stdout} = await spawn_out('git', ['rev-parse', '--abbrev-ref', 'HEAD']);
 	if (!stdout) throw Error('git_current_branch_name failed');
 	const branch_name = stdout.toString().trim();
+	console.log(`branch_name`, branch_name);
 	return branch_name === 'HEAD' ? 'main' : branch_name; // TODO hack because CI is weirdly failing with otu
 };
 
