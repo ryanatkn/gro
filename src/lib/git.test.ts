@@ -1,3 +1,6 @@
+// TODO delete this
+/* eslint-disable no-console */
+
 import {test} from 'uvu';
 import * as assert from 'uvu/assert';
 
