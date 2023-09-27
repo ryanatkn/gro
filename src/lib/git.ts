@@ -205,6 +205,7 @@ export const git_reset_branch_to_first_commit = async (
  */
 export const git_current_commit_hash = async (branch?: string): Promise<string> => {
 	const final_branch = branch ?? (await git_current_branch_name());
+	console.log(`final_branch`, final_branch);
 	const {stdout} = await spawn_out('git', ['show-ref', '-s', final_branch]);
 	if (!stdout) throw Error('git_current_commit_hash failed');
 	return stdout.toString().split('\n')[0].trim();
