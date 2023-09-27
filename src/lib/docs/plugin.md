@@ -4,7 +4,7 @@ During the [`gro dev`](dev.md) and [`gro build`](build.md) tasks,
 Gro uses `Plugin`s to support custom usecases outside of the normal build pipeline.
 
 In this early implementation of plugins in Gro,
-plugins run serially, in the order they are returned from `plugin` in the `gro.config.ts`.
+plugins run serially, in the order they are returned from `plugins` in the `gro.config.ts`.
 Each step of Gro's build processes - `gro dev` for development and `gro build` for production -
 runs a method of each plugin, batched together as `setup -> adapt -> teardown`,
 with some behavioral inconsistencies:
