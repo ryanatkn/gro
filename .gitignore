@@ -6,8 +6,8 @@
 /build
 /dist
 
-/dist_*
 /.gro
+/dist_*
 
 *.pem
 /.env*
