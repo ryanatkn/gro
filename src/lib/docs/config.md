@@ -88,8 +88,8 @@ The Gro config option `package_json` hooks into Gro's `package.json` automations
 The `gro exports` task, which is called during the dev and build tasks,
 performs two separate steps that both call `package_json` to determine their behavior:
 
-- when `when === 'updating_exports'`, Gro is updating the repo's `package.json` `"exports"` property
-- when `when === 'updating_well_known'`, Gro is outputting a copy of `package.json`
+- with `when === 'updating_exports'`, Gro is updating the repo's `package.json` `"exports"` property
+- with `when === 'updating_well_known'`, Gro is outputting a copy of `package.json`
   to `.well-known/package.json` in the repo's static SvelteKit directory
 
 Similar to other tasks like `gro gen` and `gro format`,
