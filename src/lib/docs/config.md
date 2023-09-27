@@ -88,21 +88,23 @@ The Gro config option `package_json` hooks into Gro's `package.json` automations
 The `gro exports` task, which is called during the dev and build tasks,
 performs two separate steps that both call `package_json` to determine their behavior:
 
-- when `when === 'updating_exports'`, Gro is updating the repo's `package.json` `"exports"` property
-- when `when === 'updating_well_known'`, Gro is outputting a copy of `package.json`
+- with `when === 'updating_exports'`, Gro is updating the repo's `package.json` `"exports"` property
+- with `when === 'updating_well_known'`, Gro is outputting a copy of `package.json`
   to `.well-known/package.json` in the repo's static SvelteKit directory
 
-Similar to other tasks like gen and format, the exports task supports `gro exports --check`,
+Similar to other tasks like `gro gen` and `gro format`,
+the `gro exports` task supports `gro exports --check`,
 which is called by `gro check`, to ensure the repo and Gro's automations are in sync.
 
 ### using `package_json`
 
 ```ts
+// gro.config.ts
 const config: GroConfig = {
 	// ...other config
 
 	// the default behavior:
-	// outputs all of `$lib/` as `exports` and the full `.well-known/package.json`,
+	// outputs all of `$lib/` as `pkg.exports` and the full `.well-known/package.json`,
 	// unless `private` is true, in which case both are disabled
 	package_json: (pkg) => (pkg?.private ? null : pkg),
 
@@ -118,14 +120,21 @@ const config: GroConfig = {
 	// disable writing `exports` to `package.json` and enable `.well-known/package.json`
 	package_json: (pkg, when) => (when === 'updating_exports' ? null : pkg),
 
-	// change anything you want and return the final config
+	// mutate anything and return the final config
 	package_json: (pkg, when) => {
+		// set `exports`
+		pkg.exports = {
+			'./Example.svelte': {
+				svelte: './dist/Example.svelte',
+				types: './dist/Example.svelte.d.ts',
+			},
+		};
 		// filter `exports`
 		pkg.exports = Object.fromEntries(Object.entries(pkg.exports).filter(/* ... */));
 		// remove properties
 		if (when === 'updating_well_known') pkg.prettier = undefined;
 		// add properties
-		if (when === 'updating_well_known') pkg.generated_at = Date.now();
+		if (when === 'updating_well_known') pkg.generated_at = new Date().toISOString();
 		return pkg;
 	},
 };
@@ -141,15 +150,15 @@ export type MapPackageJsonWhen = 'updating_exports' | 'updating_well_known';
 
 Gro automatically updates the `"exports"` property of your root `package.json`
 during the dev and build tasks unless `package.json` has `"private": true`.
-The motivation is to streamline package publishing by supplementing `@sveltejs/package`.
+The motivation is to streamline package publishing by supplementing
+[`@sveltejs/package`](https://kit.svelte.dev/docs/packaging).
 
 The `when` param will be `'updating_exports'` during this step.
-By default it includes everything from `$lib/`,
+By default `pkg.exports` includes everything from `$lib/`,
 and you can provide your own `package_json` hook to
 mutate the `pkg`, return new data, or return `null` to be a no-op.
 
-Typical usage would modify `pkg.exports` during this step to
-remove modules that aren't public API.
+Typical usage would modify `pkg.exports` during this step to define the public API.
 
 ### when 'updating_well_known'
 
@@ -166,6 +175,8 @@ mutate the `pkg`, return new data, or return `null` to be a no-op.
 > Writing to `.well-known/package.json` is unstandardized behavior that
 > extends [Well-known URIs](https://wikipedia.org/wiki/Well-known_URIs) for Node packages
 > to provide conventional metadata for deployed websites.
+> [Mastodon](<https://en.wikipedia.org/wiki/Mastodon_(social_network)>) uses
+> [WebFinger](https://en.wikipedia.org/wiki/WebFinger) which uses `.well-known` for discovery.
 > One difference is that SvelteKit outputs static files relative to the configured `base` path,
 > so the `.well-known` directory may not be in the root `/`.
 > This is useful because it enables websites to provide metadata even when hosted in a namespaced
@@ -192,8 +203,8 @@ Why publish this metadata to the web instead of relying on the git repo as the o
 > - all `package.json` automations are disabled when `"private": true`
 >   (templates should default to private to avoid accidental npm publishing as well)
 > - the `package.json` is written to `.well-known` during development
->   and it's expected to be committed to source control,
->   giving visibility and requiring developers to opt into adding the file with git -
+>   and it's expected to be committed to source control, giving visibility
+>   and requiring developers to either opt into adding the file with git
+>   or opt out of generating it -
 >   the alternative of outputting it to the SvelteKit build may appear cleaner,
->   but Gro's position is that hiding it is worse in this case
->   (maybe it should be configurable, but that complexity has costs too)
+>   but Gro's position is that this opinionated workflow is in everyone's best interest
