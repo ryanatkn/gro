@@ -199,10 +199,10 @@ export const git_reset_branch_to_first_commit = async (
 /**
  * Returns the branch's latest commit hash or throws if something goes wrong.
  */
-export const git_current_commit_hash = async (branch?: string): Promise<string> => {
+export const git_current_commit_hash = async (branch?: string): Promise<string | null> => {
 	const final_branch = branch ?? (await git_current_branch_name());
 	const {stdout} = await spawn_out('git', ['show-ref', '-s', final_branch]);
-	if (!stdout) throw Error('git_current_commit_hash failed');
+	if (!stdout) return null; // TODO hack for CI
 	return stdout.toString().split('\n')[0].trim();
 };
 
