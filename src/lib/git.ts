@@ -57,6 +57,7 @@ export const git_local_branch_exists = async (
 };
 
 /**
+ * TODO make this return an enum and separate the text into a different function
  * @returns an error message if the git workspace has any unstaged or uncommitted changes, or `null` if it's clean
  */
 export const git_check_clean_workspace = async (options?: SpawnOptions): Promise<string | null> => {
@@ -67,6 +68,10 @@ export const git_check_clean_workspace = async (options?: SpawnOptions): Promise
 	const staged_result = await spawn('git', ['diff', '--exit-code', '--cached', '--quiet'], options);
 	if (!staged_result.ok) {
 		return 'git has staged but uncommitted changes';
+	}
+	const status_result = await spawn_out('git', ['status', '--porcelain'], options);
+	if (status_result.stdout?.length) {
+		return 'git has untracked files';
 	}
 	return null;
 };
