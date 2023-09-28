@@ -28,11 +28,9 @@ export const GRO_DIST_PREFIX = 'dist_'; //
 export const SERVER_DIST_PATH = 'dist_server'; // TODO should all of these be `_PATH` or should this be `DIRNAME`?
 export const LIB_DIRNAME = 'lib'; // TODO use Svelte config `files.lib`
 export const ROUTES_DIRNAME = 'routes'; // TODO use Svelte config `files.lib`
-export const GRO_DIST_DIRNAME = GRO_DIRNAME + '/dist';
 export const GRO_DEV_DIRNAME = GRO_DIRNAME + '/dev';
 export const SOURCE_DIR = SOURCE_DIRNAME + '/';
 export const GRO_DIR = GRO_DIRNAME + '/';
-export const GRO_DIST_DIR = GRO_DIST_DIRNAME + '/';
 export const GRO_DEV_DIR = GRO_DEV_DIRNAME + '/';
 export const LIB_PATH = SOURCE_DIR + LIB_DIRNAME;
 export const LIB_DIR = LIB_PATH + '/';
@@ -56,7 +54,6 @@ export interface Paths {
 	source: string;
 	lib: string;
 	build: string;
-	build_dist: string;
 	build_dev: string;
 	config: string;
 }
@@ -82,7 +79,6 @@ export const create_paths = (root_dir: string): Paths => {
 		source: root + SOURCE_DIR,
 		lib: root + LIB_DIR,
 		build: root + GRO_DIR,
-		build_dist: root + GRO_DIST_DIR,
 		build_dev: root + GRO_DEV_DIR,
 		config: root + CONFIG_PATH,
 	};
