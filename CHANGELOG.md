@@ -1,5 +1,11 @@
 # @grogarden/gro
 
+## 0.90.1
+
+### Patch Changes
+
+- 6b40acf: fix `gro exports` when there is no lib directory
+
 ## 0.90.0
 
 ### Minor Changes
