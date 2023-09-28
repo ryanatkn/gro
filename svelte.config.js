@@ -1,16 +1,15 @@
 // @see https://github.com/lukeed/svelte-preprocess-esbuild/issues/8
 //@ts-expect-error
 import {typescript} from 'svelte-preprocess-esbuild';
-import staticAdapter from '@sveltejs/adapter-static';
+import adapter from '@sveltejs/adapter-static';
 
 /** @type {import('@sveltejs/kit').Config} */
 export default {
 	preprocess: typescript(),
-	compilerOptions: {
-		immutable: true,
-	},
+	compilerOptions: {immutable: true},
+	vitePlugin: {inspector: true}, // docs: https://github.com/sveltejs/vite-plugin-svelte/blob/main/docs/inspector.md
 	kit: {
-		adapter: staticAdapter(),
+		adapter: adapter(),
 		files: {assets: 'src/static'},
 		alias: {$routes: 'src/routes', $fixtures: 'src/fixtures'},
 	},

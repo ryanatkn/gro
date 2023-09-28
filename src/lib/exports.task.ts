@@ -11,6 +11,7 @@ import {
 	to_package_exports,
 	update_package_json,
 	type MapPackageJsonWhen,
+	normalize_package_json,
 } from './package_json.js';
 import {load_sveltekit_config} from './sveltekit_config.js';
 import {exists} from './exists.js';
@@ -35,9 +36,10 @@ export const task: Task<Args> = {
 		const exported_paths = Array.from(exported_files.keys());
 		const exports = to_package_exports(exported_paths);
 		const exports_count = Object.keys(exports).length;
-		const changed_exports = await update_package_json((pkg) => {
+		const changed_exports = await update_package_json(async (pkg) => {
 			pkg.exports = exports;
-			return config.package_json(pkg, 'updating_exports');
+			const updated = await config.package_json(pkg, 'updating_exports');
+			return updated ? normalize_package_json(updated) : updated;
 		}, !check);
 
 		if (check) {
@@ -110,4 +112,4 @@ const create_exports_filter = (include: string, exclude: string) => {
 const failure_message = (when: MapPackageJsonWhen): string =>
 	'Failed exports check.' +
 	` The package.json has unexpectedly changed for \`${when}\`.` +
-	' Run `gro exports` manually to inspect the changes, and check the `package_json` config option.';
+	' Run `gro sync` or `gro exports` manually to inspect the changes, and check the `package_json` config option.';
