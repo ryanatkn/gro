@@ -30,12 +30,8 @@ export const clean_fs = async (
 
 	if (build) {
 		promises.push(rm(paths.build, rm_options));
-	} else {
-		if (build_dev) {
-			promises.push(rm(paths.build_dev, rm_options));
-		} else if (build_dist) {
-			promises.push(rm(paths.build_dist, rm_options));
-		}
+	} else if (build_dev) {
+		promises.push(rm(paths.build_dev, rm_options));
 	}
 	if (build || build_dist) {
 		const paths = (await readdir('.')).filter((p) => p.startsWith(GRO_DIST_PREFIX));
