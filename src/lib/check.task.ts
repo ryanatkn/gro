@@ -17,7 +17,7 @@ export const Args = z
 		'no-exports': z.boolean({description: 'opt out of exports check'}).default(false),
 		lint: z.boolean({description: 'dual of no-lint'}).default(true),
 		'no-lint': z.boolean({description: 'opt out of linting'}).default(false),
-		workspace: z.boolean({description: 'dual of no-lint'}).default(false),
+		workspace: z.boolean({description: 'call git_check_clean_workspace'}).default(false),
 	})
 	.strict();
 export type Args = z.infer<typeof Args>;
