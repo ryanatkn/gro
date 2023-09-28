@@ -1,5 +1,11 @@
 # @grogarden/gro
 
+## 0.90.2
+
+### Patch Changes
+
+- 305cdb2: add workspace flag to `gro check` that defaults to false
+
 ## 0.90.1
 
 ### Patch Changes
