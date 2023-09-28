@@ -28,32 +28,32 @@ export const task: Task<Args> = {
 	run: async ({args, invoke_task}) => {
 		const {typecheck, test, gen, format, exports, lint, workspace} = args;
 
-		// if (typecheck) {
-		// 	await invoke_task('typecheck');
-		// }
+		if (typecheck) {
+			await invoke_task('typecheck');
+		}
 
-		// if (test) {
-		// 	await invoke_task('test');
-		// }
+		if (test) {
+			await invoke_task('test');
+		}
 
-		// if (gen) {
-		// 	await invoke_task('gen', {check: true});
-		// }
+		if (gen) {
+			await invoke_task('gen', {check: true});
+		}
 
-		// if (format) {
-		// 	await invoke_task('format', {check: true});
-		// }
+		if (format) {
+			await invoke_task('format', {check: true});
+		}
 
-		// if (exports) {
-		// 	await invoke_task('exports', {check: true});
-		// }
+		if (exports) {
+			await invoke_task('exports', {check: true});
+		}
 
-		// // Run the linter last to surface every other kind of problem first.
-		// // It's not the ideal order when the linter would catch errors that cause failing tests,
-		// // but it's better for most usage.
-		// if (lint) {
-		// 	await invoke_task('lint');
-		// }
+		// Run the linter last to surface every other kind of problem first.
+		// It's not the ideal order when the linter would catch errors that cause failing tests,
+		// but it's better for most usage.
+		if (lint) {
+			await invoke_task('lint');
+		}
 
 		console.log(`workspace`, workspace);
 		if (workspace) {
