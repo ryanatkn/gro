@@ -148,6 +148,19 @@ export const update_package_json = async (
 	return true;
 };
 
+// TODO do this with zod?
+/**
+ * Mutates `pkg` to normalize it for convenient usage.
+ * For example, users don't have to worry about empty `exports` objects,
+ * which fail schema validation.
+ */
+export const normalize_package_json = (pkg: PackageJson): PackageJson => {
+	if (pkg.exports && Object.keys(pkg.exports).length === 0) {
+		pkg.exports = undefined;
+	}
+	return pkg;
+};
+
 export const to_package_exports = (paths: string[]): PackageJsonExports => {
 	const sorted = paths
 		.slice()

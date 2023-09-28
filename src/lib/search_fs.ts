@@ -5,6 +5,7 @@ import {strip_end, strip_start} from '@grogarden/util/string.js';
 import {EMPTY_OBJECT} from '@grogarden/util/object.js';
 
 import type {PathStats, PathFilter} from './path.js';
+import {exists} from './exists.js';
 
 export interface SearchFsOptions {
 	filter?: PathFilter;
@@ -21,6 +22,7 @@ export const search_fs = async (
 ): Promise<Map<string, PathStats>> => {
 	const {filter, sort = compare_simple_map_entries, files_only = true} = options;
 	const final_dir = strip_end(dir, '/');
+	if (!(await exists(final_dir))) return new Map();
 	const globbed = await glob(final_dir + '/**/*', {absolute: true, filesOnly: files_only});
 	const paths: Map<string, PathStats> = new Map();
 	await Promise.all(
