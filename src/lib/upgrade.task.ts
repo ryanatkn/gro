@@ -15,24 +15,26 @@ export type Args = z.infer<typeof Args>;
 export const task: Task<Args> = {
 	summary: 'upgrade deps',
 	Args,
-	run: async ({args, log}): Promise<void> => {
+	run: async ({args, log, invoke_task}): Promise<void> => {
 		const {_, dry} = args;
 
 		const pkg = await load_package_json();
 
-		const deps = toDeps(pkg).filter((d) => !_.includes(d.key));
+		const deps = to_deps(pkg).filter((d) => !_.includes(d.key));
 
-		const upgradeItems = toUpgradeItems(deps);
+		const upgrade_items = to_upgrade_items(deps);
 
 		if (dry) {
 			log.info(`deps`, deps);
-			log.info(`upgradeItems`, upgradeItems);
+			log.info(`upgrade_items`, upgrade_items);
 			return;
 		}
 
-		log.info(`upgrading:`, upgradeItems.join(' '));
+		log.info(`upgrading:`, upgrade_items.join(' '));
 
-		await spawn('npm', ['i'].concat(upgradeItems));
+		await spawn('npm', ['i'].concat(upgrade_items));
+
+		await invoke_task('sync');
 	},
 };
 
@@ -41,15 +43,15 @@ interface Dep {
 	value: string;
 }
 
-const toDeps = (pkg: PackageJson): Dep[] => {
-	const prodDeps: Dep[] = pkg.dependencies
+const to_deps = (pkg: PackageJson): Dep[] => {
+	const prod_deps: Dep[] = pkg.dependencies
 		? Object.entries(pkg.dependencies).map(([key, value]) => ({key, value}))
 		: [];
-	const devDeps: Dep[] = pkg.devDependencies
+	const dev_deps: Dep[] = pkg.devDependencies
 		? Object.entries(pkg.devDependencies).map(([key, value]) => ({key, value}))
 		: [];
-	return prodDeps.concat(devDeps);
+	return prod_deps.concat(dev_deps);
 };
 
-const toUpgradeItems = (deps: Dep[]): string[] =>
+const to_upgrade_items = (deps: Dep[]): string[] =>
 	deps.map((dep) => dep.key + (dep.value.includes('-next.') ? '@next' : '@latest'));
