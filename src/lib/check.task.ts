@@ -55,7 +55,6 @@ export const task: Task<Args> = {
 			await invoke_task('lint');
 		}
 
-		console.log(`workspace`, workspace);
 		if (workspace) {
 			const error_message = await git_check_clean_workspace();
 			if (error_message) {
