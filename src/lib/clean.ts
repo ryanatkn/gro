@@ -14,7 +14,6 @@ export const clean_fs = async (
 	{
 		build = false,
 		build_dev = false,
-		build_dist = false,
 		sveltekit = false,
 		nodemodules = false,
 	}: {
