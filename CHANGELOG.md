@@ -1,5 +1,11 @@
 # @grogarden/gro
 
+## 0.91.0
+
+### Minor Changes
+
+- 18cbcb5: upgrade to @grogarden/util@0.15 from 0.14
+
 ## 0.90.3
 
 ### Patch Changes
