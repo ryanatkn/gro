@@ -1,5 +1,11 @@
 # @grogarden/gro
 
+## 0.90.3
+
+### Patch Changes
+
+- f0ba85c: invoke `gro sync` at the end of `gro upgrade`
+
 ## 0.90.2
 
 ### Patch Changes
