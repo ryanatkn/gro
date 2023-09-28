@@ -70,7 +70,9 @@ export const git_check_clean_workspace = async (options?: SpawnOptions): Promise
 		return 'git has staged but uncommitted changes';
 	}
 	const status_result = await spawn_out('git', ['status', '--porcelain'], options);
-	console.log(`status_result.stdout`, status_result.stdout, status_result.stdout?.length);
+	if (status_result.stdout?.length) {
+		return 'git has untracked files';
+	}
 	return null;
 };
 
