@@ -1,8 +1,8 @@
 import {z} from 'zod';
 
-import type {Task} from './task.js';
+import {TaskError, type Task} from './task.js';
+import {git_check_clean_workspace} from './git.js';
 
-// TODO BLOCK add --workspace, git_check_clean_workspace, default to false
 export const Args = z
 	.object({
 		typecheck: z.boolean({description: 'dual of no-typecheck'}).default(true),
@@ -17,6 +17,7 @@ export const Args = z
 		'no-exports': z.boolean({description: 'opt out of exports check'}).default(false),
 		lint: z.boolean({description: 'dual of no-lint'}).default(true),
 		'no-lint': z.boolean({description: 'opt out of linting'}).default(false),
+		workspace: z.boolean({description: 'dual of no-lint'}).default(false),
 	})
 	.strict();
 export type Args = z.infer<typeof Args>;
@@ -25,7 +26,7 @@ export const task: Task<Args> = {
 	summary: 'check that everything is ready to commit',
 	Args,
 	run: async ({args, invoke_task}) => {
-		const {typecheck, test, gen, format, exports, lint} = args;
+		const {typecheck, test, gen, format, exports, lint, workspace} = args;
 
 		if (typecheck) {
 			await invoke_task('typecheck');
@@ -52,6 +53,13 @@ export const task: Task<Args> = {
 		// but it's better for most usage.
 		if (lint) {
 			await invoke_task('lint');
+		}
+
+		if (workspace) {
+			const error_message = await git_check_clean_workspace();
+			if (error_message) {
+				throw new TaskError('failed check for git_check_clean_workspace: ' + error_message);
+			}
 		}
 	},
 };

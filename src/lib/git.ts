@@ -57,6 +57,7 @@ export const git_local_branch_exists = async (
 };
 
 /**
+ * TODO make this return an enum and separate the text into a different function
  * @returns an error message if the git workspace has any unstaged or uncommitted changes, or `null` if it's clean
  */
 export const git_check_clean_workspace = async (options?: SpawnOptions): Promise<string | null> => {
