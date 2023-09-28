@@ -110,4 +110,4 @@ const create_exports_filter = (include: string, exclude: string) => {
 const failure_message = (when: MapPackageJsonWhen): string =>
 	'Failed exports check.' +
 	` The package.json has unexpectedly changed for \`${when}\`.` +
-	' Run `gro exports` manually to inspect the changes, and check the `package_json` config option.';
+	' Run `gro sync` or `gro exports` manually to inspect the changes, and check the `package_json` config option.';
