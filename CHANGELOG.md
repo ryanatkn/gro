@@ -1,5 +1,11 @@
 # @grogarden/gro
 
+## 0.92.0
+
+### Minor Changes
+
+- a088e73: remove `.gro/dist` from the paths and clean task
+
 ## 0.91.0
 
 ### Minor Changes
