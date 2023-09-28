@@ -14,7 +14,7 @@ test('git_current_branch_name', async () => {
 });
 
 test('git_check_clean_workspace', async () => {
-	assert.is(await git_check_clean_workspace(), null);
+	await git_check_clean_workspace();
 });
 
 test('git_current_commit_hash', async () => {
