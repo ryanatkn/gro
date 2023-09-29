@@ -1,5 +1,11 @@
 # @grogarden/gro
 
+## 0.92.2
+
+### Patch Changes
+
+- 019d70b: sync on `changeset`
+
 ## 0.92.1
 
 ### Patch Changes
