@@ -72,9 +72,10 @@ export const task: Task<Args> = {
 
 			if (install) {
 				await spawn('npm', ['i', '-D', changelog]);
-				await invoke_task('sync');
 			}
 		}
+
+		await invoke_task('sync'); // after the `npm i` above, and in all cases
 
 		await spawn_cli('changeset', changeset_args);
 
