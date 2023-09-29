@@ -1,5 +1,11 @@
 # @grogarden/gro
 
+## 0.92.1
+
+### Patch Changes
+
+- 11e822e: sync on `check` unless `--workspace`
+
 ## 0.92.0
 
 ### Minor Changes
