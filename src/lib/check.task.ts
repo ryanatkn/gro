@@ -28,6 +28,11 @@ export const task: Task<Args> = {
 	run: async ({args, invoke_task}) => {
 		const {typecheck, test, gen, format, exports, lint, workspace} = args;
 
+		const sync = !workspace; // if checking the workspace, don't sync! would lead to misleading errors
+		if (sync) {
+			await invoke_task('sync');
+		}
+
 		if (typecheck) {
 			await invoke_task('typecheck');
 		}
