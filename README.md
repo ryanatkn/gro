@@ -170,6 +170,8 @@ gro format --check # ensure everything is formatted
 gro lint # eslint
 ```
 
+For a usage example see [the `check.yml` CI config](.github/workflows/check.yml).
+
 Formatting with [`prettier`](https://github.com/prettier/prettier):
 
 ```bash
