@@ -28,6 +28,8 @@ export const Args = z
 	.strict();
 export type Args = z.infer<typeof Args>;
 
+// TODO this is no longer a good name, either rename or factor out the .well-known stuff
+// maybe `gro package`?
 export const task: Task<Args> = {
 	summary: 'write the "exports" property of package.json and copy the file to .well-known',
 	Args,
