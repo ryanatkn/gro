@@ -1,5 +1,11 @@
 # @grogarden/gro
 
+## 0.92.5
+
+### Patch Changes
+
+- a8cec89: loosen package_json bugs type to accept strings
+
 ## 0.92.4
 
 ### Patch Changes

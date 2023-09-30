@@ -74,7 +74,9 @@ export const PackageJson = z.intersection(
 			repository: z.union([z.string(), Url, PackageJsonRepository]).optional(),
 			author: z.union([z.string(), PackageJsonAuthor.optional()]),
 			contributors: z.array(z.union([z.string(), PackageJsonAuthor])).optional(),
-			bugs: z.object({url: Url.optional(), email: Email.optional()}).passthrough().optional(),
+			bugs: z
+				.union([z.string(), z.object({url: Url.optional(), email: Email.optional()}).passthrough()])
+				.optional(),
 			funding: z
 				.union([Url, PackageJsonFunding, z.array(z.union([Url, PackageJsonFunding]))])
 				.optional(),
