@@ -84,6 +84,9 @@ export const print_task_help = (log: Logger, meta: TaskModuleMeta): void => {
 				property.schema.description || '(no description available)',
 			);
 		}
+		if (!properties.length) {
+			printed.push('\n' + gray('this task has no args'));
+		}
 	}
 	log.info(...printed, '\n');
 };
