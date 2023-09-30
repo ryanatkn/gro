@@ -1,5 +1,11 @@
 # @grogarden/gro
 
+## 0.92.4
+
+### Patch Changes
+
+- a088563: add release task
+
 ## 0.92.3
 
 ### Patch Changes
