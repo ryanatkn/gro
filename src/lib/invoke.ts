@@ -3,6 +3,7 @@ import {sveltekit_sync} from './sveltekit_sync.js';
 
 import {invoke_task} from './invoke_task.js';
 import {to_task_args} from './args.js';
+import {load_config} from './config.js';
 
 /*
 
@@ -24,4 +25,4 @@ attach_process_error_handlers((err) =>
 await sveltekit_sync();
 
 const {task_name, args} = to_task_args();
-await invoke_task(task_name, args);
+await invoke_task(task_name, args, await load_config());
