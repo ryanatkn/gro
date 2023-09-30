@@ -1,4 +1,5 @@
 import {z} from 'zod';
+import {spawn} from '@grogarden/util/process.js';
 
 import {TaskError, type Task} from './task.js';
 import {git_check_clean_workspace} from './git.js';
@@ -63,6 +64,7 @@ export const task: Task<Args> = {
 		if (workspace) {
 			const error_message = await git_check_clean_workspace();
 			if (error_message) {
+				await spawn('git', ['status']);
 				throw new TaskError('failed check for git_check_clean_workspace: ' + error_message);
 			}
 		}
