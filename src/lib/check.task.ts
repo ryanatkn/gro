@@ -1,5 +1,6 @@
 import {z} from 'zod';
 import {spawn} from '@grogarden/util/process.js';
+import {red} from 'kleur/colors';
 
 import {TaskError, type Task} from './task.js';
 import {git_check_clean_workspace} from './git.js';
@@ -26,7 +27,7 @@ export type Args = z.infer<typeof Args>;
 export const task: Task<Args> = {
 	summary: 'check that everything is ready to commit',
 	Args,
-	run: async ({args, invoke_task}) => {
+	run: async ({args, invoke_task, log}) => {
 		const {typecheck, test, gen, format, exports, lint, workspace} = args;
 
 		const sync = !workspace; // if checking the workspace, don't sync! would lead to misleading errors
@@ -64,6 +65,7 @@ export const task: Task<Args> = {
 		if (workspace) {
 			const error_message = await git_check_clean_workspace();
 			if (error_message) {
+				log.error(red('git status'));
 				await spawn('git', ['status']);
 				throw new TaskError('failed check for git_check_clean_workspace: ' + error_message);
 			}
