@@ -1,5 +1,11 @@
 # @grogarden/gro
 
+## 0.92.3
+
+### Patch Changes
+
+- da4b954: run git status on workspace check failure
+
 ## 0.92.2
 
 ### Patch Changes
