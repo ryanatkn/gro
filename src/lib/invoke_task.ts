@@ -21,7 +21,7 @@ import {find_task_modules, load_task_module} from './task_module.js';
 import {load_gro_package_json} from './package_json.js';
 import {log_available_tasks, log_error_reasons} from './print_task.js';
 import {search_fs} from './search_fs.js';
-import {load_config, type GroConfig} from './config.js';
+import type {GroConfig} from './config.js';
 
 /**
  * Invokes Gro tasks by name using the filesystem as the source.
@@ -43,16 +43,13 @@ import {load_config, type GroConfig} from './config.js';
 export const invoke_task = async (
 	task_name: string,
 	args: Args,
-	maybe_config?: GroConfig,
+	config: GroConfig,
 	timings = new Timings(),
 ): Promise<void> => {
 	const log = new SystemLogger(print_log_label(task_name || 'gro'));
 	log.info('invoking', task_name ? cyan(task_name) : 'gro');
 
 	const total_timing = create_stopwatch();
-
-	// Always load the config unless it's a param, so users can rely on it as an init hook.
-	const config = maybe_config || (await load_config());
 
 	// Check if the caller just wants to see the version.
 	if (!task_name && (args.version || args.v)) {
