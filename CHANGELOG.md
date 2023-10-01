@@ -1,5 +1,11 @@
 # @grogarden/gro
 
+## 0.93.1
+
+### Patch Changes
+
+- 3bd77ee: fix pull on deploy
+
 ## 0.93.0
 
 ### Minor Changes
