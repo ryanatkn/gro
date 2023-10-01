@@ -1,5 +1,15 @@
 # @grogarden/gro
 
+## 0.93.0
+
+### Minor Changes
+
+- 3a3c916: change `invoke_task` to require a config param
+
+### Patch Changes
+
+- 54f49ba: `git pull origin target` on deploy
+
 ## 0.92.5
 
 ### Patch Changes
