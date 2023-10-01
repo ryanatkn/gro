@@ -22,6 +22,7 @@ import {
 	git_push,
 	git_push_to_create,
 	git_reset_branch_to_first_commit,
+	git_pull,
 } from './git.js';
 
 // docs at ./docs/deploy.md
@@ -112,6 +113,7 @@ export const task: Task<Args> = {
 		if (remote_target_exists) {
 			// remote target branch already exists, so sync up
 			await git_fetch(origin, target); // ensure the local branch is up to date
+			await git_pull(origin, target); // probably not needed
 			await git_checkout(target); // ensure tracking
 			// TODO what if push fails because it would need `--force`?
 			await git_push(origin, target); // ensure the remote branch is up to date
