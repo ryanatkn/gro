@@ -48,7 +48,7 @@ It includes:
     to support SvelteKit, auto-restarting Node servers, and other external build processes
     - see the [Gro config docs](/src/lib/docs/config.md) and
       [the default config](https://github.com/grogarden/gro/blob/main/src/lib/gro.config.default.ts)
-    - see [`@feltjs/felt-template`](https://github.com/feltjs/felt-template)
+    - see [`fuz_template`](https://github.com/fuz-dev/fuz_template)
       for a simple starter project example, and
       [`@feltjs/felt`](https://github.com/feltjs/felt) for a more complex example with custom tasks
 - [testing](/src/lib/docs/test.md) with [`uvu`](https://github.com/lukeed/uvu)
