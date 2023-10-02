@@ -79,10 +79,11 @@ It includes:
 
 > depends on node >=20.7
 
-Normally you'll want to install Gro as a dev dependency:
+Normally you'll want to install [@grogarden/gro](https://www.npmjs.com/package/@grogarden/gro)
+as a dev dependency:
 
 ```bash
-npm i -D [@grogarden/gro](https://www.npmjs.com/package/@grogarden/gro)
+npm i -D @grogarden/gro
 ```
 
 It's handy to install globally too:
