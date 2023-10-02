@@ -59,7 +59,7 @@ It includes:
 - linting with [ESLint](https://github.com/eslint/eslint)
   (we also maintain [`@feltjs/eslint-config`](https://github.com/feltjs/eslint-config))
 - formatting with [Prettier](https://github.com/prettier/prettier)
-  (it's not always pretty, but it's always consistent and it saves a lot of time)
+  (it's not always pretty, but it's consistent and it saves a lot of time)
 
 ## docs
 
@@ -73,23 +73,25 @@ It includes:
   - builtin [tasks](/src/lib/docs/tasks.md) list
 - [testing](/src/lib/docs/test.md) with [`uvu`](https://github.com/lukeed/uvu)
 - [`gen`](/src/lib/docs/gen.md) code generation
-- all [the docs](/src/lib/docs#readme)
+- [docs](/src/lib/docs#readme)
 
 ## install
 
 > depends on node >=20.7
 
-Normally you'll want to install [@grogarden/gro](https://www.npmjs.com/package/@grogarden/gro)
+Typical usage installs [@grogarden/gro](https://www.npmjs.com/package/@grogarden/gro)
 as a dev dependency:
 
 ```bash
 npm i -D @grogarden/gro
+npx gro
 ```
 
 It's handy to install globally too:
 
 ```bash
 npm i -g @grogarden/gro
+gro
 ```
 
 ## usage
