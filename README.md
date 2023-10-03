@@ -108,7 +108,7 @@ gro # prints available tasks - defers to any local gro installation
 Run a task: gro [name]
 View help:  gro [name] --help
 
-16 tasks in ./src/lib:
+16 tasks in gro:
 
 build      build the project
 changeset  call changeset with gro patterns
