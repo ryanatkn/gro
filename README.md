@@ -104,7 +104,7 @@ it finds in the current directory along with its builtin tasks:
 gro # prints available tasks - defers to any local gro installation
 ```
 
-```bash
+```
 Run a task: gro [name]
 View help:  gro [name] --help
 
