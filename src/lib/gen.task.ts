@@ -57,24 +57,24 @@ export const task: Task<Args> = {
 		}
 
 		// run `gen` on each of the modules
-		const stopTimingToGenerateCode = timings.start('generate code'); // TODO this ignores `gen_results.elapsed` - should it return `Timings` instead?
+		const timing_to_generate_code = timings.start('generate code'); // TODO this ignores `gen_results.elapsed` - should it return `Timings` instead?
 		const gen_results = await run_gen(load_modules_result.modules, log, timings, format_file);
-		stopTimingToGenerateCode();
+		timing_to_generate_code();
 
-		const failCount = gen_results.failures.length;
+		const fail_count = gen_results.failures.length;
 		if (check) {
 			// check if any files changed, and if so, throw errors,
 			// but if there are gen failures, skip the check and defer to their errors
-			if (!failCount) {
+			if (!fail_count) {
 				log.info('checking generated files for changes');
-				const stopTimingToCheckResults = timings.start('check results for changes');
-				const check_gen_modulesResults = await check_gen_modules(gen_results);
-				stopTimingToCheckResults();
+				const timing_to_check_results = timings.start('check results for changes');
+				const check_gen_modules_results = await check_gen_modules(gen_results);
+				timing_to_check_results();
 
-				let hasUnexpectedChanges = false;
-				for (const result of check_gen_modulesResults) {
+				let has_unexpected_changes = false;
+				for (const result of check_gen_modules_results) {
 					if (!result.has_changed) continue;
-					hasUnexpectedChanges = true;
+					has_unexpected_changes = true;
 					log.error(
 						red(
 							`Generated file ${print_path(result.file.id)} via ${print_path(
@@ -83,7 +83,7 @@ export const task: Task<Args> = {
 						),
 					);
 				}
-				if (hasUnexpectedChanges) {
+				if (has_unexpected_changes) {
 					throw new TaskError(
 						'Failed gen check. Some generated files have unexpectedly changed.' +
 							' Run `gro gen` and try again.',
@@ -94,7 +94,7 @@ export const task: Task<Args> = {
 		} else {
 			// write generated files to disk
 			log.info('writing generated files to disk');
-			const stopTimingToOutputResults = timings.start('output results');
+			const timing_to_output_results = timings.start('output results');
 			await Promise.all(
 				gen_results.successes
 					.map((result) =>
@@ -111,7 +111,7 @@ export const task: Task<Args> = {
 					)
 					.flat(),
 			);
-			stopTimingToOutputResults();
+			timing_to_output_results();
 		}
 
 		let logResult = '';
@@ -129,11 +129,11 @@ export const task: Task<Args> = {
 			),
 		);
 
-		if (failCount) {
+		if (fail_count) {
 			for (const result of gen_results.failures) {
 				log.error(result.reason, '\n', print_error(result.error));
 			}
-			throw new TaskError(`Failed to generate ${failCount} file${plural(failCount)}.`);
+			throw new TaskError(`Failed to generate ${fail_count} file${plural(fail_count)}.`);
 		}
 	},
 };
