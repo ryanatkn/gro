@@ -57,7 +57,6 @@ const run_schema_gen = async (
 		types.push(result);
 
 		// Walk the original schema and add any imports with `tsImport`.
-		// TODO BLOCK expose helper?
 		traverse(schema, (key, v) => {
 			if (key === 'tsImport') {
 				if (typeof v === 'string') {
