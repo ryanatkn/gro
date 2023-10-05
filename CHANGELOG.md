@@ -1,5 +1,11 @@
 # @grogarden/gro
 
+## 0.94.0
+
+### Minor Changes
+
+- ae73cf0: fix mutation of schemas during gen
+
 ## 0.93.1
 
 ### Patch Changes
