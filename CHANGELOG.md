@@ -1,5 +1,11 @@
 # @grogarden/gro
 
+## 0.94.1
+
+### Patch Changes
+
+- c18723e: support typed json exports
+
 ## 0.94.0
 
 ### Minor Changes
