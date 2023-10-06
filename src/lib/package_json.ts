@@ -176,7 +176,6 @@ export const to_package_exports = (paths: string[]): PackageJsonExports => {
 				types: IMPORT_PREFIX + path,
 			};
 		} else if (path.endsWith('.ts') && !path.endsWith('.d.ts')) {
-			// ignoring `.d.ts` seems to be the best default, users can configure `package_json`
 			const js_path = replace_extension(path, '.js');
 			const key = path === 'index.ts' ? '.' : './' + js_path;
 			exports[key] = {
