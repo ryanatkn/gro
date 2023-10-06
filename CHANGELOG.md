@@ -1,5 +1,11 @@
 # @grogarden/gro
 
+## 0.94.2
+
+### Patch Changes
+
+- 9c860a5: support prettier options to format_file
+
 ## 0.94.1
 
 ### Patch Changes
