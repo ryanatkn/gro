@@ -21,11 +21,16 @@ export interface GroConfig {
 	/**
 	 * Maps the project's `package.json`.
 	 * The `pkg` argument may be mutated, but only the return value is used.
-	 * Runs in modes 'updating_exports' and 'updating_well_known'.
 	 * Returning `null` is a no-op for that mode.
-	 * @default identity
 	 */
-	package_json: MapPackageJson;
+	package_json?: MapPackageJson;
+	// TODO BLOCK maybe this should be named `public_package_json` for clarity?
+	// TODO BLOCK should this be SvelteKit frontend plugin behavior?
+	/**
+	 * If truthy, adds `package.json` to the static directory of SvelteKit builds.
+	 * If a function, maps the value.
+	 */
+	well_known_package_json?: boolean | MapPackageJson;
 }
 
 export interface GroConfigCreator {
@@ -33,8 +38,9 @@ export interface GroConfigCreator {
 }
 
 export const create_empty_config = (): GroConfig => ({
-	package_json: (pkg) => (pkg.private ? null : pkg),
 	plugins: () => [],
+	package_json: (pkg) => (pkg.private ? null : pkg),
+	well_known_package_json: false,
 });
 
 export interface GroConfigModule {
