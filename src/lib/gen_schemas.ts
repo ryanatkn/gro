@@ -41,15 +41,15 @@ const run_schema_gen = async (
 	const raw_imports: string[] = [];
 	const types: string[] = [];
 
-	for (const {identifier, schema: original_schema} of to_schema_info_from_module(mod)) {
+	for (const schema_info of to_schema_info_from_module(mod)) {
 		// both `infer_schema_types` and `json-schema-to-typescript` mutate the schema, so clone first
-		const schema = structuredClone(original_schema);
+		const schema = structuredClone(schema_info.schema);
 		infer_schema_types(schema, ctx); // process the schema, adding inferred data
 
 		// Compile the schema to TypeScript.
-		const final_identifier = strip_end(identifier, GEN_SCHEMA_IDENTIFIER_SUFFIX); // convenient to avoid name collisions
+		const identifier = strip_end(schema_info.identifier, GEN_SCHEMA_IDENTIFIER_SUFFIX); // convenient to avoid name collisions
 		// eslint-disable-next-line no-await-in-loop
-		const result = await compile(structuredClone(schema), final_identifier, {
+		const result = await compile(structuredClone(schema), identifier, {
 			bannerComment: '',
 			format: false,
 			...options,
