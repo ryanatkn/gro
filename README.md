@@ -134,7 +134,7 @@ It tries to do the right thing, where right is helpful but not surprising,
 with some magic but not too much:
 
 ```bash
-gro # print all available tasks with the pattern `*.task.ts`
+gro # print all available tasks matching `src/lib/**/*.task.ts`
 gro some/dir # list all tasks inside `src/lib/some/dir`
 gro some/file # run `src/lib/some/file.task.ts`
 gro some/file.task.ts # same as above
