@@ -20,7 +20,7 @@ What is a `Task`? See [`task.md`](./task.md).
 - [publish](../publish.task.ts) - bump version, publish to npm, and git push
 - [release](../release.task.ts) - publish and deploy
 - [sync](../sync.task.ts) - run `gro gen`, `gro exports`, and optionally `npm i` to sync up
-- [test](../test.task.ts) - run tests
+- [test](../test.task.ts) - run tests with uvu
 - [typecheck](../typecheck.task.ts) - run tsc on the project without emitting any files
 - [upgrade](../upgrade.task.ts) - upgrade deps
 

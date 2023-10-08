@@ -20,7 +20,7 @@ export const Args = z
 export type Args = z.infer<typeof Args>;
 
 export const task: Task<Args> = {
-	summary: 'run tests',
+	summary: 'run tests with uvu',
 	Args,
 	run: async ({args, log}): Promise<void> => {
 		const {_: patterns, bail, cwd, ignore} = args;

@@ -108,7 +108,7 @@ gro # prints available tasks - defers to any local gro installation
 Run a task: gro [name]
 View help:  gro [name] --help
 
-16 tasks in gro:
+17 tasks in gro:
 
 build      build the project
 changeset  call changeset with gro patterns
@@ -122,8 +122,9 @@ format     format source files
 gen        run code generation scripts
 lint       run eslint
 publish    bump version, publish to npm, and git push
+release    publish and deploy
 sync       run `gro gen`, `gro exports`, and optionally `npm i` to sync up
-test       run tests
+test       run tests with uvu
 typecheck  run tsc on the project without emitting any files
 upgrade    upgrade deps
 ```
