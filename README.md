@@ -155,7 +155,8 @@ gro dev -- vite --port 3003 # forward args by separating sections with --
 gro build # build everything for production
 ```
 
-[Testing](/src/lib/docs/test.md) with [`uvu`](https://github.com/lukeed/uvu):
+[Testing](/src/lib/docs/test.md) with [`uvu`](https://github.com/lukeed/uvu),
+including shims for [SvelteKit modules](https://kit.svelte.dev/docs/modules):
 
 ```bash
 gro test # run all tests for `*.test.ts` files with `uvu`
