@@ -18,15 +18,15 @@ See [`src/lib/config.ts`](/src/lib/config.ts) for the config types and implement
 
 [The default config](/src/lib/gro.config.default.ts)
 is used for projects that do not define `gro.config.ts`.
-It's also passed as the first argument to `GroConfigCreator`.
+It's also passed as the first argument to `CreateGroConfig`.
 
 A simple config that does nothing:
 
 ```ts
 // gro.config.ts
-import type {GroConfigCreator} from '@grogarden/gro';
+import type {CreateGroConfig} from '@grogarden/gro';
 
-const config: GroConfigCreator = async (cfg) => {
+const config: CreateGroConfig = async (cfg) => {
 	// mutate `cfg` or return a new object
 	return cfg;
 };
@@ -34,10 +34,10 @@ const config: GroConfigCreator = async (cfg) => {
 export default config;
 ```
 
-The default export of a Gro config is `GroConfig | GroConfigCreator`:
+The default export of a Gro config is `GroConfig | CreateGroConfig`:
 
 ```ts
-export interface GroConfigCreator {
+export interface CreateGroConfig {
 	(base_config: GroConfig): GroConfig | Promise<GroConfig>;
 }
 
@@ -50,9 +50,9 @@ export interface GroConfig {
 To define a user config that overrides the default plugins:
 
 ```ts
-import type {GroConfigCreator} from '@grogarden/gro';
+import type {CreateGroConfig} from '@grogarden/gro';
 
-const config: GroConfigCreator = async (cfg) => {
+const config: CreateGroConfig = async (cfg) => {
 	const get_base_plugins = cfg.plugins;
 	cfg.plugins = async (_ctx) => {
 		const base_plugins = await get_base_plugins();
