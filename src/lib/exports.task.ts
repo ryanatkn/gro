@@ -61,7 +61,7 @@ export const task: Task<Args> = {
 	},
 };
 
-// TODO extract?
+// TODO extract? or use rollup pluginutils?
 const create_exports_filter = (include: string, exclude: string) => {
 	const include_matcher = include && new RegExp(include, 'u');
 	const exclude_matcher = exclude && new RegExp(exclude, 'u');

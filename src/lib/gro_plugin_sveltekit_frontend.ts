@@ -66,7 +66,7 @@ export const plugin = ({
 
 			// add `/.well-known/package.json` as needed
 			if (well_known_package_json) {
-				const pkg = await load_package_json(); // TODO BLOCK maybe run sync/exports here?
+				const pkg = await load_package_json(); // TODO BLOCK maybe run sync/exports here? before every load?
 				const mapped = well_known_package_json === true ? pkg : await well_known_package_json(pkg);
 				// TODO refactor
 				if (mapped) {

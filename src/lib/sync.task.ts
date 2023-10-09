@@ -2,6 +2,7 @@ import {z} from 'zod';
 import {spawn} from '@grogarden/util/process.js';
 
 import type {Task} from './task.js';
+import {load_package_json} from './package_json.js';
 
 export const Args = z
 	.object({
@@ -24,6 +25,7 @@ export const task: Task<Args> = {
 
 		await invoke_task('gen');
 
-		await invoke_task('exports');
+		// run `config.package_json` and check for updates
+		await load_package_json();
 	},
 };

@@ -1,6 +1,7 @@
 import {z} from 'zod';
 import {join} from 'node:path';
 import {readFile, writeFile} from 'node:fs/promises';
+import {yellow} from 'kleur/colors';
 
 import {
 	paths,
@@ -106,14 +107,24 @@ export interface MapPackageJson {
 	(pkg: PackageJson): PackageJson | null | Promise<PackageJson | null>;
 }
 
-// TODO parse on load? sounds like a worse DX, maybe just log a warning?
-export const load_package_json = async (): Promise<PackageJson> =>
-	is_this_project_gro
-		? load_gro_package_json()
-		: JSON.parse(await load_package_json_contents(paths.root));
+// TODO handle failures?
+export const load_package_json = async (
+	dir = is_this_project_gro ? paths.root : gro_paths.root,
+): Promise<PackageJson> => {
+	const loaded = await load_package_json_contents(dir);
+	const pkg = JSON.parse(loaded);
+	const parsed = PackageJson.safeParse(pkg);
+	if (!parsed.success) {
+		// eslint-disable-next-line no-console
+		console.warn(
+			yellow('failed to parse package.json, this is probably an issue with the Gro schema'),
+			parsed.error,
+		);
+	}
+	return pkg;
+};
 
-export const load_gro_package_json = async (): Promise<PackageJson> =>
-	JSON.parse(await load_package_json_contents(gro_paths.root));
+export const load_gro_package_json = (): Promise<PackageJson> => load_package_json(gro_paths.root);
 
 // TODO probably make this nullable and make callers handle failures
 const load_package_json_contents = (root_dir: string): Promise<string> =>
