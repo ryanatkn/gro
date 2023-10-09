@@ -103,10 +103,8 @@ export const PackageJson = z.intersection(
 export type PackageJson = z.infer<typeof PackageJson>;
 
 export interface MapPackageJson {
-	(pkg: PackageJson, when: MapPackageJsonWhen): PackageJson | null | Promise<PackageJson | null>;
+	(pkg: PackageJson): PackageJson | null | Promise<PackageJson | null>;
 }
-
-export type MapPackageJsonWhen = 'updating_exports' | 'updating_well_known';
 
 // TODO parse on load? sounds like a worse DX, maybe just log a warning?
 export const load_package_json = async (): Promise<PackageJson> =>

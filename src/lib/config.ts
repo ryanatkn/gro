@@ -19,18 +19,18 @@ If none is provided, the fallback is located at `gro/src/lib/gro.config.default.
 export interface GroConfig {
 	plugins: CreateConfigPlugins;
 	/**
-	 * Maps the project's `package.json`.
-	 * The `pkg` argument may be mutated, but only the return value is used.
-	 * Returning `null` is a no-op for that mode.
+	 * Maps the project's `package.json` before writing it to the filesystem.
+	 * The `pkg` argument may be mutated, but the return value is what's used by the caller.
+	 * Returning `null` is a no-op for the caller.
 	 */
-	package_json?: MapPackageJson;
+	package_json: MapPackageJson | null;
 	// TODO BLOCK maybe this should be named `public_package_json` for clarity?
 	// TODO BLOCK should this be SvelteKit frontend plugin behavior?
 	/**
 	 * If truthy, adds `package.json` to the static directory of SvelteKit builds.
 	 * If a function, maps the value.
 	 */
-	well_known_package_json?: boolean | MapPackageJson;
+	well_known_package_json: boolean | MapPackageJson;
 }
 
 export interface CreateGroConfig {
@@ -39,7 +39,7 @@ export interface CreateGroConfig {
 
 export const create_empty_config = (): GroConfig => ({
 	plugins: () => [],
-	package_json: (pkg) => (pkg.private ? null : pkg),
+	package_json: null,
 	well_known_package_json: false,
 });
 
