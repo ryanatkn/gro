@@ -17,14 +17,17 @@ export interface Options {
 	 * If truthy, adds `package.json` to the static directory of SvelteKit builds.
 	 * If a function, maps the value.
 	 */
-	well_known_package_json: boolean | MapPackageJson;
+	well_known_package_json?: boolean | MapPackageJson;
 }
 
 export type HostTarget = 'github_pages' | 'static' | 'node';
 
 const output_dir = SVELTEKIT_BUILD_DIRNAME;
 
-export const plugin = ({host_target = 'github_pages'}: Options = {}): Plugin<PluginContext> => {
+export const plugin = ({
+	host_target = 'github_pages',
+	well_known_package_json = false,
+}: Options = {}): Plugin<PluginContext> => {
 	let sveltekit_process: SpawnedProcess | null = null;
 	return {
 		name: 'gro_plugin_sveltekit_frontend',
@@ -51,18 +54,17 @@ export const plugin = ({host_target = 'github_pages'}: Options = {}): Plugin<Plu
 				await spawn('npx', serialized_args);
 			}
 		},
-		adapt: async ({config}) => {
+		adapt: async () => {
 			if (host_target === 'github_pages') {
 				await Promise.all([ensure_nojekyll(output_dir)]);
 			}
 
 			// TODO BLOCK should this populate `static` before `vite build` or write during `adapt`?
 			// TODO BLOCK maybe use a function returning a function with the cleanup (which ensures it gets called at most once)
-			const {well_known_package_json} = config;
 
 			// add `/.well-known/package.json` as needed
 			if (well_known_package_json) {
-				const pkg = await load_package_json();
+				const pkg = await load_package_json(); // TODO BLOCK maybe run sync/exports here?
 				const mapped = well_known_package_json === true ? pkg : await well_known_package_json(pkg);
 				// TODO refactor
 				if (mapped) {
