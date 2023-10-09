@@ -33,7 +33,7 @@ export interface GroConfig {
 	well_known_package_json?: boolean | MapPackageJson;
 }
 
-export interface GroConfigCreator {
+export interface CreateGroConfig {
 	(base_config: GroConfig): GroConfig | Promise<GroConfig>;
 }
 
@@ -44,7 +44,7 @@ export const create_empty_config = (): GroConfig => ({
 });
 
 export interface GroConfigModule {
-	readonly default: GroConfig | GroConfigCreator;
+	readonly default: GroConfig | CreateGroConfig;
 }
 
 export const load_config = async (): Promise<GroConfig> => {

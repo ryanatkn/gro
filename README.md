@@ -108,7 +108,7 @@ gro # prints available tasks - defers to any local gro installation
 Run a task: gro [name]
 View help:  gro [name] --help
 
-16 tasks in gro:
+17 tasks in gro:
 
 build      build the project
 changeset  call changeset with gro patterns
@@ -122,8 +122,9 @@ format     format source files
 gen        run code generation scripts
 lint       run eslint
 publish    bump version, publish to npm, and git push
+release    publish and deploy
 sync       run `gro gen`, `gro exports`, and optionally `npm i` to sync up
-test       run tests
+test       run tests with uvu
 typecheck  run tsc on the project without emitting any files
 upgrade    upgrade deps
 ```
@@ -133,12 +134,12 @@ It tries to do the right thing, where right is helpful but not surprising,
 with some magic but not too much:
 
 ```bash
-gro # print all available tasks with the pattern `*.task.ts`
+gro # print all available tasks, those matching `src/lib/**/*.task.ts` and Gro's builtins
 gro some/dir # list all tasks inside `src/lib/some/dir`
 gro some/file # run `src/lib/some/file.task.ts`
 gro some/file.task.ts # same as above
-gro test # run `src/lib/test.task.ts` if it exists, falling back to Gro's builtin
-gro test --help # print info about the "test" task; works for every task
+gro a # run `src/lib/a.task.ts` if it exists, falling back to Gro's builtin
+gro a --help # print info about the "a" task; works for every task
 ```
 
 Gro has a number of builtin tasks that you can run with the CLI.
@@ -154,7 +155,8 @@ gro dev -- vite --port 3003 # forward args by separating sections with --
 gro build # build everything for production
 ```
 
-[Testing](/src/lib/docs/test.md) with [`uvu`](https://github.com/lukeed/uvu):
+[Testing](/src/lib/docs/test.md) with [`uvu`](https://github.com/lukeed/uvu),
+including shims for [SvelteKit modules](https://kit.svelte.dev/docs/modules):
 
 ```bash
 gro test # run all tests for `*.test.ts` files with `uvu`

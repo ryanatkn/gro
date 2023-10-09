@@ -1,4 +1,4 @@
-import type {GroConfigCreator} from './config.js';
+import type {CreateGroConfig} from './config.js';
 import {exists} from './exists.js';
 import {load_package_json} from './package_json.js';
 import {has_server} from './gro_plugin_server.js';
@@ -13,7 +13,7 @@ import {ROUTES_DIRNAME} from './paths.js';
  * - if `src/lib`, assumes a Node library
  * - if `src/lib/server/server.ts`, assumes a Node  server
  */
-const config: GroConfigCreator = async (cfg) => {
+const config: CreateGroConfig = async (cfg) => {
 	const [enable_library, enable_server, enable_sveltekit_frontend] = await Promise.all([
 		has_library(),
 		has_server(),
