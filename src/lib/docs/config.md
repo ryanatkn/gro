@@ -103,26 +103,12 @@ which is called by `gro check`, to ensure the repo and Gro's automations are in 
 const config: GroConfig = {
 	// ...other config
 
-	// the default behavior:
-	// outputs all of `$lib/` as `pkg.exports` and the full `.well-known/package.json`,
-	// unless `private` is true, in which case both are disabled
-	package_json: (pkg) => (pkg?.private ? null : pkg),
+	// the default behavior, disable generation of automatic `exports`
+	package_json: null,
 
-	// outputs the full versions of both regardless of the value of `private`
-	package_json: (pkg) => pkg,
-
-	// disables generation of both automatic `exports` and `.well-known/package.json`
-	package_json: () => null,
-
-	// disable `.well-known/package.json` and enable writing `exports` to `package.json`
-	package_json: (pkg, when) => (when === 'updating_well_known' ? null : pkg),
-
-	// disable writing `exports` to `package.json` and enable `.well-known/package.json`
-	package_json: (pkg, when) => (when === 'updating_exports' ? null : pkg),
-
-	// mutate anything and return the final config
-	package_json: (pkg, when) => {
-		// set `exports`
+	// mutate anything and return the final config (can be async):
+	package_json: (pkg) => {
+		// example setting `exports`:
 		pkg.exports = {
 			'.': {
 				default: './dist/index.js',
@@ -137,21 +123,15 @@ const config: GroConfig = {
 				types: './dist/Example.svelte.d.ts',
 			},
 		};
-		// filter `exports`
+		// example filtering `exports`:
 		pkg.exports = Object.fromEntries(Object.entries(pkg.exports).filter(/* ... */));
-		// remove properties
-		if (when === 'updating_well_known') pkg.prettier = undefined;
-		// add properties
-		if (when === 'updating_well_known') pkg.generated_at = new Date().toISOString();
-		return pkg;
+		return pkg; // returning `null` is a no-op
 	},
 };
 
 export interface MapPackageJson {
-	(pkg: PackageJson, when: MapPackageJsonWhen): PackageJson | null | Promise<PackageJson | null>;
+	(pkg: PackageJson): PackageJson | null | Promise<PackageJson | null>;
 }
-
-export type MapPackageJsonWhen = 'updating_exports' | 'updating_well_known';
 ```
 
 ### when 'updating_exports'

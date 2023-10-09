@@ -26,11 +26,6 @@ export interface GroConfig {
 	package_json: MapPackageJson | null;
 	// TODO BLOCK maybe this should be named `public_package_json` for clarity?
 	// TODO BLOCK should this be SvelteKit frontend plugin behavior?
-	/**
-	 * If truthy, adds `package.json` to the static directory of SvelteKit builds.
-	 * If a function, maps the value.
-	 */
-	well_known_package_json: boolean | MapPackageJson;
 }
 
 export interface CreateGroConfig {
@@ -40,7 +35,6 @@ export interface CreateGroConfig {
 export const create_empty_config = (): GroConfig => ({
 	plugins: () => [],
 	package_json: null,
-	well_known_package_json: false,
 });
 
 export interface GroConfigModule {

@@ -12,6 +12,12 @@ export interface Options {
 	 * @default 'github_pages'
 	 */
 	host_target?: HostTarget;
+
+	/**
+	 * If truthy, adds `package.json` to the static directory of SvelteKit builds.
+	 * If a function, maps the value.
+	 */
+	well_known_package_json: boolean | MapPackageJson;
 }
 
 export type HostTarget = 'github_pages' | 'static' | 'node';
@@ -37,15 +43,64 @@ export const plugin = ({host_target = 'github_pages'}: Options = {}): Plugin<Plu
 				}
 			} else {
 				// `vite build` in production mode
+
+				// first copy static files
+
 				const serialized_args = ['vite', 'build', ...serialize_args(to_forwarded_args('vite'))];
 				log.info(print_command_args(serialized_args));
 				await spawn('npx', serialized_args);
 			}
 		},
-		adapt: async () => {
-			// TODO BLOCK well-known here
+		adapt: async ({config}) => {
 			if (host_target === 'github_pages') {
 				await Promise.all([ensure_nojekyll(output_dir)]);
+			}
+
+			// TODO BLOCK should this populate `static` before `vite build` or write during `adapt`?
+			// TODO BLOCK maybe use a function returning a function with the cleanup (which ensures it gets called at most once)
+			const {well_known_package_json} = config;
+
+			// add `/.well-known/package.json` as needed
+			if (well_known_package_json) {
+				const pkg = await load_package_json();
+				const mapped = well_known_package_json === true ? pkg : await well_known_package_json(pkg);
+				// TODO refactor
+				if (mapped) {
+					// copy the `package.json` over to `static/.well-known/` if configured unless it exists
+					const svelte_config = await load_sveltekit_config();
+					const static_assets = svelte_config?.kit?.files?.assets || 'static';
+					const well_known_dir = strip_end(static_assets, '/') + '/.well-known';
+					if (!(await exists(well_known_dir))) {
+						await mkdir(well_known_dir, {recursive: true});
+					}
+					const package_json_path = well_known_dir + '/package.json';
+					const new_contents = serialize_package_json(mapped);
+					let changed_well_known_package_json = false;
+					if (await exists(package_json_path)) {
+						const old_contents = await readFile(package_json_path, 'utf8');
+						if (new_contents === old_contents) {
+							changed_well_known_package_json = false;
+						} else {
+							changed_well_known_package_json = true;
+						}
+					} else {
+						changed_well_known_package_json = true;
+					}
+					if (check) {
+						if (changed_well_known_package_json) {
+							throw new TaskError(failure_message('updating_well_known'));
+						} else {
+							log.info('check passed for package.json for `updating_well_known`');
+						}
+					} else {
+						if (changed_well_known_package_json) {
+							log.info(`updating package_json_path`, package_json_path);
+							await writeFile(package_json_path, new_contents);
+						} else {
+							log.info(`no changes to package_json_path`, package_json_path);
+						}
+					}
+				}
 			}
 		},
 		teardown: async () => {
