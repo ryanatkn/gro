@@ -43,6 +43,7 @@ export const plugin = ({host_target = 'github_pages'}: Options = {}): Plugin<Plu
 			}
 		},
 		adapt: async () => {
+			// TODO BLOCK well-known here
 			if (host_target === 'github_pages') {
 				await Promise.all([ensure_nojekyll(output_dir)]);
 			}
