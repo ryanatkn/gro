@@ -112,15 +112,15 @@ export const load_package_json = async (
 	dir = is_this_project_gro ? paths.root : gro_paths.root,
 ): Promise<PackageJson> => {
 	const loaded = await load_package_json_contents(dir);
-	const pkg = JSON.parse(loaded);
-	const parsed = PackageJson.safeParse(pkg);
+	const raw = JSON.parse(loaded);
+	const parsed = PackageJson.safeParse(raw);
 	if (!parsed.success) {
 		// eslint-disable-next-line no-console
 		console.warn(
 			yellow('failed to parse package.json, this is probably an issue with the Gro schema'),
 			parsed.error,
 		);
-		return pkg;
+		return raw;
 	}
 	return parsed.data;
 };
