@@ -12,6 +12,7 @@ import {
 	Url,
 	Email,
 } from './paths.js';
+import {search_fs} from './search_fs.js';
 
 export const PackageJsonRepository = z.union([
 	z.string(),
@@ -112,17 +113,40 @@ export const load_package_json = async (
 	dir = is_this_project_gro ? paths.root : gro_paths.root,
 ): Promise<PackageJson> => {
 	const loaded = await load_package_json_contents(dir);
+	let pkg;
 	const raw = JSON.parse(loaded);
 	const parsed = PackageJson.safeParse(raw);
-	if (!parsed.success) {
-		// eslint-disable-next-line no-console
-		console.warn(
+	if (parsed.success) {
+		pkg = parsed.data;
+	} else {
+		log.warn(
 			yellow('failed to parse package.json, this is probably an issue with the Gro schema'),
 			parsed.error,
 		);
-		return raw;
+		pkg = raw;
 	}
-	return parsed.data;
+
+	const {package_json} = config;
+
+	// TODO BLOCK updating probably should have an opt-out flag?
+	// map `package.json`
+	const exported_files = await search_fs(paths.lib);
+	const exported_paths = Array.from(exported_files.keys());
+	const exports = to_package_exports(exported_paths);
+	const exports_count = Object.keys(exports).length;
+	const changed_exports = await update_package_json(async (pkg) => {
+		pkg.exports = exports;
+		const mapped = package_json ? await package_json(pkg) : pkg;
+		return mapped ? normalize_package_json(mapped) : mapped;
+	}, !check);
+
+	log.info(
+		changed_exports
+			? `updated package.json exports with ${exports_count} total export${plural(exports_count)}`
+			: 'no changes to exports in package.json',
+	);
+
+	return pkg;
 };
 
 export const load_gro_package_json = (): Promise<PackageJson> => load_package_json(gro_paths.root);

@@ -25,40 +25,7 @@ export type Args = z.infer<typeof Args>;
 export const task: Task<Args> = {
 	summary: 'write the "exports" property of package.json and copy the file to .well-known',
 	Args,
-	run: async ({args: {dir, include, exclude, check}, config, log}): Promise<void> => {
-		const {package_json} = config;
-
-		// map `package.json`
-		const exported_files = await search_fs(dir, {filter: create_exports_filter(include, exclude)});
-		const exported_paths = Array.from(exported_files.keys());
-		const exports = to_package_exports(exported_paths);
-		const exports_count = Object.keys(exports).length;
-		const changed_exports = await update_package_json(async (pkg) => {
-			pkg.exports = exports;
-			const mapped = package_json ? await package_json(pkg) : pkg;
-			return mapped ? normalize_package_json(mapped) : mapped;
-		}, !check);
-
-		if (check) {
-			if (changed_exports) {
-				throw new TaskError(
-					'Failed exports check.' +
-						` The package.json has unexpectedly changed.` +
-						' Run `gro sync` or `gro exports` manually to inspect the changes, and check the `package_json` config option.',
-				);
-			} else {
-				log.info('check passed for package.json for `updating_exports`');
-			}
-		} else {
-			log.info(
-				changed_exports
-					? `updated package.json exports with ${exports_count} total export${plural(
-							exports_count,
-					  )}`
-					: 'no changes to exports in package.json',
-			);
-		}
-	},
+	run: async ({args: {dir, include, exclude, check}, config, log}): Promise<void> => {},
 };
 
 // TODO extract? or use rollup pluginutils?

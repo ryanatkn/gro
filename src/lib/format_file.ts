@@ -11,7 +11,7 @@ export const format_file = async (
 ): Promise<string> => {
 	const parser = infer_parser(id);
 	if (!parser) return content;
-	const config: any = (await load_package_json()).prettier;
+	const config: any = (await load_package_json()).prettier; // TODO BLOCK this usage is too inefficient, could include as param
 	return prettier.format(content, {...config, parser, ...options});
 };
 
