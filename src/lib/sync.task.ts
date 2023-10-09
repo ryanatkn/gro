@@ -12,7 +12,7 @@ export const Args = z
 export type Args = z.infer<typeof Args>;
 
 export const task: Task<Args> = {
-	summary: 'run `gro gen`, `gro exports`, and optionally `npm i` to sync up',
+	summary: 'run `gro gen`, update `package.json`, and optionally `npm i` to sync up',
 	Args,
 	run: async ({args, invoke_task}): Promise<void> => {
 		const {install} = args;

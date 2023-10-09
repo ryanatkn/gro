@@ -108,6 +108,8 @@ export interface MapPackageJson {
 	(pkg: PackageJson): PackageJson | null | Promise<PackageJson | null>;
 }
 
+// TODO BLOCK could cache at the module level a single thing, and diff the stringified contents, only calling `config.package_json` when it changes
+
 // TODO handle failures?
 export const load_package_json = async (
 	dir = is_this_project_gro ? paths.root : gro_paths.root,

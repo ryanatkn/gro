@@ -13,13 +13,12 @@ What is a `Task`? See [`task.md`](./task.md).
 - [commit](../commit.task.ts) - commit and push to a new branch
 - [deploy](../deploy.task.ts) - deploy to a branch
 - [dev](../dev.task.ts) - start SvelteKit and other dev plugins
-- [exports](../exports.task.ts) - write the "exports" property of package.json and copy the file to .well-known
 - [format](../format.task.ts) - format source files
 - [gen](../gen.task.ts) - run code generation scripts
 - [lint](../lint.task.ts) - run eslint
 - [publish](../publish.task.ts) - bump version, publish to npm, and git push
 - [release](../release.task.ts) - publish and deploy
-- [sync](../sync.task.ts) - run `gro gen`, `gro exports`, and optionally `npm i` to sync up
+- [sync](../sync.task.ts) - run `gro gen`, update `package.json`, and optionally `npm i` to sync up
 - [test](../test.task.ts) - run tests with uvu
 - [typecheck](../typecheck.task.ts) - run tsc on the project without emitting any files
 - [upgrade](../upgrade.task.ts) - upgrade deps
