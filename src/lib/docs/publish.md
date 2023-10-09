@@ -100,14 +100,15 @@ you can continue manually with `changeset publish` or `npm publish`.
 
 ## `config.package_json`
 
-[The exports task](/src/lib/exports.task.ts) is a convenience
-for declaring the modules of `lib/` in your `package.json` `"exports"`.
+```ts
+export interface GroConfig {
+	// ...
 
-Currently, `gro exports` is a manual step
-and it accepts a `--check` flag to throw if anything changed.
-The plan is to make exports configurable in `gro.config.ts`,
-and then it'll be automated and included as a default to `gro check`.
-
-Gro won't try to automate exports without a better config story (CLI args are not enough)
-because exporting all of `lib/` to users is not a recommended practice.
-For now, it's helpful to run the task and then update things by hand as needed before committing.
+	/**
+	 * Maps the project's `package.json` before writing it to the filesystem.
+	 * The `pkg` argument may be mutated, but the return value is what's used by the caller.
+	 * Returning `null` is a no-op for the caller.
+	 */
+	package_json: MapPackageJson | null;
+}
+```
