@@ -1,10 +1,12 @@
 import {spawn, spawn_process, type SpawnedProcess} from '@grogarden/util/process.js';
 import {mkdir, writeFile} from 'node:fs/promises';
+import {strip_end} from '@grogarden/util/string.js';
 
 import type {Plugin, PluginContext} from './plugin.js';
 import {print_command_args, serialize_args, to_forwarded_args} from './args.js';
 import {SVELTEKIT_BUILD_DIRNAME} from './paths.js';
 import {exists} from './exists.js';
+import type {MapPackageJson} from './package_json.js';
 
 export interface Options {
 	/**
@@ -14,7 +16,7 @@ export interface Options {
 	host_target?: HostTarget;
 
 	/**
-	 * If truthy, adds `package.json` to the static directory of SvelteKit builds.
+	 * If truthy, adds `/.well-known/package.json` to the static output.
 	 * If a function, maps the value.
 	 */
 	well_known_package_json?: boolean | MapPackageJson;
@@ -88,19 +90,11 @@ export const plugin = ({
 					} else {
 						changed_well_known_package_json = true;
 					}
-					if (check) {
-						if (changed_well_known_package_json) {
-							throw new TaskError(failure_message('updating_well_known'));
-						} else {
-							log.info('check passed for package.json for `updating_well_known`');
-						}
+					if (changed_well_known_package_json) {
+						log.info(`updating package_json_path`, package_json_path);
+						await writeFile(package_json_path, new_contents);
 					} else {
-						if (changed_well_known_package_json) {
-							log.info(`updating package_json_path`, package_json_path);
-							await writeFile(package_json_path, new_contents);
-						} else {
-							log.info(`no changes to package_json_path`, package_json_path);
-						}
+						log.info(`no changes to package_json_path`, package_json_path);
 					}
 				}
 			}

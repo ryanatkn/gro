@@ -1,19 +1,10 @@
 import {z} from 'zod';
-import {plural, strip_end} from '@grogarden/util/string.js';
-import {mkdir, readFile, writeFile} from 'node:fs/promises';
+import {plural} from '@grogarden/util/string.js';
 
 import {TaskError, type Task} from './task.js';
 import {search_fs} from './search_fs.js';
 import {paths} from './paths.js';
-import {
-	load_package_json,
-	serialize_package_json,
-	to_package_exports,
-	update_package_json,
-	normalize_package_json,
-} from './package_json.js';
-import {load_sveltekit_config} from './sveltekit_config.js';
-import {exists} from './exists.js';
+import {to_package_exports, update_package_json, normalize_package_json} from './package_json.js';
 
 export const Args = z
 	.object({
@@ -27,7 +18,7 @@ export const Args = z
 	.strict();
 export type Args = z.infer<typeof Args>;
 
-// TODO BLOCK is `exports` the right name for this?
+// TODO BLOCK is `exports` the right name for this? maybe it should be `pkg` instead?
 
 // TODO this is no longer a good name, either rename or factor out the .well-known stuff
 // maybe `gro package`?
@@ -35,7 +26,7 @@ export const task: Task<Args> = {
 	summary: 'write the "exports" property of package.json and copy the file to .well-known',
 	Args,
 	run: async ({args: {dir, include, exclude, check}, config, log}): Promise<void> => {
-		const {package_json, well_known_package_json} = config;
+		const {package_json} = config;
 
 		// map `package.json`
 		const exported_files = await search_fs(dir, {filter: create_exports_filter(include, exclude)});
@@ -50,7 +41,11 @@ export const task: Task<Args> = {
 
 		if (check) {
 			if (changed_exports) {
-				throw new TaskError(failure_message('updating_exports'));
+				throw new TaskError(
+					'Failed exports check.' +
+						` The package.json has unexpectedly changed.` +
+						' Run `gro sync` or `gro exports` manually to inspect the changes, and check the `package_json` config option.',
+				);
 			} else {
 				log.info('check passed for package.json for `updating_exports`');
 			}
@@ -74,8 +69,3 @@ const create_exports_filter = (include: string, exclude: string) => {
 		(!include_matcher || include_matcher.test(path)) &&
 		(!exclude_matcher || !exclude_matcher.test(path));
 };
-
-const failure_message = (when: string): string =>
-	'Failed exports check.' +
-	` The package.json has unexpectedly changed at '${when}'.` +
-	' Run `gro sync` or `gro exports` manually to inspect the changes, and check the `package_json` config option.';
