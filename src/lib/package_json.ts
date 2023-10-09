@@ -120,8 +120,9 @@ export const load_package_json = async (
 			yellow('failed to parse package.json, this is probably an issue with the Gro schema'),
 			parsed.error,
 		);
+		return pkg;
 	}
-	return pkg;
+	return parsed.data;
 };
 
 export const load_gro_package_json = (): Promise<PackageJson> => load_package_json(gro_paths.root);
