@@ -2,6 +2,8 @@ import {z} from 'zod';
 import {join} from 'node:path';
 import {readFile, writeFile} from 'node:fs/promises';
 import {yellow} from 'kleur/colors';
+import {Logger} from '@grogarden/util/log.js';
+import {plural} from '@grogarden/util/string.js';
 
 import {
 	paths,
@@ -13,6 +15,7 @@ import {
 	Email,
 } from './paths.js';
 import {search_fs} from './search_fs.js';
+import {load_config} from './config.js';
 
 export const PackageJsonRepository = z.union([
 	z.string(),
@@ -114,6 +117,10 @@ export interface MapPackageJson {
 export const load_package_json = async (
 	dir = is_this_project_gro ? paths.root : gro_paths.root,
 ): Promise<PackageJson> => {
+	// TODO BLOCK cache
+	const log = new Logger('[package_json]');
+	const config = await load_config();
+
 	const loaded = await load_package_json_contents(dir);
 	let pkg;
 	const raw = JSON.parse(loaded);
