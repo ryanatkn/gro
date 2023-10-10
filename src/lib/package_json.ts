@@ -140,7 +140,7 @@ export const load_package_json = async (
 		pkg.exports = exports;
 		const mapped = package_json ? await package_json(pkg) : pkg;
 		return mapped ? normalize_package_json(mapped) : mapped;
-	}, !check);
+	});
 
 	log.info(
 		changed_exports
