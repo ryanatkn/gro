@@ -112,7 +112,7 @@ export interface MapPackageJson {
 }
 
 // TODO BLOCK could cache at the module level a single thing, and diff the stringified contents, only calling `config.package_json` when it changes
-let log: Logger | undefined;
+const log = new Logger('[package_json]');
 let config: GroConfig | undefined;
 
 // TODO handle failures?
@@ -120,7 +120,6 @@ export const load_package_json = async (
 	dir = is_this_project_gro ? paths.root : gro_paths.root,
 ): Promise<PackageJson> => {
 	// TODO BLOCK cache
-	if (!log) log = new Logger('[package_json]');
 	if (!config) config = await load_config();
 
 	const loaded = await load_package_json_contents(dir);
