@@ -24,8 +24,6 @@ export interface GroConfig {
 	 * Returning `null` is a no-op for the caller.
 	 */
 	package_json: MapPackageJson | null;
-	// TODO BLOCK maybe this should be named `public_package_json` for clarity?
-	// TODO BLOCK should this be SvelteKit frontend plugin behavior?
 }
 
 export interface CreateGroConfig {
