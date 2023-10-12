@@ -1,7 +1,7 @@
 import {z} from 'zod';
 import {join} from 'node:path';
 import {readFile, writeFile} from 'node:fs/promises';
-import {yellow} from 'kleur/colors';
+import {red, yellow} from 'kleur/colors';
 import {Logger} from '@grogarden/util/log.js';
 import {plural} from '@grogarden/util/string.js';
 
@@ -111,6 +111,8 @@ export interface MapPackageJson {
 	(pkg: PackageJson): PackageJson | null | Promise<PackageJson | null>;
 }
 
+export const EMPTY_PACKAGE_JSON: PackageJson = {name: '', version: ''};
+
 // TODO BLOCK could cache at the module level a single thing, and diff the stringified contents, only calling `config.package_json` when it changes
 const log = new Logger('[package_json]');
 let config: GroConfig | undefined;
@@ -122,18 +124,13 @@ export const load_package_json = async (
 	// TODO BLOCK cache
 	if (!config) config = await load_config();
 
-	const loaded = await load_package_json_contents(dir);
-	let pkg;
-	const raw = JSON.parse(loaded);
-	const parsed = PackageJson.safeParse(raw);
-	if (parsed.success) {
-		pkg = parsed.data;
-	} else {
-		log.warn(
-			yellow('failed to parse package.json, this is probably an issue with the Gro schema'),
-			parsed.error,
-		);
-		pkg = raw;
+	// TODO BLOCK maybe remove this error, wrap in try/catch
+	let pkg: PackageJson;
+	try {
+		pkg = JSON.parse(await load_package_json_contents(dir));
+	} catch (err) {
+		log.error(red('failed to load package.json'));
+		return EMPTY_PACKAGE_JSON;
 	}
 
 	const {package_json} = config;
