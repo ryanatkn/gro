@@ -26,6 +26,7 @@ export const task: Task<Args> = {
 		await invoke_task('gen');
 
 		// run `config.package_json` and check for updates
+		// TODO BLOCK this is weird API
 		await load_package_json();
 	},
 };
