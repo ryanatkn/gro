@@ -22,7 +22,7 @@ export const normalize_type_imports = async (
 ): Promise<string[]> => {
 	const imports = Array.from(new Set(raw_imports));
 	const formatted_imports = (
-		await Promise.all(imports.map((i) => format_file(i, {filename: file_id})))
+		await Promise.all(imports.map((i) => format_file(i, {filepath: file_id})))
 	).map((s) => s.trim());
 
 	const imps = new Map<string, ParsedImport>();

@@ -23,6 +23,7 @@ import {
 import {print_path, source_id_to_base_path} from './paths.js';
 import {gen_schemas, to_schemas_from_modules} from './gen_schemas.js';
 import {to_json_schema_resolver} from './schema.js';
+import type {format_file as base_format_file} from './format_file.js';
 
 export const GEN_NO_PROD_MESSAGE = 'gen runs only during development';
 
@@ -30,7 +31,7 @@ export const run_gen = async (
 	gen_modules: GenModuleMeta[],
 	log: Logger,
 	timings: Timings,
-	format_file?: (id: string, content: string) => Promise<string>,
+	format_file?: typeof base_format_file,
 ): Promise<GenResults> => {
 	let input_count = 0;
 	let output_count = 0;
@@ -79,7 +80,7 @@ export const run_gen = async (
 						gen_result.files.map(async (file) => {
 							if (!file.format) return file;
 							try {
-								return {...file, content: await format_file(file.content, {filename: file.id})};
+								return {...file, content: await format_file(file.content, {filepath: file.id})};
 							} catch (err) {
 								log.error(
 									red(`Error formatting ${print_path(file.id)} via ${print_path(id)}`),
