@@ -21,9 +21,9 @@ export const normalize_type_imports = async (
 	file_id: string,
 ): Promise<string[]> => {
 	const imports = Array.from(new Set(raw_imports));
-	const formatted_imports = (await Promise.all(imports.map((i) => format_file(file_id, i)))).map(
-		(s) => s.trim(),
-	);
+	const formatted_imports = (
+		await Promise.all(imports.map((i) => format_file(i, {filename: file_id})))
+	).map((s) => s.trim());
 
 	const imps = new Map<string, ParsedImport>();
 	const path = to_gen_import_path(file_id);

@@ -79,7 +79,7 @@ export const run_gen = async (
 						gen_result.files.map(async (file) => {
 							if (!file.format) return file;
 							try {
-								return {...file, content: await format_file(file.id, file.content)};
+								return {...file, content: await format_file(file.content, {filename: file.id})};
 							} catch (err) {
 								log.error(
 									red(`Error formatting ${print_path(file.id)} via ${print_path(id)}`),
