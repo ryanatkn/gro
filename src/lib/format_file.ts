@@ -1,4 +1,5 @@
 import prettier from 'prettier';
+import {extname} from 'node:path';
 
 import {load_package_json} from './package_json.js';
 
@@ -19,9 +20,28 @@ export const format_file = async (
 		base_options !== undefined
 			? base_options
 			: (cached_base_options = (await load_package_json()).prettier as any);
+	let final_options = options;
+	if (options?.filepath && !options.parser) {
+		const {filepath, ...rest} = options;
+		const parser = infer_parser(filepath);
+		if (parser) final_options = {...rest, parser};
+	}
 	try {
-		return await prettier.format(content, {...final_base_options, ...options});
+		return await prettier.format(content, {...final_base_options, ...final_options});
 	} catch (err) {
 		return content;
+	}
+};
+
+const infer_parser = (path: string): string | null => {
+	const extension = extname(path).substring(1);
+	switch (extension) {
+		case 'svelte':
+		case 'xml': {
+			return extension;
+		}
+		default: {
+			return null;
+		}
 	}
 };
