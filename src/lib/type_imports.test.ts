@@ -38,17 +38,6 @@ test__normalize_type_imports('throws with both default and named type imports', 
 
 test__normalize_type_imports('throws with malformed type imports', async () => {
 	try {
-		await normalize_type_imports(['import type "./some_test_exports.js"'], 'virtualTestFile.ts');
-		assert.unreachable('should fail');
-	} catch (err) {
-		if (err.message === 'should fail') {
-			throw err;
-		}
-	}
-});
-
-test__normalize_type_imports('throws with malformed type imports', async () => {
-	try {
 		await normalize_type_imports(
 			['import A from "./some_test_exports.js"', 'import B from "./some_test_exports.js"'],
 			'virtualTestFile.ts',

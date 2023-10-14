@@ -58,7 +58,7 @@ export const normalize_type_imports = async (
 		info.parsed.push(p);
 	}
 
-	return Array.from(imps.values()).map((v) => printImportInfo(to_import_info(v, file_id)));
+	return Array.from(imps.values()).map((v) => print_import_info(to_import_info(v, file_id)));
 };
 
 interface ParsedImport {
@@ -153,7 +153,7 @@ const to_import_info = (imp: ParsedImport, file_id: string): ImportInfo => {
 	};
 };
 
-const printImportInfo = (info: ImportInfo): string => {
+const print_import_info = (info: ImportInfo): string => {
 	let result = '';
 	const append = (str: string): void => {
 		if (result) result += '\n';
