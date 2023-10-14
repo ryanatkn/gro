@@ -2,7 +2,7 @@ import {z} from 'zod';
 import {spawn} from '@grogarden/util/process.js';
 
 import type {Task} from './task.js';
-import {load_package_json} from './package_json.js';
+import {sync_package_json} from './package_json.js';
 
 export const Args = z
 	.object({
@@ -23,10 +23,8 @@ export const task: Task<Args> = {
 			await spawn('npm', ['i']);
 		}
 
-		await invoke_task('gen');
+		await sync_package_json();
 
-		// run `config.package_json` and check for updates
-		// TODO BLOCK this is weird API
-		await load_package_json();
+		await invoke_task('gen');
 	},
 };
