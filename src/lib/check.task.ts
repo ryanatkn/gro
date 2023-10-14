@@ -15,6 +15,7 @@ export const Args = z
 		'no-gen': z.boolean({description: 'opt out of gen check'}).default(false),
 		format: z.boolean({description: 'dual of no-format'}).default(true),
 		'no-format': z.boolean({description: 'opt out of format check'}).default(false),
+		// TODO BLOCK rename? something needs to change
 		exports: z.boolean({description: 'dual of no-exports'}).default(true),
 		'no-exports': z.boolean({description: 'opt out of exports check'}).default(false),
 		lint: z.boolean({description: 'dual of no-lint'}).default(true),
@@ -30,7 +31,10 @@ export const task: Task<Args> = {
 	run: async ({args, invoke_task, log}) => {
 		const {typecheck, test, gen, format, exports, lint, workspace} = args;
 
-		const sync = !workspace; // if checking the workspace, don't sync! would lead to misleading errors
+		// When checking the workspace, don't sync because it could lead to misleading errors.
+		// For example the gen check could be a false negative and then
+		// the workspace check would fail with the new files.
+		const sync = !workspace;
 		if (sync) {
 			await invoke_task('sync');
 		}
