@@ -10,7 +10,9 @@ const config = create_empty_config();
 
 config.plugins = async () => [
 	(await import('./src/lib/gro_plugin_library.js')).plugin(),
-	(await import('./src/lib/gro_plugin_sveltekit_frontend.js')).plugin(),
+	(await import('./src/lib/gro_plugin_sveltekit_frontend.js')).plugin({
+		well_known_package_json: true,
+	}),
 	// TODO replace with an esbuild plugin, see the module for more
 	// (await import('./lib/gro_plugin_gen.js')).plugin(),
 ];
