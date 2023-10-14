@@ -130,26 +130,26 @@ export const load_package_json = async (
 export const sync_package_json = async (
 	map_package_json: MapPackageJson,
 	dir = paths.root,
-): Promise<PackageJson> => {
+	exports_dir = paths.lib,
+): Promise<{pkg: PackageJson | null; changed: boolean}> => {
 	// TODO BLOCK updating probably should have an opt-out flag?
-	// map `package.json`
-	const exported_files = await search_fs(paths.lib); // TODO BLOCK should this be joined with dir and a new `exports_dir`? or should `sync_package_json` be extracted?
+	const exported_files = await search_fs(exports_dir);
 	const exported_paths = Array.from(exported_files.keys());
 	const exports = to_package_exports(exported_paths);
 	const exports_count = Object.keys(exports).length;
-	const changed = await update_package_json(dir, async (pkg) => {
+	const updated = await update_package_json(dir, async (pkg) => {
 		pkg.exports = exports;
 		const mapped = await map_package_json(pkg);
 		return mapped ? normalize_package_json(mapped) : mapped;
 	});
 
 	log.info(
-		changed
+		updated.changed
 			? `updated package.json exports with ${exports_count} total export${plural(exports_count)}`
 			: 'no changes to exports in package.json',
 	);
 
-	return pkg;
+	return updated;
 };
 
 export const load_gro_package_json = (): Promise<PackageJson> => load_package_json(gro_paths.root);
@@ -169,22 +169,23 @@ export const serialize_package_json = (pkg: PackageJson): string => {
 
 /**
  * Updates package.json. Writes to the filesystem only when contents change.
- * @returns boolean indicating if the file changed
  */
 export const update_package_json = async (
 	dir = paths.root,
 	update: (pkg: PackageJson) => PackageJson | null | Promise<PackageJson | null>,
-): Promise<boolean> => {
+): Promise<{pkg: PackageJson | null; changed: boolean}> => {
 	const original_pkg_contents = await load_package_json_contents(dir);
 	const original_pkg = JSON.parse(original_pkg_contents);
 	const updated_pkg = await update(original_pkg);
-	if (updated_pkg === null) return false;
+	if (updated_pkg === null) {
+		return {pkg: original_pkg, changed: false};
+	}
 	const updated_contents = serialize_package_json(updated_pkg);
 	if (updated_contents === original_pkg_contents) {
-		return false;
+		return {pkg: original_pkg, changed: false};
 	}
 	await write_package_json(updated_contents);
-	return true;
+	return {pkg: updated_pkg, changed: true};
 };
 
 // TODO do this with zod?
