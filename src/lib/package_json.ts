@@ -132,7 +132,6 @@ export const sync_package_json = async (
 	dir = paths.root,
 	exports_dir = paths.lib,
 ): Promise<{pkg: PackageJson | null; changed: boolean}> => {
-	// TODO BLOCK updating probably should have an opt-out flag?
 	const exported_files = await search_fs(exports_dir);
 	const exported_paths = Array.from(exported_files.keys());
 	const exports = to_package_exports(exported_paths);

@@ -39,4 +39,4 @@ export default config;
 
 export const has_library = async (): Promise<boolean> => !!(await load_package_json()).exports;
 
-export const has_sveltekit_frontend = (): Promise<boolean> => exists('src/' + ROUTES_DIRNAME);
+export const has_sveltekit_frontend = (): Promise<boolean> => exists('src/' + ROUTES_DIRNAME); // TODO use SvelteKit config
