@@ -1,6 +1,6 @@
 import {spawn, spawn_process, type SpawnedProcess} from '@grogarden/util/process.js';
 import {mkdir, writeFile} from 'node:fs/promises';
-import {strip_end} from '@grogarden/util/string.js';
+import {join} from 'node:path';
 
 import type {Plugin, PluginContext} from './plugin.js';
 import {print_command_args, serialize_args, to_forwarded_args} from './args.js';
@@ -73,28 +73,28 @@ export const plugin = ({
 					// copy the `package.json` over to `static/.well-known/` if configured unless it exists
 					const svelte_config = await load_sveltekit_config();
 					const static_assets = svelte_config?.kit?.files?.assets || 'static';
-					const well_known_dir = strip_end(static_assets, '/') + '/.well-known';
+					const well_known_dir = join(static_assets, '.well-known');
 					if (!(await exists(well_known_dir))) {
 						await mkdir(well_known_dir, {recursive: true});
 					}
-					const package_json_path = well_known_dir + '/package.json';
+					const path = well_known_dir + '/package.json';
 					const new_contents = serialize_package_json(mapped);
-					let changed_well_known_package_json = false;
-					if (await exists(package_json_path)) {
-						const old_contents = await readFile(package_json_path, 'utf8');
+					let changed = false;
+					if (await exists(path)) {
+						const old_contents = await readFile(path, 'utf8');
 						if (new_contents === old_contents) {
-							changed_well_known_package_json = false;
+							changed = false;
 						} else {
-							changed_well_known_package_json = true;
+							changed = true;
 						}
 					} else {
-						changed_well_known_package_json = true;
+						changed = true;
 					}
-					if (changed_well_known_package_json) {
-						log.info(`updating package_json_path`, package_json_path);
-						await writeFile(package_json_path, new_contents);
+					if (changed) {
+						log.info(`updating package.json at`, path);
+						await writeFile(path, new_contents);
 					} else {
-						log.info(`no changes to package_json_path`, package_json_path);
+						log.info(`no changes to package.json at`, path);
 					}
 				}
 			}
