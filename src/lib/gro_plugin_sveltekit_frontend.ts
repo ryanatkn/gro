@@ -6,7 +6,8 @@ import type {Plugin, PluginContext} from './plugin.js';
 import {print_command_args, serialize_args, to_forwarded_args} from './args.js';
 import {SVELTEKIT_BUILD_DIRNAME} from './paths.js';
 import {exists} from './exists.js';
-import type {MapPackageJson} from './package_json.js';
+import {load_package_json, serialize_package_json, type MapPackageJson} from './package_json.js';
+import {load_sveltekit_config} from './sveltekit_config.js';
 
 export interface Options {
 	/**
@@ -49,58 +50,21 @@ export const plugin = ({
 			} else {
 				// `vite build` in production mode
 
-				// first copy any build-only static files so Vite and its plugins see them
-				// TODO BLOCK maybe a helper
-				const cleanup = copy_temporarily([package_path]);
-
 				const serialized_args = ['vite', 'build', ...serialize_args(to_forwarded_args('vite'))];
 				log.info(print_command_args(serialized_args));
 				await spawn('npx', serialized_args);
-
-				await cleanup();
 			}
 		},
 		adapt: async () => {
 			if (host_target === 'github_pages') {
-				await Promise.all([ensure_nojekyll(output_dir)]);
+				await ensure_nojekyll(output_dir);
 			}
-
-			// TODO BLOCK should this populate `static` before `vite build` or write during `adapt`?
-			// TODO BLOCK maybe use a function returning a function with the cleanup (which ensures it gets called at most once)
-
-			// add `/.well-known/package.json` as needed
+			// TODO this makes `static/.well-known/package.json` unavailable to Vite plugins,
+			// so we may want to do a more complicated temporary copy
+			// into `static/` before `vite build` in `setup`,
+			// and afterwards it would delete the files but only if they didn't already exist
 			if (well_known_package_json) {
-				const pkg = await load_package_json(); // TODO BLOCK maybe run sync/exports here? before every load?
-				const mapped = well_known_package_json === true ? pkg : await well_known_package_json(pkg);
-				// TODO refactor
-				if (mapped) {
-					// copy the `package.json` over to `static/.well-known/` if configured unless it exists
-					const svelte_config = await load_sveltekit_config();
-					const static_assets = svelte_config?.kit?.files?.assets || 'static';
-					const well_known_dir = join(static_assets, '.well-known');
-					if (!(await exists(well_known_dir))) {
-						await mkdir(well_known_dir, {recursive: true});
-					}
-					const path = well_known_dir + '/package.json';
-					const new_contents = serialize_package_json(mapped);
-					let changed = false;
-					if (await exists(path)) {
-						const old_contents = await readFile(path, 'utf8');
-						if (new_contents === old_contents) {
-							changed = false;
-						} else {
-							changed = true;
-						}
-					} else {
-						changed = true;
-					}
-					if (changed) {
-						log.info(`updating package.json at`, path);
-						await writeFile(path, new_contents);
-					} else {
-						log.info(`no changes to package.json at`, path);
-					}
-				}
+				await ensure_well_known_package_json(well_known_package_json, output_dir);
 			}
 		},
 		teardown: async () => {
@@ -126,4 +90,26 @@ const ensure_nojekyll = async (dir: string): Promise<void> => {
 		await mkdir(dir, {recursive: true});
 		await writeFile(path, '', 'utf8');
 	}
+};
+
+/**
+ * Outputs `${dir}/.well-known/package.json` if it doesn't already exist.
+ */
+const ensure_well_known_package_json = async (
+	well_known_package_json: true | MapPackageJson,
+	output_dir: string,
+): Promise<void> => {
+	const pkg = await load_package_json();
+	const mapped = well_known_package_json === true ? pkg : await well_known_package_json(pkg);
+	if (!mapped) return;
+	// copy the `package.json` over to `static/.well-known/` if configured unless it exists
+	const svelte_config = await load_sveltekit_config();
+	const static_assets = svelte_config?.kit?.files?.assets || 'static';
+	const well_known_dir = join(output_dir, static_assets, '.well-known');
+	if (!(await exists(well_known_dir))) {
+		await mkdir(well_known_dir, {recursive: true});
+	}
+	const path = join(well_known_dir, 'package.json');
+	const new_contents = serialize_package_json(mapped);
+	await writeFile(path, new_contents, 'utf8');
 };
