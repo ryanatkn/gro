@@ -127,6 +127,8 @@ export const load_package_json = async (
 };
 
 // TODO BLOCK but having sync separated would cause stale package.json reads?
+// what if we always synced this with `svelte-kit sync`?
+// in that case we should delete `gro sync`
 export const sync_package_json = async (
 	map_package_json: MapPackageJson,
 	dir = paths.root,
