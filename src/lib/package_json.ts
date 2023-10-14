@@ -122,7 +122,7 @@ export const load_package_json = async (
 	dir = is_this_project_gro ? paths.root : gro_paths.root,
 ): Promise<PackageJson> => {
 	// TODO BLOCK cache
-	if (!config) config = await load_config();
+	if (!config) config = await load_config(dir);
 
 	// TODO BLOCK maybe remove this error, wrap in try/catch
 	let pkg: PackageJson;
@@ -137,7 +137,7 @@ export const load_package_json = async (
 
 	// TODO BLOCK updating probably should have an opt-out flag?
 	// map `package.json`
-	const exported_files = await search_fs(paths.lib);
+	const exported_files = await search_fs(paths.lib); // TODO BLOCK should this be joined with dir and a new `exports_dir`? or should `sync_package_json` be extracted?
 	const exported_paths = Array.from(exported_files.keys());
 	const exports = to_package_exports(exported_paths);
 	const exports_count = Object.keys(exports).length;

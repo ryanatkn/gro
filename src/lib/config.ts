@@ -1,4 +1,6 @@
-import {paths} from './paths.js';
+import {join} from 'node:path';
+
+import {CONFIG_PATH, paths} from './paths.js';
 import create_default_config from './gro.config.default.js';
 import type {CreateConfigPlugins} from './plugin.js';
 import {exists} from './exists.js';
@@ -39,10 +41,9 @@ export interface GroConfigModule {
 	readonly default: GroConfig | CreateGroConfig;
 }
 
-export const load_config = async (): Promise<GroConfig> => {
+export const load_config = async (dir = paths.root): Promise<GroConfig> => {
 	const default_config = await create_default_config(create_empty_config());
-
-	const config_path = paths.config;
+	const config_path = join(dir, CONFIG_PATH);
 	let config: GroConfig;
 	if (await exists(config_path)) {
 		const config_module = await import(config_path);
