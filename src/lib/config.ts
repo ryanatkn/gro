@@ -6,18 +6,6 @@ import type {CreateConfigPlugins} from './plugin.js';
 import {exists} from './exists.js';
 import type {MapPackageJson} from './package_json.js';
 
-// TODO move the config to the root out of src/
-
-/*
-
-See `../docs/config.md` for documentation.
-
-The Gro config tells Gro how to build and manage a project.
-Dependent projects can optionally define one at `gro.config.ts`.
-If none is provided, the fallback is located at `gro/src/lib/gro.config.default.ts`.
-
-*/
-
 export interface GroConfig {
 	plugins: CreateConfigPlugins;
 	/**
