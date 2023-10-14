@@ -14,7 +14,7 @@ export type Args = z.infer<typeof Args>;
 export const task: Task<Args> = {
 	summary: 'run `gro gen`, update `package.json`, and optionally `npm i` to sync up',
 	Args,
-	run: async ({args, invoke_task}): Promise<void> => {
+	run: async ({args, invoke_task, config}): Promise<void> => {
 		const {install} = args;
 
 		// `invoke.ts` always calls `svelte-kit sync` so no need here
@@ -23,7 +23,9 @@ export const task: Task<Args> = {
 			await spawn('npm', ['i']);
 		}
 
-		await sync_package_json();
+		if (config.package_json) {
+			await sync_package_json(config.package_json);
+		}
 
 		await invoke_task('gen');
 	},

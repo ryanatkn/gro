@@ -1,7 +1,6 @@
 import {z} from 'zod';
 import {join} from 'node:path';
 import {readFile, writeFile} from 'node:fs/promises';
-import {red} from 'kleur/colors';
 import {Logger} from '@grogarden/util/log.js';
 import {plural} from '@grogarden/util/string.js';
 
@@ -15,7 +14,6 @@ import {
 	Email,
 } from './paths.js';
 import {search_fs} from './search_fs.js';
-import {load_config, type GroConfig} from './config.js';
 
 export const PackageJsonRepository = z.union([
 	z.string(),
@@ -113,9 +111,7 @@ export interface MapPackageJson {
 
 export const EMPTY_PACKAGE_JSON: PackageJson = {name: '', version: ''};
 
-// TODO BLOCK could cache at the module level a single thing, and diff the stringified contents, only calling `config.package_json` when it changes
 const log = new Logger('[package_json]');
-let config: GroConfig | undefined;
 
 // TODO handle failures?
 export const load_package_json = async (
@@ -125,34 +121,30 @@ export const load_package_json = async (
 	try {
 		pkg = JSON.parse(await load_package_json_contents(dir));
 	} catch (err) {
-		log.error(red('failed to load package.json'));
 		throw Error('failed to load package.json at ' + dir);
 	}
 	return pkg;
 };
 
 // TODO BLOCK but having sync separated would cause stale package.json reads?
-export const sync_package_json = async (dir = paths.root): Promise<PackageJson> => {
-	// TODO BLOCK cache?
-	console.log('load_package_json config', !!config);
-	if (!config) config = await load_config(dir);
-	console.log('LOADED');
-	const {package_json} = config;
-
+export const sync_package_json = async (
+	map_package_json: MapPackageJson,
+	dir = paths.root,
+): Promise<PackageJson> => {
 	// TODO BLOCK updating probably should have an opt-out flag?
 	// map `package.json`
 	const exported_files = await search_fs(paths.lib); // TODO BLOCK should this be joined with dir and a new `exports_dir`? or should `sync_package_json` be extracted?
 	const exported_paths = Array.from(exported_files.keys());
 	const exports = to_package_exports(exported_paths);
 	const exports_count = Object.keys(exports).length;
-	const changed_exports = await update_package_json(dir, async (pkg) => {
+	const changed = await update_package_json(dir, async (pkg) => {
 		pkg.exports = exports;
-		const mapped = package_json ? await package_json(pkg) : pkg;
+		const mapped = await map_package_json(pkg);
 		return mapped ? normalize_package_json(mapped) : mapped;
 	});
 
 	log.info(
-		changed_exports
+		changed
 			? `updated package.json exports with ${exports_count} total export${plural(exports_count)}`
 			: 'no changes to exports in package.json',
 	);

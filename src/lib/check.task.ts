@@ -51,6 +51,7 @@ export const task: Task<Args> = {
 			await invoke_task('format', {check: true});
 		}
 
+		// TODO BLOCK this no longer exists, need to think about `sync` -- look at `const sync` above too
 		if (exports) {
 			await invoke_task('exports', {check: true});
 		}
