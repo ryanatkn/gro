@@ -10,7 +10,6 @@ export default {
 	vitePlugin: {inspector: true}, // docs: https://github.com/sveltejs/vite-plugin-svelte/blob/main/docs/inspector.md
 	kit: {
 		adapter: adapter(),
-		files: {assets: 'src/static'},
 		alias: {$routes: 'src/routes', $fixtures: 'src/fixtures'},
 	},
 };
