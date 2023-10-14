@@ -133,9 +133,9 @@
       "default": "./dist/clean.task.js",
       "types": "./dist/clean.task.d.ts"
     },
-    "./clean.js": {
-      "default": "./dist/clean.js",
-      "types": "./dist/clean.d.ts"
+    "./clean_fs.js": {
+      "default": "./dist/clean_fs.js",
+      "types": "./dist/clean_fs.d.ts"
     },
     "./cli.js": {
       "default": "./dist/cli.js",

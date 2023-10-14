@@ -51,11 +51,13 @@ export const plugin = ({
 
 				// first copy any build-only static files so Vite and its plugins see them
 				// TODO BLOCK maybe a helper
-				// const cleanup = copy_temporarily([package_path])
+				const cleanup = copy_temporarily([package_path]);
 
 				const serialized_args = ['vite', 'build', ...serialize_args(to_forwarded_args('vite'))];
 				log.info(print_command_args(serialized_args));
 				await spawn('npx', serialized_args);
+
+				await cleanup();
 			}
 		},
 		adapt: async () => {
