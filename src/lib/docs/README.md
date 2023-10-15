@@ -9,6 +9,7 @@
 - [gen](gen.md)
 - [plugin](plugin.md)
 - [publish](publish.md)
+- [sveltekit-frontend-plugin](sveltekit-frontend-plugin.md)
 - [task](task.md)
 - [tasks](tasks.md)
 - [test](test.md)
