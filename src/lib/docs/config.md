@@ -43,7 +43,7 @@ export interface CreateGroConfig {
 
 export interface GroConfig {
 	plugins: CreateConfigPlugins;
-	package_json: MapPackageJson;
+	map_package_json: MapPackageJson | null;
 }
 ```
 
@@ -82,21 +82,16 @@ export interface CreateConfigPlugins<TPluginContext extends PluginContext = Plug
 }
 ```
 
-## `package_json`
+## `map_package_json`
 
-The Gro config option `package_json` hooks into Gro's `package.json` automations.
-The `gro exports` task, which is called during the dev and build tasks,
-performs two separate steps that both call `package_json` to determine their behavior:
+The Gro config option `map_package_json` hooks into Gro's `package.json` automations.
+The `gro sync` task, which is called during the dev and build tasks among others,
+performs several steps to get a project's state ready, including `svelte-kit sync`.
+It also writes out the root `package.json` if a `map_package_json` config value is truthy.
 
-- with `when === 'updating_exports'`, Gro is updating the repo's `package.json` `"exports"` property
-- with `when === 'updating_well_known'`, Gro is outputting a copy of `package.json`
-  to `.well-known/package.json` in the repo's static SvelteKit directory
+The `gro check` task integrates with `map_package_json` to ensure everything is synced.
 
-Similar to other tasks like `gro gen` and `gro format`,
-the `gro exports` task supports `gro exports --check`,
-which is called by `gro check`, to ensure the repo and Gro's automations are in sync.
-
-### using `package_json`
+### using `map_package_json`
 
 ```ts
 // gro.config.ts
@@ -134,65 +129,13 @@ export interface MapPackageJson {
 }
 ```
 
-### when 'updating_exports'
-
 Gro automatically updates the `"exports"` property of your root `package.json`
 during the dev and build tasks unless `package.json` has `"private": true`.
 The motivation is to streamline package publishing by supplementing
 [`@sveltejs/package`](https://kit.svelte.dev/docs/packaging).
 
-The `when` param will be `'updating_exports'` during this step.
 By default `pkg.exports` includes everything from `$lib/`,
-and you can provide your own `package_json` hook to
+and you can provide your own `map_package_json` hook to
 mutate the `pkg`, return new data, or return `null` to be a no-op.
 
 Typical usage would modify `pkg.exports` during this step to define the public API.
-
-### when 'updating_well_known'
-
-By default Gro copies your root `package.json`
-to the SvelteKit static directory in `.well-known/package.json`
-unless `package.json` has `"private": true`.
-The motivation is to provide conventional package metadata to web users and tools.
-
-The `when` param will be `'updating_exports'` during this step.
-By default it copies the root `package.json` without modifications,
-and you can provide your own `package_json` hook to
-mutate the `pkg`, return new data, or return `null` to be a no-op.
-
-> Writing to `.well-known/package.json` is unstandardized behavior that
-> extends [Well-known URIs](https://wikipedia.org/wiki/Well-known_URIs) for Node packages
-> to provide conventional metadata for deployed websites.
-> [Mastodon](<https://en.wikipedia.org/wiki/Mastodon_(social_network)>) uses
-> [WebFinger](https://en.wikipedia.org/wiki/WebFinger) which uses `.well-known` for discovery.
-> One difference is that SvelteKit outputs static files relative to the configured `base` path,
-> so the `.well-known` directory may not be in the root `/`.
-> This is useful because it enables websites to provide metadata even when hosted in a namespaced
-> path like `username.github.io/projectname/.well-known`.
-
-Why publish this metadata to the web instead of relying on the git repo as the only source of truth?
-
-- we want to give all web users and tools access to discoverable package metadata
-- metadata is a much lighter dependency than an entire repo
-- some repos are deployed to multiple websites with metadata differences
-- some repos like monorepos have multiple `package.json` files
-- we don't want to force a dependency on git, the bespoke URLs of forge hosts like GitHub,
-  or any particular toolchains
-- the git repo is still the source of truth, but Gro adds a build step for project metadata,
-  giving devs full control over the published artifacts
-  instead of coupling metadata directly to a source repo's `package.json`
-
-> ⚠️ Outputting `.well-known/package.json` will surprise some users
-> and could result in information leaks that compromise privacy or security.
-> Gro's defaults are designed for open source projects,
-> but configuring closed private projects should remain simple.
-> To migitate these issues:
->
-> - all `package.json` automations are disabled when `"private": true`
->   (templates should default to private to avoid accidental npm publishing as well)
-> - the `package.json` is written to `.well-known` during development
->   and it's expected to be committed to source control, giving the feature explicit visibility
->   and requiring developers to either opt into adding the file with git
->   or opt out of generating it -
->   the alternative of outputting it to the SvelteKit build may appear cleaner,
->   but Gro's position is that this opinionated workflow is in everyone's best interest
