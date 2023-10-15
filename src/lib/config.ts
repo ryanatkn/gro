@@ -1,4 +1,5 @@
 import {join} from 'node:path';
+import {identity} from '@grogarden/util/function.js';
 
 import {CONFIG_PATH, paths} from './paths.js';
 import create_default_config from './gro.config.default.js';
@@ -22,7 +23,7 @@ export interface CreateGroConfig {
 
 export const create_empty_config = (): GroConfig => ({
 	plugins: () => [],
-	package_json: null,
+	package_json: identity,
 });
 
 export interface GroConfigModule {
