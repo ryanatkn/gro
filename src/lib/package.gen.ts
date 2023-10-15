@@ -2,6 +2,8 @@ import type {Gen} from './gen.js';
 import {load_package_json} from './package_json.js';
 import {is_this_project_gro} from './paths.js';
 
+// TODO consider an api that uses magic imports like SvelteKit's `$app`, like `$repo/package.json`
+
 /**
  * A convenience `gen` file that outputs `$lib/package.ts`,
  * which mirrors `package.json` but in TypeScript,

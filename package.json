@@ -129,13 +129,13 @@
       "default": "./dist/check.task.js",
       "types": "./dist/check.task.d.ts"
     },
-    "./clean.task.js": {
-      "default": "./dist/clean.task.js",
-      "types": "./dist/clean.task.d.ts"
-    },
     "./clean_fs.js": {
       "default": "./dist/clean_fs.js",
       "types": "./dist/clean_fs.d.ts"
+    },
+    "./clean.task.js": {
+      "default": "./dist/clean.task.js",
+      "types": "./dist/clean.task.d.ts"
     },
     "./cli.js": {
       "default": "./dist/cli.js",
@@ -192,10 +192,6 @@
     "./exists.js": {
       "default": "./dist/exists.js",
       "types": "./dist/exists.d.ts"
-    },
-    "./exports.task.js": {
-      "default": "./dist/exports.task.js",
-      "types": "./dist/exports.task.d.ts"
     },
     "./format_directory.js": {
       "default": "./dist/format_directory.js",
@@ -288,6 +284,10 @@
     "./package_json.js": {
       "default": "./dist/package_json.js",
       "types": "./dist/package_json.d.ts"
+    },
+    "./package.js": {
+      "default": "./dist/package.js",
+      "types": "./dist/package.d.ts"
     },
     "./path.js": {
       "default": "./dist/path.js",
