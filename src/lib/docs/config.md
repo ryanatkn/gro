@@ -86,10 +86,23 @@ export interface CreateConfigPlugins<TPluginContext extends PluginContext = Plug
 
 The Gro config option `map_package_json` hooks into Gro's `package.json` automations.
 The `gro sync` task, which is called during the dev and build tasks among others,
-performs several steps to get a project's state ready, including `svelte-kit sync`.
-It also writes out the root `package.json` if a `map_package_json` config value is truthy.
+performs several steps to get a project's state ready,
+including `svelte-kit sync` and `package.json` automations.
+When the `map_package_json` config value is truthy,
+Gro outputs a mapped version of the root `package.json`.
 
-The `gro check` task integrates with `map_package_json` to ensure everything is synced.
+> The `gro check` task integrates with `map_package_json` to ensure everything is synced.
+
+The main purpose of `map_package_json` is to automate
+the `"exports"` property of your root `package.json`.
+The motivation is to streamline package publishing by supplementing
+[`@sveltejs/package`](https://kit.svelte.dev/docs/packaging).
+
+By default `pkg.exports` includes everything from `$lib/`,
+and you can provide your own `map_package_json` hook to
+mutate the `pkg`, return new data, or return `null` to be a no-op.
+
+Typical usage modifies `pkg.exports` during this step to define the public API.
 
 ### using `map_package_json`
 
@@ -98,11 +111,11 @@ The `gro check` task integrates with `map_package_json` to ensure everything is 
 const config: GroConfig = {
 	// ...other config
 
-	// the default behavior, disable generation of automatic `exports`
-	package_json: null,
+	// disable mapping `package.json` with automated `exports`:
+	map_package_json: null,
 
 	// mutate anything and return the final config (can be async):
-	package_json: (pkg) => {
+	map_package_json: (pkg) => {
 		// example setting `exports`:
 		pkg.exports = {
 			'.': {
@@ -128,14 +141,3 @@ export interface MapPackageJson {
 	(pkg: PackageJson): PackageJson | null | Promise<PackageJson | null>;
 }
 ```
-
-Gro automatically updates the `"exports"` property of your root `package.json`
-during the dev and build tasks unless `package.json` has `"private": true`.
-The motivation is to streamline package publishing by supplementing
-[`@sveltejs/package`](https://kit.svelte.dev/docs/packaging).
-
-By default `pkg.exports` includes everything from `$lib/`,
-and you can provide your own `map_package_json` hook to
-mutate the `pkg`, return new data, or return `null` to be a no-op.
-
-Typical usage would modify `pkg.exports` during this step to define the public API.

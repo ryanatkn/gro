@@ -22,6 +22,7 @@ export interface CreateGroConfig {
 
 export const create_empty_config = (): GroConfig => ({
 	plugins: () => [],
+	// TODO maybe disable if no SvelteKit `lib` directory? or other detection to improve defaults
 	map_package_json: default_map_package_json,
 });
 
