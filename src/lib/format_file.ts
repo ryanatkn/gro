@@ -33,7 +33,7 @@ export const format_file = async (
 	}
 };
 
-// This is just a simple convenience for callers.
+// This is just a simple convenience for callers so they can pass a file path.
 // They can provide the Prettier `options.parser` for custom extensions.
 const infer_parser = (path: string): string | null => {
 	const extension = extname(path).substring(1);
