@@ -98,7 +98,8 @@ the `"exports"` property of your root `package.json`.
 The motivation is to streamline package publishing by supplementing
 [`@sveltejs/package`](https://kit.svelte.dev/docs/packaging).
 
-By default `pkg.exports` includes everything from `$lib/` except for some files like tests,
+By default `pkg.exports` includes everything from `$lib/`
+except for some ignored files like tests and markdown,
 and you can provide your own `map_package_json` hook to
 mutate the `pkg`, return new data, or return `null` to be a no-op.
 
