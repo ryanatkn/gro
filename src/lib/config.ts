@@ -33,7 +33,7 @@ const default_map_package_json: MapPackageJson = async (pkg) => {
 	}
 	return pkg;
 };
-const DEFAULT_EXPORTS_EXCLUDE = /(\.md|\.(gen|test|ignore)\.|\/(test|fixtures|ignore)\/)/u;
+const DEFAULT_EXPORTS_EXCLUDE = /(\.md|\.(test|ignore)\.|\/(test|fixtures|ignore)\/)/u;
 
 export interface GroConfigModule {
 	readonly default: GroConfig | CreateGroConfig;
