@@ -93,6 +93,8 @@ const ensure_nojekyll = async (dir: string): Promise<void> => {
 
 /**
  * Outputs `${dir}/.well-known/package.json` if it doesn't already exist.
+ * @param well_known_package_json - if `undefined`, inferred to be `true` if `pkg.private` is falsy
+ * @param output_dir
  */
 const ensure_well_known_package_json = async (
 	well_known_package_json: boolean | MapPackageJson | undefined,
