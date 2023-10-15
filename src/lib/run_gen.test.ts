@@ -75,7 +75,7 @@ test__gen('basic behavior', async () => {
 		log,
 		new Timings(),
 		async (content, opts) =>
-			opts!.filepath!.endsWith('output_b.ts') ? `${content}/*FORMATTED*/` : content,
+			opts.filepath!.endsWith('output_b.ts') ? `${content}/*FORMATTED*/` : content,
 	);
 	assert.is(gen_results.input_count, 3);
 	assert.is(gen_results.output_count, 4);
