@@ -24,13 +24,13 @@ export const task: Task<Args> = {
 	run: async ({args, invoke_task, config, log}): Promise<void> => {
 		const {sveltekit, package_json, gen, install} = args;
 
+		if (install) {
+			await spawn('npm', ['i']);
+		}
+
 		if (sveltekit) {
 			await sveltekit_sync();
 			log.info('synced SvelteKit');
-		}
-
-		if (install) {
-			await spawn('npm', ['i']);
 		}
 
 		if (package_json && config.map_package_json) {
