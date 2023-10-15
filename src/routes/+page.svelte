@@ -8,7 +8,7 @@
 
 	// TODO SvelteKit warns about this but we put `/static` in `/src` because of what it's saying,
 	/// maybe change to import as the first item from `packages`
-	import package_json from '../static/.well-known/package.json';
+	import package_json from '../../static/.well-known/package.json';
 	const pkg = parse_package_meta(package_json.homepage, package_json);
 </script>
 

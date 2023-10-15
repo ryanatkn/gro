@@ -29,7 +29,7 @@ const output_dir = SVELTEKIT_BUILD_DIRNAME;
 
 export const plugin = ({
 	host_target = 'github_pages',
-	well_known_package_json = false,
+	well_known_package_json,
 }: Options = {}): Plugin<PluginContext> => {
 	let sveltekit_process: SpawnedProcess | null = null;
 	return {
@@ -59,13 +59,12 @@ export const plugin = ({
 			if (host_target === 'github_pages') {
 				await ensure_nojekyll(output_dir);
 			}
-			// TODO this makes `static/.well-known/package.json` unavailable to Vite plugins,
+
+			// TODO doing this here makes `static/.well-known/package.json` unavailable to Vite plugins,
 			// so we may want to do a more complicated temporary copy
 			// into `static/` before `vite build` in `setup`,
 			// and afterwards it would delete the files but only if they didn't already exist
-			if (well_known_package_json) {
-				await ensure_well_known_package_json(well_known_package_json, output_dir);
-			}
+			await ensure_well_known_package_json(well_known_package_json, output_dir);
 		},
 		teardown: async () => {
 			if (sveltekit_process) {
@@ -96,10 +95,15 @@ const ensure_nojekyll = async (dir: string): Promise<void> => {
  * Outputs `${dir}/.well-known/package.json` if it doesn't already exist.
  */
 const ensure_well_known_package_json = async (
-	well_known_package_json: true | MapPackageJson,
+	well_known_package_json: boolean | MapPackageJson | undefined,
 	output_dir: string,
 ): Promise<void> => {
 	const pkg = await load_package_json();
+	if (well_known_package_json === undefined) {
+		well_known_package_json = !pkg.private; // eslint-disable-line no-param-reassign
+	}
+	if (!well_known_package_json) return;
+
 	const mapped = well_known_package_json === true ? pkg : await well_known_package_json(pkg);
 	if (!mapped) return;
 	// copy the `package.json` over to `static/.well-known/` if configured unless it exists
