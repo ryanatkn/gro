@@ -23,8 +23,8 @@ export const task: Task<Args> = {
 			await spawn('npm', ['i']);
 		}
 
-		if (config.package_json) {
-			await sync_package_json(config.package_json);
+		if (config.map_package_json) {
+			await sync_package_json(config.map_package_json);
 		}
 
 		await invoke_task('gen');

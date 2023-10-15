@@ -54,8 +54,8 @@ export const task: Task<Args> = {
 			await invoke_task('gen', {check: true});
 		}
 
-		if (package_json && config.package_json) {
-			const {changed} = await sync_package_json(config.package_json, true);
+		if (package_json && config.map_package_json) {
+			const {changed} = await sync_package_json(config.map_package_json, true);
 			if (changed) {
 				throw new TaskError('package.json is out of date, run `gro sync` to update it');
 			} else {

@@ -14,7 +14,7 @@ export interface GroConfig {
 	 * The `pkg` argument may be mutated, but the return value is what's used by the caller.
 	 * Returning `null` is a no-op for the caller.
 	 */
-	package_json: MapPackageJson | null;
+	map_package_json: MapPackageJson | null;
 }
 
 export interface CreateGroConfig {
@@ -23,7 +23,7 @@ export interface CreateGroConfig {
 
 export const create_empty_config = (): GroConfig => ({
 	plugins: () => [],
-	package_json: identity,
+	map_package_json: identity,
 });
 
 export interface GroConfigModule {
