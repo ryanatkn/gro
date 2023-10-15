@@ -13,7 +13,7 @@ let cached_base_options: prettier.Options | undefined;
  */
 export const format_file = async (
 	content: string,
-	options?: prettier.Options | undefined,
+	options: prettier.Options,
 	base_options: prettier.Options | null | undefined = cached_base_options,
 ): Promise<string> => {
 	const final_base_options =
@@ -21,7 +21,7 @@ export const format_file = async (
 			? base_options
 			: (cached_base_options = (await load_package_json()).prettier as any);
 	let final_options = options;
-	if (options?.filepath && !options.parser) {
+	if (options.filepath && !options.parser) {
 		const {filepath, ...rest} = options;
 		const parser = infer_parser(filepath);
 		if (parser) final_options = {...rest, parser};
