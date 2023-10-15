@@ -32,6 +32,7 @@ By default Gro copies your root `package.json`
 to the SvelteKit build output directory in `.well-known/package.json`
 unless `package.json` has `"private": true`.
 The motivation is to provide conventional package metadata to web users and tools.
+(more details below)
 
 > ⚠️ Outputting `.well-known/package.json` will surprise some users
 > and could result in information leaks that compromise privacy or security.
