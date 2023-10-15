@@ -1,8 +1,8 @@
 import {z} from 'zod';
 import {join} from 'node:path';
 import {readFile, writeFile} from 'node:fs/promises';
-import {Logger} from '@grogarden/util/log.js';
 import {plural} from '@grogarden/util/string.js';
+import type {Logger} from '@grogarden/util/log.js';
 
 import {
 	paths,
@@ -111,8 +111,6 @@ export interface MapPackageJson {
 
 export const EMPTY_PACKAGE_JSON: PackageJson = {name: '', version: ''};
 
-const log = new Logger('[package_json]');
-
 // TODO handle failures?
 export const load_package_json = async (
 	dir = is_this_project_gro ? paths.root : gro_paths.root,
@@ -128,6 +126,7 @@ export const load_package_json = async (
 
 export const sync_package_json = async (
 	map_package_json: MapPackageJson,
+	log: Logger,
 	check = false,
 	dir = paths.root,
 	exports_dir = paths.lib,
