@@ -1,5 +1,4 @@
 import {join} from 'node:path';
-import {identity} from '@grogarden/util/function.js';
 
 import {CONFIG_PATH, paths} from './paths.js';
 import create_default_config from './gro.config.default.js';
@@ -23,8 +22,23 @@ export interface CreateGroConfig {
 
 export const create_empty_config = (): GroConfig => ({
 	plugins: () => [],
-	map_package_json: identity,
+	map_package_json: default_map_package_json,
 });
+
+// TODO BLOCK refactor with `sync_package_json`
+const exclude = /(\.md|\.(gen|test|ignore)\.|\/(test|fixtures|ignore)\/)/;
+const default_map_package_json: MapPackageJson = async (pkg) => {
+	const exported_files = await search_fs(dir, {filter: (path) => !exclude.test(path)});
+	// const exported_files = await search_fs(exports_dir);
+	const exported_paths = Array.from(exported_files.keys());
+	const exports = to_package_exports(exported_paths);
+	const changed_exports = await update_package_json(async (pkg) => {
+		pkg.exports = exports;
+		const updated = await config.package_json(pkg, 'updating_exports');
+		return updated ? normalize_package_json(updated) : updated;
+	}, !check);
+	return pkg;
+};
 
 export interface GroConfigModule {
 	readonly default: GroConfig | CreateGroConfig;
