@@ -163,6 +163,7 @@ export const package_json = {
 		'./module.js': {default: './dist/module.js', types: './dist/module.d.ts'},
 		'./modules.js': {default: './dist/modules.js', types: './dist/modules.d.ts'},
 		'./package_json.js': {default: './dist/package_json.js', types: './dist/package_json.d.ts'},
+		'./package.gen.js': {default: './dist/package.gen.js', types: './dist/package.gen.d.ts'},
 		'./package.js': {default: './dist/package.js', types: './dist/package.d.ts'},
 		'./path.js': {default: './dist/path.js', types: './dist/path.d.ts'},
 		'./paths.js': {default: './dist/paths.js', types: './dist/paths.d.ts'},
