@@ -10,7 +10,10 @@ import type {GroConfigCreator} from '@grogarden/gro';
 const config: GroConfigCreator = async (cfg) => {
 	cfg.plugins = async () => [
 		// this is included in the default config for SvelteKit projects:
-		(await import('./src/lib/gro_plugin_sveltekit_frontend.js')).plugin(),
+		(await import('./src/lib/gro_plugin_sveltekit_frontend.js')).plugin({
+			// host_target?: HostTarget;
+			// well_known_package_json?: boolean | MapPackageJson;
+		}),
 	];
 	return cfg;
 };
@@ -18,7 +21,12 @@ const config: GroConfigCreator = async (cfg) => {
 export default config;
 ```
 
-## `.well-known/package.json`
+## `host_target`
+
+When `host_target` is the default value `'github_pages'`,
+a `.nojekyll` file is included in the build to tell GitHub Pages not to process it with Jekyll.
+
+## `well_known_package_json`
 
 By default Gro copies your root `package.json`
 to the SvelteKit build output directory in `.well-known/package.json`
