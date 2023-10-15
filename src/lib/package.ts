@@ -210,10 +210,6 @@ export const package_json = {
 			default: './dist/sveltekit_shim_env.js',
 			types: './dist/sveltekit_shim_env.d.ts',
 		},
-		'./sveltekit_sync.js': {
-			default: './dist/sveltekit_sync.js',
-			types: './dist/sveltekit_sync.d.ts',
-		},
 		'./sync.task.js': {default: './dist/sync.task.js', types: './dist/sync.task.d.ts'},
 		'./task_module.js': {default: './dist/task_module.js', types: './dist/task_module.d.ts'},
 		'./task.js': {default: './dist/task.js', types: './dist/task.d.ts'},

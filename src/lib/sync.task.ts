@@ -1,8 +1,9 @@
 import {z} from 'zod';
 import {spawn} from '@grogarden/util/process.js';
 
-import type {Task} from './task.js';
+import {TaskError, type Task} from './task.js';
 import {sync_package_json} from './package_json.js';
+import {find_cli, spawn_cli} from './cli.js';
 
 export const Args = z
 	.object({
@@ -17,7 +18,7 @@ export const task: Task<Args> = {
 	run: async ({args, invoke_task, config}): Promise<void> => {
 		const {install} = args;
 
-		// `invoke.ts` always calls `svelte-kit sync` so no need here
+		await sveltekit_sync();
 
 		if (install) {
 			await spawn('npm', ['i']);
@@ -29,4 +30,14 @@ export const task: Task<Args> = {
 
 		await invoke_task('gen');
 	},
+};
+
+export const sveltekit_sync = async (): Promise<void> => {
+	if (!(await find_cli('svelte-kit'))) {
+		return;
+	}
+	const result = await spawn_cli('svelte-kit', ['sync']);
+	if (!result?.ok) {
+		throw new TaskError(`failed svelte-kit sync`);
+	}
 };
