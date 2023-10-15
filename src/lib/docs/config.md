@@ -62,10 +62,9 @@ const config: CreateGroConfig = async (cfg) => {
 	// example extending the default plugins:
 	const get_base_plugins = cfg.plugins;
 	cfg.plugins = async (ctx) => {
-		const base_plugins = await get_base_plugins(ctx);
 		// replace a base plugin with `import {replace_plugin} from '@grogarden/gro';`:
 		const updated_plugins = replace_plugin(
-			base_plugins,
+			await get_base_plugins(ctx),
 			(await import('@grogarden/gro/gro_plugin_sveltekit_frontend.js')).plugin({
 				// host_target?: HostTarget;
 				// well_known_package_json?: boolean | MapPackageJson;
