@@ -131,19 +131,25 @@ export const load_package_json = async (
 // in that case we should delete `gro sync`
 export const sync_package_json = async (
 	map_package_json: MapPackageJson,
+	check = false,
 	dir = paths.root,
 	exports_dir = paths.lib,
 ): Promise<{pkg: PackageJson | null; changed: boolean}> => {
 	const exported_files = await search_fs(exports_dir);
 	const exported_paths = Array.from(exported_files.keys());
 	const exports = to_package_exports(exported_paths);
-	const exports_count = Object.keys(exports).length;
-	const updated = await update_package_json(dir, async (pkg) => {
-		pkg.exports = exports;
-		const mapped = await map_package_json(pkg);
-		return mapped ? normalize_package_json(mapped) : mapped;
-	});
+	const updated = await update_package_json(
+		dir,
+		async (pkg) => {
+			pkg.exports = exports;
+			const mapped = await map_package_json(pkg);
+			return mapped ? normalize_package_json(mapped) : mapped;
+		},
+		!check,
+	);
 
+	const exports_count =
+		updated.changed && updated.pkg?.exports ? Object.keys(updated.pkg.exports).length : 0;
 	log.info(
 		updated.changed
 			? `updated package.json exports with ${exports_count} total export${plural(exports_count)}`
@@ -174,6 +180,7 @@ export const serialize_package_json = (pkg: PackageJson): string => {
 export const update_package_json = async (
 	dir = paths.root,
 	update: (pkg: PackageJson) => PackageJson | null | Promise<PackageJson | null>,
+	write = true,
 ): Promise<{pkg: PackageJson | null; changed: boolean}> => {
 	const original_pkg_contents = await load_package_json_contents(dir);
 	const original_pkg = JSON.parse(original_pkg_contents);
@@ -185,7 +192,7 @@ export const update_package_json = async (
 	if (updated_contents === original_pkg_contents) {
 		return {pkg: original_pkg, changed: false};
 	}
-	await write_package_json(updated_contents);
+	if (write) await write_package_json(updated_contents);
 	return {pkg: updated_pkg, changed: true};
 };
 
