@@ -10,7 +10,7 @@ import type {GroConfigCreator} from '@grogarden/gro';
 const config: GroConfigCreator = async (cfg) => {
 	cfg.plugins = async () => [
 		// this is included in the default config for SvelteKit projects:
-		(await import('./src/lib/gro_plugin_sveltekit_frontend.js')).plugin({
+		(await import('@grogarden/gro/gro_plugin_sveltekit_frontend.js')).plugin({
 			// host_target?: HostTarget;
 			// well_known_package_json?: boolean | MapPackageJson;
 		}),
