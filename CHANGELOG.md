@@ -1,5 +1,14 @@
 # @grogarden/gro
 
+## 0.95.0
+
+### Minor Changes
+
+- 9cdb33d: rename CreateGroConfig from GroConfigCreator
+- 4b1a6cc: add package.gen.ts for importing package.json data
+- 4b1a6cc: change config to explictly publish `static/.well-known/package.json` and delete `gro exports`
+- 4b1a6cc: rename `clean_fs.ts` from `clean.ts`
+
 ## 0.94.2
 
 ### Patch Changes
