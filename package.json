@@ -55,7 +55,7 @@
     "prettier-plugin-svelte": "^3.0.3",
     "tiny-glob": "^0.2.9",
     "tslib": "^2.6.2",
-    "zod": "^3.22.2"
+    "zod": "^3.22.4"
   },
   "peerDependencies": {
     "esbuild": "^0.18",
@@ -66,21 +66,19 @@
     "@changesets/types": "^5.2.1",
     "@feltjs/eslint-config": "^0.4.0",
     "@fuz.dev/fuz": "^0.72.1",
-    "@fuz.dev/fuz_library": "^0.9.0",
+    "@fuz.dev/fuz_library": "^0.10.1",
     "@sveltejs/adapter-static": "^2.0.3",
-    "@sveltejs/kit": "^1.25.1",
+    "@sveltejs/kit": "^1.25.2",
     "@sveltejs/package": "^2.2.2",
     "@types/fs-extra": "^11.0.2",
-    "@types/node": "^20.7.2",
-    "@typescript-eslint/eslint-plugin": "^6.7.3",
-    "@typescript-eslint/parser": "^6.7.3",
+    "@types/node": "^20.8.6",
+    "@typescript-eslint/eslint-plugin": "^6.7.5",
+    "@typescript-eslint/parser": "^6.7.5",
     "esbuild": "^0.18.0",
-    "eslint": "^8.50.0",
-    "eslint-plugin-svelte": "^2.33.2",
+    "eslint": "^8.51.0",
+    "eslint-plugin-svelte": "^2.34.0",
     "svelte": "^4.2.1",
     "svelte-check": "^3.5.2",
-    "svelte-preprocess": "^5.0.4",
-    "svelte-preprocess-esbuild": "^3.0.1",
     "typescript": "^5.2.2",
     "uvu": "^0.5.6"
   },
@@ -129,13 +127,13 @@
       "default": "./dist/check.task.js",
       "types": "./dist/check.task.d.ts"
     },
+    "./clean_fs.js": {
+      "default": "./dist/clean_fs.js",
+      "types": "./dist/clean_fs.d.ts"
+    },
     "./clean.task.js": {
       "default": "./dist/clean.task.js",
       "types": "./dist/clean.task.d.ts"
-    },
-    "./clean.js": {
-      "default": "./dist/clean.js",
-      "types": "./dist/clean.d.ts"
     },
     "./cli.js": {
       "default": "./dist/cli.js",
@@ -192,10 +190,6 @@
     "./exists.js": {
       "default": "./dist/exists.js",
       "types": "./dist/exists.d.ts"
-    },
-    "./exports.task.js": {
-      "default": "./dist/exports.task.js",
-      "types": "./dist/exports.task.d.ts"
     },
     "./format_directory.js": {
       "default": "./dist/format_directory.js",
@@ -289,6 +283,14 @@
       "default": "./dist/package_json.js",
       "types": "./dist/package_json.d.ts"
     },
+    "./package.gen.js": {
+      "default": "./dist/package.gen.js",
+      "types": "./dist/package.gen.d.ts"
+    },
+    "./package.js": {
+      "default": "./dist/package.js",
+      "types": "./dist/package.d.ts"
+    },
     "./path.js": {
       "default": "./dist/path.js",
       "types": "./dist/path.d.ts"
@@ -364,10 +366,6 @@
     "./sveltekit_shim_env.js": {
       "default": "./dist/sveltekit_shim_env.js",
       "types": "./dist/sveltekit_shim_env.d.ts"
-    },
-    "./sveltekit_sync.js": {
-      "default": "./dist/sveltekit_sync.js",
-      "types": "./dist/sveltekit_sync.d.ts"
     },
     "./sync.task.js": {
       "default": "./dist/sync.task.js",

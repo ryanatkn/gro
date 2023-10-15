@@ -1,6 +1,6 @@
-# gro <img src="src/static/favicon.png" width="32" height="32">
+# gro <img src="static/favicon.png" width="32" height="32">
 
-<img src="src/static/favicon.png" align="right" width="192" height="192">
+<img src="static/favicon.png" align="right" width="192" height="192">
 
 > task runner and toolkit extending SvelteKit - [grogarden.org](https://grogarden.org)
 

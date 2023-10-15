@@ -2,7 +2,7 @@ import type {CreateGroConfig} from './config.js';
 import {exists} from './exists.js';
 import {load_package_json} from './package_json.js';
 import {has_server} from './gro_plugin_server.js';
-import {ROUTES_DIRNAME} from './paths.js';
+import {SVELTEKIT_CONFIG_FILENAME} from './paths.js';
 
 /**
  * This is the default config that's passed to `gro.config.ts`
@@ -39,4 +39,4 @@ export default config;
 
 export const has_library = async (): Promise<boolean> => !!(await load_package_json()).exports;
 
-export const has_sveltekit_frontend = (): Promise<boolean> => exists('src/' + ROUTES_DIRNAME);
+export const has_sveltekit_frontend = (): Promise<boolean> => exists(SVELTEKIT_CONFIG_FILENAME);

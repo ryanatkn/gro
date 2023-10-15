@@ -1,5 +1,4 @@
 import {attach_process_error_handlers} from '@grogarden/util/process.js';
-import {sveltekit_sync} from './sveltekit_sync.js';
 
 import {invoke_task} from './invoke_task.js';
 import {to_task_args} from './args.js';
@@ -20,9 +19,6 @@ and the rest of the args are forwarded to the task's `run` function.
 attach_process_error_handlers((err) =>
 	err?.constructor?.name === 'TaskError' ? 'TaskError' : null,
 );
-
-// This is often wasteful but we're just going for correctness right now.
-await sveltekit_sync();
 
 const {task_name, args} = to_task_args();
 await invoke_task(task_name, args, await load_config());

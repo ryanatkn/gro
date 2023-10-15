@@ -4,6 +4,7 @@ import {red} from 'kleur/colors';
 
 import {TaskError, type Task} from './task.js';
 import {git_check_clean_workspace} from './git.js';
+import {sync_package_json} from './package_json.js';
 
 export const Args = z
 	.object({
@@ -15,11 +16,13 @@ export const Args = z
 		'no-gen': z.boolean({description: 'opt out of gen check'}).default(false),
 		format: z.boolean({description: 'dual of no-format'}).default(true),
 		'no-format': z.boolean({description: 'opt out of format check'}).default(false),
-		exports: z.boolean({description: 'dual of no-exports'}).default(true),
-		'no-exports': z.boolean({description: 'opt out of exports check'}).default(false),
+		package_json: z.boolean({description: 'dual of no-package_json'}).default(true),
+		'no-package_json': z.boolean({description: 'opt out of package.json check'}).default(false),
 		lint: z.boolean({description: 'dual of no-lint'}).default(true),
 		'no-lint': z.boolean({description: 'opt out of linting'}).default(false),
-		workspace: z.boolean({description: 'call git_check_clean_workspace'}).default(false),
+		workspace: z
+			.boolean({description: 'ensure a clean git workspace, useful for CI'})
+			.default(false),
 	})
 	.strict();
 export type Args = z.infer<typeof Args>;
@@ -27,10 +30,14 @@ export type Args = z.infer<typeof Args>;
 export const task: Task<Args> = {
 	summary: 'check that everything is ready to commit',
 	Args,
-	run: async ({args, invoke_task, log}) => {
-		const {typecheck, test, gen, format, exports, lint, workspace} = args;
+	run: async ({args, invoke_task, log, config}) => {
+		const {typecheck, test, gen, format, package_json, lint, workspace} = args;
 
-		const sync = !workspace; // if checking the workspace, don't sync! would lead to misleading errors
+		// When checking the workspace, which was added for CI,
+		// don't sync, because the check will fail with misleading errors.
+		// For example it would cause the gen check to be a false negative,
+		// and then the workspace check would fail with the new files.
+		const sync = !workspace;
 		if (sync) {
 			await invoke_task('sync');
 		}
@@ -47,12 +54,17 @@ export const task: Task<Args> = {
 			await invoke_task('gen', {check: true});
 		}
 
-		if (format) {
-			await invoke_task('format', {check: true});
+		if (package_json && config.map_package_json) {
+			const {changed} = await sync_package_json(config.map_package_json, log, true);
+			if (changed) {
+				throw new TaskError('package.json is out of date, run `gro sync` to update it');
+			} else {
+				log.info('check passed for package.json');
+			}
 		}
 
-		if (exports) {
-			await invoke_task('exports', {check: true});
+		if (format) {
+			await invoke_task('format', {check: true});
 		}
 
 		// Run the linter last to surface every other kind of problem first.

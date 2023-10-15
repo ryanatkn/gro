@@ -1,10 +1,13 @@
 import {spawn, spawn_process, type SpawnedProcess} from '@grogarden/util/process.js';
 import {mkdir, writeFile} from 'node:fs/promises';
+import {join} from 'node:path';
 
 import type {Plugin, PluginContext} from './plugin.js';
 import {print_command_args, serialize_args, to_forwarded_args} from './args.js';
 import {SVELTEKIT_BUILD_DIRNAME} from './paths.js';
 import {exists} from './exists.js';
+import {load_package_json, serialize_package_json, type MapPackageJson} from './package_json.js';
+import {load_sveltekit_config} from './sveltekit_config.js';
 
 export interface Options {
 	/**
@@ -12,13 +15,22 @@ export interface Options {
 	 * @default 'github_pages'
 	 */
 	host_target?: HostTarget;
+
+	/**
+	 * If truthy, adds `/.well-known/package.json` to the static output.
+	 * If a function, maps the value.
+	 */
+	well_known_package_json?: boolean | MapPackageJson;
 }
 
 export type HostTarget = 'github_pages' | 'static' | 'node';
 
 const output_dir = SVELTEKIT_BUILD_DIRNAME;
 
-export const plugin = ({host_target = 'github_pages'}: Options = {}): Plugin<PluginContext> => {
+export const plugin = ({
+	host_target = 'github_pages',
+	well_known_package_json,
+}: Options = {}): Plugin<PluginContext> => {
 	let sveltekit_process: SpawnedProcess | null = null;
 	return {
 		name: 'gro_plugin_sveltekit_frontend',
@@ -37,6 +49,7 @@ export const plugin = ({host_target = 'github_pages'}: Options = {}): Plugin<Plu
 				}
 			} else {
 				// `vite build` in production mode
+
 				const serialized_args = ['vite', 'build', ...serialize_args(to_forwarded_args('vite'))];
 				log.info(print_command_args(serialized_args));
 				await spawn('npx', serialized_args);
@@ -44,8 +57,14 @@ export const plugin = ({host_target = 'github_pages'}: Options = {}): Plugin<Plu
 		},
 		adapt: async () => {
 			if (host_target === 'github_pages') {
-				await Promise.all([ensure_nojekyll(output_dir)]);
+				await ensure_nojekyll(output_dir);
 			}
+
+			// TODO doing this here makes `static/.well-known/package.json` unavailable to Vite plugins,
+			// so we may want to do a more complicated temporary copy
+			// into `static/` before `vite build` in `setup`,
+			// and afterwards it would delete the files but only if they didn't already exist
+			await ensure_well_known_package_json(well_known_package_json, output_dir);
 		},
 		teardown: async () => {
 			if (sveltekit_process) {
@@ -70,4 +89,33 @@ const ensure_nojekyll = async (dir: string): Promise<void> => {
 		await mkdir(dir, {recursive: true});
 		await writeFile(path, '', 'utf8');
 	}
+};
+
+/**
+ * Outputs `${dir}/.well-known/package.json` if it doesn't already exist.
+ * @param well_known_package_json - if `undefined`, inferred to be `true` if `pkg.private` is falsy
+ * @param output_dir
+ */
+const ensure_well_known_package_json = async (
+	well_known_package_json: boolean | MapPackageJson | undefined,
+	output_dir: string,
+): Promise<void> => {
+	const pkg = await load_package_json();
+	if (well_known_package_json === undefined) {
+		well_known_package_json = !pkg.private; // eslint-disable-line no-param-reassign
+	}
+	if (!well_known_package_json) return;
+
+	const mapped = well_known_package_json === true ? pkg : await well_known_package_json(pkg);
+	if (!mapped) return;
+	// copy the `package.json` over to `static/.well-known/` if configured unless it exists
+	const svelte_config = await load_sveltekit_config();
+	const static_assets = svelte_config?.kit?.files?.assets || 'static';
+	const well_known_dir = join(output_dir, static_assets, '.well-known');
+	if (!(await exists(well_known_dir))) {
+		await mkdir(well_known_dir, {recursive: true});
+	}
+	const path = join(well_known_dir, 'package.json');
+	const new_contents = serialize_package_json(mapped);
+	await writeFile(path, new_contents, 'utf8');
 };

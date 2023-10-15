@@ -1,6 +1,8 @@
 import {z} from 'zod';
 import {join} from 'node:path';
 import {readFile, writeFile} from 'node:fs/promises';
+import {plural} from '@grogarden/util/string.js';
+import type {Logger} from '@grogarden/util/log.js';
 
 import {
 	paths,
@@ -11,6 +13,7 @@ import {
 	Url,
 	Email,
 } from './paths.js';
+import {search_fs} from './search_fs.js';
 
 export const PackageJsonRepository = z.union([
 	z.string(),
@@ -103,23 +106,60 @@ export const PackageJson = z.intersection(
 export type PackageJson = z.infer<typeof PackageJson>;
 
 export interface MapPackageJson {
-	(pkg: PackageJson, when: MapPackageJsonWhen): PackageJson | null | Promise<PackageJson | null>;
+	(pkg: PackageJson): PackageJson | null | Promise<PackageJson | null>;
 }
 
-export type MapPackageJsonWhen = 'updating_exports' | 'updating_well_known';
+export const EMPTY_PACKAGE_JSON: PackageJson = {name: '', version: ''};
 
-// TODO parse on load? sounds like a worse DX, maybe just log a warning?
-export const load_package_json = async (): Promise<PackageJson> =>
-	is_this_project_gro
-		? load_gro_package_json()
-		: JSON.parse(await load_package_json_contents(paths.root));
+// TODO handle failures?
+export const load_package_json = async (
+	dir = is_this_project_gro ? paths.root : gro_paths.root,
+): Promise<PackageJson> => {
+	let pkg: PackageJson;
+	try {
+		pkg = JSON.parse(await load_package_json_contents(dir));
+	} catch (err) {
+		throw Error('failed to load package.json at ' + dir);
+	}
+	return pkg;
+};
 
-export const load_gro_package_json = async (): Promise<PackageJson> =>
-	JSON.parse(await load_package_json_contents(gro_paths.root));
+export const sync_package_json = async (
+	map_package_json: MapPackageJson,
+	log: Logger,
+	check = false,
+	dir = paths.root,
+	exports_dir = paths.lib,
+): Promise<{pkg: PackageJson | null; changed: boolean}> => {
+	const exported_files = await search_fs(exports_dir);
+	const exported_paths = Array.from(exported_files.keys());
+	const exports = to_package_exports(exported_paths);
+	const updated = await update_package_json(
+		dir,
+		async (pkg) => {
+			pkg.exports = exports;
+			const mapped = await map_package_json(pkg);
+			return mapped ? normalize_package_json(mapped) : mapped;
+		},
+		!check,
+	);
+
+	const exports_count =
+		updated.changed && updated.pkg?.exports ? Object.keys(updated.pkg.exports).length : 0;
+	log.info(
+		updated.changed
+			? `updated package.json exports with ${exports_count} total export${plural(exports_count)}`
+			: 'no changes to exports in package.json',
+	);
+
+	return updated;
+};
+
+export const load_gro_package_json = (): Promise<PackageJson> => load_package_json(gro_paths.root);
 
 // TODO probably make this nullable and make callers handle failures
-const load_package_json_contents = (root_dir: string): Promise<string> =>
-	readFile(join(root_dir, 'package.json'), 'utf8');
+const load_package_json_contents = (dir: string): Promise<string> =>
+	readFile(join(dir, 'package.json'), 'utf8');
 
 export const write_package_json = async (serialized_pkg: string): Promise<void> => {
 	await writeFile(join(paths.root, 'package.json'), serialized_pkg);
@@ -132,22 +172,24 @@ export const serialize_package_json = (pkg: PackageJson): string => {
 
 /**
  * Updates package.json. Writes to the filesystem only when contents change.
- * @returns boolean indicating if the file changed
  */
 export const update_package_json = async (
+	dir = paths.root,
 	update: (pkg: PackageJson) => PackageJson | null | Promise<PackageJson | null>,
 	write = true,
-): Promise<boolean> => {
-	const original_pkg_contents = await load_package_json_contents(paths.root);
+): Promise<{pkg: PackageJson | null; changed: boolean}> => {
+	const original_pkg_contents = await load_package_json_contents(dir);
 	const original_pkg = JSON.parse(original_pkg_contents);
 	const updated_pkg = await update(original_pkg);
-	if (updated_pkg === null) return false;
+	if (updated_pkg === null) {
+		return {pkg: original_pkg, changed: false};
+	}
 	const updated_contents = serialize_package_json(updated_pkg);
 	if (updated_contents === original_pkg_contents) {
-		return false;
+		return {pkg: original_pkg, changed: false};
 	}
 	if (write) await write_package_json(updated_contents);
-	return true;
+	return {pkg: updated_pkg, changed: true};
 };
 
 // TODO do this with zod?

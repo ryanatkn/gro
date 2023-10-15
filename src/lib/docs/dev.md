@@ -35,6 +35,6 @@ See [plugin.md](plugin.md) to learn more.
 
 <p align="center">
   <a href="https://github.com/grogarden/gro">
-    <img src="/src/static/favicon.png" width="192" height="192">
+    <img src="static/favicon.png" width="192" height="192">
   </a>
 </p>

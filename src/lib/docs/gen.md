@@ -308,11 +308,11 @@ which is called during `gro publish`, and it's recommended in CI.
 - [x] add type generation for `.schema.` files
 - [x] [watch mode and build integration](https://github.com/grogarden/gro/pull/283),
       opt out with `watch: false` for expensive gen use cases
-- [ ] properly de-dupe and combine `tsImport` statements for `.schema.` files instead of hacks
 - [ ] change the exported `gen` function to an object with a `summary` and other properties like `watch`
-- [ ] assess libraries for generating types
+- [ ] properly implement the hacks that de-dupe and combine `tsImport` statements for `.schema.` files
 - [ ] support gen files authored in languages beyond TypeScript like
       Svelte/[MDSveX](https://github.com/pngwn/MDsveX)/etc
-      to generate html/markdown/etc
+      to generate html/markdown/etc (similar to the `.schema.` support)
 - [ ] support generating non-text files
 - [ ] sourcemaps
+- [ ] think about how to handle gen file dependency graphs (generated files as inputs to gen files)

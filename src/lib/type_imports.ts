@@ -21,9 +21,9 @@ export const normalize_type_imports = async (
 	file_id: string,
 ): Promise<string[]> => {
 	const imports = Array.from(new Set(raw_imports));
-	const formatted_imports = (await Promise.all(imports.map((i) => format_file(file_id, i)))).map(
-		(s) => s.trim(),
-	);
+	const formatted_imports = (
+		await Promise.all(imports.map((i) => format_file(i, {filepath: file_id})))
+	).map((s) => s.trim());
 
 	const imps = new Map<string, ParsedImport>();
 	const path = to_gen_import_path(file_id);
@@ -58,7 +58,7 @@ export const normalize_type_imports = async (
 		info.parsed.push(p);
 	}
 
-	return Array.from(imps.values()).map((v) => printImportInfo(to_import_info(v, file_id)));
+	return Array.from(imps.values()).map((v) => print_import_info(to_import_info(v, file_id)));
 };
 
 interface ParsedImport {
@@ -153,7 +153,7 @@ const to_import_info = (imp: ParsedImport, file_id: string): ImportInfo => {
 	};
 };
 
-const printImportInfo = (info: ImportInfo): string => {
+const print_import_info = (info: ImportInfo): string => {
 	let result = '';
 	const append = (str: string): void => {
 		if (result) result += '\n';
