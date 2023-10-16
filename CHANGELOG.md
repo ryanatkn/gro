@@ -1,5 +1,12 @@
 # @grogarden/gro
 
+## 0.95.1
+
+### Patch Changes
+
+- 6b241cd: add replace_plugin helper
+- 6b241cd: fix loading package.json
+
 ## 0.95.0
 
 ### Minor Changes
