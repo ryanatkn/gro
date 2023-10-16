@@ -20,17 +20,18 @@ const config: CreateGroConfig = async (cfg) => {
 		has_sveltekit_frontend(),
 	]);
 
-	cfg.plugins = async () => [
-		enable_library ? (await import('./gro_plugin_library.js')).plugin() : null,
-		enable_server ? (await import('./gro_plugin_server.js')).plugin() : null,
-		enable_sveltekit_frontend
-			? (await import('./gro_plugin_sveltekit_frontend.js')).plugin({
-					host_target: enable_server ? 'node' : 'github_pages',
-			  })
-			: null,
-		// TODO replace with an esbuild plugin, see the module for more
-		// (await import('./gro_plugin_gen.js')).plugin(),
-	];
+	cfg.plugins = async () =>
+		[
+			enable_library ? (await import('./gro_plugin_library.js')).plugin() : null,
+			enable_server ? (await import('./gro_plugin_server.js')).plugin() : null,
+			enable_sveltekit_frontend
+				? (await import('./gro_plugin_sveltekit_frontend.js')).plugin({
+						host_target: enable_server ? 'node' : 'github_pages',
+				  })
+				: null,
+			// TODO replace with an esbuild plugin, see the module for more
+			// (await import('./gro_plugin_gen.js')).plugin(),
+		].filter(Boolean); // TODO BLOCK normalizing helper? do it elsewhere? how to fix the types for users of the base config? different base config type?
 
 	return cfg;
 };
