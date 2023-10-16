@@ -89,7 +89,7 @@ export class Plugins<TPluginContext extends PluginContext> {
 }
 
 /**
- * Replaces a plugin by name in `plugins`. Returns a new shallow copy of `plugins`.
+ * Replaces a plugin by name in `plugins` without mutating the param.
  * Throws if the plugin name cannot be found.
  * @param plugins - accepts the same types as the return value of `CreateConfigPlugins`
  * @param new_plugin
