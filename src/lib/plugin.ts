@@ -87,3 +87,23 @@ export class Plugins<TPluginContext extends PluginContext> {
 		timing_to_teardown();
 	}
 }
+
+/**
+ * Replaces a plugin by name in `plugins`. Returns a new shallow copy of `plugins`.
+ * Throws if the plugin name cannot be found.
+ * @param plugins
+ * @param new_plugin
+ * @param name - @default new_plugin.name
+ * @returns
+ */
+export const replace_plugin = (
+	plugins: Plugin[],
+	new_plugin: Plugin,
+	name = new_plugin.name,
+): Plugin[] => {
+	const index = plugins.findIndex((p) => p.name === name);
+	if (index === -1) throw Error('Failed to find plugin to replace: ' + name);
+	const replaced = plugins.slice();
+	replaced[index] = new_plugin;
+	return replaced;
+};
