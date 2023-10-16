@@ -94,7 +94,7 @@ export class Plugins<TPluginContext extends PluginContext> {
  * @param plugins
  * @param new_plugin
  * @param name - @default new_plugin.name
- * @returns
+ * @returns `plugins` with `new_plugin` at the index of the plugin with `name`
  */
 export const replace_plugin = (
 	plugins: Plugin[],
