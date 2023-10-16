@@ -1,5 +1,11 @@
 # @grogarden/gro
 
+## 0.95.3
+
+### Patch Changes
+
+- c2b91bb: fix library detection
+
 ## 0.95.2
 
 ### Patch Changes
