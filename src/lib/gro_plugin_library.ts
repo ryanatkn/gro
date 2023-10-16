@@ -22,13 +22,13 @@ export const plugin = (): Plugin<PluginContext> => {
 			log.info(print_command_args(serialized_args));
 			await spawn_cli('svelte-package', serialized_args);
 
-			const pkg = await load_package_json();
+			const package_json = await load_package_json();
 
 			// `npm link`
-			if (pkg.bin) {
+			if (package_json.bin) {
 				const timing_to_npm_link = timings.start('npm link');
 				await Promise.all(
-					Object.values(pkg.bin).map(async (bin_path) => {
+					Object.values(package_json.bin).map(async (bin_path) => {
 						const chmod_result = await spawn('chmod', ['+x', bin_path]);
 						if (!chmod_result.ok)
 							log.error(`chmod on bin path ${bin_path} failed with code ${chmod_result.code}`);

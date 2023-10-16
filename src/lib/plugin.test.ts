@@ -35,6 +35,13 @@ test('replace_plugin', async () => {
 	assert.is(p[2], c2);
 });
 
+test('replace_plugin without an array', async () => {
+	const a = {name: 'a'};
+	const a2 = {name: 'a'};
+	const p = replace_plugin(a, a2);
+	assert.is(p[0], a2);
+});
+
 test('replace_plugin throws if it cannot find the given name', async () => {
 	const a = {name: 'a'};
 	const plugins = [a];
