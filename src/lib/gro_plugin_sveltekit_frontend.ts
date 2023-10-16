@@ -102,7 +102,8 @@ const ensure_well_known_package_json = async (
 ): Promise<void> => {
 	const pkg = await load_package_json();
 	if (well_known_package_json === undefined) {
-		// using `pkg.private` isn't semantic, maybe it should be removed and we just document the danger for closed-source projects?
+		// TODO using `pkg.private` isn't semantic, maybe this should be removed
+		// and we just document the danger for closed-source projects?
 		well_known_package_json = !pkg.private; // eslint-disable-line no-param-reassign
 	}
 	if (!well_known_package_json) return;
