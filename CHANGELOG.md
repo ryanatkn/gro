@@ -1,5 +1,11 @@
 # @grogarden/gro
 
+## 0.95.2
+
+### Patch Changes
+
+- b1264cc: upgrade deps
+
 ## 0.95.1
 
 ### Patch Changes
