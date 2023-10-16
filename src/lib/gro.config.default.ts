@@ -26,7 +26,6 @@ const config: CreateGroConfig = async (cfg) => {
 		enable_sveltekit_frontend
 			? (await import('./gro_plugin_sveltekit_frontend.js')).plugin({
 					host_target: enable_server ? 'node' : 'github_pages',
-					well_known_package_json: false,
 			  })
 			: null,
 		// TODO replace with an esbuild plugin, see the module for more
