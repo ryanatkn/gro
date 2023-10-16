@@ -53,10 +53,25 @@ To define a user config that overrides the default plugins:
 import type {CreateGroConfig} from '@grogarden/gro';
 
 const config: CreateGroConfig = async (cfg) => {
+	// example setting your own plugins:
+	cfg.plugins = async () => [
+		(await import('@grogarden/gro/gro_plugin_sveltekit_frontend.js')).plugin(),
+		(await import('./src/custom_plugin.js')).plugin(),
+	];
+
+	// example extending the default plugins:
 	const get_base_plugins = cfg.plugins;
-	cfg.plugins = async (_ctx) => {
-		const base_plugins = await get_base_plugins();
-		return base_plugins.concat(create_some_custom_plugin());
+	cfg.plugins = async (ctx) => {
+		// replace a base plugin with `import {replace_plugin} from '@grogarden/gro';`:
+		const updated_plugins = replace_plugin(
+			await get_base_plugins(ctx),
+			(await import('@grogarden/gro/gro_plugin_sveltekit_frontend.js')).plugin({
+				// host_target?: HostTarget;
+				// well_known_package_json?: boolean | MapPackageJson;
+			}),
+			// 'gro_plugin_sveltekit_frontend', // optional name if they don't match
+		);
+		return updated_plugins.concat(create_some_custom_plugin());
 	};
 	return cfg;
 };

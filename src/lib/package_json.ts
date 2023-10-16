@@ -113,7 +113,7 @@ export const EMPTY_PACKAGE_JSON: PackageJson = {name: '', version: ''};
 
 // TODO handle failures?
 export const load_package_json = async (
-	dir = is_this_project_gro ? paths.root : gro_paths.root,
+	dir = is_this_project_gro ? gro_paths.root : paths.root,
 ): Promise<PackageJson> => {
 	let pkg: PackageJson;
 	try {

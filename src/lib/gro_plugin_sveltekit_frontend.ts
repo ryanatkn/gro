@@ -102,20 +102,23 @@ const ensure_well_known_package_json = async (
 ): Promise<void> => {
 	const pkg = await load_package_json();
 	if (well_known_package_json === undefined) {
+		// TODO using `pkg.private` isn't semantic, maybe this should be removed
+		// and we just document the danger for closed-source projects?
 		well_known_package_json = !pkg.private; // eslint-disable-line no-param-reassign
 	}
 	if (!well_known_package_json) return;
 
 	const mapped = well_known_package_json === true ? pkg : await well_known_package_json(pkg);
 	if (!mapped) return;
-	// copy the `package.json` over to `static/.well-known/` if configured unless it exists
+
 	const svelte_config = await load_sveltekit_config();
 	const static_assets = svelte_config?.kit?.files?.assets || 'static';
-	const well_known_dir = join(output_dir, static_assets, '.well-known');
+	const well_known_dir = join(output_dir, static_assets, '..', '.well-known');
+	const path = join(well_known_dir, 'package.json');
+	if (await exists(path)) return; // don't clobber
 	if (!(await exists(well_known_dir))) {
 		await mkdir(well_known_dir, {recursive: true});
 	}
-	const path = join(well_known_dir, 'package.json');
 	const new_contents = serialize_package_json(mapped);
 	await writeFile(path, new_contents, 'utf8');
 };
