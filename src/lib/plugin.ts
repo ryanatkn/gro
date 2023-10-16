@@ -102,7 +102,7 @@ export const replace_plugin = (
 	name = new_plugin.name,
 ): Plugin[] => {
 	const index = plugins.findIndex((p) => p.name === name);
-	// if (index === -1) throw Error('Failed to find plugin to replace: ' + name);
+	if (index === -1) throw Error('Failed to find plugin to replace: ' + name);
 	const replaced = plugins.slice();
 	replaced[index] = new_plugin;
 	return replaced;
