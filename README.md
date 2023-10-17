@@ -38,7 +38,7 @@ It includes:
     [`@sveltejs/package`](https://kit.svelte.dev/docs/packaging) for the library
   - provides a [Node loader](/src/lib/loader.ts) and
     [esbuild plugins for the server](/src/lib/gro_plugin_server.ts)
-    - supports importing TypeScript and SSR'd Svelte files in tests and tasks
+    - supports importing TypeScript, JSON, and SSR'd Svelte files in tests and tasks
     - supports [SvelteKit module imports](https://kit.svelte.dev/docs/modules) for
       `$lib`, `$env`, and `$app` in tasks, tests, Node servers,
       and other code outside of the SvelteKit frontend,
