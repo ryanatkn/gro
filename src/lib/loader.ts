@@ -104,6 +104,7 @@ export const load: LoadHook = async (url, context, nextLoad) => {
 		return {format: 'module', shortCircuit: true, source: transformed.js.code};
 	} else if (json_matcher.test(url)) {
 		// json
+		// TODO probably follow esbuild and also export every top-level property for objects from the module - https://esbuild.github.io/content-types/#json (type generation?)
 		const loaded = await nextLoad(url);
 		const raw_source = loaded.source!.toString(); // eslint-disable-line @typescript-eslint/no-base-to-string
 		const source = `export default ` + raw_source;
