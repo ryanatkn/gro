@@ -1,5 +1,11 @@
 # @grogarden/gro
 
+## 0.95.5
+
+### Patch Changes
+
+- 52fad99: upgrade @grogarden/util@0.15.1 from 0.15.0
+
 ## 0.95.4
 
 ### Patch Changes
