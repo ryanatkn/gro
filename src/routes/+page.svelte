@@ -1,6 +1,6 @@
 <script lang="ts">
 	import {base} from '$app/paths';
-	import {parse_package_meta} from '@fuz.dev/fuz_library/package.js';
+	import {parse_package_meta} from '@fuz.dev/fuz_library/package_meta.js';
 	import LibraryHeader from '@fuz.dev/fuz_library/LibraryHeader.svelte';
 	import LibraryFooter from '@fuz.dev/fuz_library/LibraryFooter.svelte';
 
