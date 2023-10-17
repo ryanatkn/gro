@@ -1,5 +1,12 @@
 # @grogarden/gro
 
+## 0.95.4
+
+### Patch Changes
+
+- 30556c4: resolve json in the loader
+- 30556c4: fix esbuild plugin for unknown file extensions
+
 ## 0.95.3
 
 ### Patch Changes
