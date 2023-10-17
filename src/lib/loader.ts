@@ -56,6 +56,7 @@ const aliases = Object.entries({$lib: 'src/lib', ...alias});
 
 const ts_matcher = /\.(ts|tsx|mts|cts)$/u;
 const svelte_matcher = /\.(svelte)$/u;
+const json_matcher = /\.(json)$/u;
 const env_matcher = /src\/lib\/\$env\/(static|dynamic)\/(public|private)$/u;
 
 export const load: LoadHook = async (url, context, nextLoad) => {
@@ -101,6 +102,12 @@ export const load: LoadHook = async (url, context, nextLoad) => {
 		const source = preprocessed?.code ?? raw_source;
 		const transformed = compile(source, svelte_compile_options);
 		return {format: 'module', shortCircuit: true, source: transformed.js.code};
+	} else if (json_matcher.test(url)) {
+		// json
+		const loaded = await nextLoad(url);
+		const raw_source = loaded.source!.toString(); // eslint-disable-line @typescript-eslint/no-base-to-string
+		const source = `export default ` + raw_source;
+		return {format: 'module', shortCircuit: true, source};
 	} else {
 		// neither ts nor svelte
 		const matched_env = env_matcher.exec(url);
