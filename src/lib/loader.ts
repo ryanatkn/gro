@@ -171,9 +171,9 @@ export const resolve: ResolveHook = async (specifier, context, nextResolve) => {
 	// The specifier `path` has now been mapped to its final form, so we can inspect it.
 	if (path[0] !== '.' && path[0] !== '/') {
 		// Resolve to `node_modules`.
-		// TODO BLOCK JSON and TS too?
 		if (svelte_matcher.test(path)) {
-			// Svelte needs special handling to match Vite and esbuild, because Node doesn't know.
+			// Match the behavior of Vite and esbuild, allowing deps to import Svelte.
+			// TODO should this support JSON/TS too?
 			const source_id = await resolve_node_specifier(path, dir, parent_url);
 			return {url: pathToFileURL(source_id).href, format: 'module', shortCircuit: true};
 		} else {

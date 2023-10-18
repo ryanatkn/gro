@@ -1,14 +1,11 @@
-import {suite} from 'uvu';
+import {test} from 'uvu';
 import * as assert from 'uvu/assert';
 import {Timings} from '@grogarden/util/timings.js';
 
 import {run_task} from './run_task.js';
 import {load_config} from './config.js';
 
-/* test__run_task */
-const test__run_task = suite('run_task');
-
-test__run_task('passes args and returns output', async () => {
+test('passes args and returns output', async () => {
 	const args = {a: 1, _: []};
 	const result = await run_task(
 		{
@@ -29,7 +26,7 @@ test__run_task('passes args and returns output', async () => {
 	assert.is(result.output, args);
 });
 
-test__run_task('invokes a sub task', async () => {
+test('invokes a sub task', async () => {
 	const args = {a: 1, _: []};
 	let invoked_task_name;
 	let invoked_args;
@@ -60,7 +57,7 @@ test__run_task('invokes a sub task', async () => {
 	assert.is(result.output, args);
 });
 
-test__run_task('failing task', async () => {
+test('failing task', async () => {
 	let err;
 	const result = await run_task(
 		{
@@ -85,5 +82,4 @@ test__run_task('failing task', async () => {
 	assert.is(result.error, err);
 });
 
-test__run_task.run();
-/* test__run_task */
+test.run();
