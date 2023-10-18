@@ -27,14 +27,14 @@ import {NODE_MODULES_DIRNAME} from './paths.js';
 import {to_define_import_meta_env, ts_transform_options} from './esbuild_helpers.js';
 import {resolve_specifier} from './resolve_specifier.js';
 
+// TODO support transitive dependencies for Svelte files in node_modules
 // TODO sourcemaps, including esbuild, svelte, and the svelte preprocessors
-// TODO cache by options+content hash (not straightforward because of the options, but should be doable without that much complexity, see the builtin module cache)
+// TODO `import.meta.resolve` doesn't seem to be available in loaders?
 
 // dev is always true in the loader
 const dev = true;
 
 const dir = cwd() + '/';
-const node_modules_matcher = new RegExp(escape_regexp('/' + NODE_MODULES_DIRNAME + '/'), 'u');
 
 const {
 	alias,
@@ -58,6 +58,7 @@ const ts_matcher = /\.(ts|tsx|mts|cts)$/u;
 const svelte_matcher = /\.(svelte)$/u;
 const json_matcher = /\.(json)$/u;
 const env_matcher = /src\/lib\/\$env\/(static|dynamic)\/(public|private)$/u;
+const node_modules_matcher = new RegExp(escape_regexp('/' + NODE_MODULES_DIRNAME + '/'), 'u');
 
 export const load: LoadHook = async (url, context, nextLoad) => {
 	if (sveltekit_shim_app_paths_matcher.test(url)) {
@@ -74,8 +75,6 @@ export const load: LoadHook = async (url, context, nextLoad) => {
 			shortCircuit: true,
 			source: render_sveltekit_shim_app_environment(dev),
 		};
-	} else if (node_modules_matcher.test(url)) {
-		return nextLoad(url, context);
 	} else if (ts_matcher.test(url)) {
 		// ts
 		const loaded = await nextLoad(
@@ -171,7 +170,19 @@ export const resolve: ResolveHook = async (specifier, context, nextResolve) => {
 
 	// The specifier `path` has now been mapped to its final form, so we can inspect it.
 	if (path[0] !== '.' && path[0] !== '/') {
-		return nextResolve(path, context);
+		// Resolve to `node_modules`.
+		if (svelte_matcher.test(path)) {
+			// Svelte needs special handling to match Vite and esbuild, because Node doesn't know.
+			// TODO BLOCK implement properly -- lookup/cache package.json and resolve from `exports`, falling back to bare if not present (or throwing like the builtin?)
+			console.log(`path`, path);
+			console.log(`parent_url`, parent_url);
+			const p = path.split('/');
+			const source_id = join(dir, NODE_MODULES_DIRNAME, ...p.slice(0, -1), 'dist', p.at(-1)!);
+			console.log(`source_id`, source_id);
+			return {url: pathToFileURL(source_id).href, format: 'module', shortCircuit: true};
+		} else {
+			return nextResolve(path, context);
+		}
 	}
 
 	const {source_id} = await resolve_specifier(path, dirname(fileURLToPath(parent_url)));
