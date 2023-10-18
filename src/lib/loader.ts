@@ -176,7 +176,6 @@ export const resolve: ResolveHook = async (specifier, context, nextResolve) => {
 		// Resolve to `node_modules`.
 		if (svelte_matcher.test(path)) {
 			// Match the behavior of Vite and esbuild, allowing deps to import Svelte.
-			// TODO should this support JSON/TS too?
 			const source_id = await resolve_node_specifier(path, dir, parent_url, package_json_cache);
 			return {url: pathToFileURL(source_id).href, format: 'module', shortCircuit: true};
 		} else {
