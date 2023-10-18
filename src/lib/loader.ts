@@ -23,7 +23,7 @@ import {
 	sveltekit_shim_app_specifiers,
 } from './sveltekit_shim_app.js';
 import {init_sveltekit_config} from './sveltekit_config.js';
-import {NODE_MODULES_DIRNAME} from './paths.js';
+import {NODE_MODULES_DIRNAME, SourceId} from './paths.js';
 import {to_define_import_meta_env, ts_transform_options} from './esbuild_helpers.js';
 import {resolve_specifier} from './resolve_specifier.js';
 
@@ -174,12 +174,7 @@ export const resolve: ResolveHook = async (specifier, context, nextResolve) => {
 		// TODO BLOCK JSON and TS too?
 		if (svelte_matcher.test(path)) {
 			// Svelte needs special handling to match Vite and esbuild, because Node doesn't know.
-			// TODO BLOCK implement properly -- lookup/cache package.json and resolve from `exports`, falling back to bare if not present (or throwing like the builtin?)
-			console.log(`path`, path);
-			console.log(`parent_url`, parent_url);
-			const p = path.split('/');
-			const source_id = join(dir, NODE_MODULES_DIRNAME, ...p.slice(0, -1), 'dist', p.at(-1)!);
-			console.log(`source_id`, source_id);
+			const source_id = await resolve_node_specifier(path, parent_url);
 			return {url: pathToFileURL(source_id).href, format: 'module', shortCircuit: true};
 		} else {
 			return nextResolve(path, context);
@@ -189,4 +184,15 @@ export const resolve: ResolveHook = async (specifier, context, nextResolve) => {
 	const {source_id} = await resolve_specifier(path, dirname(fileURLToPath(parent_url)));
 
 	return {url: pathToFileURL(source_id).href, format: 'module', shortCircuit: true};
+};
+
+// TODO BLOCK move this? `resolve_specifier`?
+const resolve_node_specifier = async (path: string, parent_url: string): Promise<SourceId> => {
+	// TODO BLOCK implement properly -- lookup/cache package.json and resolve from `exports`, falling back to bare if not present (or throwing like the builtin?)
+	console.log(`path`, path);
+	console.log(`parent_url`, parent_url);
+	const p = path.split('/');
+	const source_id = join(dir, NODE_MODULES_DIRNAME, ...p.slice(0, -1), 'dist', p.at(-1)!);
+	console.log(`source_id`, source_id);
+	return source_id;
 };
