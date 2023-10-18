@@ -26,6 +26,7 @@ import {paths, NODE_MODULES_DIRNAME} from './paths.js';
 import {to_define_import_meta_env, ts_transform_options} from './esbuild_helpers.js';
 import {resolve_specifier} from './resolve_specifier.js';
 import {resolve_node_specifier} from './resolve_node_specifier.js';
+import type {PackageJson} from './package_json.js';
 
 // TODO support transitive dependencies for Svelte files in node_modules
 // TODO sourcemaps, including esbuild, svelte, and the svelte preprocessors
@@ -59,6 +60,8 @@ const svelte_matcher = /\.(svelte)$/u;
 const json_matcher = /\.(json)$/u;
 const env_matcher = /src\/lib\/\$env\/(static|dynamic)\/(public|private)$/u;
 const node_modules_matcher = new RegExp(escape_regexp('/' + NODE_MODULES_DIRNAME + '/'), 'u');
+
+const package_json_cache: Record<string, PackageJson> = {};
 
 export const load: LoadHook = async (url, context, nextLoad) => {
 	if (sveltekit_shim_app_paths_matcher.test(url)) {
@@ -174,7 +177,7 @@ export const resolve: ResolveHook = async (specifier, context, nextResolve) => {
 		if (svelte_matcher.test(path)) {
 			// Match the behavior of Vite and esbuild, allowing deps to import Svelte.
 			// TODO should this support JSON/TS too?
-			const source_id = await resolve_node_specifier(path, dir, parent_url);
+			const source_id = await resolve_node_specifier(path, dir, parent_url, package_json_cache);
 			return {url: pathToFileURL(source_id).href, format: 'module', shortCircuit: true};
 		} else {
 			return nextResolve(path, context);

@@ -1,18 +1,19 @@
 import {join} from 'node:path';
 
-import {load_package_json} from './package_json.js';
+import {PackageJson, load_package_json} from './package_json.js';
 import {NODE_MODULES_DIRNAME, SourceId, paths} from './paths.js';
 
 export const resolve_node_specifier = async (
 	specifier: string,
 	dir = paths.root,
 	parent_url?: string,
+	cache?: Record<string, PackageJson>,
 	exports_key = specifier.endsWith('.svelte') ? 'svelte' : 'default',
 ): Promise<SourceId> => {
 	const parsed = parse_node_specifier(specifier);
 	const subpath = './' + parsed.path;
 	const package_dir = join(dir, NODE_MODULES_DIRNAME, parsed.name);
-	const package_json = await load_package_json(package_dir); // TODO BLOCK cache (maybe with an optional param)
+	const package_json = await load_package_json(package_dir, cache);
 	const exported = package_json.exports?.[subpath];
 	if (!exported) {
 		// same error message as Node

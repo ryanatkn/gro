@@ -11,6 +11,16 @@ test('load_package_json', async () => {
 	serialize_package_json(pkg);
 });
 
+test('load_package_json with cache', async () => {
+	const cache = {};
+	const pkg1 = await load_package_json(undefined, cache);
+	assert.ok(pkg1);
+	assert.is(Object.keys(cache).length, 1);
+	const pkg2 = await load_package_json(undefined, cache);
+	assert.is(Object.keys(cache).length, 1);
+	assert.is(pkg1, pkg2);
+});
+
 test('PackageJson.parse', async () => {
 	PackageJson.parse({name: 'abc', version: '123'});
 });

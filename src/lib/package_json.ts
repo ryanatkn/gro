@@ -111,16 +111,20 @@ export interface MapPackageJson {
 
 export const EMPTY_PACKAGE_JSON: PackageJson = {name: '', version: ''};
 
-// TODO handle failures?
 export const load_package_json = async (
 	dir = is_this_project_gro ? gro_paths.root : paths.root,
+	cache?: Record<string, PackageJson>,
 ): Promise<PackageJson> => {
 	let pkg: PackageJson;
+	if (cache && dir in cache) {
+		return cache[dir];
+	}
 	try {
 		pkg = JSON.parse(await load_package_json_contents(dir));
 	} catch (err) {
 		throw Error('failed to load package.json at ' + dir);
 	}
+	if (cache) cache[dir] = pkg;
 	return pkg;
 };
 
