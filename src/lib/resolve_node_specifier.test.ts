@@ -18,7 +18,7 @@ test('resolves a Svelte specifier', async () => {
 	);
 });
 
-test('resolves a Svelte specifier', async () => {
+test('throws for a specifier that does not exist', async () => {
 	let err;
 	try {
 		await resolve_node_specifier('@fuz.dev/fuz_library/this_does_not_exist');
