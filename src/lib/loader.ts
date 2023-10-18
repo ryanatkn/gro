@@ -175,7 +175,7 @@ export const resolve: ResolveHook = async (specifier, context, nextResolve) => {
 	if (path[0] !== '.' && path[0] !== '/') {
 		// Resolve to `node_modules`.
 		if (svelte_matcher.test(path)) {
-			// Match the behavior of Vite and esbuild, allowing deps to import Svelte.
+			// Match the behavior of Vite and esbuild for Svelte imports.
 			const source_id = await resolve_node_specifier(path, dir, parent_url, package_json_cache);
 			return {url: pathToFileURL(source_id).href, format: 'module', shortCircuit: true};
 		} else {
