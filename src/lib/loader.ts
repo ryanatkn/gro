@@ -10,7 +10,6 @@ import * as esbuild from 'esbuild';
 import {compile, preprocess} from 'svelte/compiler';
 import {fileURLToPath, pathToFileURL} from 'node:url';
 import {dirname, join, relative} from 'node:path';
-import {cwd} from 'node:process';
 import type {LoadHook, ResolveHook} from 'node:module';
 import {escape_regexp} from '@grogarden/util/regexp.js';
 
@@ -23,18 +22,19 @@ import {
 	sveltekit_shim_app_specifiers,
 } from './sveltekit_shim_app.js';
 import {init_sveltekit_config} from './sveltekit_config.js';
-import {NODE_MODULES_DIRNAME} from './paths.js';
+import {paths, NODE_MODULES_DIRNAME} from './paths.js';
 import {to_define_import_meta_env, ts_transform_options} from './esbuild_helpers.js';
 import {resolve_specifier} from './resolve_specifier.js';
+import {resolve_node_specifier} from './resolve_node_specifier.js';
+import type {PackageJson} from './package_json.js';
 
 // TODO sourcemaps, including esbuild, svelte, and the svelte preprocessors
-// TODO cache by options+content hash (not straightforward because of the options, but should be doable without that much complexity, see the builtin module cache)
+// TODO `import.meta.resolve` doesn't seem to be available in loaders?
 
 // dev is always true in the loader
 const dev = true;
 
-const dir = cwd() + '/';
-const node_modules_matcher = new RegExp(escape_regexp('/' + NODE_MODULES_DIRNAME + '/'), 'u');
+const dir = paths.root;
 
 const {
 	alias,
@@ -58,6 +58,9 @@ const ts_matcher = /\.(ts|tsx|mts|cts)$/u;
 const svelte_matcher = /\.(svelte)$/u;
 const json_matcher = /\.(json)$/u;
 const env_matcher = /src\/lib\/\$env\/(static|dynamic)\/(public|private)$/u;
+const node_modules_matcher = new RegExp(escape_regexp('/' + NODE_MODULES_DIRNAME + '/'), 'u');
+
+const package_json_cache: Record<string, PackageJson> = {};
 
 export const load: LoadHook = async (url, context, nextLoad) => {
 	if (sveltekit_shim_app_paths_matcher.test(url)) {
@@ -74,8 +77,6 @@ export const load: LoadHook = async (url, context, nextLoad) => {
 			shortCircuit: true,
 			source: render_sveltekit_shim_app_environment(dev),
 		};
-	} else if (node_modules_matcher.test(url)) {
-		return nextLoad(url, context);
 	} else if (ts_matcher.test(url)) {
 		// ts
 		const loaded = await nextLoad(
@@ -171,7 +172,14 @@ export const resolve: ResolveHook = async (specifier, context, nextResolve) => {
 
 	// The specifier `path` has now been mapped to its final form, so we can inspect it.
 	if (path[0] !== '.' && path[0] !== '/') {
-		return nextResolve(path, context);
+		// Resolve to `node_modules`.
+		if (svelte_matcher.test(path)) {
+			// Match the behavior of Vite and esbuild for Svelte imports.
+			const source_id = await resolve_node_specifier(path, dir, parent_url, package_json_cache);
+			return {url: pathToFileURL(source_id).href, format: 'module', shortCircuit: true};
+		} else {
+			return nextResolve(path, context);
+		}
 	}
 
 	const {source_id} = await resolve_specifier(path, dirname(fileURLToPath(parent_url)));

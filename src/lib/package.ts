@@ -169,6 +169,10 @@ export const package_json = {
 		'./print_task.js': {default: './dist/print_task.js', types: './dist/print_task.d.ts'},
 		'./publish.task.js': {default: './dist/publish.task.js', types: './dist/publish.task.d.ts'},
 		'./release.task.js': {default: './dist/release.task.js', types: './dist/release.task.d.ts'},
+		'./resolve_node_specifier.js': {
+			default: './dist/resolve_node_specifier.js',
+			types: './dist/resolve_node_specifier.d.ts',
+		},
 		'./resolve_specifier.js': {
 			default: './dist/resolve_specifier.js',
 			types: './dist/resolve_specifier.d.ts',
