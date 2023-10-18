@@ -1,5 +1,11 @@
 # @grogarden/gro
 
+## 0.95.7
+
+### Patch Changes
+
+- 07f170a: support json exports mapping in the loader
+
 ## 0.95.6
 
 ### Patch Changes
