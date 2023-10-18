@@ -7,6 +7,7 @@ export const resolve_node_specifier = async (
 	specifier: string,
 	dir = paths.root,
 	parent_url?: string,
+	exports_key = specifier.endsWith('.svelte') ? 'svelte' : 'default',
 ): Promise<SourceId> => {
 	const parsed = parse_node_specifier(specifier);
 	const subpath = './' + parsed.path;
@@ -14,13 +15,13 @@ export const resolve_node_specifier = async (
 	const package_json = await load_package_json(package_dir); // TODO BLOCK cache (maybe with an optional param)
 	const exported = package_json.exports?.[subpath];
 	if (!exported) {
-		// This error matches Node's.
+		// same error message as Node
 		throw Error(
 			`[ERR_PACKAGE_PATH_NOT_EXPORTED]: Package subpath '${subpath}' is not defined by "exports" in ${package_dir}/package.json` +
 				(parent_url ? ` imported from ${parent_url}` : ''),
 		);
 	}
-	const source_id = join(package_dir, exported.svelte || exported.default); // TODO hacky, should detect file type
+	const source_id = join(package_dir, exported[exports_key]);
 	return source_id;
 };
 
