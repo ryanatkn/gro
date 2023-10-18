@@ -13,6 +13,8 @@ export const Args = z
 					'opt out of running a long-lived process to watch files and rebuild on changes',
 			})
 			.default(false),
+		sync: z.boolean({description: 'dual of no-sync'}).default(true),
+		'no-sync': z.boolean({description: 'opt out of gro sync'}).default(false),
 	})
 	.strict();
 export type Args = z.infer<typeof Args>;
@@ -24,11 +26,13 @@ export const task: Task<Args> = {
 	Args,
 	run: async (ctx) => {
 		const {args, invoke_task} = ctx;
-		const {watch} = args;
+		const {watch, sync} = args;
 
 		await clean_fs({build_dev: true});
 
-		await invoke_task('sync');
+		if (sync) {
+			await invoke_task('sync');
+		}
 
 		const plugins = await Plugins.create({...ctx, dev: true, watch});
 
