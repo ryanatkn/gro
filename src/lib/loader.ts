@@ -186,13 +186,39 @@ export const resolve: ResolveHook = async (specifier, context, nextResolve) => {
 	return {url: pathToFileURL(source_id).href, format: 'module', shortCircuit: true};
 };
 
-// TODO BLOCK move this? `resolve_specifier`?
-const resolve_node_specifier = async (path: string, parent_url: string): Promise<SourceId> => {
+// TODO BLOCK move this to a new `resolve_node_specifier.ts` module if it's not hacky
+const resolve_node_specifier = async (specifier: string, parent_url: string): Promise<SourceId> => {
 	// TODO BLOCK implement properly -- lookup/cache package.json and resolve from `exports`, falling back to bare if not present (or throwing like the builtin?)
-	console.log(`path`, path);
+	console.log(`specifier`, specifier);
 	console.log(`parent_url`, parent_url);
-	const p = path.split('/');
-	const source_id = join(dir, NODE_MODULES_DIRNAME, ...p.slice(0, -1), 'dist', p.at(-1)!);
+	const parsed = parse_node_specifier(specifier);
+	const source_id = join(dir, NODE_MODULES_DIRNAME, parsed.name, 'dist', parsed.path);
 	console.log(`source_id`, source_id);
 	return source_id;
+};
+
+interface ParsedNodeSpecifier {
+	name: string;
+	path: string;
+}
+
+const parse_node_specifier = (specifier: string): ParsedNodeSpecifier => {
+	let idx!: number;
+	if (specifier[0] === '@') {
+		// get the index of the second `/`
+		let count = 0;
+		for (let i = 0; i < specifier.length; i++) {
+			if (specifier[i] === '/') count++;
+			if (count === 2) {
+				idx = i;
+				break;
+			}
+		}
+	} else {
+		idx = specifier.indexOf('/');
+	}
+	return {
+		name: specifier.substring(0, idx),
+		path: specifier.substring(idx),
+	};
 };
