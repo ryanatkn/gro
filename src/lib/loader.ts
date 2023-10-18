@@ -26,6 +26,7 @@ import {init_sveltekit_config} from './sveltekit_config.js';
 import {NODE_MODULES_DIRNAME, SourceId} from './paths.js';
 import {to_define_import_meta_env, ts_transform_options} from './esbuild_helpers.js';
 import {resolve_specifier} from './resolve_specifier.js';
+import { load_package_json,  } from './package_json.js';
 
 // TODO support transitive dependencies for Svelte files in node_modules
 // TODO sourcemaps, including esbuild, svelte, and the svelte preprocessors
@@ -174,7 +175,7 @@ export const resolve: ResolveHook = async (specifier, context, nextResolve) => {
 		// TODO BLOCK JSON and TS too?
 		if (svelte_matcher.test(path)) {
 			// Svelte needs special handling to match Vite and esbuild, because Node doesn't know.
-			const source_id = await resolve_node_specifier(path, parent_url);
+			const source_id = await resolve_node_specifier(path, parent_url, dir);
 			return {url: pathToFileURL(source_id).href, format: 'module', shortCircuit: true};
 		} else {
 			return nextResolve(path, context);
@@ -187,12 +188,23 @@ export const resolve: ResolveHook = async (specifier, context, nextResolve) => {
 };
 
 // TODO BLOCK move this to a new `resolve_node_specifier.ts` module if it's not hacky
-const resolve_node_specifier = async (specifier: string, parent_url: string): Promise<SourceId> => {
+const resolve_node_specifier = async (specifier: string, parent_url: string, dir: string): Promise<SourceId> => {
 	// TODO BLOCK implement properly -- lookup/cache package.json and resolve from `exports`, falling back to bare if not present (or throwing like the builtin?)
 	console.log(`specifier`, specifier);
 	console.log(`parent_url`, parent_url);
 	const parsed = parse_node_specifier(specifier);
-	const source_id = join(dir, NODE_MODULES_DIRNAME, parsed.name, 'dist', parsed.path);
+	const subpath = './' + parsed.path;
+	console.log(`parsed`, parsed);
+	const package_dir = join(dir, NODE_MODULES_DIRNAME, parsed.name);
+	const package_json = await load_package_json(package_dir);
+	const exported = package_json.exports?.[subpath];
+	if (!exported) {
+		// This error matches Node's.
+		throw Error(`[ERR_PACKAGE_PATH_NOT_EXPORTED]: Package subpath '${subpath}' is not defined by "exports" in ${package_dir}/package.json imported from ${parent_url}`)
+	}
+	console.log(`package_json.exports`, package_json.exports);
+	console.log(`ex`, exported);
+	const source_id = join(package_dir, exported.svelte || exported.default); // TODO hacky, should detect file type
 	console.log(`source_id`, source_id);
 	return source_id;
 };
@@ -219,6 +231,6 @@ const parse_node_specifier = (specifier: string): ParsedNodeSpecifier => {
 	}
 	return {
 		name: specifier.substring(0, idx),
-		path: specifier.substring(idx),
+		path: specifier.substring(idx + 1),
 	};
 };
