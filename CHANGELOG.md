@@ -1,5 +1,13 @@
 # @grogarden/gro
 
+## 0.95.6
+
+### Patch Changes
+
+- af2ca30e: fix loader for node_modules
+- af2ca30e: add `--no-sync` option to `gro dev`
+- af2ca30e: add `$lib/resolve_node_specifier.ts`
+
 ## 0.95.5
 
 ### Patch Changes
