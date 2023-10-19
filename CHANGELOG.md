@@ -1,5 +1,11 @@
 # @grogarden/gro
 
+## 0.95.8
+
+### Patch Changes
+
+- 40a427eb: support absolute filenames with gen
+
 ## 0.95.7
 
 ### Patch Changes
