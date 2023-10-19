@@ -1,5 +1,5 @@
 import type {Logger} from '@grogarden/util/log.js';
-import {join, basename, dirname} from 'node:path';
+import {join, basename, dirname, isAbsolute} from 'node:path';
 import {z} from 'zod';
 
 import {gen_module_meta, to_gen_module_type} from './gen_module.js';
@@ -93,6 +93,7 @@ const to_output_file_id = (origin_id: SourceId, raw_file_name: string | undefine
 		throw Error(`Output file name cannot be an empty string`);
 	}
 	const filename = raw_file_name || to_output_file_name(basename(origin_id));
+	if (isAbsolute(filename)) return filename;
 	const dir = dirname(origin_id);
 	const output_file_id = join(dir, filename);
 	if (output_file_id === origin_id) {
