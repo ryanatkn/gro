@@ -19,6 +19,13 @@ const config: GroConfigCreator = async (cfg) => {
 };
 
 export default config;
+
+// src/lib/gro_plugin_sveltekit_frontend.ts
+export type HostTarget = 'github_pages' | 'static' | 'node';
+
+export interface MapPackageJson {
+	(pkg: PackageJson): PackageJson | null | Promise<PackageJson | null>;
+}
 ```
 
 ## `host_target`
