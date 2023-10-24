@@ -81,12 +81,13 @@ in the `"changelog"` property of the newly created `.changeset/config.json`:
 npm i -D @changesets/changelog-git  # a minimal package that requires no GitHub auth
 ```
 
-If your package is public, configure the `access` property:
+Gro inits `"access"` based on the package.json `"private": true` value.
+To manually configure the `access` property:
 
 ```diff
 # .changeset/config.json
-- "access": "restricted",
-+ "access": "public",
+- "access": "public",
++ "access": "restricted",
 ```
 
 See [the Changesets docs](https://github.com/changesets/changesets) for more.
