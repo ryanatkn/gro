@@ -10,25 +10,20 @@ export const plugin = (): Plugin<PluginContext> => {
 	return {
 		name: 'gro_plugin_library',
 		adapt: async ({log, timings}) => {
-			if (!(await find_cli('svelte-package'))) {
-				log.warn(
-					'failed to find svelte-package: ' +
-						'install @sveltejs/package locally or globally to publish this repo,' +
-						' or remove gro_plugin_library to suppress this warning',
-				);
-				return;
+			if ((await find_cli('svelte-package')) !== 'local') {
+				throw new TaskError('Failed to find svelte-package, run `npm i -D @sveltejs/package`');
 			}
 			const serialized_args = serialize_args(to_forwarded_args('svelte-package'));
 			log.info(print_command_args(serialized_args));
 			await spawn_cli('svelte-package', serialized_args);
 
-			const pkg = await load_package_json();
+			const package_json = await load_package_json();
 
 			// `npm link`
-			if (pkg.bin) {
+			if (package_json.bin) {
 				const timing_to_npm_link = timings.start('npm link');
 				await Promise.all(
-					Object.values(pkg.bin).map(async (bin_path) => {
+					Object.values(package_json.bin).map(async (bin_path) => {
 						const chmod_result = await spawn('chmod', ['+x', bin_path]);
 						if (!chmod_result.ok)
 							log.error(`chmod on bin path ${bin_path} failed with code ${chmod_result.code}`);
@@ -43,4 +38,14 @@ export const plugin = (): Plugin<PluginContext> => {
 			}
 		},
 	};
+};
+
+export const has_library = async (): Promise<boolean> => {
+	const package_json = await load_package_json(); // TODO from param, on config?
+	return (
+		!!package_json.devDependencies?.['@sveltejs/package'] ||
+		!!package_json.dependencies?.['@sveltejs/package']
+	);
+	// TODO @multiple get from the sveltekit config
+	// && exists(sveltekit_config.lib_path);
 };

@@ -7,6 +7,7 @@ import {load_package_json} from './package_json.js';
 import {find_cli, spawn_cli} from './cli.js';
 import {exists} from './exists.js';
 import {is_this_project_gro} from './paths.js';
+import {has_library} from './gro_plugin_library.js';
 
 // publish.task.ts
 // - usage: `gro publish patch`
@@ -43,6 +44,12 @@ export const task: Task<Args> = {
 		const {branch, changelog, dry, check, install} = args;
 		if (dry) {
 			log.info(green('dry run!'));
+		}
+
+		if (!(await has_library())) {
+			throw new TaskError(
+				'gro publish failed to detect a library, run `npm i -D @sveltejs/package` to enable it',
+			);
 		}
 
 		// TODO hacky, ensures Gro bootstraps itself
