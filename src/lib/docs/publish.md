@@ -47,7 +47,8 @@ npm i -D @changesets/cli # or install local to your repo
 ```
 
 To [init Changesets](https://github.com/changesets/changesets/blob/main/packages/README.md#init)
-in a repo or add a changeset to an already-inited repo, use `gro changeset`:
+in a repo or [add](https://github.com/changesets/changesets/blob/main/packages/README.md#add)
+a changeset to an already-inited repo, use `gro changeset`:
 
 ```bash
 gro changeset # inits or adds a changeset
@@ -67,7 +68,7 @@ git add .changeset/$FILE
 # TODO include a `git commit` flag or default behavior, maybe `gro changeset "message"`
 ```
 
-Optionally configure and install a custom changelog package
+After initing, optionally configure and install a custom changelog package
 in the `"changelog"` property of the newly created `.changeset/config.json`:
 
 ```diff
@@ -86,12 +87,6 @@ If your package is public, configure the `access` property:
 # .changeset/config.json
 - "access": "restricted",
 + "access": "public",
-```
-
-To [add](https://github.com/changesets/changesets/blob/main/packages/README.md#add) a changeset:
-
-```bash
-changeset
 ```
 
 See [the Changesets docs](https://github.com/changesets/changesets) for more.
