@@ -7,7 +7,7 @@ import {print_command_args, serialize_args, to_forwarded_args} from './args.js';
 import {SVELTEKIT_BUILD_DIRNAME} from './paths.js';
 import {exists} from './exists.js';
 import {load_package_json, serialize_package_json, type MapPackageJson} from './package_json.js';
-import {init_sveltekit_config, load_sveltekit_config} from './sveltekit_config.js';
+import {init_sveltekit_config} from './sveltekit_config.js';
 
 export interface Options {
 	/**
