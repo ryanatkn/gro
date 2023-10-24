@@ -46,11 +46,19 @@ npm i -g @changesets/cli # install globally
 npm i -D @changesets/cli # or install local to your repo
 ```
 
-To set up a repo, first run
-[init](https://github.com/changesets/changesets/blob/main/packages/README.md#init):
+To [init Changesets](https://github.com/changesets/changesets/blob/main/packages/README.md#init)
+in a repo or add a changeset to an already-inited repo, use `gro changeset`:
 
 ```bash
 gro changeset # inits or adds a changeset
+gro changeset --help # prints:
+gro changeset: call changeset with gro patterns
+
+[...args]   string[]                 []                           the commands to pass to changeset
+path        string                   './.changeset/config.json'   changeset config file path
+access      'restricted' | 'public'  undefined                    changeset 'access' config value, the default depends on package.json#private
+changelog   string                   '@changesets/changelog-git'  changeset "changelog" config value
+no-install  boolean                  false                        opt out of npm installing the changelog package
 
 # `gro changeset` is equivalent to:
 changeset init # if needed -- prefix with `npx ` if installed only locally
