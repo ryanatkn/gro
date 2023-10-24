@@ -20,6 +20,8 @@ export interface Task<
 export interface TaskContext<TArgs = object> {
 	args: TArgs;
 	config: GroConfig;
+	// TODO should this go here or on `config` for convenience?
+	// sveltekit_config: ParsedSveltekitConfig;
 	log: Logger;
 	timings: Timings;
 	invoke_task: (task_name: string, args?: Args, config?: GroConfig) => Promise<void>;

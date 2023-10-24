@@ -19,6 +19,13 @@ const config: GroConfigCreator = async (cfg) => {
 };
 
 export default config;
+
+// src/lib/gro_plugin_sveltekit_frontend.ts
+export type HostTarget = 'github_pages' | 'static' | 'node';
+
+export interface MapPackageJson {
+	(pkg: PackageJson): PackageJson | null | Promise<PackageJson | null>;
+}
 ```
 
 ## `host_target`
@@ -40,7 +47,7 @@ The motivation is to provide conventional package metadata to web users and tool
 > We may be able to do more to prevent mistakes without making defaults for open projects unwieldy.
 
 By default the root `package.json` is copied without modifications,
-and you can provide your own `map_package_json` hook to
+and you can provide your own `well_known_package_json` option to
 mutate the `pkg`, return new data, or return `null` to be a no-op.
 
 > Writing to `.well-known/package.json` is unstandardized behavior that

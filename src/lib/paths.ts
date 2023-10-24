@@ -33,7 +33,7 @@ export const SOURCE_DIR = SOURCE_DIRNAME + '/';
 export const GRO_DIR = GRO_DIRNAME + '/';
 export const GRO_DEV_DIR = GRO_DEV_DIRNAME + '/';
 export const LIB_PATH = SOURCE_DIR + LIB_DIRNAME;
-export const LIB_DIR = LIB_PATH + '/';
+export const LIB_DIR = LIB_PATH + '/'; // TODO @multiple get from the sveltekit config
 
 export const CONFIG_PATH = 'gro.config.ts';
 
@@ -77,7 +77,7 @@ export const create_paths = (root_dir: string): Paths => {
 	return {
 		root,
 		source: root + SOURCE_DIR,
-		lib: root + LIB_DIR,
+		lib: root + LIB_DIR, // TODO @multiple get from the sveltekit config
 		build: root + GRO_DIR,
 		build_dev: root + GRO_DEV_DIR,
 		config: root + CONFIG_PATH,

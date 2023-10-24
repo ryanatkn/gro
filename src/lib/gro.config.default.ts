@@ -1,7 +1,8 @@
 import type {CreateGroConfig} from './config.js';
 import {exists} from './exists.js';
+import {has_library} from './gro_plugin_library.js';
 import {has_server} from './gro_plugin_server.js';
-import {LIB_DIR, SVELTEKIT_CONFIG_FILENAME} from './paths.js';
+import {SVELTEKIT_CONFIG_FILENAME} from './paths.js';
 
 /**
  * This is the default config that's passed to `gro.config.ts`
@@ -35,8 +36,5 @@ const config: CreateGroConfig = async (cfg) => {
 };
 
 export default config;
-
-// TODO maybe move these and `has_server`?
-export const has_library = (): Promise<boolean> => exists(LIB_DIR); // TODO need to use SvelteKit config
 
 export const has_sveltekit_frontend = (): Promise<boolean> => exists(SVELTEKIT_CONFIG_FILENAME);

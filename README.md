@@ -57,7 +57,7 @@ It includes:
     using [JSON Schema](https://json-schema.org/) and
     [json-schema-to-typescript](https://github.com/bcherny/json-schema-to-typescript)
 - linting with [ESLint](https://github.com/eslint/eslint)
-  (we also maintain [`@feltjs/eslint-config`](https://github.com/feltjs/eslint-config))
+  (I also maintain [`@feltjs/eslint-config`](https://github.com/feltjs/eslint-config))
 - formatting with [Prettier](https://github.com/prettier/prettier)
   (it's not always pretty, but it's consistent and it saves a lot of time)
 
