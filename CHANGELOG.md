@@ -1,5 +1,11 @@
 # @grogarden/gro
 
+## 0.96.0
+
+### Minor Changes
+
+- 2da22e6: detect library by default by checking for @sveltejs/package
+
 ## 0.95.8
 
 ### Patch Changes
