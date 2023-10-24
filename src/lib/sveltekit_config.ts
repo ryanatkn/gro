@@ -50,7 +50,7 @@ export interface ParsedSveltekitConfig {
  * Needed because SvelteKit doesn't expose its config resolver.
  */
 export const init_sveltekit_config = async (
-	dir_or_config: string | Config,
+	dir_or_config: string | Config = cwd(),
 ): Promise<ParsedSveltekitConfig> => {
 	const sveltekit_config =
 		typeof dir_or_config === 'string' ? await load_sveltekit_config(dir_or_config) : dir_or_config;

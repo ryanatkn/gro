@@ -111,7 +111,7 @@ const ensure_well_known_package_json = async (
 	const mapped = well_known_package_json === true ? pkg : await well_known_package_json(pkg);
 	if (!mapped) return;
 
-	const svelte_config = await init_sveltekit_config((await load_sveltekit_config())!); // TODO param
+	const svelte_config = await init_sveltekit_config(); // TODO param
 	const well_known_dir = join(output_dir, svelte_config.assets_path, '..', '.well-known');
 	const path = join(well_known_dir, 'package.json');
 	if (await exists(path)) return; // don't clobber
