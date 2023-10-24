@@ -40,7 +40,6 @@ export const plugin = (): Plugin<PluginContext> => {
 	};
 };
 
-// TODO maybe move these and `has_server`?
 export const has_library = async (): Promise<boolean> => {
 	const package_json = await load_package_json(); // TODO from param, on config?
 	return (
