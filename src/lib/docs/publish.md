@@ -14,7 +14,7 @@ if it detects `@sveltejs/package` installed as a dependency in the package.json.
 npm i -D @sveltejs/package # enables `@grogarden/gro/gro_plugin_library.js`
 gro sync # updates package.json "exports"
 git commit -am "..."
-gro publish # calls `svelte-package`
+# `gro publish` calls `svelte-package`
 ```
 
 ## login to npm
