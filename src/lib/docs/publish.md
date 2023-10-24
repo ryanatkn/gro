@@ -122,18 +122,3 @@ A common failure is not being logged into npm. (see the instructions above)
 If the builds are correct but `changeset publish` failed,
 and you don't want to undo the version commit and tag,
 you can continue manually with `changeset publish` or `npm publish`.
-
-## `config.package_json`
-
-```ts
-export interface GroConfig {
-	// ...
-
-	/**
-	 * Maps the project's `package.json` before writing it to the filesystem.
-	 * The `pkg` argument may be mutated, but the return value is what's used by the caller.
-	 * Returning `null` is a no-op for the caller.
-	 */
-	package_json: MapPackageJson | null;
-}
-```
