@@ -77,7 +77,7 @@ export const create_paths = (root_dir: string): Paths => {
 	return {
 		root,
 		source: root + SOURCE_DIR,
-		lib: root + LIB_DIR,
+		lib: root + LIB_DIR, // TODO @multiple get from the sveltekit config
 		build: root + GRO_DIR,
 		build_dev: root + GRO_DEV_DIR,
 		config: root + CONFIG_PATH,
