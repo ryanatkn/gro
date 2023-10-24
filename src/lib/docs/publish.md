@@ -2,6 +2,22 @@
 
 Here's how to publish a new version of a repo with Gro, including for Gro itself.
 
+## svelte-package
+
+Gro uses SvelteKit's [`@sveltejs/package`](https://kit.svelte.dev/docs/packaging)
+with the task `gro publish` to publish packages to npm.
+Gro's default config enables [`@grogarden/gro/gro_plugin_library.js`](../gro_plugin_library.ts)
+if it detects `@sveltejs/package` installed as a dependency in the package.json.
+For more see [the `map_package_json` config docs](./config.md#map_package_json).
+
+```bash
+# enable `gro publish` to publish to npm:
+npm i -D @sveltejs/package # enables `@grogarden/gro/gro_plugin_library.js`
+gro sync # updates package.json "exports"
+git commit -am "..."
+gro publish # calls `svelte-package`
+```
+
 ## login to npm
 
 ```bash
@@ -34,8 +50,13 @@ To set up a repo, first run
 [init](https://github.com/changesets/changesets/blob/main/packages/README.md#init):
 
 ```bash
-changeset init
-npx changeset init # if installed only locally
+gro changeset # inits or adds a changeset
+
+# `gro changeset` is equivalent to:
+changeset init # if needed -- prefix with `npx ` if installed only locally
+changeset
+git add .changeset/$FILE
+# TODO include a `git commit` flag or default behavior, maybe `gro changeset "message"`
 ```
 
 Optionally configure and install a custom changelog package
