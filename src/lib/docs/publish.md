@@ -8,7 +8,6 @@ Gro uses SvelteKit's [`@sveltejs/package`](https://kit.svelte.dev/docs/packaging
 with the task `gro publish` to publish packages to npm.
 Gro's default config enables [`@grogarden/gro/gro_plugin_library.js`](../gro_plugin_library.ts)
 if it detects `@sveltejs/package` installed as a dependency in the package.json.
-For more see [the `map_package_json` config docs](./config.md#map_package_json).
 
 ```bash
 # enable `gro publish` to publish to npm:
