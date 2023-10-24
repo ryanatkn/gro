@@ -10,13 +10,8 @@ export const plugin = (): Plugin<PluginContext> => {
 	return {
 		name: 'gro_plugin_library',
 		adapt: async ({log, timings}) => {
-			if (!(await find_cli('svelte-package'))) {
-				log.warn(
-					'failed to find svelte-package: ' +
-						'install @sveltejs/package locally or globally to publish this repo,' +
-						' or remove gro_plugin_library to suppress this warning',
-				);
-				return;
+			if ((await find_cli('svelte-package')) !== 'local') {
+				throw new TaskError('Failed to find svelte-package, run `npm i -D @sveltejs/package`');
 			}
 			const serialized_args = serialize_args(to_forwarded_args('svelte-package'));
 			log.info(print_command_args(serialized_args));
