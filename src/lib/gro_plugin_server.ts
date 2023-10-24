@@ -57,7 +57,7 @@ export interface Options {
 	 */
 	ambient_env?: Record<string, string>;
 	/**
-	 * @default loaded from `${cwd}/svelte.config.js`
+	 * @default loaded from `${cwd}/${SVELTEKIT_CONFIG_FILENAME}`
 	 */
 	sveltekit_config?: SvelteKitConfig;
 	/**
@@ -106,7 +106,7 @@ export const plugin = ({
 	}),
 	env_files,
 	ambient_env,
-	sveltekit_config: sveltekit_config_option,
+	sveltekit_config,
 	target = 'esnext',
 	esbuild_build_options = identity,
 	rebuild_throttle_delay = 1000,
@@ -128,7 +128,7 @@ export const plugin = ({
 				public_prefix,
 				svelte_compile_options,
 				svelte_preprocessors,
-			} = await init_sveltekit_config(sveltekit_config_option ?? dir);
+			} = await init_sveltekit_config(sveltekit_config ?? dir);
 
 			const {outbase, outdir, outname} = outpaths(dev);
 

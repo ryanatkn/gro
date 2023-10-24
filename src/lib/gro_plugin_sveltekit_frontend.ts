@@ -7,7 +7,7 @@ import {print_command_args, serialize_args, to_forwarded_args} from './args.js';
 import {SVELTEKIT_BUILD_DIRNAME} from './paths.js';
 import {exists} from './exists.js';
 import {load_package_json, serialize_package_json, type MapPackageJson} from './package_json.js';
-import {load_sveltekit_config} from './sveltekit_config.js';
+import {init_sveltekit_config} from './sveltekit_config.js';
 
 export interface Options {
 	/**
@@ -111,9 +111,8 @@ const ensure_well_known_package_json = async (
 	const mapped = well_known_package_json === true ? pkg : await well_known_package_json(pkg);
 	if (!mapped) return;
 
-	const svelte_config = await load_sveltekit_config();
-	const static_assets = svelte_config?.kit?.files?.assets || 'static';
-	const well_known_dir = join(output_dir, static_assets, '..', '.well-known');
+	const svelte_config = await init_sveltekit_config(); // TODO param
+	const well_known_dir = join(output_dir, svelte_config.assets_path, '..', '.well-known');
 	const path = join(well_known_dir, 'package.json');
 	if (await exists(path)) return; // don't clobber
 	if (!(await exists(well_known_dir))) {
