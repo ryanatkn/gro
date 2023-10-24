@@ -47,7 +47,7 @@ export const resolve_input_path = (raw_input_path: string): string => {
 		base_path = strip_end(strip_start(base_path + '/', gro_dir_basename), '/');
 	}
 	// Handle `src/lib` by itself without conflicting with `src/libFoo` names.
-	if (base_path === LIB_PATH) base_path = '';
+	if (base_path === LIB_PATH) base_path = ''; // TODO @multiple get from the sveltekit config
 	// Allow prefix `src/lib/` and just remove it if it's there.
 	base_path = strip_start(base_path, LIB_DIR);
 	return lib_path_to_import_id(base_path, paths);

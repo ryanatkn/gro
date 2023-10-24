@@ -61,7 +61,7 @@ export const init_sveltekit_config = async (
 	const base_url = kit?.paths?.base;
 	const assets_url = kit?.paths?.assets;
 
-	// TODO maybe a Zod schema instead?
+	// TODO probably a Zod schema instead
 	const assets_path = kit?.files?.assets ?? 'static';
 	const lib_path = kit?.files?.lib ?? 'src/lib';
 	const routes_path = kit?.files?.routes ?? 'src/routes';

@@ -47,6 +47,6 @@ export const has_library = async (): Promise<boolean> => {
 		!!package_json.devDependencies?.['@sveltejs/package'] ||
 		!!package_json.dependencies?.['@sveltejs/package']
 	);
-	// TODO need to use SvelteKit config
+	// TODO @multiple get from the sveltekit config
 	// && exists(sveltekit_config.lib_path);
 };
