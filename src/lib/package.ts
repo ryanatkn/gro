@@ -3,7 +3,7 @@ import type {PackageJson} from './package_json.js';
 export const package_json = {
 	name: '@grogarden/gro',
 	description: 'task runner and toolkit extending SvelteKit',
-	version: '0.96.0',
+	version: '0.96.1',
 	bin: {gro: 'dist/gro.js'},
 	license: 'MIT',
 	homepage: 'https://www.grogarden.org/',
@@ -43,7 +43,7 @@ export const package_json = {
 		tslib: '^2.6.2',
 		zod: '^3.22.4',
 	},
-	peerDependencies: {esbuild: '^0.18', svelte: '^4'},
+	peerDependencies: {esbuild: '^0.18', svelte: '*'},
 	devDependencies: {
 		'@changesets/changelog-git': '^0.1.14',
 		'@changesets/types': '^5.2.1',

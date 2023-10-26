@@ -1,5 +1,11 @@
 # @grogarden/gro
 
+## 0.96.1
+
+### Patch Changes
+
+- f0350f3: add default package exports to svelte files
+
 ## 0.96.0
 
 ### Minor Changes
