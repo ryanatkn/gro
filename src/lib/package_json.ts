@@ -237,6 +237,7 @@ export const to_package_exports = (paths: string[]): PackageJsonExports => {
 		} else if (path.endsWith('.svelte')) {
 			exports['./' + path] = {
 				svelte: IMPORT_PREFIX + path,
+				default: IMPORT_PREFIX + path, // needed for loader imports
 				types: IMPORT_PREFIX + path + '.d.ts',
 			};
 		} else {

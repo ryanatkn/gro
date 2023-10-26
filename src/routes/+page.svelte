@@ -1,27 +1,23 @@
 <script lang="ts">
 	import {base} from '$app/paths';
 	import {parse_package_meta} from '@fuz.dev/fuz_library/package_meta.js';
-	import LibraryHeader from '@fuz.dev/fuz_library/LibraryHeader.svelte';
 	import LibraryFooter from '@fuz.dev/fuz_library/LibraryFooter.svelte';
+	import PackageDetail from '@fuz.dev/fuz_library/PackageDetail.svelte';
+	import PackageSummary from '@fuz.dev/fuz_library/PackageSummary.svelte';
 
 	// TODO add website, rewriting the markdown docs as Svelte
 
 	import {package_json} from '$lib/package.js';
 	const pkg = parse_package_meta(package_json.homepage, package_json);
+
+	let show_detail = true;
+	$: PackageComponent = show_detail ? PackageDetail : PackageSummary;
 </script>
 
 <main class="box width_full">
 	<div class="box width_md">
-		<section>
-			<LibraryHeader {pkg} />
-		</section>
-		<section class="panel spaced padded_md text_align_center">
-			this website is a work in progress!<br />
-			<div class="box row spaced">
-				for now, docs are in&nbsp;
-				<a href="https://github.com/grogarden/gro">the source repo</a>
-			</div>
-			<!-- TODO put this in the header, icon support (repo.json?) -->
+		<section class="prose box">
+			<h1>gro</h1>
 			<a class="panel padded_md box" title="source repo" href="https://github.com/grogarden/gro">
 				<img
 					alt="a pixelated green oak acorn with a glint of sun"
@@ -30,6 +26,21 @@
 					style:height="var(--icon_size_lg)"
 				/>
 			</a>
+		</section>
+		<section class="panel spaced padded_md text_align_center">
+			this website is a work in progress!<br />
+			<div class="box row spaced">
+				for now, docs are in&nbsp;
+				<a href="https://github.com/grogarden/gro">the source repo</a>
+			</div>
+		</section>
+		<section class="panel spaced padded_md width_full swappable">
+			<button
+				class="toggle icon_button"
+				title={show_detail ? 'show package summary' : 'show package detail'}
+				on:click={() => (show_detail = !show_detail)}>🔨</button
+			>
+			<svelte:component this={PackageComponent} {pkg} />
 		</section>
 		<section>
 			<LibraryFooter {pkg} />
@@ -51,5 +62,14 @@
 		display: flex;
 		flex-direction: column;
 		align-items: center;
+	}
+	.swappable {
+		position: relative;
+	}
+	.toggle {
+		position: absolute;
+		top: var(--spacing_sm);
+		right: var(--spacing_sm);
+		font-size: var(--size_1);
 	}
 </style>
