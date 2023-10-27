@@ -1,5 +1,11 @@
 # @grogarden/gro
 
+## 0.96.3
+
+### Patch Changes
+
+- 2794e20: run `svelte-kit sync` before typecheck
+
 ## 0.96.2
 
 ### Patch Changes
