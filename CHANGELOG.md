@@ -1,5 +1,11 @@
 # @grogarden/gro
 
+## 0.96.2
+
+### Patch Changes
+
+- 80a1dc0: fix `gro release` to not `gro publish` if a library is not detected
+
 ## 0.96.1
 
 ### Patch Changes
