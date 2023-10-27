@@ -4,6 +4,7 @@ import {z} from 'zod';
 import {TaskError, type Task} from './task.js';
 import {print_command_args, serialize_args, to_forwarded_args} from './args.js';
 import {find_cli, spawn_cli} from './cli.js';
+import {sveltekit_sync} from './sync.task.js';
 
 export const Args = z.object({}).strict();
 export type Args = z.infer<typeof Args>;
@@ -12,6 +13,8 @@ export const task: Task<Args> = {
 	summary: 'run tsc on the project without emitting any files',
 	Args,
 	run: async ({log}): Promise<void> => {
+		await sveltekit_sync();
+
 		if (await find_cli('svelte-check')) {
 			// svelte-check
 			const serialized = serialize_args(to_forwarded_args('svelte-check'));
