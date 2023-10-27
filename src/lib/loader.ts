@@ -135,11 +135,6 @@ export const load: LoadHook = async (url, context, nextLoad) => {
 };
 
 export const resolve: ResolveHook = async (specifier, context, nextResolve) => {
-	const parent_url = context.parentURL;
-	if (!parent_url || node_modules_matcher.test(parent_url)) {
-		return nextResolve(specifier, context);
-	}
-
 	if (
 		specifier === '$env/static/public' ||
 		specifier === '$env/static/private' ||
@@ -153,6 +148,11 @@ export const resolve: ResolveHook = async (specifier, context, nextResolve) => {
 			format: 'module',
 			shortCircuit: true,
 		};
+	}
+
+	const parent_url = context.parentURL;
+	if (!parent_url || node_modules_matcher.test(parent_url)) {
+		return nextResolve(specifier, context);
 	}
 
 	const shimmed = sveltekit_shim_app_specifiers.get(specifier);
