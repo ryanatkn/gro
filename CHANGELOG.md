@@ -1,5 +1,11 @@
 # @grogarden/gro
 
+## 0.97.0
+
+### Minor Changes
+
+- 0e779e6: add `modules` to `package.json`
+
 ## 0.96.4
 
 ### Patch Changes
