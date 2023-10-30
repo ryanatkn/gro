@@ -285,6 +285,9 @@ export const to_package_modules = async (
 						k === '.' || k === './'
 							? 'index.ts'
 							: strip_start(k.endsWith('.js') ? replace_extension(k, '.ts') : k, './');
+					if (!source_file_path.endsWith('.ts')) {
+						return null!;
+					}
 					const source_file_id = paths.lib + source_file_path;
 					if (!(await exists(source_file_id))) {
 						log?.warn(
