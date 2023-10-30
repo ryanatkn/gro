@@ -293,7 +293,6 @@ const IMPORT_PREFIX = './' + SVELTEKIT_DIST_DIRNAME + '/';
 export const to_package_modules = async (
 	exports: PackageJsonExports | undefined,
 	log?: Logger,
-	base_path = paths.lib,
 ): Promise<Package_Modules | undefined> => {
 	if (!exports) return undefined;
 
@@ -312,10 +311,13 @@ export const to_package_modules = async (
 							: strip_start(k.endsWith('.js') ? replace_extension(k, '.ts') : k, './');
 					if (!source_file_path.endsWith('.ts')) {
 						// TODO support more than just TypeScript - probably use @sveltejs/language-tools
-						return null!;
+						console.log(`source_file_path`, source_file_path);
+						const package_module: Package_Module = {path: source_file_path, declarations: []};
+						return [k, package_module];
 					}
-					const source_file_id = join(base_path, source_file_path);
+					const source_file_id = join(paths.lib, source_file_path);
 					console.log(`source_file_id`, source_file_id);
+					console.log('WAIT');
 					if (!(await exists(source_file_id))) {
 						console.log(`NO EXIST`);
 						log?.warn(
@@ -327,11 +329,13 @@ export const to_package_modules = async (
 						);
 						return null!;
 					}
+					console.log('does exist');
 
 					const declarations: Package_Module_Declaration[] = [];
 
 					const source_file = project.getSourceFileOrThrow(source_file_path);
 					for (const [name, decls] of source_file.getExportedDeclarations()) {
+						console.log(`name`, name);
 						if (!decls) continue;
 						// TODO how to correctly handle multiples?
 						for (const decl of decls) {
@@ -350,6 +354,7 @@ export const to_package_modules = async (
 						}
 					}
 
+					console.log(`source_file_path, declarations`, source_file_path, declarations);
 					const package_module: Package_Module = {path: source_file_path, declarations};
 					return [k, package_module];
 				}),

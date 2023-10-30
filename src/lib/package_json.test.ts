@@ -86,6 +86,8 @@ test('to_package_exports', async () => {
 	);
 });
 
+// TODO BLOCK don't include packages that don't have @sveltejs/package
+
 test('to_package_modules', async () => {
 	console.log(
 		`to_package_exports`,
@@ -103,7 +105,6 @@ test('to_package_modules', async () => {
 				'fixtures/some_test_json.json',
 			]),
 			undefined,
-			paths.source,
 		),
 		{},
 	);
