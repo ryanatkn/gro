@@ -1,5 +1,11 @@
 # @grogarden/gro
 
+## 0.98.1
+
+### Patch Changes
+
+- 4ae5082: fix `to_package_modules`
+
 ## 0.98.0
 
 ### Minor Changes
