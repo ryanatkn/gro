@@ -101,6 +101,7 @@ const ensure_well_known_package_json = async (
 	output_dir: string,
 ): Promise<void> => {
 	const pkg = await load_package_json();
+	// TODO BLOCK call `to_package_modules` by default
 	if (well_known_package_json === undefined) {
 		// TODO using `pkg.private` isn't semantic, maybe this should be removed
 		// and we just document the danger for closed-source projects?

@@ -15,6 +15,7 @@ import {
 	Email,
 } from './paths.js';
 import {search_fs} from './search_fs.js';
+import {exists} from './exists.js';
 
 export const PackageJsonRepository = z.union([
 	z.string(),
@@ -252,21 +253,23 @@ export const to_package_exports = (paths: string[]): PackageJsonExports => {
 
 const IMPORT_PREFIX = './' + SVELTEKIT_DIST_DIRNAME + '/';
 
-export interface Module_Declaration {
+export interface Package_Module_Declaration {
 	name: string; // identifier
-	type: string; // `getType()`
+	kind: string; // `getKing()`
+	// type: string; // `getType()`
 }
 
 // TODO BLOCK move
 export interface Package_Module {
-	id: string;
-	declarations: Module_Declaration[];
+	path: string;
+	declarations: Package_Module_Declaration[];
 }
 
 export type Package_Modules = Record<string, Package_Module>;
 
 export const to_package_modules = async (
 	exports: PackageJsonExports | undefined,
+	log?: Logger,
 ): Promise<Package_Modules | undefined> => {
 	if (!exports) return undefined;
 
@@ -274,30 +277,44 @@ export const to_package_modules = async (
 	project.addSourceFilesAtPaths('src/**/*.ts'); // TODO dir?
 
 	return Object.fromEntries(
-		await Promise.all(
-			Object.entries(exports).map(async ([k, v]) => {
-				// TODO hacky - add a gro helper?
-				const raw_source_file_id = strip_start(
-					k.endsWith('.js') ? replace_extension(k, '.ts') : k,
-					'./',
-				);
-				const source_file_id = raw_source_file_id === '.' ? 'index.ts' : raw_source_file_id;
+		(
+			await Promise.all(
+				Object.entries(exports).map(async ([k, _v]) => {
+					// TODO hacky - doesn't handle any but the normal mappings, also add a gro helper?
+					const source_file_path =
+						k === '.' || k === './'
+							? 'index.ts'
+							: strip_start(k.endsWith('.js') ? replace_extension(k, '.ts') : k, './');
+					const source_file_id = paths.lib + source_file_path;
+					if (!(await exists(source_file_id))) {
+						log?.warn(
+							'failed to infer source file from export path',
+							k,
+							'- the inferred file',
+							source_file_id,
+							'does not exist',
+						);
+						return null!;
+					}
 
-				const declarations = [];
+					const declarations: Package_Module_Declaration[] = [];
 
-				const source_file = project.getSourceFileOrThrow(source_file_id);
-				for (const [name, _decls] of source_file.getExportedDeclarations()) {
-					console.log(`name`, raw_source_file_id, name);
-					// TODO BLOCK multiples ? change our data structure?
-					declarations.push({name});
-					// for (const decl of decls) {
-					// TODO this isn't what we want
-					// decl.getType().getText(source_file)
-					// }
-				}
+					const source_file = project.getSourceFileOrThrow(source_file_path);
+					for (const [name, decls] of source_file.getExportedDeclarations()) {
+						if (!decls) continue;
+						// TODO how to correctly handle multiples?
+						for (const decl of decls) {
+							declarations.push({
+								name,
+								kind: decl.getKindName(),
+								// TODO more
+							});
+						}
+					}
 
-				return [k, {id: source_file_id, declarations}];
-			}),
-		),
+					return [k, {id: source_file_path, declarations}];
+				}),
+			)
+		).filter(Boolean),
 	);
 };

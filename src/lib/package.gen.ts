@@ -9,14 +9,12 @@ import {is_this_project_gro} from './paths.js';
  * which mirrors `package.json` but in TypeScript,
  * allowing apps to import typesafe data from their own `package.json`.
  */
-export const gen: Gen = async () => {
+export const gen: Gen = async ({log}) => {
 	const package_json = await load_package_json();
 
-	// TODO BLOCK remove this from here, belongs only for well-known and package.ts
-	const modules = await to_package_modules(package_json.exports);
+	const modules = await to_package_modules(package_json.exports, log);
 
 	package_json.modules = modules;
-	console.log(`modules`, modules);
 
 	return `
 import type {PackageJson} from '${
