@@ -293,6 +293,7 @@ const IMPORT_PREFIX = './' + SVELTEKIT_DIST_DIRNAME + '/';
 export const to_package_modules = async (
 	exports: PackageJsonExports | undefined,
 	log?: Logger,
+	base_path = paths.lib,
 ): Promise<Package_Modules | undefined> => {
 	if (!exports) return undefined;
 
@@ -303,7 +304,8 @@ export const to_package_modules = async (
 		(
 			await Promise.all(
 				Object.entries(exports).map(async ([k, _v]) => {
-					// TODO hacky - doesn't handle any but the normal mappings, also add a gro helper?
+					console.log(`k`, k);
+					// TODO hacky - doesn't handle any but the normal mappings, also add a helper?
 					const source_file_path =
 						k === '.' || k === './'
 							? 'index.ts'
@@ -312,8 +314,10 @@ export const to_package_modules = async (
 						// TODO support more than just TypeScript - probably use @sveltejs/language-tools
 						return null!;
 					}
-					const source_file_id = paths.lib + source_file_path;
+					const source_file_id = join(base_path, source_file_path);
+					console.log(`source_file_id`, source_file_id);
 					if (!(await exists(source_file_id))) {
+						console.log(`NO EXIST`);
 						log?.warn(
 							'failed to infer source file from export path',
 							k,

@@ -35,7 +35,6 @@ test__search_fs('basic behavior', async () => {
 			'some_test_exports3.ts',
 			'some_test_exports2.ts',
 			'some_test_exports.ts',
-			'Fixture.svelte',
 			'baz2/test2.baz.ts',
 			'baz1/test1.baz.ts',
 			'bar2/test2.bar.ts',

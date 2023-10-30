@@ -1,7 +1,14 @@
 import {test} from 'uvu';
 import * as assert from 'uvu/assert';
 
-import {PackageJson, load_package_json, serialize_package_json} from './package_json.js';
+import {
+	PackageJson,
+	load_package_json,
+	serialize_package_json,
+	to_package_exports,
+	to_package_modules,
+} from './package_json.js';
+import {paths} from './paths.js';
 
 test('load_package_json', async () => {
 	const pkg = await load_package_json();
@@ -47,6 +54,59 @@ test('serialize_package_json fails with bad data', async () => {
 		err = _err;
 	}
 	assert.ok(err);
+});
+
+test('to_package_exports', async () => {
+	assert.equal(to_package_exports(['a/b.ts']), {
+		'./a/b.js': {
+			default: './dist/a/b.js',
+			types: './dist/a/b.d.ts',
+		},
+	});
+	assert.equal(
+		to_package_exports([
+			'fixtures/Some_Test_Svelte.svelte',
+			'fixtures/some_test_ts.ts',
+			'fixtures/some_test_json.json',
+		]),
+		{
+			'./fixtures/some_test_json.json': {
+				default: './dist/fixtures/some_test_json.json',
+			},
+			'./fixtures/Some_Test_Svelte.svelte': {
+				svelte: './dist/fixtures/Some_Test_Svelte.svelte',
+				default: './dist/fixtures/Some_Test_Svelte.svelte',
+				types: './dist/fixtures/Some_Test_Svelte.svelte.d.ts',
+			},
+			'./fixtures/some_test_ts.js': {
+				default: './dist/fixtures/some_test_ts.js',
+				types: './dist/fixtures/some_test_ts.d.ts',
+			},
+		},
+	);
+});
+
+test('to_package_modules', async () => {
+	console.log(
+		`to_package_exports`,
+		to_package_exports([
+			'fixtures/Some_Test_Svelte.svelte',
+			'fixtures/some_test_ts.ts',
+			'fixtures/some_test_json.json',
+		]),
+	);
+	assert.equal(
+		to_package_modules(
+			to_package_exports([
+				'fixtures/Some_Test_Svelte.svelte',
+				'fixtures/some_test_ts.ts',
+				'fixtures/some_test_json.json',
+			]),
+			undefined,
+			paths.source,
+		),
+		{},
+	);
 });
 
 test.run();
