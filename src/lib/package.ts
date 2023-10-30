@@ -229,7 +229,7 @@ export const package_json = {
 	},
 	modules: {
 		'.': {
-			id: 'index.ts',
+			path: 'index.ts',
 			declarations: [
 				{name: 'GroConfig', kind: 'InterfaceDeclaration'},
 				{name: 'CreateGroConfig', kind: 'InterfaceDeclaration'},
@@ -243,7 +243,7 @@ export const package_json = {
 			],
 		},
 		'./args.js': {
-			id: 'args.ts',
+			path: 'args.ts',
 			declarations: [
 				{name: 'Args', kind: 'InterfaceDeclaration'},
 				{name: 'ArgValue', kind: 'TypeAliasDeclaration'},
@@ -258,7 +258,7 @@ export const package_json = {
 			],
 		},
 		'./build.task.js': {
-			id: 'build.task.ts',
+			path: 'build.task.ts',
 			declarations: [
 				{name: 'Args', kind: 'VariableDeclaration'},
 				{name: 'Args', kind: 'TypeAliasDeclaration'},
@@ -266,7 +266,7 @@ export const package_json = {
 			],
 		},
 		'./changeset.task.js': {
-			id: 'changeset.task.ts',
+			path: 'changeset.task.ts',
 			declarations: [
 				{name: 'Args', kind: 'VariableDeclaration'},
 				{name: 'Args', kind: 'TypeAliasDeclaration'},
@@ -282,7 +282,7 @@ export const package_json = {
 			],
 		},
 		'./check.task.js': {
-			id: 'check.task.ts',
+			path: 'check.task.ts',
 			declarations: [
 				{name: 'Args', kind: 'VariableDeclaration'},
 				{name: 'Args', kind: 'TypeAliasDeclaration'},
@@ -290,11 +290,11 @@ export const package_json = {
 			],
 		},
 		'./clean_fs.js': {
-			id: 'clean_fs.ts',
+			path: 'clean_fs.ts',
 			declarations: [{name: 'clean_fs', kind: 'VariableDeclaration'}],
 		},
 		'./clean.task.js': {
-			id: 'clean.task.ts',
+			path: 'clean.task.ts',
 			declarations: [
 				{name: 'Args', kind: 'VariableDeclaration'},
 				{name: 'Args', kind: 'TypeAliasDeclaration'},
@@ -302,14 +302,14 @@ export const package_json = {
 			],
 		},
 		'./cli.js': {
-			id: 'cli.ts',
+			path: 'cli.ts',
 			declarations: [
 				{name: 'find_cli', kind: 'VariableDeclaration'},
 				{name: 'spawn_cli', kind: 'VariableDeclaration'},
 			],
 		},
 		'./commit.task.js': {
-			id: 'commit.task.ts',
+			path: 'commit.task.ts',
 			declarations: [
 				{name: 'Args', kind: 'VariableDeclaration'},
 				{name: 'Args', kind: 'TypeAliasDeclaration'},
@@ -317,7 +317,7 @@ export const package_json = {
 			],
 		},
 		'./config.js': {
-			id: 'config.ts',
+			path: 'config.ts',
 			declarations: [
 				{name: 'GroConfig', kind: 'InterfaceDeclaration'},
 				{name: 'CreateGroConfig', kind: 'InterfaceDeclaration'},
@@ -328,7 +328,7 @@ export const package_json = {
 			],
 		},
 		'./deploy.task.js': {
-			id: 'deploy.task.ts',
+			path: 'deploy.task.ts',
 			declarations: [
 				{name: 'Args', kind: 'VariableDeclaration'},
 				{name: 'Args', kind: 'TypeAliasDeclaration'},
@@ -336,7 +336,7 @@ export const package_json = {
 			],
 		},
 		'./dev.task.js': {
-			id: 'dev.task.ts',
+			path: 'dev.task.ts',
 			declarations: [
 				{name: 'Args', kind: 'VariableDeclaration'},
 				{name: 'Args', kind: 'TypeAliasDeclaration'},
@@ -345,7 +345,7 @@ export const package_json = {
 			],
 		},
 		'./env.js': {
-			id: 'env.ts',
+			path: 'env.ts',
 			declarations: [
 				{name: 'load_env', kind: 'VariableDeclaration'},
 				{name: 'merge_envs', kind: 'VariableDeclaration'},
@@ -354,7 +354,7 @@ export const package_json = {
 			],
 		},
 		'./esbuild_helpers.js': {
-			id: 'esbuild_helpers.ts',
+			path: 'esbuild_helpers.ts',
 			declarations: [
 				{name: 'print_build_result', kind: 'VariableDeclaration'},
 				{name: 'to_define_import_meta_env', kind: 'VariableDeclaration'},
@@ -362,55 +362,58 @@ export const package_json = {
 			],
 		},
 		'./esbuild_plugin_external_worker.js': {
-			id: 'esbuild_plugin_external_worker.ts',
+			path: 'esbuild_plugin_external_worker.ts',
 			declarations: [
 				{name: 'Options', kind: 'InterfaceDeclaration'},
 				{name: 'esbuild_plugin_external_worker', kind: 'VariableDeclaration'},
 			],
 		},
 		'./esbuild_plugin_svelte.js': {
-			id: 'esbuild_plugin_svelte.ts',
+			path: 'esbuild_plugin_svelte.ts',
 			declarations: [
 				{name: 'Options', kind: 'InterfaceDeclaration'},
 				{name: 'esbuild_plugin_svelte', kind: 'VariableDeclaration'},
 			],
 		},
 		'./esbuild_plugin_sveltekit_local_imports.js': {
-			id: 'esbuild_plugin_sveltekit_local_imports.ts',
+			path: 'esbuild_plugin_sveltekit_local_imports.ts',
 			declarations: [{name: 'esbuild_plugin_sveltekit_local_imports', kind: 'VariableDeclaration'}],
 		},
 		'./esbuild_plugin_sveltekit_shim_alias.js': {
-			id: 'esbuild_plugin_sveltekit_shim_alias.ts',
+			path: 'esbuild_plugin_sveltekit_shim_alias.ts',
 			declarations: [
 				{name: 'Options', kind: 'InterfaceDeclaration'},
 				{name: 'esbuild_plugin_sveltekit_shim_alias', kind: 'VariableDeclaration'},
 			],
 		},
 		'./esbuild_plugin_sveltekit_shim_app.js': {
-			id: 'esbuild_plugin_sveltekit_shim_app.ts',
+			path: 'esbuild_plugin_sveltekit_shim_app.ts',
 			declarations: [
 				{name: 'Options', kind: 'InterfaceDeclaration'},
 				{name: 'esbuild_plugin_sveltekit_shim_app', kind: 'VariableDeclaration'},
 			],
 		},
 		'./esbuild_plugin_sveltekit_shim_env.js': {
-			id: 'esbuild_plugin_sveltekit_shim_env.ts',
+			path: 'esbuild_plugin_sveltekit_shim_env.ts',
 			declarations: [
 				{name: 'Options', kind: 'InterfaceDeclaration'},
 				{name: 'esbuild_plugin_sveltekit_shim_env', kind: 'VariableDeclaration'},
 			],
 		},
-		'./exists.js': {id: 'exists.ts', declarations: [{name: 'exists', kind: 'VariableDeclaration'}]},
+		'./exists.js': {
+			path: 'exists.ts',
+			declarations: [{name: 'exists', kind: 'VariableDeclaration'}],
+		},
 		'./format_directory.js': {
-			id: 'format_directory.ts',
+			path: 'format_directory.ts',
 			declarations: [{name: 'format_directory', kind: 'VariableDeclaration'}],
 		},
 		'./format_file.js': {
-			id: 'format_file.ts',
+			path: 'format_file.ts',
 			declarations: [{name: 'format_file', kind: 'VariableDeclaration'}],
 		},
 		'./format.task.js': {
-			id: 'format.task.ts',
+			path: 'format.task.ts',
 			declarations: [
 				{name: 'Args', kind: 'VariableDeclaration'},
 				{name: 'Args', kind: 'TypeAliasDeclaration'},
@@ -418,7 +421,7 @@ export const package_json = {
 			],
 		},
 		'./gen_module.js': {
-			id: 'gen_module.ts',
+			path: 'gen_module.ts',
 			declarations: [
 				{name: 'GEN_FILE_PATTERN_TEXT', kind: 'VariableDeclaration'},
 				{name: 'GEN_FILE_PATTERN', kind: 'VariableDeclaration'},
@@ -445,14 +448,14 @@ export const package_json = {
 			],
 		},
 		'./gen_schemas.js': {
-			id: 'gen_schemas.ts',
+			path: 'gen_schemas.ts',
 			declarations: [
 				{name: 'gen_schemas', kind: 'VariableDeclaration'},
 				{name: 'to_schemas_from_modules', kind: 'VariableDeclaration'},
 			],
 		},
 		'./gen.task.js': {
-			id: 'gen.task.ts',
+			path: 'gen.task.ts',
 			declarations: [
 				{name: 'Args', kind: 'VariableDeclaration'},
 				{name: 'Args', kind: 'TypeAliasDeclaration'},
@@ -460,7 +463,7 @@ export const package_json = {
 			],
 		},
 		'./gen.js': {
-			id: 'gen.ts',
+			path: 'gen.ts',
 			declarations: [
 				{name: 'GenResult', kind: 'TypeAliasDeclaration'},
 				{name: 'GenFile', kind: 'InterfaceDeclaration'},
@@ -479,7 +482,7 @@ export const package_json = {
 			],
 		},
 		'./git.js': {
-			id: 'git.ts',
+			path: 'git.ts',
 			declarations: [
 				{name: 'GitOrigin', kind: 'VariableDeclaration'},
 				{name: 'GitOrigin', kind: 'TypeAliasDeclaration'},
@@ -505,21 +508,21 @@ export const package_json = {
 			],
 		},
 		'./gro_plugin_gen.js': {
-			id: 'gro_plugin_gen.ts',
+			path: 'gro_plugin_gen.ts',
 			declarations: [
 				{name: 'TaskArgs', kind: 'InterfaceDeclaration'},
 				{name: 'plugin', kind: 'VariableDeclaration'},
 			],
 		},
 		'./gro_plugin_library.js': {
-			id: 'gro_plugin_library.ts',
+			path: 'gro_plugin_library.ts',
 			declarations: [
 				{name: 'plugin', kind: 'VariableDeclaration'},
 				{name: 'has_library', kind: 'VariableDeclaration'},
 			],
 		},
 		'./gro_plugin_server.js': {
-			id: 'gro_plugin_server.ts',
+			path: 'gro_plugin_server.ts',
 			declarations: [
 				{name: 'SERVER_SOURCE_ID', kind: 'VariableDeclaration'},
 				{name: 'has_server', kind: 'VariableDeclaration'},
@@ -530,7 +533,7 @@ export const package_json = {
 			],
 		},
 		'./gro_plugin_sveltekit_frontend.js': {
-			id: 'gro_plugin_sveltekit_frontend.ts',
+			path: 'gro_plugin_sveltekit_frontend.ts',
 			declarations: [
 				{name: 'Options', kind: 'InterfaceDeclaration'},
 				{name: 'HostTarget', kind: 'TypeAliasDeclaration'},
@@ -538,16 +541,16 @@ export const package_json = {
 			],
 		},
 		'./gro.config.default.js': {
-			id: 'gro.config.default.ts',
+			path: 'gro.config.default.ts',
 			declarations: [
 				{name: 'default', kind: 'VariableDeclaration'},
 				{name: 'has_sveltekit_frontend', kind: 'VariableDeclaration'},
 			],
 		},
-		'./gro.js': {id: 'gro.ts', declarations: []},
-		'./hash.js': {id: 'hash.ts', declarations: [{name: 'to_hash', kind: 'VariableDeclaration'}]},
+		'./gro.js': {path: 'gro.ts', declarations: []},
+		'./hash.js': {path: 'hash.ts', declarations: [{name: 'to_hash', kind: 'VariableDeclaration'}]},
 		'./input_path.js': {
-			id: 'input_path.ts',
+			path: 'input_path.ts',
 			declarations: [
 				{name: 'resolve_input_path', kind: 'VariableDeclaration'},
 				{name: 'resolve_input_paths', kind: 'VariableDeclaration'},
@@ -557,12 +560,12 @@ export const package_json = {
 			],
 		},
 		'./invoke_task.js': {
-			id: 'invoke_task.ts',
+			path: 'invoke_task.ts',
 			declarations: [{name: 'invoke_task', kind: 'VariableDeclaration'}],
 		},
-		'./invoke.js': {id: 'invoke.ts', declarations: []},
+		'./invoke.js': {path: 'invoke.ts', declarations: []},
 		'./lint.task.js': {
-			id: 'lint.task.ts',
+			path: 'lint.task.ts',
 			declarations: [
 				{name: 'Args', kind: 'VariableDeclaration'},
 				{name: 'Args', kind: 'TypeAliasDeclaration'},
@@ -570,14 +573,14 @@ export const package_json = {
 			],
 		},
 		'./loader.js': {
-			id: 'loader.ts',
+			path: 'loader.ts',
 			declarations: [
 				{name: 'load', kind: 'VariableDeclaration'},
 				{name: 'resolve', kind: 'VariableDeclaration'},
 			],
 		},
 		'./module.js': {
-			id: 'module.ts',
+			path: 'module.ts',
 			declarations: [
 				{name: 'MODULE_PATH_SRC_PREFIX', kind: 'VariableDeclaration'},
 				{name: 'MODULE_PATH_LIB_PREFIX', kind: 'VariableDeclaration'},
@@ -585,7 +588,7 @@ export const package_json = {
 			],
 		},
 		'./modules.js': {
-			id: 'modules.ts',
+			path: 'modules.ts',
 			declarations: [
 				{name: 'ModuleMeta', kind: 'InterfaceDeclaration'},
 				{name: 'LoadModuleResult', kind: 'TypeAliasDeclaration'},
@@ -599,7 +602,7 @@ export const package_json = {
 			],
 		},
 		'./package_json.js': {
-			id: 'package_json.ts',
+			path: 'package_json.ts',
 			declarations: [
 				{name: 'PackageJsonRepository', kind: 'VariableDeclaration'},
 				{name: 'PackageJsonRepository', kind: 'TypeAliasDeclaration'},
@@ -628,15 +631,15 @@ export const package_json = {
 			],
 		},
 		'./package.gen.js': {
-			id: 'package.gen.ts',
+			path: 'package.gen.ts',
 			declarations: [{name: 'gen', kind: 'VariableDeclaration'}],
 		},
 		'./package.js': {
-			id: 'package.ts',
+			path: 'package.ts',
 			declarations: [{name: 'package_json', kind: 'VariableDeclaration'}],
 		},
 		'./path.js': {
-			id: 'path.ts',
+			path: 'path.ts',
 			declarations: [
 				{name: 'PathData', kind: 'InterfaceDeclaration'},
 				{name: 'to_path_data', kind: 'VariableDeclaration'},
@@ -645,7 +648,7 @@ export const package_json = {
 			],
 		},
 		'./paths.js': {
-			id: 'paths.ts',
+			path: 'paths.ts',
 			declarations: [
 				{name: 'SOURCE_DIRNAME', kind: 'VariableDeclaration'},
 				{name: 'GRO_DIRNAME', kind: 'VariableDeclaration'},
@@ -701,7 +704,7 @@ export const package_json = {
 			],
 		},
 		'./plugin.js': {
-			id: 'plugin.ts',
+			path: 'plugin.ts',
 			declarations: [
 				{name: 'Plugin', kind: 'InterfaceDeclaration'},
 				{name: 'CreateConfigPlugins', kind: 'InterfaceDeclaration'},
@@ -711,7 +714,7 @@ export const package_json = {
 			],
 		},
 		'./print_task.js': {
-			id: 'print_task.ts',
+			path: 'print_task.ts',
 			declarations: [
 				{name: 'log_available_tasks', kind: 'VariableDeclaration'},
 				{name: 'log_error_reasons', kind: 'VariableDeclaration'},
@@ -719,7 +722,7 @@ export const package_json = {
 			],
 		},
 		'./publish.task.js': {
-			id: 'publish.task.ts',
+			path: 'publish.task.ts',
 			declarations: [
 				{name: 'Args', kind: 'VariableDeclaration'},
 				{name: 'Args', kind: 'TypeAliasDeclaration'},
@@ -727,7 +730,7 @@ export const package_json = {
 			],
 		},
 		'./release.task.js': {
-			id: 'release.task.ts',
+			path: 'release.task.ts',
 			declarations: [
 				{name: 'Args', kind: 'VariableDeclaration'},
 				{name: 'Args', kind: 'TypeAliasDeclaration'},
@@ -735,7 +738,7 @@ export const package_json = {
 			],
 		},
 		'./resolve_node_specifier.js': {
-			id: 'resolve_node_specifier.ts',
+			path: 'resolve_node_specifier.ts',
 			declarations: [
 				{name: 'resolve_node_specifier', kind: 'VariableDeclaration'},
 				{name: 'ParsedNodeSpecifier', kind: 'InterfaceDeclaration'},
@@ -743,14 +746,14 @@ export const package_json = {
 			],
 		},
 		'./resolve_specifier.js': {
-			id: 'resolve_specifier.ts',
+			path: 'resolve_specifier.ts',
 			declarations: [
 				{name: 'ResolvedSpecifier', kind: 'InterfaceDeclaration'},
 				{name: 'resolve_specifier', kind: 'VariableDeclaration'},
 			],
 		},
 		'./run_gen.js': {
-			id: 'run_gen.ts',
+			path: 'run_gen.ts',
 			declarations: [
 				{name: 'GEN_NO_PROD_MESSAGE', kind: 'VariableDeclaration'},
 				{name: 'run_gen', kind: 'VariableDeclaration'},
@@ -759,14 +762,14 @@ export const package_json = {
 			],
 		},
 		'./run_task.js': {
-			id: 'run_task.ts',
+			path: 'run_task.ts',
 			declarations: [
 				{name: 'RunTaskResult', kind: 'TypeAliasDeclaration'},
 				{name: 'run_task', kind: 'VariableDeclaration'},
 			],
 		},
 		'./schema.js': {
-			id: 'schema.ts',
+			path: 'schema.ts',
 			declarations: [
 				{name: 'JsonSchema', kind: 'InterfaceDeclaration'},
 				{name: 'bundle_schemas', kind: 'VariableDeclaration'},
@@ -777,14 +780,14 @@ export const package_json = {
 			],
 		},
 		'./search_fs.js': {
-			id: 'search_fs.ts',
+			path: 'search_fs.ts',
 			declarations: [
 				{name: 'SearchFsOptions', kind: 'InterfaceDeclaration'},
 				{name: 'search_fs', kind: 'VariableDeclaration'},
 			],
 		},
 		'./sveltekit_config.js': {
-			id: 'sveltekit_config.ts',
+			path: 'sveltekit_config.ts',
 			declarations: [
 				{name: 'load_sveltekit_config', kind: 'VariableDeclaration'},
 				{name: 'ParsedSveltekitConfig', kind: 'InterfaceDeclaration'},
@@ -792,7 +795,7 @@ export const package_json = {
 			],
 		},
 		'./sveltekit_shim_app_environment.js': {
-			id: 'sveltekit_shim_app_environment.ts',
+			path: 'sveltekit_shim_app_environment.ts',
 			declarations: [
 				{name: 'browser', kind: 'VariableDeclaration'},
 				{name: 'building', kind: 'VariableDeclaration'},
@@ -801,7 +804,7 @@ export const package_json = {
 			],
 		},
 		'./sveltekit_shim_app_forms.js': {
-			id: 'sveltekit_shim_app_forms.ts',
+			path: 'sveltekit_shim_app_forms.ts',
 			declarations: [
 				{name: 'applyAction', kind: 'VariableDeclaration'},
 				{name: 'deserialize', kind: 'VariableDeclaration'},
@@ -809,7 +812,7 @@ export const package_json = {
 			],
 		},
 		'./sveltekit_shim_app_navigation.js': {
-			id: 'sveltekit_shim_app_navigation.ts',
+			path: 'sveltekit_shim_app_navigation.ts',
 			declarations: [
 				{name: 'afterNavigate', kind: 'VariableDeclaration'},
 				{name: 'beforeNavigate', kind: 'VariableDeclaration'},
@@ -822,14 +825,14 @@ export const package_json = {
 			],
 		},
 		'./sveltekit_shim_app_paths.js': {
-			id: 'sveltekit_shim_app_paths.ts',
+			path: 'sveltekit_shim_app_paths.ts',
 			declarations: [
 				{name: 'assets', kind: 'VariableDeclaration'},
 				{name: 'base', kind: 'VariableDeclaration'},
 			],
 		},
 		'./sveltekit_shim_app_stores.js': {
-			id: 'sveltekit_shim_app_stores.ts',
+			path: 'sveltekit_shim_app_stores.ts',
 			declarations: [
 				{name: 'getStores', kind: 'VariableDeclaration'},
 				{name: 'navigating', kind: 'VariableDeclaration'},
@@ -838,7 +841,7 @@ export const package_json = {
 			],
 		},
 		'./sveltekit_shim_app.js': {
-			id: 'sveltekit_shim_app.ts',
+			path: 'sveltekit_shim_app.ts',
 			declarations: [
 				{name: 'sveltekit_shim_app_paths_matcher', kind: 'VariableDeclaration'},
 				{name: 'sveltekit_shim_app_environment_matcher', kind: 'VariableDeclaration'},
@@ -848,11 +851,11 @@ export const package_json = {
 			],
 		},
 		'./sveltekit_shim_env.js': {
-			id: 'sveltekit_shim_env.ts',
+			path: 'sveltekit_shim_env.ts',
 			declarations: [{name: 'render_env_shim_module', kind: 'VariableDeclaration'}],
 		},
 		'./sync.task.js': {
-			id: 'sync.task.ts',
+			path: 'sync.task.ts',
 			declarations: [
 				{name: 'Args', kind: 'VariableDeclaration'},
 				{name: 'Args', kind: 'TypeAliasDeclaration'},
@@ -861,7 +864,7 @@ export const package_json = {
 			],
 		},
 		'./task_module.js': {
-			id: 'task_module.ts',
+			path: 'task_module.ts',
 			declarations: [
 				{name: 'TaskModule', kind: 'InterfaceDeclaration'},
 				{name: 'TaskModuleMeta', kind: 'InterfaceDeclaration'},
@@ -872,7 +875,7 @@ export const package_json = {
 			],
 		},
 		'./task.js': {
-			id: 'task.ts',
+			path: 'task.ts',
 			declarations: [
 				{name: 'Task', kind: 'InterfaceDeclaration'},
 				{name: 'TaskContext', kind: 'InterfaceDeclaration'},
@@ -884,7 +887,7 @@ export const package_json = {
 			],
 		},
 		'./test.task.js': {
-			id: 'test.task.ts',
+			path: 'test.task.ts',
 			declarations: [
 				{name: 'Args', kind: 'VariableDeclaration'},
 				{name: 'Args', kind: 'TypeAliasDeclaration'},
@@ -892,15 +895,15 @@ export const package_json = {
 			],
 		},
 		'./throttle.js': {
-			id: 'throttle.ts',
+			path: 'throttle.ts',
 			declarations: [{name: 'throttle', kind: 'VariableDeclaration'}],
 		},
 		'./type_imports.js': {
-			id: 'type_imports.ts',
+			path: 'type_imports.ts',
 			declarations: [{name: 'normalize_type_imports', kind: 'VariableDeclaration'}],
 		},
 		'./typecheck.task.js': {
-			id: 'typecheck.task.ts',
+			path: 'typecheck.task.ts',
 			declarations: [
 				{name: 'Args', kind: 'VariableDeclaration'},
 				{name: 'Args', kind: 'TypeAliasDeclaration'},
@@ -908,7 +911,7 @@ export const package_json = {
 			],
 		},
 		'./upgrade.task.js': {
-			id: 'upgrade.task.ts',
+			path: 'upgrade.task.ts',
 			declarations: [
 				{name: 'Args', kind: 'VariableDeclaration'},
 				{name: 'Args', kind: 'TypeAliasDeclaration'},
@@ -916,7 +919,7 @@ export const package_json = {
 			],
 		},
 		'./watch_dir.js': {
-			id: 'watch_dir.ts',
+			path: 'watch_dir.ts',
 			declarations: [
 				{name: 'WatchNodeFs', kind: 'InterfaceDeclaration'},
 				{name: 'WatcherChange', kind: 'InterfaceDeclaration'},
