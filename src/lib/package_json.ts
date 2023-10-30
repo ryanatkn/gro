@@ -259,7 +259,6 @@ export interface Package_Module_Declaration {
 	// type: string; // `getType()`
 }
 
-// TODO BLOCK move
 export interface Package_Module {
 	path: string;
 	declarations: Package_Module_Declaration[];
@@ -312,7 +311,8 @@ export const to_package_modules = async (
 						}
 					}
 
-					return [k, {id: source_file_path, declarations}];
+					const package_module: Package_Module = {path: source_file_path, declarations};
+					return [k, package_module];
 				}),
 			)
 		).filter(Boolean),
