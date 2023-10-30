@@ -92,6 +92,7 @@ export const PackageJson = z.intersection(
 			bin: z.record(z.string()).optional(),
 			files: z.array(z.string()).optional(),
 			exports: PackageJsonExports.optional(),
+			modules: PackageJsonModules.optional(),
 
 			dependencies: z.record(z.string()).optional(),
 			devDependencies: z.record(z.string()).optional(),
