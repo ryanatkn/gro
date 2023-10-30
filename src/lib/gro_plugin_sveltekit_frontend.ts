@@ -6,7 +6,11 @@ import type {Plugin, PluginContext} from './plugin.js';
 import {print_command_args, serialize_args, to_forwarded_args} from './args.js';
 import {SVELTEKIT_BUILD_DIRNAME} from './paths.js';
 import {exists} from './exists.js';
-import {load_package_json, serialize_package_json, type MapPackageJson} from './package_json.js';
+import {
+	serialize_package_json,
+	type MapPackageJson,
+	load_mapped_package_json,
+} from './package_json.js';
 import {init_sveltekit_config} from './sveltekit_config.js';
 
 export interface Options {
@@ -100,15 +104,17 @@ const ensure_well_known_package_json = async (
 	well_known_package_json: boolean | MapPackageJson | undefined,
 	output_dir: string,
 ): Promise<void> => {
-	const pkg = await load_package_json();
+	const package_json = await load_mapped_package_json();
+
 	if (well_known_package_json === undefined) {
 		// TODO using `pkg.private` isn't semantic, maybe this should be removed
 		// and we just document the danger for closed-source projects?
-		well_known_package_json = !pkg.private; // eslint-disable-line no-param-reassign
+		well_known_package_json = !package_json.private; // eslint-disable-line no-param-reassign
 	}
 	if (!well_known_package_json) return;
 
-	const mapped = well_known_package_json === true ? pkg : await well_known_package_json(pkg);
+	const mapped =
+		well_known_package_json === true ? package_json : await well_known_package_json(package_json);
 	if (!mapped) return;
 
 	const svelte_config = await init_sveltekit_config(); // TODO param

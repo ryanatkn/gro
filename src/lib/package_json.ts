@@ -1,8 +1,9 @@
 import {z} from 'zod';
 import {join} from 'node:path';
 import {readFile, writeFile} from 'node:fs/promises';
-import {plural} from '@grogarden/util/string.js';
+import {plural, strip_start} from '@grogarden/util/string.js';
 import type {Logger} from '@grogarden/util/log.js';
+import {Project} from 'ts-morph';
 
 import {
 	paths,
@@ -14,6 +15,27 @@ import {
 	Email,
 } from './paths.js';
 import {search_fs} from './search_fs.js';
+import {exists} from './exists.js';
+
+export const Package_Module_Declaration = z
+	.object({
+		name: z.string(), // identifier
+		kind: z.string(), // `getKing()`
+		// type: string; // `getType()`
+	})
+	.passthrough();
+export type Package_Module_Declaration = z.infer<typeof Package_Module_Declaration>;
+
+export const Package_Module = z
+	.object({
+		path: z.string(),
+		declarations: z.array(Package_Module_Declaration),
+	})
+	.passthrough();
+export type Package_Module = z.infer<typeof Package_Module>;
+
+export const Package_Modules = z.record(Package_Module);
+export type Package_Modules = z.infer<typeof Package_Modules>;
 
 export const PackageJsonRepository = z.union([
 	z.string(),
@@ -53,6 +75,9 @@ export type PackageJsonFunding = z.infer<typeof PackageJsonFunding>;
 export const PackageJsonExports = z.record(z.record(z.string()).optional());
 export type PackageJsonExports = z.infer<typeof PackageJsonExports>;
 
+export const PackageJsonModules = Package_Modules.optional();
+export type PackageJsonModules = z.infer<typeof PackageJsonModules>;
+
 /**
  * @see https://docs.npmjs.com/cli/v10/configuring-npm/package-json
  */
@@ -90,6 +115,7 @@ export const PackageJson = z.intersection(
 			bin: z.record(z.string()).optional(),
 			files: z.array(z.string()).optional(),
 			exports: PackageJsonExports.optional(),
+			modules: PackageJsonModules.optional(),
 
 			dependencies: z.record(z.string()).optional(),
 			devDependencies: z.record(z.string()).optional(),
@@ -128,6 +154,16 @@ export const load_package_json = async (
 	return pkg;
 };
 
+export const load_mapped_package_json = async (
+	log?: Logger,
+	dir = is_this_project_gro ? gro_paths.root : paths.root,
+	cache?: Record<string, PackageJson>,
+): Promise<PackageJson> => {
+	const package_json = await load_package_json(dir, cache);
+	package_json.modules = await to_package_modules(package_json.exports, log);
+	return package_json;
+};
+
 export const sync_package_json = async (
 	map_package_json: MapPackageJson,
 	log: Logger,
@@ -137,10 +173,10 @@ export const sync_package_json = async (
 ): Promise<{pkg: PackageJson | null; changed: boolean}> => {
 	const exported_files = await search_fs(exports_dir);
 	const exported_paths = Array.from(exported_files.keys());
-	const exports = to_package_exports(exported_paths);
 	const updated = await update_package_json(
 		dir,
 		async (pkg) => {
+			const exports = to_package_exports(exported_paths);
 			pkg.exports = exports;
 			const mapped = await map_package_json(pkg);
 			return mapped ? normalize_package_json(mapped) : mapped;
@@ -250,3 +286,68 @@ export const to_package_exports = (paths: string[]): PackageJsonExports => {
 };
 
 const IMPORT_PREFIX = './' + SVELTEKIT_DIST_DIRNAME + '/';
+
+// TODO refactor
+export const to_package_modules = async (
+	exports: PackageJsonExports | undefined,
+	log?: Logger,
+): Promise<Package_Modules | undefined> => {
+	if (!exports) return undefined;
+
+	const project = new Project();
+	project.addSourceFilesAtPaths('src/**/*.ts'); // TODO dir?
+
+	return Object.fromEntries(
+		(
+			await Promise.all(
+				Object.entries(exports).map(async ([k, _v]) => {
+					// TODO hacky - doesn't handle any but the normal mappings, also add a gro helper?
+					const source_file_path =
+						k === '.' || k === './'
+							? 'index.ts'
+							: strip_start(k.endsWith('.js') ? replace_extension(k, '.ts') : k, './');
+					if (!source_file_path.endsWith('.ts')) {
+						// TODO support more than just TypeScript - probably use @sveltejs/language-tools
+						return null!;
+					}
+					const source_file_id = paths.lib + source_file_path;
+					if (!(await exists(source_file_id))) {
+						log?.warn(
+							'failed to infer source file from export path',
+							k,
+							'- the inferred file',
+							source_file_id,
+							'does not exist',
+						);
+						return null!;
+					}
+
+					const declarations: Package_Module_Declaration[] = [];
+
+					const source_file = project.getSourceFileOrThrow(source_file_path);
+					for (const [name, decls] of source_file.getExportedDeclarations()) {
+						if (!decls) continue;
+						// TODO how to correctly handle multiples?
+						for (const decl of decls) {
+							// TODO helper
+							const found = declarations.find((d) => d.name === name);
+							const kind = decl.getKindName();
+							if (found) {
+								// TODO hacky, this only was added to prevent `TypeAliasDeclaration` from overriding `VariableDeclaration`
+								if (found.kind !== 'VariableDeclaration') {
+									found.kind = kind;
+								}
+							} else {
+								// TODO more
+								declarations.push({name, kind});
+							}
+						}
+					}
+
+					const package_module: Package_Module = {path: source_file_path, declarations};
+					return [k, package_module];
+				}),
+			)
+		).filter(Boolean),
+	);
+};
