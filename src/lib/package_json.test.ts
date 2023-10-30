@@ -8,7 +8,6 @@ import {
 	to_package_exports,
 	to_package_modules,
 } from './package_json.js';
-import {paths} from './paths.js';
 
 test('load_package_json', async () => {
 	const pkg = await load_package_json();

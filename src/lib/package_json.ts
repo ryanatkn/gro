@@ -317,17 +317,21 @@ export const to_package_modules = async (
 					}
 					const source_file_id = join(paths.lib, source_file_path);
 					console.log(`source_file_id`, source_file_id);
-					console.log('WAIT');
-					if (!(await exists(source_file_id))) {
-						console.log(`NO EXIST`);
-						log?.warn(
-							'failed to infer source file from export path',
-							k,
-							'- the inferred file',
-							source_file_id,
-							'does not exist',
-						);
-						return null!;
+					console.log('WAIT2');
+					try {
+						if (!(await exists(source_file_id))) {
+							console.log(`NO EXIST`);
+							log?.warn(
+								'failed to infer source file from export path',
+								k,
+								'- the inferred file',
+								source_file_id,
+								'does not exist',
+							);
+							return null!;
+						}
+					} catch (err) {
+						console.log('done');
 					}
 					console.log('does exist');
 
