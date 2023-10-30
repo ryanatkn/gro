@@ -1,5 +1,11 @@
 # @grogarden/gro
 
+## 0.98.0
+
+### Minor Changes
+
+- debae94: add `"global"` property to `package.json` to support `.well-known/package.json` instead of `"private"`
+
 ## 0.97.0
 
 ### Minor Changes
