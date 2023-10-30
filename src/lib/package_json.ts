@@ -337,23 +337,28 @@ export const to_package_modules = async (
 
 					const declarations: Package_Module_Declaration[] = [];
 
-					const source_file = project.getSourceFileOrThrow(source_file_path);
-					for (const [name, decls] of source_file.getExportedDeclarations()) {
-						console.log(`name`, name);
-						if (!decls) continue;
-						// TODO how to correctly handle multiples?
-						for (const decl of decls) {
-							// TODO helper
-							const found = declarations.find((d) => d.name === name);
-							const kind = decl.getKindName();
-							if (found) {
-								// TODO hacky, this only was added to prevent `TypeAliasDeclaration` from overriding `VariableDeclaration`
-								if (found.kind !== 'VariableDeclaration') {
-									found.kind = kind;
+					let source_file;
+					try {
+						source_file = project.getSourceFileOrThrow(source_file_path);
+					} catch (err) {}
+					if (source_file) {
+						for (const [name, decls] of source_file.getExportedDeclarations()) {
+							console.log(`name`, name);
+							if (!decls) continue;
+							// TODO how to correctly handle multiples?
+							for (const decl of decls) {
+								// TODO helper
+								const found = declarations.find((d) => d.name === name);
+								const kind = decl.getKindName();
+								if (found) {
+									// TODO hacky, this only was added to prevent `TypeAliasDeclaration` from overriding `VariableDeclaration`
+									if (found.kind !== 'VariableDeclaration') {
+										found.kind = kind;
+									}
+								} else {
+									// TODO more
+									declarations.push({name, kind});
 								}
-							} else {
-								// TODO more
-								declarations.push({name, kind});
 							}
 						}
 					}
