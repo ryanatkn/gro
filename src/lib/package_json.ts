@@ -303,7 +303,6 @@ export const to_package_modules = async (
 		(
 			await Promise.all(
 				Object.entries(exports).map(async ([k, _v]) => {
-					console.log(`k`, k);
 					// TODO hacky - doesn't handle any but the normal mappings, also add a helper?
 					const source_file_path =
 						k === '.' || k === './'
@@ -311,16 +310,12 @@ export const to_package_modules = async (
 							: strip_start(k.endsWith('.js') ? replace_extension(k, '.ts') : k, './');
 					if (!source_file_path.endsWith('.ts')) {
 						// TODO support more than just TypeScript - probably use @sveltejs/language-tools
-						console.log(`source_file_path`, source_file_path);
 						const package_module: Package_Module = {path: source_file_path, declarations: []};
 						return [k, package_module];
 					}
 					const source_file_id = join(paths.lib, source_file_path);
-					console.log(`source_file_id`, source_file_id);
-					console.log('WAIT2');
 					try {
 						if (!(await exists(source_file_id))) {
-							console.log(`NO EXIST`);
 							log?.warn(
 								'failed to infer source file from export path',
 								k,
@@ -330,10 +325,7 @@ export const to_package_modules = async (
 							);
 							return null!;
 						}
-					} catch (err) {
-						console.log('done');
-					}
-					console.log('does exist');
+					} catch (err) {}
 
 					const declarations: Package_Module_Declaration[] = [];
 
@@ -343,7 +335,6 @@ export const to_package_modules = async (
 					} catch (err) {}
 					if (source_file) {
 						for (const [name, decls] of source_file.getExportedDeclarations()) {
-							console.log(`name`, name);
 							if (!decls) continue;
 							// TODO how to correctly handle multiples?
 							for (const decl of decls) {
@@ -363,7 +354,6 @@ export const to_package_modules = async (
 						}
 					}
 
-					console.log(`source_file_path, declarations`, source_file_path, declarations);
 					const package_module: Package_Module = {path: source_file_path, declarations};
 					return [k, package_module];
 				}),
