@@ -85,20 +85,9 @@ test('to_package_exports', async () => {
 	);
 });
 
-// TODO BLOCK don't include packages that don't have @sveltejs/package
-
 test('to_package_modules', async () => {
-	console.log(
-		`to_package_exports`,
-		to_package_exports([
-			'fixtures/some_test_css.css',
-			'fixtures/Some_Test_Svelte.svelte',
-			'fixtures/some_test_ts.ts',
-			'fixtures/some_test_json.json',
-		]),
-	);
 	assert.equal(
-		to_package_modules(
+		await to_package_modules(
 			to_package_exports([
 				'fixtures/some_test_css.css',
 				'fixtures/Some_Test_Svelte.svelte',
@@ -106,7 +95,24 @@ test('to_package_modules', async () => {
 				'fixtures/some_test_json.json',
 			]),
 		),
-		{},
+		{
+			'./fixtures/some_test_css.css': {
+				path: 'fixtures/some_test_css.css',
+				declarations: [],
+			},
+			'./fixtures/some_test_json.json': {
+				path: 'fixtures/some_test_json.json',
+				declarations: [],
+			},
+			'./fixtures/Some_Test_Svelte.svelte': {
+				path: 'fixtures/Some_Test_Svelte.svelte',
+				declarations: [],
+			},
+			'./fixtures/some_test_ts.js': {
+				path: 'fixtures/some_test_ts.ts',
+				declarations: [],
+			},
+		},
 	);
 });
 
