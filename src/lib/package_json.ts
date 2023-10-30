@@ -17,18 +17,21 @@ import {
 import {search_fs} from './search_fs.js';
 import {exists} from './exists.js';
 
-// TODO move these
-export const Package_Module_Declaration = z.object({
-	name: z.string(), // identifier
-	kind: z.string(), // `getKing()`
-	// type: string; // `getType()`
-});
+export const Package_Module_Declaration = z
+	.object({
+		name: z.string(), // identifier
+		kind: z.string(), // `getKing()`
+		// type: string; // `getType()`
+	})
+	.passthrough();
 export type Package_Module_Declaration = z.infer<typeof Package_Module_Declaration>;
 
-export const Package_Module = z.object({
-	path: z.string(),
-	declarations: z.array(Package_Module_Declaration),
-});
+export const Package_Module = z
+	.object({
+		path: z.string(),
+		declarations: z.array(Package_Module_Declaration),
+	})
+	.passthrough();
 export type Package_Module = z.infer<typeof Package_Module>;
 
 export const Package_Modules = z.record(Package_Module);
