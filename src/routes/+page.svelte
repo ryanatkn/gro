@@ -35,11 +35,12 @@
 				<a href="https://github.com/grogarden/gro">the source repo</a>
 			</div>
 		</section>
-		<section class="panel spaced padded_md width_full swappable">
+		<section class="panel spaced padded_md width_full relative">
 			<button
 				class="toggle icon_button"
 				title={show_detail ? 'show package summary' : 'show package detail'}
-				on:click={() => (show_detail = !show_detail)}>🔨</button
+				on:click={() => (show_detail = !show_detail)}
+				>{#if show_detail}🪜{:else}🔨{/if}</button
 			>
 			{#if show_detail}
 				<div transition:slide>
@@ -74,9 +75,6 @@
 		display: flex;
 		flex-direction: column;
 		align-items: center;
-	}
-	.swappable {
-		position: relative;
 	}
 	.toggle {
 		position: absolute;
