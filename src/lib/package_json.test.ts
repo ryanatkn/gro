@@ -105,7 +105,6 @@ test('to_package_modules', async () => {
 				'fixtures/some_test_ts.ts',
 				'fixtures/some_test_json.json',
 			]),
-			undefined,
 		),
 		{},
 	);
