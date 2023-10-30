@@ -8,6 +8,7 @@ import {
 	to_package_exports,
 	to_package_modules,
 } from './package_json.js';
+import {paths} from './paths.js';
 
 test('load_package_json', async () => {
 	const pkg = await load_package_json();
@@ -64,22 +65,22 @@ test('to_package_exports', async () => {
 	});
 	assert.equal(
 		to_package_exports([
-			'fixtures/Some_Test_Svelte.svelte',
-			'fixtures/some_test_ts.ts',
-			'fixtures/some_test_json.json',
+			'a/b/Some_Test_Svelte.svelte',
+			'a/b/some_test_ts.ts',
+			'a/b/some_test_json.json',
 		]),
 		{
-			'./fixtures/some_test_json.json': {
-				default: './dist/fixtures/some_test_json.json',
+			'./a/b/some_test_json.json': {
+				default: './dist/a/b/some_test_json.json',
 			},
-			'./fixtures/Some_Test_Svelte.svelte': {
-				svelte: './dist/fixtures/Some_Test_Svelte.svelte',
-				default: './dist/fixtures/Some_Test_Svelte.svelte',
-				types: './dist/fixtures/Some_Test_Svelte.svelte.d.ts',
+			'./a/b/Some_Test_Svelte.svelte': {
+				svelte: './dist/a/b/Some_Test_Svelte.svelte',
+				default: './dist/a/b/Some_Test_Svelte.svelte',
+				types: './dist/a/b/Some_Test_Svelte.svelte.d.ts',
 			},
-			'./fixtures/some_test_ts.js': {
-				default: './dist/fixtures/some_test_ts.js',
-				types: './dist/fixtures/some_test_ts.d.ts',
+			'./a/b/some_test_ts.js': {
+				default: './dist/a/b/some_test_ts.js',
+				types: './dist/a/b/some_test_ts.d.ts',
 			},
 		},
 	);
@@ -89,27 +90,29 @@ test('to_package_modules', async () => {
 	assert.equal(
 		await to_package_modules(
 			to_package_exports([
-				'fixtures/some_test_css.css',
-				'fixtures/Some_Test_Svelte.svelte',
-				'fixtures/some_test_ts.ts',
-				'fixtures/some_test_json.json',
+				'fixtures/modules/some_test_css.css',
+				'fixtures/modules/Some_Test_Svelte.svelte',
+				'fixtures/modules/some_test_ts.ts',
+				'fixtures/modules/some_test_json.json',
 			]),
+			undefined,
+			paths.source,
 		),
 		{
-			'./fixtures/some_test_css.css': {
-				path: 'fixtures/some_test_css.css',
+			'./fixtures/modules/some_test_css.css': {
+				path: 'fixtures/modules/some_test_css.css',
 				declarations: [],
 			},
-			'./fixtures/some_test_json.json': {
-				path: 'fixtures/some_test_json.json',
+			'./fixtures/modules/some_test_json.json': {
+				path: 'fixtures/modules/some_test_json.json',
 				declarations: [],
 			},
-			'./fixtures/Some_Test_Svelte.svelte': {
-				path: 'fixtures/Some_Test_Svelte.svelte',
+			'./fixtures/modules/Some_Test_Svelte.svelte': {
+				path: 'fixtures/modules/Some_Test_Svelte.svelte',
 				declarations: [],
 			},
-			'./fixtures/some_test_ts.js': {
-				path: 'fixtures/some_test_ts.ts',
+			'./fixtures/modules/some_test_ts.js': {
+				path: 'fixtures/modules/some_test_ts.ts',
 				declarations: [],
 			},
 		},

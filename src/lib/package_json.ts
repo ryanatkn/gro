@@ -293,6 +293,7 @@ const IMPORT_PREFIX = './' + SVELTEKIT_DIST_DIRNAME + '/';
 export const to_package_modules = async (
 	exports: PackageJsonExports | undefined,
 	log?: Logger,
+	base_path = paths.lib,
 ): Promise<Package_Modules | undefined> => {
 	if (!exports) return undefined;
 
@@ -313,19 +314,17 @@ export const to_package_modules = async (
 						const package_module: Package_Module = {path: source_file_path, declarations: []};
 						return [k, package_module];
 					}
-					const source_file_id = join(paths.lib, source_file_path);
-					try {
-						if (!(await exists(source_file_id))) {
-							log?.warn(
-								'failed to infer source file from export path',
-								k,
-								'- the inferred file',
-								source_file_id,
-								'does not exist',
-							);
-							return null!;
-						}
-					} catch (err) {}
+					const source_file_id = join(base_path, source_file_path);
+					if (!(await exists(source_file_id))) {
+						log?.warn(
+							'failed to infer source file from export path',
+							k,
+							'- the inferred file',
+							source_file_id,
+							'does not exist',
+						);
+						return null!;
+					}
 
 					const declarations: Package_Module_Declaration[] = [];
 

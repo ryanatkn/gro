@@ -4,7 +4,7 @@ import {existsSync} from 'node:fs';
 // some problem with it and `stat` crashing the process, idk, maybe a quirk of my node version
 export const exists = async (path: string): Promise<boolean> => {
 	try {
-		// await access(path);
+		// await access(path); // TODO see above
 		return existsSync(path);
 	} catch (err) {
 		return false;
