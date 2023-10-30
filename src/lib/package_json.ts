@@ -266,6 +266,7 @@ export interface Package_Module {
 
 export type Package_Modules = Record<string, Package_Module>;
 
+// TODO refactor
 export const to_package_modules = async (
 	exports: PackageJsonExports | undefined,
 	log?: Logger,
@@ -303,11 +304,18 @@ export const to_package_modules = async (
 						if (!decls) continue;
 						// TODO how to correctly handle multiples?
 						for (const decl of decls) {
-							declarations.push({
-								name,
-								kind: decl.getKindName(),
+							// TODO helper
+							const found = declarations.find((d) => d.name === name);
+							const kind = decl.getKindName();
+							if (found) {
+								// TODO hacky, this only was added to prevent `TypeAliasDeclaration` from overriding `VariableDeclaration`
+								if (found.kind !== 'VariableDeclaration') {
+									found.kind = kind;
+								}
+							} else {
 								// TODO more
-							});
+								declarations.push({name, kind});
+							}
 						}
 					}
 

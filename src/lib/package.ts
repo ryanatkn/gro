@@ -261,7 +261,6 @@ export const package_json = {
 			path: 'build.task.ts',
 			declarations: [
 				{name: 'Args', kind: 'VariableDeclaration'},
-				{name: 'Args', kind: 'TypeAliasDeclaration'},
 				{name: 'task', kind: 'VariableDeclaration'},
 			],
 		},
@@ -269,7 +268,6 @@ export const package_json = {
 			path: 'changeset.task.ts',
 			declarations: [
 				{name: 'Args', kind: 'VariableDeclaration'},
-				{name: 'Args', kind: 'TypeAliasDeclaration'},
 				{name: 'task', kind: 'VariableDeclaration'},
 				{name: 'ChangesetCallback', kind: 'InterfaceDeclaration'},
 				{name: 'UpdateWrittenConfig', kind: 'InterfaceDeclaration'},
@@ -285,7 +283,6 @@ export const package_json = {
 			path: 'check.task.ts',
 			declarations: [
 				{name: 'Args', kind: 'VariableDeclaration'},
-				{name: 'Args', kind: 'TypeAliasDeclaration'},
 				{name: 'task', kind: 'VariableDeclaration'},
 			],
 		},
@@ -297,7 +294,6 @@ export const package_json = {
 			path: 'clean.task.ts',
 			declarations: [
 				{name: 'Args', kind: 'VariableDeclaration'},
-				{name: 'Args', kind: 'TypeAliasDeclaration'},
 				{name: 'task', kind: 'VariableDeclaration'},
 			],
 		},
@@ -312,7 +308,6 @@ export const package_json = {
 			path: 'commit.task.ts',
 			declarations: [
 				{name: 'Args', kind: 'VariableDeclaration'},
-				{name: 'Args', kind: 'TypeAliasDeclaration'},
 				{name: 'task', kind: 'VariableDeclaration'},
 			],
 		},
@@ -331,7 +326,6 @@ export const package_json = {
 			path: 'deploy.task.ts',
 			declarations: [
 				{name: 'Args', kind: 'VariableDeclaration'},
-				{name: 'Args', kind: 'TypeAliasDeclaration'},
 				{name: 'task', kind: 'VariableDeclaration'},
 			],
 		},
@@ -339,7 +333,6 @@ export const package_json = {
 			path: 'dev.task.ts',
 			declarations: [
 				{name: 'Args', kind: 'VariableDeclaration'},
-				{name: 'Args', kind: 'TypeAliasDeclaration'},
 				{name: 'DevTaskContext', kind: 'TypeAliasDeclaration'},
 				{name: 'task', kind: 'VariableDeclaration'},
 			],
@@ -416,7 +409,6 @@ export const package_json = {
 			path: 'format.task.ts',
 			declarations: [
 				{name: 'Args', kind: 'VariableDeclaration'},
-				{name: 'Args', kind: 'TypeAliasDeclaration'},
 				{name: 'task', kind: 'VariableDeclaration'},
 			],
 		},
@@ -458,7 +450,6 @@ export const package_json = {
 			path: 'gen.task.ts',
 			declarations: [
 				{name: 'Args', kind: 'VariableDeclaration'},
-				{name: 'Args', kind: 'TypeAliasDeclaration'},
 				{name: 'task', kind: 'VariableDeclaration'},
 			],
 		},
@@ -472,7 +463,6 @@ export const package_json = {
 				{name: 'RawGenResult', kind: 'TypeAliasDeclaration'},
 				{name: 'RawGenFile', kind: 'InterfaceDeclaration'},
 				{name: 'GenConfig', kind: 'VariableDeclaration'},
-				{name: 'GenConfig', kind: 'TypeAliasDeclaration'},
 				{name: 'GenResults', kind: 'TypeAliasDeclaration'},
 				{name: 'GenModuleResult', kind: 'TypeAliasDeclaration'},
 				{name: 'GenModuleResultSuccess', kind: 'TypeAliasDeclaration'},
@@ -485,9 +475,7 @@ export const package_json = {
 			path: 'git.ts',
 			declarations: [
 				{name: 'GitOrigin', kind: 'VariableDeclaration'},
-				{name: 'GitOrigin', kind: 'TypeAliasDeclaration'},
 				{name: 'GitBranch', kind: 'VariableDeclaration'},
-				{name: 'GitBranch', kind: 'TypeAliasDeclaration'},
 				{name: 'git_current_branch_name', kind: 'VariableDeclaration'},
 				{name: 'git_remote_branch_exists', kind: 'VariableDeclaration'},
 				{name: 'git_local_branch_exists', kind: 'VariableDeclaration'},
@@ -568,7 +556,6 @@ export const package_json = {
 			path: 'lint.task.ts',
 			declarations: [
 				{name: 'Args', kind: 'VariableDeclaration'},
-				{name: 'Args', kind: 'TypeAliasDeclaration'},
 				{name: 'task', kind: 'VariableDeclaration'},
 			],
 		},
@@ -605,15 +592,10 @@ export const package_json = {
 			path: 'package_json.ts',
 			declarations: [
 				{name: 'PackageJsonRepository', kind: 'VariableDeclaration'},
-				{name: 'PackageJsonRepository', kind: 'TypeAliasDeclaration'},
 				{name: 'PackageJsonAuthor', kind: 'VariableDeclaration'},
-				{name: 'PackageJsonAuthor', kind: 'TypeAliasDeclaration'},
 				{name: 'PackageJsonFunding', kind: 'VariableDeclaration'},
-				{name: 'PackageJsonFunding', kind: 'TypeAliasDeclaration'},
 				{name: 'PackageJsonExports', kind: 'VariableDeclaration'},
-				{name: 'PackageJsonExports', kind: 'TypeAliasDeclaration'},
 				{name: 'PackageJson', kind: 'VariableDeclaration'},
-				{name: 'PackageJson', kind: 'TypeAliasDeclaration'},
 				{name: 'MapPackageJson', kind: 'InterfaceDeclaration'},
 				{name: 'EMPTY_PACKAGE_JSON', kind: 'VariableDeclaration'},
 				{name: 'load_package_json', kind: 'VariableDeclaration'},
@@ -676,13 +658,9 @@ export const package_json = {
 				{name: 'TSCONFIG_FILENAME', kind: 'VariableDeclaration'},
 				{name: 'Paths', kind: 'InterfaceDeclaration'},
 				{name: 'Url', kind: 'VariableDeclaration'},
-				{name: 'Url', kind: 'TypeAliasDeclaration'},
 				{name: 'Email', kind: 'VariableDeclaration'},
-				{name: 'Email', kind: 'TypeAliasDeclaration'},
 				{name: 'SourceId', kind: 'VariableDeclaration'},
-				{name: 'SourceId', kind: 'TypeAliasDeclaration'},
 				{name: 'BuildId', kind: 'VariableDeclaration'},
-				{name: 'BuildId', kind: 'TypeAliasDeclaration'},
 				{name: 'create_paths', kind: 'VariableDeclaration'},
 				{name: 'paths_from_id', kind: 'VariableDeclaration'},
 				{name: 'is_gro_id', kind: 'VariableDeclaration'},
@@ -725,7 +703,6 @@ export const package_json = {
 			path: 'publish.task.ts',
 			declarations: [
 				{name: 'Args', kind: 'VariableDeclaration'},
-				{name: 'Args', kind: 'TypeAliasDeclaration'},
 				{name: 'task', kind: 'VariableDeclaration'},
 			],
 		},
@@ -733,7 +710,6 @@ export const package_json = {
 			path: 'release.task.ts',
 			declarations: [
 				{name: 'Args', kind: 'VariableDeclaration'},
-				{name: 'Args', kind: 'TypeAliasDeclaration'},
 				{name: 'task', kind: 'VariableDeclaration'},
 			],
 		},
@@ -858,7 +834,6 @@ export const package_json = {
 			path: 'sync.task.ts',
 			declarations: [
 				{name: 'Args', kind: 'VariableDeclaration'},
-				{name: 'Args', kind: 'TypeAliasDeclaration'},
 				{name: 'task', kind: 'VariableDeclaration'},
 				{name: 'sveltekit_sync', kind: 'VariableDeclaration'},
 			],
@@ -890,7 +865,6 @@ export const package_json = {
 			path: 'test.task.ts',
 			declarations: [
 				{name: 'Args', kind: 'VariableDeclaration'},
-				{name: 'Args', kind: 'TypeAliasDeclaration'},
 				{name: 'task', kind: 'VariableDeclaration'},
 			],
 		},
@@ -906,7 +880,6 @@ export const package_json = {
 			path: 'typecheck.task.ts',
 			declarations: [
 				{name: 'Args', kind: 'VariableDeclaration'},
-				{name: 'Args', kind: 'TypeAliasDeclaration'},
 				{name: 'task', kind: 'VariableDeclaration'},
 			],
 		},
@@ -914,7 +887,6 @@ export const package_json = {
 			path: 'upgrade.task.ts',
 			declarations: [
 				{name: 'Args', kind: 'VariableDeclaration'},
-				{name: 'Args', kind: 'TypeAliasDeclaration'},
 				{name: 'task', kind: 'VariableDeclaration'},
 			],
 		},
