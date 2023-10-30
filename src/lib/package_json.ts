@@ -1,8 +1,9 @@
 import {z} from 'zod';
 import {join} from 'node:path';
 import {readFile, writeFile} from 'node:fs/promises';
-import {plural} from '@grogarden/util/string.js';
+import {plural, strip_start} from '@grogarden/util/string.js';
 import type {Logger} from '@grogarden/util/log.js';
+import {Project} from 'ts-morph';
 
 import {
 	paths,
@@ -250,3 +251,53 @@ export const to_package_exports = (paths: string[]): PackageJsonExports => {
 };
 
 const IMPORT_PREFIX = './' + SVELTEKIT_DIST_DIRNAME + '/';
+
+export interface Module_Declaration {
+	name: string; // identifier
+	type: string; // `getType()`
+}
+
+// TODO BLOCK move
+export interface Package_Module {
+	id: string;
+	declarations: Module_Declaration[];
+}
+
+export type Package_Modules = Record<string, Package_Module>;
+
+export const to_package_modules = async (
+	exports: PackageJsonExports | undefined,
+): Promise<Package_Modules | undefined> => {
+	if (!exports) return undefined;
+
+	const project = new Project();
+	project.addSourceFilesAtPaths('src/**/*.ts'); // TODO dir?
+
+	return Object.fromEntries(
+		await Promise.all(
+			Object.entries(exports).map(async ([k, v]) => {
+				// TODO hacky - add a gro helper?
+				const raw_source_file_id = strip_start(
+					k.endsWith('.js') ? replace_extension(k, '.ts') : k,
+					'./',
+				);
+				const source_file_id = raw_source_file_id === '.' ? 'index.ts' : raw_source_file_id;
+
+				const declarations = [];
+
+				const source_file = project.getSourceFileOrThrow(source_file_id);
+				for (const [name, _decls] of source_file.getExportedDeclarations()) {
+					console.log(`name`, raw_source_file_id, name);
+					// TODO BLOCK multiples ? change our data structure?
+					declarations.push({name});
+					// for (const decl of decls) {
+					// TODO this isn't what we want
+					// decl.getType().getText(source_file)
+					// }
+				}
+
+				return [k, {id: source_file_id, declarations}];
+			}),
+		),
+	);
+};

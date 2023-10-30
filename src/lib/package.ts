@@ -499,17 +499,13 @@ export const package_json = {
 				{name: 'update_package_json'},
 				{name: 'normalize_package_json'},
 				{name: 'to_package_exports'},
-			],
-		},
-		'./package.gen.js': {
-			id: 'package.gen.ts',
-			declarations: [
 				{name: 'Module_Declaration'},
 				{name: 'Package_Module'},
 				{name: 'Package_Modules'},
-				{name: 'gen'},
+				{name: 'to_package_modules'},
 			],
 		},
+		'./package.gen.js': {id: 'package.gen.ts', declarations: [{name: 'gen'}]},
 		'./package.js': {id: 'package.ts', declarations: [{name: 'package_json'}]},
 		'./path.js': {
 			id: 'path.ts',
