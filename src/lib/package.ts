@@ -6,6 +6,7 @@ export const package_json = {
 	name: '@grogarden/gro',
 	description: 'task runner and toolkit extending SvelteKit',
 	version: '0.97.0',
+	public: true,
 	bin: {gro: 'dist/gro.js'},
 	license: 'MIT',
 	homepage: 'https://www.grogarden.org/',
