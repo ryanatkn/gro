@@ -137,10 +137,10 @@ export const sync_package_json = async (
 ): Promise<{pkg: PackageJson | null; changed: boolean}> => {
 	const exported_files = await search_fs(exports_dir);
 	const exported_paths = Array.from(exported_files.keys());
-	const exports = to_package_exports(exported_paths);
 	const updated = await update_package_json(
 		dir,
 		async (pkg) => {
+			const exports = to_package_exports(exported_paths);
 			pkg.exports = exports;
 			const mapped = await map_package_json(pkg);
 			return mapped ? normalize_package_json(mapped) : mapped;

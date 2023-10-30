@@ -1,7 +1,7 @@
 {
   "name": "@grogarden/gro",
   "description": "task runner and toolkit extending SvelteKit",
-  "version": "0.96.3",
+  "version": "0.96.4",
   "bin": {
     "gro": "dist/gro.js"
   },
@@ -54,6 +54,7 @@
     "prettier": "^3.0.3",
     "prettier-plugin-svelte": "^3.0.3",
     "tiny-glob": "^0.2.9",
+    "ts-morph": "^20.0.0",
     "tslib": "^2.6.2",
     "zod": "^3.22.4"
   },

@@ -1,5 +1,11 @@
 # @grogarden/gro
 
+## 0.96.4
+
+### Patch Changes
+
+- dc6dddc: fix $env imports in deps in loader
+
 ## 0.96.3
 
 ### Patch Changes
