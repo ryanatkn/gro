@@ -304,6 +304,7 @@ export const to_package_modules = async (
 							? 'index.ts'
 							: strip_start(k.endsWith('.js') ? replace_extension(k, '.ts') : k, './');
 					if (!source_file_path.endsWith('.ts')) {
+						// TODO support more than just TypeScript - probably use @sveltejs/language-tools
 						return null!;
 					}
 					const source_file_id = paths.lib + source_file_path;
