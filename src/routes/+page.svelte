@@ -4,14 +4,15 @@
 	import LibraryFooter from '@fuz.dev/fuz_library/LibraryFooter.svelte';
 	import PackageDetail from '@fuz.dev/fuz_library/PackageDetail.svelte';
 	import PackageSummary from '@fuz.dev/fuz_library/PackageSummary.svelte';
+	import {slide} from 'svelte/transition';
+
+	import {package_json} from '$lib/package.js';
 
 	// TODO add website, rewriting the markdown docs as Svelte
 
-	import {package_json} from '$lib/package.js';
 	const pkg = parse_package_meta(package_json.homepage, package_json);
 
-	let show_detail = true;
-	$: PackageComponent = show_detail ? PackageDetail : PackageSummary;
+	let show_detail = false;
 </script>
 
 <main class="box width_full">
@@ -40,7 +41,15 @@
 				title={show_detail ? 'show package summary' : 'show package detail'}
 				on:click={() => (show_detail = !show_detail)}>🔨</button
 			>
-			<svelte:component this={PackageComponent} {pkg} />
+			{#if show_detail}
+				<div transition:slide>
+					<PackageDetail {pkg} />
+				</div>
+			{:else}
+				<div transition:slide>
+					<PackageSummary {pkg} />
+				</div>
+			{/if}
 		</section>
 		<section class="box">
 			<a href="{base}/about" class="chip">about</a>

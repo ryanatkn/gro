@@ -14,7 +14,7 @@
 <main class="width_md">
 	<div class="prose">
 		<section>
-			<header>
+			<header class="box">
 				<h1>{pkg.repo_name}</h1>
 			</header>
 			<Breadcrumb>🧶</Breadcrumb>
