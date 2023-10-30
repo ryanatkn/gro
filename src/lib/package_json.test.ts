@@ -92,6 +92,7 @@ test('to_package_modules', async () => {
 	console.log(
 		`to_package_exports`,
 		to_package_exports([
+			'fixtures/some_test_css.css',
 			'fixtures/Some_Test_Svelte.svelte',
 			'fixtures/some_test_ts.ts',
 			'fixtures/some_test_json.json',
@@ -100,6 +101,7 @@ test('to_package_modules', async () => {
 	assert.equal(
 		to_package_modules(
 			to_package_exports([
+				'fixtures/some_test_css.css',
 				'fixtures/Some_Test_Svelte.svelte',
 				'fixtures/some_test_ts.ts',
 				'fixtures/some_test_json.json',
