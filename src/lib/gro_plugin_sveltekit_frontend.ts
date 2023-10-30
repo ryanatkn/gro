@@ -97,7 +97,7 @@ const ensure_nojekyll = async (dir: string): Promise<void> => {
 
 /**
  * Outputs `${dir}/.well-known/package.json` if it doesn't already exist.
- * @param well_known_package_json - if `undefined`, inferred to be `true` if `pkg.private` is falsy
+ * @param well_known_package_json - if `undefined`, inferred to be `true` if `pkg.public` is truthy
  * @param output_dir
  */
 const ensure_well_known_package_json = async (
@@ -107,9 +107,7 @@ const ensure_well_known_package_json = async (
 	const package_json = await load_mapped_package_json();
 
 	if (well_known_package_json === undefined) {
-		// TODO using `pkg.private` isn't semantic, maybe this should be removed
-		// and we just document the danger for closed-source projects?
-		well_known_package_json = !package_json.private; // eslint-disable-line no-param-reassign
+		well_known_package_json = package_json.public; // eslint-disable-line no-param-reassign
 	}
 	if (!well_known_package_json) return;
 

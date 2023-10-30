@@ -42,6 +42,9 @@
 			>
 			<svelte:component this={PackageComponent} {pkg} />
 		</section>
+		<section class="box">
+			<a href="{base}/about" class="chip">about</a>
+		</section>
 		<section>
 			<LibraryFooter {pkg} />
 		</section>

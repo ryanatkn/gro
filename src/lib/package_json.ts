@@ -89,12 +89,14 @@ export const PackageJson = z.intersection(
 			name: z.string(),
 			version: z.string(),
 
-			private: z
+			public: z
 				.boolean({
 					description:
-						'disallow npm publish, and also used by Gro to disable `package.json` automations',
+						'a Gro extension that enables publishing `.well-known/package.json` and `.well-known/src`',
 				})
 				.optional(),
+
+			private: z.boolean({description: 'disallow npm publish'}).optional(),
 
 			description: z.string().optional(),
 			license: z.string().optional(),
