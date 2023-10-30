@@ -92,7 +92,7 @@ export const PackageJson = z.intersection(
 			public: z
 				.boolean({
 					description:
-						'a Gro extension that disables publishing `.well-known/package.json` and `.well-known/src`',
+						'a Gro extension that enables publishing `.well-known/package.json` and `.well-known/src`',
 				})
 				.optional(),
 
