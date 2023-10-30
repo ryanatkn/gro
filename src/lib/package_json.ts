@@ -17,6 +17,23 @@ import {
 import {search_fs} from './search_fs.js';
 import {exists} from './exists.js';
 
+// TODO move these
+export const Package_Module_Declaration = z.object({
+	name: z.string(), // identifier
+	kind: z.string(), // `getKing()`
+	// type: string; // `getType()`
+});
+export type Package_Module_Declaration = z.infer<typeof Package_Module_Declaration>;
+
+export const Package_Module = z.object({
+	path: z.string(),
+	declarations: z.array(Package_Module_Declaration),
+});
+export type Package_Module = z.infer<typeof Package_Module>;
+
+export const Package_Modules = z.record(Package_Module);
+export type Package_Modules = z.infer<typeof Package_Modules>;
+
 export const PackageJsonRepository = z.union([
 	z.string(),
 	z
@@ -54,6 +71,9 @@ export type PackageJsonFunding = z.infer<typeof PackageJsonFunding>;
 
 export const PackageJsonExports = z.record(z.record(z.string()).optional());
 export type PackageJsonExports = z.infer<typeof PackageJsonExports>;
+
+export const PackageJsonModules = Package_Modules.optional();
+export type PackageJsonModules = z.infer<typeof PackageJsonModules>;
 
 /**
  * @see https://docs.npmjs.com/cli/v10/configuring-npm/package-json
@@ -263,19 +283,6 @@ export const to_package_exports = (paths: string[]): PackageJsonExports => {
 };
 
 const IMPORT_PREFIX = './' + SVELTEKIT_DIST_DIRNAME + '/';
-
-export interface Package_Module_Declaration {
-	name: string; // identifier
-	kind: string; // `getKing()`
-	// type: string; // `getType()`
-}
-
-export interface Package_Module {
-	path: string;
-	declarations: Package_Module_Declaration[];
-}
-
-export type Package_Modules = Record<string, Package_Module>;
 
 // TODO refactor
 export const to_package_modules = async (
