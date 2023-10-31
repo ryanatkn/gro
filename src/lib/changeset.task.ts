@@ -83,17 +83,17 @@ export const task: Task<Args> = {
 	},
 };
 
-export interface ChangesetCallback {
+export interface Changeset_Callback {
 	(config: WrittenConfig): WrittenConfig | Promise<WrittenConfig>;
 }
 
-export interface UpdateWrittenConfig {
-	(path: string, cb: ChangesetCallback): Promise<boolean>;
+export interface Update_Written_Config {
+	(path: string, cb: Changeset_Callback): Promise<boolean>;
 }
 
 // TODO refactor all of this with zod and package_json helpers - util file helper? JSON parse pluggable
 
-export const update_changeset_config: UpdateWrittenConfig = async (path, cb) => {
+export const update_changeset_config: Update_Written_Config = async (path, cb) => {
 	const config_contents = await load_changeset_config_contents(path);
 	const config = parse_changeset_config(config_contents);
 

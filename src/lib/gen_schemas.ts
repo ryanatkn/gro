@@ -9,14 +9,14 @@ import type {Gen_Context, Raw_Gen_Result} from './gen.js';
 import {
 	GEN_SCHEMA_IDENTIFIER_SUFFIX,
 	type Gen_Module_Meta,
-	type SchemaGen_Module,
+	type Schema_Gen_Module,
 } from './gen_module.js';
 import {normalize_type_imports} from './type_imports.js';
 import {infer_schema_types, is_json_schema, type Json_Schema} from './schema.js';
 import {to_root_path} from './paths.js';
 
 export const gen_schemas = async (
-	mod: SchemaGen_Module,
+	mod: Schema_Gen_Module,
 	ctx: Gen_Context,
 	options: Partial<Json_SchemaToTypeScriptOptions>,
 ): Promise<Raw_Gen_Result> => {
@@ -35,7 +35,7 @@ export const gen_schemas = async (
 
 const run_schema_gen = async (
 	ctx: Gen_Context,
-	mod: SchemaGen_Module,
+	mod: Schema_Gen_Module,
 	options: Partial<Json_SchemaToTypeScriptOptions>,
 ): Promise<{imports: string[]; types: string[]}> => {
 	const raw_imports: string[] = [];
@@ -85,7 +85,7 @@ export const to_schemas_from_modules = (gen_modules: Gen_Module_Meta[]): Json_Sc
 };
 
 const to_schema_info_from_module = (
-	mod: SchemaGen_Module,
+	mod: Schema_Gen_Module,
 ): Array<{identifier: string; schema: Json_Schema}> => {
 	const schema_info: Array<{identifier: string; schema: Json_Schema}> = [];
 	for (const identifier in mod) {

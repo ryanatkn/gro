@@ -47,7 +47,7 @@ export interface Options {
 	 * Decoupling this from plugin creation allows it to be created generically,
 	 * so the build and dev tasks can be the source of truth for `dev`.
 	 */
-	outpaths?: CreateOutpaths;
+	outpaths?: Create_Outpaths;
 	/**
 	 * @default SvelteKit's `.env`, `.env.development`, and `.env.production`
 	 */
@@ -92,7 +92,7 @@ export interface Outpaths {
 	outname: string;
 }
 
-export interface CreateOutpaths {
+export interface Create_Outpaths {
 	(dev: boolean): Outpaths;
 }
 

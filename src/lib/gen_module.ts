@@ -24,11 +24,11 @@ export const GEN_SCHEMA_PATH_SUFFIX = GEN_SCHEMA_FILE_PATTERN + 'ts';
 export const GEN_SCHEMA_IDENTIFIER_SUFFIX = 'Schema';
 
 export type Gen_Module_Type = 'basic' | 'schema';
-export type Gen_Module = BasicGen_Module | SchemaGen_Module;
-export interface BasicGen_Module {
+export type Gen_Module = Basic_Gen_Module | Schema_Gen_Module;
+export interface Basic_Gen_Module {
 	gen: Gen;
 }
-export interface SchemaGen_Module extends BasicGen_Module {
+export interface Schema_Gen_Module extends Basic_Gen_Module {
 	[key: string]: unknown;
 }
 
@@ -41,18 +41,18 @@ export const gen_module_meta: Record<Gen_Module_Type, {pattern: string; text: st
 };
 
 export const validate_gen_module = {
-	basic: (mod: Record<string, any>): mod is BasicGen_Module => typeof mod?.gen === 'function',
-	schema: (mod: Record<string, any>): mod is SchemaGen_Module => !!mod,
+	basic: (mod: Record<string, any>): mod is Basic_Gen_Module => typeof mod?.gen === 'function',
+	schema: (mod: Record<string, any>): mod is Schema_Gen_Module => !!mod,
 };
 
-export type Gen_Module_Meta = BasicGen_Module_Meta | SchemaGen_Module_Meta;
-export interface BasicGen_Module_Meta extends Module_Meta<Gen_Module> {
+export type Gen_Module_Meta = Basic_Gen_Module_Meta | Schema_Gen_Module_Meta;
+export interface Basic_Gen_Module_Meta extends Module_Meta<Gen_Module> {
 	type: 'basic';
-	mod: BasicGen_Module;
+	mod: Basic_Gen_Module;
 }
-export interface SchemaGen_Module_Meta extends Module_Meta<Gen_Module> {
+export interface Schema_Gen_Module_Meta extends Module_Meta<Gen_Module> {
 	type: 'schema';
-	mod: SchemaGen_Module;
+	mod: Schema_Gen_Module;
 }
 
 export const load_gen_module = async (id: string): Promise<Load_Module_Result<Gen_Module_Meta>> => {
@@ -64,7 +64,7 @@ export const load_gen_module = async (id: string): Promise<Load_Module_Result<Ge
 	return result as Load_Module_Result<Gen_Module_Meta>;
 };
 
-export type CheckGen_Module_Result =
+export type Check_Gen_Module_Result =
 	| {
 			file: Gen_File;
 			existing_content: string;
@@ -78,14 +78,14 @@ export type CheckGen_Module_Result =
 			has_changed: true;
 	  };
 
-export const check_gen_modules = (gen_results: Gen_Results): Promise<CheckGen_Module_Result[]> =>
+export const check_gen_modules = (gen_results: Gen_Results): Promise<Check_Gen_Module_Result[]> =>
 	Promise.all(
 		gen_results.successes
 			.map((result) => result.files.map((file) => check_gen_module(file)))
 			.flat(),
 	);
 
-export const check_gen_module = async (file: Gen_File): Promise<CheckGen_Module_Result> => {
+export const check_gen_module = async (file: Gen_File): Promise<Check_Gen_Module_Result> => {
 	if (!(await exists(file.id))) {
 		return {
 			file,
