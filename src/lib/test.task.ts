@@ -1,7 +1,7 @@
 import {yellow} from 'kleur/colors';
 import {z} from 'zod';
 
-import {TaskError, type Task} from './task.js';
+import {Task_Error, type Task} from './task.js';
 import {paths} from './paths.js';
 import {find_cli} from './cli.js';
 
@@ -45,7 +45,7 @@ export const task: Task<Args> = {
 		await run(suites, {bail});
 
 		if (process.exitCode) {
-			throw new TaskError('Tests failed.');
+			throw new Task_Error('Tests failed.');
 		}
 	},
 };

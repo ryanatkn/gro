@@ -1,41 +1,41 @@
 import {to_array} from '@grogarden/util/array.js';
 
-import type {TaskContext} from './task.js';
+import type {Task_Context} from './task.js';
 
 /**
  * Gro `Plugin`s enable custom behavior during `gro dev` and `gro build`.
  * In contrast, `Adapter`s use the results of `gro build` to produce final artifacts.
  */
-export interface Plugin<TPluginContext extends PluginContext = PluginContext> {
+export interface Plugin<T_Plugin_Context extends Plugin_Context = Plugin_Context> {
 	name: string;
-	setup?: (ctx: TPluginContext) => void | Promise<void>;
-	adapt?: (ctx: TPluginContext) => void | Promise<void>;
-	teardown?: (ctx: TPluginContext) => void | Promise<void>;
+	setup?: (ctx: T_Plugin_Context) => void | Promise<void>;
+	adapt?: (ctx: T_Plugin_Context) => void | Promise<void>;
+	teardown?: (ctx: T_Plugin_Context) => void | Promise<void>;
 }
 
-export interface CreateConfigPlugins<TPluginContext extends PluginContext = PluginContext> {
+export interface Create_Config_Plugins<T_Plugin_Context extends Plugin_Context = Plugin_Context> {
 	(
-		ctx: TPluginContext,
+		ctx: T_Plugin_Context,
 	):
-		| (Plugin<TPluginContext> | null | Array<Plugin<TPluginContext> | null>)
-		| Promise<Plugin<TPluginContext> | null | Array<Plugin<TPluginContext> | null>>;
+		| (Plugin<T_Plugin_Context> | null | Array<Plugin<T_Plugin_Context> | null>)
+		| Promise<Plugin<T_Plugin_Context> | null | Array<Plugin<T_Plugin_Context> | null>>;
 }
 
-export interface PluginContext<TArgs = object> extends TaskContext<TArgs> {
+export interface Plugin_Context<T_Args = object> extends Task_Context<T_Args> {
 	dev: boolean;
 	watch: boolean;
 }
 
-export class Plugins<TPluginContext extends PluginContext> {
+export class Plugins<T_Plugin_Context extends Plugin_Context> {
 	/* prefer `Plugins.create` to the constructor */
 	constructor(
-		private ctx: TPluginContext,
+		private ctx: T_Plugin_Context,
 		private instances: Plugin[],
 	) {}
 
-	static async create<TPluginContext extends PluginContext>(
-		ctx: TPluginContext,
-	): Promise<Plugins<TPluginContext>> {
+	static async create<T_Plugin_Context extends Plugin_Context>(
+		ctx: T_Plugin_Context,
+	): Promise<Plugins<T_Plugin_Context>> {
 		const {timings} = ctx;
 		const timing_to_create = timings.start('plugins.create');
 		const instances: Plugin[] = to_array(await ctx.config.plugins(ctx)).filter(Boolean) as any;
@@ -91,23 +91,23 @@ export class Plugins<TPluginContext extends PluginContext> {
 /**
  * Replaces a plugin by name in `plugins` without mutating the param.
  * Throws if the plugin name cannot be found.
- * @param plugins - accepts the same types as the return value of `CreateConfigPlugins`
+ * @param plugins - accepts the same types as the return value of `Create_Config_Plugins`
  * @param new_plugin
  * @param name - @default new_plugin.name
  * @returns `plugins` with `new_plugin` at the index of the plugin with `name`
  */
 export const replace_plugin = <
-	TPlugins extends TPlugin | null | Array<TPlugin | null>,
-	TPlugin extends Plugin,
+	T_Plugins extends T_Plugin | null | Array<T_Plugin | null>,
+	T_Plugin extends Plugin,
 >(
-	plugins: TPlugins,
+	plugins: T_Plugins,
 	new_plugin: Plugin,
 	name = new_plugin.name,
-): TPlugin[] => {
+): T_Plugin[] => {
 	const array = to_array(plugins).filter(Boolean) as Plugin[];
 	const index = array.findIndex((p) => p.name === name);
 	if (index === -1) throw Error('Failed to find plugin to replace: ' + name);
 	const replaced = array.slice();
 	replaced[index] = new_plugin;
-	return replaced as TPlugin[];
+	return replaced as T_Plugin[];
 };

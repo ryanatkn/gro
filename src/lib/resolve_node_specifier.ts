@@ -1,15 +1,15 @@
 import {join} from 'node:path';
 
-import {PackageJson, load_package_json} from './package_json.js';
-import {NODE_MODULES_DIRNAME, SourceId, paths} from './paths.js';
+import {Package_Json, load_package_json} from './package_json.js';
+import {NODE_MODULES_DIRNAME, Source_Id, paths} from './paths.js';
 
 export const resolve_node_specifier = async (
 	specifier: string,
 	dir = paths.root,
 	parent_url?: string,
-	cache?: Record<string, PackageJson>,
+	cache?: Record<string, Package_Json>,
 	exports_key = specifier.endsWith('.svelte') ? 'svelte' : 'default',
-): Promise<SourceId> => {
+): Promise<Source_Id> => {
 	const parsed = parse_node_specifier(specifier);
 	const subpath = './' + parsed.path;
 	const package_dir = join(dir, NODE_MODULES_DIRNAME, parsed.name);
@@ -26,12 +26,12 @@ export const resolve_node_specifier = async (
 	return source_id;
 };
 
-export interface ParsedNodeSpecifier {
+export interface Parsed_Node_Specifier {
 	name: string;
 	path: string;
 }
 
-export const parse_node_specifier = (specifier: string): ParsedNodeSpecifier => {
+export const parse_node_specifier = (specifier: string): Parsed_Node_Specifier => {
 	let idx!: number;
 	if (specifier[0] === '@') {
 		// get the index of the second `/`

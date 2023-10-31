@@ -116,7 +116,7 @@
 
 ### Minor Changes
 
-- 9cdb33d: rename CreateGroConfig from GroConfigCreator
+- 9cdb33d: rename Create_Gro_Config from Gro_ConfigCreator
 - 4b1a6cc: add package.gen.ts for importing package.json data
 - 4b1a6cc: change config to explictly publish `static/.well-known/package.json` and delete `gro exports`
 - 4b1a6cc: rename `clean_fs.ts` from `clean.ts`
@@ -258,7 +258,7 @@
 
 ### Patch Changes
 
-- 284ce48: relax some PackageJson types"
+- 284ce48: relax some Package_Json types"
 
 ## 0.87.3
 
@@ -270,13 +270,13 @@
 
 ### Patch Changes
 
-- f16eaab: passthrough unknown `PackageJson` properties
+- f16eaab: passthrough unknown `Package_Json` properties
 
 ## 0.87.1
 
 ### Patch Changes
 
-- 4466365: add `PackageJson` schema
+- 4466365: add `Package_Json` schema
 
 ## 0.87.0
 
@@ -387,7 +387,7 @@
 ### Minor Changes
 
 - c33ee5a: replace the build system with a loader and esbuild plugins and integrate svelte-package
-- 5ae21fc: rename VocabSchema to JsonSchema
+- 5ae21fc: rename VocabSchema to Json_Schema
 
 ## 0.81.2
 
@@ -447,7 +447,7 @@
 
 ## 0.77.0
 
-- **break**: move `toJsonSchema` to `$lib/schemaHelpers.ts` and export all of `$lib/schema.ts`
+- **break**: move `toJson_Schema` to `$lib/schemaHelpers.ts` and export all of `$lib/schema.ts`
   ([commit](https://github.com/grogarden/gro/commit/21a107633f950ffb540b180b57fc3227146993c5))
 
 ## 0.76.1
@@ -457,7 +457,7 @@
 
 ## 0.76.0
 
-- **break**: change `toJsonSchema` to not suffix with `.json`, and add the `bundle_schemas` helper
+- **break**: change `toJson_Schema` to not suffix with `.json`, and add the `bundle_schemas` helper
   ([#372](https://github.com/grogarden/gro/pull/372))
 
 ## 0.75.5
@@ -468,7 +468,7 @@
 
 ## 0.75.4
 
-- export `JsonSchema` type from root
+- export `Json_Schema` type from root
   ([commit](https://github.com/grogarden/gro/commit/8b3956994060165cccf7c0d6b692ea8e89b7e63a))
 
 ## 0.75.3
@@ -552,12 +552,12 @@
 
 ## 0.68.2
 
-- relax the type of `RawGenResult` to let the array have any value
+- relax the type of `Raw_Gen_Result` to let the array have any value
   ([6faf95b](https://github.com/grogarden/gro/commit/6faf95b36bc0769aee45d0c96454a445ebb8485c))
 
 ## 0.68.1
 
-- relax the type of `RawGenResult` to include an ignored `null`
+- relax the type of `Raw_Gen_Result` to include an ignored `null`
   ([a8cf511](https://github.com/grogarden/gro/commit/a8cf51129ff53a4d8257c1f2e728aee2ffd7f2ac))
 
 ## 0.68.0
@@ -986,7 +986,7 @@
 ## 0.36.0
 
 - **break**: fix test sourcemaps by adding
-  [`GroConfig` option `main_test`](src/lib/docs/config.md#main_test),
+  [`Gro_Config` option `main_test`](src/lib/docs/config.md#main_test),
   which initializes projects with a conventional `lib/main.test.ts`
   for installing sourcemaps and other global test concerns (update: reverted in 0.37.0)
   ([#259](https://github.com/grogarden/gro/pull/259))

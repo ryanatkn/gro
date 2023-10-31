@@ -37,7 +37,7 @@ export type Package_Module = z.infer<typeof Package_Module>;
 export const Package_Modules = z.record(Package_Module);
 export type Package_Modules = z.infer<typeof Package_Modules>;
 
-export const PackageJsonRepository = z.union([
+export const Package_Json_Repository = z.union([
 	z.string(),
 	z
 		.object({
@@ -47,9 +47,9 @@ export const PackageJsonRepository = z.union([
 		})
 		.passthrough(),
 ]);
-export type PackageJsonRepository = z.infer<typeof PackageJsonRepository>;
+export type Package_Json_Repository = z.infer<typeof Package_Json_Repository>;
 
-export const PackageJsonAuthor = z.union([
+export const Package_Json_Author = z.union([
 	z.string(),
 	z
 		.object({
@@ -59,9 +59,9 @@ export const PackageJsonAuthor = z.union([
 		})
 		.passthrough(),
 ]);
-export type PackageJsonAuthor = z.infer<typeof PackageJsonAuthor>;
+export type Package_Json_Author = z.infer<typeof Package_Json_Author>;
 
-export const PackageJsonFunding = z.union([
+export const Package_Json_Funding = z.union([
 	z.string(),
 	z
 		.object({
@@ -70,18 +70,18 @@ export const PackageJsonFunding = z.union([
 		})
 		.passthrough(),
 ]);
-export type PackageJsonFunding = z.infer<typeof PackageJsonFunding>;
+export type Package_Json_Funding = z.infer<typeof Package_Json_Funding>;
 
-export const PackageJsonExports = z.record(z.record(z.string()).optional());
-export type PackageJsonExports = z.infer<typeof PackageJsonExports>;
+export const Package_Json_Exports = z.record(z.record(z.string()).optional());
+export type Package_Json_Exports = z.infer<typeof Package_Json_Exports>;
 
-export const PackageJsonModules = Package_Modules.optional();
-export type PackageJsonModules = z.infer<typeof PackageJsonModules>;
+export const Package_Json_Modules = Package_Modules.optional();
+export type Package_Json_Modules = z.infer<typeof Package_Json_Modules>;
 
 /**
  * @see https://docs.npmjs.com/cli/v10/configuring-npm/package-json
  */
-export const PackageJson = z.intersection(
+export const Package_Json = z.intersection(
 	z.record(z.unknown()),
 	z
 		.object({
@@ -101,14 +101,14 @@ export const PackageJson = z.intersection(
 			description: z.string().optional(),
 			license: z.string().optional(),
 			homepage: Url.optional(),
-			repository: z.union([z.string(), Url, PackageJsonRepository]).optional(),
-			author: z.union([z.string(), PackageJsonAuthor.optional()]),
-			contributors: z.array(z.union([z.string(), PackageJsonAuthor])).optional(),
+			repository: z.union([z.string(), Url, Package_Json_Repository]).optional(),
+			author: z.union([z.string(), Package_Json_Author.optional()]),
+			contributors: z.array(z.union([z.string(), Package_Json_Author])).optional(),
 			bugs: z
 				.union([z.string(), z.object({url: Url.optional(), email: Email.optional()}).passthrough()])
 				.optional(),
 			funding: z
-				.union([Url, PackageJsonFunding, z.array(z.union([Url, PackageJsonFunding]))])
+				.union([Url, Package_Json_Funding, z.array(z.union([Url, Package_Json_Funding]))])
 				.optional(),
 			keywords: z.array(z.string()).optional(),
 
@@ -116,8 +116,8 @@ export const PackageJson = z.intersection(
 
 			bin: z.record(z.string()).optional(),
 			files: z.array(z.string()).optional(),
-			exports: PackageJsonExports.optional(),
-			modules: PackageJsonModules.optional(),
+			exports: Package_Json_Exports.optional(),
+			modules: Package_Json_Modules.optional(),
 
 			dependencies: z.record(z.string()).optional(),
 			devDependencies: z.record(z.string()).optional(),
@@ -131,19 +131,19 @@ export const PackageJson = z.intersection(
 		})
 		.passthrough(),
 );
-export type PackageJson = z.infer<typeof PackageJson>;
+export type Package_Json = z.infer<typeof Package_Json>;
 
-export interface MapPackageJson {
-	(pkg: PackageJson): PackageJson | null | Promise<PackageJson | null>;
+export interface Map_Package_Json {
+	(pkg: Package_Json): Package_Json | null | Promise<Package_Json | null>;
 }
 
-export const EMPTY_PACKAGE_JSON: PackageJson = {name: '', version: ''};
+export const EMPTY_PACKAGE_JSON: Package_Json = {name: '', version: ''};
 
 export const load_package_json = async (
 	dir = is_this_project_gro ? gro_paths.root : paths.root,
-	cache?: Record<string, PackageJson>,
-): Promise<PackageJson> => {
-	let pkg: PackageJson;
+	cache?: Record<string, Package_Json>,
+): Promise<Package_Json> => {
+	let pkg: Package_Json;
 	if (cache && dir in cache) {
 		return cache[dir];
 	}
@@ -159,20 +159,20 @@ export const load_package_json = async (
 export const load_mapped_package_json = async (
 	log?: Logger,
 	dir = is_this_project_gro ? gro_paths.root : paths.root,
-	cache?: Record<string, PackageJson>,
-): Promise<PackageJson> => {
+	cache?: Record<string, Package_Json>,
+): Promise<Package_Json> => {
 	const package_json = await load_package_json(dir, cache);
 	package_json.modules = await to_package_modules(package_json.exports, log);
 	return package_json;
 };
 
 export const sync_package_json = async (
-	map_package_json: MapPackageJson,
+	map_package_json: Map_Package_Json,
 	log: Logger,
 	check = false,
 	dir = paths.root,
 	exports_dir = paths.lib,
-): Promise<{pkg: PackageJson | null; changed: boolean}> => {
+): Promise<{pkg: Package_Json | null; changed: boolean}> => {
 	const exported_files = await search_fs(exports_dir);
 	const exported_paths = Array.from(exported_files.keys());
 	const updated = await update_package_json(
@@ -197,7 +197,7 @@ export const sync_package_json = async (
 	return updated;
 };
 
-export const load_gro_package_json = (): Promise<PackageJson> => load_package_json(gro_paths.root);
+export const load_gro_package_json = (): Promise<Package_Json> => load_package_json(gro_paths.root);
 
 // TODO probably make this nullable and make callers handle failures
 const load_package_json_contents = (dir: string): Promise<string> =>
@@ -207,8 +207,8 @@ export const write_package_json = async (serialized_pkg: string): Promise<void> 
 	await writeFile(join(paths.root, 'package.json'), serialized_pkg);
 };
 
-export const serialize_package_json = (pkg: PackageJson): string => {
-	PackageJson.parse(pkg);
+export const serialize_package_json = (pkg: Package_Json): string => {
+	Package_Json.parse(pkg);
 	return JSON.stringify(pkg, null, 2) + '\n';
 };
 
@@ -217,9 +217,9 @@ export const serialize_package_json = (pkg: PackageJson): string => {
  */
 export const update_package_json = async (
 	dir = paths.root,
-	update: (pkg: PackageJson) => PackageJson | null | Promise<PackageJson | null>,
+	update: (pkg: Package_Json) => Package_Json | null | Promise<Package_Json | null>,
 	write = true,
-): Promise<{pkg: PackageJson | null; changed: boolean}> => {
+): Promise<{pkg: Package_Json | null; changed: boolean}> => {
 	const original_pkg_contents = await load_package_json_contents(dir);
 	const original_pkg = JSON.parse(original_pkg_contents);
 	const updated_pkg = await update(original_pkg);
@@ -240,18 +240,18 @@ export const update_package_json = async (
  * For example, users don't have to worry about empty `exports` objects,
  * which fail schema validation.
  */
-export const normalize_package_json = (pkg: PackageJson): PackageJson => {
+export const normalize_package_json = (pkg: Package_Json): Package_Json => {
 	if (pkg.exports && Object.keys(pkg.exports).length === 0) {
 		pkg.exports = undefined;
 	}
 	return pkg;
 };
 
-export const to_package_exports = (paths: string[]): PackageJsonExports => {
+export const to_package_exports = (paths: string[]): Package_Json_Exports => {
 	const sorted = paths
 		.slice()
 		.sort((a, b) => (a === 'index.ts' ? -1 : b === 'index.ts' ? 1 : a.localeCompare(b)));
-	const exports: PackageJsonExports = {};
+	const exports: Package_Json_Exports = {};
 	for (const path of sorted) {
 		if (path.endsWith('.json.d.ts')) {
 			const json_path = path.substring(0, path.length - 5);
@@ -284,14 +284,14 @@ export const to_package_exports = (paths: string[]): PackageJsonExports => {
 			};
 		}
 	}
-	return PackageJsonExports.parse(exports);
+	return Package_Json_Exports.parse(exports);
 };
 
 const IMPORT_PREFIX = './' + SVELTEKIT_DIST_DIRNAME + '/';
 
 // TODO refactor
 export const to_package_modules = async (
-	exports: PackageJsonExports | undefined,
+	exports: Package_Json_Exports | undefined,
 	log?: Logger,
 	base_path = paths.lib,
 ): Promise<Package_Modules | undefined> => {

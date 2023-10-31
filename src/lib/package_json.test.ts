@@ -2,7 +2,7 @@ import {test} from 'uvu';
 import * as assert from 'uvu/assert';
 
 import {
-	PackageJson,
+	Package_Json,
 	load_package_json,
 	serialize_package_json,
 	to_package_exports,
@@ -13,7 +13,7 @@ import {paths} from './paths.js';
 test('load_package_json', async () => {
 	const pkg = await load_package_json();
 	assert.ok(pkg);
-	const parsed = PackageJson.parse(pkg);
+	const parsed = Package_Json.parse(pkg);
 	assert.ok(parsed);
 	serialize_package_json(pkg);
 });
@@ -28,14 +28,14 @@ test('load_package_json with cache', async () => {
 	assert.is(pkg1, pkg2);
 });
 
-test('PackageJson.parse', async () => {
-	PackageJson.parse({name: 'abc', version: '123'});
+test('Package_Json.parse', async () => {
+	Package_Json.parse({name: 'abc', version: '123'});
 });
 
-test('PackageJson.parse fails with bad data', async () => {
+test('Package_Json.parse fails with bad data', async () => {
 	let err;
 	try {
-		PackageJson.parse({version: '123'});
+		Package_Json.parse({version: '123'});
 	} catch (_err) {
 		err = _err;
 	}

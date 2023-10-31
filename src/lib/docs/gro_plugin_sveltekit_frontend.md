@@ -5,14 +5,14 @@ calls `vite dev` and `vite build` with some additional behaviors.
 
 ```ts
 // gro.config.ts
-import type {GroConfigCreator} from '@grogarden/gro';
+import type {Gro_ConfigCreator} from '@grogarden/gro';
 
-const config: GroConfigCreator = async (cfg) => {
+const config: Gro_ConfigCreator = async (cfg) => {
 	cfg.plugins = async () => [
 		// this is included in the default config for SvelteKit projects:
 		(await import('@grogarden/gro/gro_plugin_sveltekit_frontend.js')).plugin({
-			// host_target?: HostTarget;
-			// well_known_package_json?: boolean | MapPackageJson;
+			// host_target?: Host_Target;
+			// well_known_package_json?: boolean | Map_Package_Json;
 		}),
 	];
 	return cfg;
@@ -21,10 +21,10 @@ const config: GroConfigCreator = async (cfg) => {
 export default config;
 
 // src/lib/gro_plugin_sveltekit_frontend.ts
-export type HostTarget = 'github_pages' | 'static' | 'node';
+export type Host_Target = 'github_pages' | 'static' | 'node';
 
-export interface MapPackageJson {
-	(pkg: PackageJson): PackageJson | null | Promise<PackageJson | null>;
+export interface Map_Package_Json {
+	(pkg: Package_Json): Package_Json | null | Promise<Package_Json | null>;
 }
 ```
 

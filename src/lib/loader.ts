@@ -26,7 +26,7 @@ import {paths, NODE_MODULES_DIRNAME} from './paths.js';
 import {to_define_import_meta_env, ts_transform_options} from './esbuild_helpers.js';
 import {resolve_specifier} from './resolve_specifier.js';
 import {resolve_node_specifier} from './resolve_node_specifier.js';
-import type {PackageJson} from './package_json.js';
+import type {Package_Json} from './package_json.js';
 
 // TODO sourcemaps, including esbuild, svelte, and the svelte preprocessors
 // TODO `import.meta.resolve` doesn't seem to be available in loaders?
@@ -60,7 +60,7 @@ const json_matcher = /\.(json)$/u;
 const env_matcher = /src\/lib\/\$env\/(static|dynamic)\/(public|private)$/u;
 const node_modules_matcher = new RegExp(escape_regexp('/' + NODE_MODULES_DIRNAME + '/'), 'u');
 
-const package_json_cache: Record<string, PackageJson> = {};
+const package_json_cache: Record<string, Package_Json> = {};
 
 export const load: LoadHook = async (url, context, nextLoad) => {
 	if (sveltekit_shim_app_paths_matcher.test(url)) {

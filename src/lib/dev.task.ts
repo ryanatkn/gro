@@ -1,7 +1,7 @@
 import {z} from 'zod';
 
 import type {Task} from './task.js';
-import {Plugins, type PluginContext} from './plugin.js';
+import {Plugins, type Plugin_Context} from './plugin.js';
 import {clean_fs} from './clean_fs.js';
 
 export const Args = z
@@ -19,7 +19,7 @@ export const Args = z
 	.strict();
 export type Args = z.infer<typeof Args>;
 
-export type DevTaskContext = PluginContext<Args>;
+export type DevTask_Context = Plugin_Context<Args>;
 
 export const task: Task<Args> = {
 	summary: 'start SvelteKit and other dev plugins',
