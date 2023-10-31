@@ -1,5 +1,11 @@
 # @grogarden/gro
 
+## 0.100.1
+
+### Patch Changes
+
+- 6a9a24d: fix deps
+
 ## 0.100.0
 
 ### Minor Changes
