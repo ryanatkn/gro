@@ -1,5 +1,11 @@
 # @grogarden/gro
 
+## 0.98.2
+
+### Patch Changes
+
+- a21578c: fix `to_package_modules` for nested modules
+
 ## 0.98.1
 
 ### Patch Changes
