@@ -113,7 +113,16 @@ test('to_package_modules', async () => {
 			},
 			'./fixtures/modules/some_test_ts.js': {
 				path: 'fixtures/modules/some_test_ts.ts',
-				declarations: [],
+				declarations: [
+					{
+						name: 'some_test_ts',
+						kind: 'VariableDeclaration',
+					},
+					{
+						name: 'Some_Test_Type',
+						kind: 'TypeAliasDeclaration',
+					},
+				],
 			},
 		},
 	);

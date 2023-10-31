@@ -569,14 +569,7 @@ export const package_json = {
 				{name: 'resolve', kind: 'VariableDeclaration'},
 			],
 		},
-		'./module.js': {
-			path: 'module.ts',
-			declarations: [
-				{name: 'MODULE_PATH_SRC_PREFIX', kind: 'VariableDeclaration'},
-				{name: 'MODULE_PATH_LIB_PREFIX', kind: 'VariableDeclaration'},
-				{name: 'is_external_module', kind: 'VariableDeclaration'},
-			],
-		},
+		'./module.js': {path: 'module.ts', declarations: []},
 		'./modules.js': {
 			path: 'modules.ts',
 			declarations: [
@@ -628,10 +621,11 @@ export const package_json = {
 		'./path.js': {
 			path: 'path.ts',
 			declarations: [
-				{name: 'PathData', kind: 'InterfaceDeclaration'},
-				{name: 'to_path_data', kind: 'VariableDeclaration'},
-				{name: 'PathStats', kind: 'InterfaceDeclaration'},
-				{name: 'PathFilter', kind: 'InterfaceDeclaration'},
+				{name: 'resolve_input_path', kind: 'VariableDeclaration'},
+				{name: 'resolve_input_paths', kind: 'VariableDeclaration'},
+				{name: 'get_possible_source_ids', kind: 'VariableDeclaration'},
+				{name: 'load_source_path_data_by_input_path', kind: 'VariableDeclaration'},
+				{name: 'load_source_ids_by_input_path', kind: 'VariableDeclaration'},
 			],
 		},
 		'./paths.js': {
@@ -752,12 +746,8 @@ export const package_json = {
 		'./schema.js': {
 			path: 'schema.ts',
 			declarations: [
-				{name: 'JsonSchema', kind: 'InterfaceDeclaration'},
-				{name: 'bundle_schemas', kind: 'VariableDeclaration'},
-				{name: 'is_json_schema', kind: 'VariableDeclaration'},
-				{name: 'to_json_schema_resolver', kind: 'VariableDeclaration'},
-				{name: 'infer_schema_types', kind: 'VariableDeclaration'},
-				{name: 'parse_schema_name', kind: 'VariableDeclaration'},
+				{name: 'SomeTestObjectSchema', kind: 'VariableDeclaration'},
+				{name: 'SomeTestPrimitiveSchema', kind: 'VariableDeclaration'},
 			],
 		},
 		'./search_fs.js': {
@@ -824,16 +814,16 @@ export const package_json = {
 		'./sveltekit_shim_app.js': {
 			path: 'sveltekit_shim_app.ts',
 			declarations: [
-				{name: 'sveltekit_shim_app_paths_matcher', kind: 'VariableDeclaration'},
-				{name: 'sveltekit_shim_app_environment_matcher', kind: 'VariableDeclaration'},
-				{name: 'sveltekit_shim_app_specifiers', kind: 'VariableDeclaration'},
-				{name: 'render_sveltekit_shim_app_paths', kind: 'VariableDeclaration'},
-				{name: 'render_sveltekit_shim_app_environment', kind: 'VariableDeclaration'},
+				{name: 'Options', kind: 'InterfaceDeclaration'},
+				{name: 'esbuild_plugin_sveltekit_shim_app', kind: 'VariableDeclaration'},
 			],
 		},
 		'./sveltekit_shim_env.js': {
 			path: 'sveltekit_shim_env.ts',
-			declarations: [{name: 'render_env_shim_module', kind: 'VariableDeclaration'}],
+			declarations: [
+				{name: 'Options', kind: 'InterfaceDeclaration'},
+				{name: 'esbuild_plugin_sveltekit_shim_env', kind: 'VariableDeclaration'},
+			],
 		},
 		'./sync.task.js': {
 			path: 'sync.task.ts',
@@ -843,27 +833,12 @@ export const package_json = {
 				{name: 'sveltekit_sync', kind: 'VariableDeclaration'},
 			],
 		},
-		'./task_module.js': {
-			path: 'task_module.ts',
-			declarations: [
-				{name: 'TaskModule', kind: 'InterfaceDeclaration'},
-				{name: 'TaskModuleMeta', kind: 'InterfaceDeclaration'},
-				{name: 'validate_task_module', kind: 'VariableDeclaration'},
-				{name: 'load_task_module', kind: 'VariableDeclaration'},
-				{name: 'find_task_modules', kind: 'VariableDeclaration'},
-				{name: 'load_task_modules', kind: 'VariableDeclaration'},
-			],
-		},
+		'./task_module.js': {path: 'task_module.ts', declarations: []},
 		'./task.js': {
 			path: 'task.ts',
 			declarations: [
-				{name: 'Task', kind: 'InterfaceDeclaration'},
-				{name: 'TaskContext', kind: 'InterfaceDeclaration'},
-				{name: 'TASK_FILE_SUFFIX_TS', kind: 'VariableDeclaration'},
-				{name: 'TASK_FILE_SUFFIX_JS', kind: 'VariableDeclaration'},
-				{name: 'is_task_path', kind: 'VariableDeclaration'},
-				{name: 'to_task_name', kind: 'VariableDeclaration'},
-				{name: 'TaskError', kind: 'ClassDeclaration'},
+				{name: 'Args', kind: 'VariableDeclaration'},
+				{name: 'task', kind: 'VariableDeclaration'},
 			],
 		},
 		'./test.task.js': {

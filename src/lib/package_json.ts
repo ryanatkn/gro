@@ -298,7 +298,7 @@ export const to_package_modules = async (
 	if (!exports) return undefined;
 
 	const project = new Project();
-	project.addSourceFilesAtPaths('src/**/*.ts'); // TODO dir?
+	project.addSourceFilesAtPaths('src/**/*.ts'); // TODO dir? maybe rewrite with `base_path`?
 
 	return Object.fromEntries(
 		(
@@ -310,7 +310,7 @@ export const to_package_modules = async (
 							? 'index.ts'
 							: strip_start(k.endsWith('.js') ? replace_extension(k, '.ts') : k, './');
 					if (!source_file_path.endsWith('.ts')) {
-						// TODO support more than just TypeScript - probably use @sveltejs/language-tools
+						// TODO support more than just TypeScript - probably use @sveltejs/language-tools, see how @sveltejs/package generates types
 						const package_module: Package_Module = {path: source_file_path, declarations: []};
 						return [k, package_module];
 					}
@@ -328,10 +328,9 @@ export const to_package_modules = async (
 
 					const declarations: Package_Module_Declaration[] = [];
 
-					let source_file;
-					try {
-						source_file = project.getSourceFileOrThrow(source_file_path);
-					} catch (err) {}
+					const source_file = project.getSourceFile((f) =>
+						f.getFilePath().endsWith(source_file_path),
+					); // TODO expected this to work without the callback, according to my read of the docs it is, but `project.getSourceFile(source_file_path)` fails
 					if (source_file) {
 						for (const [name, decls] of source_file.getExportedDeclarations()) {
 							if (!decls) continue;
