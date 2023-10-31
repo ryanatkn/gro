@@ -3,7 +3,7 @@ import {extname, join, relative} from 'node:path';
 import {replace_extension} from './paths.js';
 import {exists} from './exists.js';
 
-export interface ResolvedSpecifier {
+export interface Resolved_Specifier {
 	specifier: string;
 	source_id: string;
 	namespace: undefined | 'sveltekit_local_imports_ts' | 'sveltekit_local_imports_js';
@@ -18,12 +18,12 @@ export interface ResolvedSpecifier {
  * @param passthrough_extensions - used to support specifiers that have no file extention, which Vite supports, so we do our best effort
  * @returns
  */
-export const resolve_specifier = async (path: string, dir: string): Promise<ResolvedSpecifier> => {
+export const resolve_specifier = async (path: string, dir: string): Promise<Resolved_Specifier> => {
 	const path_id = path[0] === '/' ? path : join(dir, path);
 
 	let mapped_path;
 	let source_id;
-	let namespace: ResolvedSpecifier['namespace'];
+	let namespace: Resolved_Specifier['namespace'];
 
 	const ext = extname(path_id);
 	const is_js = ext === '.js';

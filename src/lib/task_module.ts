@@ -3,9 +3,9 @@ import {
 	load_module,
 	load_modules,
 	find_modules,
-	type ModuleMeta,
-	type LoadModuleResult,
-	type FindModulesFailure,
+	type Module_Meta,
+	type Load_Module_Result,
+	type Find_Modules_Failure,
 } from './modules.js';
 import {
 	to_task_name,
@@ -17,18 +17,20 @@ import {
 import {get_possible_source_ids} from './input_path.js';
 import {search_fs} from './search_fs.js';
 
-export interface TaskModule {
+export interface Task_Module {
 	task: Task;
 }
 
-export interface TaskModuleMeta extends ModuleMeta<TaskModule> {
+export interface Task_Module_Meta extends Module_Meta<Task_Module> {
 	name: string;
 }
 
-export const validate_task_module = (mod: Record<string, any>): mod is TaskModule =>
+export const validate_task_module = (mod: Record<string, any>): mod is Task_Module =>
 	!!mod.task && typeof mod.task.run === 'function';
 
-export const load_task_module = async (id: string): Promise<LoadModuleResult<TaskModuleMeta>> => {
+export const load_task_module = async (
+	id: string,
+): Promise<Load_Module_Result<Task_Module_Meta>> => {
 	const result = await load_module(id, validate_task_module);
 	if (!result.ok) return result;
 	return {...result, mod: {...result.mod, name: to_task_name(id)}};
@@ -50,7 +52,8 @@ export const load_task_modules = async (
 	extensions?: string[],
 	root_dirs?: string[],
 ): Promise<
-	ReturnType<typeof load_modules<TaskModule, TaskModuleMeta>> | ({ok: false} & FindModulesFailure)
+	| ReturnType<typeof load_modules<Task_Module, Task_Module_Meta>>
+	| ({ok: false} & Find_Modules_Failure)
 > => {
 	const find_modules_result = await find_task_modules(input_paths, extensions, root_dirs);
 	if (!find_modules_result.ok) return find_modules_result;

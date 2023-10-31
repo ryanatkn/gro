@@ -2,13 +2,13 @@ import {spawn, spawn_process, type SpawnedProcess} from '@grogarden/util/process
 import {mkdir, writeFile} from 'node:fs/promises';
 import {join} from 'node:path';
 
-import type {Plugin, PluginContext} from './plugin.js';
+import type {Plugin, Plugin_Context} from './plugin.js';
 import {print_command_args, serialize_args, to_forwarded_args} from './args.js';
 import {SVELTEKIT_BUILD_DIRNAME} from './paths.js';
 import {exists} from './exists.js';
 import {
 	serialize_package_json,
-	type MapPackageJson,
+	type Map_Package_Json,
 	load_mapped_package_json,
 } from './package_json.js';
 import {init_sveltekit_config} from './sveltekit_config.js';
@@ -18,23 +18,23 @@ export interface Options {
 	 * Used for finalizing a SvelteKit build like adding a `.nojekyll` file for GitHub Pages.
 	 * @default 'github_pages'
 	 */
-	host_target?: HostTarget;
+	host_target?: Host_Target;
 
 	/**
 	 * If truthy, adds `/.well-known/package.json` to the static output.
 	 * If a function, maps the value.
 	 */
-	well_known_package_json?: boolean | MapPackageJson;
+	well_known_package_json?: boolean | Map_Package_Json;
 }
 
-export type HostTarget = 'github_pages' | 'static' | 'node';
+export type Host_Target = 'github_pages' | 'static' | 'node';
 
 const output_dir = SVELTEKIT_BUILD_DIRNAME;
 
 export const plugin = ({
 	host_target = 'github_pages',
 	well_known_package_json,
-}: Options = {}): Plugin<PluginContext> => {
+}: Options = {}): Plugin<Plugin_Context> => {
 	let sveltekit_process: SpawnedProcess | null = null;
 	return {
 		name: 'gro_plugin_sveltekit_frontend',
@@ -101,7 +101,7 @@ const ensure_nojekyll = async (dir: string): Promise<void> => {
  * @param output_dir
  */
 const ensure_well_known_package_json = async (
-	well_known_package_json: boolean | MapPackageJson | undefined,
+	well_known_package_json: boolean | Map_Package_Json | undefined,
 	output_dir: string,
 ): Promise<void> => {
 	const package_json = await load_mapped_package_json();

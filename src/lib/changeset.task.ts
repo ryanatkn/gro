@@ -4,7 +4,7 @@ import {red, blue} from 'kleur/colors';
 import type {WrittenConfig} from '@changesets/types';
 import {readFile, writeFile} from 'node:fs/promises';
 
-import {TaskError, type Task} from './task.js';
+import {Task_Error, type Task} from './task.js';
 import {exists} from './exists.js';
 import {dirname} from 'node:path';
 import {load_package_json} from './package_json.js';
@@ -46,7 +46,7 @@ export const task: Task<Args> = {
 		} = ctx;
 
 		if (!(await find_cli('changeset'))) {
-			throw new TaskError(
+			throw new Task_Error(
 				'changeset command not found: install @changesets/cli locally or globally',
 			);
 		}

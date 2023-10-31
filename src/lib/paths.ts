@@ -65,11 +65,11 @@ export type Url = Zod.infer<Flavored<typeof Url, 'Url'>>;
 export const Email = z.string();
 export type Email = Zod.infer<Flavored<typeof Email, 'Email'>>;
 
-export const SourceId = z.string();
-export type SourceId = Zod.infer<Flavored<typeof SourceId, 'SourceId'>>;
+export const Source_Id = z.string();
+export type Source_Id = Zod.infer<Flavored<typeof Source_Id, 'Source_Id'>>;
 
-export const BuildId = z.string();
-export type BuildId = Zod.infer<Flavored<typeof BuildId, 'BuildId'>>;
+export const Build_Id = z.string();
+export type Build_Id = Zod.infer<Flavored<typeof Build_Id, 'Build_Id'>>;
 
 export const create_paths = (root_dir: string): Paths => {
 	// TODO remove reliance on trailing slash towards windows support
@@ -93,18 +93,18 @@ export const is_gro_id = (id: string): boolean => id.startsWith(gro_paths.root);
 export const to_root_path = (id: string, p = paths): string => strip_start(id, p.root);
 
 // '/home/me/app/src/foo/bar/baz.ts' → 'foo/bar/baz.ts'
-export const source_id_to_base_path = (source_id: SourceId, p = paths): string =>
+export const source_id_to_base_path = (source_id: Source_Id, p = paths): string =>
 	relative(p.source, source_id);
 
 // TODO base_path is an obsolete concept, it was a remnant from forcing `src/`
 // 'foo/bar/baz.ts' → '/home/me/app/src/foo/bar/baz.ts'
-export const base_path_to_source_id = (base_path: string, p = paths): SourceId =>
+export const base_path_to_source_id = (base_path: string, p = paths): Source_Id =>
 	join(p.source, base_path);
 
 // To run Gro's tasks from its own project, we resolve from dist/ instead of src/.
 // 'foo/bar/baz.ts' → '/home/me/app/src/lib/foo/bar/baz.ts'
 // 'foo/bar/baz.ts' → '/home/me/app/dist/foo/bar/baz.ts'
-export const lib_path_to_import_id = (base_path: string, p = paths): SourceId => {
+export const lib_path_to_import_id = (base_path: string, p = paths): Source_Id => {
 	if (p.root === gro_paths.root) {
 		return p.root + 'dist/' + base_path;
 	} else {

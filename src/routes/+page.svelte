@@ -1,9 +1,9 @@
 <script lang="ts">
 	import {base} from '$app/paths';
 	import {parse_package_meta} from '@fuz.dev/fuz_library/package_meta.js';
-	import LibraryFooter from '@fuz.dev/fuz_library/LibraryFooter.svelte';
-	import PackageDetail from '@fuz.dev/fuz_library/PackageDetail.svelte';
-	import PackageSummary from '@fuz.dev/fuz_library/PackageSummary.svelte';
+	import Library_Footer from '@fuz.dev/fuz_library/Library_Footer.svelte';
+	import Package_Detail from '@fuz.dev/fuz_library/Package_Detail.svelte';
+	import Package_Summary from '@fuz.dev/fuz_library/Package_Summary.svelte';
 	import {slide} from 'svelte/transition';
 
 	import {package_json} from '$lib/package.js';
@@ -44,11 +44,11 @@
 			>
 			{#if show_detail}
 				<div transition:slide>
-					<PackageDetail {pkg} />
+					<Package_Detail {pkg} />
 				</div>
 			{:else}
 				<div transition:slide>
-					<PackageSummary {pkg} />
+					<Package_Summary {pkg} />
 				</div>
 			{/if}
 		</section>
@@ -56,7 +56,7 @@
 			<a href="{base}/about" class="chip">about</a>
 		</section>
 		<section>
-			<LibraryFooter {pkg} />
+			<Library_Footer {pkg} />
 		</section>
 	</div>
 	<div hidden>

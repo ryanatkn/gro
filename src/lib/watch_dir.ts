@@ -2,27 +2,29 @@ import chokidar, {type WatchOptions} from 'chokidar';
 import {stat} from 'node:fs/promises';
 import {relative} from 'node:path';
 
-import type {PathStats, PathFilter} from './path.js';
+import type {Path_Stats, Path_Filter} from './path.js';
 
-export interface WatchNodeFs {
+// TODO pretty hacky
+
+export interface Watch_Node_Fs {
 	init: () => Promise<void>;
 	close: () => Promise<void>;
 }
 
-export interface WatcherChange {
-	type: WatcherChangeType;
+export interface Watcher_Change {
+	type: Watcher_Change_Type;
 	path: string;
-	stats: PathStats;
+	stats: Path_Stats;
 }
-export type WatcherChangeType = 'create' | 'update' | 'delete';
-export interface WatcherChangeCallback {
-	(change: WatcherChange): void;
+export type Watcher_Change_Type = 'create' | 'update' | 'delete';
+export interface Watcher_Change_Callback {
+	(change: Watcher_Change): void;
 }
 
 export interface Options {
 	dir: string;
-	on_change: WatcherChangeCallback;
-	filter?: PathFilter | null | undefined;
+	on_change: Watcher_Change_Callback;
+	filter?: Path_Filter | null | undefined;
 	chokidar?: WatchOptions;
 	/**
 	 * When `false`, returns the `path` relative to `dir`.
@@ -43,7 +45,7 @@ export const watch_dir = ({
 	filter,
 	absolute = true,
 	chokidar: chokidar_options,
-}: Options): WatchNodeFs => {
+}: Options): Watch_Node_Fs => {
 	let watcher: chokidar.FSWatcher | undefined;
 
 	return {

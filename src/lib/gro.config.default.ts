@@ -1,4 +1,4 @@
-import type {CreateGroConfig} from './config.js';
+import type {Create_Gro_Config} from './config.js';
 import {exists} from './exists.js';
 import {has_library} from './gro_plugin_library.js';
 import {has_server} from './gro_plugin_server.js';
@@ -13,7 +13,7 @@ import {SVELTEKIT_CONFIG_FILENAME} from './paths.js';
  * - if `src/lib`, assumes a Node library
  * - if `src/lib/server/server.ts`, assumes a Node  server
  */
-const config: CreateGroConfig = async (cfg) => {
+const config: Create_Gro_Config = async (cfg) => {
 	const [enable_library, enable_server, enable_sveltekit_frontend] = await Promise.all([
 		has_library(),
 		has_server(),

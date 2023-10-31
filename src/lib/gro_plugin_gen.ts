@@ -4,8 +4,7 @@
 
 import {spawn} from '@grogarden/util/process.js';
 
-import type {FilerEvents} from './build/Filer.js';
-import type {Plugin, PluginContext} from './plugin.js';
+import type {Plugin, Plugin_Context} from './plugin.js';
 import type {Args} from './args.js';
 import {source_id_to_base_path} from './paths.js';
 import {find_gen_modules, is_gen_path} from './gen_module.js';
@@ -14,14 +13,14 @@ import {throttle} from './throttle.js';
 
 const FLUSH_DEBOUNCE_DELAY = 500;
 
-export interface TaskArgs extends Args {
+export interface Task_Args extends Args {
 	watch?: boolean;
 }
 
-export const plugin = (): Plugin<PluginContext<TaskArgs>> => {
+export const plugin = (): Plugin<Plugin_Context<Task_Args>> => {
 	let generating = false;
 	let regen = false;
-	let on_filer_build: ((e: FilerEvents['build']) => void) | undefined;
+	let on_filer_build: ((e: Filer_Events['build']) => void) | undefined;
 	const queued_files: Set<string> = new Set();
 	const queue_gen = (gen_file_name: string) => {
 		queued_files.add(gen_file_name);

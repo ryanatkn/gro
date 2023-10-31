@@ -25,7 +25,7 @@ export const normalize_type_imports = async (
 		await Promise.all(imports.map((i) => format_file(i, {filepath: file_id})))
 	).map((s) => s.trim());
 
-	const imps = new Map<string, ParsedImport>();
+	const imps = new Map<string, Parsed_Import>();
 	const path = to_gen_import_path(file_id);
 
 	for (let i = 0; i < formatted_imports.length; i++) {
@@ -61,20 +61,20 @@ export const normalize_type_imports = async (
 	return Array.from(imps.values()).map((v) => print_import_info(to_import_info(v, file_id)));
 };
 
-interface ParsedImport {
+interface Parsed_Import {
 	path: string;
 	raw: string[];
 	parsed: lexer.ImportSpecifier[];
 }
 
-interface ImportInfo {
+interface Import_Info {
 	path: string;
 	default_value: string;
 	values: string[];
 	end: string;
 }
 
-const to_import_info = (imp: ParsedImport, file_id: string): ImportInfo => {
+const to_import_info = (imp: Parsed_Import, file_id: string): Import_Info => {
 	const {path} = imp;
 
 	let default_value = '';
@@ -153,25 +153,25 @@ const to_import_info = (imp: ParsedImport, file_id: string): ImportInfo => {
 	};
 };
 
-const print_import_info = (info: ImportInfo): string => {
+const print_import_info = (info: Import_Info): string => {
 	let result = '';
 	const append = (str: string): void => {
 		if (result) result += '\n';
 		result += str;
 	};
 	const {end = ''} = info;
-	const hasDefault = !!info.default_value;
-	if (!hasDefault && !info.values.length) {
+	const has_default = !!info.default_value;
+	if (!has_default && !info.values.length) {
 		append(`import '${info.path}';` + end);
 	}
-	if (hasDefault) {
+	if (has_default) {
 		append(
 			'import type ' + strip_start(info.default_value, 'type ') + ` from '${info.path}';` + end,
 		);
 	}
 	if (info.values.length) {
-		const strippedTypeValues = info.values.map((v) => strip_start(v, 'type '));
-		append(`import type { ${strippedTypeValues.join(', ')} } from '${info.path}';` + end);
+		const stripped_type_values = info.values.map((v) => strip_start(v, 'type '));
+		append(`import type { ${stripped_type_values.join(', ')} } from '${info.path}';` + end);
 	}
 	return result;
 };

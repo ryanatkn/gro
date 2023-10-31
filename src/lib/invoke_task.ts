@@ -21,7 +21,7 @@ import {find_task_modules, load_task_module} from './task_module.js';
 import {load_gro_package_json} from './package_json.js';
 import {log_available_tasks, log_error_reasons} from './print_task.js';
 import {search_fs} from './search_fs.js';
-import type {GroConfig} from './config.js';
+import type {Gro_Config} from './config.js';
 
 /**
  * Invokes Gro tasks by name using the filesystem as the source.
@@ -43,7 +43,7 @@ import type {GroConfig} from './config.js';
 export const invoke_task = async (
 	task_name: string,
 	args: Args,
-	config: GroConfig,
+	config: Gro_Config,
 	timings = new Timings(),
 ): Promise<void> => {
 	const log = new SystemLogger(print_log_label(task_name || 'gro'));

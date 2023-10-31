@@ -109,7 +109,7 @@ to automatically generate TypeScript types using
 Given `src/something.schema.ts`:
 
 ```ts
-export const SomeObjectSchema: JsonSchema = {
+export const SomeObjectSchema: Json_Schema = {
 	$id: '/schemas/SomeObject',
 	type: 'object',
 	properties: {
@@ -291,7 +291,7 @@ import type {Task} from '@grogarden/gro';
 
 export const task: Task = {
 	run: async ({args, invoke_task}) => {
-		// this throws a `TaskError` if anything is new or different
+		// this throws a `Task_Error` if anything is new or different
 		await invoke_task('gen', {...args, check: true});
 	},
 };
