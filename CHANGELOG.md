@@ -1,5 +1,15 @@
 # @grogarden/gro
 
+## 0.99.0
+
+### Minor Changes
+
+- d272570: rename to `Proper_Snakes`
+
+### Patch Changes
+
+- d272570: throw on failed vite build
+
 ## 0.98.3
 
 ### Patch Changes
