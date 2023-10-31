@@ -1,4 +1,4 @@
-import {spawn, spawn_process, type SpawnedProcess} from '@grogarden/util/process.js';
+import {spawn_process, type SpawnedProcess} from '@grogarden/util/process.js';
 import {mkdir, writeFile} from 'node:fs/promises';
 import {join} from 'node:path';
 
