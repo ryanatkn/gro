@@ -1,5 +1,11 @@
 # @grogarden/gro
 
+## 0.98.3
+
+### Patch Changes
+
+- 9165ab8: improve type of `replace_plugin`
+
 ## 0.98.2
 
 ### Patch Changes
