@@ -1,5 +1,5 @@
 import {cyan, red} from 'kleur/colors';
-import {print_log_label, SystemLogger} from '@grogarden/util/log.js';
+import {print_log_label, System_Logger} from '@grogarden/util/log.js';
 import type {Timings} from '@grogarden/util/timings.js';
 
 import type {Task_Module_Meta} from './task_module.js';
@@ -28,7 +28,7 @@ export const run_task = async (
 	timings: Timings,
 ): Promise<Run_Task_Result> => {
 	const {task} = task_meta.mod;
-	const log = new SystemLogger(print_log_label(task_meta.name));
+	const log = new System_Logger(print_log_label(task_meta.name));
 
 	if (unparsed_args.help) {
 		print_task_help(log, task_meta);

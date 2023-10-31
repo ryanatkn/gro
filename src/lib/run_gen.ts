@@ -2,7 +2,7 @@ import {red} from 'kleur/colors';
 import {print_error} from '@grogarden/util/print.js';
 import type {Timings} from '@grogarden/util/timings.js';
 import type {Logger} from '@grogarden/util/log.js';
-import {UnreachableError} from '@grogarden/util/error.js';
+import {Unreachable_Error} from '@grogarden/util/error.js';
 import type {Options as Json_Schema_To_Typescript_Options} from '@ryanatkn/json-schema-to-typescript';
 import {strip_end} from '@grogarden/util/string.js';
 
@@ -58,7 +58,7 @@ export const run_gen = async (
 						break;
 					}
 					default: {
-						throw new UnreachableError(module_meta);
+						throw new Unreachable_Error(module_meta);
 					}
 				}
 			} catch (err) {

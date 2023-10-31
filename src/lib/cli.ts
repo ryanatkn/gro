@@ -1,5 +1,5 @@
 import type {SpawnOptions} from 'node:child_process';
-import {spawn, spawn_out, type SpawnResult} from '@grogarden/util/process.js';
+import {spawn, spawn_out, type Spawn_Result} from '@grogarden/util/process.js';
 import {join} from 'node:path';
 
 import {exists} from './exists.js';
@@ -23,7 +23,7 @@ export const spawn_cli = async (
 	name: string,
 	args: any[] = [],
 	options?: SpawnOptions | undefined,
-): Promise<SpawnResult | undefined> => {
+): Promise<Spawn_Result | undefined> => {
 	const found = await find_cli(name);
 	if (!found) return;
 	const command = found === 'local' ? 'npx' : name;

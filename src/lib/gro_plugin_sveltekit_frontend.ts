@@ -1,4 +1,4 @@
-import {spawn_process, type SpawnedProcess} from '@grogarden/util/process.js';
+import {spawn_process, type Spawned_Process} from '@grogarden/util/process.js';
 import {mkdir, writeFile} from 'node:fs/promises';
 import {join} from 'node:path';
 
@@ -37,7 +37,7 @@ export const plugin = ({
 	host_target = 'github_pages',
 	well_known_package_json,
 }: Options = {}): Plugin<Plugin_Context> => {
-	let sveltekit_process: SpawnedProcess | null = null;
+	let sveltekit_process: Spawned_Process | null = null;
 	return {
 		name: 'gro_plugin_sveltekit_frontend',
 		setup: async ({dev, watch, log}) => {
