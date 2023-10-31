@@ -1,5 +1,11 @@
 # @grogarden/gro
 
+## 0.100.0
+
+### Minor Changes
+
+- 88ac35b: upgrade `@grogarden/util@0.16`
+
 ## 0.99.0
 
 ### Minor Changes
