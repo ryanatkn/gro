@@ -12,6 +12,8 @@ import {
 	load_mapped_package_json,
 } from './package_json.js';
 import {init_sveltekit_config} from './sveltekit_config.js';
+import {Task_Error} from './task.js';
+import {spawn_cli} from './cli.js';
 
 export interface Options {
 	/**
@@ -53,10 +55,12 @@ export const plugin = ({
 				}
 			} else {
 				// `vite build` in production mode
-
-				const serialized_args = ['vite', 'build', ...serialize_args(to_forwarded_args('vite'))];
-				log.info(print_command_args(serialized_args));
-				await spawn('npx', serialized_args);
+				const serialized_args = ['build', ...serialize_args(to_forwarded_args('vite'))];
+				log.info(print_command_args(['vite'].concat(serialized_args)));
+				const spawned = await spawn_cli('vite', serialized_args); // TODO call with the gro helper instead of npx?
+				if (!spawned?.ok) {
+					throw new Task_Error('vite build failed with exit code ' + spawned?.code);
+				}
 			}
 		},
 		adapt: async () => {
