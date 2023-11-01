@@ -89,12 +89,14 @@ export const Package_Json = z.intersection(
 			name: z.string(),
 			version: z.string(),
 
+			// Gro extensions
 			public: z
 				.boolean({
 					description:
 						'a Gro extension that enables publishing `.well-known/package.json` and `.well-known/src`',
 				})
 				.optional(),
+			icon: z.string({description: 'a Gro extension'}).optional(), // TODO maybe base64 favicon?
 
 			private: z.boolean({description: 'disallow npm publish'}).optional(),
 
