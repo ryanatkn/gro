@@ -46,7 +46,7 @@ export class Plugins<T_Plugin_Context extends Plugin_Context> {
 
 	async setup(): Promise<void> {
 		const {ctx, instances} = this;
-		if (!this.instances.length) return;
+		if (!instances.length) return;
 		const {timings, log} = ctx;
 		const timing_to_setup = timings.start('plugins.setup');
 		for (const plugin of instances) {
@@ -60,10 +60,10 @@ export class Plugins<T_Plugin_Context extends Plugin_Context> {
 	}
 
 	async adapt(): Promise<void> {
-		const {ctx} = this;
+		const {ctx, instances} = this;
 		const {timings} = ctx;
 		const timing_to_run_adapters = timings.start('plugins.adapt');
-		for (const plugin of this.instances) {
+		for (const plugin of instances) {
 			if (!plugin.adapt) continue;
 			const timing = timings.start(`adapt:${plugin.name}`);
 			await plugin.adapt(ctx); // eslint-disable-line no-await-in-loop
@@ -74,7 +74,7 @@ export class Plugins<T_Plugin_Context extends Plugin_Context> {
 
 	async teardown(): Promise<void> {
 		const {ctx, instances} = this;
-		if (!this.instances.length) return;
+		if (!instances.length) return;
 		const {timings, log} = ctx;
 		const timing_to_teardown = timings.start('plugins.teardown');
 		for (const plugin of instances) {
