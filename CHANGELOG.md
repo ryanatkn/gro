@@ -1,5 +1,11 @@
 # @grogarden/gro
 
+## 0.100.3
+
+### Patch Changes
+
+- b8180ea: add icon 🌰
+
 ## 0.100.2
 
 ### Patch Changes
