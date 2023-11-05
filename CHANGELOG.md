@@ -1,5 +1,11 @@
 # @grogarden/gro
 
+## 0.100.2
+
+### Patch Changes
+
+- d6c22f4: add `icon` extension property to `package_json`
+
 ## 0.100.1
 
 ### Patch Changes
