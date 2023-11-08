@@ -64,8 +64,6 @@ export const plugin = ({
 
 				const package_json = await load_mapped_package_json();
 				if (well_known_package_json === undefined) {
-					// TODO using `pkg.private` isn't semantic, maybe this should be removed
-					// and we just document the danger for closed-source projects?
 					well_known_package_json = package_json.public; // eslint-disable-line no-param-reassign
 				}
 				const mapped_package_json = !well_known_package_json
