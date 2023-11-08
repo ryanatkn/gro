@@ -90,16 +90,6 @@ export const plugin = ({
 	};
 };
 
-const NOJEKYLL_FILENAME = '.nojekyll';
-
-const ensure_nojekyll = async (dir: string): Promise<void> => {
-	const path = `${dir}/${NOJEKYLL_FILENAME}`;
-	if (!(await exists(path))) {
-		await mkdir(dir, {recursive: true});
-		await writeFile(path, '', 'utf8');
-	}
-};
-
 /**
  * Outputs `${dir}/.well-known/package.json` if it doesn't already exist.
  * @param well_known_package_json - if `undefined`, inferred to be `true` if `pkg.private` is falsy
