@@ -95,7 +95,6 @@ export const plugin = ({
 						: null!,
 				].filter(Boolean);
 				const cleanup = () => Promise.all(cleanups.map((c) => c()));
-
 				try {
 					const serialized_args = ['build', ...serialize_args(to_forwarded_args('vite'))];
 					log.info(print_command_args(['vite'].concat(serialized_args)));
@@ -107,7 +106,6 @@ export const plugin = ({
 					await cleanup();
 					throw err;
 				}
-
 				await cleanup();
 			}
 		},
