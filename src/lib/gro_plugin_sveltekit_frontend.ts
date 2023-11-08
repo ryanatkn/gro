@@ -157,7 +157,7 @@ const copy_temporarily = async (
 
 /**
  * Creates a file at `path` with `contents` if it doesn't already exist,
- * and returns a function that will delete it if it was created.
+ * and returns a function that deletes the file and any created directories.
  * @param path
  * @param contents
  * @returns cleanup function that deletes the file and any created dirs
