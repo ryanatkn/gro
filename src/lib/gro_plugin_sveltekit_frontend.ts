@@ -181,7 +181,7 @@ const create_temporarily = async (path: string, contents: string): Promise<Clean
 	return async () => {
 		if (!dir_already_exists) {
 			if (!root_created_dir) throw Error();
-			await rm(root_created_dir, {recursive: true}); // TODO BLOCK should just be `root_created_dir`?
+			await rm(root_created_dir, {recursive: true});
 		} else if (!path_already_exists) {
 			await rm(path);
 		}
