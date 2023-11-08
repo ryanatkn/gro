@@ -1,6 +1,6 @@
 import {spawn_process, type Spawned_Process} from '@grogarden/util/process.js';
 import {cp, mkdir, rm, writeFile} from 'node:fs/promises';
-import {dirname, join, relative} from 'node:path';
+import {dirname, join} from 'node:path';
 import type {Config as SveltekitConfig} from '@sveltejs/kit';
 
 import type {Plugin, Plugin_Context} from './plugin.js';
@@ -10,7 +10,6 @@ import {
 	serialize_package_json,
 	type Map_Package_Json,
 	load_mapped_package_json,
-	load_package_json,
 } from './package_json.js';
 import {init_sveltekit_config} from './sveltekit_config.js';
 import {Task_Error} from './task.js';
@@ -63,7 +62,7 @@ export const plugin = ({
 			} else {
 				// `vite build` in production mode
 
-				const package_json = await load_package_json();
+				const package_json = await load_mapped_package_json();
 				if (well_known_package_json === undefined) {
 					// TODO using `pkg.private` isn't semantic, maybe this should be removed
 					// and we just document the danger for closed-source projects?
@@ -97,18 +96,15 @@ export const plugin = ({
 						? await create_temporarily(join(assets_path, '.nojekyll'), '')
 						: null!,
 				].filter(Boolean);
-				console.log(`cleanups`, cleanups);
 				const cleanup = () => Promise.all(cleanups.map((c) => c()));
 
 				try {
-					console.log('SPAWNING');
 					const serialized_args = ['build', ...serialize_args(to_forwarded_args('vite'))];
 					log.info(print_command_args(['vite'].concat(serialized_args)));
 					const spawned = await spawn_cli('vite', serialized_args); // TODO call with the gro helper instead of npx?
 					if (!spawned?.ok) {
 						throw new Task_Error('vite build failed with exit code ' + spawned?.code);
 					}
-					console.log('SPAWNED');
 				} catch (err) {
 					await cleanup();
 					throw err;
@@ -138,33 +134,22 @@ const copy_temporarily = async (
 	dest_dir: string,
 	dest_base_dir = '',
 ): Promise<Cleanup> => {
-	console.log(`source_path`, source_path);
-	console.log(`dest_dir`, dest_dir);
-	console.log(`dest_base_dir`, dest_base_dir);
-
 	const path = join(dest_dir, dest_base_dir, source_path);
 	const dir = dirname(path);
-	console.log(`path`, path);
-	console.log(`dir`, dir);
 
 	const dir_already_exists = await exists(dir);
-	console.log(`dir_already_exists`, dir_already_exists);
 	if (!dir_already_exists) {
 		await mkdir(dir, {recursive: true});
 	}
 
 	const path_already_exists = await exists(path);
-	console.log(`path_already_exists`, path_already_exists);
 	if (!path_already_exists) {
 		await cp(source_path, path, {recursive: true});
 	}
 	return async () => {
-		console.log('CLEANUP copy_temporarily');
 		if (!dir_already_exists) {
-			console.log('DELETING DIR', dir);
 			await rm(dir, {recursive: true});
 		} else if (!path_already_exists) {
-			console.log('DELETING PATH', path);
 			await rm(path, {recursive: true});
 		}
 	};
@@ -175,14 +160,17 @@ const copy_temporarily = async (
  * and returns a function that will delete it if it was created.
  * @param path
  * @param contents
- * @returns cleanup function
+ * @returns cleanup function that deletes the file and any created dirs
  */
 const create_temporarily = async (path: string, contents: string): Promise<Cleanup> => {
 	// TODO handle more than 1 hardcoded depth
 	const dir = dirname(path);
 	const dir_already_exists = await exists(dir);
+	let root_created_dir: string | undefined;
 	if (!dir_already_exists) {
-		await mkdir(dirname(path), {recursive: true});
+		root_created_dir = await to_root_dir_that_doesnt_exist(dir);
+		if (!root_created_dir) throw Error();
+		await mkdir(dir, {recursive: true});
 	}
 
 	const path_already_exists = await exists(path);
@@ -191,13 +179,28 @@ const create_temporarily = async (path: string, contents: string): Promise<Clean
 	}
 
 	return async () => {
-		console.log('CLEANUP create_temporarily', !path_already_exists, path);
 		if (!dir_already_exists) {
-			console.log(`!dir_already_exists`, dir);
-			await rm(dir, {recursive: true});
+			if (!root_created_dir) throw Error();
+			await rm(root_created_dir, {recursive: true}); // TODO BLOCK should just be `root_created_dir`?
 		} else if (!path_already_exists) {
-			console.log(`!path_already_exists`, path);
 			await rm(path);
 		}
 	};
+};
+
+/**
+ * Niche and probably needs refactoring,
+ * for `/a/b/DOESNT_EXIST/NOR_THIS/ETC` returns `/a/b/DOESNT_EXIST`.
+ */
+const to_root_dir_that_doesnt_exist = async (dir: string): Promise<string | undefined> => {
+	let prev: string | undefined;
+	let d = dir;
+	do {
+		// eslint-disable-next-line no-await-in-loop
+		if (await exists(d)) {
+			return prev;
+		}
+		prev = d;
+	} while ((d = dirname(d)));
+	throw Error();
 };
