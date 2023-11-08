@@ -3,22 +3,22 @@ import {print_error} from '@grogarden/util/print.js';
 import type {Timings} from '@grogarden/util/timings.js';
 import type {Logger} from '@grogarden/util/log.js';
 import {Unreachable_Error} from '@grogarden/util/error.js';
-import type {Options as JsonSchemaToTypeScriptOptions} from '@ryanatkn/json-schema-to-typescript';
+import type {Options as Json_Schema_To_Typescript_Options} from '@ryanatkn/json-schema-to-typescript';
 import {strip_end} from '@grogarden/util/string.js';
 
 import {
 	GEN_SCHEMA_IDENTIFIER_SUFFIX,
-	type GenModuleMeta,
+	type Gen_Module_Meta,
 	GEN_SCHEMA_PATH_SUFFIX,
 } from './gen_module.js';
 import {
-	type GenResults,
-	type GenModuleResult,
-	type GenContext,
-	type GenModuleResultSuccess,
-	type GenModuleResultFailure,
+	type Gen_Results,
+	type Gen_Module_Result,
+	type Gen_Context,
+	type Gen_Module_Result_Success,
+	type Gen_Module_Result_Failure,
 	to_gen_result,
-	type RawGenResult,
+	type Raw_Gen_Result,
 } from './gen.js';
 import {print_path, source_id_to_base_path} from './paths.js';
 import {gen_schemas, to_schemas_from_modules} from './gen_schemas.js';
@@ -28,25 +28,25 @@ import type {format_file as base_format_file} from './format_file.js';
 export const GEN_NO_PROD_MESSAGE = 'gen runs only during development';
 
 export const run_gen = async (
-	gen_modules: GenModuleMeta[],
+	gen_modules: Gen_Module_Meta[],
 	log: Logger,
 	timings: Timings,
 	format_file?: typeof base_format_file,
-): Promise<GenResults> => {
+): Promise<Gen_Results> => {
 	let input_count = 0;
 	let output_count = 0;
 	const timing_for_run_gen = timings.start('run_gen');
 	const gen_schemas_options = to_gen_schemas_options(gen_modules);
 	const imports = to_gen_context_imports(gen_modules);
 	const results = await Promise.all(
-		gen_modules.map(async (module_meta): Promise<GenModuleResult> => {
+		gen_modules.map(async (module_meta): Promise<Gen_Module_Result> => {
 			input_count++;
 			const {id} = module_meta;
 			const timing_for_module = timings.start(id);
 
 			// Perform code generation by calling `gen` on the module.
-			const gen_ctx: GenContext = {origin_id: id, log, imports};
-			let raw_gen_result: RawGenResult;
+			const gen_ctx: Gen_Context = {origin_id: id, log, imports};
+			let raw_gen_result: Raw_Gen_Result;
 			try {
 				switch (module_meta.type) {
 					case 'basic': {
@@ -103,8 +103,8 @@ export const run_gen = async (
 	);
 	return {
 		results,
-		successes: results.filter((r) => r.ok) as GenModuleResultSuccess[],
-		failures: results.filter((r) => !r.ok) as GenModuleResultFailure[],
+		successes: results.filter((r) => r.ok) as Gen_Module_Result_Success[],
+		failures: results.filter((r) => !r.ok) as Gen_Module_Result_Failure[],
 		input_count,
 		output_count,
 		elapsed: timing_for_run_gen(),
@@ -112,8 +112,8 @@ export const run_gen = async (
 };
 
 const to_gen_schemas_options = (
-	gen_modules: GenModuleMeta[],
-): Partial<JsonSchemaToTypeScriptOptions> => {
+	gen_modules: Gen_Module_Meta[],
+): Partial<Json_Schema_To_Typescript_Options> => {
 	const schemas = to_schemas_from_modules(gen_modules);
 	return {
 		$refOptions: {
@@ -129,14 +129,14 @@ const to_gen_schemas_options = (
 export const to_gen_import_path = (id: string): string =>
 	'$' + strip_end(source_id_to_base_path(id), GEN_SCHEMA_PATH_SUFFIX);
 
-export const to_gen_context_imports = (gen_modules: GenModuleMeta[]): Record<string, string> => {
+export const to_gen_context_imports = (gen_modules: Gen_Module_Meta[]): Record<string, string> => {
 	const imports: Record<string, string> = {};
 	for (const gen_module of gen_modules) {
 		if (gen_module.type === 'schema') {
-			const importPath = to_gen_import_path(gen_module.id);
+			const import_path = to_gen_import_path(gen_module.id);
 			for (const identifier of Object.keys(gen_module.mod)) {
 				const name = strip_end(identifier, GEN_SCHEMA_IDENTIFIER_SUFFIX);
-				imports[name] = `import type {${name}} from '${importPath}';`;
+				imports[name] = `import type {${name}} from '${import_path}';`;
 			}
 		}
 	}

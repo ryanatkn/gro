@@ -5,7 +5,7 @@ import {z} from 'zod';
 import {dirname} from 'node:path';
 import {mkdir, writeFile} from 'node:fs/promises';
 
-import {TaskError, type Task} from './task.js';
+import {Task_Error, type Task} from './task.js';
 import {run_gen} from './run_gen.js';
 import {load_gen_module, check_gen_modules, find_gen_modules} from './gen_module.js';
 import {resolve_input_paths} from './input_path.js';
@@ -43,7 +43,7 @@ export const task: Task<Args> = {
 				return;
 			} else {
 				log_error_reasons(log, find_modules_result.reasons);
-				throw new TaskError('Failed to find gen modules.');
+				throw new Task_Error('Failed to find gen modules.');
 			}
 		}
 		log.info('gen files', Array.from(find_modules_result.source_ids_by_input_path.values()).flat());
@@ -53,7 +53,7 @@ export const task: Task<Args> = {
 		);
 		if (!load_modules_result.ok) {
 			log_error_reasons(log, load_modules_result.reasons);
-			throw new TaskError('Failed to load gen modules.');
+			throw new Task_Error('Failed to load gen modules.');
 		}
 
 		// run `gen` on each of the modules
@@ -84,7 +84,7 @@ export const task: Task<Args> = {
 					);
 				}
 				if (has_unexpected_changes) {
-					throw new TaskError(
+					throw new Task_Error(
 						'Failed gen check. Some generated files have unexpectedly changed.' +
 							' Run `gro gen` and try again.',
 					);
@@ -133,7 +133,7 @@ export const task: Task<Args> = {
 			for (const result of gen_results.failures) {
 				log.error(result.reason, '\n', print_error(result.error));
 			}
-			throw new TaskError(`Failed to generate ${fail_count} file${plural(fail_count)}.`);
+			throw new Task_Error(`Failed to generate ${fail_count} file${plural(fail_count)}.`);
 		}
 	},
 };

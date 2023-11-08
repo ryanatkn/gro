@@ -53,11 +53,13 @@ with a straightforward developer experience.
 Ergonomics are key to unlocking codegen's full potential.
 
 **Be aware** — this is a sharp tool! It should be used sparingly, only when it's a clear win.
-It adds a layer of indirection between the code you write and run.
+It adds a layer of indirection between the code you write and run,
+and it's possible to tie yourself into knots with dependencies.
 Also, you could introduce security vulnerabilities
-if you fail to escape certain inputs.
-Importantly, there is no support for sourcemaps right now.
-Sourcemaps could be added at some point, at least in many cases.
+if you fail to escape certain inputs,
+There's no support for sourcemaps yet, and I have no plans for them.
+(I would accept contributions, but I think it's a hard problem to do well,
+and I don't know what the payoffs would be)
 
 Inspirations include Lisp macros, the
 [Svelte](https://github.com/sveltejs/svelte) compiler,
@@ -109,7 +111,7 @@ to automatically generate TypeScript types using
 Given `src/something.schema.ts`:
 
 ```ts
-export const SomeObjectSchema: JsonSchema = {
+export const SomeObjectSchema: Json_Schema = {
 	$id: '/schemas/SomeObject',
 	type: 'object',
 	properties: {
@@ -291,7 +293,7 @@ import type {Task} from '@grogarden/gro';
 
 export const task: Task = {
 	run: async ({args, invoke_task}) => {
-		// this throws a `TaskError` if anything is new or different
+		// this throws a `Task_Error` if anything is new or different
 		await invoke_task('gen', {...args, check: true});
 	},
 };

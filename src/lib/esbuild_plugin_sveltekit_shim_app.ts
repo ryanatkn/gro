@@ -5,12 +5,12 @@ import {
 	render_sveltekit_shim_app_paths,
 	sveltekit_shim_app_specifiers,
 } from './sveltekit_shim_app.js';
-import type {ParsedSveltekitConfig} from './sveltekit_config.js';
+import type {Parsed_Sveltekit_Config} from './sveltekit_config.js';
 
 export interface Options {
 	dev: boolean;
-	base_url: ParsedSveltekitConfig['base_url'];
-	assets_url: ParsedSveltekitConfig['assets_url'];
+	base_url: Parsed_Sveltekit_Config['base_url'];
+	assets_url: Parsed_Sveltekit_Config['assets_url'];
 }
 
 export const esbuild_plugin_sveltekit_shim_app = ({
