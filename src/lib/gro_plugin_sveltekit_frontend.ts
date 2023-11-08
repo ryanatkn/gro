@@ -126,34 +126,32 @@ interface Cleanup {
 	(): Promise<void>;
 }
 
-/**
- * Originally used to output `${dir}/.well-known/package.json` if it doesn't already exist.
- */
-const copy_temporarily = async (
-	source_path: string,
-	dest_dir: string,
-	dest_base_dir = '',
-): Promise<Cleanup> => {
-	const path = join(dest_dir, dest_base_dir, source_path);
-	const dir = dirname(path);
+// TODO for `src` and `src.json`
+// const copy_temporarily = async (
+// 	source_path: string,
+// 	dest_dir: string,
+// 	dest_base_dir = '',
+// ): Promise<Cleanup> => {
+// 	const path = join(dest_dir, dest_base_dir, source_path);
+// 	const dir = dirname(path);
 
-	const dir_already_exists = await exists(dir);
-	if (!dir_already_exists) {
-		await mkdir(dir, {recursive: true});
-	}
+// 	const dir_already_exists = await exists(dir);
+// 	if (!dir_already_exists) {
+// 		await mkdir(dir, {recursive: true});
+// 	}
 
-	const path_already_exists = await exists(path);
-	if (!path_already_exists) {
-		await cp(source_path, path, {recursive: true});
-	}
-	return async () => {
-		if (!dir_already_exists) {
-			await rm(dir, {recursive: true});
-		} else if (!path_already_exists) {
-			await rm(path, {recursive: true});
-		}
-	};
-};
+// 	const path_already_exists = await exists(path);
+// 	if (!path_already_exists) {
+// 		await cp(source_path, path, {recursive: true});
+// 	}
+// 	return async () => {
+// 		if (!dir_already_exists) {
+// 			await rm(dir, {recursive: true});
+// 		} else if (!path_already_exists) {
+// 			await rm(path, {recursive: true});
+// 		}
+// 	};
+// };
 
 /**
  * Creates a file at `path` with `contents` if it doesn't already exist,
