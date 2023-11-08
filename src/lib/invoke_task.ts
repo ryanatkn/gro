@@ -1,5 +1,5 @@
 import {cyan, red, gray} from 'kleur/colors';
-import {Logger, SystemLogger, print_log_label} from '@grogarden/util/log.js';
+import {Logger, System_Logger, print_log_label} from '@grogarden/util/log.js';
 import {create_stopwatch, Timings} from '@grogarden/util/timings.js';
 import {print_ms, print_timings} from '@grogarden/util/print.js';
 
@@ -46,7 +46,7 @@ export const invoke_task = async (
 	config: GroConfig,
 	timings = new Timings(),
 ): Promise<void> => {
-	const log = new SystemLogger(print_log_label(task_name || 'gro'));
+	const log = new System_Logger(print_log_label(task_name || 'gro'));
 	log.info('invoking', task_name ? cyan(task_name) : 'gro');
 
 	const total_timing = create_stopwatch();

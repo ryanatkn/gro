@@ -1,4 +1,4 @@
-import {spawn_restartable_process, type RestartableProcess} from '@grogarden/util/process.js';
+import {spawn_restartable_process, type Restartable_Process} from '@grogarden/util/process.js';
 import * as esbuild from 'esbuild';
 import {cwd} from 'node:process';
 import type {Config as SvelteKitConfig} from '@sveltejs/kit';
@@ -113,7 +113,7 @@ export const plugin = ({
 }: Options = {}): Plugin<PluginContext> => {
 	let build_ctx: esbuild.BuildContext;
 	let watcher: WatchNodeFs;
-	let server_process: RestartableProcess | null = null;
+	let server_process: Restartable_Process | null = null;
 	let deps: Set<SourceId> | null = null;
 
 	return {

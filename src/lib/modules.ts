@@ -1,6 +1,6 @@
 import {red} from 'kleur/colors';
 import type {Timings} from '@grogarden/util/timings.js';
-import {UnreachableError} from '@grogarden/util/error.js';
+import {Unreachable_Error} from '@grogarden/util/error.js';
 import type {Result} from '@grogarden/util/result.js';
 import {print_error} from '@grogarden/util/print.js';
 
@@ -177,7 +177,7 @@ export const load_modules = async <
 						break;
 					}
 					default:
-						throw new UnreachableError(result);
+						throw new Unreachable_Error(result);
 				}
 			}
 		}

@@ -1,8 +1,8 @@
 <script lang="ts">
 	import {base} from '$app/paths';
 	import {parse_package_meta} from '@fuz.dev/fuz_library/package_meta.js';
-	import LibraryHeader from '@fuz.dev/fuz_library/LibraryHeader.svelte';
-	import LibraryFooter from '@fuz.dev/fuz_library/LibraryFooter.svelte';
+	import Library_Header from '@fuz.dev/fuz_library/Library_Header.svelte';
+	import Library_Footer from '@fuz.dev/fuz_library/Library_Footer.svelte';
 
 	// TODO add website, rewriting the markdown docs as Svelte
 
@@ -13,7 +13,7 @@
 <main class="box width_full">
 	<div class="box width_md">
 		<section>
-			<LibraryHeader {pkg} />
+			<Library_Header {pkg} />
 		</section>
 		<section class="panel spaced padded_md text_align_center">
 			this website is a work in progress!<br />
@@ -32,7 +32,7 @@
 			</a>
 		</section>
 		<section>
-			<LibraryFooter {pkg} />
+			<Library_Footer {pkg} />
 		</section>
 	</div>
 	<div hidden>

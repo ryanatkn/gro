@@ -1,6 +1,7 @@
-import {spawn, spawn_process, type SpawnedProcess} from '@grogarden/util/process.js';
-import {mkdir, writeFile} from 'node:fs/promises';
-import {join} from 'node:path';
+import {spawn, spawn_process, type Spawned_Process} from '@grogarden/util/process.js';
+import {cp, mkdir, writeFile} from 'node:fs/promises';
+import {dirname, join, relative} from 'node:path';
+import type {Config as SveltekitConfig} from '@sveltejs/kit';
 
 import type {Plugin, PluginContext} from './plugin.js';
 import {print_command_args, serialize_args, to_forwarded_args} from './args.js';
@@ -21,6 +22,11 @@ export interface Options {
 	 * If a function, maps the value.
 	 */
 	well_known_package_json?: boolean | MapPackageJson;
+
+	/**
+	 * Optional SvelteKit config, defaults to `svelte.config.js`.
+	 */
+	sveltekit_config?: string | SveltekitConfig;
 }
 
 export type HostTarget = 'github_pages' | 'static' | 'node';
@@ -30,11 +36,14 @@ const output_dir = SVELTEKIT_BUILD_DIRNAME;
 export const plugin = ({
 	host_target = 'github_pages',
 	well_known_package_json,
+	sveltekit_config,
 }: Options = {}): Plugin<PluginContext> => {
-	let sveltekit_process: SpawnedProcess | null = null;
+	let sveltekit_process: Spawned_Process | null = null;
 	return {
 		name: 'gro_plugin_sveltekit_frontend',
 		setup: async ({dev, watch, log}) => {
+			const cfg = await init_sveltekit_config(sveltekit_config);
+
 			if (dev) {
 				// `vite dev` in development mode
 				if (watch) {
@@ -50,9 +59,19 @@ export const plugin = ({
 			} else {
 				// `vite build` in production mode
 
+				// copy files to `static` before building, in such a way
+				// that's non-destructive to existing files and dirs and easy to clean up
+				const cleanup = [
+					copy_temporarily('.nojekyll', cfg.assets_path),
+					copy_temporarily(well_known_package_json, cfg.assets_path),
+				];
+				process.exit();
+
 				const serialized_args = ['vite', 'build', ...serialize_args(to_forwarded_args('vite'))];
 				log.info(print_command_args(serialized_args));
 				await spawn('npx', serialized_args);
+
+				await Promise.all(cleanup.map((c) => c()));
 			}
 		},
 		adapt: async () => {
@@ -120,4 +139,38 @@ const ensure_well_known_package_json = async (
 	}
 	const new_contents = serialize_package_json(mapped);
 	await writeFile(path, new_contents, 'utf8');
+};
+
+interface Cleanup_After_Copy {
+	(): Promise<void>;
+}
+
+/**
+ * Outputs `${dir}/.well-known/package.json` if it doesn't already exist.
+ * @param well_known_package_json - if `undefined`, inferred to be `true` if `pkg.private` is falsy
+ * @param output_dir
+ */
+const copy_temporarily = async (
+	source_path: string,
+	dest_dir: string,
+	source_base_dir = dirname(source_path),
+): Promise<Cleanup_After_Copy[]> => {
+	console.log(`source_path`, source_path);
+	console.log(`dest_dir`, dest_dir);
+	console.log(`source_base_dir`, source_base_dir);
+	const cleanup: Cleanup_After_Copy[] = [];
+
+	const source_base_path = relative(source_base_dir, source_path);
+	console.log(`source_base_path`, source_base_path);
+	const output_path = join(dest_dir, source_path);
+	console.log(`output_path`, output_path);
+
+	if (await exists(path)) return; // don't clobber
+	if (!(await exists(well_known_dir))) {
+		await mkdir(well_known_dir, {recursive: true});
+	}
+
+	await cp(source_path, dest_dir);
+
+	return cleanup;
 };

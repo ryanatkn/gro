@@ -1249,7 +1249,7 @@
 
 ## 0.21.4
 
-- export `UnreachableError` and time util from root
+- export `Unreachable_Error` and time util from root
   ([#184](https://github.com/grogarden/gro/pull/184))
 
 ## 0.21.3
