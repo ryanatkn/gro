@@ -31,8 +31,6 @@ export interface Options {
 
 export type HostTarget = 'github_pages' | 'static' | 'node';
 
-const output_dir = SVELTEKIT_BUILD_DIRNAME;
-
 export const plugin = ({
 	host_target = 'github_pages',
 	well_known_package_json,
@@ -42,7 +40,7 @@ export const plugin = ({
 	return {
 		name: 'gro_plugin_sveltekit_frontend',
 		setup: async ({dev, watch, log}) => {
-			const cfg = await init_sveltekit_config(sveltekit_config);
+			const {assets_path} = await init_sveltekit_config(sveltekit_config);
 
 			if (dev) {
 				// `vite dev` in development mode
@@ -61,10 +59,19 @@ export const plugin = ({
 
 				// copy files to `static` before building, in such a way
 				// that's non-destructive to existing files and dirs and easy to clean up
+				// TODO this doesn't work during dev -- maybe a Vite middleware is needed? what if this plugin added its plugin to your `vite.config.ts`?
 				const cleanup = [
-					copy_temporarily('.nojekyll', cfg.assets_path),
-					copy_temporarily(well_known_package_json, cfg.assets_path),
-				];
+					well_known_package_json
+						? copy_temporarily('package.json', assets_path, '.well-known')
+						: null,
+					/**
+					 * GitHub pages processes everything with Jekyll by default,
+					 * breaking things like files and dirs prefixed with an underscore.
+					 * This adds a `.nojekyll` file to the root of the output
+					 * to tell GitHub Pages to treat the outputs as plain static files.
+					 */
+					host_target === 'github_pages' ? copy_temporarily('.nojekyll', assets_path) : null,
+				].filter(Boolean);
 				process.exit();
 
 				const serialized_args = ['vite', 'build', ...serialize_args(to_forwarded_args('vite'))];
@@ -73,17 +80,6 @@ export const plugin = ({
 
 				await Promise.all(cleanup.map((c) => c()));
 			}
-		},
-		adapt: async () => {
-			if (host_target === 'github_pages') {
-				await ensure_nojekyll(output_dir);
-			}
-
-			// TODO doing this here makes `static/.well-known/package.json` unavailable to Vite plugins,
-			// so we may want to do a more complicated temporary copy
-			// into `static/` before `vite build` in `setup`,
-			// and afterwards it would delete the files but only if they didn't already exist
-			await ensure_well_known_package_json(well_known_package_json, output_dir);
 		},
 		teardown: async () => {
 			if (sveltekit_process) {
@@ -96,12 +92,6 @@ export const plugin = ({
 
 const NOJEKYLL_FILENAME = '.nojekyll';
 
-/**
- * GitHub pages processes everything with Jekyll by default,
- * breaking things like files and dirs prefixed with an underscore.
- * This adds a `.nojekyll` file to the root of the output
- * to tell GitHub Pages to treat the outputs as plain static files.
- */
 const ensure_nojekyll = async (dir: string): Promise<void> => {
 	const path = `${dir}/${NOJEKYLL_FILENAME}`;
 	if (!(await exists(path))) {
