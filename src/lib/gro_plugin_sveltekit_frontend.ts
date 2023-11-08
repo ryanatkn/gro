@@ -41,6 +41,13 @@ export const plugin = ({
 		setup: async ({dev, watch, log}) => {
 			const {assets_path} = await init_sveltekit_config(sveltekit_config);
 
+			const pkg = await load_package_json();
+			if (well_known_package_json === undefined) {
+				// TODO using `pkg.private` isn't semantic, maybe this should be removed
+				// and we just document the danger for closed-source projects?
+				well_known_package_json = pkg.public; // eslint-disable-line no-param-reassign
+			}
+
 			if (dev) {
 				// `vite dev` in development mode
 				if (watch) {
@@ -58,7 +65,8 @@ export const plugin = ({
 
 				// copy files to `static` before building, in such a way
 				// that's non-destructive to existing files and dirs and easy to clean up
-				// TODO this doesn't work during dev -- maybe a Vite middleware is needed? what if this plugin added its plugin to your `vite.config.ts`?
+				// TODO this strategy means the files aren't available during development -- maybe a Vite middleware is best? what if this plugin added its plugin to your `vite.config.ts`?
+				console.log(`well_known_package_json`, well_known_package_json);
 				const cleanups: Cleanup[] = [
 					well_known_package_json
 						? await copy_temporarily('package.json', assets_path, '.well-known')
@@ -73,12 +81,15 @@ export const plugin = ({
 						? await create_temporarily(join(assets_path, '.nojekyll'), '')
 						: null!,
 				].filter(Boolean);
+				console.log(`cleanups`, cleanups);
 				const cleanup = () => Promise.all(cleanups.map((c) => c()));
 
 				try {
 					const serialized_args = ['vite', 'build', ...serialize_args(to_forwarded_args('vite'))];
 					log.info(print_command_args(serialized_args));
+					console.log('SPAWNING');
 					await spawn('npx', serialized_args);
+					console.log('SPAWNED');
 				} catch (err) {
 					await cleanup();
 					throw err;
@@ -132,20 +143,49 @@ interface Cleanup {
 }
 
 /**
- * Outputs `${dir}/.well-known/package.json` if it doesn't already exist.
- * @param well_known_package_json - if `undefined`, inferred to be `true` if `pkg.private` is falsy
- * @param output_dir
+ * Originally used to output `${dir}/.well-known/package.json` if it doesn't already exist.
  */
 const copy_temporarily = async (
 	source_path: string,
 	dest_dir: string,
-	source_base_dir = dirname(source_path),
+	dest_base_dir = '',
 ): Promise<Cleanup> => {
 	console.log(`source_path`, source_path);
 	console.log(`dest_dir`, dest_dir);
-	console.log(`source_base_dir`, source_base_dir);
+	console.log(`dest_base_dir`, dest_base_dir);
 
-	const source_base_path = relative(source_base_dir, source_path);
+	const path = join(dest_dir, dest_base_dir, source_path);
+	const dir = dirname(path);
+	console.log(`path`, path);
+	console.log(`dir`, dir);
+
+	const dir_already_exists = await exists(dir);
+	console.log(`dir_already_exists`, dir_already_exists);
+	if (!dir_already_exists) {
+		await mkdir(dir, {recursive: true});
+	}
+
+	const path_already_exists = await exists(path);
+	console.log(`path_already_exists`, path_already_exists);
+	if (!path_already_exists) {
+		await cp(source_path, dir, {recursive: true});
+	}
+	return async () => {
+		console.log('CLEANUP copy_temporarily');
+		if (!dir_already_exists) {
+			console.log('DELETING DIR', dir);
+			await rm(dir, {recursive: true});
+		} else if (!path_already_exists) {
+			console.log('DELETING PATH', path);
+			await rm(path, {recursive: true});
+		}
+	};
+
+	return async () => {
+		// TODO BLOCK
+	};
+
+	const source_base_path = relative(dest_base_dir, source_path);
 	console.log(`source_base_path`, source_base_path);
 	const output_path = join(dest_dir, source_path);
 	console.log(`output_path`, output_path);
@@ -156,10 +196,6 @@ const copy_temporarily = async (
 	}
 
 	await cp(source_path, dest_dir);
-
-	return async () => {
-		// TODO BLOCK
-	};
 };
 
 /**
@@ -175,6 +211,7 @@ const create_temporarily = async (path: string, contents: string): Promise<Clean
 		await writeFile(path, contents, 'utf8');
 	}
 	return async () => {
+		console.log('CLEANUP create_temporarily');
 		if (!already_exists) {
 			await rm(path);
 		}
