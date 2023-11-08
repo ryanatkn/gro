@@ -8,7 +8,7 @@ import {
 	load_source_ids_by_input_path,
 	get_possible_source_ids,
 } from './input_path.js';
-import type {PathStats} from './path.js';
+import type {Path_Stats} from './path.js';
 import {paths} from './paths.js';
 
 /* test__resolve_input_path */
@@ -84,7 +84,7 @@ test__get_possible_source_ids.run();
 
 /* test__load_source_ids_by_input_path */
 const test__load_source_ids_by_input_path = suite('load_source_ids_by_input_path', async () => {
-	const test_files: Record<string, Map<string, PathStats>> = {
+	const test_files: Record<string, Map<string, Path_Stats>> = {
 		'fake/test1.bar.ts': new Map([['fake/test1.bar.ts', {isDirectory: () => false}]]),
 		'fake/test2.bar.ts': new Map([['fake/test2.bar.ts', {isDirectory: () => false}]]),
 		'fake/test3': new Map([

@@ -18,15 +18,15 @@ See [`src/lib/config.ts`](/src/lib/config.ts) for the config types and implement
 
 [The default config](/src/lib/gro.config.default.ts)
 is used for projects that do not define `gro.config.ts`.
-It's also passed as the first argument to `CreateGroConfig`.
+It's also passed as the first argument to `Create_Gro_Config`.
 
 A simple config that does nothing:
 
 ```ts
 // gro.config.ts
-import type {CreateGroConfig} from '@grogarden/gro';
+import type {Create_Gro_Config} from '@grogarden/gro';
 
-const config: CreateGroConfig = async (cfg) => {
+const config: Create_Gro_Config = async (cfg) => {
 	// mutate `cfg` or return a new object
 	return cfg;
 };
@@ -34,25 +34,25 @@ const config: CreateGroConfig = async (cfg) => {
 export default config;
 ```
 
-The default export of a Gro config is `GroConfig | CreateGroConfig`:
+The default export of a Gro config is `Gro_Config | Create_Gro_Config`:
 
 ```ts
-export interface CreateGroConfig {
-	(base_config: GroConfig): GroConfig | Promise<GroConfig>;
+export interface Create_Gro_Config {
+	(base_config: Gro_Config): Gro_Config | Promise<Gro_Config>;
 }
 
-export interface GroConfig {
-	plugins: CreateConfigPlugins;
-	map_package_json: MapPackageJson | null;
+export interface Gro_Config {
+	plugins: Create_Config_Plugins;
+	map_package_json: Map_Package_Json | null;
 }
 ```
 
 To define a user config that overrides the default plugins:
 
 ```ts
-import type {CreateGroConfig} from '@grogarden/gro';
+import type {Create_Gro_Config} from '@grogarden/gro';
 
-const config: CreateGroConfig = async (cfg) => {
+const config: Create_Gro_Config = async (cfg) => {
 	// example setting your own plugins:
 	cfg.plugins = async () => [
 		(await import('@grogarden/gro/gro_plugin_sveltekit_frontend.js')).plugin(),
@@ -66,8 +66,8 @@ const config: CreateGroConfig = async (cfg) => {
 		const updated_plugins = replace_plugin(
 			await get_base_plugins(ctx),
 			(await import('@grogarden/gro/gro_plugin_sveltekit_frontend.js')).plugin({
-				// host_target?: HostTarget;
-				// well_known_package_json?: boolean | MapPackageJson;
+				// host_target?: Host_Target;
+				// well_known_package_json?: boolean | Map_Package_Json;
 			}),
 			// 'gro_plugin_sveltekit_frontend', // optional name if they don't match
 		);
@@ -88,12 +88,12 @@ Read more about plugins and the `Plugin` in
 [plugin.md](plugin.md), [dev.md](dev.md#plugin), and [build.md](build.md#plugin).
 
 ```ts
-export interface CreateConfigPlugins<TPluginContext extends PluginContext = PluginContext> {
+export interface Create_Config_Plugins<T_Plugin_Context extends Plugin_Context = Plugin_Context> {
 	(
-		ctx: TPluginContext,
+		ctx: T_Plugin_Context,
 	):
-		| (Plugin<TPluginContext> | null | Array<Plugin<TPluginContext> | null>)
-		| Promise<Plugin<TPluginContext> | null | Array<Plugin<TPluginContext> | null>>;
+		| (Plugin<T_Plugin_Context> | null | Array<Plugin<T_Plugin_Context> | null>)
+		| Promise<Plugin<T_Plugin_Context> | null | Array<Plugin<T_Plugin_Context> | null>>;
 }
 ```
 
@@ -124,7 +124,7 @@ Typical usage modifies `pkg.exports` during this step to define the public API.
 
 ```ts
 // gro.config.ts
-const config: GroConfig = {
+const config: Gro_Config = {
 	// ...other config
 
 	// disable mapping `package.json` with automated `exports`:
@@ -153,7 +153,7 @@ const config: GroConfig = {
 	},
 };
 
-export interface MapPackageJson {
-	(pkg: PackageJson): PackageJson | null | Promise<PackageJson | null>;
+export interface Map_Package_Json {
+	(pkg: Package_Json): Package_Json | null | Promise<Package_Json | null>;
 }
 ```

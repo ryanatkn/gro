@@ -2,7 +2,7 @@ import {spawn} from '@grogarden/util/process.js';
 import {z} from 'zod';
 import {green, cyan} from 'kleur/colors';
 
-import {TaskError, type Task} from './task.js';
+import {Task_Error, type Task} from './task.js';
 import {load_package_json} from './package_json.js';
 import {find_cli, spawn_cli} from './cli.js';
 import {exists} from './exists.js';
@@ -47,7 +47,7 @@ export const task: Task<Args> = {
 		}
 
 		if (!(await has_library())) {
-			throw new TaskError(
+			throw new Task_Error(
 				'gro publish failed to detect a library, run `npm i -D @sveltejs/package` to enable it',
 			);
 		}
@@ -60,7 +60,7 @@ export const task: Task<Args> = {
 		const changelog_exists = await exists(changelog);
 
 		if (!(await find_cli('changeset'))) {
-			throw new TaskError(
+			throw new Task_Error(
 				'changeset command not found: install @changesets/cli locally or globally',
 			);
 		}
@@ -87,7 +87,7 @@ export const task: Task<Args> = {
 		} else {
 			const pkg_before = await load_package_json();
 			if (typeof pkg_before.version !== 'string') {
-				throw new TaskError('failed to find package.json version');
+				throw new Task_Error('failed to find package.json version');
 			}
 
 			const npmVersionResult = await spawn_cli('changeset', ['version']);
@@ -98,7 +98,7 @@ export const task: Task<Args> = {
 			const pkg_after = await load_package_json();
 			version = pkg_after.version!;
 			if (pkg_before.version === version) {
-				throw new TaskError('changeset version failed: are there any changes?');
+				throw new Task_Error('changeset version failed: are there any changes?');
 			}
 		}
 
@@ -113,7 +113,7 @@ export const task: Task<Args> = {
 
 		const npm_publish_result = await spawn_cli('changeset', ['publish']);
 		if (!npm_publish_result?.ok) {
-			throw new TaskError(
+			throw new Task_Error(
 				'changeset publish failed - revert the version tag or run it again manually',
 			);
 		}

@@ -35,8 +35,8 @@ and defers composition to the user in regular TypeScript modules.
   like [`gro test`](/src/lib/test.task.ts) and [`gro gen`](/src/lib/gen.task.ts)
   (tasks are copy-paste friendly! just update the imports)
 - the task execution environment is filesystem agnostic by default; `run` receives a
-  [`TaskContext` argument](#user-content-types-task-and-taskcontext) with an `fs` property
-- the `TaskContext` provides a rich baseline context object
+  [`Task_Context` argument](#user-content-types-task-and-taskcontext) with an `fs` property
+- the `Task_Context` provides a rich baseline context object
   for both development/build tasks and one-off script authoring/execution;
   it attempts to be portable and extensibile, but there's a _lot_ of room for improvement
 - it's fast because it imports only the modules that your chosen tasks need
@@ -134,27 +134,27 @@ export const task: Task = {
 import type {Task} from '@grogarden/gro';
 
 export interface Task<
-	TArgs = Args, // same as `z.infer<typeof Args>`
-	TArgsSchema extends z.ZodType = z.ZodType,
-	TReturn = unknown,
+	T_Args = Args, // same as `z.infer<typeof Args>`
+	T_Args_Schema extends z.ZodType = z.ZodType,
+	T_Return = unknown,
 > {
-	run: (ctx: TaskContext<TArgs>) => Promise<TReturn>;
+	run: (ctx: Task_Context<T_Args>) => Promise<T_Return>;
 	summary?: string;
-	Args?: TArgsSchema;
+	Args?: T_Args_Schema;
 }
 ```
 
-### type `TaskContext`
+### type `Task_Context`
 
 ```ts
-import type {TaskContext} from '@grogarden/gro';
+import type {Task_Context} from '@grogarden/gro';
 
-export interface TaskContext<TArgs = object> {
-	args: TArgs;
-	config: GroConfig;
+export interface Task_Context<T_Args = object> {
+	args: T_Args;
+	config: Gro_Config;
 	log: Logger;
 	timings: Timings;
-	invoke_task: (task_name: string, args?: Args, config?: GroConfig) => Promise<void>;
+	invoke_task: (task_name: string, args?: Args, config?: Gro_Config) => Promise<void>;
 }
 ```
 
@@ -308,15 +308,15 @@ This defers control to the caller, like your own parent tasks.
 Often, errors that tasks encounter do not need a stack trace,
 and we don't want the added noise to be logged.
 To suppress logging the stack trace for an error,
-throw a `TaskError`.
+throw a `Task_Error`.
 
 ```ts
-import {Task, TaskError} from '@grogarden/gro';
+import {Task, Task_Error} from '@grogarden/gro';
 
 export const task: Task = {
 	run: async () => {
 		if (someErrorCondition) {
-			throw new TaskError('We hit a known error - ignore the stack trace!');
+			throw new Task_Error('We hit a known error - ignore the stack trace!');
 		}
 	},
 };

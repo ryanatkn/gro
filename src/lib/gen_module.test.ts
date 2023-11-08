@@ -6,7 +6,7 @@ import {validate_gen_module, find_gen_modules} from './gen_module.js';
 import {paths} from './paths.js';
 
 /* test__validate_gen_module */
-const test__validate_gen_module = suite('validateBasicGenModule');
+const test__validate_gen_module = suite('validateBasic_Gen_Module');
 
 test__validate_gen_module('basic minimal interface', () => {
 	assert.ok(validate_gen_module.basic({gen: Function.prototype}));

@@ -1,15 +1,15 @@
 import {cyan, red} from 'kleur/colors';
-import {print_log_label, SystemLogger} from '@grogarden/util/log.js';
+import {print_log_label, System_Logger} from '@grogarden/util/log.js';
 import type {Timings} from '@grogarden/util/timings.js';
 
-import type {TaskModuleMeta} from './task_module.js';
+import type {Task_Module_Meta} from './task_module.js';
 import {parse_args, type Args} from './args.js';
 import type {invoke_task as base_invoke_task} from './invoke_task.js';
 import {print_task_help} from './print_task.js';
-import type {GroConfig} from './config.js';
-import {TaskError} from './task.js';
+import type {Gro_Config} from './config.js';
+import {Task_Error} from './task.js';
 
-export type RunTaskResult =
+export type Run_Task_Result =
 	| {
 			ok: true;
 			output: unknown;
@@ -21,14 +21,14 @@ export type RunTaskResult =
 	  };
 
 export const run_task = async (
-	task_meta: TaskModuleMeta,
+	task_meta: Task_Module_Meta,
 	unparsed_args: Args,
 	invoke_task: typeof base_invoke_task,
-	config: GroConfig,
+	config: Gro_Config,
 	timings: Timings,
-): Promise<RunTaskResult> => {
+): Promise<Run_Task_Result> => {
 	const {task} = task_meta.mod;
-	const log = new SystemLogger(print_log_label(task_meta.name));
+	const log = new System_Logger(print_log_label(task_meta.name));
 
 	if (unparsed_args.help) {
 		print_task_help(log, task_meta);
@@ -41,7 +41,7 @@ export const run_task = async (
 		const parsed = parse_args(unparsed_args, task.Args);
 		if (!parsed.success) {
 			log.error(red(`Args validation failed:`), '\n', parsed.error.format());
-			throw new TaskError(`Task args failed validation`);
+			throw new Task_Error(`Task args failed validation`);
 		}
 		args = parsed.data;
 	}
@@ -61,7 +61,7 @@ export const run_task = async (
 		return {
 			ok: false,
 			reason: red(
-				err?.constructor?.name === 'TaskError'
+				err?.constructor?.name === 'Task_Error'
 					? (err.message as string)
 					: `Unexpected error running task ${cyan(
 							task_meta.name,

@@ -1,4 +1,4 @@
-import {spawn, type SpawnResult} from '@grogarden/util/process.js';
+import {spawn, type Spawn_Result} from '@grogarden/util/process.js';
 import type {Logger} from '@grogarden/util/log.js';
 
 import {
@@ -32,7 +32,7 @@ export const format_directory = (
 	check = false,
 	extensions = DEFAULT_EXTENSIONS,
 	root_paths = DEFAULT_ROOT_PATHS,
-): Promise<SpawnResult> => {
+): Promise<Spawn_Result> => {
 	const forwarded_args = to_forwarded_args('prettier');
 	forwarded_args[check ? 'check' : 'write'] = true;
 	const serialized_args = ['prettier', ...serialize_args(forwarded_args)];

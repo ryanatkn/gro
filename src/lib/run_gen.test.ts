@@ -4,7 +4,7 @@ import {resolve, join} from 'node:path';
 import {Logger} from '@grogarden/util/log.js';
 import {Timings} from '@grogarden/util/timings.js';
 
-import type {GenModuleMeta} from './gen_module.js';
+import type {Gen_Module_Meta} from './gen_module.js';
 import {run_gen} from './run_gen.js';
 
 const log = new Logger('test__gen'); // TODO test logger?
@@ -19,7 +19,7 @@ test__gen('basic behavior', async () => {
 	let file_b: undefined | {filename: string; content: string};
 	let file_c1: undefined | {filename: string; content: string};
 	let file_c2: undefined | {filename: string; content: string};
-	const mod_a: GenModuleMeta = {
+	const mod_a: Gen_Module_Meta = {
 		type: 'basic',
 		id: source_id_a,
 		mod: {
@@ -34,7 +34,7 @@ test__gen('basic behavior', async () => {
 			},
 		},
 	};
-	const mod_b: GenModuleMeta = {
+	const mod_b: Gen_Module_Meta = {
 		type: 'basic',
 		id: join(source_id_bc, 'mod_b.gen.ts'),
 		mod: {
@@ -49,7 +49,7 @@ test__gen('basic behavior', async () => {
 			},
 		},
 	};
-	const mod_c: GenModuleMeta = {
+	const mod_c: Gen_Module_Meta = {
 		type: 'basic',
 		id: join(source_id_bc, 'mod_c.gen.ts'),
 		mod: {
@@ -136,7 +136,7 @@ test__gen('failing gen function', async () => {
 	let genError; // this error should be passed through to the result
 	// This is the failing gen module.
 	// It's ordered first to test that its failure doesn't cascade.
-	const mod_a: GenModuleMeta = {
+	const mod_a: Gen_Module_Meta = {
 		type: 'basic',
 		id: source_id_a,
 		mod: {
@@ -146,7 +146,7 @@ test__gen('failing gen function', async () => {
 			},
 		},
 	};
-	const mod_b: GenModuleMeta = {
+	const mod_b: Gen_Module_Meta = {
 		type: 'basic',
 		id: join(source_idB, 'mod_b.gen.ts'),
 		mod: {
@@ -161,7 +161,7 @@ test__gen('failing gen function', async () => {
 			},
 		},
 	};
-	const gen_modules_by_input_path: GenModuleMeta[] = [mod_a, mod_b];
+	const gen_modules_by_input_path: Gen_Module_Meta[] = [mod_a, mod_b];
 	const gen_results = await run_gen(gen_modules_by_input_path, log, new Timings());
 	assert.is(gen_results.input_count, 2);
 	assert.is(gen_results.output_count, 1);

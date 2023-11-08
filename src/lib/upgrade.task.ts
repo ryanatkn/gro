@@ -2,7 +2,7 @@ import {spawn} from '@grogarden/util/process.js';
 import {z} from 'zod';
 
 import type {Task} from './task.js';
-import {load_package_json, type PackageJson} from './package_json.js';
+import {load_package_json, type Package_Json} from './package_json.js';
 
 export const Args = z
 	.object({
@@ -43,7 +43,7 @@ interface Dep {
 	value: string;
 }
 
-const to_deps = (pkg: PackageJson): Dep[] => {
+const to_deps = (pkg: Package_Json): Dep[] => {
 	const prod_deps: Dep[] = pkg.dependencies
 		? Object.entries(pkg.dependencies).map(([key, value]) => ({key, value}))
 		: [];

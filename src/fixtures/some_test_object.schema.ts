@@ -1,6 +1,6 @@
-import type {JsonSchema} from '$lib/schema.js';
+import type {Json_Schema} from '$lib/schema.js';
 
-export const SomeTestObjectSchema: JsonSchema = {
+export const Some_Test_Object_Schema: Json_Schema = {
 	$id: '/schemas/SomeTestObject',
 	type: 'object',
 	properties: {
@@ -35,7 +35,7 @@ export const SomeTestObjectSchema: JsonSchema = {
 	additionalProperties: false,
 };
 
-export const SomeTestPrimitiveSchema: JsonSchema = {
+export const Some_Test_Primitive_Schema: Json_Schema = {
 	$id: '/schemas/SomeTestPrimitive',
 	type: 'number',
 };

@@ -1,28 +1,28 @@
 import {red} from 'kleur/colors';
 import type {Timings} from '@grogarden/util/timings.js';
-import {UnreachableError} from '@grogarden/util/error.js';
+import {Unreachable_Error} from '@grogarden/util/error.js';
 import type {Result} from '@grogarden/util/result.js';
 import {print_error} from '@grogarden/util/print.js';
 
 import {load_source_path_data_by_input_path, load_source_ids_by_input_path} from './input_path.js';
-import type {PathData} from './path.js';
-import {paths_from_id, print_path, print_path_or_gro_path, type SourceId} from './paths.js';
+import type {Path_Data} from './path.js';
+import {paths_from_id, print_path, print_path_or_gro_path, type Source_Id} from './paths.js';
 import {search_fs} from './search_fs.js';
 
-export interface ModuleMeta<TModule extends Record<string, any> = Record<string, any>> {
+export interface Module_Meta<T_Module extends Record<string, any> = Record<string, any>> {
 	id: string;
-	mod: TModule;
+	mod: T_Module;
 }
 
-export type LoadModuleResult<T> = Result<{mod: T}, LoadModuleFailure>;
-export type LoadModuleFailure =
+export type Load_Module_Result<T> = Result<{mod: T}, Load_Module_Failure>;
+export type Load_Module_Failure =
 	| {ok: false; type: 'importFailed'; id: string; error: Error}
 	| {ok: false; type: 'invalid'; id: string; mod: Record<string, any>; validation: string};
 
 export const load_module = async <T extends Record<string, any>>(
 	id: string,
 	validate?: (mod: Record<string, any>) => mod is T,
-): Promise<LoadModuleResult<ModuleMeta<T>>> => {
+): Promise<Load_Module_Result<Module_Meta<T>>> => {
 	let mod;
 	try {
 		mod = await import(id);
@@ -35,38 +35,38 @@ export const load_module = async <T extends Record<string, any>>(
 	return {ok: true, mod: {id, mod}};
 };
 
-export type FindModulesResult = Result<
+export type Find_Modules_Result = Result<
 	{
 		source_ids_by_input_path: Map<string, string[]>;
-		source_id_path_data_by_input_path: Map<string, PathData>;
+		source_id_path_data_by_input_path: Map<string, Path_Data>;
 	},
-	FindModulesFailure
+	Find_Modules_Failure
 >;
-export type FindModulesFailure =
+export type Find_Modules_Failure =
 	| {
 			type: 'unmapped_input_paths';
-			source_id_path_data_by_input_path: Map<string, PathData>;
+			source_id_path_data_by_input_path: Map<string, Path_Data>;
 			unmapped_input_paths: string[];
 			reasons: string[];
 	  }
 	| {
 			type: 'input_directories_with_no_files';
 			source_ids_by_input_path: Map<string, string[]>;
-			source_id_path_data_by_input_path: Map<string, PathData>;
+			source_id_path_data_by_input_path: Map<string, Path_Data>;
 			input_directories_with_no_files: string[];
 			reasons: string[];
 	  };
 
-export type LoadModulesResult<TModuleMeta extends ModuleMeta> = Result<
+export type Load_Modules_Result<T_Module_Meta extends Module_Meta> = Result<
 	{
-		modules: TModuleMeta[];
+		modules: T_Module_Meta[];
 	},
 	{
 		type: 'load_module_failures';
-		load_module_failures: LoadModuleFailure[];
+		load_module_failures: Load_Module_Failure[];
 		reasons: string[];
 		// still return the modules and timings, deferring to the caller
-		modules: TModuleMeta[];
+		modules: T_Module_Meta[];
 	}
 >;
 
@@ -80,7 +80,7 @@ export const find_modules = async (
 	custom_search_fs = search_fs,
 	get_possible_source_ids?: (input_path: string) => string[],
 	timings?: Timings,
-): Promise<FindModulesResult> => {
+): Promise<Find_Modules_Result> => {
 	// Check which extension variation works - if it's a directory, prefer others first!
 	const timing_to_map_input_paths = timings?.start('map input paths');
 	const {source_id_path_data_by_input_path, unmapped_input_paths} =
@@ -139,16 +139,16 @@ TODO parallelize, originally it needed to be serial for a specific usecase we no
 
 */
 export const load_modules = async <
-	ModuleType extends Record<string, any>,
-	TModuleMeta extends ModuleMeta<ModuleType>,
+	Module_Type extends Record<string, any>,
+	T_Module_Meta extends Module_Meta<Module_Type>,
 >(
 	source_ids_by_input_path: Map<string, string[]>, // TODO maybe make this a flat array and remove `input_path`?
-	load_module_by_id: (source_id: SourceId) => Promise<LoadModuleResult<TModuleMeta>>,
+	load_module_by_id: (source_id: Source_Id) => Promise<Load_Module_Result<T_Module_Meta>>,
 	timings?: Timings,
-): Promise<LoadModulesResult<TModuleMeta>> => {
+): Promise<Load_Modules_Result<T_Module_Meta>> => {
 	const timing_to_load_modules = timings?.start('load modules');
-	const modules: TModuleMeta[] = [];
-	const load_module_failures: LoadModuleFailure[] = [];
+	const modules: T_Module_Meta[] = [];
+	const load_module_failures: Load_Module_Failure[] = [];
 	const reasons: string[] = [];
 	for (const [input_path, source_ids] of source_ids_by_input_path) {
 		for (const id of source_ids) {
@@ -177,7 +177,7 @@ export const load_modules = async <
 						break;
 					}
 					default:
-						throw new UnreachableError(result);
+						throw new Unreachable_Error(result);
 				}
 			}
 		}
