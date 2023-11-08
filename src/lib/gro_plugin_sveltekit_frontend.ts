@@ -1,11 +1,10 @@
 import {spawn, spawn_process, type Spawned_Process} from '@grogarden/util/process.js';
-import {cp, mkdir, writeFile} from 'node:fs/promises';
+import {cp, mkdir, rm, writeFile} from 'node:fs/promises';
 import {dirname, join, relative} from 'node:path';
 import type {Config as SveltekitConfig} from '@sveltejs/kit';
 
 import type {Plugin, PluginContext} from './plugin.js';
 import {print_command_args, serialize_args, to_forwarded_args} from './args.js';
-import {SVELTEKIT_BUILD_DIRNAME} from './paths.js';
 import {exists} from './exists.js';
 import {load_package_json, serialize_package_json, type MapPackageJson} from './package_json.js';
 import {init_sveltekit_config} from './sveltekit_config.js';
@@ -60,25 +59,32 @@ export const plugin = ({
 				// copy files to `static` before building, in such a way
 				// that's non-destructive to existing files and dirs and easy to clean up
 				// TODO this doesn't work during dev -- maybe a Vite middleware is needed? what if this plugin added its plugin to your `vite.config.ts`?
-				const cleanup = [
+				const cleanups: Cleanup[] = [
 					well_known_package_json
-						? copy_temporarily('package.json', assets_path, '.well-known')
-						: null,
+						? await copy_temporarily('package.json', assets_path, '.well-known')
+						: null!,
 					/**
 					 * GitHub pages processes everything with Jekyll by default,
 					 * breaking things like files and dirs prefixed with an underscore.
 					 * This adds a `.nojekyll` file to the root of the output
 					 * to tell GitHub Pages to treat the outputs as plain static files.
 					 */
-					host_target === 'github_pages' ? copy_temporarily('.nojekyll', assets_path) : null,
+					host_target === 'github_pages'
+						? await create_temporarily(join(assets_path, '.nojekyll'), '')
+						: null!,
 				].filter(Boolean);
-				process.exit();
+				const cleanup = () => Promise.all(cleanups.map((c) => c()));
 
-				const serialized_args = ['vite', 'build', ...serialize_args(to_forwarded_args('vite'))];
-				log.info(print_command_args(serialized_args));
-				await spawn('npx', serialized_args);
+				try {
+					const serialized_args = ['vite', 'build', ...serialize_args(to_forwarded_args('vite'))];
+					log.info(print_command_args(serialized_args));
+					await spawn('npx', serialized_args);
+				} catch (err) {
+					await cleanup();
+					throw err;
+				}
 
-				await Promise.all(cleanup.map((c) => c()));
+				await cleanup();
 			}
 		},
 		teardown: async () => {
@@ -121,7 +127,7 @@ const ensure_well_known_package_json = async (
 	await writeFile(path, new_contents, 'utf8');
 };
 
-interface Cleanup_After_Copy {
+interface Cleanup {
 	(): Promise<void>;
 }
 
@@ -134,11 +140,10 @@ const copy_temporarily = async (
 	source_path: string,
 	dest_dir: string,
 	source_base_dir = dirname(source_path),
-): Promise<Cleanup_After_Copy[]> => {
+): Promise<Cleanup> => {
 	console.log(`source_path`, source_path);
 	console.log(`dest_dir`, dest_dir);
 	console.log(`source_base_dir`, source_base_dir);
-	const cleanup: Cleanup_After_Copy[] = [];
 
 	const source_base_path = relative(source_base_dir, source_path);
 	console.log(`source_base_path`, source_base_path);
@@ -152,5 +157,26 @@ const copy_temporarily = async (
 
 	await cp(source_path, dest_dir);
 
-	return cleanup;
+	return async () => {
+		// TODO BLOCK
+	};
+};
+
+/**
+ * Creates a file at `path` with `contents` if it doesn't already exist,
+ * and returns a function that will delete it if it was created.
+ * @param path
+ * @param contents
+ * @returns cleanup function
+ */
+const create_temporarily = async (path: string, contents: string): Promise<Cleanup> => {
+	const already_exists = await exists(path);
+	if (!already_exists) {
+		await writeFile(path, contents, 'utf8');
+	}
+	return async () => {
+		if (!already_exists) {
+			await rm(path);
+		}
+	};
 };
