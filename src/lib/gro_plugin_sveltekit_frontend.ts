@@ -1,5 +1,5 @@
 import {spawn_process, type Spawned_Process} from '@grogarden/util/process.js';
-import {cp, mkdir, rm, writeFile} from 'node:fs/promises';
+import {mkdir, rm, writeFile} from 'node:fs/promises';
 import {dirname, join} from 'node:path';
 import type {Config as SveltekitConfig} from '@sveltejs/kit';
 
