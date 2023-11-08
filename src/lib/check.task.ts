@@ -2,7 +2,7 @@ import {z} from 'zod';
 import {spawn} from '@grogarden/util/process.js';
 import {red} from 'kleur/colors';
 
-import {TaskError, type Task} from './task.js';
+import {Task_Error, type Task} from './task.js';
 import {git_check_clean_workspace} from './git.js';
 import {sync_package_json} from './package_json.js';
 
@@ -57,7 +57,7 @@ export const task: Task<Args> = {
 		if (package_json && config.map_package_json) {
 			const {changed} = await sync_package_json(config.map_package_json, log, true);
 			if (changed) {
-				throw new TaskError('package.json is out of date, run `gro sync` to update it');
+				throw new Task_Error('package.json is out of date, run `gro sync` to update it');
 			} else {
 				log.info('check passed for package.json');
 			}
@@ -79,7 +79,7 @@ export const task: Task<Args> = {
 			if (error_message) {
 				log.error(red('git status'));
 				await spawn('git', ['status']);
-				throw new TaskError('failed check for git_check_clean_workspace: ' + error_message);
+				throw new Task_Error('failed check for git_check_clean_workspace: ' + error_message);
 			}
 		}
 	},

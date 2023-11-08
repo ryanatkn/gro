@@ -4,9 +4,9 @@ import {plural} from '@grogarden/util/string.js';
 import {print_value} from '@grogarden/util/print.js';
 import {ZodFirstPartyTypeKind, type ZodObjectDef, type ZodTypeAny, type ZodTypeDef} from 'zod';
 
-import type {ArgSchema} from './args.js';
+import type {Arg_Schema} from './args.js';
 import {load_modules} from './modules.js';
-import {load_task_module, type TaskModuleMeta} from './task_module.js';
+import {load_task_module, type Task_Module_Meta} from './task_module.js';
 
 export const log_available_tasks = async (
 	log: Logger,
@@ -55,7 +55,7 @@ export const log_error_reasons = (log: Logger, reasons: string[]): void => {
 
 const ARGS_PROPERTY_NAME = '[...args]';
 
-export const print_task_help = (log: Logger, meta: TaskModuleMeta): void => {
+export const print_task_help = (log: Logger, meta: Task_Module_Meta): void => {
 	const {
 		name,
 		mod: {task},
@@ -91,12 +91,12 @@ export const print_task_help = (log: Logger, meta: TaskModuleMeta): void => {
 	log.info(...printed, '\n');
 };
 
-interface ArgSchemaProperty {
+interface Arg_Schema_Property {
 	name: string;
-	schema: ArgSchema;
+	schema: Arg_Schema;
 }
 
-const to_arg_properties = (def: ZodTypeDef, meta: TaskModuleMeta): ArgSchemaProperty[] => {
+const to_arg_properties = (def: ZodTypeDef, meta: Task_Module_Meta): Arg_Schema_Property[] => {
 	const type_name = to_type_name(def);
 	if (type_name !== ZodFirstPartyTypeKind.ZodObject) {
 		throw Error(
@@ -104,11 +104,11 @@ const to_arg_properties = (def: ZodTypeDef, meta: TaskModuleMeta): ArgSchemaProp
 		);
 	}
 	const shape = (def as ZodObjectDef).shape();
-	const properties: ArgSchemaProperty[] = [];
+	const properties: Arg_Schema_Property[] = [];
 	for (const name in shape) {
 		if ('no-' + name in shape) continue;
 		const s = shape[name];
-		const schema: ArgSchema = {
+		const schema: Arg_Schema = {
 			type: to_args_schema_type(s),
 			description: to_args_schema_description(s),
 			default: to_args_schema_default(s),
@@ -126,7 +126,7 @@ const to_max_length = <T>(items: T[], toString: (item: T) => string) =>
 // The following Zod helpers only need to support single-depth schemas for CLI args,
 // but there's generic recursion to handle things like `ZodOptional` and `ZodDefault`.
 const to_type_name = (def: ZodTypeDef): ZodFirstPartyTypeKind => (def as any).typeName;
-const to_args_schema_type = ({_def}: ZodTypeAny): ArgSchema['type'] => {
+const to_args_schema_type = ({_def}: ZodTypeAny): Arg_Schema['type'] => {
 	const t = to_type_name(_def);
 	switch (t) {
 		case ZodFirstPartyTypeKind.ZodBoolean:

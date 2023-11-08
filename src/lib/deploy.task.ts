@@ -4,7 +4,7 @@ import {green, red} from 'kleur/colors';
 import {z} from 'zod';
 import {readdir, rename, rm} from 'node:fs/promises';
 
-import {TaskError, type Task} from './task.js';
+import {Task_Error, type Task} from './task.js';
 import {GIT_DIRNAME, paths, print_path, SVELTEKIT_BUILD_DIRNAME} from './paths.js';
 import {exists} from './exists.js';
 import {
@@ -16,8 +16,8 @@ import {
 	git_fetch,
 	git_local_branch_exists,
 	git_remote_branch_exists,
-	GitOrigin,
-	GitBranch,
+	Git_Origin,
+	Git_Branch,
 	git_delete_local_branch,
 	git_push,
 	git_push_to_create,
@@ -46,9 +46,11 @@ const DANGEROUS_BRANCHES = [SOURCE_BRANCH, 'master'];
 
 export const Args = z
 	.object({
-		source: GitBranch.describe('git source branch to build and deploy from').default(SOURCE_BRANCH),
-		target: GitBranch.describe('git target branch to deploy to').default(TARGET_BRANCH),
-		origin: GitOrigin.describe('git origin to deploy to').default(ORIGIN),
+		source: Git_Branch.describe('git source branch to build and deploy from').default(
+			SOURCE_BRANCH,
+		),
+		target: Git_Branch.describe('git target branch to deploy to').default(TARGET_BRANCH),
+		origin: Git_Origin.describe('git origin to deploy to').default(ORIGIN),
 		dir: z.string({description: 'the SvelteKit build directory'}).default(SVELTEKIT_BUILD_DIRNAME),
 		dry: z
 			.boolean({
@@ -104,7 +106,7 @@ export const task: Task<Args> = {
 		}
 
 		const clean_error_message = await git_check_clean_workspace();
-		if (clean_error_message) throw new TaskError('Failed to deploy: ' + clean_error_message);
+		if (clean_error_message) throw new Task_Error('Failed to deploy: ' + clean_error_message);
 
 		const remote_target_exists = await git_remote_branch_exists(origin, target);
 		const local_target_exists = await git_local_branch_exists(target);

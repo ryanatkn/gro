@@ -5,11 +5,11 @@ import {z} from 'zod';
 
 // TODO probably extract to `util-git`
 
-export const GitOrigin = z.string();
-export type GitOrigin = z.infer<Flavored<typeof GitOrigin, 'GitOrigin'>>;
+export const Git_Origin = z.string();
+export type Git_Origin = z.infer<Flavored<typeof Git_Origin, 'Git_Origin'>>;
 
-export const GitBranch = z.string();
-export type GitBranch = z.infer<Flavored<typeof GitBranch, 'GitBranch'>>;
+export const Git_Branch = z.string();
+export type Git_Branch = z.infer<Flavored<typeof Git_Branch, 'Git_Branch'>>;
 
 /**
  * Returns the current git branch name or throws if something goes wrong.
@@ -25,8 +25,8 @@ export const git_current_branch_name = async (): Promise<string> => {
  * @returns a boolean indicating if the remote git branch exists
  */
 export const git_remote_branch_exists = async (
-	origin: GitOrigin,
-	branch: GitBranch,
+	origin: Git_Origin,
+	branch: Git_Branch,
 	options?: SpawnOptions,
 ): Promise<boolean> => {
 	const result = await spawn(
@@ -49,7 +49,7 @@ export const git_remote_branch_exists = async (
  * @returns a boolean indicating if the local git branch exists
  */
 export const git_local_branch_exists = async (
-	branch: GitBranch,
+	branch: Git_Branch,
 	options?: SpawnOptions,
 ): Promise<boolean> => {
 	const result = await spawn('git', ['show-ref', '--quiet', 'refs/heads/' + branch], options);
@@ -80,8 +80,8 @@ export const git_check_clean_workspace = async (options?: SpawnOptions): Promise
  * Calls `git fetch` and throws if anything goes wrong.
  */
 export const git_fetch = async (
-	origin: GitOrigin,
-	branch?: GitBranch,
+	origin: Git_Origin,
+	branch?: Git_Branch,
 	options?: SpawnOptions,
 ): Promise<void> => {
 	const args = ['fetch', origin];
@@ -97,7 +97,7 @@ export const git_fetch = async (
 /**
  * Calls `git checkout` and throws if anything goes wrong.
  */
-export const git_checkout = async (branch: GitBranch, options?: SpawnOptions): Promise<void> => {
+export const git_checkout = async (branch: Git_Branch, options?: SpawnOptions): Promise<void> => {
 	const result = await spawn('git', ['checkout', branch], options);
 	if (!result.ok) {
 		throw Error(`git_checkout failed for branch ${branch} with code ${result.code}`);
@@ -108,8 +108,8 @@ export const git_checkout = async (branch: GitBranch, options?: SpawnOptions): P
  * Calls `git pull` and throws if anything goes wrong.
  */
 export const git_pull = async (
-	origin: GitOrigin,
-	branch: GitBranch,
+	origin: Git_Origin,
+	branch: Git_Branch,
 	options?: SpawnOptions,
 ): Promise<void> => {
 	const result = await spawn('git', ['pull', origin, branch], options);
@@ -122,8 +122,8 @@ export const git_pull = async (
  * Calls `git push` and throws if anything goes wrong.
  */
 export const git_push = async (
-	origin: GitOrigin,
-	branch: GitBranch,
+	origin: Git_Origin,
+	branch: Git_Branch,
 	options?: SpawnOptions,
 ): Promise<void> => {
 	const result = await spawn('git', ['push', origin, branch], options);
@@ -136,8 +136,8 @@ export const git_push = async (
  * Calls `git push` and throws if anything goes wrong.
  */
 export const git_push_to_create = async (
-	origin: GitOrigin,
-	branch: GitBranch,
+	origin: Git_Origin,
+	branch: Git_Branch,
 	options?: SpawnOptions,
 ): Promise<void> => {
 	const result = await spawn('git', ['push', '-u', origin, branch], options);
@@ -150,7 +150,7 @@ export const git_push_to_create = async (
  * Deletes a branch locally and throws if anything goes wrong.
  */
 export const git_delete_local_branch = async (
-	branch: GitBranch,
+	branch: Git_Branch,
 	options?: SpawnOptions,
 ): Promise<void> => {
 	const result = await spawn('git', ['branch', '-D', branch], options);
@@ -163,8 +163,8 @@ export const git_delete_local_branch = async (
  * Deletes a branch remotely and throws if anything goes wrong.
  */
 export const git_delete_remote_branch = async (
-	origin: GitOrigin,
-	branch: GitBranch,
+	origin: Git_Origin,
+	branch: Git_Branch,
 	options?: SpawnOptions,
 ): Promise<void> => {
 	const result = await spawn('git', ['push', origin, ':' + branch], options);
@@ -191,8 +191,8 @@ export const git_clean_worktree = async (
  * Resets the `target` branch back to its first commit both locally and remotely.
  */
 export const git_reset_branch_to_first_commit = async (
-	origin: GitOrigin,
-	branch: GitBranch,
+	origin: Git_Origin,
+	branch: Git_Branch,
 ): Promise<void> => {
 	await git_checkout(branch);
 	const first_commit_hash = await git_current_branch_first_commit_hash();

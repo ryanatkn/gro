@@ -1,25 +1,25 @@
 import {
 	compile,
-	type Options as JsonSchemaToTypeScriptOptions,
+	type Options as Json_SchemaToTypeScriptOptions,
 } from '@ryanatkn/json-schema-to-typescript';
 import {strip_end} from '@grogarden/util/string.js';
 import {traverse} from '@grogarden/util/object.js';
 
-import type {GenContext, RawGenResult} from './gen.js';
+import type {Gen_Context, Raw_Gen_Result} from './gen.js';
 import {
 	GEN_SCHEMA_IDENTIFIER_SUFFIX,
-	type GenModuleMeta,
-	type SchemaGenModule,
+	type Gen_Module_Meta,
+	type Schema_Gen_Module,
 } from './gen_module.js';
 import {normalize_type_imports} from './type_imports.js';
-import {infer_schema_types, is_json_schema, type JsonSchema} from './schema.js';
+import {infer_schema_types, is_json_schema, type Json_Schema} from './schema.js';
 import {to_root_path} from './paths.js';
 
 export const gen_schemas = async (
-	mod: SchemaGenModule,
-	ctx: GenContext,
-	options: Partial<JsonSchemaToTypeScriptOptions>,
-): Promise<RawGenResult> => {
+	mod: Schema_Gen_Module,
+	ctx: Gen_Context,
+	options: Partial<Json_SchemaToTypeScriptOptions>,
+): Promise<Raw_Gen_Result> => {
 	const {imports, types} = await run_schema_gen(ctx, mod, options);
 	const origin_root_path = to_root_path(ctx.origin_id);
 	return `
@@ -34,9 +34,9 @@ export const gen_schemas = async (
 };
 
 const run_schema_gen = async (
-	ctx: GenContext,
-	mod: SchemaGenModule,
-	options: Partial<JsonSchemaToTypeScriptOptions>,
+	ctx: Gen_Context,
+	mod: Schema_Gen_Module,
+	options: Partial<Json_SchemaToTypeScriptOptions>,
 ): Promise<{imports: string[]; types: string[]}> => {
 	const raw_imports: string[] = [];
 	const types: string[] = [];
@@ -73,8 +73,8 @@ const run_schema_gen = async (
 	return {imports, types};
 };
 
-export const to_schemas_from_modules = (gen_modules: GenModuleMeta[]): JsonSchema[] => {
-	const schemas: JsonSchema[] = [];
+export const to_schemas_from_modules = (gen_modules: Gen_Module_Meta[]): Json_Schema[] => {
+	const schemas: Json_Schema[] = [];
 	for (const gen_module of gen_modules) {
 		if (gen_module.type !== 'schema') continue;
 		for (const schema_info of to_schema_info_from_module(gen_module.mod)) {
@@ -85,9 +85,9 @@ export const to_schemas_from_modules = (gen_modules: GenModuleMeta[]): JsonSchem
 };
 
 const to_schema_info_from_module = (
-	mod: SchemaGenModule,
-): Array<{identifier: string; schema: JsonSchema}> => {
-	const schema_info: Array<{identifier: string; schema: JsonSchema}> = [];
+	mod: Schema_Gen_Module,
+): Array<{identifier: string; schema: Json_Schema}> => {
+	const schema_info: Array<{identifier: string; schema: Json_Schema}> = [];
 	for (const identifier in mod) {
 		const value = mod[identifier];
 		if (is_json_schema(value)) schema_info.push({identifier, schema: value});

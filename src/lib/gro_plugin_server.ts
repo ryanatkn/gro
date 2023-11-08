@@ -1,4 +1,4 @@
-import {spawn_restartable_process, type RestartableProcess} from '@grogarden/util/process.js';
+import {spawn_restartable_process, type Restartable_Process} from '@grogarden/util/process.js';
 import * as esbuild from 'esbuild';
 import {cwd} from 'node:process';
 import type {Config as SvelteKitConfig} from '@sveltejs/kit';
@@ -6,16 +6,16 @@ import {join, resolve} from 'node:path';
 import {identity} from '@grogarden/util/function.js';
 import {strip_before} from '@grogarden/util/string.js';
 
-import type {Plugin, PluginContext} from './plugin.js';
+import type {Plugin, Plugin_Context} from './plugin.js';
 import {
 	base_path_to_source_id,
 	GRO_DEV_DIRNAME,
 	SERVER_DIST_PATH,
 	LIB_DIRNAME,
 	paths,
-	type SourceId,
+	type Source_Id,
 } from './paths.js';
-import {watch_dir, type WatchNodeFs} from './watch_dir.js';
+import {watch_dir, type Watch_Node_Fs} from './watch_dir.js';
 import {init_sveltekit_config} from './sveltekit_config.js';
 import {esbuild_plugin_sveltekit_shim_app} from './esbuild_plugin_sveltekit_shim_app.js';
 import {esbuild_plugin_sveltekit_shim_env} from './esbuild_plugin_sveltekit_shim_env.js';
@@ -47,7 +47,7 @@ export interface Options {
 	 * Decoupling this from plugin creation allows it to be created generically,
 	 * so the build and dev tasks can be the source of truth for `dev`.
 	 */
-	outpaths?: CreateOutpaths;
+	outpaths?: Create_Outpaths;
 	/**
 	 * @default SvelteKit's `.env`, `.env.development`, and `.env.production`
 	 */
@@ -92,7 +92,7 @@ export interface Outpaths {
 	outname: string;
 }
 
-export interface CreateOutpaths {
+export interface Create_Outpaths {
 	(dev: boolean): Outpaths;
 }
 
@@ -110,11 +110,11 @@ export const plugin = ({
 	target = 'esnext',
 	esbuild_build_options = identity,
 	rebuild_throttle_delay = 1000,
-}: Options = {}): Plugin<PluginContext> => {
+}: Options = {}): Plugin<Plugin_Context> => {
 	let build_ctx: esbuild.BuildContext;
-	let watcher: WatchNodeFs;
-	let server_process: RestartableProcess | null = null;
-	let deps: Set<SourceId> | null = null;
+	let watcher: Watch_Node_Fs;
+	let server_process: Restartable_Process | null = null;
+	let deps: Set<Source_Id> | null = null;
 
 	return {
 		name: 'gro_plugin_server',

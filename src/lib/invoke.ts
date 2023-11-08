@@ -17,7 +17,7 @@ and the rest of the args are forwarded to the task's `run` function.
 
 // handle uncaught errors
 attach_process_error_handlers((err) =>
-	err?.constructor?.name === 'TaskError' ? 'TaskError' : null,
+	err?.constructor?.name === 'Task_Error' ? 'Task_Error' : null,
 );
 
 const {task_name, args} = to_task_args();

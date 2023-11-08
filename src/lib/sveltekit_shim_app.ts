@@ -1,4 +1,4 @@
-import type {ParsedSveltekitConfig} from './sveltekit_config.js';
+import type {Parsed_Sveltekit_Config} from './sveltekit_config.js';
 
 export const sveltekit_shim_app_paths_matcher = /\/util\/sveltekit_shim_app_paths\.js$/u;
 export const sveltekit_shim_app_environment_matcher =
@@ -17,8 +17,8 @@ export const sveltekit_shim_app_specifiers = new Map([
 ]);
 
 export const render_sveltekit_shim_app_paths = (
-	base_url: ParsedSveltekitConfig['base_url'] = '',
-	assets_url: ParsedSveltekitConfig['assets_url'] = '',
+	base_url: Parsed_Sveltekit_Config['base_url'] = '',
+	assets_url: Parsed_Sveltekit_Config['assets_url'] = '',
 ): string => `// shim for $app/paths
 // @see https://github.com/sveltejs/kit/issues/1485
 

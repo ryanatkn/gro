@@ -13,7 +13,7 @@ import {
 	gro_sveltekit_dist_dir,
 	paths,
 } from './paths.js';
-import {to_path_data, type PathData} from './path.js';
+import {to_path_data, type Path_Data} from './path.js';
 import {exists} from './exists.js';
 import {search_fs} from './search_fs.js';
 
@@ -106,14 +106,14 @@ export const load_source_path_data_by_input_path = async (
 	input_paths: string[],
 	get_possible_source_ids_for_input_path?: (input_path: string) => string[],
 ): Promise<{
-	source_id_path_data_by_input_path: Map<string, PathData>;
+	source_id_path_data_by_input_path: Map<string, Path_Data>;
 	unmapped_input_paths: string[];
 }> => {
-	const source_id_path_data_by_input_path = new Map<string, PathData>();
+	const source_id_path_data_by_input_path = new Map<string, Path_Data>();
 	const unmapped_input_paths: string[] = [];
 	for (const input_path of input_paths) {
-		let file_path_data: PathData | null = null;
-		let dir_path_data: PathData | null = null;
+		let file_path_data: Path_Data | null = null;
+		let dir_path_data: Path_Data | null = null;
 		const possible_source_ids = get_possible_source_ids_for_input_path
 			? get_possible_source_ids_for_input_path(input_path)
 			: [input_path];
@@ -144,7 +144,7 @@ export const load_source_path_data_by_input_path = async (
  * De-dupes source ids.
  */
 export const load_source_ids_by_input_path = async (
-	source_id_path_data_by_input_path: Map<string, PathData>,
+	source_id_path_data_by_input_path: Map<string, Path_Data>,
 	custom_search_fs = search_fs,
 ): Promise<{
 	source_ids_by_input_path: Map<string, string[]>;

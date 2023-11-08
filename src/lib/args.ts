@@ -14,14 +14,14 @@ import type {z} from 'zod';
 export interface Args {
 	_?: string[];
 	help?: boolean;
-	[key: string]: ArgValue;
+	[key: string]: Arg_Value;
 }
 
-export type ArgValue = string | number | boolean | undefined | Array<string | number | boolean>;
+export type Arg_Value = string | number | boolean | undefined | Array<string | number | boolean>;
 
-export interface ArgSchema {
+export interface Arg_Schema {
 	type: string;
-	default: ArgValue;
+	default: Arg_Value;
 	description: string;
 }
 
@@ -38,8 +38,8 @@ export interface ArgSchema {
  * A simpler implementation could replace `mri`, but it handles some finicky details well.
  */
 export const parse_args = <
-	TOutput extends Record<string, ArgValue> = Args,
-	TInput extends Record<string, ArgValue> = Args,
+	TOutput extends Record<string, Arg_Value> = Args,
+	TInput extends Record<string, Arg_Value> = Args,
 >(
 	unparsed_args: TInput,
 	schema: z.ZodType<TOutput, z.ZodTypeDef, TInput>,

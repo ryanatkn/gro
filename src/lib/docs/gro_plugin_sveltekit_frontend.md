@@ -5,14 +5,14 @@ calls `vite dev` and `vite build` with some additional behaviors.
 
 ```ts
 // gro.config.ts
-import type {GroConfigCreator} from '@grogarden/gro';
+import type {Gro_ConfigCreator} from '@grogarden/gro';
 
-const config: GroConfigCreator = async (cfg) => {
+const config: Gro_ConfigCreator = async (cfg) => {
 	cfg.plugins = async () => [
 		// this is included in the default config for SvelteKit projects:
 		(await import('@grogarden/gro/gro_plugin_sveltekit_frontend.js')).plugin({
-			// host_target?: HostTarget;
-			// well_known_package_json?: boolean | MapPackageJson;
+			// host_target?: Host_Target;
+			// well_known_package_json?: boolean | Map_Package_Json;
 		}),
 	];
 	return cfg;
@@ -21,10 +21,10 @@ const config: GroConfigCreator = async (cfg) => {
 export default config;
 
 // src/lib/gro_plugin_sveltekit_frontend.ts
-export type HostTarget = 'github_pages' | 'static' | 'node';
+export type Host_Target = 'github_pages' | 'static' | 'node';
 
-export interface MapPackageJson {
-	(pkg: PackageJson): PackageJson | null | Promise<PackageJson | null>;
+export interface Map_Package_Json {
+	(pkg: Package_Json): Package_Json | null | Promise<Package_Json | null>;
 }
 ```
 
@@ -35,16 +35,16 @@ a `.nojekyll` file is included in the build to tell GitHub Pages not to process 
 
 ## `well_known_package_json`
 
-By default Gro copies your root `package.json`
-to the SvelteKit build output directory in `.well-known/package.json`
-unless `package.json` has `"private": true`.
+If your root `package.json` has `"public": true`,
+Gro copies `.well-known/package.json` to `static/` during `vite build`,
+so it's included in the SvelteKit build output.
 The motivation is to provide conventional package metadata to web users and tools.
 (more details below)
 
 > ⚠️ Outputting `.well-known/package.json` will surprise some users
 > and could result in information leaks that compromise privacy or security.
-> To migitate issues, the feature is disabled when the `package.json` has `"private": true`.
-> We may be able to do more to prevent mistakes without making defaults for open projects unwieldy.
+> The feature is enabled only when your root `package.json` has `"public": true`.
+> Templates that default to public should prominently warn their users.
 
 By default the root `package.json` is copied without modifications,
 and you can provide your own `well_known_package_json` option to
@@ -71,7 +71,3 @@ Why publish this metadata to the web instead of relying on the git repo as the o
 - the git repo is still the source of truth, but Gro adds a build step for project metadata,
   giving devs full control over the published artifacts
   instead of coupling metadata directly to a source repo's `package.json`
-
-> Currently, Gro writes the file directly after building,
-> but we may want to change it to temporarily create the file before building
-> in the repo's `static/` directory so Vite plugins can see it.
