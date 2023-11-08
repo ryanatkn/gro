@@ -10,6 +10,7 @@ import {
 	serialize_package_json,
 	type Map_Package_Json,
 	load_mapped_package_json,
+	load_package_json,
 } from './package_json.js';
 import {init_sveltekit_config} from './sveltekit_config.js';
 import {Task_Error} from './task.js';
@@ -47,13 +48,6 @@ export const plugin = ({
 		setup: async ({dev, watch, log}) => {
 			const {assets_path} = await init_sveltekit_config(sveltekit_config);
 
-			const pkg = await load_package_json();
-			if (well_known_package_json === undefined) {
-				// TODO using `pkg.private` isn't semantic, maybe this should be removed
-				// and we just document the danger for closed-source projects?
-				well_known_package_json = pkg.public; // eslint-disable-line no-param-reassign
-			}
-
 			if (dev) {
 				// `vite dev` in development mode
 				if (watch) {
@@ -69,13 +63,29 @@ export const plugin = ({
 			} else {
 				// `vite build` in production mode
 
+				const package_json = await load_package_json();
+				if (well_known_package_json === undefined) {
+					// TODO using `pkg.private` isn't semantic, maybe this should be removed
+					// and we just document the danger for closed-source projects?
+					well_known_package_json = package_json.public; // eslint-disable-line no-param-reassign
+				}
+				const mapped_package_json = !well_known_package_json
+					? null
+					: well_known_package_json === true
+					? package_json
+					: await well_known_package_json(package_json);
+				const serialized_package_json =
+					mapped_package_json && serialize_package_json(mapped_package_json);
+
 				// copy files to `static` before building, in such a way
 				// that's non-destructive to existing files and dirs and easy to clean up
 				// TODO this strategy means the files aren't available during development -- maybe a Vite middleware is best? what if this plugin added its plugin to your `vite.config.ts`?
-				console.log(`well_known_package_json`, well_known_package_json);
 				const cleanups: Cleanup[] = [
-					well_known_package_json
-						? await copy_temporarily('package.json', assets_path, '.well-known')
+					serialized_package_json
+						? await create_temporarily(
+								join(assets_path, '.well-known/package.json'),
+								serialized_package_json,
+						  )
 						: null!,
 					/**
 					 * GitHub pages processes everything with Jekyll by default,
@@ -116,37 +126,6 @@ export const plugin = ({
 	};
 };
 
-/**
- * Outputs `${dir}/.well-known/package.json` if it doesn't already exist.
- * @param well_known_package_json - if `undefined`, inferred to be `true` if `pkg.public` is truthy
- * @param output_dir
- */
-const ensure_well_known_package_json = async (
-	well_known_package_json: boolean | Map_Package_Json | undefined,
-	output_dir: string,
-): Promise<void> => {
-	const package_json = await load_mapped_package_json();
-
-	if (well_known_package_json === undefined) {
-		well_known_package_json = package_json.public; // eslint-disable-line no-param-reassign
-	}
-	if (!well_known_package_json) return;
-
-	const mapped =
-		well_known_package_json === true ? package_json : await well_known_package_json(package_json);
-	if (!mapped) return;
-
-	const svelte_config = await init_sveltekit_config(); // TODO param
-	const well_known_dir = join(output_dir, svelte_config.assets_path, '..', '.well-known');
-	const path = join(well_known_dir, 'package.json');
-	if (await exists(path)) return; // don't clobber
-	if (!(await exists(well_known_dir))) {
-		await mkdir(well_known_dir, {recursive: true});
-	}
-	const new_contents = serialize_package_json(mapped);
-	await writeFile(path, new_contents, 'utf8');
-};
-
 interface Cleanup {
 	(): Promise<void>;
 }
@@ -177,7 +156,7 @@ const copy_temporarily = async (
 	const path_already_exists = await exists(path);
 	console.log(`path_already_exists`, path_already_exists);
 	if (!path_already_exists) {
-		await cp(source_path, dir, {recursive: true});
+		await cp(source_path, path, {recursive: true});
 	}
 	return async () => {
 		console.log('CLEANUP copy_temporarily');
@@ -190,21 +169,21 @@ const copy_temporarily = async (
 		}
 	};
 
-	return async () => {
-		// TODO BLOCK
-	};
+	// return async () => {
+	// 	// TODO BLOCK
+	// };
 
-	const source_base_path = relative(dest_base_dir, source_path);
-	console.log(`source_base_path`, source_base_path);
-	const output_path = join(dest_dir, source_path);
-	console.log(`output_path`, output_path);
+	// const source_base_path = relative(dest_base_dir, source_path);
+	// console.log(`source_base_path`, source_base_path);
+	// const output_path = join(dest_dir, source_path);
+	// console.log(`output_path`, output_path);
 
-	if (await exists(path)) return; // don't clobber
-	if (!(await exists(well_known_dir))) {
-		await mkdir(well_known_dir, {recursive: true});
-	}
+	// if (await exists(path)) return; // don't clobber
+	// if (!(await exists(well_known_dir))) {
+	// 	await mkdir(well_known_dir, {recursive: true});
+	// }
 
-	await cp(source_path, dest_dir);
+	// await cp(source_path, dest_dir);
 };
 
 /**
@@ -220,7 +199,7 @@ const create_temporarily = async (path: string, contents: string): Promise<Clean
 		await writeFile(path, contents, 'utf8');
 	}
 	return async () => {
-		console.log('CLEANUP create_temporarily');
+		console.log('CLEANUP create_temporarily', !already_exists, path);
 		if (!already_exists) {
 			await rm(path);
 		}
