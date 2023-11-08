@@ -168,22 +168,6 @@ const copy_temporarily = async (
 			await rm(path, {recursive: true});
 		}
 	};
-
-	// return async () => {
-	// 	// TODO BLOCK
-	// };
-
-	// const source_base_path = relative(dest_base_dir, source_path);
-	// console.log(`source_base_path`, source_base_path);
-	// const output_path = join(dest_dir, source_path);
-	// console.log(`output_path`, output_path);
-
-	// if (await exists(path)) return; // don't clobber
-	// if (!(await exists(well_known_dir))) {
-	// 	await mkdir(well_known_dir, {recursive: true});
-	// }
-
-	// await cp(source_path, dest_dir);
 };
 
 /**
@@ -194,13 +178,25 @@ const copy_temporarily = async (
  * @returns cleanup function
  */
 const create_temporarily = async (path: string, contents: string): Promise<Cleanup> => {
-	const already_exists = await exists(path);
-	if (!already_exists) {
+	// TODO handle more than 1 hardcoded depth
+	const dir = dirname(path);
+	const dir_already_exists = await exists(dir);
+	if (!dir_already_exists) {
+		await mkdir(dirname(path), {recursive: true});
+	}
+
+	const path_already_exists = await exists(path);
+	if (!path_already_exists) {
 		await writeFile(path, contents, 'utf8');
 	}
+
 	return async () => {
-		console.log('CLEANUP create_temporarily', !already_exists, path);
-		if (!already_exists) {
+		console.log('CLEANUP create_temporarily', !path_already_exists, path);
+		if (!dir_already_exists) {
+			console.log(`!dir_already_exists`, dir);
+			await rm(dir, {recursive: true});
+		} else if (!path_already_exists) {
+			console.log(`!path_already_exists`, path);
 			await rm(path);
 		}
 	};
