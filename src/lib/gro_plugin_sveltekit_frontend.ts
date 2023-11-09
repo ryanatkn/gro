@@ -74,9 +74,11 @@ export const plugin = ({
 				const serialized_package_json =
 					mapped_package_json && serialize_package_json(mapped_package_json);
 
+				// TODO this strategy means the files aren't available during development --
+				// maybe a Vite middleware is best? what if this plugin added its plugin to your `vite.config.ts`?
+
 				// copy files to `static` before building, in such a way
 				// that's non-destructive to existing files and dirs and easy to clean up
-				// TODO this strategy means the files aren't available during development -- maybe a Vite middleware is best? what if this plugin added its plugin to your `vite.config.ts`?
 				const cleanups: Cleanup[] = [
 					serialized_package_json
 						? await create_temporarily(
