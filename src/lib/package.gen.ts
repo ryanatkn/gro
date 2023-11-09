@@ -3,6 +3,8 @@ import {load_package_json} from './package_json.js';
 import {is_this_project_gro, to_root_path} from './paths.js';
 import {create_src_json} from './src_json.js';
 
+// TODO rename? `Package_Json + Src_Json = package.ts` currently, idk
+
 // TODO consider an api that uses magic imports like SvelteKit's `$app`, like `$repo/package.json`
 
 /**
