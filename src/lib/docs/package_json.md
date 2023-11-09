@@ -1,11 +1,12 @@
 # `package.json`
 
 Gro extends [`package.json`](https://docs.npmjs.com/cli/v10/configuring-npm/package-json)
-with additional functionality:
+with additional functionality.
 
 ## `public` packages
 
-The `"public"` property can be set to `true` to opt into behavior designed for open source projects:
+Setting `"public": true` in `package.json` opts into
+behavior designed for public open source projects:
 
 - copies `package.json` from your project root to your
   SvelteKit static directory at `.well-known/package.json` during `vite build`,
@@ -17,3 +18,6 @@ The `"public"` property can be set to `true` to opt into behavior designed for o
 - `gro_plugin_sveltekit_frontend` outputs `.well-known/src/` by
   copying over `src/` filtered by `filter_well_known_src` during `vite build`
   (costly but seems worthwhile exploring, renews "View source" as an option among other things)
+
+> ⚠️ Setting `"public": true` in `package.json` exposes your source code at your deployed endpoint!
+> If that's the public web, that means your source code is public.
