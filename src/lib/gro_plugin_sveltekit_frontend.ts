@@ -151,7 +151,10 @@ const copy_temporarily = async (
 	const dir = dirname(path);
 
 	const dir_already_exists = await exists(dir);
+	let root_created_dir: string | undefined;
 	if (!dir_already_exists) {
+		root_created_dir = await to_root_dir_that_doesnt_exist(dir);
+		if (!root_created_dir) throw Error();
 		await mkdir(dir, {recursive: true});
 	}
 
@@ -159,9 +162,11 @@ const copy_temporarily = async (
 	if (!path_already_exists) {
 		await cp(source_path, dirname(path), {recursive: true});
 	}
+
 	return async () => {
 		if (!dir_already_exists) {
-			await rm(dir, {recursive: true});
+			if (!root_created_dir) throw Error();
+			await rm(root_created_dir, {recursive: true});
 		} else if (!path_already_exists) {
 			await rm(path, {recursive: true});
 		}
@@ -177,6 +182,7 @@ const copy_temporarily = async (
  */
 const create_temporarily = async (path: string, contents: string): Promise<Cleanup> => {
 	const dir = dirname(path);
+
 	const dir_already_exists = await exists(dir);
 	let root_created_dir: string | undefined;
 	if (!dir_already_exists) {
