@@ -81,16 +81,17 @@ export const plugin = ({
 
 				// `.well-known/src.json` and `.well-known/src/`
 				const src_json = mapped_package_json?.exports
-					? {modules: to_src_modules(mapped_package_json.exports)}
+					? {modules: await to_src_modules(mapped_package_json.exports)}
 					: null;
-				if (well_known_src_json === undefined) {
+				if (src_json && well_known_src_json === undefined) {
 					well_known_src_json = package_json.public; // eslint-disable-line no-param-reassign
 				}
-				const mapped_src_json = !well_known_src_json
-					? null
-					: well_known_src_json === true
-					? src_json
-					: await well_known_src_json(src_json);
+				const mapped_src_json =
+					!src_json || !well_known_src_json
+						? null
+						: well_known_src_json === true
+						? src_json
+						: await well_known_src_json(src_json);
 				const serialized_src_json = mapped_src_json && serialize_src_json(mapped_src_json);
 
 				// TODO this strategy means the files aren't available during development --
