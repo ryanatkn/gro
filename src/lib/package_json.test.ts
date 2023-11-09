@@ -119,8 +119,20 @@ test('to_package_modules', async () => {
 						kind: 'variable',
 					},
 					{
+						name: 'some_test_fn',
+						kind: 'function',
+					},
+					{
 						name: 'Some_Test_Type',
 						kind: 'type',
+					},
+					{
+						name: 'Some_Test_Interface',
+						kind: 'type',
+					},
+					{
+						name: 'Some_Test_Class',
+						kind: 'class',
 					},
 				],
 			},
