@@ -1,5 +1,11 @@
 # @grogarden/gro
 
+## 0.101.0
+
+### Minor Changes
+
+- 57f0f32: improve modules type info
+
 ## 0.100.4
 
 ### Patch Changes

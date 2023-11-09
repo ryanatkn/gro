@@ -109,18 +109,32 @@ test('to_package_modules', async () => {
 			},
 			'./fixtures/modules/Some_Test_Svelte.svelte': {
 				path: 'fixtures/modules/Some_Test_Svelte.svelte',
-				declarations: [],
+				declarations: [
+					// TODO !
+				],
 			},
 			'./fixtures/modules/some_test_ts.js': {
 				path: 'fixtures/modules/some_test_ts.ts',
 				declarations: [
 					{
 						name: 'some_test_ts',
-						kind: 'VariableDeclaration',
+						kind: 'variable',
+					},
+					{
+						name: 'some_test_fn',
+						kind: 'function',
 					},
 					{
 						name: 'Some_Test_Type',
-						kind: 'TypeAliasDeclaration',
+						kind: 'type',
+					},
+					{
+						name: 'Some_Test_Interface',
+						kind: 'type',
+					},
+					{
+						name: 'Some_Test_Class',
+						kind: 'class',
 					},
 				],
 			},
