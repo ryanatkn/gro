@@ -589,6 +589,7 @@ export const src_json = {
 		'./package_json.js': {
 			path: 'package_json.ts',
 			declarations: [
+				{name: 'transform_empty_object_to_undefined', kind: 'function'},
 				{name: 'Package_Json_Repository', kind: 'variable'},
 				{name: 'Package_Json_Author', kind: 'variable'},
 				{name: 'Package_Json_Funding', kind: 'variable'},
