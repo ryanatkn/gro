@@ -19,9 +19,12 @@ import {exists} from './exists.js';
 
 export const Package_Module_Declaration = z
 	.object({
-		name: z.string(), // identifier
-		kind: z.string(), // `getKing()`
-		// type: string; // `getType()`
+		name: z.string(), // the export identifier
+		kind: z.string(),
+		// TODO these are poorly named, and they're somewhat redundant with `kind`,
+		// they were added to distinguish `VariableDeclaration` functions and non-functions
+		category: z.enum(['type', 'function', 'variable', 'class']).nullable(),
+		// code: z.string(), // TODO experiment with `getType().getText()`, some of them return the same as `name`
 	})
 	.passthrough();
 export type Package_Module_Declaration = z.infer<typeof Package_Module_Declaration>;
@@ -339,16 +342,34 @@ export const to_package_modules = async (
 							// TODO how to correctly handle multiples?
 							for (const decl of decls) {
 								// TODO helper
+								const decl_type = decl.getType();
 								const found = declarations.find((d) => d.name === name);
 								const kind = decl.getKindName();
+								const category =
+									kind === 'InterfaceDeclaration' || kind === 'TypeAliasDeclaration'
+										? 'type'
+										: kind === 'ClassDeclaration'
+										? 'class'
+										: kind === 'VariableDeclaration'
+										? decl_type.getCallSignatures().length
+											? 'function'
+											: 'variable' // TODO name?
+										: null;
+								// TODO
+								// const code =
+								// 	kind === 'InterfaceDeclaration' || kind === 'TypeAliasDeclaration'
+								// 		? decl_type.getText(source_file) // TODO
+								// 		: decl_type.getText(source_file);
 								if (found) {
 									// TODO hacky, this only was added to prevent `TypeAliasDeclaration` from overriding `VariableDeclaration`
 									if (found.kind !== 'VariableDeclaration') {
 										found.kind = kind;
+										found.category = category;
+										// found.code = code;
 									}
 								} else {
 									// TODO more
-									declarations.push({name, kind});
+									declarations.push({name, kind, category}); // code
 								}
 							}
 						}
