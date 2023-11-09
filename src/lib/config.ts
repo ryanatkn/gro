@@ -29,12 +29,13 @@ export const create_empty_config = (): Gro_Config => ({
 const default_map_package_json: Map_Package_Json = async (pkg) => {
 	if (pkg.exports) {
 		pkg.exports = Object.fromEntries(
-			Object.entries(pkg.exports).filter(([k]) => !DEFAULT_EXPORTS_EXCLUDE.test(k)),
+			Object.entries(pkg.exports).filter(([k]) => !DEFAULT_EXPORTS_EXCLUDER.test(k)),
 		);
 	}
 	return pkg;
 };
-const DEFAULT_EXPORTS_EXCLUDE = /(\.md|\.(test|ignore)\.|\/(test|fixtures|ignore)\/)/u;
+
+export const DEFAULT_EXPORTS_EXCLUDER = /(\.md|\.(test|ignore)\.|\/(test|fixtures|ignore)\/)/u;
 
 export interface Gro_Config_Module {
 	readonly default: Gro_Config | Create_Gro_Config;

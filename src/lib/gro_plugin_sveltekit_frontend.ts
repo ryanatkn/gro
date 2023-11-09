@@ -10,6 +10,7 @@ import {init_sveltekit_config} from './sveltekit_config.js';
 import {Task_Error} from './task.js';
 import {spawn_cli} from './cli.js';
 import {type Map_Src_Json, serialize_src_json, create_src_json} from './src_json.js';
+import {DEFAULT_EXPORTS_EXCLUDER} from './config.js';
 
 export interface Options {
 	/**
@@ -42,7 +43,7 @@ export const plugin = ({
 	host_target = 'github_pages',
 	well_known_package_json,
 	well_known_src_json,
-	filter_well_known_src,
+	filter_well_known_src = (source) => !DEFAULT_EXPORTS_EXCLUDER.test(source),
 }: Options = {}): Plugin<Plugin_Context> => {
 	let sveltekit_process: Spawned_Process | null = null;
 	return {

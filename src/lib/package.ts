@@ -328,6 +328,7 @@ export const src_json = {
 				{name: 'Gro_Config', kind: 'InterfaceDeclaration'},
 				{name: 'Create_Gro_Config', kind: 'InterfaceDeclaration'},
 				{name: 'create_empty_config', kind: 'VariableDeclaration'},
+				{name: 'DEFAULT_EXPORTS_EXCLUDER', kind: 'VariableDeclaration'},
 				{name: 'Gro_Config_Module', kind: 'InterfaceDeclaration'},
 				{name: 'load_config', kind: 'VariableDeclaration'},
 				{name: 'validate_config_module', kind: 'VariableDeclaration'},
