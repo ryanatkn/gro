@@ -116,7 +116,7 @@ test('to_package_modules', async () => {
 				declarations: [
 					{
 						name: 'some_test_ts',
-						kind: 'type',
+						kind: 'variable',
 					},
 					{
 						name: 'Some_Test_Type',
