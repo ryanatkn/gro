@@ -10,9 +10,11 @@ import type {Package_Json, Package_Json_Exports} from './package_json.js';
 
 export const Src_Module_Declaration = z
 	.object({
-		name: z.string(), // identifier
-		kind: z.string(), // `getKing()`
-		// type: string; // `getType()`
+		name: z.string(), // the export identifier
+		// TODO these are poorly named, and they're somewhat redundant with `kind`,
+		// they were added to distinguish `VariableDeclaration` functions and non-functions
+		kind: z.enum(['type', 'function', 'variable', 'class']).nullable(),
+		// code: z.string(), // TODO experiment with `getType().getText()`, some of them return the same as `name`
 	})
 	.passthrough();
 export type Src_Module_Declaration = z.infer<typeof Src_Module_Declaration>;
@@ -95,8 +97,8 @@ export const to_src_modules = async (
 							: strip_start(k.endsWith('.js') ? replace_extension(k, '.ts') : k, './');
 					if (!source_file_path.endsWith('.ts')) {
 						// TODO support more than just TypeScript - probably use @sveltejs/language-tools, see how @sveltejs/package generates types
-						const package_module: Src_Module = {path: source_file_path, declarations: []};
-						return [k, package_module];
+						const src_module: Src_Module = {path: source_file_path, declarations: []};
+						return [k, src_module];
 					}
 					const source_file_id = join(base_path, source_file_path);
 					if (!(await exists(source_file_id))) {
@@ -110,7 +112,7 @@ export const to_src_modules = async (
 						return null!;
 					}
 
-					const declarations: Src_Module_Declaration[] = [];
+					const declarations: Package_Module_Declaration[] = [];
 
 					const source_file = project.getSourceFile((f) =>
 						f.getFilePath().endsWith(source_file_path),
@@ -121,23 +123,40 @@ export const to_src_modules = async (
 							// TODO how to correctly handle multiples?
 							for (const decl of decls) {
 								// TODO helper
+								const decl_type = decl.getType();
+								const k = decl.getKindName();
+								const kind =
+									k === 'InterfaceDeclaration' || k === 'TypeAliasDeclaration'
+										? 'type'
+										: k === 'ClassDeclaration'
+										? 'class'
+										: k === 'VariableDeclaration'
+										? decl_type.getCallSignatures().length
+											? 'function'
+											: 'variable' // TODO name?
+										: null;
+								// TODO
+								// const code =
+								// 	k === 'InterfaceDeclaration' || k === 'TypeAliasDeclaration'
+								// 		? decl_type.getText(source_file) // TODO
+								// 		: decl_type.getText(source_file);
 								const found = declarations.find((d) => d.name === name);
-								const kind = decl.getKindName();
 								if (found) {
 									// TODO hacky, this only was added to prevent `TypeAliasDeclaration` from overriding `VariableDeclaration`
-									if (found.kind !== 'VariableDeclaration') {
+									if (found.kind === 'type') {
 										found.kind = kind;
+										// found.code = code;
 									}
 								} else {
 									// TODO more
-									declarations.push({name, kind});
+									declarations.push({name, kind}); // code
 								}
 							}
 						}
 					}
 
-					const package_module: Src_Module = {path: source_file_path, declarations};
-					return [k, package_module];
+					const src_module: Src_Module = {path: source_file_path, declarations};
+					return [k, src_module];
 				}),
 			)
 		).filter(Boolean),
