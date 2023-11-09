@@ -10,7 +10,7 @@ import {serialize_package_json, type Map_Package_Json, load_package_json} from '
 import {init_sveltekit_config} from './sveltekit_config.js';
 import {Task_Error} from './task.js';
 import {spawn_cli} from './cli.js';
-import {to_src_modules, type Map_Src_Json, serialize_src_json} from './src_json.js';
+import {type Map_Src_Json, serialize_src_json, create_src_json} from './src_json.js';
 
 export interface Options {
 	/**
@@ -80,18 +80,16 @@ export const plugin = ({
 					mapped_package_json && serialize_package_json(mapped_package_json);
 
 				// `.well-known/src.json` and `.well-known/src/`
-				const src_json = mapped_package_json?.exports
-					? {modules: await to_src_modules(mapped_package_json.exports)}
-					: null;
-				if (src_json && well_known_src_json === undefined) {
-					well_known_src_json = package_json.public; // eslint-disable-line no-param-reassign
+				const final_package_json = mapped_package_json || package_json;
+				const src_json = await create_src_json(final_package_json);
+				if (well_known_src_json === undefined) {
+					well_known_src_json = final_package_json.public; // eslint-disable-line no-param-reassign
 				}
-				const mapped_src_json =
-					!src_json || !well_known_src_json
-						? null
-						: well_known_src_json === true
-						? src_json
-						: await well_known_src_json(src_json);
+				const mapped_src_json = !well_known_src_json
+					? null
+					: well_known_src_json === true
+					? src_json
+					: await well_known_src_json(src_json);
 				const serialized_src_json = mapped_src_json && serialize_src_json(mapped_src_json);
 
 				// TODO this strategy means the files aren't available during development --
@@ -169,7 +167,7 @@ const copy_temporarily = async (
 
 	const path_already_exists = await exists(path);
 	if (!path_already_exists) {
-		await cp(source_path, path, {recursive: true});
+		await cp(source_path, dirname(path), {recursive: true});
 	}
 	return async () => {
 		if (!dir_already_exists) {

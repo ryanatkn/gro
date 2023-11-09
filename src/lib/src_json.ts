@@ -6,7 +6,7 @@ import {Project} from 'ts-morph';
 
 import {paths, replace_extension} from './paths.js';
 import {exists} from './exists.js';
-import type {Package_Json_Exports} from './package_json.js';
+import type {Package_Json, Package_Json_Exports} from './package_json.js';
 
 export const Src_Module_Declaration = z
 	.object({
@@ -35,6 +35,8 @@ export const Src_Json = z.intersection(
 	z.record(z.unknown()), // TODO is this what we want?
 	z
 		.object({
+			name: z.string(), // same as Package_Json
+			version: z.string(), // same as Package_Json
 			modules: Src_Modules.optional(),
 		})
 		.passthrough(),
@@ -44,6 +46,14 @@ export type Src_Json = z.infer<typeof Src_Json>;
 export interface Map_Src_Json {
 	(pkg: Src_Json): Src_Json | null | Promise<Src_Json | null>;
 }
+
+export const create_src_json = async (package_json: Package_Json): Promise<Src_Json> => {
+	return {
+		name: package_json.name,
+		version: package_json.version,
+		modules: await to_src_modules(package_json.exports),
+	};
+};
 
 export const serialize_src_json = (pkg: Src_Json): string => {
 	Src_Json.parse(pkg);
