@@ -1,5 +1,5 @@
 ---
-'@grogarden/gro': patch
+'@grogarden/gro': minor
 ---
 
 improve modules type info

@@ -20,10 +20,9 @@ import {exists} from './exists.js';
 export const Package_Module_Declaration = z
 	.object({
 		name: z.string(), // the export identifier
-		kind: z.string(),
 		// TODO these are poorly named, and they're somewhat redundant with `kind`,
 		// they were added to distinguish `VariableDeclaration` functions and non-functions
-		category: z.enum(['type', 'function', 'variable', 'class']).nullable(),
+		kind: z.enum(['type', 'function', 'variable', 'class']).nullable(),
 		// code: z.string(), // TODO experiment with `getType().getText()`, some of them return the same as `name`
 	})
 	.passthrough();
@@ -343,33 +342,32 @@ export const to_package_modules = async (
 							for (const decl of decls) {
 								// TODO helper
 								const decl_type = decl.getType();
-								const found = declarations.find((d) => d.name === name);
-								const kind = decl.getKindName();
-								const category =
-									kind === 'InterfaceDeclaration' || kind === 'TypeAliasDeclaration'
+								const k = decl.getKindName();
+								const kind =
+									k === 'InterfaceDeclaration' || k === 'TypeAliasDeclaration'
 										? 'type'
-										: kind === 'ClassDeclaration'
+										: k === 'ClassDeclaration'
 										? 'class'
-										: kind === 'VariableDeclaration'
+										: k === 'VariableDeclaration'
 										? decl_type.getCallSignatures().length
 											? 'function'
 											: 'variable' // TODO name?
 										: null;
 								// TODO
 								// const code =
-								// 	kind === 'InterfaceDeclaration' || kind === 'TypeAliasDeclaration'
+								// 	k === 'InterfaceDeclaration' || k === 'TypeAliasDeclaration'
 								// 		? decl_type.getText(source_file) // TODO
 								// 		: decl_type.getText(source_file);
+								const found = declarations.find((d) => d.name === name);
 								if (found) {
 									// TODO hacky, this only was added to prevent `TypeAliasDeclaration` from overriding `VariableDeclaration`
-									if (found.kind !== 'VariableDeclaration') {
+									if (found.kind === 'type') {
 										found.kind = kind;
-										found.category = category;
 										// found.code = code;
 									}
 								} else {
 									// TODO more
-									declarations.push({name, kind, category}); // code
+									declarations.push({name, kind}); // code
 								}
 							}
 						}
