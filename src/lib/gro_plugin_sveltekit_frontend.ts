@@ -102,9 +102,7 @@ export const plugin = ({
 								serialized_src_json,
 						  )
 						: null!,
-					serialized_src_json
-						? await copy_temporarily('src', assets_path, '.well-known/src')
-						: null!,
+					serialized_src_json ? await copy_temporarily('src', assets_path, '.well-known') : null!,
 					/**
 					 * GitHub pages processes everything with Jekyll by default,
 					 * breaking things like files and dirs prefixed with an underscore.
