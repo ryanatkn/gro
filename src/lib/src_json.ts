@@ -96,7 +96,8 @@ export const to_src_modules = async (
 							? 'index.ts'
 							: strip_start(k.endsWith('.js') ? replace_extension(k, '.ts') : k, './');
 					if (!source_file_path.endsWith('.ts')) {
-						// TODO support more than just TypeScript - probably use @sveltejs/language-tools, see how @sveltejs/package generates types
+						// TODO support more than just TypeScript - maybe use @sveltejs/language-tools,
+						// see how @sveltejs/package generates types, or maybe use its generated declaration files with ts-morph
 						const src_module: Src_Module = {path: source_file_path, declarations: []};
 						return [k, src_module];
 					}
