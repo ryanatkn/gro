@@ -112,7 +112,7 @@ export const to_src_modules = async (
 						return null!;
 					}
 
-					const declarations: Package_Module_Declaration[] = [];
+					const declarations: Src_Module_Declaration[] = [];
 
 					const source_file = project.getSourceFile((f) =>
 						f.getFilePath().endsWith(source_file_path),
