@@ -1,5 +1,11 @@
 # @grogarden/gro
 
+## 0.100.4
+
+### Patch Changes
+
+- 2b8d89e: change `.well-known/package.json` and `.nojekyll` to use the static directory
+
 ## 0.100.3
 
 ### Patch Changes
