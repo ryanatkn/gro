@@ -44,20 +44,21 @@ export const Src_Json = z.intersection(
 export type Src_Json = z.infer<typeof Src_Json>;
 
 export interface Map_Src_Json {
-	(pkg: Src_Json): Src_Json | null | Promise<Src_Json | null>;
+	(src_json: Src_Json): Src_Json | null | Promise<Src_Json | null>;
 }
 
 export const create_src_json = async (package_json: Package_Json): Promise<Src_Json> => {
-	return {
+	return normalize_src_json({
 		name: package_json.name,
 		version: package_json.version,
 		modules: await to_src_modules(package_json.exports),
-	};
+	});
 };
 
-export const serialize_src_json = (pkg: Src_Json): string => {
-	Src_Json.parse(pkg);
-	return JSON.stringify(pkg, null, 2) + '\n';
+export const serialize_src_json = (src_json: Src_Json): string => {
+	const normalized = normalize_src_json(src_json);
+	Src_Json.parse(normalized);
+	return JSON.stringify(normalized, null, 2) + '\n';
 };
 
 // TODO do this with zod?
@@ -66,12 +67,11 @@ export const serialize_src_json = (pkg: Src_Json): string => {
  * For example, users don't have to worry about empty `exports` objects,
  * which fail schema validation.
  */
-export const normalize_src_json = (src: Src_Json): Src_Json => {
-	// TODO BLOCK use this
-	if (src.modules && Object.keys(src.modules).length === 0) {
-		src.modules = undefined;
+export const normalize_src_json = (src_json: Src_Json): Src_Json => {
+	if (src_json.modules && Object.keys(src_json.modules).length === 0) {
+		src_json.modules = undefined;
 	}
-	return src;
+	return src_json;
 };
 
 export const to_src_modules = async (
