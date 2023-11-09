@@ -116,11 +116,11 @@ test('to_package_modules', async () => {
 				declarations: [
 					{
 						name: 'some_test_ts',
-						kind: 'VariableDeclaration',
+						kind: 'type',
 					},
 					{
 						name: 'Some_Test_Type',
-						kind: 'TypeAliasDeclaration',
+						kind: 'type',
 					},
 				],
 			},
