@@ -160,7 +160,7 @@ const copy_temporarily = async (
 
 	const path_already_exists = await exists(path);
 	if (!path_already_exists) {
-		await cp(source_path, dirname(path), {recursive: true});
+		await cp(source_path, path, {recursive: true});
 	}
 
 	return async () => {
