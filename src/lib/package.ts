@@ -186,6 +186,7 @@ export const package_json = {
 		'./run_task.js': {default: './dist/run_task.js', types: './dist/run_task.d.ts'},
 		'./schema.js': {default: './dist/schema.js', types: './dist/schema.d.ts'},
 		'./search_fs.js': {default: './dist/search_fs.js', types: './dist/search_fs.d.ts'},
+		'./src_json.js': {default: './dist/src_json.js', types: './dist/src_json.d.ts'},
 		'./sveltekit_config.js': {
 			default: './dist/sveltekit_config.js',
 			types: './dist/sveltekit_config.d.ts',
