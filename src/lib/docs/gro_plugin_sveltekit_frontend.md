@@ -81,5 +81,3 @@ the `package.json`'s `exports`, like exported identifier names and types.
 It maps each export to a source file in `.well-known/src/`.
 The entire contents of your `src/` directory are copied to `.well-known/src/`
 and this can be customized with `filter_well_known_src`.
-More customization is needed, and perhaps by default only `exports` and
-their dependencies should be included instead of all of `src/`?
