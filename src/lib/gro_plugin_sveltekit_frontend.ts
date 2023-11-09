@@ -198,5 +198,5 @@ const to_root_dir_that_doesnt_exist = async (dir: string): Promise<string | unde
 		}
 		prev = d;
 	} while ((d = dirname(d)));
-	throw Error();
+	throw Error('no dirs exist for ' + dir);
 };
