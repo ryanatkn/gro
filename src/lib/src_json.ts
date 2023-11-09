@@ -59,8 +59,8 @@ export const create_src_json = async (package_json: Package_Json): Promise<Src_J
 
 export const serialize_src_json = (src_json: Src_Json): string => {
 	const normalized = normalize_src_json(src_json);
-	Src_Json.parse(normalized);
-	return JSON.stringify(normalized, null, 2) + '\n';
+	const parsed = Src_Json.parse(normalized); // TODO can parse do the logic that normalize does?
+	return JSON.stringify(parsed, null, 2) + '\n';
 };
 
 // TODO do this with zod?
