@@ -176,7 +176,6 @@ const copy_temporarily = async (
  * @returns cleanup function that deletes the file and any created dirs
  */
 const create_temporarily = async (path: string, contents: string): Promise<Cleanup> => {
-	// TODO handle more than 1 hardcoded depth
 	const dir = dirname(path);
 	const dir_already_exists = await exists(dir);
 	let root_created_dir: string | undefined;
