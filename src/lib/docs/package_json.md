@@ -17,7 +17,7 @@ behavior designed for public open source projects:
   mapping it with the optional `well_known_src_json` option
 - `gro_plugin_sveltekit_frontend` outputs `.well-known/src/` by
   copying over `src/` filtered by `filter_well_known_src` during `vite build`
-  (costly but seems worthwhile exploring, renews "View source" as an option among other things)
+  (costly but seems worth exploring, renews "View source" as an option among other things)
 
 > ⚠️ Setting `"public": true` in `package.json` exposes your source code at your deployed endpoint!
 > If that's the public web, that means your source code is public.
