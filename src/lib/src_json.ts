@@ -1,6 +1,5 @@
 import {z} from 'zod';
 import {join} from 'node:path';
-import {readFile, writeFile} from 'node:fs/promises';
 import {strip_start} from '@grogarden/util/string.js';
 import type {Logger} from '@grogarden/util/log.js';
 import {Project} from 'ts-morph';

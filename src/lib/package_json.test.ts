@@ -6,9 +6,7 @@ import {
 	load_package_json,
 	serialize_package_json,
 	to_package_exports,
-	to_package_modules,
 } from './package_json.js';
-import {paths} from './paths.js';
 
 test('load_package_json', async () => {
 	const pkg = await load_package_json();
@@ -81,48 +79,6 @@ test('to_package_exports', async () => {
 			'./a/b/some_test_ts.js': {
 				default: './dist/a/b/some_test_ts.js',
 				types: './dist/a/b/some_test_ts.d.ts',
-			},
-		},
-	);
-});
-
-test('to_package_modules', async () => {
-	assert.equal(
-		await to_package_modules(
-			to_package_exports([
-				'fixtures/modules/some_test_css.css',
-				'fixtures/modules/Some_Test_Svelte.svelte',
-				'fixtures/modules/some_test_ts.ts',
-				'fixtures/modules/some_test_json.json',
-			]),
-			undefined,
-			paths.source,
-		),
-		{
-			'./fixtures/modules/some_test_css.css': {
-				path: 'fixtures/modules/some_test_css.css',
-				declarations: [],
-			},
-			'./fixtures/modules/some_test_json.json': {
-				path: 'fixtures/modules/some_test_json.json',
-				declarations: [],
-			},
-			'./fixtures/modules/Some_Test_Svelte.svelte': {
-				path: 'fixtures/modules/Some_Test_Svelte.svelte',
-				declarations: [],
-			},
-			'./fixtures/modules/some_test_ts.js': {
-				path: 'fixtures/modules/some_test_ts.ts',
-				declarations: [
-					{
-						name: 'some_test_ts',
-						kind: 'VariableDeclaration',
-					},
-					{
-						name: 'Some_Test_Type',
-						kind: 'TypeAliasDeclaration',
-					},
-				],
 			},
 		},
 	);
