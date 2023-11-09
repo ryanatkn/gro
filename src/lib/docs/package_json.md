@@ -8,7 +8,8 @@ with additional functionality.
 Setting `"public": true` in `package.json` opts into
 behavior designed for public open source projects:
 
-- copies `package.json` from your project root to your
+- [`gro_plugin_sveltekit_frontend`](./gro_plugin_sveltekit_frontend.md)
+  copies `package.json` from your project root to your
   SvelteKit static directory at `.well-known/package.json` during `vite build`,
   mapping it with the optional `well_known_package_json` option
 - `gro_plugin_sveltekit_frontend` outputs `.well-known/src.json`
