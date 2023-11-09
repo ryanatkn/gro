@@ -1,5 +1,5 @@
 import {spawn_process, type Spawned_Process} from '@grogarden/util/process.js';
-import {mkdir, rm, writeFile} from 'node:fs/promises';
+import {cp, mkdir, rm, writeFile} from 'node:fs/promises';
 import {dirname, join} from 'node:path';
 import type {Config as SveltekitConfig} from '@sveltejs/kit';
 
@@ -82,6 +82,15 @@ export const plugin = ({
 								serialized_package_json,
 						  )
 						: null!,
+					serialized_src_json
+						? await create_temporarily(
+								join(assets_path, '.well-known/src.json'),
+								serialized_src_json,
+						  )
+						: null!,
+					serialized_src_json
+						? await copy_temporarily('src', assets_path, '.well-known/src')
+						: null!,
 					/**
 					 * GitHub pages processes everything with Jekyll by default,
 					 * breaking things like files and dirs prefixed with an underscore.
@@ -121,31 +130,31 @@ interface Cleanup {
 }
 
 // TODO for `src` and `src.json`
-// const copy_temporarily = async (
-// 	source_path: string,
-// 	dest_dir: string,
-// 	dest_base_dir = '',
-// ): Promise<Cleanup> => {
-// 	const path = join(dest_dir, dest_base_dir, source_path);
-// 	const dir = dirname(path);
+const copy_temporarily = async (
+	source_path: string,
+	dest_dir: string,
+	dest_base_dir = '',
+): Promise<Cleanup> => {
+	const path = join(dest_dir, dest_base_dir, source_path);
+	const dir = dirname(path);
 
-// 	const dir_already_exists = await exists(dir);
-// 	if (!dir_already_exists) {
-// 		await mkdir(dir, {recursive: true});
-// 	}
+	const dir_already_exists = await exists(dir);
+	if (!dir_already_exists) {
+		await mkdir(dir, {recursive: true});
+	}
 
-// 	const path_already_exists = await exists(path);
-// 	if (!path_already_exists) {
-// 		await cp(source_path, path, {recursive: true});
-// 	}
-// 	return async () => {
-// 		if (!dir_already_exists) {
-// 			await rm(dir, {recursive: true});
-// 		} else if (!path_already_exists) {
-// 			await rm(path, {recursive: true});
-// 		}
-// 	};
-// };
+	const path_already_exists = await exists(path);
+	if (!path_already_exists) {
+		await cp(source_path, path, {recursive: true});
+	}
+	return async () => {
+		if (!dir_already_exists) {
+			await rm(dir, {recursive: true});
+		} else if (!path_already_exists) {
+			await rm(path, {recursive: true});
+		}
+	};
+};
 
 /**
  * Creates a file at `path` with `contents` if it doesn't already exist,
