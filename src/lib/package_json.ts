@@ -15,6 +15,14 @@ import {
 } from './paths.js';
 import {search_fs} from './search_fs.js';
 
+// TODO move this where?
+export const transform_empty_object_to_undefined = (val: any): any => {
+	if (val && Object.keys(val).length === 0) {
+		return undefined;
+	}
+	return val;
+};
+
 export const Package_Json_Repository = z.union([
 	z.string(),
 	z
@@ -93,7 +101,7 @@ export const Package_Json = z.intersection(
 
 			bin: z.record(z.string()).optional(),
 			files: z.array(z.string()).optional(),
-			exports: Package_Json_Exports.optional(),
+			exports: Package_Json_Exports.transform(transform_empty_object_to_undefined).optional(),
 
 			dependencies: z.record(z.string()).optional(),
 			devDependencies: z.record(z.string()).optional(),

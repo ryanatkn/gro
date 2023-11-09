@@ -6,7 +6,11 @@ import {Project} from 'ts-morph';
 
 import {paths, replace_extension} from './paths.js';
 import {exists} from './exists.js';
-import type {Package_Json, Package_Json_Exports} from './package_json.js';
+import {
+	transform_empty_object_to_undefined,
+	type Package_Json,
+	type Package_Json_Exports,
+} from './package_json.js';
 
 export const Src_Module_Declaration = z
 	.object({
@@ -39,15 +43,7 @@ export const Src_Json = z.intersection(
 		.object({
 			name: z.string(), // same as Package_Json
 			version: z.string(), // same as Package_Json
-			// TODO extract a helper?
-			modules: Src_Modules.transform((val) => {
-				// TODO BLOCK do for package exports
-				console.log(`transform val`, val);
-				if (val && Object.keys(val).length === 0) {
-					return undefined;
-				}
-				return val;
-			}).optional(),
+			modules: Src_Modules.transform(transform_empty_object_to_undefined).optional(),
 		})
 		.passthrough(),
 );
