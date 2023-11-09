@@ -1,9 +1,8 @@
 import {z} from 'zod';
 import {join} from 'node:path';
 import {readFile, writeFile} from 'node:fs/promises';
-import {plural, strip_start} from '@grogarden/util/string.js';
+import {plural} from '@grogarden/util/string.js';
 import type {Logger} from '@grogarden/util/log.js';
-import {Project} from 'ts-morph';
 
 import {
 	paths,
@@ -15,27 +14,6 @@ import {
 	Email,
 } from './paths.js';
 import {search_fs} from './search_fs.js';
-import {exists} from './exists.js';
-
-export const Package_Module_Declaration = z
-	.object({
-		name: z.string(), // identifier
-		kind: z.string(), // `getKing()`
-		// type: string; // `getType()`
-	})
-	.passthrough();
-export type Package_Module_Declaration = z.infer<typeof Package_Module_Declaration>;
-
-export const Package_Module = z
-	.object({
-		path: z.string(),
-		declarations: z.array(Package_Module_Declaration),
-	})
-	.passthrough();
-export type Package_Module = z.infer<typeof Package_Module>;
-
-export const Package_Modules = z.record(Package_Module);
-export type Package_Modules = z.infer<typeof Package_Modules>;
 
 export const Package_Json_Repository = z.union([
 	z.string(),
@@ -74,9 +52,6 @@ export type Package_Json_Funding = z.infer<typeof Package_Json_Funding>;
 
 export const Package_Json_Exports = z.record(z.record(z.string()).optional());
 export type Package_Json_Exports = z.infer<typeof Package_Json_Exports>;
-
-export const Package_Json_Modules = Package_Modules.optional();
-export type Package_Json_Modules = z.infer<typeof Package_Json_Modules>;
 
 /**
  * @see https://docs.npmjs.com/cli/v10/configuring-npm/package-json
@@ -119,7 +94,6 @@ export const Package_Json = z.intersection(
 			bin: z.record(z.string()).optional(),
 			files: z.array(z.string()).optional(),
 			exports: Package_Json_Exports.optional(),
-			modules: Package_Json_Modules.optional(),
 
 			dependencies: z.record(z.string()).optional(),
 			devDependencies: z.record(z.string()).optional(),
@@ -280,74 +254,3 @@ export const to_package_exports = (paths: string[]): Package_Json_Exports => {
 };
 
 const IMPORT_PREFIX = './' + SVELTEKIT_DIST_DIRNAME + '/';
-
-// TODO refactor
-export const to_package_modules = async (
-	exports: Package_Json_Exports | undefined,
-	log?: Logger,
-	base_path = paths.lib,
-): Promise<Package_Modules | undefined> => {
-	if (!exports) return undefined;
-
-	const project = new Project();
-	project.addSourceFilesAtPaths('src/**/*.ts'); // TODO dir? maybe rewrite with `base_path`?
-
-	return Object.fromEntries(
-		(
-			await Promise.all(
-				Object.entries(exports).map(async ([k, _v]) => {
-					// TODO hacky - doesn't handle any but the normal mappings, also add a helper?
-					const source_file_path =
-						k === '.' || k === './'
-							? 'index.ts'
-							: strip_start(k.endsWith('.js') ? replace_extension(k, '.ts') : k, './');
-					if (!source_file_path.endsWith('.ts')) {
-						// TODO support more than just TypeScript - probably use @sveltejs/language-tools, see how @sveltejs/package generates types
-						const package_module: Package_Module = {path: source_file_path, declarations: []};
-						return [k, package_module];
-					}
-					const source_file_id = join(base_path, source_file_path);
-					if (!(await exists(source_file_id))) {
-						log?.warn(
-							'failed to infer source file from export path',
-							k,
-							'- the inferred file',
-							source_file_id,
-							'does not exist',
-						);
-						return null!;
-					}
-
-					const declarations: Package_Module_Declaration[] = [];
-
-					const source_file = project.getSourceFile((f) =>
-						f.getFilePath().endsWith(source_file_path),
-					); // TODO expected this to work without the callback, according to my read of the docs it is, but `project.getSourceFile(source_file_path)` fails
-					if (source_file) {
-						for (const [name, decls] of source_file.getExportedDeclarations()) {
-							if (!decls) continue;
-							// TODO how to correctly handle multiples?
-							for (const decl of decls) {
-								// TODO helper
-								const found = declarations.find((d) => d.name === name);
-								const kind = decl.getKindName();
-								if (found) {
-									// TODO hacky, this only was added to prevent `TypeAliasDeclaration` from overriding `VariableDeclaration`
-									if (found.kind !== 'VariableDeclaration') {
-										found.kind = kind;
-									}
-								} else {
-									// TODO more
-									declarations.push({name, kind});
-								}
-							}
-						}
-					}
-
-					const package_module: Package_Module = {path: source_file_path, declarations};
-					return [k, package_module];
-				}),
-			)
-		).filter(Boolean),
-	);
-};

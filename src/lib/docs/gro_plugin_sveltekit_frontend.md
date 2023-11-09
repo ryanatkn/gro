@@ -71,3 +71,7 @@ Why publish this metadata to the web instead of relying on the git repo as the o
 - the git repo is still the source of truth, but Gro adds a build step for project metadata,
   giving devs full control over the published artifacts
   instead of coupling metadata directly to a source repo's `package.json`
+
+## `well_known_src`
+
+TODO document how `.well-known/src.json` and `.well-known/src/` work
