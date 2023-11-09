@@ -39,13 +39,3 @@ export const plugin = (): Plugin<Plugin_Context> => {
 		},
 	};
 };
-
-export const has_library = async (): Promise<boolean> => {
-	const package_json = await load_package_json(); // TODO from param, on config?
-	return (
-		!!package_json.devDependencies?.['@sveltejs/package'] ||
-		!!package_json.dependencies?.['@sveltejs/package']
-	);
-	// TODO @multiple get from the sveltekit config
-	// && exists(sveltekit_config.lib_path);
-};

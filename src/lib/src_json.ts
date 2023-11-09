@@ -39,7 +39,15 @@ export const Src_Json = z.intersection(
 		.object({
 			name: z.string(), // same as Package_Json
 			version: z.string(), // same as Package_Json
-			modules: Src_Modules.optional(),
+			// TODO extract a helper?
+			modules: Src_Modules.transform((val) => {
+				// TODO BLOCK do for package exports
+				console.log(`transform val`, val);
+				if (val && Object.keys(val).length === 0) {
+					return undefined;
+				}
+				return val;
+			}).optional(),
 		})
 		.passthrough(),
 );
@@ -50,7 +58,7 @@ export interface Map_Src_Json {
 }
 
 export const create_src_json = async (package_json: Package_Json): Promise<Src_Json> => {
-	return normalize_src_json({
+	return Src_Json.parse({
 		name: package_json.name,
 		version: package_json.version,
 		modules: await to_src_modules(package_json.exports),
@@ -58,22 +66,8 @@ export const create_src_json = async (package_json: Package_Json): Promise<Src_J
 };
 
 export const serialize_src_json = (src_json: Src_Json): string => {
-	const normalized = normalize_src_json(src_json);
-	const parsed = Src_Json.parse(normalized); // TODO can parse do the logic that normalize does? see `.transform`
+	const parsed = Src_Json.parse(src_json); // TODO can parse do the logic that normalize does? see `.transform`
 	return JSON.stringify(parsed, null, 2) + '\n';
-};
-
-// TODO do this with zod?
-/**
- * Mutates `pkg` to normalize it for convenient usage.
- * For example, users don't have to worry about empty `exports` objects,
- * which fail schema validation.
- */
-export const normalize_src_json = (src_json: Src_Json): Src_Json => {
-	if (src_json.modules && Object.keys(src_json.modules).length === 0) {
-		src_json.modules = undefined;
-	}
-	return src_json;
 };
 
 export const to_src_modules = async (

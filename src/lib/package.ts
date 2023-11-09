@@ -326,6 +326,7 @@ export const src_json = {
 				{name: 'Gro_Config', kind: 'type'},
 				{name: 'Create_Gro_Config', kind: 'type'},
 				{name: 'create_empty_config', kind: 'function'},
+				{name: 'has_library', kind: 'function'},
 				{name: 'DEFAULT_EXPORTS_EXCLUDER', kind: 'variable'},
 				{name: 'Gro_Config_Module', kind: 'type'},
 				{name: 'load_config', kind: 'function'},
@@ -511,10 +512,7 @@ export const src_json = {
 		},
 		'./gro_plugin_library.js': {
 			path: 'gro_plugin_library.ts',
-			declarations: [
-				{name: 'plugin', kind: 'function'},
-				{name: 'has_library', kind: 'function'},
-			],
+			declarations: [{name: 'plugin', kind: 'function'}],
 		},
 		'./gro_plugin_server.js': {
 			path: 'gro_plugin_server.ts',
@@ -765,7 +763,6 @@ export const src_json = {
 				{name: 'Map_Src_Json', kind: 'type'},
 				{name: 'create_src_json', kind: 'function'},
 				{name: 'serialize_src_json', kind: 'function'},
-				{name: 'normalize_src_json', kind: 'function'},
 				{name: 'to_src_modules', kind: 'function'},
 			],
 		},

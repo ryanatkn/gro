@@ -110,7 +110,7 @@ export const Package_Json = z.intersection(
 export type Package_Json = z.infer<typeof Package_Json>;
 
 export interface Map_Package_Json {
-	(pkg: Package_Json): Package_Json | null | Promise<Package_Json | null>;
+	(package_json: Package_Json): Package_Json | null | Promise<Package_Json | null>;
 }
 
 export const EMPTY_PACKAGE_JSON: Package_Json = {name: '', version: ''};

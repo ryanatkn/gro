@@ -4,13 +4,13 @@ import {CONFIG_PATH, paths} from './paths.js';
 import create_default_config from './gro.config.default.js';
 import type {Create_Config_Plugins} from './plugin.js';
 import {exists} from './exists.js';
-import type {Map_Package_Json} from './package_json.js';
+import {load_package_json, Package_Json, type Map_Package_Json} from './package_json.js';
 
 export interface Gro_Config {
 	plugins: Create_Config_Plugins;
 	/**
 	 * Maps the project's `package.json` before writing it to the filesystem.
-	 * The `pkg` argument may be mutated, but the return value is what's used by the caller.
+	 * The `package_json` argument may be mutated, but the return value is what's used by the caller.
 	 * Returning `null` is a no-op for the caller.
 	 */
 	map_package_json: Map_Package_Json | null;
@@ -26,13 +26,21 @@ export const create_empty_config = (): Gro_Config => ({
 	map_package_json: default_map_package_json,
 });
 
-const default_map_package_json: Map_Package_Json = async (pkg) => {
-	if (pkg.exports) {
-		pkg.exports = Object.fromEntries(
-			Object.entries(pkg.exports).filter(([k]) => !DEFAULT_EXPORTS_EXCLUDER.test(k)),
+const default_map_package_json: Map_Package_Json = async (package_json) => {
+	if ((await has_library(package_json)) && package_json.exports) {
+		package_json.exports = Object.fromEntries(
+			Object.entries(package_json.exports).filter(([k]) => !DEFAULT_EXPORTS_EXCLUDER.test(k)),
 		);
 	}
-	return pkg;
+	return package_json;
+};
+
+// TODO move this?
+export const has_library = async (package_json?: Package_Json): Promise<boolean> => {
+	const p = package_json ?? (await load_package_json()); // TODO from param, on config?
+	return !!p.devDependencies?.['@sveltejs/package'] || !!p.dependencies?.['@sveltejs/package'];
+	// TODO @multiple get from the sveltekit config
+	// && exists(sveltekit_config.lib_path);
 };
 
 export const DEFAULT_EXPORTS_EXCLUDER = /(\.md|\.(test|ignore)\.|\/(test|fixtures|ignore)\/)/u;

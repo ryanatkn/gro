@@ -1,7 +1,7 @@
 import {z} from 'zod';
 
 import type {Task} from './task.js';
-import {has_library} from './gro_plugin_library.js';
+import {has_library} from './config.js';
 
 export const Args = z.object({}).strict();
 export type Args = z.infer<typeof Args>;
