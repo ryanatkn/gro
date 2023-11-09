@@ -202,7 +202,8 @@ const create_temporarily = async (path: string, contents: string): Promise<Clean
 
 /**
  * Niche and probably needs refactoring,
- * for `/a/b/DOESNT_EXIST/NOR_THIS/ETC` returns `/a/b/DOESNT_EXIST`.
+ * for `/a/b/DOESNT_EXIST/NOR_THIS/ETC` returns `/a/b/DOESNT_EXIST`
+ * where `/a/b` does exist on the filesystem and `DOESNT_EXIST` is not one of its subdirectories.
  */
 const to_root_dir_that_doesnt_exist = async (dir: string): Promise<string | undefined> => {
 	let prev: string | undefined;
