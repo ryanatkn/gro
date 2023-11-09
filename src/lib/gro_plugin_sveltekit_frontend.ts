@@ -29,6 +29,11 @@ export interface Options {
 	 * If a function, maps the value.
 	 */
 	well_known_src_json?: boolean | Map_Src_Json;
+
+	/**
+	 * Filter what's copied from `src/` to `.well-known/src/`.
+	 */
+	filter_well_known_src?: (source: string, destination: string) => boolean | Promise<boolean>;
 }
 
 export type Host_Target = 'github_pages' | 'static' | 'node';
@@ -37,6 +42,7 @@ export const plugin = ({
 	host_target = 'github_pages',
 	well_known_package_json,
 	well_known_src_json,
+	filter_well_known_src,
 }: Options = {}): Plugin<Plugin_Context> => {
 	let sveltekit_process: Spawned_Process | null = null;
 	return {
@@ -102,7 +108,9 @@ export const plugin = ({
 								serialized_src_json,
 						  )
 						: null!,
-					serialized_src_json ? await copy_temporarily('src', assets_path, '.well-known') : null!,
+					serialized_src_json
+						? await copy_temporarily('src', assets_path, '.well-known', filter_well_known_src)
+						: null!,
 					/**
 					 * GitHub pages processes everything with Jekyll by default,
 					 * breaking things like files and dirs prefixed with an underscore.
@@ -147,6 +155,7 @@ const copy_temporarily = async (
 	source_path: string,
 	dest_dir: string,
 	dest_base_dir = '',
+	filter?: (source: string, destination: string) => boolean | Promise<boolean>,
 ): Promise<Cleanup> => {
 	const path = join(dest_dir, dest_base_dir, source_path);
 	const dir = dirname(path);
@@ -161,7 +170,7 @@ const copy_temporarily = async (
 
 	const path_already_exists = await exists(path);
 	if (!path_already_exists) {
-		await cp(source_path, path, {recursive: true});
+		await cp(source_path, path, {recursive: true, filter});
 	}
 
 	return async () => {

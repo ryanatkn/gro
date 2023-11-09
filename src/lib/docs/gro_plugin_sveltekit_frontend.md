@@ -13,6 +13,8 @@ const config: Gro_ConfigCreator = async (cfg) => {
 		(await import('@grogarden/gro/gro_plugin_sveltekit_frontend.js')).plugin({
 			// host_target?: Host_Target;
 			// well_known_package_json?: boolean | Map_Package_Json;
+			// well_known_src_json?: boolean | Map_Src_Json;
+			// filter_well_known_src?: (source: string, destination: string) => boolean | Promise<boolean>;
 		}),
 	];
 	return cfg;
@@ -24,7 +26,7 @@ export default config;
 export type Host_Target = 'github_pages' | 'static' | 'node';
 
 export interface Map_Package_Json {
-	(pkg: Package_Json): Package_Json | null | Promise<Package_Json | null>;
+	(package_json: Package_Json): Package_Json | null | Promise<Package_Json | null>;
 }
 ```
 
@@ -48,7 +50,7 @@ The motivation is to provide conventional package metadata to web users and tool
 
 By default the root `package.json` is copied without modifications,
 and you can provide your own `well_known_package_json` option to
-mutate the `pkg`, return new data, or return `null` to be a no-op.
+mutate the `package_json`, return new data, or return `null` to be a no-op.
 
 > Writing to `.well-known/package.json` is unstandardized behavior that
 > extends [Well-known URIs](https://wikipedia.org/wiki/Well-known_URIs) for Node packages
@@ -72,6 +74,12 @@ Why publish this metadata to the web instead of relying on the git repo as the o
   giving devs full control over the published artifacts
   instead of coupling metadata directly to a source repo's `package.json`
 
-## `well_known_src`
+## `well_known_src_json`
 
-TODO document how `.well-known/src.json` and `.well-known/src/` work
+The `.well-known/src.json` file contains more details about
+the `package.json`'s `exports`, like exported identifier names and types.
+It maps each export to a source file in `.well-known/src/`.
+The entire contents of your `src/` directory are copied to `.well-known/src/`
+and this can be customized with `filter_well_known_src`.
+More customization is needed, and perhaps by default only `exports` and
+their dependencies should be included instead of all of `src/`?
