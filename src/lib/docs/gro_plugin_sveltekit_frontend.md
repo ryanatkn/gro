@@ -38,7 +38,7 @@ a `.nojekyll` file is included in the build to tell GitHub Pages not to process 
 ## `well_known_package_json`
 
 If your root `package.json` has `"public": true`,
-Gro copies `.well-known/package.json` to `static/` during `vite build`,
+by default Gro copies `.well-known/package.json` to `static/` during `vite build`,
 so it's included in the SvelteKit build output.
 The motivation is to provide conventional package metadata to web users and tools.
 (more details below)
@@ -76,8 +76,15 @@ Why publish this metadata to the web instead of relying on the git repo as the o
 
 ## `well_known_src_json`
 
+If your root `package.json` has `"public": true`,
+by default Gro creates `.well-known/src.json` and `.well-known/src/`
+in `static/` during `vite build`,
+so they're included in the SvelteKit build output.
+
 The `.well-known/src.json` file contains more details about
 the `package.json`'s `exports`, like exported identifier names and types.
 It maps each export to a source file in `.well-known/src/`.
-The entire contents of your `src/` directory are copied to `.well-known/src/`
+
+The contents of your `src/` directory are copied to `.well-known/src/`
+using the same filter as `exports` in `package.json` by default,
 and this can be customized with `filter_well_known_src`.
