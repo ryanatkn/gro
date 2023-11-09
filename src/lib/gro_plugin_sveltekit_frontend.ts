@@ -141,7 +141,8 @@ interface Cleanup {
 	(): Promise<void>;
 }
 
-// TODO for `src` and `src.json`
+// TODO probably extract these, and create a common helper or merge them
+
 const copy_temporarily = async (
 	source_path: string,
 	dest_dir: string,
