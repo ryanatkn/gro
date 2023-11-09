@@ -30,11 +30,6 @@ export interface Options {
 	 * If a function, maps the value.
 	 */
 	well_known_src_json?: boolean | Map_Src_Json;
-
-	/**
-	 * Optional SvelteKit config, defaults to `svelte.config.js`.
-	 */
-	sveltekit_config?: string | SveltekitConfig;
 }
 
 export type Host_Target = 'github_pages' | 'static' | 'node';
@@ -43,14 +38,11 @@ export const plugin = ({
 	host_target = 'github_pages',
 	well_known_package_json,
 	well_known_src_json,
-	sveltekit_config,
 }: Options = {}): Plugin<Plugin_Context> => {
 	let sveltekit_process: Spawned_Process | null = null;
 	return {
 		name: 'gro_plugin_sveltekit_frontend',
 		setup: async ({dev, watch, log}) => {
-			const {assets_path} = await init_sveltekit_config(sveltekit_config);
-
 			if (dev) {
 				// `vite dev` in development mode
 				if (watch) {
@@ -67,7 +59,7 @@ export const plugin = ({
 				// `vite build` in production mode
 
 				// `.well-known/package.json`
-				const package_json = await load_package_json(); // TODO BLOCK context? same with sveltekit config?
+				const package_json = await load_package_json(); // TODO put in plugin context? same with sveltekit config?
 				if (well_known_package_json === undefined) {
 					well_known_package_json = package_json.public; // eslint-disable-line no-param-reassign
 				}
@@ -97,6 +89,7 @@ export const plugin = ({
 
 				// copy files to `static` before building, in such a way
 				// that's non-destructive to existing files and dirs and easy to clean up
+				const {assets_path} = await init_sveltekit_config(); // TODO probably put in plugin context
 				const cleanups: Cleanup[] = [
 					serialized_package_json
 						? await create_temporarily(
