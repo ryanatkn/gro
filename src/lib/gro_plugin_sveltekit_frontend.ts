@@ -1,7 +1,6 @@
 import {spawn_process, type Spawned_Process} from '@grogarden/util/process.js';
 import {cp, mkdir, rm, writeFile} from 'node:fs/promises';
 import {dirname, join} from 'node:path';
-import type {Config as SveltekitConfig} from '@sveltejs/kit';
 
 import type {Plugin, Plugin_Context} from './plugin.js';
 import {print_command_args, serialize_args, to_forwarded_args} from './args.js';
