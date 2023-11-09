@@ -109,7 +109,9 @@ test('to_package_modules', async () => {
 			},
 			'./fixtures/modules/Some_Test_Svelte.svelte': {
 				path: 'fixtures/modules/Some_Test_Svelte.svelte',
-				declarations: [],
+				declarations: [
+					// TODO !
+				],
 			},
 			'./fixtures/modules/some_test_ts.js': {
 				path: 'fixtures/modules/some_test_ts.ts',
