@@ -6,11 +6,7 @@ import type {Config as SveltekitConfig} from '@sveltejs/kit';
 import type {Plugin, Plugin_Context} from './plugin.js';
 import {print_command_args, serialize_args, to_forwarded_args} from './args.js';
 import {exists} from './exists.js';
-import {
-	serialize_package_json,
-	type Map_Package_Json,
-	load_mapped_package_json,
-} from './package_json.js';
+import {serialize_package_json, type Map_Package_Json, load_package_json} from './package_json.js';
 import {init_sveltekit_config} from './sveltekit_config.js';
 import {Task_Error} from './task.js';
 import {spawn_cli} from './cli.js';
@@ -62,7 +58,7 @@ export const plugin = ({
 			} else {
 				// `vite build` in production mode
 
-				const package_json = await load_mapped_package_json();
+				const package_json = await load_package_json(); // TODO BLOCK context? same with sveltekit config?
 				if (well_known_package_json === undefined) {
 					well_known_package_json = package_json.public; // eslint-disable-line no-param-reassign
 				}

@@ -158,16 +158,6 @@ export const load_package_json = async (
 	return pkg;
 };
 
-export const load_mapped_package_json = async (
-	log?: Logger,
-	dir = is_this_project_gro ? gro_paths.root : paths.root,
-	cache?: Record<string, Package_Json>,
-): Promise<Package_Json> => {
-	const package_json = await load_package_json(dir, cache);
-	package_json.modules = await to_package_modules(package_json.exports, log);
-	return package_json;
-};
-
 export const sync_package_json = async (
 	map_package_json: Map_Package_Json,
 	log: Logger,
