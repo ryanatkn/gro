@@ -182,8 +182,8 @@ export const load_gro_package_json = (): Promise<Package_Json> => load_package_j
 const load_package_json_contents = (dir: string): Promise<string> =>
 	readFile(join(dir, 'package.json'), 'utf8');
 
-export const write_package_json = async (serialized_pkg: string): Promise<void> => {
-	await writeFile(join(paths.root, 'package.json'), serialized_pkg);
+export const write_package_json = async (serialized_package_json: string): Promise<void> => {
+	await writeFile(join(paths.root, 'package.json'), serialized_package_json);
 };
 
 export const serialize_package_json = (package_json: Package_Json): string => {
@@ -215,15 +215,15 @@ export const update_package_json = async (
 
 // TODO do this with zod?
 /**
- * Mutates `pkg` to normalize it for convenient usage.
+ * Mutates `package_json` to normalize it for convenient usage.
  * For example, users don't have to worry about empty `exports` objects,
  * which fail schema validation.
  */
-export const normalize_package_json = (pkg: Package_Json): Package_Json => {
-	if (pkg.exports && Object.keys(pkg.exports).length === 0) {
-		pkg.exports = undefined;
+export const normalize_package_json = (package_json: Package_Json): Package_Json => {
+	if (package_json.exports && Object.keys(package_json.exports).length === 0) {
+		package_json.exports = undefined;
 	}
-	return pkg;
+	return package_json;
 };
 
 export const to_package_exports = (paths: string[]): Package_Json_Exports => {
