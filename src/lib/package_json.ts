@@ -152,6 +152,7 @@ export const sync_package_json = async (
 	const updated = await update_package_json(
 		dir,
 		async (pkg) => {
+			// TODO BLOCK here
 			const exports = to_package_exports(exported_paths);
 			pkg.exports = exports;
 			const mapped = await map_package_json(pkg);
