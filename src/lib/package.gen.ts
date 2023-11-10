@@ -22,7 +22,6 @@ export const gen: Gen = async ({origin_id}) => {
 import type {Package_Json} from '${
 		is_this_project_gro ? './package_json.js' : '@grogarden/gro/package_json.js'
 	}';
-
 import type {Src_Json} from '${
 		is_this_project_gro ? './src_json.js' : '@grogarden/gro/src_json.js'
 	}';
