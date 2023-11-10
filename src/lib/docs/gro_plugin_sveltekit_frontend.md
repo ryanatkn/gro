@@ -81,6 +81,13 @@ by default Gro creates `.well-known/src.json` and `.well-known/src/`
 in `static/` during `vite build`,
 so they're included in the SvelteKit build output.
 
+This can be customized with `well_known_src_json`.
+Setting it to `false` disables the feature,
+and `true` uses the default mapping function,
+which is the same default matching behavior
+that includes modules for `exports` in `package.json`.
+You can also provide a custom mapping function.
+
 The `.well-known/src.json` file contains more details about
 the `package.json`'s `exports`, like exported identifier names and types.
 It maps each export to a source file in `.well-known/src/`.
