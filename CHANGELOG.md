@@ -1,5 +1,17 @@
 # @grogarden/gro
 
+## 0.102.0
+
+### Minor Changes
+
+- 3620932: - add `$lib/src_json.ts`
+  - add `.well-known/src.json` and `.well-known/src/`
+  - remove `modules` from `.well-known/package.json`
+
+### Patch Changes
+
+- 3620932: modify exports by default only for libraries
+
 ## 0.101.0
 
 ### Minor Changes

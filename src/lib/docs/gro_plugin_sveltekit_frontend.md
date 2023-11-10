@@ -13,6 +13,8 @@ const config: Gro_ConfigCreator = async (cfg) => {
 		(await import('@grogarden/gro/gro_plugin_sveltekit_frontend.js')).plugin({
 			// host_target?: Host_Target;
 			// well_known_package_json?: boolean | Map_Package_Json;
+			// well_known_src_json?: boolean | Map_Src_Json;
+			// filter_well_known_src?: (source: string, destination: string) => boolean | Promise<boolean>;
 		}),
 	];
 	return cfg;
@@ -24,7 +26,7 @@ export default config;
 export type Host_Target = 'github_pages' | 'static' | 'node';
 
 export interface Map_Package_Json {
-	(pkg: Package_Json): Package_Json | null | Promise<Package_Json | null>;
+	(package_json: Package_Json): Package_Json | null | Promise<Package_Json | null>;
 }
 ```
 
@@ -35,8 +37,9 @@ a `.nojekyll` file is included in the build to tell GitHub Pages not to process 
 
 ## `well_known_package_json`
 
-If your root `package.json` has `"public": true`,
-Gro copies `.well-known/package.json` to `static/` during `vite build`,
+If your root `package.json` has `"public": true`
+(telling Gro it's a [public package](./package_json.md#public-packages)),
+by default Gro copies `.well-known/package.json` to `static/` during `vite build`,
 so it's included in the SvelteKit build output.
 The motivation is to provide conventional package metadata to web users and tools.
 (more details below)
@@ -48,7 +51,7 @@ The motivation is to provide conventional package metadata to web users and tool
 
 By default the root `package.json` is copied without modifications,
 and you can provide your own `well_known_package_json` option to
-mutate the `pkg`, return new data, or return `null` to be a no-op.
+mutate the `package_json`, return new data, or return `null` to be a no-op.
 
 > Writing to `.well-known/package.json` is unstandardized behavior that
 > extends [Well-known URIs](https://wikipedia.org/wiki/Well-known_URIs) for Node packages
@@ -71,3 +74,23 @@ Why publish this metadata to the web instead of relying on the git repo as the o
 - the git repo is still the source of truth, but Gro adds a build step for project metadata,
   giving devs full control over the published artifacts
   instead of coupling metadata directly to a source repo's `package.json`
+
+## `well_known_src_json`
+
+If your root `package.json` has `"public": true`,
+by default Gro creates `.well-known/src.json` and `.well-known/src/`
+in `static/` during `vite build`,
+so they're included in the SvelteKit build output.
+More [about public packages](./package_json.md#public-packages).
+
+This can be customized with `well_known_src_json`.
+Setting it to `false` disables the feature, and `true` enables it.
+Setting it to a function maps the final `src.json` value - returning `null` disables it.
+
+The `.well-known/src.json` file contains more details about
+the `package.json`'s `exports`, like exported identifier names and types.
+It maps each export to a source file in `.well-known/src/`.
+
+The contents of your `src/` directory are copied to `.well-known/src/`
+using the same filter as `exports` in `package.json` by default,
+and this can be customized with `filter_well_known_src`.

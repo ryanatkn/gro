@@ -1,6 +1,6 @@
 {
   "name": "@grogarden/gro",
-  "version": "0.101.0",
+  "version": "0.102.0",
   "description": "task runner and toolkit extending SvelteKit",
   "icon": "🌰",
   "public": true,
@@ -341,6 +341,10 @@
     "./search_fs.js": {
       "default": "./dist/search_fs.js",
       "types": "./dist/search_fs.d.ts"
+    },
+    "./src_json.js": {
+      "default": "./dist/src_json.js",
+      "types": "./dist/src_json.d.ts"
     },
     "./sveltekit_config.js": {
       "default": "./dist/sveltekit_config.js",
