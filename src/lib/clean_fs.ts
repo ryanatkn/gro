@@ -8,6 +8,7 @@ import {
 	SVELTEKIT_BUILD_DIRNAME,
 	SVELTEKIT_VITE_CACHE_PATH,
 	GRO_DIST_PREFIX,
+	SVELTEKIT_DIST_DIRNAME,
 } from './paths.js';
 
 export const clean_fs = async (
@@ -42,6 +43,7 @@ export const clean_fs = async (
 	if (sveltekit) {
 		promises.push(rm(SVELTEKIT_DEV_DIRNAME, rm_options));
 		promises.push(rm(SVELTEKIT_BUILD_DIRNAME, rm_options));
+		promises.push(rm(SVELTEKIT_DIST_DIRNAME, rm_options));
 		promises.push(rm(SVELTEKIT_VITE_CACHE_PATH, rm_options));
 	}
 	if (nodemodules) {

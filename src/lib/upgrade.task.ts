@@ -18,9 +18,9 @@ export const task: Task<Args> = {
 	run: async ({args, log, invoke_task}): Promise<void> => {
 		const {_, dry} = args;
 
-		const pkg = await load_package_json();
+		const package_json = await load_package_json();
 
-		const deps = to_deps(pkg).filter((d) => !_.includes(d.key));
+		const deps = to_deps(package_json).filter((d) => !_.includes(d.key));
 
 		const upgrade_items = to_upgrade_items(deps);
 
@@ -43,12 +43,12 @@ interface Dep {
 	value: string;
 }
 
-const to_deps = (pkg: Package_Json): Dep[] => {
-	const prod_deps: Dep[] = pkg.dependencies
-		? Object.entries(pkg.dependencies).map(([key, value]) => ({key, value}))
+const to_deps = (package_json: Package_Json): Dep[] => {
+	const prod_deps: Dep[] = package_json.dependencies
+		? Object.entries(package_json.dependencies).map(([key, value]) => ({key, value}))
 		: [];
-	const dev_deps: Dep[] = pkg.devDependencies
-		? Object.entries(pkg.devDependencies).map(([key, value]) => ({key, value}))
+	const dev_deps: Dep[] = package_json.devDependencies
+		? Object.entries(package_json.devDependencies).map(([key, value]) => ({key, value}))
 		: [];
 	return prod_deps.concat(dev_deps);
 };

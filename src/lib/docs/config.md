@@ -113,12 +113,12 @@ the `"exports"` property of your root `package.json`.
 The motivation is to streamline package publishing by supplementing
 [`@sveltejs/package`](https://kit.svelte.dev/docs/packaging).
 
-By default `pkg.exports` includes everything from `$lib/`
+By default `package_json.exports` includes everything from `$lib/`
 except for some ignored files like tests and markdown,
 and you can provide your own `map_package_json` hook to
-mutate the `pkg`, return new data, or return `null` to be a no-op.
+mutate the `package_json`, return new data, or return `null` to be a no-op.
 
-Typical usage modifies `pkg.exports` during this step to define the public API.
+Typical usage modifies `package_json.exports` during this step to define the public API.
 
 ### using `map_package_json`
 
@@ -131,9 +131,9 @@ const config: Gro_Config = {
 	map_package_json: null,
 
 	// mutate anything and return the final config (can be async):
-	map_package_json: (pkg) => {
+	map_package_json: (package_json) => {
 		// example setting `exports`:
-		pkg.exports = {
+		package_json.exports = {
 			'.': {
 				default: './dist/index.js',
 				types: './dist/index.d.ts',
@@ -148,12 +148,14 @@ const config: Gro_Config = {
 			},
 		};
 		// example filtering `exports`:
-		pkg.exports = Object.fromEntries(Object.entries(pkg.exports).filter(/* ... */));
-		return pkg; // returning `null` is a no-op
+		package_json.exports = Object.fromEntries(
+			Object.entries(package_json.exports).filter(/* ... */),
+		);
+		return package_json; // returning `null` is a no-op
 	},
 };
 
 export interface Map_Package_Json {
-	(pkg: Package_Json): Package_Json | null | Promise<Package_Json | null>;
+	(package_json: Package_Json): Package_Json | null | Promise<Package_Json | null>;
 }
 ```

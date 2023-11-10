@@ -15,7 +15,7 @@ export const task: Task<Args> = {
 	summary: 'build the project',
 	Args,
 	run: async (ctx): Promise<void> => {
-		const {config, args, invoke_task} = ctx;
+		const {args, invoke_task} = ctx;
 		const {install} = args;
 
 		await invoke_task('sync', {install});
@@ -25,7 +25,7 @@ export const task: Task<Args> = {
 
 		await clean_fs({build_dist: true});
 
-		const plugins = await Plugins.create({...ctx, config, dev: false, watch: false});
+		const plugins = await Plugins.create({...ctx, dev: false, watch: false});
 		await plugins.setup();
 		await plugins.adapt();
 		await plugins.teardown();
