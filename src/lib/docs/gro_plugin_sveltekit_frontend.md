@@ -37,7 +37,8 @@ a `.nojekyll` file is included in the build to tell GitHub Pages not to process 
 
 ## `well_known_package_json`
 
-If your root `package.json` has `"public": true`,
+If your root `package.json` has `"public": true`
+(telling Gro it's a [public package](./package_json.md#public-packages)),
 by default Gro copies `.well-known/package.json` to `static/` during `vite build`,
 so it's included in the SvelteKit build output.
 The motivation is to provide conventional package metadata to web users and tools.
