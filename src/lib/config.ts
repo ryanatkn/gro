@@ -27,20 +27,12 @@ export const create_empty_config = (): Gro_Config => ({
 });
 
 const default_map_package_json: Map_Package_Json = async (package_json) => {
-	if ((await has_library(package_json)) && package_json.exports) {
+	if (package_json.exports) {
 		package_json.exports = Object.fromEntries(
 			Object.entries(package_json.exports).filter(([k]) => !DEFAULT_EXPORTS_EXCLUDER.test(k)),
 		);
 	}
 	return package_json;
-};
-
-// TODO move this?
-export const has_library = async (package_json?: Package_Json): Promise<boolean> => {
-	const p = package_json ?? (await load_package_json()); // TODO from param, on config?
-	return !!p.devDependencies?.['@sveltejs/package'] || !!p.dependencies?.['@sveltejs/package'];
-	// TODO @multiple get from the sveltekit config
-	// && exists(sveltekit_config.lib_path);
 };
 
 export const DEFAULT_EXPORTS_EXCLUDER = /(\.md|\.(test|ignore)\.|\/(test|fixtures|ignore)\/)/u;
@@ -78,4 +70,12 @@ export const validate_config_module: (
 			`Invalid Gro config module at ${config_path}: the default export must be a function or object`,
 		);
 	}
+};
+
+// TODO move this? where?
+export const has_library = async (package_json?: Package_Json): Promise<boolean> => {
+	const p = package_json ?? (await load_package_json()); // TODO from param, on config?
+	return !!p.devDependencies?.['@sveltejs/package'] || !!p.dependencies?.['@sveltejs/package'];
+	// TODO @multiple get from the sveltekit config
+	// && exists(sveltekit_config.lib_path);
 };

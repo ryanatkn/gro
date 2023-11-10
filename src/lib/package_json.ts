@@ -14,6 +14,7 @@ import {
 	Email,
 } from './paths.js';
 import {search_fs} from './search_fs.js';
+import {has_library} from './config.js';
 
 // TODO move this where?
 export const transform_empty_object_to_undefined = (val: any): any => {
@@ -127,17 +128,17 @@ export const load_package_json = async (
 	dir = is_this_project_gro ? gro_paths.root : paths.root,
 	cache?: Record<string, Package_Json>,
 ): Promise<Package_Json> => {
-	let pkg: Package_Json;
+	let package_json: Package_Json;
 	if (cache && dir in cache) {
 		return cache[dir];
 	}
 	try {
-		pkg = JSON.parse(await load_package_json_contents(dir));
+		package_json = JSON.parse(await load_package_json_contents(dir));
 	} catch (err) {
 		throw Error('failed to load package.json at ' + dir);
 	}
-	if (cache) cache[dir] = pkg;
-	return pkg;
+	if (cache) cache[dir] = package_json;
+	return package_json;
 };
 
 export const sync_package_json = async (
@@ -146,23 +147,26 @@ export const sync_package_json = async (
 	check = false,
 	dir = paths.root,
 	exports_dir = paths.lib,
-): Promise<{pkg: Package_Json | null; changed: boolean}> => {
+): Promise<{package_json: Package_Json | null; changed: boolean}> => {
 	const exported_files = await search_fs(exports_dir);
 	const exported_paths = Array.from(exported_files.keys());
 	const updated = await update_package_json(
 		dir,
-		async (pkg) => {
-			// TODO BLOCK here
-			const exports = to_package_exports(exported_paths);
-			pkg.exports = exports;
-			const mapped = await map_package_json(pkg);
+		async (package_json) => {
+			if (await has_library(package_json)) {
+				const exports = to_package_exports(exported_paths);
+				package_json.exports = exports;
+			}
+			const mapped = await map_package_json(package_json);
 			return mapped ? normalize_package_json(mapped) : mapped;
 		},
 		!check,
 	);
 
 	const exports_count =
-		updated.changed && updated.pkg?.exports ? Object.keys(updated.pkg.exports).length : 0;
+		updated.changed && updated.package_json?.exports
+			? Object.keys(updated.package_json.exports).length
+			: 0;
 	log.info(
 		updated.changed
 			? `updated package.json exports with ${exports_count} total export${plural(exports_count)}`
@@ -182,9 +186,9 @@ export const write_package_json = async (serialized_pkg: string): Promise<void> 
 	await writeFile(join(paths.root, 'package.json'), serialized_pkg);
 };
 
-export const serialize_package_json = (pkg: Package_Json): string => {
-	Package_Json.parse(pkg);
-	return JSON.stringify(pkg, null, 2) + '\n';
+export const serialize_package_json = (package_json: Package_Json): string => {
+	Package_Json.parse(package_json);
+	return JSON.stringify(package_json, null, 2) + '\n';
 };
 
 /**
@@ -192,21 +196,21 @@ export const serialize_package_json = (pkg: Package_Json): string => {
  */
 export const update_package_json = async (
 	dir = paths.root,
-	update: (pkg: Package_Json) => Package_Json | null | Promise<Package_Json | null>,
+	update: (package_json: Package_Json) => Package_Json | null | Promise<Package_Json | null>,
 	write = true,
-): Promise<{pkg: Package_Json | null; changed: boolean}> => {
-	const original_pkg_contents = await load_package_json_contents(dir);
-	const original_pkg = JSON.parse(original_pkg_contents);
-	const updated_pkg = await update(original_pkg);
-	if (updated_pkg === null) {
-		return {pkg: original_pkg, changed: false};
+): Promise<{package_json: Package_Json | null; changed: boolean}> => {
+	const original_contents = await load_package_json_contents(dir);
+	const original = JSON.parse(original_contents);
+	const updated = await update(original);
+	if (updated === null) {
+		return {package_json: original, changed: false};
 	}
-	const updated_contents = serialize_package_json(updated_pkg);
-	if (updated_contents === original_pkg_contents) {
-		return {pkg: original_pkg, changed: false};
+	const updated_contents = serialize_package_json(updated);
+	if (updated_contents === original_contents) {
+		return {package_json: original, changed: false};
 	}
 	if (write) await write_package_json(updated_contents);
-	return {pkg: updated_pkg, changed: true};
+	return {package_json: updated, changed: true};
 };
 
 // TODO do this with zod?
