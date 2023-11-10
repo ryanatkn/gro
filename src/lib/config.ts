@@ -4,7 +4,7 @@ import {CONFIG_PATH, paths} from './paths.js';
 import create_default_config from './gro.config.default.js';
 import type {Create_Config_Plugins} from './plugin.js';
 import {exists} from './exists.js';
-import {load_package_json, Package_Json, type Map_Package_Json} from './package_json.js';
+import type {Map_Package_Json} from './package_json.js';
 
 export interface Gro_Config {
 	plugins: Create_Config_Plugins;
@@ -70,12 +70,4 @@ export const validate_config_module: (
 			`Invalid Gro config module at ${config_path}: the default export must be a function or object`,
 		);
 	}
-};
-
-// TODO move this? where?
-export const has_library = async (package_json?: Package_Json): Promise<boolean> => {
-	const p = package_json ?? (await load_package_json()); // TODO from param, on config?
-	return !!p.devDependencies?.['@sveltejs/package'] || !!p.dependencies?.['@sveltejs/package'];
-	// TODO @multiple get from the sveltekit config
-	// && exists(sveltekit_config.lib_path);
 };

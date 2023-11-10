@@ -2,7 +2,7 @@ import {print_spawn_result, spawn} from '@grogarden/util/process.js';
 
 import type {Plugin, Plugin_Context} from './plugin.js';
 import {Task_Error} from './task.js';
-import {load_package_json} from './package_json.js';
+import {Package_Json, load_package_json} from './package_json.js';
 import {print_command_args, serialize_args, to_forwarded_args} from './args.js';
 import {find_cli, spawn_cli} from './cli.js';
 
@@ -38,4 +38,12 @@ export const plugin = (): Plugin<Plugin_Context> => {
 			}
 		},
 	};
+};
+
+// TODO move this? where?
+export const has_library = async (package_json?: Package_Json): Promise<boolean> => {
+	const p = package_json ?? (await load_package_json()); // TODO from param, on config?
+	return !!p.devDependencies?.['@sveltejs/package'] || !!p.dependencies?.['@sveltejs/package'];
+	// TODO @multiple get from the sveltekit config
+	// && exists(sveltekit_config.lib_path);
 };
