@@ -158,7 +158,7 @@ export const sync_package_json = async (
 				package_json.exports = exports;
 			}
 			const mapped = await map_package_json(package_json);
-			return mapped ? normalize_package_json(mapped) : mapped;
+			return mapped ? Package_Json.parse(mapped) : mapped;
 		},
 		!check,
 	);
@@ -211,19 +211,6 @@ export const update_package_json = async (
 	}
 	if (write) await write_package_json(updated_contents);
 	return {package_json: updated, changed: true};
-};
-
-// TODO do this with zod?
-/**
- * Mutates `package_json` to normalize it for convenient usage.
- * For example, users don't have to worry about empty `exports` objects,
- * which fail schema validation.
- */
-export const normalize_package_json = (package_json: Package_Json): Package_Json => {
-	if (package_json.exports && Object.keys(package_json.exports).length === 0) {
-		package_json.exports = undefined;
-	}
-	return package_json;
 };
 
 export const to_package_exports = (paths: string[]): Package_Json_Exports => {

@@ -605,7 +605,6 @@ export const src_json = {
 				{name: 'write_package_json', kind: 'function'},
 				{name: 'serialize_package_json', kind: 'function'},
 				{name: 'update_package_json', kind: 'function'},
-				{name: 'normalize_package_json', kind: 'function'},
 				{name: 'to_package_exports', kind: 'function'},
 			],
 		},
