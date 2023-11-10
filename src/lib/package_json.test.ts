@@ -9,21 +9,21 @@ import {
 } from './package_json.js';
 
 test('load_package_json', async () => {
-	const pkg = await load_package_json();
-	assert.ok(pkg);
-	const parsed = Package_Json.parse(pkg);
+	const package_json = await load_package_json();
+	assert.ok(package_json);
+	const parsed = Package_Json.parse(package_json);
 	assert.ok(parsed);
-	serialize_package_json(pkg);
+	serialize_package_json(package_json);
 });
 
 test('load_package_json with cache', async () => {
 	const cache = {};
-	const pkg1 = await load_package_json(undefined, cache);
-	assert.ok(pkg1);
+	const package_json1 = await load_package_json(undefined, cache);
+	assert.ok(package_json1);
 	assert.is(Object.keys(cache).length, 1);
-	const pkg2 = await load_package_json(undefined, cache);
+	const package_json2 = await load_package_json(undefined, cache);
 	assert.is(Object.keys(cache).length, 1);
-	assert.is(pkg1, pkg2);
+	assert.is(package_json1, package_json2);
 });
 
 test('Package_Json.parse', async () => {
