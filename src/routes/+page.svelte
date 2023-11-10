@@ -43,11 +43,11 @@
 				>{#if show_detail}🪜{:else}🔨{/if}</button
 			>
 			{#if show_detail}
-				<div transition:slide>
+				<div class="box width_full" transition:slide>
 					<Package_Detail {pkg} />
 				</div>
 			{:else}
-				<div transition:slide>
+				<div class="box" transition:slide>
 					<Package_Summary {pkg} />
 				</div>
 			{/if}
@@ -81,5 +81,6 @@
 		top: var(--spacing_sm);
 		right: var(--spacing_sm);
 		font-size: var(--size_1);
+		z-index: 1;
 	}
 </style>
