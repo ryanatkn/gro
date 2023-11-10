@@ -82,11 +82,8 @@ in `static/` during `vite build`,
 so they're included in the SvelteKit build output.
 
 This can be customized with `well_known_src_json`.
-Setting it to `false` disables the feature,
-and `true` uses the default mapping function,
-which is the same default matching behavior
-that includes modules for `exports` in `package.json`.
-You can also provide a custom mapping function.
+Setting it to `false` disables the feature, and `true` enables it.
+Setting it to a function maps the final `src.json` value - returning `null` disables it.
 
 The `.well-known/src.json` file contains more details about
 the `package.json`'s `exports`, like exported identifier names and types.
