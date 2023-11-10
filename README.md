@@ -73,6 +73,7 @@ It includes:
   - builtin [tasks](/src/lib/docs/tasks.md) list
 - [testing](/src/lib/docs/test.md) with [`uvu`](https://github.com/lukeed/uvu)
 - [`gen`](/src/lib/docs/gen.md) code generation
+- [`public` package](/src/lib/docs/package_json.md#public-packages) features (nonstandard)
 - full [docs index](/src/lib/docs#readme)
 
 ## install

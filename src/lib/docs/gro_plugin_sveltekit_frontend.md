@@ -80,6 +80,7 @@ If your root `package.json` has `"public": true`,
 by default Gro creates `.well-known/src.json` and `.well-known/src/`
 in `static/` during `vite build`,
 so they're included in the SvelteKit build output.
+More [about public packages](./package_json.md#public-packages).
 
 This can be customized with `well_known_src_json`.
 Setting it to `false` disables the feature, and `true` enables it.
