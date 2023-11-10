@@ -10,7 +10,7 @@ export interface Gro_Config {
 	plugins: Create_Config_Plugins;
 	/**
 	 * Maps the project's `package.json` before writing it to the filesystem.
-	 * The `pkg` argument may be mutated, but the return value is what's used by the caller.
+	 * The `package_json` argument may be mutated, but the return value is what's used by the caller.
 	 * Returning `null` is a no-op for the caller.
 	 */
 	map_package_json: Map_Package_Json | null;
@@ -26,15 +26,16 @@ export const create_empty_config = (): Gro_Config => ({
 	map_package_json: default_map_package_json,
 });
 
-const default_map_package_json: Map_Package_Json = async (pkg) => {
-	if (pkg.exports) {
-		pkg.exports = Object.fromEntries(
-			Object.entries(pkg.exports).filter(([k]) => !DEFAULT_EXPORTS_EXCLUDE.test(k)),
+const default_map_package_json: Map_Package_Json = async (package_json) => {
+	if (package_json.exports) {
+		package_json.exports = Object.fromEntries(
+			Object.entries(package_json.exports).filter(([k]) => !DEFAULT_EXPORTS_EXCLUDER.test(k)),
 		);
 	}
-	return pkg;
+	return package_json;
 };
-const DEFAULT_EXPORTS_EXCLUDE = /(\.md|\.(test|ignore)\.|\/(test|fixtures|ignore)\/)/u;
+
+export const DEFAULT_EXPORTS_EXCLUDER = /(\.md|\.(test|ignore)\.|\/(test|fixtures|ignore)\/)/u;
 
 export interface Gro_Config_Module {
 	readonly default: Gro_Config | Create_Gro_Config;

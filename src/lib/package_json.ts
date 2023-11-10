@@ -1,9 +1,8 @@
 import {z} from 'zod';
 import {join} from 'node:path';
 import {readFile, writeFile} from 'node:fs/promises';
-import {plural, strip_start} from '@grogarden/util/string.js';
+import {plural} from '@grogarden/util/string.js';
 import type {Logger} from '@grogarden/util/log.js';
-import {Project} from 'ts-morph';
 
 import {
 	paths,
@@ -15,29 +14,15 @@ import {
 	Email,
 } from './paths.js';
 import {search_fs} from './search_fs.js';
-import {exists} from './exists.js';
+import {has_library} from './gro_plugin_library.js';
 
-export const Package_Module_Declaration = z
-	.object({
-		name: z.string(), // the export identifier
-		// TODO these are poorly named, and they're somewhat redundant with `kind`,
-		// they were added to distinguish `VariableDeclaration` functions and non-functions
-		kind: z.enum(['type', 'function', 'variable', 'class']).nullable(),
-		// code: z.string(), // TODO experiment with `getType().getText()`, some of them return the same as `name`
-	})
-	.passthrough();
-export type Package_Module_Declaration = z.infer<typeof Package_Module_Declaration>;
-
-export const Package_Module = z
-	.object({
-		path: z.string(),
-		declarations: z.array(Package_Module_Declaration),
-	})
-	.passthrough();
-export type Package_Module = z.infer<typeof Package_Module>;
-
-export const Package_Modules = z.record(Package_Module);
-export type Package_Modules = z.infer<typeof Package_Modules>;
+// TODO move this where?
+export const transform_empty_object_to_undefined = (val: any): any => {
+	if (val && Object.keys(val).length === 0) {
+		return undefined;
+	}
+	return val;
+};
 
 export const Package_Json_Repository = z.union([
 	z.string(),
@@ -76,9 +61,6 @@ export type Package_Json_Funding = z.infer<typeof Package_Json_Funding>;
 
 export const Package_Json_Exports = z.record(z.record(z.string()).optional());
 export type Package_Json_Exports = z.infer<typeof Package_Json_Exports>;
-
-export const Package_Json_Modules = Package_Modules.optional();
-export type Package_Json_Modules = z.infer<typeof Package_Json_Modules>;
 
 /**
  * @see https://docs.npmjs.com/cli/v10/configuring-npm/package-json
@@ -120,8 +102,7 @@ export const Package_Json = z.intersection(
 
 			bin: z.record(z.string()).optional(),
 			files: z.array(z.string()).optional(),
-			exports: Package_Json_Exports.optional(),
-			modules: Package_Json_Modules.optional(),
+			exports: Package_Json_Exports.transform(transform_empty_object_to_undefined).optional(),
 
 			dependencies: z.record(z.string()).optional(),
 			devDependencies: z.record(z.string()).optional(),
@@ -138,7 +119,7 @@ export const Package_Json = z.intersection(
 export type Package_Json = z.infer<typeof Package_Json>;
 
 export interface Map_Package_Json {
-	(pkg: Package_Json): Package_Json | null | Promise<Package_Json | null>;
+	(package_json: Package_Json): Package_Json | null | Promise<Package_Json | null>;
 }
 
 export const EMPTY_PACKAGE_JSON: Package_Json = {name: '', version: ''};
@@ -147,26 +128,16 @@ export const load_package_json = async (
 	dir = is_this_project_gro ? gro_paths.root : paths.root,
 	cache?: Record<string, Package_Json>,
 ): Promise<Package_Json> => {
-	let pkg: Package_Json;
+	let package_json: Package_Json;
 	if (cache && dir in cache) {
 		return cache[dir];
 	}
 	try {
-		pkg = JSON.parse(await load_package_json_contents(dir));
+		package_json = JSON.parse(await load_package_json_contents(dir));
 	} catch (err) {
 		throw Error('failed to load package.json at ' + dir);
 	}
-	if (cache) cache[dir] = pkg;
-	return pkg;
-};
-
-export const load_mapped_package_json = async (
-	log?: Logger,
-	dir = is_this_project_gro ? gro_paths.root : paths.root,
-	cache?: Record<string, Package_Json>,
-): Promise<Package_Json> => {
-	const package_json = await load_package_json(dir, cache);
-	package_json.modules = await to_package_modules(package_json.exports, log);
+	if (cache) cache[dir] = package_json;
 	return package_json;
 };
 
@@ -176,22 +147,26 @@ export const sync_package_json = async (
 	check = false,
 	dir = paths.root,
 	exports_dir = paths.lib,
-): Promise<{pkg: Package_Json | null; changed: boolean}> => {
+): Promise<{package_json: Package_Json | null; changed: boolean}> => {
 	const exported_files = await search_fs(exports_dir);
 	const exported_paths = Array.from(exported_files.keys());
 	const updated = await update_package_json(
 		dir,
-		async (pkg) => {
-			const exports = to_package_exports(exported_paths);
-			pkg.exports = exports;
-			const mapped = await map_package_json(pkg);
-			return mapped ? normalize_package_json(mapped) : mapped;
+		async (package_json) => {
+			if (await has_library(package_json)) {
+				const exports = to_package_exports(exported_paths);
+				package_json.exports = exports;
+			}
+			const mapped = await map_package_json(package_json);
+			return mapped ? Package_Json.parse(mapped) : mapped;
 		},
 		!check,
 	);
 
 	const exports_count =
-		updated.changed && updated.pkg?.exports ? Object.keys(updated.pkg.exports).length : 0;
+		updated.changed && updated.package_json?.exports
+			? Object.keys(updated.package_json.exports).length
+			: 0;
 	log.info(
 		updated.changed
 			? `updated package.json exports with ${exports_count} total export${plural(exports_count)}`
@@ -207,13 +182,13 @@ export const load_gro_package_json = (): Promise<Package_Json> => load_package_j
 const load_package_json_contents = (dir: string): Promise<string> =>
 	readFile(join(dir, 'package.json'), 'utf8');
 
-export const write_package_json = async (serialized_pkg: string): Promise<void> => {
-	await writeFile(join(paths.root, 'package.json'), serialized_pkg);
+export const write_package_json = async (serialized_package_json: string): Promise<void> => {
+	await writeFile(join(paths.root, 'package.json'), serialized_package_json);
 };
 
-export const serialize_package_json = (pkg: Package_Json): string => {
-	Package_Json.parse(pkg);
-	return JSON.stringify(pkg, null, 2) + '\n';
+export const serialize_package_json = (package_json: Package_Json): string => {
+	Package_Json.parse(package_json);
+	return JSON.stringify(package_json, null, 2) + '\n';
 };
 
 /**
@@ -221,34 +196,21 @@ export const serialize_package_json = (pkg: Package_Json): string => {
  */
 export const update_package_json = async (
 	dir = paths.root,
-	update: (pkg: Package_Json) => Package_Json | null | Promise<Package_Json | null>,
+	update: (package_json: Package_Json) => Package_Json | null | Promise<Package_Json | null>,
 	write = true,
-): Promise<{pkg: Package_Json | null; changed: boolean}> => {
-	const original_pkg_contents = await load_package_json_contents(dir);
-	const original_pkg = JSON.parse(original_pkg_contents);
-	const updated_pkg = await update(original_pkg);
-	if (updated_pkg === null) {
-		return {pkg: original_pkg, changed: false};
+): Promise<{package_json: Package_Json | null; changed: boolean}> => {
+	const original_contents = await load_package_json_contents(dir);
+	const original = JSON.parse(original_contents);
+	const updated = await update(original);
+	if (updated === null) {
+		return {package_json: original, changed: false};
 	}
-	const updated_contents = serialize_package_json(updated_pkg);
-	if (updated_contents === original_pkg_contents) {
-		return {pkg: original_pkg, changed: false};
+	const updated_contents = serialize_package_json(updated);
+	if (updated_contents === original_contents) {
+		return {package_json: original, changed: false};
 	}
 	if (write) await write_package_json(updated_contents);
-	return {pkg: updated_pkg, changed: true};
-};
-
-// TODO do this with zod?
-/**
- * Mutates `pkg` to normalize it for convenient usage.
- * For example, users don't have to worry about empty `exports` objects,
- * which fail schema validation.
- */
-export const normalize_package_json = (pkg: Package_Json): Package_Json => {
-	if (pkg.exports && Object.keys(pkg.exports).length === 0) {
-		pkg.exports = undefined;
-	}
-	return pkg;
+	return {package_json: updated, changed: true};
 };
 
 export const to_package_exports = (paths: string[]): Package_Json_Exports => {
@@ -292,91 +254,3 @@ export const to_package_exports = (paths: string[]): Package_Json_Exports => {
 };
 
 const IMPORT_PREFIX = './' + SVELTEKIT_DIST_DIRNAME + '/';
-
-// TODO refactor
-export const to_package_modules = async (
-	exports: Package_Json_Exports | undefined,
-	log?: Logger,
-	base_path = paths.lib,
-): Promise<Package_Modules | undefined> => {
-	if (!exports) return undefined;
-
-	const project = new Project();
-	project.addSourceFilesAtPaths('src/**/*.ts'); // TODO dir? maybe rewrite with `base_path`?
-
-	return Object.fromEntries(
-		(
-			await Promise.all(
-				Object.entries(exports).map(async ([k, _v]) => {
-					// TODO hacky - doesn't handle any but the normal mappings, also add a helper?
-					const source_file_path =
-						k === '.' || k === './'
-							? 'index.ts'
-							: strip_start(k.endsWith('.js') ? replace_extension(k, '.ts') : k, './');
-					if (!source_file_path.endsWith('.ts')) {
-						// TODO support more than just TypeScript - probably use @sveltejs/language-tools, see how @sveltejs/package generates types
-						const package_module: Package_Module = {path: source_file_path, declarations: []};
-						return [k, package_module];
-					}
-					const source_file_id = join(base_path, source_file_path);
-					if (!(await exists(source_file_id))) {
-						log?.warn(
-							'failed to infer source file from export path',
-							k,
-							'- the inferred file',
-							source_file_id,
-							'does not exist',
-						);
-						return null!;
-					}
-
-					const declarations: Package_Module_Declaration[] = [];
-
-					const source_file = project.getSourceFile((f) =>
-						f.getFilePath().endsWith(source_file_path),
-					); // TODO expected this to work without the callback, according to my read of the docs it is, but `project.getSourceFile(source_file_path)` fails
-					if (source_file) {
-						for (const [name, decls] of source_file.getExportedDeclarations()) {
-							if (!decls) continue;
-							// TODO how to correctly handle multiples?
-							for (const decl of decls) {
-								// TODO helper
-								const decl_type = decl.getType();
-								const k = decl.getKindName();
-								const kind =
-									k === 'InterfaceDeclaration' || k === 'TypeAliasDeclaration'
-										? 'type'
-										: k === 'ClassDeclaration'
-										? 'class'
-										: k === 'VariableDeclaration'
-										? decl_type.getCallSignatures().length
-											? 'function'
-											: 'variable' // TODO name?
-										: null;
-								// TODO
-								// const code =
-								// 	k === 'InterfaceDeclaration' || k === 'TypeAliasDeclaration'
-								// 		? decl_type.getText(source_file) // TODO
-								// 		: decl_type.getText(source_file);
-								const found = declarations.find((d) => d.name === name);
-								if (found) {
-									// TODO hacky, this only was added to prevent `TypeAliasDeclaration` from overriding `VariableDeclaration`
-									if (found.kind === 'type') {
-										found.kind = kind;
-										// found.code = code;
-									}
-								} else {
-									// TODO more
-									declarations.push({name, kind}); // code
-								}
-							}
-						}
-					}
-
-					const package_module: Package_Module = {path: source_file_path, declarations};
-					return [k, package_module];
-				}),
-			)
-		).filter(Boolean),
-	);
-};

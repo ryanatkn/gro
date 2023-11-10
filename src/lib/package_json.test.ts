@@ -6,26 +6,24 @@ import {
 	load_package_json,
 	serialize_package_json,
 	to_package_exports,
-	to_package_modules,
 } from './package_json.js';
-import {paths} from './paths.js';
 
 test('load_package_json', async () => {
-	const pkg = await load_package_json();
-	assert.ok(pkg);
-	const parsed = Package_Json.parse(pkg);
+	const package_json = await load_package_json();
+	assert.ok(package_json);
+	const parsed = Package_Json.parse(package_json);
 	assert.ok(parsed);
-	serialize_package_json(pkg);
+	serialize_package_json(package_json);
 });
 
 test('load_package_json with cache', async () => {
 	const cache = {};
-	const pkg1 = await load_package_json(undefined, cache);
-	assert.ok(pkg1);
+	const package_json1 = await load_package_json(undefined, cache);
+	assert.ok(package_json1);
 	assert.is(Object.keys(cache).length, 1);
-	const pkg2 = await load_package_json(undefined, cache);
+	const package_json2 = await load_package_json(undefined, cache);
 	assert.is(Object.keys(cache).length, 1);
-	assert.is(pkg1, pkg2);
+	assert.is(package_json1, package_json2);
 });
 
 test('Package_Json.parse', async () => {
@@ -81,62 +79,6 @@ test('to_package_exports', async () => {
 			'./a/b/some_test_ts.js': {
 				default: './dist/a/b/some_test_ts.js',
 				types: './dist/a/b/some_test_ts.d.ts',
-			},
-		},
-	);
-});
-
-test('to_package_modules', async () => {
-	assert.equal(
-		await to_package_modules(
-			to_package_exports([
-				'fixtures/modules/some_test_css.css',
-				'fixtures/modules/Some_Test_Svelte.svelte',
-				'fixtures/modules/some_test_ts.ts',
-				'fixtures/modules/some_test_json.json',
-			]),
-			undefined,
-			paths.source,
-		),
-		{
-			'./fixtures/modules/some_test_css.css': {
-				path: 'fixtures/modules/some_test_css.css',
-				declarations: [],
-			},
-			'./fixtures/modules/some_test_json.json': {
-				path: 'fixtures/modules/some_test_json.json',
-				declarations: [],
-			},
-			'./fixtures/modules/Some_Test_Svelte.svelte': {
-				path: 'fixtures/modules/Some_Test_Svelte.svelte',
-				declarations: [
-					// TODO !
-				],
-			},
-			'./fixtures/modules/some_test_ts.js': {
-				path: 'fixtures/modules/some_test_ts.ts',
-				declarations: [
-					{
-						name: 'some_test_ts',
-						kind: 'variable',
-					},
-					{
-						name: 'some_test_fn',
-						kind: 'function',
-					},
-					{
-						name: 'Some_Test_Type',
-						kind: 'type',
-					},
-					{
-						name: 'Some_Test_Interface',
-						kind: 'type',
-					},
-					{
-						name: 'Some_Test_Class',
-						kind: 'class',
-					},
-				],
 			},
 		},
 	);
