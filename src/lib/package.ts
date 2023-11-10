@@ -330,7 +330,6 @@ export const src_json = {
 				{name: 'Gro_Config_Module', kind: 'type'},
 				{name: 'load_config', kind: 'function'},
 				{name: 'validate_config_module', kind: 'function'},
-				{name: 'has_library', kind: 'function'},
 			],
 		},
 		'./deploy.task.js': {
@@ -512,7 +511,10 @@ export const src_json = {
 		},
 		'./gro_plugin_library.js': {
 			path: 'gro_plugin_library.ts',
-			declarations: [{name: 'plugin', kind: 'function'}],
+			declarations: [
+				{name: 'plugin', kind: 'function'},
+				{name: 'has_library', kind: 'function'},
+			],
 		},
 		'./gro_plugin_server.js': {
 			path: 'gro_plugin_server.ts',
