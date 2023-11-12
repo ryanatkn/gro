@@ -1,5 +1,12 @@
 # @grogarden/gro
 
+## 0.102.1
+
+### Patch Changes
+
+- 3d84dfd: clean sveltekit dist dir
+- fc64b77: check for clean git workspace in `gro publish`
+
 ## 0.102.0
 
 ### Minor Changes
