@@ -37,7 +37,7 @@ export const load_task_module = async (
 };
 
 export const find_task_modules = async (
-	input_paths: string[] = [paths.lib],
+	input_paths: string[] = [paths.lib, paths.source, paths.root],
 	extensions: string[] = [TASK_FILE_SUFFIX_TS, TASK_FILE_SUFFIX_JS],
 	root_dirs?: string[],
 ): Promise<ReturnType<typeof find_modules>> =>

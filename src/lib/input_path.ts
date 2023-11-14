@@ -93,6 +93,8 @@ export const get_possible_source_ids = (
 			}
 		}
 	}
+	console.log(`input_path`, input_path);
+	console.log(`possible_source_ids`, possible_source_ids);
 	return possible_source_ids;
 };
 
