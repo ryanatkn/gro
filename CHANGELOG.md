@@ -1,5 +1,11 @@
 # @grogarden/gro
 
+## 0.102.2
+
+### Patch Changes
+
+- 80365d0: catch server build errors
+
 ## 0.102.1
 
 ### Patch Changes
