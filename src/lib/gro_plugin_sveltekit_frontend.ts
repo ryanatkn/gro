@@ -72,8 +72,8 @@ export const plugin = ({
 				const mapped_package_json = !well_known_package_json
 					? null
 					: well_known_package_json === true
-					? package_json
-					: await well_known_package_json(package_json);
+					  ? package_json
+					  : await well_known_package_json(package_json);
 				const serialized_package_json =
 					mapped_package_json && serialize_package_json(mapped_package_json);
 
@@ -86,8 +86,8 @@ export const plugin = ({
 				const mapped_src_json = !well_known_src_json
 					? null
 					: well_known_src_json === true
-					? src_json
-					: await well_known_src_json(src_json);
+					  ? src_json
+					  : await well_known_src_json(src_json);
 				const serialized_src_json = mapped_src_json && serialize_src_json(mapped_src_json);
 
 				// TODO this strategy means the files aren't available during development --
