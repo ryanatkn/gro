@@ -1,5 +1,11 @@
 # @grogarden/gro
 
+## 0.102.3
+
+### Patch Changes
+
+- 54b65ec: upgrade deps
+
 ## 0.102.2
 
 ### Patch Changes
