@@ -55,7 +55,7 @@ export const package_json = {
 		'@changesets/types': '^6.0.0',
 		'@feltjs/eslint-config': '^0.4.1',
 		'@fuz.dev/fuz': '^0.81.0',
-		'@fuz.dev/fuz_library': '^0.22.1',
+		'@fuz.dev/fuz_library': '^0.23.0',
 		'@sveltejs/adapter-static': '^2.0.3',
 		'@sveltejs/kit': '^1.27.6',
 		'@sveltejs/package': '^2.2.3',
