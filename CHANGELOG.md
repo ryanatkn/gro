@@ -1,5 +1,11 @@
 # @grogarden/gro
 
+## 0.103.0
+
+### Minor Changes
+
+- f6133f7: upgrade deps
+
 ## 0.102.3
 
 ### Patch Changes
