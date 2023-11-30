@@ -1,5 +1,11 @@
 # @grogarden/gro
 
+## 0.103.1
+
+### Patch Changes
+
+- 094279d: improve `exists`
+
 ## 0.103.0
 
 ### Minor Changes
