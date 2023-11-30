@@ -1,12 +1,11 @@
-import {existsSync} from 'node:fs';
+import {access, constants} from 'node:fs/promises';
 
-// TODO this was using `access` from `node:fs/promises but there's
-// some problem with it and `stat` crashing the process, idk, maybe a quirk of my node version
 export const exists = async (path: string): Promise<boolean> => {
 	try {
-		// await access(path); // TODO see above
-		return existsSync(path);
+		await access(path, constants.F_OK);
+		return true;
 	} catch (err) {
-		return false;
+		if (err.code === 'ENOENT') return false;
+		throw err;
 	}
 };
