@@ -1,7 +1,7 @@
 import {test} from 'uvu';
 import * as assert from 'uvu/assert';
 
-import {exists} from '$lib/exists.js';
+import {exists} from './exists.js';
 
 test('file exists', async () => {
 	assert.ok(await exists('./src/lib/exists.ts'));
