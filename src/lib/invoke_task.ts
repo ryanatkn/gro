@@ -8,7 +8,6 @@ import {run_task} from './run_task.js';
 import {resolve_input_path} from './input_path.js';
 import {is_task_path} from './task.js';
 import {
-	paths,
 	is_gro_id,
 	is_this_project_gro,
 	print_path,
@@ -60,7 +59,7 @@ export const invoke_task = async (
 	}
 
 	// Resolve the input path for the provided task name.
-	const input_path = resolve_input_path(task_name || paths.lib);
+	const input_path = resolve_input_path(task_name);
 
 	// Find the task or directory specified by the `input_path`.
 	// Fall back to searching the Gro directory as well.

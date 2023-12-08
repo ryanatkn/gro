@@ -72,8 +72,7 @@ export const task: Task<Args> = {
 
 		// Check before proceeding.
 		if (check) {
-			// TODO check for clean git workspace
-			await invoke_task('check');
+			await invoke_task('check', {workspace: true});
 		}
 
 		let version!: string;

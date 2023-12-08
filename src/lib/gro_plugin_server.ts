@@ -185,7 +185,13 @@ export const plugin = ({
 			timing_to_esbuild_create_context();
 
 			const rebuild = throttle(async () => {
-				const build_result = await build_ctx.rebuild();
+				let build_result;
+				try {
+					build_result = await build_ctx.rebuild();
+				} catch (err) {
+					log.error('[gro_plugin_server] build failed', err);
+					return;
+				}
 				const {metafile} = build_result;
 				if (!metafile) return;
 				print_build_result(log, build_result);
