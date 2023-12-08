@@ -1,5 +1,11 @@
 # @grogarden/gro
 
+## 0.103.2
+
+### Patch Changes
+
+- e345eaa: fix gro build for deps that circularly import the building project
+
 ## 0.103.1
 
 ### Patch Changes
