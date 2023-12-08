@@ -1,5 +1,42 @@
 # @grogarden/gro
 
+## 0.103.2
+
+### Patch Changes
+
+- e345eaa: fix gro build for deps that circularly import the building project
+
+## 0.103.1
+
+### Patch Changes
+
+- 094279d: improve `exists`
+
+## 0.103.0
+
+### Minor Changes
+
+- f6133f7: upgrade deps
+
+## 0.102.3
+
+### Patch Changes
+
+- 54b65ec: upgrade deps
+
+## 0.102.2
+
+### Patch Changes
+
+- 80365d0: catch server build errors
+
+## 0.102.1
+
+### Patch Changes
+
+- 3d84dfd: clean sveltekit dist dir
+- fc64b77: check for clean git workspace in `gro publish`
+
 ## 0.102.0
 
 ### Minor Changes

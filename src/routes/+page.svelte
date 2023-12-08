@@ -6,11 +6,11 @@
 	import Package_Summary from '@fuz.dev/fuz_library/Package_Summary.svelte';
 	import {slide} from 'svelte/transition';
 
-	import {package_json} from '$lib/package.js';
+	import {package_json, src_json} from '$lib/package.js';
 
 	// TODO add website, rewriting the markdown docs as Svelte
 
-	const pkg = parse_package_meta(package_json.homepage, package_json);
+	const pkg = parse_package_meta(package_json.homepage, package_json, src_json);
 
 	let show_detail = false;
 </script>

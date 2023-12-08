@@ -9,14 +9,15 @@ import {find_cli, spawn_cli} from './cli.js';
 export const plugin = (): Plugin<Plugin_Context> => {
 	return {
 		name: 'gro_plugin_library',
-		adapt: async ({log, timings}) => {
+		setup: async ({log}) => {
 			if ((await find_cli('svelte-package')) !== 'local') {
 				throw new Task_Error('Failed to find svelte-package, run `npm i -D @sveltejs/package`');
 			}
 			const serialized_args = serialize_args(to_forwarded_args('svelte-package'));
 			log.info(print_command_args(serialized_args));
 			await spawn_cli('svelte-package', serialized_args);
-
+		},
+		adapt: async ({log, timings}) => {
 			const package_json = await load_package_json();
 
 			// `npm link`
