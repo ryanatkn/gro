@@ -165,6 +165,7 @@ export const task: Task<Args> = {
 		// TODO BLOCK change back to root directory on any further failures
 		console.log(`resolved_deploy_dir`, resolved_deploy_dir);
 		await spawn('cd', [resolved_deploy_dir]);
+		console.log('worked');
 		try {
 			await git_checkout(target);
 			await git_pull(origin, target);
