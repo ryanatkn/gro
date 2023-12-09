@@ -132,6 +132,8 @@ export const task: Task<Args> = {
 			target_spawn_options,
 		);
 		const local_target_exists = await git_local_branch_exists(target, target_spawn_options);
+		console.log(`remote_target_exists`, remote_target_exists);
+		console.log(`local_target_exists`, local_target_exists);
 		if (remote_target_exists) {
 			// Remote target branch already exists, so sync up
 			await git_fetch(origin, target); // ensure the local branch is up to date
