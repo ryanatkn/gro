@@ -173,20 +173,6 @@ export const git_delete_remote_branch = async (
 	}
 };
 
-export const WORKTREE_DIRNAME = 'worktree';
-export const to_worktree_dir = (dir: string): string => dir + WORKTREE_DIRNAME;
-
-/**
- * Removes the specified git worktree and then prunes.
- */
-export const git_clean_worktree = async (
-	worktree_dirname = WORKTREE_DIRNAME,
-	options: SpawnOptions = {stdio: 'pipe'}, // silence the output by default
-): Promise<void> => {
-	await spawn('git', ['worktree', 'remove', worktree_dirname, '--force'], options);
-	await spawn('git', ['worktree', 'prune'], options);
-};
-
 /**
  * Resets the `target` branch back to its first commit both locally and remotely.
  */
