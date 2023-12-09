@@ -129,12 +129,11 @@ export const task: Task<Args> = {
 		const remote_target_exists = await git_remote_branch_exists(origin, target);
 		if (remote_target_exists) {
 			// Remote target branch already exists, so sync up
-			await git_fetch(origin, target); // ensure the local branch is up to date
+			await git_fetch(origin, target, target_spawn_options); // ensure the local branch is up to date
 
 			// Local target branch is now synced with remote, but do we need to reset?
 			if (reset) {
-				await git_reset_branch_to_first_commit(origin, target);
-				await git_checkout(source);
+				await git_reset_branch_to_first_commit(origin, target, target_spawn_options);
 			}
 		} else {
 			// Remote target branch does not exist
