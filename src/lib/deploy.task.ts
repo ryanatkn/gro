@@ -129,6 +129,7 @@ export const task: Task<Args> = {
 
 		// TODO BLOCK needs to handle the same complexity as below
 		// Prepare the source branch
+		await git_fetch(origin, source); // ensure the local branch is up to date
 		await git_checkout(source);
 		if (!dirty) {
 			const clean_error_message = await git_check_clean_workspace();
@@ -136,70 +137,7 @@ export const task: Task<Args> = {
 			await git_pull(origin, source);
 		}
 
-		// Build
-		try {
-			if (build) {
-				await invoke_task('build', {install});
-			}
-
-			// Ensure the expected dir exists after building
-			if (!(await exists(build_dir))) {
-				log.error(red('directory to deploy does not exist after building:'), build_dir);
-				return;
-			}
-		} catch (err) {
-			log.error(red('build failed'), 'but', green('no changes were made to git'), print_error(err));
-			if (dry) {
-				log.info(red('dry deploy failed'));
-			}
-			throw Error(`Deploy safely canceled due to build failure. See the error above.`);
-		}
-
-		// Prepare the deploy directory with the target branch
-		const deploy_git_dir = join(resolved_deploy_dir, GIT_DIRNAME);
-		if (!(await exists(deploy_git_dir))) {
-			// Deploy directory does not exist, so initialize it
-			await spawn('git', ['clone', '-b', target, '--single-branch', cwd, resolved_deploy_dir]);
-		}
-		await git_pull(origin, target, git_args);
-		// Remove everything except .git from the deploy directory
-		await Promise.all(
-			(await readdir(resolved_deploy_dir)).map((path) =>
-				path === GIT_DIRNAME ? null : rm(join(resolved_deploy_dir, path), {recursive: true}),
-			),
-		);
-
-		// Copy the build
-		await Promise.all(
-			(await readdir(build_dir)).map((path) =>
-				cp(join(build_dir, path), join(resolved_deploy_dir, path), {recursive: true}),
-			),
-		);
-
-		// At this point, `dist/` is ready to be committed and deployed!
-		if (dry) {
-			log.info(green('dry deploy complete:'), 'files at', print_path(resolved_deploy_dir));
-			return;
-		}
-
-		console.log('gtg');
-		return;
-		// Commit and push
-		try {
-			await spawn('git', ['add', '.', '-f'], git_args);
-			await spawn('git', ['commit', '-m', 'deployment'], git_args);
-			await spawn('git', ['push', origin, target, '-f'], git_args);
-		} catch (err) {
-			log.error(red('updating git failed:'), print_error(err));
-			throw Error(`Deploy failed in a bad state: built but not pushed. See the error above.`);
-		}
-
-		log.info(green('deployed')); // TODO log a different message if "Everything up-to-date"
-
-		// TODO BLOCK delete all of this
-		// old
-		return;
-		// prepare the target branch remotely and locally
+		// Prepare the target branch remotely and locally
 		if (remote_target_exists) {
 			// remote target branch already exists, so sync up
 			await git_fetch(origin, target); // ensure the local branch is up to date
@@ -235,5 +173,67 @@ export const task: Task<Args> = {
 			);
 			await git_push_to_create(origin, target);
 		}
+
+		// Build
+		try {
+			if (build) {
+				await invoke_task('build', {install});
+			}
+
+			// Ensure the expected dir exists after building
+			if (!(await exists(build_dir))) {
+				log.error(red('directory to deploy does not exist after building:'), build_dir);
+				return;
+			}
+		} catch (err) {
+			log.error(red('build failed'), 'but', green('no changes were made to git'), print_error(err));
+			if (dry) {
+				log.info(red('dry deploy failed'));
+			}
+			throw Error(`Deploy safely canceled due to build failure. See the error above.`);
+		}
+
+		// Prepare the deploy directory with the target branch
+		const deploy_git_dir = join(resolved_deploy_dir, GIT_DIRNAME);
+		if (!(await exists(deploy_git_dir))) {
+			// Deploy directory does not exist, so initialize it
+			await spawn('git', ['clone', '-b', target, '--single-branch', cwd, resolved_deploy_dir]);
+		}
+		if (dirty) {
+			await git_pull(origin, target, git_args);
+		}
+		// Remove everything except .git from the deploy directory
+		await Promise.all(
+			(await readdir(resolved_deploy_dir)).map((path) =>
+				path === GIT_DIRNAME ? null : rm(join(resolved_deploy_dir, path), {recursive: true}),
+			),
+		);
+
+		// Copy the build
+		await Promise.all(
+			(await readdir(build_dir)).map((path) =>
+				cp(join(build_dir, path), join(resolved_deploy_dir, path), {recursive: true}),
+			),
+		);
+
+		// At this point, `dist/` is ready to be committed and deployed!
+		if (dry) {
+			log.info(green('dry deploy complete:'), 'files at', print_path(resolved_deploy_dir));
+			return;
+		}
+
+		console.log('gtg');
+		return;
+		// Commit and push
+		try {
+			await spawn('git', ['add', '.', '-f'], git_args);
+			await spawn('git', ['commit', '-m', 'deployment'], git_args);
+			await spawn('git', ['push', origin, target, '-f'], git_args);
+		} catch (err) {
+			log.error(red('updating git failed:'), print_error(err));
+			throw Error(`Deploy failed in a bad state: built but not pushed. See the error above.`);
+		}
+
+		log.info(green('deployed')); // TODO log a different message if "Everything up-to-date"
 	},
 };
