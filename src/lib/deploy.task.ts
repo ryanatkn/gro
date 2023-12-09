@@ -28,8 +28,6 @@ import {
 // docs at ./docs/deploy.md
 
 // TODO use the `gro deploy -- gro build --no-install` pattern to remove the `install`/`no-install` args (needs testing, maybe a custom override for `gro ` prefixes)
-// TODO support other kinds of deployments
-// TODO add a flag to delete the existing deployment branch to avoid bloat (and maybe run `git gc --auto`)
 
 // terminal command to clean up while live testing:
 // gro deploy --clean && gro clean -b && gb -D deploy && git push origin :deploy
@@ -62,6 +60,11 @@ export const Args = z
 				description: 'instead of building and deploying, just clean the git worktree and Gro cache',
 			})
 			.default(false),
+		dirty: z
+			.boolean({
+				description: 'bypass checking that the git working directory is clean',
+			})
+			.default(false),
 		force: z
 			.boolean({description: 'caution!! destroys the target branch both locally and remotely'})
 			.default(false),
@@ -85,7 +88,7 @@ export const task: Task<Args> = {
 	summary: 'deploy to a branch',
 	Args,
 	run: async ({args, log, invoke_task}): Promise<void> => {
-		const {source, target, origin, dir, dry, clean, force, dangerous, reset, install} = args;
+		const {source, target, origin, dir, dry, clean, dirty, force, dangerous, reset, install} = args;
 
 		if (!force && target !== TARGET_BRANCH) {
 			throw Error(
@@ -105,11 +108,16 @@ export const task: Task<Args> = {
 			);
 		}
 
-		const clean_error_message = await git_check_clean_workspace();
-		if (clean_error_message) throw new Task_Error('Failed to deploy: ' + clean_error_message);
+		if (!dirty) {
+			const clean_error_message = await git_check_clean_workspace();
+			if (clean_error_message) throw new Task_Error('Failed to deploy: ' + clean_error_message);
+		}
 
 		const remote_target_exists = await git_remote_branch_exists(origin, target);
 		const local_target_exists = await git_local_branch_exists(target);
+
+		console.log('initial checks passed');
+		return;
 
 		// prepare the target branch remotely and locally
 		if (remote_target_exists) {
