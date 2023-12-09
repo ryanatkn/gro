@@ -122,6 +122,7 @@ export const task: Task<Args> = {
 		}
 
 		const resolved_deploy_dir = resolve(deploy_dir);
+		const git_args = {cwd: resolved_deploy_dir};
 
 		const remote_target_exists = await git_remote_branch_exists(origin, target);
 		const local_target_exists = await git_local_branch_exists(target);
@@ -160,7 +161,7 @@ export const task: Task<Args> = {
 			// Deploy directory does not exist, so initialize it
 			await spawn('git', ['clone', '-b', target, '--single-branch', cwd, resolved_deploy_dir]);
 		}
-		await git_pull(origin, target, {cwd: resolved_deploy_dir});
+		await git_pull(origin, target, git_args);
 		// Remove everything except .git from the deploy directory
 		await Promise.all(
 			(await readdir(resolved_deploy_dir)).map((path) =>
@@ -175,11 +176,23 @@ export const task: Task<Args> = {
 			),
 		);
 
-		// Commit and push
-
 		console.log('gtg');
 		return;
+		// Commit and push
+		try {
+			await spawn('git', ['add', '.', '-f'], git_args);
+			await spawn('git', ['commit', '-m', 'deployment'], git_args);
+			await spawn('git', ['push', origin, target, '-f'], git_args);
+		} catch (err) {
+			log.error(red('updating git failed:'), print_error(err));
+			throw Error(`Deploy failed in a bad state: built but not pushed. See the error above.`);
+		}
 
+		log.info(green('deployed')); // TODO log a different message if "Everything up-to-date"
+
+		// TODO BLOCK delete all of this
+		// old
+		return;
 		// prepare the target branch remotely and locally
 		if (remote_target_exists) {
 			// remote target branch already exists, so sync up
@@ -277,7 +290,5 @@ export const task: Task<Args> = {
 		// ]);
 		// await rename(WORKTREE_DIR, dir);
 		// await git_clean_worktree();
-
-		log.info(green('deployed')); // TODO log a different message if "Everything up-to-date"
 	},
 };
