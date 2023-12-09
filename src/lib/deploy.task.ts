@@ -124,6 +124,7 @@ export const task: Task<Args> = {
 		await git_pull(origin, source);
 
 		// Prepare the target branch remotely and locally
+		console.log('CHECKING');
 		const resolved_deploy_dir = resolve(deploy_dir);
 		const target_spawn_options = {cwd: resolved_deploy_dir};
 		const remote_target_exists = await git_remote_branch_exists(
