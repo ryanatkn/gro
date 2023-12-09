@@ -112,12 +112,6 @@ export const task: Task<Args> = {
 			);
 		}
 
-		const resolved_deploy_dir = resolve(deploy_dir);
-		const git_args = {cwd: resolved_deploy_dir};
-
-		const remote_target_exists = await git_remote_branch_exists(origin, target);
-		const local_target_exists = await git_local_branch_exists(target);
-
 		// Prepare the source branch
 		await git_fetch(origin, source); // ensure the local branch is up to date
 		await git_checkout(source);
@@ -130,6 +124,14 @@ export const task: Task<Args> = {
 		await git_pull(origin, source);
 
 		// Prepare the target branch remotely and locally
+		const resolved_deploy_dir = resolve(deploy_dir);
+		const target_spawn_options = {cwd: resolved_deploy_dir};
+		const remote_target_exists = await git_remote_branch_exists(
+			origin,
+			target,
+			target_spawn_options,
+		);
+		const local_target_exists = await git_local_branch_exists(target, target_spawn_options);
 		if (remote_target_exists) {
 			// Remote target branch already exists, so sync up
 			await git_fetch(origin, target); // ensure the local branch is up to date
@@ -145,7 +147,7 @@ export const task: Task<Args> = {
 			// Corner case, it's probably usually better to delete the local target
 			// if it doesn't exist remotely, which means we don't need to deal with `reset`
 			if (local_target_exists) {
-				await git_delete_local_branch(target);
+				await git_delete_local_branch(target, target_spawn_options);
 			}
 
 			// TODO would be cleaner to create the branch in `.gro/deploy` to avoid file churn in the root dir but much more complicated
@@ -160,9 +162,9 @@ export const task: Task<Args> = {
 					`git commit -m "init"`,
 				[],
 				// Use `shell: true` because the above is unwieldy with standard command construction
-				{shell: true},
+				{...target_spawn_options, shell: true},
 			);
-			await git_push_to_create(origin, target);
+			await git_push_to_create(origin, target, target_spawn_options);
 			await git_checkout(source);
 		}
 
@@ -211,9 +213,9 @@ export const task: Task<Args> = {
 
 		// Commit and push
 		try {
-			await spawn('git', ['add', '.', '-f'], git_args);
-			await spawn('git', ['commit', '-m', 'deployment'], git_args);
-			await spawn('git', ['push', origin, target, '-f'], git_args);
+			await spawn('git', ['add', '.', '-f'], target_spawn_options);
+			await spawn('git', ['commit', '-m', 'deployment'], target_spawn_options);
+			await spawn('git', ['push', origin, target, '-f'], target_spawn_options);
 		} catch (err) {
 			log.error(red('updating git failed:'), print_error(err));
 			throw new Task_Error(`Deploy failed in a bad state: built but not pushed, see error above.`);
