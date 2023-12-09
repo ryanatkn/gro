@@ -126,13 +126,17 @@ export const task: Task<Args> = {
 		// Prepare the target branch remotely and locally
 		console.log('CHECKING');
 		const resolved_deploy_dir = resolve(deploy_dir);
+		console.log('CHECKING2');
 		const target_spawn_options = {cwd: resolved_deploy_dir};
+		console.log('CHECKING3');
 		const remote_target_exists = await git_remote_branch_exists(
 			origin,
 			target,
 			target_spawn_options,
 		);
+		console.log('CHECKING4');
 		const local_target_exists = await git_local_branch_exists(target, target_spawn_options);
+		console.log('CHECKING5');
 		if (remote_target_exists) {
 			// Remote target branch already exists, so sync up
 			await git_fetch(origin, target); // ensure the local branch is up to date
