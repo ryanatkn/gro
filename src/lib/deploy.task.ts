@@ -2,7 +2,7 @@ import {spawn} from '@grogarden/util/process.js';
 import {print_error} from '@grogarden/util/print.js';
 import {green, red} from 'kleur/colors';
 import {z} from 'zod';
-import {readdir, rename, rm} from 'node:fs/promises';
+import {cp, readdir, rename, rm} from 'node:fs/promises';
 import {join, resolve} from 'node:path';
 
 import {Task_Error, type Task} from './task.js';
@@ -160,9 +160,19 @@ export const task: Task<Args> = {
 			await spawn('git', ['clone', '-b', target, '--single-branch', cwd, resolved_deploy_dir]);
 		}
 		await git_pull(origin, target, {cwd: resolved_deploy_dir});
-		console.log('worked');
+		// Remove everything except .git from the deploy directory
+		await Promise.all(
+			(await readdir(resolved_deploy_dir)).map((path) =>
+				path === GIT_DIRNAME ? null : rm(join(resolved_deploy_dir, path), {recursive: true}),
+			),
+		);
 
 		// Copy the build
+		await Promise.all(
+			(await readdir(build_dir)).map((path) =>
+				cp(join(build_dir, path), join(resolved_deploy_dir, path), {recursive: true}),
+			),
+		);
 
 		// Commit and push
 
@@ -239,8 +249,6 @@ export const task: Task<Args> = {
 			await spawn('git', ['worktree', 'add', WORKTREE_DIRNAME, target]);
 
 			// Populate the worktree dir with the new files.
-			// We're doing this rather than copying the directory
-			// because we need to preserve the existing worktree directory, or git breaks.
 			// TODO there is be a better way but what is it
 			await Promise.all(
 				(await readdir(WORKTREE_DIR)).map((path) =>
