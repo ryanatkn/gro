@@ -2,7 +2,7 @@ import {spawn} from '@grogarden/util/process.js';
 import {print_error} from '@grogarden/util/print.js';
 import {green, red} from 'kleur/colors';
 import {z} from 'zod';
-import {cp, readdir, rename, rm} from 'node:fs/promises';
+import {cp, readdir, rm} from 'node:fs/promises';
 import {join, resolve} from 'node:path';
 
 import {Task_Error, type Task} from './task.js';
@@ -235,66 +235,5 @@ export const task: Task<Args> = {
 			);
 			await git_push_to_create(origin, target);
 		}
-
-		// the target branch is now ready both locally and remotely
-		// await git_checkout(source);
-
-		// clean up any existing worktree
-		// await git_clean_worktree();
-
-		// try {
-		// 	await invoke_task('build', {install});
-
-		// 	// ensure the expected dir exists after building
-		// 	if (!(await exists(dir))) {
-		// 		log.error(red('directory to deploy does not exist after building:'), dir);
-		// 		return;
-		// 	}
-		// } catch (err) {
-		// 	log.error(red('build failed'), 'but', green('no changes were made to git'), print_error(err));
-		// 	if (dry) {
-		// 		log.info(red('dry deploy failed'));
-		// 	}
-		// 	throw Error(`Deploy safely canceled due to build failure. See the error above.`);
-		// }
-
-		// // At this point, `dist/` is ready to be committed and deployed!
-		// if (dry) {
-		// 	log.info(green('dry deploy complete:'), 'files are available in', print_path(dir));
-		// 	return;
-		// }
-
-		// try {
-		// set up the deployment worktree
-		// await spawn('git', ['worktree', 'add', WORKTREE_DIRNAME, target]);
-
-		// Populate the worktree dir with the new files.
-		// TODO there is be a better way but what is it
-		// await Promise.all(
-		// 	(await readdir(WORKTREE_DIR)).map((path) =>
-		// 		path === GIT_DIRNAME ? null : rm(`${WORKTREE_DIR}/${path}`, {recursive: true}),
-		// 	),
-		// );
-		// await Promise.all(
-		// 	(await readdir(dir)).map((path) => rename(`${dir}/${path}`, `${WORKTREE_DIR}/${path}`)),
-		// );
-
-		// commit the changes
-		// 	await spawn('git', ['add', '.', '-f'], git_args);
-		// 	await spawn('git', ['commit', '-m', 'deployment'], git_args);
-		// 	await spawn('git', ['push', origin, target, '-f'], git_args);
-		// } catch (err) {
-		// 	log.error(red('updating git failed:'), print_error(err));
-		// 	// await git_clean_worktree();
-		// 	throw Error(`Deploy failed in a bad state: built but not pushed. See the error above.`);
-		// }
-
-		// Clean up and efficiently reconstruct dist/ for users
-		// await Promise.all([
-		// 	rm(`${WORKTREE_DIR}/${GIT_DIRNAME}`, {recursive: true}), // TODO probably a better way
-		// 	rm(dir, {recursive: true}),
-		// ]);
-		// await rename(WORKTREE_DIR, dir);
-		// await git_clean_worktree();
 	},
 };
