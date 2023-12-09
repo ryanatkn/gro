@@ -132,8 +132,6 @@ export const task: Task<Args> = {
 			target_spawn_options,
 		);
 		const local_target_exists = await git_local_branch_exists(target, target_spawn_options);
-		console.log(`local_target_exists`, local_target_exists);
-		console.log(`remote_target_exists`, remote_target_exists);
 		if (remote_target_exists) {
 			// Remote target branch already exists, so sync up
 			await git_fetch(origin, target); // ensure the local branch is up to date
@@ -146,8 +144,7 @@ export const task: Task<Args> = {
 		} else {
 			// Remote target branch does not exist
 
-			// Corner case, it's probably usually better to delete the local target
-			// if it doesn't exist remotely, which means we don't need to deal with `reset`
+			// Target branch exists locally but not remotely, so just delete the local branch.
 			if (local_target_exists) {
 				await git_delete_local_branch(target, target_spawn_options);
 			}
@@ -164,9 +161,9 @@ export const task: Task<Args> = {
 					`git commit -m "init"`,
 				[],
 				// Use `shell: true` because the above is unwieldy with standard command construction
-				{...target_spawn_options, shell: true},
+				{shell: true},
 			);
-			await git_push_to_create(origin, target, target_spawn_options);
+			await git_push_to_create(origin, target);
 			await git_checkout(source);
 		}
 
