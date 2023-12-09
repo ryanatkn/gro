@@ -154,8 +154,6 @@ export const task: Task<Args> = {
 			if (reset) {
 				await git_reset_branch_to_first_commit(origin, target);
 			}
-
-			await git_checkout(source); // TODO BLOCK try not to checkout at all, or maybe do this all from the .gro/deploy dir
 		} else {
 			// Remote target branch does not exist
 
@@ -179,6 +177,7 @@ export const task: Task<Args> = {
 			);
 			await git_push_to_create(origin, target);
 		}
+		await git_checkout(source);
 
 		// Build
 		try {
