@@ -14,8 +14,8 @@ export type Git_Branch = z.infer<Flavored<typeof Git_Branch, 'Git_Branch'>>;
 /**
  * Returns the current git branch name or throws if something goes wrong.
  */
-export const git_current_branch_name = async (): Promise<string> => {
-	const {stdout} = await spawn_out('git', ['rev-parse', '--abbrev-ref', 'HEAD']);
+export const git_current_branch_name = async (options?: SpawnOptions): Promise<string> => {
+	const {stdout} = await spawn_out('git', ['rev-parse', '--abbrev-ref', 'HEAD'], options);
 	if (!stdout) throw Error('git_current_branch_name failed');
 	const branch_name = stdout.toString().trim();
 	return branch_name;
@@ -98,6 +98,10 @@ export const git_fetch = async (
  * Calls `git checkout` and throws if anything goes wrong.
  */
 export const git_checkout = async (branch: Git_Branch, options?: SpawnOptions): Promise<void> => {
+	const current_branch = await git_current_branch_name(options);
+	if (branch === current_branch) {
+		return;
+	}
 	const result = await spawn('git', ['checkout', branch], options);
 	if (!result.ok) {
 		throw Error(`git_checkout failed for branch ${branch} with code ${result.code}`);
@@ -181,19 +185,23 @@ export const git_delete_remote_branch = async (
 export const git_reset_branch_to_first_commit = async (
 	origin: Git_Origin,
 	branch: Git_Branch,
+	options?: SpawnOptions,
 ): Promise<void> => {
-	await git_checkout(branch);
-	const first_commit_hash = await git_current_branch_first_commit_hash();
-	await spawn('git', ['reset', '--hard', first_commit_hash]);
-	await spawn('git', ['push', origin, branch, '--force']);
-	await git_checkout('-');
+	await git_checkout(branch, options);
+	const first_commit_hash = await git_current_branch_first_commit_hash(options);
+	await spawn('git', ['reset', '--hard', first_commit_hash], options);
+	await spawn('git', ['push', origin, branch, '--force'], options);
+	await git_checkout('-', options);
 };
 
 /**
  * Returns the branch's latest commit hash or throws if something goes wrong.
  */
-export const git_current_commit_hash = async (branch?: string): Promise<string | null> => {
-	const final_branch = branch ?? (await git_current_branch_name());
+export const git_current_commit_hash = async (
+	branch?: string,
+	options?: SpawnOptions,
+): Promise<string | null> => {
+	const final_branch = branch ?? (await git_current_branch_name(options));
 	const {stdout} = await spawn_out('git', ['show-ref', '-s', final_branch]);
 	if (!stdout) return null; // TODO hack for CI
 	return stdout.toString().split('\n')[0].trim();
@@ -202,13 +210,14 @@ export const git_current_commit_hash = async (branch?: string): Promise<string |
 /**
  * Returns the hash of the current branch's first commit or throws if something goes wrong.
  */
-export const git_current_branch_first_commit_hash = async (): Promise<string> => {
-	const {stdout} = await spawn_out('git', [
-		'rev-list',
-		'--max-parents=0',
-		'--abbrev-commit',
-		'HEAD',
-	]);
+export const git_current_branch_first_commit_hash = async (
+	options?: SpawnOptions,
+): Promise<string> => {
+	const {stdout} = await spawn_out(
+		'git',
+		['rev-list', '--max-parents=0', '--abbrev-commit', 'HEAD'],
+		options,
+	);
 	if (!stdout) throw Error('git_current_branch_first_commit_hash failed');
 	return stdout.toString().trim();
 };

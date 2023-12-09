@@ -17,7 +17,6 @@ import {
 	Git_Origin,
 	Git_Branch,
 	git_delete_local_branch,
-	git_push,
 	git_push_to_create,
 	git_reset_branch_to_first_commit,
 	git_pull,
@@ -148,6 +147,8 @@ export const task: Task<Args> = {
 			if (local_target_exists) {
 				await git_delete_local_branch(target);
 			}
+
+			// TODO would be cleaner to create the branch in `.gro/deploy` to avoid file churn in the root dir but much more complicated
 
 			// Create the target branch locally and remotely
 			await spawn(
