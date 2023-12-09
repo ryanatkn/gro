@@ -33,8 +33,7 @@ import {
 const ORIGIN = 'origin';
 const INITIAL_FILE_PATH = '.gitkeep';
 const INITIAL_FILE_CONTENTS = '';
-const BUILD_OUTPUT_DIR = GRO_DIRNAME + '/deploy';
-const GIT_ARGS = {cwd: BUILD_OUTPUT_DIR};
+const DEPLOY_DIR = GRO_DIRNAME + '/deploy';
 const SOURCE_BRANCH = 'main';
 const TARGET_BRANCH = 'deploy';
 const DANGEROUS_BRANCHES = [SOURCE_BRANCH, 'master'];
@@ -46,7 +45,10 @@ export const Args = z
 		),
 		target: Git_Branch.describe('git target branch to deploy to').default(TARGET_BRANCH),
 		origin: Git_Origin.describe('git origin to deploy to').default(ORIGIN),
-		dir: z.string({description: 'the SvelteKit build directory'}).default(SVELTEKIT_BUILD_DIRNAME),
+		build_dir: z
+			.string({description: 'the SvelteKit build directory'})
+			.default(SVELTEKIT_BUILD_DIRNAME),
+		deploy_dir: z.string({description: 'the deploy output directory'}).default(DEPLOY_DIR),
 		dry: z
 			.boolean({
 				description: 'build and prepare to deploy without actually deploying',
@@ -80,7 +82,19 @@ export const task: Task<Args> = {
 	summary: 'deploy to a branch',
 	Args,
 	run: async ({args, log, invoke_task}): Promise<void> => {
-		const {source, target, origin, dir, dry, dirty, force, dangerous, reset, install} = args;
+		const {
+			source,
+			target,
+			origin,
+			build_dir,
+			deploy_dir,
+			dry,
+			dirty,
+			force,
+			dangerous,
+			reset,
+			install,
+		} = args;
 
 		if (!force && target !== TARGET_BRANCH) {
 			throw Error(
@@ -100,6 +114,8 @@ export const task: Task<Args> = {
 			);
 		}
 
+		const git_args = {cwd: DEPLOY_DIR};
+
 		const remote_target_exists = await git_remote_branch_exists(origin, target);
 		const local_target_exists = await git_local_branch_exists(target);
 
@@ -115,8 +131,8 @@ export const task: Task<Args> = {
 			await invoke_task('build', {install});
 
 			// ensure the expected dir exists after building
-			if (!(await exists(dir))) {
-				log.error(red('directory to deploy does not exist after building:'), dir);
+			if (!(await exists(build_dir))) {
+				log.error(red('directory to deploy does not exist after building:'), build_dir);
 				return;
 			}
 		} catch (err) {
@@ -219,9 +235,9 @@ export const task: Task<Args> = {
 			);
 
 			// commit the changes
-			await spawn('git', ['add', '.', '-f'], GIT_ARGS);
-			await spawn('git', ['commit', '-m', 'deployment'], GIT_ARGS);
-			await spawn('git', ['push', origin, target, '-f'], GIT_ARGS);
+			await spawn('git', ['add', '.', '-f'], git_args);
+			await spawn('git', ['commit', '-m', 'deployment'], git_args);
+			await spawn('git', ['push', origin, target, '-f'], git_args);
 		} catch (err) {
 			log.error(red('updating git failed:'), print_error(err));
 			await git_clean_worktree();

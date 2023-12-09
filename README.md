@@ -34,6 +34,7 @@ It includes:
   - integrated [TypeScript](https://github.com/microsoft/typescript),
     [Svelte](https://github.com/sveltejs/svelte),
     and [SvelteKit](https://github.com/sveltejs/kit)
+  - uses [Changesets](https://github.com/changesets/changesets) for versioning and changelogs
   - defers to SvelteKit and Vite for the frontend and
     [`@sveltejs/package`](https://kit.svelte.dev/docs/packaging) for the library
   - provides a [Node loader](/src/lib/loader.ts) and
