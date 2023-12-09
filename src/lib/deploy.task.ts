@@ -2,7 +2,7 @@ import {spawn} from '@grogarden/util/process.js';
 import {print_error} from '@grogarden/util/print.js';
 import {green, red} from 'kleur/colors';
 import {z} from 'zod';
-import {cp, readdir, rm} from 'node:fs/promises';
+import {cp, mkdir, readdir, rm} from 'node:fs/promises';
 import {join, resolve} from 'node:path';
 
 import {Task_Error, type Task} from './task.js';
@@ -123,9 +123,14 @@ export const task: Task<Args> = {
 		}
 		await git_pull(origin, source);
 
-		// Prepare the target branch remotely and locally
+		// Prepare the deploy directory
 		const resolved_deploy_dir = resolve(deploy_dir);
 		const target_spawn_options = {cwd: resolved_deploy_dir};
+		if (!(await exists(resolved_deploy_dir))) {
+			await mkdir(resolved_deploy_dir, {recursive: true});
+		}
+
+		// Prepare the target branch remotely and locally
 		const remote_target_exists = await git_remote_branch_exists(origin, target);
 		if (remote_target_exists) {
 			// Remote target branch already exists, so sync up
