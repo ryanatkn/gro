@@ -3,7 +3,7 @@ import {print_error} from '@grogarden/util/print.js';
 import {green, red} from 'kleur/colors';
 import {z} from 'zod';
 import {cp, readdir, rename, rm} from 'node:fs/promises';
-import {join} from 'node:path';
+import {join, resolve} from 'node:path';
 
 import {Task_Error, type Task} from './task.js';
 import {GIT_DIRNAME, GRO_DIRNAME, print_path, SVELTEKIT_BUILD_DIRNAME} from './paths.js';
@@ -23,14 +23,17 @@ import {
 	git_pull,
 } from './git.js';
 
+// TODO BLOCK npm run build && rm -rf .gro && clear && gro deploy --dirty --source no-git-workspace --no-build
+
 // docs at ./docs/deploy.md
 
-// TODO use the `gro deploy -- gro build --no-install` pattern to remove the `install`/`no-install` args (needs testing, maybe a custom override for `gro ` prefixes)
+// TODO use `to_forwarded_args` and the `gro deploy -- gro build --no-install` pattern to remove the `install`/`no-install` args (needs testing, maybe a custom override for `gro ` prefixes)
 
 // terminal command to clean up while live testing:
 // gro deploy --clean && gro clean -b && gb -D deploy && git push origin :deploy
 
 // TODO customize
+const cwd = process.cwd();
 const ORIGIN = 'origin';
 const INITIAL_FILE_PATH = '.gitkeep';
 const INITIAL_FILE_CONTENTS = '';
@@ -118,6 +121,8 @@ export const task: Task<Args> = {
 			);
 		}
 
+		const resolved_deploy_dir = resolve(deploy_dir);
+
 		const remote_target_exists = await git_remote_branch_exists(origin, target);
 		const local_target_exists = await git_local_branch_exists(target);
 
@@ -149,7 +154,7 @@ export const task: Task<Args> = {
 		}
 
 		// Prepare the deploy directory with the target branch
-		const deploy_git_dir = join(deploy_dir, GIT_DIRNAME);
+		const deploy_git_dir = join(resolved_deploy_dir, GIT_DIRNAME);
 		if (!(await exists(deploy_git_dir))) {
 			// Deploy directory does not exist, so initialize it
 			await cp(GIT_DIRNAME, deploy_git_dir, {recursive: true});
@@ -158,15 +163,15 @@ export const task: Task<Args> = {
 		// (the error: "fatal: this operation must be run in a work tree")
 		// so we change to the directory here.
 		// TODO BLOCK change back to root directory on any further failures
-		await spawn('cd', [deploy_git_dir]);
+		await spawn('cd', [resolved_deploy_dir]);
 		try {
 			await git_checkout(target);
 			await git_pull(origin, target);
 		} catch (err) {
-			await spawn('cd', ['-']);
+			await spawn('cd', [cwd]);
 			throw err;
 		}
-		await spawn('cd', ['-']);
+		await spawn('cd', [cwd]);
 
 		// Copy the build
 
