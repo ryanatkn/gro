@@ -2,7 +2,8 @@ import {spawn} from '@grogarden/util/process.js';
 import {print_error} from '@grogarden/util/print.js';
 import {green, red} from 'kleur/colors';
 import {z} from 'zod';
-import {readdir, rename, rm} from 'node:fs/promises';
+import {cp, readdir, rename, rm} from 'node:fs/promises';
+import {join} from 'node:path';
 
 import {Task_Error, type Task} from './task.js';
 import {GIT_DIRNAME, GRO_DIRNAME, print_path, SVELTEKIT_BUILD_DIRNAME} from './paths.js';
@@ -45,10 +46,10 @@ export const Args = z
 		),
 		target: Git_Branch.describe('git target branch to deploy to').default(TARGET_BRANCH),
 		origin: Git_Origin.describe('git origin to deploy to').default(ORIGIN),
+		deploy_dir: z.string({description: 'the deploy output directory'}).default(DEPLOY_DIR),
 		build_dir: z
 			.string({description: 'the SvelteKit build directory'})
 			.default(SVELTEKIT_BUILD_DIRNAME),
-		deploy_dir: z.string({description: 'the deploy output directory'}).default(DEPLOY_DIR),
 		dry: z
 			.boolean({
 				description: 'build and prepare to deploy without actually deploying',
@@ -74,6 +75,8 @@ export const Args = z
 		'no-install': z
 			.boolean({description: 'opt out of npm installing before building'})
 			.default(false),
+		build: z.boolean({description: 'dual of no-build'}).default(true),
+		'no-build': z.boolean({description: 'opt out of building'}).default(false),
 	})
 	.strict();
 export type Args = z.infer<typeof Args>;
@@ -94,6 +97,7 @@ export const task: Task<Args> = {
 			dangerous,
 			reset,
 			install,
+			build,
 		} = args;
 
 		if (!force && target !== TARGET_BRANCH) {
@@ -114,8 +118,6 @@ export const task: Task<Args> = {
 			);
 		}
 
-		const git_args = {cwd: DEPLOY_DIR};
-
 		const remote_target_exists = await git_remote_branch_exists(origin, target);
 		const local_target_exists = await git_local_branch_exists(target);
 
@@ -125,10 +127,13 @@ export const task: Task<Args> = {
 			const clean_error_message = await git_check_clean_workspace();
 			if (clean_error_message) throw new Task_Error('Failed to deploy: ' + clean_error_message);
 		}
+		await git_pull(origin, source);
 
 		// build
 		try {
-			await invoke_task('build', {install});
+			if (build) {
+				await invoke_task('build', {install});
+			}
 
 			// ensure the expected dir exists after building
 			if (!(await exists(build_dir))) {
@@ -144,6 +149,15 @@ export const task: Task<Args> = {
 		}
 
 		// prepare the target branch
+		const deploy_git_dir = join(deploy_dir, GIT_DIRNAME);
+		const deploy_dir_git_args = {cwd: deploy_git_dir};
+		if (!(await exists(deploy_git_dir))) {
+			// deploy directory does not exist, so initialize it
+			await cp(GIT_DIRNAME, deploy_git_dir, {recursive: true});
+		}
+		await git_checkout(target, deploy_dir_git_args);
+		console.log(`deploy_dir_git_args`, deploy_dir_git_args);
+		await git_pull(origin, target, deploy_dir_git_args);
 
 		// copy the build
 

@@ -109,10 +109,12 @@ export const git_checkout = async (branch: Git_Branch, options?: SpawnOptions): 
  */
 export const git_pull = async (
 	origin: Git_Origin,
-	branch: Git_Branch,
+	branch?: Git_Branch,
 	options?: SpawnOptions,
 ): Promise<void> => {
-	const result = await spawn('git', ['pull', origin, branch], options);
+	const args = ['pull', origin];
+	if (branch) args.push(branch);
+	const result = await spawn('git', args, options);
 	if (!result.ok) {
 		throw Error(`git_pull failed for branch ${branch} with code ${result.code}`);
 	}
