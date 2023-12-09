@@ -126,8 +126,8 @@ export const task: Task<Args> = {
 		if (!dirty) {
 			const clean_error_message = await git_check_clean_workspace();
 			if (clean_error_message) throw new Task_Error('Failed to deploy: ' + clean_error_message);
+			await git_pull(origin, source);
 		}
-		await git_pull(origin, source);
 
 		// Build
 		try {
