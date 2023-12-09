@@ -126,6 +126,7 @@ export const task: Task<Args> = {
 		const remote_target_exists = await git_remote_branch_exists(origin, target);
 		const local_target_exists = await git_local_branch_exists(target);
 
+		// TODO BLOCK needs to handle the same complexity as below
 		// Prepare the source branch
 		await git_checkout(source);
 		if (!dirty) {
