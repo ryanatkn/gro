@@ -143,6 +143,7 @@ export const task: Task<Args> = {
 			// Remote target branch already exists, so sync up
 			await git_fetch(origin, target); // ensure the local branch is up to date
 			await git_checkout(target); // ensure tracking
+			await git_checkout(source); // TODO BLOCK try not to checkout at all
 			await git_pull(origin, target); // probably not needed
 			// TODO what if push fails because it would need `--force`?
 			await git_push(origin, target); // ensure the remote branch is up to date
