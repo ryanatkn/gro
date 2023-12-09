@@ -111,6 +111,21 @@ export const task: Task<Args> = {
 		}
 
 		// build
+		try {
+			await invoke_task('build', {install});
+
+			// ensure the expected dir exists after building
+			if (!(await exists(dir))) {
+				log.error(red('directory to deploy does not exist after building:'), dir);
+				return;
+			}
+		} catch (err) {
+			log.error(red('build failed'), 'but', green('no changes were made to git'), print_error(err));
+			if (dry) {
+				log.info(red('dry deploy failed'));
+			}
+			throw Error(`Deploy safely canceled due to build failure. See the error above.`);
+		}
 
 		// prepare the target branch
 
@@ -164,21 +179,21 @@ export const task: Task<Args> = {
 		// clean up any existing worktree
 		// await git_clean_worktree();
 
-		try {
-			await invoke_task('build', {install});
+		// try {
+		// 	await invoke_task('build', {install});
 
-			// ensure the expected dir exists after building
-			if (!(await exists(dir))) {
-				log.error(red('directory to deploy does not exist after building:'), dir);
-				return;
-			}
-		} catch (err) {
-			log.error(red('build failed'), 'but', green('no changes were made to git'), print_error(err));
-			if (dry) {
-				log.info(red('dry deploy failed'));
-			}
-			throw Error(`Deploy safely canceled due to build failure. See the error above.`);
-		}
+		// 	// ensure the expected dir exists after building
+		// 	if (!(await exists(dir))) {
+		// 		log.error(red('directory to deploy does not exist after building:'), dir);
+		// 		return;
+		// 	}
+		// } catch (err) {
+		// 	log.error(red('build failed'), 'but', green('no changes were made to git'), print_error(err));
+		// 	if (dry) {
+		// 		log.info(red('dry deploy failed'));
+		// 	}
+		// 	throw Error(`Deploy safely canceled due to build failure. See the error above.`);
+		// }
 
 		// At this point, `dist/` is ready to be committed and deployed!
 		if (dry) {
