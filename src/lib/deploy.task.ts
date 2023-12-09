@@ -163,6 +163,7 @@ export const task: Task<Args> = {
 		// (the error: "fatal: this operation must be run in a work tree")
 		// so we change to the directory here.
 		// TODO BLOCK change back to root directory on any further failures
+		console.log(`resolved_deploy_dir`, resolved_deploy_dir);
 		await spawn('cd', [resolved_deploy_dir]);
 		try {
 			await git_checkout(target);
