@@ -121,7 +121,7 @@ export const task: Task<Args> = {
 		const remote_target_exists = await git_remote_branch_exists(origin, target);
 		const local_target_exists = await git_local_branch_exists(target);
 
-		// prepare the source branch
+		// Prepare the source branch
 		await git_checkout(source);
 		if (!dirty) {
 			const clean_error_message = await git_check_clean_workspace();
@@ -129,13 +129,13 @@ export const task: Task<Args> = {
 		}
 		await git_pull(origin, source);
 
-		// build
+		// Build
 		try {
 			if (build) {
 				await invoke_task('build', {install});
 			}
 
-			// ensure the expected dir exists after building
+			// Ensure the expected dir exists after building
 			if (!(await exists(build_dir))) {
 				log.error(red('directory to deploy does not exist after building:'), build_dir);
 				return;
@@ -148,20 +148,29 @@ export const task: Task<Args> = {
 			throw Error(`Deploy safely canceled due to build failure. See the error above.`);
 		}
 
-		// prepare the target branch
+		// Prepare the deploy directory with the target branch
 		const deploy_git_dir = join(deploy_dir, GIT_DIRNAME);
-		const deploy_dir_git_args = {cwd: deploy_git_dir};
 		if (!(await exists(deploy_git_dir))) {
-			// deploy directory does not exist, so initialize it
+			// Deploy directory does not exist, so initialize it
 			await cp(GIT_DIRNAME, deploy_git_dir, {recursive: true});
 		}
-		await git_checkout(target, deploy_dir_git_args);
-		console.log(`deploy_dir_git_args`, deploy_dir_git_args);
-		await git_pull(origin, target, deploy_dir_git_args);
+		// We can't run git commands with a different `cwd`
+		// (the error: "fatal: this operation must be run in a work tree")
+		// so we change to the directory here.
+		// TODO BLOCK change back to root directory on any further failures
+		await spawn('cd', [deploy_git_dir]);
+		try {
+			await git_checkout(target);
+			await git_pull(origin, target);
+		} catch (err) {
+			await spawn('cd', ['-']);
+			throw err;
+		}
+		await spawn('cd', ['-']);
 
-		// copy the build
+		// Copy the build
 
-		// commit and push
+		// Commit and push
 
 		console.log('gtg');
 		return;
