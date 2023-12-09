@@ -2,7 +2,7 @@ import {spawn} from '@grogarden/util/process.js';
 import {print_error} from '@grogarden/util/print.js';
 import {green, red} from 'kleur/colors';
 import {z} from 'zod';
-import {cp, readdir, rename, rm} from 'node:fs/promises';
+import {readdir, rename, rm} from 'node:fs/promises';
 import {join, resolve} from 'node:path';
 
 import {Task_Error, type Task} from './task.js';
@@ -157,18 +157,18 @@ export const task: Task<Args> = {
 		const deploy_git_dir = join(resolved_deploy_dir, GIT_DIRNAME);
 		if (!(await exists(deploy_git_dir))) {
 			// Deploy directory does not exist, so initialize it
-			await cp(GIT_DIRNAME, deploy_git_dir, {recursive: true});
+			await spawn('git', ['clone', '-b', target, '--single-branch', cwd, resolved_deploy_dir]);
 		}
 		// We can't run git commands with a different `cwd`
 		// (the error: "fatal: this operation must be run in a work tree")
 		// so we change to the directory here.
 		// TODO BLOCK change back to root directory on any further failures
 		console.log(`resolved_deploy_dir`, resolved_deploy_dir);
-		await spawn('cd', [resolved_deploy_dir]);
+		await git_pull(origin, target, {cwd});
+		// await spawn('cd', [resolved_deploy_dir]);
 		console.log('worked');
 		try {
 			await git_checkout(target);
-			await git_pull(origin, target);
 		} catch (err) {
 			await spawn('cd', [cwd]);
 			throw err;
