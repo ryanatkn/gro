@@ -134,7 +134,10 @@ export const task: Task<Args> = {
 		await git_checkout(source);
 		if (!dirty) {
 			const clean_error_message = await git_check_clean_workspace();
-			if (clean_error_message) throw new Task_Error('Failed to deploy: ' + clean_error_message);
+			if (clean_error_message)
+				throw new Task_Error(
+					'Deploy failed because the git workspace has uncommitted changes, use --dirty to override',
+				);
 			await git_pull(origin, source);
 		}
 
