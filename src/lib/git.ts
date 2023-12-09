@@ -3,6 +3,9 @@ import type {Flavored} from '@grogarden/util/types.js';
 import type {SpawnOptions} from 'child_process';
 import {z} from 'zod';
 
+import {exists} from './exists.js';
+import {to_file_path} from './path.js';
+
 // TODO probably extract to `util-git`
 
 export const Git_Origin = z.string();
@@ -29,6 +32,9 @@ export const git_remote_branch_exists = async (
 	branch: Git_Branch,
 	options?: SpawnOptions,
 ): Promise<boolean> => {
+	if (options?.cwd && !(await exists(to_file_path(options.cwd)))) {
+		return false;
+	}
 	const result = await spawn(
 		'git',
 		['ls-remote', '--exit-code', '--heads', origin, 'refs/heads/' + branch],
@@ -52,6 +58,9 @@ export const git_local_branch_exists = async (
 	branch: Git_Branch,
 	options?: SpawnOptions,
 ): Promise<boolean> => {
+	if (options?.cwd && !(await exists(to_file_path(options.cwd)))) {
+		return false;
+	}
 	const result = await spawn('git', ['show-ref', '--quiet', 'refs/heads/' + branch], options);
 	return result.ok;
 };
