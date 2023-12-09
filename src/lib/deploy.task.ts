@@ -140,27 +140,27 @@ export const task: Task<Args> = {
 
 		// Prepare the target branch remotely and locally
 		if (remote_target_exists) {
-			// remote target branch already exists, so sync up
+			// Remote target branch already exists, so sync up
 			await git_fetch(origin, target); // ensure the local branch is up to date
 			await git_checkout(target); // ensure tracking
 			await git_pull(origin, target); // probably not needed
 			// TODO what if push fails because it would need `--force`?
 			await git_push(origin, target); // ensure the remote branch is up to date
 
-			// local target branch is now synced with remote, but do we need to reset?
+			// Local target branch is now synced with remote, but do we need to reset?
 			if (reset) {
 				await git_reset_branch_to_first_commit(origin, target);
 			}
 		} else {
-			// remote target branch does not exist
+			// Remote target branch does not exist
 
-			// corner case, it's probably usually better to delete the local target
+			// Corner case, it's probably usually better to delete the local target
 			// if it doesn't exist remotely, which means we don't need to deal with `reset`
 			if (local_target_exists) {
 				await git_delete_local_branch(target);
 			}
 
-			// create the target branch locally and remotely
+			// Create the target branch locally and remotely
 			await spawn(
 				`git checkout --orphan ${target} && ` +
 					// TODO there's definitely a better way to do this
@@ -169,7 +169,7 @@ export const task: Task<Args> = {
 					`git add ${INITIAL_FILE_PATH} && ` +
 					`git commit -m "init"`,
 				[],
-				// use `shell: true` because the above is unwieldy with standard command construction
+				// Use `shell: true` because the above is unwieldy with standard command construction
 				{shell: true},
 			);
 			await git_push_to_create(origin, target);
