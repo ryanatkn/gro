@@ -159,21 +159,8 @@ export const task: Task<Args> = {
 			// Deploy directory does not exist, so initialize it
 			await spawn('git', ['clone', '-b', target, '--single-branch', cwd, resolved_deploy_dir]);
 		}
-		// We can't run git commands with a different `cwd`
-		// (the error: "fatal: this operation must be run in a work tree")
-		// so we change to the directory here.
-		// TODO BLOCK change back to root directory on any further failures
-		console.log(`resolved_deploy_dir`, resolved_deploy_dir);
-		await git_pull(origin, target, {cwd});
-		// await spawn('cd', [resolved_deploy_dir]);
+		await git_pull(origin, target, {cwd: resolved_deploy_dir});
 		console.log('worked');
-		try {
-			await git_checkout(target);
-		} catch (err) {
-			await spawn('cd', [cwd]);
-			throw err;
-		}
-		await spawn('cd', [cwd]);
 
 		// Copy the build
 
