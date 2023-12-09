@@ -176,6 +176,12 @@ export const task: Task<Args> = {
 			),
 		);
 
+		// At this point, `dist/` is ready to be committed and deployed!
+		if (dry) {
+			log.info(green('dry deploy complete:'), 'files at', print_path(resolved_deploy_dir));
+			return;
+		}
+
 		console.log('gtg');
 		return;
 		// Commit and push
@@ -252,36 +258,36 @@ export const task: Task<Args> = {
 		// 	throw Error(`Deploy safely canceled due to build failure. See the error above.`);
 		// }
 
-		// At this point, `dist/` is ready to be committed and deployed!
-		if (dry) {
-			log.info(green('dry deploy complete:'), 'files are available in', print_path(dir));
-			return;
-		}
+		// // At this point, `dist/` is ready to be committed and deployed!
+		// if (dry) {
+		// 	log.info(green('dry deploy complete:'), 'files are available in', print_path(dir));
+		// 	return;
+		// }
 
-		try {
-			// set up the deployment worktree
-			// await spawn('git', ['worktree', 'add', WORKTREE_DIRNAME, target]);
+		// try {
+		// set up the deployment worktree
+		// await spawn('git', ['worktree', 'add', WORKTREE_DIRNAME, target]);
 
-			// Populate the worktree dir with the new files.
-			// TODO there is be a better way but what is it
-			// await Promise.all(
-			// 	(await readdir(WORKTREE_DIR)).map((path) =>
-			// 		path === GIT_DIRNAME ? null : rm(`${WORKTREE_DIR}/${path}`, {recursive: true}),
-			// 	),
-			// );
-			// await Promise.all(
-			// 	(await readdir(dir)).map((path) => rename(`${dir}/${path}`, `${WORKTREE_DIR}/${path}`)),
-			// );
+		// Populate the worktree dir with the new files.
+		// TODO there is be a better way but what is it
+		// await Promise.all(
+		// 	(await readdir(WORKTREE_DIR)).map((path) =>
+		// 		path === GIT_DIRNAME ? null : rm(`${WORKTREE_DIR}/${path}`, {recursive: true}),
+		// 	),
+		// );
+		// await Promise.all(
+		// 	(await readdir(dir)).map((path) => rename(`${dir}/${path}`, `${WORKTREE_DIR}/${path}`)),
+		// );
 
-			// commit the changes
-			await spawn('git', ['add', '.', '-f'], git_args);
-			await spawn('git', ['commit', '-m', 'deployment'], git_args);
-			await spawn('git', ['push', origin, target, '-f'], git_args);
-		} catch (err) {
-			log.error(red('updating git failed:'), print_error(err));
-			// await git_clean_worktree();
-			throw Error(`Deploy failed in a bad state: built but not pushed. See the error above.`);
-		}
+		// commit the changes
+		// 	await spawn('git', ['add', '.', '-f'], git_args);
+		// 	await spawn('git', ['commit', '-m', 'deployment'], git_args);
+		// 	await spawn('git', ['push', origin, target, '-f'], git_args);
+		// } catch (err) {
+		// 	log.error(red('updating git failed:'), print_error(err));
+		// 	// await git_clean_worktree();
+		// 	throw Error(`Deploy failed in a bad state: built but not pushed. See the error above.`);
+		// }
 
 		// Clean up and efficiently reconstruct dist/ for users
 		// await Promise.all([
