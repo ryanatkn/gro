@@ -58,11 +58,6 @@ export const Args = z
 				description: 'build and prepare to deploy without actually deploying',
 			})
 			.default(false),
-		dirty: z
-			.boolean({
-				description: 'bypass checking that the git working directory is clean',
-			})
-			.default(false),
 		force: z
 			.boolean({description: 'caution!! destroys the target branch both locally and remotely'})
 			.default(false),
@@ -95,7 +90,6 @@ export const task: Task<Args> = {
 			build_dir,
 			deploy_dir,
 			dry,
-			dirty,
 			force,
 			dangerous,
 			reset,
@@ -128,18 +122,15 @@ export const task: Task<Args> = {
 		const local_target_exists = await git_local_branch_exists(target);
 
 		// Prepare the source branch
-		if (!dirty) {
-			await git_fetch(origin, source); // ensure the local branch is up to date
-		}
+		await git_fetch(origin, source); // ensure the local branch is up to date
 		await git_checkout(source);
-		if (!dirty) {
-			const clean_error_message = await git_check_clean_workspace();
-			if (clean_error_message)
-				throw new Task_Error(
-					'Deploy failed because the git workspace has uncommitted changes, use --dirty to override',
-				);
-			await git_pull(origin, source);
+		const clean_error_message = await git_check_clean_workspace();
+		if (clean_error_message) {
+			throw new Task_Error(
+				'Deploy failed because the git workspace has uncommitted changes: ' + clean_error_message,
+			);
 		}
+		await git_pull(origin, source);
 
 		// Prepare the target branch remotely and locally
 		if (remote_target_exists) {
@@ -201,9 +192,6 @@ export const task: Task<Args> = {
 		if (!(await exists(deploy_git_dir))) {
 			// Deploy directory does not exist, so initialize it
 			await spawn('git', ['clone', '-b', target, '--single-branch', cwd, resolved_deploy_dir]);
-		}
-		if (dirty) {
-			await git_pull(origin, target, git_args);
 		}
 		// Remove everything except .git from the deploy directory
 		await Promise.all(
