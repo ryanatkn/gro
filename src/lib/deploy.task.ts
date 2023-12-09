@@ -134,14 +134,11 @@ export const task: Task<Args> = {
 		if (remote_target_exists) {
 			// Remote target branch already exists, so sync up
 			await git_fetch(origin, target); // ensure the local branch is up to date
-			await git_checkout(target); // ensure tracking
-			await git_pull(origin, target); // probably not needed
-			// TODO what if push fails because it would need `--force`?
-			await git_push(origin, target); // ensure the remote branch is up to date
 
 			// Local target branch is now synced with remote, but do we need to reset?
 			if (reset) {
 				await git_reset_branch_to_first_commit(origin, target);
+				await git_checkout(source);
 			}
 		} else {
 			// Remote target branch does not exist
@@ -165,8 +162,8 @@ export const task: Task<Args> = {
 				{shell: true},
 			);
 			await git_push_to_create(origin, target);
+			await git_checkout(source);
 		}
-		await git_checkout(source);
 
 		// Build
 		try {
