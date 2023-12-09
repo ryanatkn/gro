@@ -23,7 +23,7 @@ import {
 	git_pull,
 } from './git.js';
 
-// TODO BLOCK npm run build && rm -rf .gro && clear && gro deploy --dirty --source no-git-workspace --no-build
+// TODO BLOCK npm run build && rm -rf .gro && clear && gro deploy --dirty --source no-git-workspace --no-build --dry
 
 // docs at ./docs/deploy.md
 
@@ -127,9 +127,10 @@ export const task: Task<Args> = {
 		const remote_target_exists = await git_remote_branch_exists(origin, target);
 		const local_target_exists = await git_local_branch_exists(target);
 
-		// TODO BLOCK needs to handle the same complexity as below
 		// Prepare the source branch
-		await git_fetch(origin, source); // ensure the local branch is up to date
+		if (!dirty) {
+			await git_fetch(origin, source); // ensure the local branch is up to date
+		}
 		await git_checkout(source);
 		if (!dirty) {
 			const clean_error_message = await git_check_clean_workspace();
@@ -179,8 +180,6 @@ export const task: Task<Args> = {
 			if (build) {
 				await invoke_task('build', {install});
 			}
-
-			// Ensure the expected dir exists after building
 			if (!(await exists(build_dir))) {
 				log.error(red('directory to deploy does not exist after building:'), build_dir);
 				return;
@@ -190,7 +189,7 @@ export const task: Task<Args> = {
 			if (dry) {
 				log.info(red('dry deploy failed'));
 			}
-			throw Error(`Deploy safely canceled due to build failure. See the error above.`);
+			throw new Task_Error(`Deploy safely canceled due to build failure. See the error above.`);
 		}
 
 		// Prepare the deploy directory with the target branch
@@ -222,8 +221,6 @@ export const task: Task<Args> = {
 			return;
 		}
 
-		console.log('gtg');
-		return;
 		// Commit and push
 		try {
 			await spawn('git', ['add', '.', '-f'], git_args);
@@ -231,7 +228,7 @@ export const task: Task<Args> = {
 			await spawn('git', ['push', origin, target, '-f'], git_args);
 		} catch (err) {
 			log.error(red('updating git failed:'), print_error(err));
-			throw Error(`Deploy failed in a bad state: built but not pushed. See the error above.`);
+			throw new Task_Error(`Deploy failed in a bad state: built but not pushed, see error above.`);
 		}
 
 		log.info(green('deployed')); // TODO log a different message if "Everything up-to-date"
