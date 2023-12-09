@@ -202,7 +202,7 @@ export const git_current_commit_hash = async (
 	options?: SpawnOptions,
 ): Promise<string | null> => {
 	const final_branch = branch ?? (await git_current_branch_name(options));
-	const {stdout} = await spawn_out('git', ['show-ref', '-s', final_branch]);
+	const {stdout} = await spawn_out('git', ['show-ref', '-s', final_branch], options);
 	if (!stdout) return null; // TODO hack for CI
 	return stdout.toString().split('\n')[0].trim();
 };
