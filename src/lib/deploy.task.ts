@@ -125,16 +125,8 @@ export const task: Task<Args> = {
 
 		// Prepare the target branch remotely and locally
 		const resolved_deploy_dir = resolve(deploy_dir);
-		console.log('checking', resolved_deploy_dir);
 		const target_spawn_options = {cwd: resolved_deploy_dir};
-		const remote_target_exists = await git_remote_branch_exists(
-			origin,
-			target,
-			target_spawn_options,
-		);
-		const local_target_exists = await git_local_branch_exists(target, target_spawn_options);
-		console.log(`remote_target_exists`, remote_target_exists);
-		console.log(`local_target_exists`, local_target_exists);
+		const remote_target_exists = await git_remote_branch_exists(origin, target);
 		if (remote_target_exists) {
 			// Remote target branch already exists, so sync up
 			await git_fetch(origin, target); // ensure the local branch is up to date
@@ -147,8 +139,11 @@ export const task: Task<Args> = {
 		} else {
 			// Remote target branch does not exist
 
-			// Target branch exists locally but not remotely, so just delete the local branch.
-			if (local_target_exists) {
+			// Delete the target branch locally in the cwd and deploy dir if they exist.
+			if (await git_local_branch_exists(target)) {
+				await git_delete_local_branch(target);
+			}
+			if (await git_local_branch_exists(target, target_spawn_options)) {
 				await git_delete_local_branch(target, target_spawn_options);
 			}
 
