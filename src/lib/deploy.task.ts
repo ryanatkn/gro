@@ -247,18 +247,18 @@ export const task: Task<Args> = {
 
 		try {
 			// set up the deployment worktree
-			await spawn('git', ['worktree', 'add', WORKTREE_DIRNAME, target]);
+			// await spawn('git', ['worktree', 'add', WORKTREE_DIRNAME, target]);
 
 			// Populate the worktree dir with the new files.
 			// TODO there is be a better way but what is it
-			await Promise.all(
-				(await readdir(WORKTREE_DIR)).map((path) =>
-					path === GIT_DIRNAME ? null : rm(`${WORKTREE_DIR}/${path}`, {recursive: true}),
-				),
-			);
-			await Promise.all(
-				(await readdir(dir)).map((path) => rename(`${dir}/${path}`, `${WORKTREE_DIR}/${path}`)),
-			);
+			// await Promise.all(
+			// 	(await readdir(WORKTREE_DIR)).map((path) =>
+			// 		path === GIT_DIRNAME ? null : rm(`${WORKTREE_DIR}/${path}`, {recursive: true}),
+			// 	),
+			// );
+			// await Promise.all(
+			// 	(await readdir(dir)).map((path) => rename(`${dir}/${path}`, `${WORKTREE_DIR}/${path}`)),
+			// );
 
 			// commit the changes
 			await spawn('git', ['add', '.', '-f'], git_args);
@@ -266,17 +266,17 @@ export const task: Task<Args> = {
 			await spawn('git', ['push', origin, target, '-f'], git_args);
 		} catch (err) {
 			log.error(red('updating git failed:'), print_error(err));
-			await git_clean_worktree();
+			// await git_clean_worktree();
 			throw Error(`Deploy failed in a bad state: built but not pushed. See the error above.`);
 		}
 
 		// Clean up and efficiently reconstruct dist/ for users
-		await Promise.all([
-			rm(`${WORKTREE_DIR}/${GIT_DIRNAME}`, {recursive: true}), // TODO probably a better way
-			rm(dir, {recursive: true}),
-		]);
-		await rename(WORKTREE_DIR, dir);
-		await git_clean_worktree();
+		// await Promise.all([
+		// 	rm(`${WORKTREE_DIR}/${GIT_DIRNAME}`, {recursive: true}), // TODO probably a better way
+		// 	rm(dir, {recursive: true}),
+		// ]);
+		// await rename(WORKTREE_DIR, dir);
+		// await git_clean_worktree();
 
 		log.info(green('deployed')); // TODO log a different message if "Everything up-to-date"
 	},
