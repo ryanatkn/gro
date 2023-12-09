@@ -23,14 +23,12 @@ import {
 	git_pull,
 } from './git.js';
 
-// TODO BLOCK npm run build && rm -rf .gro && clear && gro deploy --dirty --source no-git-workspace --no-build --dry
-
 // docs at ./docs/deploy.md
 
-// TODO use `to_forwarded_args` and the `gro deploy -- gro build --no-install` pattern to remove the `install`/`no-install` args (needs testing, maybe a custom override for `gro ` prefixes)
+// TODO use `to_forwarded_args` and the `gro deploy -- gro build --no-install` pattern to remove the `install`/`no-install` args (also needs testing, maybe a custom override for `gro ` prefixes)
 
-// terminal command to clean up while live testing:
-// gro deploy --clean && gro clean -b && gb -D deploy && git push origin :deploy
+// terminal command for testing:
+// npm run build && rm -rf .gro && clear && gro deploy --source no-git-workspace --no-build --dry
 
 // TODO customize
 const cwd = process.cwd();
