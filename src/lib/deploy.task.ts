@@ -2,7 +2,7 @@ import {spawn} from '@grogarden/util/process.js';
 import {print_error} from '@grogarden/util/print.js';
 import {green, red} from 'kleur/colors';
 import {z} from 'zod';
-import {cp, mkdir, readdir, rm} from 'node:fs/promises';
+import {cp, mkdir, readdir} from 'node:fs/promises';
 import {join, resolve} from 'node:path';
 
 import {Task_Error, type Task} from './task.js';
@@ -20,6 +20,7 @@ import {
 	git_reset_branch_to_first_commit,
 	git_pull,
 	git_fetch,
+	git_empty_dir,
 } from './git.js';
 
 // docs at ./docs/deploy.md
@@ -181,11 +182,7 @@ export const task: Task<Args> = {
 			await spawn('git', ['clone', '-b', target, '--single-branch', cwd, resolved_deploy_dir]);
 		}
 		// Remove everything except .git from the deploy directory
-		await Promise.all(
-			(await readdir(resolved_deploy_dir)).map((path) =>
-				path === GIT_DIRNAME ? null : rm(join(resolved_deploy_dir, path), {recursive: true}),
-			),
-		);
+		await git_empty_dir(resolved_deploy_dir);
 
 		// Build
 		try {
