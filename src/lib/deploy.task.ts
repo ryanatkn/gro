@@ -177,9 +177,9 @@ export const task: Task<Args> = {
 		// Prepare the deploy directory with the target branch
 		const deploy_git_dir = join(resolved_deploy_dir, GIT_DIRNAME);
 		if (!(await exists(deploy_git_dir))) {
-			// TODO BLOCK we should get this fetched ahead of time
 			// Deploy directory does not exist, so initialize it
 			await spawn('git', ['clone', '-b', target, '--single-branch', cwd, resolved_deploy_dir]);
+			await git_pull(origin, target, target_spawn_options);
 		}
 		// Remove everything except .git from the deploy directory
 		await git_empty_dir(resolved_deploy_dir);
