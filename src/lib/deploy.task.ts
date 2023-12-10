@@ -11,7 +11,6 @@ import {exists} from './exists.js';
 import {
 	git_check_clean_workspace,
 	git_checkout,
-	git_fetch,
 	git_local_branch_exists,
 	git_remote_branch_exists,
 	Git_Origin,
@@ -20,6 +19,7 @@ import {
 	git_push_to_create,
 	git_reset_branch_to_first_commit,
 	git_pull,
+	git_fetch,
 } from './git.js';
 
 // docs at ./docs/deploy.md
@@ -94,6 +94,7 @@ export const task: Task<Args> = {
 			build,
 		} = args;
 
+		// Checks
 		if (!force && target !== TARGET_BRANCH) {
 			throw Error(
 				`Warning! You are deploying to a custom target branch '${target}',` +
@@ -111,16 +112,19 @@ export const task: Task<Args> = {
 					` both locally and remotely, pass --dangerous to suppress this error.`,
 			);
 		}
-
-		// Prepare the source branch
-		await git_fetch(origin, source); // ensure the local branch is up to date
-		await git_checkout(source);
 		const clean_error_message = await git_check_clean_workspace();
 		if (clean_error_message) {
 			throw new Task_Error(
 				'Deploy failed because the git workspace has uncommitted changes: ' + clean_error_message,
 			);
 		}
+
+		// Fetch the needed branches
+		await git_fetch(origin, source);
+		await git_fetch(origin, target);
+
+		// Prepare the source branch
+		await git_checkout(source);
 		await git_pull(origin, source);
 
 		// Prepare the deploy directory
@@ -134,7 +138,7 @@ export const task: Task<Args> = {
 		const remote_target_exists = await git_remote_branch_exists(origin, target);
 		if (remote_target_exists) {
 			// Remote target branch already exists, so sync up
-			await git_fetch(origin, target, target_spawn_options); // ensure the local branch is up to date
+			await git_pull(origin, target, target_spawn_options); // ensure the local branch is up to date
 
 			// Local target branch is now synced with remote, but do we need to reset?
 			if (reset) {
@@ -189,6 +193,7 @@ export const task: Task<Args> = {
 		// Prepare the deploy directory with the target branch
 		const deploy_git_dir = join(resolved_deploy_dir, GIT_DIRNAME);
 		if (!(await exists(deploy_git_dir))) {
+			// TODO BLOCK we should get this fetched ahead of time
 			// Deploy directory does not exist, so initialize it
 			await spawn('git', ['clone', '-b', target, '--single-branch', cwd, resolved_deploy_dir]);
 		}
