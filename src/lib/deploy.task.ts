@@ -139,6 +139,7 @@ export const task: Task<Args> = {
 		const remote_target_exists = await git_remote_branch_exists(origin, target);
 		if (remote_target_exists) {
 			// Remote target branch already exists, so sync up
+			// TODO BLOCK target_spawn_options is wrong here in the current order, think through with the cloning below
 			await git_pull(origin, target, target_spawn_options); // ensure the local branch is up to date
 
 			// Local target branch is now synced with remote, but do we need to reset?
@@ -173,6 +174,9 @@ export const task: Task<Args> = {
 			await git_push_to_create(origin, target);
 			await git_checkout(source);
 		}
+
+		// At this point, we have the target branch locally in the cwd
+		// and synced with the remote if it exists.
 
 		// Prepare the deploy directory with the target branch
 		const deploy_git_dir = join(resolved_deploy_dir, GIT_DIRNAME);
