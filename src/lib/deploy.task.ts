@@ -158,8 +158,7 @@ export const task: Task<Args> = {
 			// Second, initialize the deploy dir if needed.
 			// It may not exist, or it may have been deleted after failing to sync above.
 			if (!(await exists(resolved_deploy_dir))) {
-				// TODO BLOCK test this when the deploy branches diverge, may need to check for clean workspace, or error, adding + in front of branch will allow non-fastforward merges
-				await git_fetch(origin, target + ':' + target); // fetch+merge
+				await git_fetch(origin, '+' + target + ':' + target); // fetch+merge and allow non-fastforward updates with the +
 				await git_clone_locally(origin, target, cwd, resolved_deploy_dir);
 			}
 
