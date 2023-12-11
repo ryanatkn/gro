@@ -131,6 +131,8 @@ export const task: Task<Args> = {
 		await git_fetch(origin, source);
 		await git_fetch(origin, target); // TODO BLOCK what if we're out of sync with the remote deploy dir?
 
+		// TODO BLOCK need to handle the case where we need to checkout deploy for it to appear locally
+
 		// Prepare the source branch
 		await git_checkout(source);
 		await git_pull(origin, source);
