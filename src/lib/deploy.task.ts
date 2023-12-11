@@ -2,7 +2,7 @@ import {spawn} from '@grogarden/util/process.js';
 import {print_error} from '@grogarden/util/print.js';
 import {green, red} from 'kleur/colors';
 import {z} from 'zod';
-import {cp, mkdir, readdir} from 'node:fs/promises';
+import {cp, mkdir, readdir, rm} from 'node:fs/promises';
 import {join, resolve} from 'node:path';
 
 import {Task_Error, type Task} from './task.js';
@@ -101,7 +101,7 @@ export const task: Task<Args> = {
 			throw new Task_Error(
 				`Warning! You are deploying to a custom target branch '${target}',` +
 					` instead of the default '${TARGET_BRANCH}' branch.` +
-					` This will destroy your '${target}' branch!` +
+					` This is destructive to your '${target}' branch!` +
 					` If you understand and are OK with deleting your branch '${target}',` +
 					` both locally and remotely, pass --force to suppress this error.`,
 			);
@@ -109,7 +109,7 @@ export const task: Task<Args> = {
 		if (!dangerous && DANGEROUS_BRANCHES.includes(target)) {
 			throw new Task_Error(
 				`Warning! You are deploying to a custom target branch '${target}'` +
-					` and that appears very dangerous: it will destroy your '${target}' branch!` +
+					` and that appears very dangerous: it is destructive to your '${target}' branch!` +
 					` If you understand and are OK with deleting your branch '${target}',` +
 					` both locally and remotely, pass --dangerous to suppress this error.`,
 			);
@@ -127,27 +127,25 @@ export const task: Task<Args> = {
 			);
 		}
 
-		// Fetch the needed branches
+		// Fetch the source and target branches in the cwd
 		await git_fetch(origin, source);
-		await git_fetch(origin, target); // TODO BLOCK what if we're out of sync with the remote deploy dir?
+		await git_fetch(origin, target);
 
-		// TODO BLOCK need to handle the case where we need to checkout deploy for it to appear locally
-
-		// Prepare the source branch
+		// Prepare the source branch in the cwd
 		await git_checkout(source);
 		await git_pull(origin, source);
 
-		// Prepare the deploy directory
+		// Prepare the target branch remotely and locally
 		const resolved_deploy_dir = resolve(deploy_dir);
 		const target_spawn_options = {cwd: resolved_deploy_dir};
-		if (!(await exists(resolved_deploy_dir))) {
-			await mkdir(resolved_deploy_dir, {recursive: true});
-		}
-
-		// Prepare the target branch remotely and locally
 		const remote_target_exists = await git_remote_branch_exists(origin, target);
 		if (remote_target_exists) {
 			// Remote target branch already exists, so sync up
+
+			if (!(await exists(resolved_deploy_dir))) {
+				await mkdir(resolved_deploy_dir, {recursive: true});
+			}
+
 			// TODO BLOCK what if the local branch is out of sync, and causes a merge problem? maybe check for the clean workspace after pulling?
 			// TODO BLOCK target_spawn_options is wrong here in the current order, think through with the cloning below
 			await git_pull(origin, target, target_spawn_options); // ensure the local branch is up to date
@@ -176,14 +174,17 @@ export const task: Task<Args> = {
 			// Remove everything except .git from the deploy directory to avoid stale files
 			await git_empty_dir(resolved_deploy_dir);
 		} else {
-			// Remote target branch does not exist
+			// Remote target branch does not exist, so start from scratch
 
-			// Delete the target branch locally in the cwd and deploy dir if they exist.
+			// Delete the deploy dir and recreate it
+			if (await exists(resolved_deploy_dir)) {
+				await rm(resolved_deploy_dir, {recursive: true});
+				await mkdir(resolved_deploy_dir, {recursive: true});
+			}
+
+			// Delete the target branch locally in the cwd if it exists
 			if (await git_local_branch_exists(target)) {
 				await git_delete_local_branch(target);
-			}
-			if (await git_local_branch_exists(target, target_spawn_options)) {
-				await git_delete_local_branch(target, target_spawn_options);
 			}
 
 			// TODO would be cleaner to create the branch in `.gro/deploy` to avoid file churn in the root dir but much more complicated
@@ -240,7 +241,7 @@ export const task: Task<Args> = {
 		try {
 			await spawn('git', ['add', '.', '-f'], target_spawn_options);
 			await spawn('git', ['commit', '-m', 'deployment'], target_spawn_options);
-			await spawn('git', ['push', origin, target, '-f'], target_spawn_options);
+			await spawn('git', ['push', origin, target, '-f'], target_spawn_options); // force push because we may be resetting the branch, see the checks above to make this safer
 		} catch (err) {
 			log.error(red('updating git failed:'), print_error(err));
 			throw new Task_Error(`Deploy failed in a bad state: built but not pushed, see error above.`);
