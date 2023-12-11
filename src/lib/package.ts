@@ -496,6 +496,8 @@ export const src_json = {
 				{name: 'git_reset_branch_to_first_commit', kind: 'function'},
 				{name: 'git_current_commit_hash', kind: 'function'},
 				{name: 'git_current_branch_first_commit_hash', kind: 'function'},
+				{name: 'git_empty_dir', kind: 'function'},
+				{name: 'git_check_setting_pull_rebase', kind: 'function'},
 			],
 		},
 		'./gro_plugin_gen.js': {
