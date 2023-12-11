@@ -49,7 +49,7 @@ export const git_remote_branch_exists = async (
 		return false;
 	} else {
 		throw Error(
-			`git_remote_branch_exists failed for origin ${origin} and branch ${branch} with code ${result.code}`,
+			`git_remote_branch_exists failed for origin '${origin}' and branch '${branch}' with code ${result.code}`,
 		);
 	}
 };
@@ -101,7 +101,7 @@ export const git_fetch = async (
 	const result = await spawn('git', args, options);
 	if (!result.ok) {
 		throw Error(
-			`git_fetch failed for origin ${origin} and branch ${branch} with code ${result.code}`,
+			`git_fetch failed for origin '${origin}' and branch '${branch}' with code ${result.code}`,
 		);
 	}
 };
@@ -116,7 +116,7 @@ export const git_checkout = async (branch: Git_Branch, options?: SpawnOptions): 
 	}
 	const result = await spawn('git', ['checkout', branch], options);
 	if (!result.ok) {
-		throw Error(`git_checkout failed for branch ${branch} with code ${result.code}`);
+		throw Error(`git_checkout failed for branch '${branch}' with code ${result.code}`);
 	}
 };
 
@@ -132,7 +132,7 @@ export const git_pull = async (
 	if (branch) args.push(branch);
 	const result = await spawn('git', args, options);
 	if (!result.ok) {
-		throw Error(`git_pull failed for branch ${branch} with code ${result.code}`);
+		throw Error(`git_pull failed for branch '${branch}' with code ${result.code}`);
 	}
 };
 
@@ -146,7 +146,7 @@ export const git_push = async (
 ): Promise<void> => {
 	const result = await spawn('git', ['push', origin, branch], options);
 	if (!result.ok) {
-		throw Error(`git_push failed for branch ${branch} with code ${result.code}`);
+		throw Error(`git_push failed for branch '${branch}' with code ${result.code}`);
 	}
 };
 
@@ -160,7 +160,7 @@ export const git_push_to_create = async (
 ): Promise<void> => {
 	const result = await spawn('git', ['push', '-u', origin, branch], options);
 	if (!result.ok) {
-		throw Error(`git_push failed for branch ${branch} with code ${result.code}`);
+		throw Error(`git_push failed for branch '${branch}' with code ${result.code}`);
 	}
 };
 
@@ -173,7 +173,7 @@ export const git_delete_local_branch = async (
 ): Promise<void> => {
 	const result = await spawn('git', ['branch', '-D', branch], options);
 	if (!result.ok) {
-		throw Error(`git_delete_local_branch failed for branch ${branch} with code ${result.code}`);
+		throw Error(`git_delete_local_branch failed for branch '${branch}' with code ${result.code}`);
 	}
 };
 
@@ -187,7 +187,7 @@ export const git_delete_remote_branch = async (
 ): Promise<void> => {
 	const result = await spawn('git', ['push', origin, ':' + branch], options);
 	if (!result.ok) {
-		throw Error(`git_delete_remote_branch failed for branch ${branch} with code ${result.code}`);
+		throw Error(`git_delete_remote_branch failed for branch '${branch}' with code ${result.code}`);
 	}
 };
 
@@ -257,6 +257,5 @@ export const git_empty_dir = async (
  */
 export const git_check_setting_pull_rebase = async (options?: SpawnOptions): Promise<boolean> => {
 	const value = await spawn_out('git', ['config', '--global', 'pull.rebase'], options);
-	if (!value.stdout) throw Error('Failed to get a valid value with git_check_setting_pull_rebase');
-	return value.stdout.trim() === 'true';
+	return value.stdout?.trim() === 'true';
 };
