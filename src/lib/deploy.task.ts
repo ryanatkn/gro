@@ -159,10 +159,22 @@ export const task: Task<Args> = {
 				// so repair things by deleting the local branch and refetching the remote.
 			}
 
-			// Local target branch is now synced with remote, but do we need to reset?
-			if (reset) {
+			// At this point, we have the target branch locally in the cwd
+			// and synced with the remote if it exists.
+
+			// Prepare the deploy directory with the target branch
+			const deploy_git_dir = join(resolved_deploy_dir, GIT_DIRNAME);
+			if (!(await exists(deploy_git_dir))) {
+				// Initialize the deploy dir git repo
+				await spawn('git', ['clone', '-b', target, '--single-branch', cwd, resolved_deploy_dir]);
+				await git_pull(origin, target, target_spawn_options);
+			} else if (reset) {
+				// Local target branch is now synced with remote, but do we need to reset?
 				await git_reset_branch_to_first_commit(origin, target, target_spawn_options);
 			}
+
+			// Remove everything except .git from the deploy directory to avoid stale files
+			await git_empty_dir(resolved_deploy_dir);
 		} else {
 			// Remote target branch does not exist
 
@@ -176,7 +188,9 @@ export const task: Task<Args> = {
 
 			// TODO would be cleaner to create the branch in `.gro/deploy` to avoid file churn in the root dir but much more complicated
 
-			// Create the target branch locally and remotely
+			// Create the target branch locally and remotely.
+			// This is more complex to avoid churning the cwd.
+			await spawn('git', ['clone', '-b', source, '--single-branch', cwd, resolved_deploy_dir]);
 			await spawn(
 				`git checkout --orphan ${target} && ` +
 					// TODO there's definitely a better way to do this
@@ -186,24 +200,11 @@ export const task: Task<Args> = {
 					`git commit -m "init"`,
 				[],
 				// Use `shell: true` because the above is unwieldy with standard command construction
-				{shell: true},
+				{...target_spawn_options, shell: true},
 			);
 			await git_push_to_create(origin, target);
-			await git_checkout(source);
+			await git_delete_local_branch(source, target_spawn_options);
 		}
-
-		// At this point, we have the target branch locally in the cwd
-		// and synced with the remote if it exists.
-
-		// Prepare the deploy directory with the target branch
-		const deploy_git_dir = join(resolved_deploy_dir, GIT_DIRNAME);
-		if (!(await exists(deploy_git_dir))) {
-			// Initialize the deploy dir git repo
-			await spawn('git', ['clone', '-b', target, '--single-branch', cwd, resolved_deploy_dir]);
-			await git_pull(origin, target, target_spawn_options);
-		}
-		// Remove everything except .git from the deploy directory
-		await git_empty_dir(resolved_deploy_dir);
 
 		// Build
 		try {
