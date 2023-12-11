@@ -193,8 +193,6 @@ export const task: Task<Args> = {
 				await git_delete_local_branch(target);
 			}
 
-			// TODO would be cleaner to create the branch in `.gro/deploy` to avoid file churn in the root dir but much more complicated
-
 			// Create the target branch locally and remotely.
 			// This is more complex to avoid churning the cwd.
 			await spawn('git', ['clone', '-b', source, '--single-branch', cwd, resolved_deploy_dir]);
@@ -209,7 +207,7 @@ export const task: Task<Args> = {
 				// Use `shell: true` because the above is unwieldy with standard command construction
 				{...target_spawn_options, shell: true},
 			);
-			await git_push_to_create(origin, target);
+			await git_push_to_create(origin, target, target_spawn_options);
 			await git_delete_local_branch(source, target_spawn_options);
 		}
 
