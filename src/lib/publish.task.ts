@@ -5,7 +5,7 @@ import {green, cyan} from 'kleur/colors';
 import {Task_Error, type Task} from './task.js';
 import {load_package_json} from './package_json.js';
 import {find_cli, spawn_cli} from './cli.js';
-import {exists} from './exists.js';
+import {exists} from './fs.js';
 import {is_this_project_gro} from './paths.js';
 import {has_library} from './gro_plugin_library.js';
 

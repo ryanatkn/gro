@@ -3,6 +3,9 @@ import type {Flavored} from '@grogarden/util/types.js';
 import type {SpawnOptions} from 'child_process';
 import {z} from 'zod';
 
+import {exists} from './fs.js';
+import {to_file_path} from './path.js';
+
 // TODO probably extract to `util-git`
 
 export const Git_Origin = z.string();
@@ -14,8 +17,8 @@ export type Git_Branch = z.infer<Flavored<typeof Git_Branch, 'Git_Branch'>>;
 /**
  * Returns the current git branch name or throws if something goes wrong.
  */
-export const git_current_branch_name = async (): Promise<string> => {
-	const {stdout} = await spawn_out('git', ['rev-parse', '--abbrev-ref', 'HEAD']);
+export const git_current_branch_name = async (options?: SpawnOptions): Promise<string> => {
+	const {stdout} = await spawn_out('git', ['rev-parse', '--abbrev-ref', 'HEAD'], options);
 	if (!stdout) throw Error('git_current_branch_name failed');
 	const branch_name = stdout.toString().trim();
 	return branch_name;
@@ -29,6 +32,9 @@ export const git_remote_branch_exists = async (
 	branch: Git_Branch,
 	options?: SpawnOptions,
 ): Promise<boolean> => {
+	if (options?.cwd && !(await exists(to_file_path(options.cwd)))) {
+		return false;
+	}
 	const result = await spawn(
 		'git',
 		['ls-remote', '--exit-code', '--heads', origin, 'refs/heads/' + branch],
@@ -40,7 +46,7 @@ export const git_remote_branch_exists = async (
 		return false;
 	} else {
 		throw Error(
-			`git_remote_branch_exists failed for origin ${origin} and branch ${branch} with code ${result.code}`,
+			`git_remote_branch_exists failed for origin '${origin}' and branch '${branch}' with code ${result.code}`,
 		);
 	}
 };
@@ -52,6 +58,9 @@ export const git_local_branch_exists = async (
 	branch: Git_Branch,
 	options?: SpawnOptions,
 ): Promise<boolean> => {
+	if (options?.cwd && !(await exists(to_file_path(options.cwd)))) {
+		return false;
+	}
 	const result = await spawn('git', ['show-ref', '--quiet', 'refs/heads/' + branch], options);
 	return result.ok;
 };
@@ -89,7 +98,7 @@ export const git_fetch = async (
 	const result = await spawn('git', args, options);
 	if (!result.ok) {
 		throw Error(
-			`git_fetch failed for origin ${origin} and branch ${branch} with code ${result.code}`,
+			`git_fetch failed for origin '${origin}' and branch '${branch}' with code ${result.code}`,
 		);
 	}
 };
@@ -98,9 +107,13 @@ export const git_fetch = async (
  * Calls `git checkout` and throws if anything goes wrong.
  */
 export const git_checkout = async (branch: Git_Branch, options?: SpawnOptions): Promise<void> => {
+	const current_branch = await git_current_branch_name(options);
+	if (branch === current_branch) {
+		return;
+	}
 	const result = await spawn('git', ['checkout', branch], options);
 	if (!result.ok) {
-		throw Error(`git_checkout failed for branch ${branch} with code ${result.code}`);
+		throw Error(`git_checkout failed for branch '${branch}' with code ${result.code}`);
 	}
 };
 
@@ -109,12 +122,14 @@ export const git_checkout = async (branch: Git_Branch, options?: SpawnOptions): 
  */
 export const git_pull = async (
 	origin: Git_Origin,
-	branch: Git_Branch,
+	branch?: Git_Branch,
 	options?: SpawnOptions,
 ): Promise<void> => {
-	const result = await spawn('git', ['pull', origin, branch], options);
+	const args = ['pull', origin];
+	if (branch) args.push(branch);
+	const result = await spawn('git', args, options);
 	if (!result.ok) {
-		throw Error(`git_pull failed for branch ${branch} with code ${result.code}`);
+		throw Error(`git_pull failed for branch '${branch}' with code ${result.code}`);
 	}
 };
 
@@ -128,7 +143,7 @@ export const git_push = async (
 ): Promise<void> => {
 	const result = await spawn('git', ['push', origin, branch], options);
 	if (!result.ok) {
-		throw Error(`git_push failed for branch ${branch} with code ${result.code}`);
+		throw Error(`git_push failed for branch '${branch}' with code ${result.code}`);
 	}
 };
 
@@ -142,7 +157,7 @@ export const git_push_to_create = async (
 ): Promise<void> => {
 	const result = await spawn('git', ['push', '-u', origin, branch], options);
 	if (!result.ok) {
-		throw Error(`git_push failed for branch ${branch} with code ${result.code}`);
+		throw Error(`git_push failed for branch '${branch}' with code ${result.code}`);
 	}
 };
 
@@ -155,7 +170,7 @@ export const git_delete_local_branch = async (
 ): Promise<void> => {
 	const result = await spawn('git', ['branch', '-D', branch], options);
 	if (!result.ok) {
-		throw Error(`git_delete_local_branch failed for branch ${branch} with code ${result.code}`);
+		throw Error(`git_delete_local_branch failed for branch '${branch}' with code ${result.code}`);
 	}
 };
 
@@ -169,22 +184,8 @@ export const git_delete_remote_branch = async (
 ): Promise<void> => {
 	const result = await spawn('git', ['push', origin, ':' + branch], options);
 	if (!result.ok) {
-		throw Error(`git_delete_remote_branch failed for branch ${branch} with code ${result.code}`);
+		throw Error(`git_delete_remote_branch failed for branch '${branch}' with code ${result.code}`);
 	}
-};
-
-export const WORKTREE_DIRNAME = 'worktree';
-export const to_worktree_dir = (dir: string): string => dir + WORKTREE_DIRNAME;
-
-/**
- * Removes the specified git worktree and then prunes.
- */
-export const git_clean_worktree = async (
-	worktree_dirname = WORKTREE_DIRNAME,
-	options: SpawnOptions = {stdio: 'pipe'}, // silence the output by default
-): Promise<void> => {
-	await spawn('git', ['worktree', 'remove', worktree_dirname, '--force'], options);
-	await spawn('git', ['worktree', 'prune'], options);
 };
 
 /**
@@ -193,20 +194,24 @@ export const git_clean_worktree = async (
 export const git_reset_branch_to_first_commit = async (
 	origin: Git_Origin,
 	branch: Git_Branch,
+	options?: SpawnOptions,
 ): Promise<void> => {
-	await git_checkout(branch);
-	const first_commit_hash = await git_current_branch_first_commit_hash();
-	await spawn('git', ['reset', '--hard', first_commit_hash]);
-	await spawn('git', ['push', origin, branch, '--force']);
-	await git_checkout('-');
+	await git_checkout(branch, options);
+	const first_commit_hash = await git_current_branch_first_commit_hash(options);
+	await spawn('git', ['reset', '--hard', first_commit_hash], options);
+	await spawn('git', ['push', origin, branch, '--force'], options);
+	await git_checkout('-', options);
 };
 
 /**
  * Returns the branch's latest commit hash or throws if something goes wrong.
  */
-export const git_current_commit_hash = async (branch?: string): Promise<string | null> => {
-	const final_branch = branch ?? (await git_current_branch_name());
-	const {stdout} = await spawn_out('git', ['show-ref', '-s', final_branch]);
+export const git_current_commit_hash = async (
+	branch?: string,
+	options?: SpawnOptions,
+): Promise<string | null> => {
+	const final_branch = branch ?? (await git_current_branch_name(options));
+	const {stdout} = await spawn_out('git', ['show-ref', '-s', final_branch], options);
 	if (!stdout) return null; // TODO hack for CI
 	return stdout.toString().split('\n')[0].trim();
 };
@@ -214,13 +219,42 @@ export const git_current_commit_hash = async (branch?: string): Promise<string |
 /**
  * Returns the hash of the current branch's first commit or throws if something goes wrong.
  */
-export const git_current_branch_first_commit_hash = async (): Promise<string> => {
-	const {stdout} = await spawn_out('git', [
-		'rev-list',
-		'--max-parents=0',
-		'--abbrev-commit',
-		'HEAD',
-	]);
+export const git_current_branch_first_commit_hash = async (
+	options?: SpawnOptions,
+): Promise<string> => {
+	const {stdout} = await spawn_out(
+		'git',
+		['rev-list', '--max-parents=0', '--abbrev-commit', 'HEAD'],
+		options,
+	);
 	if (!stdout) throw Error('git_current_branch_first_commit_hash failed');
 	return stdout.toString().trim();
+};
+
+/**
+ * Returns the global git config setting for `pull.rebase`.
+ * Gro is currently written to expect `true`,
+ * but the restriction could be loosened with additional work.
+ */
+export const git_check_setting_pull_rebase = async (options?: SpawnOptions): Promise<boolean> => {
+	const value = await spawn_out('git', ['config', '--global', 'pull.rebase'], options);
+	return value.stdout?.trim() === 'true';
+};
+
+/**
+ * Clones a branch locally to another directory and updates the origin to match the source.
+ */
+export const git_clone_locally = async (
+	origin: Git_Origin,
+	branch: Git_Branch,
+	source_dir: string,
+	target_dir: string,
+	options?: SpawnOptions,
+): Promise<void> => {
+	await spawn('git', ['clone', '-b', branch, '--single-branch', source_dir, target_dir], options);
+	const origin_url = (
+		await spawn_out('git', ['remote', 'get-url', origin], {...options, cwd: source_dir})
+	).stdout?.trim();
+	if (!origin_url) throw Error('Failed to get the origin url with git in ' + source_dir);
+	await spawn('git', ['remote', 'set-url', origin, origin_url], {...options, cwd: target_dir});
 };

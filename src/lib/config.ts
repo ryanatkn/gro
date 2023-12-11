@@ -3,7 +3,7 @@ import {join} from 'node:path';
 import {CONFIG_PATH, paths} from './paths.js';
 import create_default_config from './gro.config.default.js';
 import type {Create_Config_Plugins} from './plugin.js';
-import {exists} from './exists.js';
+import {exists} from './fs.js';
 import type {Map_Package_Json} from './package_json.js';
 
 export interface Gro_Config {

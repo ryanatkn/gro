@@ -5,7 +5,7 @@ import {strip_end, strip_start} from '@grogarden/util/string.js';
 import {EMPTY_OBJECT} from '@grogarden/util/object.js';
 
 import type {Path_Stats, Path_Filter} from './path.js';
-import {exists} from './exists.js';
+import {exists} from './fs.js';
 
 export interface Search_Fs_Options {
 	filter?: Path_Filter;

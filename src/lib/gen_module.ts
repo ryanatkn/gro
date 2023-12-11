@@ -11,7 +11,7 @@ import type {Gen, Gen_Results, Gen_File} from './gen.js';
 import {get_possible_source_ids} from './input_path.js';
 import {paths} from './paths.js';
 import {search_fs} from './search_fs.js';
-import {exists} from './exists.js';
+import {exists} from './fs.js';
 
 export const GEN_FILE_PATTERN_TEXT = 'gen';
 export const GEN_FILE_PATTERN = '.' + GEN_FILE_PATTERN_TEXT + '.';
