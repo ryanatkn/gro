@@ -498,6 +498,7 @@ export const src_json = {
 				{name: 'git_current_branch_first_commit_hash', kind: 'function'},
 				{name: 'git_empty_dir', kind: 'function'},
 				{name: 'git_check_setting_pull_rebase', kind: 'function'},
+				{name: 'git_clone_locally', kind: 'function'},
 			],
 		},
 		'./gro_plugin_gen.js': {
