@@ -158,11 +158,9 @@ export const task: Task<Args> = {
 			// Second, initialize the deploy dir if needed.
 			// It may not exist, or it may have been deleted after failing to sync above.
 			if (!(await exists(resolved_deploy_dir))) {
-				console.log('DOESNT EXIST');
-				// await mkdir(resolved_deploy_dir, {recursive: true}); // TODO BLOCK delete this?
+				// TODO BLOCK test this when the deploy branches diverge, may need to check for clean workspace, or error, adding + in front of branch will allow non-fastforward merges
 				await git_fetch(origin, target + ':' + target); // fetch+merge
 				await git_clone_locally(origin, target, cwd, resolved_deploy_dir);
-				// await git_pull(origin, target, target_spawn_options);
 			}
 
 			// Local target branch is now synced with remote, but do we need to reset?
@@ -172,11 +170,6 @@ export const task: Task<Args> = {
 
 			// TODO BLOCK old code starts here
 
-			if (!(await exists(resolved_deploy_dir))) {
-				await mkdir(resolved_deploy_dir, {recursive: true});
-			}
-
-			// TODO BLOCK broken in the case where we have a remote branch but no local
 			// TODO BLOCK what if the local branch is out of sync, and causes a merge problem? maybe check for the clean workspace after pulling?
 			// TODO BLOCK target_spawn_options is wrong here in the current order, think through with the cloning below
 			await git_pull(origin, target, target_spawn_options); // ensure the local branch is up to date
