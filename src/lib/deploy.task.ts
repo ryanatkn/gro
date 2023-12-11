@@ -139,6 +139,7 @@ export const task: Task<Args> = {
 		const remote_target_exists = await git_remote_branch_exists(origin, target);
 		if (remote_target_exists) {
 			// Remote target branch already exists, so sync up
+			// TODO BLOCK what if the local branch is out of sync, and causes a merge problem? maybe check for the clean workspace after pulling?
 			// TODO BLOCK target_spawn_options is wrong here in the current order, think through with the cloning below
 			await git_pull(origin, target, target_spawn_options); // ensure the local branch is up to date
 
