@@ -166,9 +166,6 @@ export const task: Task<Args> = {
 				// so repair things by deleting the local branch and refetching the remote.
 			}
 
-			// At this point, we have the target branch locally in the cwd
-			// and synced with the remote if it exists.
-
 			// Prepare the deploy directory with the target branch
 			const deploy_git_dir = join(resolved_deploy_dir, GIT_DIRNAME);
 			if (!(await exists(deploy_git_dir))) {
@@ -192,6 +189,8 @@ export const task: Task<Args> = {
 			if (await git_local_branch_exists(target)) {
 				await git_delete_local_branch(target);
 			}
+
+			// TODO this doesn't set up `git pull` to work correctly, though `git pull origin deploy` works fine
 
 			// Create the target branch locally and remotely.
 			// This is more complex to avoid churning the cwd.
