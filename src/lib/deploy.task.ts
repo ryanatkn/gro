@@ -206,7 +206,6 @@ export const task: Task<Args> = {
 
 		// Remove everything except .git from the deploy directory to avoid stale files
 		await empty_dir(resolved_deploy_dir, (path) => path !== GIT_DIRNAME);
-		return;
 
 		// Build
 		try {
