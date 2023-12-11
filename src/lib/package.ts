@@ -57,7 +57,7 @@ export const package_json = {
 		'@fuz.dev/fuz': '^0.81.0',
 		'@fuz.dev/fuz_library': '^0.23.0',
 		'@sveltejs/adapter-static': '^2.0.3',
-		'@sveltejs/kit': '^1.27.6',
+		'@sveltejs/kit': '^1.29.0',
 		'@sveltejs/package': '^2.2.3',
 		'@types/fs-extra': '^11.0.4',
 		'@types/node': '^20.10.0',
@@ -810,6 +810,7 @@ export const src_json = {
 			declarations: [
 				{name: 'assets', kind: 'variable'},
 				{name: 'base', kind: 'variable'},
+				{name: 'resolveRoute', kind: 'function'},
 			],
 		},
 		'./sveltekit_shim_app_stores.js': {

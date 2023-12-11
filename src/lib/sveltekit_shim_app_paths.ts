@@ -8,5 +8,9 @@
  * @see https://github.com/nodejs/loaders for details about the forthcoming virtual file support
  */
 
+import type {resolveRoute as base_resolveRoute} from '$app/paths';
+import {noop} from '@grogarden/util/function.js';
+
 export const assets = '';
 export const base = '';
+export const resolveRoute: typeof base_resolveRoute = noop;
