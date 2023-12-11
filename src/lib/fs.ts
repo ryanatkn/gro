@@ -21,9 +21,8 @@ export const empty_dir = async (
 	options?: RmOptions,
 ): Promise<void> => {
 	await Promise.all(
-		(await readdir(dir)).map((path) => {
-			console.log(`path`, path);
-			return filter && !filter(path) ? null : rm(join(dir, path), {...options, recursive: true});
-		}),
+		(await readdir(dir)).map((path) =>
+			filter && !filter(path) ? null : rm(join(dir, path), {...options, recursive: true}),
+		),
 	);
 };
