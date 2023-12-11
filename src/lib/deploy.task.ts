@@ -179,9 +179,6 @@ export const task: Task<Args> = {
 				// Local target branch is now synced with remote, but do we need to reset?
 				await git_reset_branch_to_first_commit(origin, target, target_spawn_options);
 			}
-
-			// Remove everything except .git from the deploy directory to avoid stale files
-			await git_empty_dir(resolved_deploy_dir);
 		} else {
 			// Remote target branch does not exist, so start from scratch
 
@@ -213,6 +210,9 @@ export const task: Task<Args> = {
 			await git_push_to_create(origin, target, target_spawn_options);
 			await git_delete_local_branch(source, target_spawn_options);
 		}
+
+		// Remove everything except .git from the deploy directory to avoid stale files
+		await git_empty_dir(resolved_deploy_dir);
 
 		// Build
 		try {
