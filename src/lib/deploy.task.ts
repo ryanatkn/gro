@@ -147,7 +147,6 @@ export const task: Task<Args> = {
 		const remote_target_exists = await git_remote_branch_exists(origin, target);
 		if (remote_target_exists) {
 			// Remote target branch already exists, so sync up
-			console.log('REMOTE DOES INDEED EXIST');
 
 			await git_fetch(origin, target);
 
@@ -184,7 +183,6 @@ export const task: Task<Args> = {
 			await git_empty_dir(resolved_deploy_dir);
 		} else {
 			// Remote target branch does not exist, so start from scratch
-			console.log('REMOTE DOES NOT EXIST');
 
 			// Delete the deploy dir and recreate it
 			if (await exists(resolved_deploy_dir)) {
