@@ -158,9 +158,11 @@ export const task: Task<Args> = {
 			// Second, initialize the deploy dir if needed.
 			// It may not exist, or it may have been deleted after failing to sync above.
 			if (!(await exists(resolved_deploy_dir))) {
-				await mkdir(resolved_deploy_dir, {recursive: true});
-
-				// TODO BLOCK init
+				console.log('DOESNT EXIST');
+				// await mkdir(resolved_deploy_dir, {recursive: true}); // TODO BLOCK delete this?
+				await git_fetch(origin, target + ':' + target); // fetch+merge
+				await git_clone_locally(origin, target, cwd, resolved_deploy_dir);
+				// await git_pull(origin, target, target_spawn_options);
 			}
 
 			// Local target branch is now synced with remote, but do we need to reset?
@@ -169,8 +171,6 @@ export const task: Task<Args> = {
 			}
 
 			// TODO BLOCK old code starts here
-
-			await git_fetch(origin, target);
 
 			if (!(await exists(resolved_deploy_dir))) {
 				await mkdir(resolved_deploy_dir, {recursive: true});
@@ -232,6 +232,7 @@ export const task: Task<Args> = {
 			await git_delete_local_branch(source, target_spawn_options);
 		}
 
+		return;
 		// Remove everything except .git from the deploy directory to avoid stale files
 		await git_empty_dir(resolved_deploy_dir);
 
