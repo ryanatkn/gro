@@ -127,8 +127,10 @@ export const task: Task<Args> = {
 			);
 		}
 
-		// Fetch the source and target branches in the cwd
-		await git_fetch(origin, source);
+		// Fetch the source branch in the cwd if it's not there
+		if (!(await git_local_branch_exists(source))) {
+			await git_fetch(origin, source);
+		}
 
 		// Prepare the source branch in the cwd
 		await git_checkout(source);
