@@ -186,8 +186,6 @@ export const task: Task<Args> = {
 				await git_delete_local_branch(target);
 			}
 
-			// TODO this doesn't set up `git pull` to work correctly, though `git pull origin deploy` works fine
-
 			// Create the target branch locally and remotely.
 			// This is more complex to avoid churning the cwd.
 			await git_clone_locally(origin, source, cwd, resolved_deploy_dir);
