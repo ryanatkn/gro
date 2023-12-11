@@ -2,12 +2,9 @@ import {spawn, spawn_out} from '@grogarden/util/process.js';
 import type {Flavored} from '@grogarden/util/types.js';
 import type {SpawnOptions} from 'child_process';
 import {z} from 'zod';
-import {readdir, rm} from 'fs/promises';
-import {join} from 'node:path';
 
-import {exists} from './exists.js';
+import {exists} from './fs.js';
 import {to_file_path} from './path.js';
-import {GIT_DIRNAME} from './paths.js';
 
 // TODO probably extract to `util-git`
 
@@ -232,22 +229,6 @@ export const git_current_branch_first_commit_hash = async (
 	);
 	if (!stdout) throw Error('git_current_branch_first_commit_hash failed');
 	return stdout.toString().trim();
-};
-
-/**
- * Empties a directory except for `.git` with an optional `filter`.
- */
-export const git_empty_dir = async (
-	dir: string,
-	filter?: (path: string) => boolean,
-): Promise<void> => {
-	await Promise.all(
-		(await readdir(dir)).map((path) =>
-			path === GIT_DIRNAME || (filter && !filter(path))
-				? null
-				: rm(join(dir, path), {recursive: true}),
-		),
-	);
 };
 
 /**

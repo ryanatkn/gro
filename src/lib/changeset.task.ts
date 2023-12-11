@@ -5,7 +5,7 @@ import type {WrittenConfig} from '@changesets/types';
 import {readFile, writeFile} from 'node:fs/promises';
 
 import {Task_Error, type Task} from './task.js';
-import {exists} from './exists.js';
+import {exists} from './fs.js';
 import {dirname} from 'node:path';
 import {load_package_json} from './package_json.js';
 import {find_cli, spawn_cli} from './cli.js';

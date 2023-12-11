@@ -4,7 +4,7 @@ import {dirname, join} from 'node:path';
 
 import type {Plugin, Plugin_Context} from './plugin.js';
 import {print_command_args, serialize_args, to_forwarded_args} from './args.js';
-import {exists} from './exists.js';
+import {exists} from './fs.js';
 import {serialize_package_json, type Map_Package_Json, load_package_json} from './package_json.js';
 import {init_sveltekit_config} from './sveltekit_config.js';
 import {Task_Error} from './task.js';

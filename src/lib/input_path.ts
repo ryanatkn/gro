@@ -14,7 +14,7 @@ import {
 	paths,
 } from './paths.js';
 import {to_path_data, type Path_Data} from './path.js';
-import {exists} from './exists.js';
+import {exists} from './fs.js';
 import {search_fs} from './search_fs.js';
 
 /**

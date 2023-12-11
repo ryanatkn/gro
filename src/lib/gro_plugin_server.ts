@@ -23,7 +23,7 @@ import {print_build_result, to_define_import_meta_env} from './esbuild_helpers.j
 import {esbuild_plugin_sveltekit_shim_alias} from './esbuild_plugin_sveltekit_shim_alias.js';
 import {esbuild_plugin_external_worker} from './esbuild_plugin_external_worker.js';
 import {esbuild_plugin_sveltekit_local_imports} from './esbuild_plugin_sveltekit_local_imports.js';
-import {exists} from './exists.js';
+import {exists} from './fs.js';
 import {esbuild_plugin_svelte} from './esbuild_plugin_svelte.js';
 import {throttle} from './throttle.js';
 

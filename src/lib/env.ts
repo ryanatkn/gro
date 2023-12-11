@@ -2,7 +2,7 @@ import dotenv from 'dotenv';
 import {readFile} from 'node:fs/promises';
 import {resolve} from 'node:path';
 
-import {exists} from './exists.js';
+import {exists} from './fs.js';
 
 export const load_env = async (
 	dev: boolean,

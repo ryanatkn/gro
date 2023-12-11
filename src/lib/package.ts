@@ -125,13 +125,13 @@ export const package_json = {
 			default: './dist/esbuild_plugin_sveltekit_shim_env.js',
 			types: './dist/esbuild_plugin_sveltekit_shim_env.d.ts',
 		},
-		'./exists.js': {default: './dist/exists.js', types: './dist/exists.d.ts'},
 		'./format_directory.js': {
 			default: './dist/format_directory.js',
 			types: './dist/format_directory.d.ts',
 		},
 		'./format_file.js': {default: './dist/format_file.js', types: './dist/format_file.d.ts'},
 		'./format.task.js': {default: './dist/format.task.js', types: './dist/format.task.d.ts'},
+		'./fs.js': {default: './dist/fs.js', types: './dist/fs.d.ts'},
 		'./gen_module.js': {default: './dist/gen_module.js', types: './dist/gen_module.d.ts'},
 		'./gen_schemas.js': {default: './dist/gen_schemas.js', types: './dist/gen_schemas.d.ts'},
 		'./gen.task.js': {default: './dist/gen.task.js', types: './dist/gen.task.d.ts'},
@@ -402,7 +402,6 @@ export const src_json = {
 				{name: 'esbuild_plugin_sveltekit_shim_env', kind: 'function'},
 			],
 		},
-		'./exists.js': {path: 'exists.ts', declarations: [{name: 'exists', kind: 'function'}]},
 		'./format_directory.js': {
 			path: 'format_directory.ts',
 			declarations: [{name: 'format_directory', kind: 'function'}],
@@ -418,6 +417,7 @@ export const src_json = {
 				{name: 'task', kind: 'variable'},
 			],
 		},
+		'./fs.js': {path: 'fs.ts', declarations: [{name: 'clean_fs', kind: 'function'}]},
 		'./gen_module.js': {
 			path: 'gen_module.ts',
 			declarations: [
@@ -496,7 +496,6 @@ export const src_json = {
 				{name: 'git_reset_branch_to_first_commit', kind: 'function'},
 				{name: 'git_current_commit_hash', kind: 'function'},
 				{name: 'git_current_branch_first_commit_hash', kind: 'function'},
-				{name: 'git_empty_dir', kind: 'function'},
 				{name: 'git_check_setting_pull_rebase', kind: 'function'},
 				{name: 'git_clone_locally', kind: 'function'},
 			],

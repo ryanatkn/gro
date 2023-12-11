@@ -7,7 +7,7 @@ import {join, resolve} from 'node:path';
 
 import {Task_Error, type Task} from './task.js';
 import {GIT_DIRNAME, GRO_DIRNAME, print_path, SVELTEKIT_BUILD_DIRNAME} from './paths.js';
-import {exists} from './exists.js';
+import {empty_dir, exists} from './fs.js';
 import {
 	git_check_clean_workspace,
 	git_checkout,
@@ -20,7 +20,6 @@ import {
 	git_reset_branch_to_first_commit,
 	git_pull,
 	git_fetch,
-	git_empty_dir,
 	git_check_setting_pull_rebase,
 	git_clone_locally,
 } from './git.js';
@@ -152,7 +151,12 @@ export const task: Task<Args> = {
 			// If anything goes wrong, delete the directory and we'll initialize it
 			// using the same code path as if it didn't exist in the first place.
 			if (await exists(resolved_deploy_dir)) {
-				// TODO BLOCK sync
+				await git_pull(origin, target, target_spawn_options);
+				if (await git_check_clean_workspace()) {
+					// We're in a bad state because the local branch lost continuity with the remote,
+					// so delete the directory and continue as if it wasn't there.
+					await rm(resolved_deploy_dir, {recursive: true});
+				}
 			}
 
 			// Second, initialize the deploy dir if needed.
@@ -164,30 +168,6 @@ export const task: Task<Args> = {
 
 			// Local target branch is now synced with remote, but do we need to reset?
 			if (reset) {
-				await git_reset_branch_to_first_commit(origin, target, target_spawn_options);
-			}
-
-			// TODO BLOCK old code starts here
-
-			// TODO BLOCK what if the local branch is out of sync, and causes a merge problem? maybe check for the clean workspace after pulling?
-			// TODO BLOCK target_spawn_options is wrong here in the current order, think through with the cloning below
-			await git_pull(origin, target, target_spawn_options); // ensure the local branch is up to date
-
-			// TODO BLOCK what happens here if this is wrong?
-			if (await git_check_clean_workspace()) {
-				await spawn('git', ['rebase', '--abort'], target_spawn_options);
-				// We're in a bad state because the local branch lost continuity with the remote,
-				// so repair things by deleting the local branch and refetching the remote.
-			}
-
-			// Prepare the deploy directory with the target branch
-			const deploy_git_dir = join(resolved_deploy_dir, GIT_DIRNAME);
-			if (!(await exists(deploy_git_dir))) {
-				// Initialize the deploy dir git repo
-				await git_clone_locally(origin, target, cwd, resolved_deploy_dir);
-				await git_pull(origin, target, target_spawn_options);
-			} else if (reset) {
-				// Local target branch is now synced with remote, but do we need to reset?
 				await git_reset_branch_to_first_commit(origin, target, target_spawn_options);
 			}
 		} else {
@@ -224,9 +204,9 @@ export const task: Task<Args> = {
 			await git_delete_local_branch(source, target_spawn_options);
 		}
 
-		return;
 		// Remove everything except .git from the deploy directory to avoid stale files
-		await git_empty_dir(resolved_deploy_dir);
+		await empty_dir(resolved_deploy_dir, (path) => path !== GIT_DIRNAME);
+		return;
 
 		// Build
 		try {

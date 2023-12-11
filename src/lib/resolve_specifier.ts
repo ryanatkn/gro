@@ -1,7 +1,7 @@
 import {extname, join, relative} from 'node:path';
 
 import {replace_extension} from './paths.js';
-import {exists} from './exists.js';
+import {exists} from './fs.js';
 
 export interface Resolved_Specifier {
 	specifier: string;

@@ -5,7 +5,7 @@ import type {Logger} from '@grogarden/util/log.js';
 import {Project} from 'ts-morph';
 
 import {paths, replace_extension} from './paths.js';
-import {exists} from './exists.js';
+import {exists} from './fs.js';
 import {
 	transform_empty_object_to_undefined,
 	type Package_Json,

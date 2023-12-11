@@ -1,5 +1,5 @@
 import type {Create_Gro_Config} from './config.js';
-import {exists} from './exists.js';
+import {exists} from './fs.js';
 import {has_library} from './gro_plugin_library.js';
 import {has_server} from './gro_plugin_server.js';
 import {SVELTEKIT_CONFIG_FILENAME} from './paths.js';
