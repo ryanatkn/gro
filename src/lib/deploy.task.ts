@@ -114,12 +114,12 @@ export const task: Task<Args> = {
 					` both locally and remotely, pass --dangerous to suppress this error.`,
 			);
 		}
-		// const clean_error_message = await git_check_clean_workspace();
-		// if (clean_error_message) {
-		// 	throw new Task_Error(
-		// 		'Deploy failed because the git workspace has uncommitted changes: ' + clean_error_message,
-		// 	);
-		// }
+		const clean_error_message = await git_check_clean_workspace();
+		if (clean_error_message) {
+			throw new Task_Error(
+				'Deploy failed because the git workspace has uncommitted changes: ' + clean_error_message,
+			);
+		}
 		if (!(await git_check_setting_pull_rebase())) {
 			throw new Task_Error(
 				'Deploying currently requires `git config --global pull.rebase true`,' +
@@ -130,8 +130,6 @@ export const task: Task<Args> = {
 		// Fetch the needed branches
 		await git_fetch(origin, source);
 		await git_fetch(origin, target); // TODO BLOCK what if we're out of sync with the remote deploy dir?
-
-		return;
 
 		// Prepare the source branch
 		await git_checkout(source);
