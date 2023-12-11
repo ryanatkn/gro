@@ -146,7 +146,29 @@ export const task: Task<Args> = {
 		const target_spawn_options = {cwd: resolved_deploy_dir};
 		const remote_target_exists = await git_remote_branch_exists(origin, target);
 		if (remote_target_exists) {
-			// Remote target branch already exists, so sync up
+			// Remote target branch already exists, so sync up efficiently
+
+			// First, check if the deploy dir exists, and if so, attempt to sync it.
+			// If anything goes wrong, delete the directory and we'll initialize it
+			// using the same code path as if it didn't exist in the first place.
+			if (await exists(resolved_deploy_dir)) {
+				// TODO BLOCK sync
+			}
+
+			// Second, initialize the deploy dir if needed.
+			// It may not exist, or it may have been deleted after failing to sync above.
+			if (!(await exists(resolved_deploy_dir))) {
+				await mkdir(resolved_deploy_dir, {recursive: true});
+
+				// TODO BLOCK init
+			}
+
+			// Local target branch is now synced with remote, but do we need to reset?
+			if (reset) {
+				await git_reset_branch_to_first_commit(origin, target, target_spawn_options);
+			}
+
+			// TODO BLOCK old code starts here
 
 			await git_fetch(origin, target);
 
