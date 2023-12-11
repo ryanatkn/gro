@@ -129,7 +129,6 @@ export const task: Task<Args> = {
 
 		// Fetch the source and target branches in the cwd
 		await git_fetch(origin, source);
-		await git_fetch(origin, target);
 
 		// Prepare the source branch in the cwd
 		await git_checkout(source);
@@ -147,6 +146,8 @@ export const task: Task<Args> = {
 		const remote_target_exists = await git_remote_branch_exists(origin, target);
 		if (remote_target_exists) {
 			// Remote target branch already exists, so sync up
+
+			await git_fetch(origin, target);
 
 			if (!(await exists(resolved_deploy_dir))) {
 				await mkdir(resolved_deploy_dir, {recursive: true});

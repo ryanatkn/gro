@@ -99,7 +99,6 @@ export const git_fetch = async (
 	const args = ['fetch', origin];
 	if (branch) args.push(branch);
 	const result = await spawn('git', args, options);
-	console.log(`result`, result);
 	if (!result.ok) {
 		throw Error(
 			`git_fetch failed for origin '${origin}' and branch '${branch}' with code ${result.code}`,
