@@ -129,7 +129,7 @@ export const task: Task<Args> = {
 
 		// Fetch the needed branches
 		await git_fetch(origin, source);
-		await git_fetch(origin, target);
+		await git_fetch(origin, target); // TODO BLOCK what if we're out of sync with the remote deploy dir?
 
 		// Prepare the source branch
 		await git_checkout(source);
@@ -151,9 +151,11 @@ export const task: Task<Args> = {
 			await git_pull(origin, target, target_spawn_options); // ensure the local branch is up to date
 
 			// TODO BLOCK what happens here if this is wrong?
-			// if (await git_check_clean_workspace()) {
-			// 	await spawn('git', ['rebase', '--abort'], target_spawn_options);
-			// }
+			if (await git_check_clean_workspace()) {
+				await spawn('git', ['rebase', '--abort'], target_spawn_options);
+				// We're in a bad state because the local branch lost continuity with the remote,
+				// so repair things by deleting the local branch and refetching the remote.
+			}
 
 			// Local target branch is now synced with remote, but do we need to reset?
 			if (reset) {
@@ -194,7 +196,7 @@ export const task: Task<Args> = {
 		// Prepare the deploy directory with the target branch
 		const deploy_git_dir = join(resolved_deploy_dir, GIT_DIRNAME);
 		if (!(await exists(deploy_git_dir))) {
-			// Deploy directory does not exist, so initialize it
+			// Initialize the deploy dir git repo
 			await spawn('git', ['clone', '-b', target, '--single-branch', cwd, resolved_deploy_dir]);
 			await git_pull(origin, target, target_spawn_options);
 		}
