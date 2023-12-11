@@ -22,6 +22,7 @@ import {
 	git_fetch,
 	git_empty_dir,
 	git_check_setting_pull_rebase,
+	git_clone_locally,
 } from './git.js';
 
 // docs at ./docs/deploy.md
@@ -146,6 +147,7 @@ export const task: Task<Args> = {
 		const remote_target_exists = await git_remote_branch_exists(origin, target);
 		if (remote_target_exists) {
 			// Remote target branch already exists, so sync up
+			console.log('REMOTE DOES INDEED EXIST');
 
 			await git_fetch(origin, target);
 
@@ -171,7 +173,7 @@ export const task: Task<Args> = {
 			const deploy_git_dir = join(resolved_deploy_dir, GIT_DIRNAME);
 			if (!(await exists(deploy_git_dir))) {
 				// Initialize the deploy dir git repo
-				await spawn('git', ['clone', '-b', target, '--single-branch', cwd, resolved_deploy_dir]);
+				await git_clone_locally(origin, target, cwd, resolved_deploy_dir);
 				await git_pull(origin, target, target_spawn_options);
 			} else if (reset) {
 				// Local target branch is now synced with remote, but do we need to reset?
@@ -182,6 +184,7 @@ export const task: Task<Args> = {
 			await git_empty_dir(resolved_deploy_dir);
 		} else {
 			// Remote target branch does not exist, so start from scratch
+			console.log('REMOTE DOES NOT EXIST');
 
 			// Delete the deploy dir and recreate it
 			if (await exists(resolved_deploy_dir)) {
@@ -196,7 +199,7 @@ export const task: Task<Args> = {
 
 			// Create the target branch locally and remotely.
 			// This is more complex to avoid churning the cwd.
-			await spawn('git', ['clone', '-b', source, '--single-branch', cwd, resolved_deploy_dir]);
+			await git_clone_locally(origin, source, cwd, resolved_deploy_dir);
 			await spawn(
 				`git checkout --orphan ${target} && ` +
 					// TODO there's definitely a better way to do this

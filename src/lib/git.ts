@@ -259,3 +259,21 @@ export const git_check_setting_pull_rebase = async (options?: SpawnOptions): Pro
 	const value = await spawn_out('git', ['config', '--global', 'pull.rebase'], options);
 	return value.stdout?.trim() === 'true';
 };
+
+/**
+ * Clones a branch locally to another directory and updates the origin to match the source.
+ */
+export const git_clone_locally = async (
+	origin: Git_Origin,
+	branch: Git_Branch,
+	source_dir: string,
+	target_dir: string,
+	options?: SpawnOptions,
+): Promise<void> => {
+	await spawn('git', ['clone', '-b', branch, '--single-branch', source_dir, target_dir], options);
+	const origin_url = (
+		await spawn_out('git', ['remote', 'get-url', origin], {...options, cwd: source_dir})
+	).stdout?.trim();
+	if (!origin_url) throw Error('Failed to get the origin url with git in ' + source_dir);
+	await spawn('git', ['remote', 'set-url', origin, origin_url], {...options, cwd: target_dir});
+};
