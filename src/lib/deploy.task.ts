@@ -21,6 +21,7 @@ import {
 	git_pull,
 	git_fetch,
 	git_empty_dir,
+	git_check_setting_pull_rebase,
 } from './git.js';
 
 // docs at ./docs/deploy.md
@@ -97,7 +98,7 @@ export const task: Task<Args> = {
 
 		// Checks
 		if (!force && target !== TARGET_BRANCH) {
-			throw Error(
+			throw new Task_Error(
 				`Warning! You are deploying to a custom target branch '${target}',` +
 					` instead of the default '${TARGET_BRANCH}' branch.` +
 					` This will destroy your '${target}' branch!` +
@@ -106,7 +107,7 @@ export const task: Task<Args> = {
 			);
 		}
 		if (!dangerous && DANGEROUS_BRANCHES.includes(target)) {
-			throw Error(
+			throw new Task_Error(
 				`Warning! You are deploying to a custom target branch '${target}'` +
 					` and that appears very dangerous: it will destroy your '${target}' branch!` +
 					` If you understand and are OK with deleting your branch '${target}',` +
@@ -117,6 +118,12 @@ export const task: Task<Args> = {
 		if (clean_error_message) {
 			throw new Task_Error(
 				'Deploy failed because the git workspace has uncommitted changes: ' + clean_error_message,
+			);
+		}
+		if (!(await git_check_setting_pull_rebase())) {
+			throw new Task_Error(
+				'Deploying currently requires `git config --global pull.rebase true`,' +
+					' but this restriction could be lifted with more work',
 			);
 		}
 
@@ -142,6 +149,11 @@ export const task: Task<Args> = {
 			// TODO BLOCK what if the local branch is out of sync, and causes a merge problem? maybe check for the clean workspace after pulling?
 			// TODO BLOCK target_spawn_options is wrong here in the current order, think through with the cloning below
 			await git_pull(origin, target, target_spawn_options); // ensure the local branch is up to date
+
+			// TODO BLOCK what happens here if this is wrong?
+			// if (await git_check_clean_workspace()) {
+			// 	await spawn('git', ['rebase', '--abort'], target_spawn_options);
+			// }
 
 			// Local target branch is now synced with remote, but do we need to reset?
 			if (reset) {

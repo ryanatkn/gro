@@ -249,3 +249,14 @@ export const git_empty_dir = async (
 		),
 	);
 };
+
+/**
+ * Returns the global git config setting for `pull.rebase`.
+ * Gro is currently written to expect `true`,
+ * but the restriction could be loosened with additional work.
+ */
+export const git_check_setting_pull_rebase = async (options?: SpawnOptions): Promise<boolean> => {
+	const value = await spawn_out('git', ['config', '--global', 'pull.rebase'], options);
+	if (!value.stdout) throw Error('Failed to get a valid value with git_check_setting_pull_rebase');
+	return value.stdout.trim() === 'true';
+};
