@@ -134,6 +134,12 @@ export const task: Task<Args> = {
 		// Prepare the source branch in the cwd
 		await git_checkout(source);
 		await git_pull(origin, source);
+		if (await git_check_clean_workspace()) {
+			throw new Task_Error(
+				'Deploy failed because the local source branch is out of sync with the remote one,' +
+					' finish rebasing manually or reset with `git rebase --abort`',
+			);
+		}
 
 		// Prepare the target branch remotely and locally
 		const resolved_deploy_dir = resolve(deploy_dir);
