@@ -6,7 +6,6 @@ import {update_changelog} from './changelog.js';
 import {changelog_cache_fixture} from '$fixtures/changelog_cache.js';
 
 const log = new Logger();
-Logger.level = 'debug'; // TODO BLOCK remove
 
 // TODO BLOCK add the cache pattern to fetch and cache the fetched data in fixtures
 // TODO BLOCK source the bearer token from process.env, then a local .env if it exists, then try ../.env

@@ -58,7 +58,6 @@ const map_changelog = async (
 			console.log(`MATCHED line`, commit_sha, line);
 			const prs = await github_fetch_commit_prs(owner, repo, commit_sha, token, log, cache); // eslint-disable-line no-await-in-loop
 			console.log(`prs`, prs);
-			process.exit();
 		}
 	}
 	return mapped;
