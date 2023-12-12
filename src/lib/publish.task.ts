@@ -8,6 +8,7 @@ import {find_cli, spawn_cli} from './cli.js';
 import {exists} from './fs.js';
 import {is_this_project_gro} from './paths.js';
 import {has_library} from './gro_plugin_library.js';
+import {update_changelog} from './changelog.js';
 
 // publish.task.ts
 // - usage: `gro publish patch`
@@ -22,6 +23,12 @@ export const Args = z
 		changelog: z
 			.string({description: 'file name and path of the changelog'})
 			.default('CHANGELOG.md'),
+		preserve_changelog: z
+			.boolean({
+				description:
+					'opt out of linkifying and formatting the changelog from @changesets/changelog-git',
+			})
+			.default(false),
 		dry: z
 			.boolean({description: 'build and prepare to publish without actually publishing'})
 			.default(false),
@@ -41,7 +48,7 @@ export const task: Task<Args> = {
 	summary: 'bump version, publish to npm, and git push',
 	Args,
 	run: async ({args, log, invoke_task}): Promise<void> => {
-		const {branch, changelog, dry, check, install} = args;
+		const {branch, changelog, preserve_changelog, dry, check, install} = args;
 		if (dry) {
 			log.info(green('dry run!'));
 		}
@@ -94,7 +101,9 @@ export const task: Task<Args> = {
 				throw Error('npm version failed: no commits were made: see the error above');
 			}
 
-			await update_changelog();
+			if (!preserve_changelog) {
+				await update_changelog();
+			}
 
 			const package_json_after = await load_package_json();
 			version = package_json_after.version!;
