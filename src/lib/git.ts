@@ -105,16 +105,21 @@ export const git_fetch = async (
 
 /**
  * Calls `git checkout` and throws if anything goes wrong.
+ * @returns the previous branch name, if it changed
  */
-export const git_checkout = async (branch: Git_Branch, options?: SpawnOptions): Promise<void> => {
+export const git_checkout = async (
+	branch: Git_Branch,
+	options?: SpawnOptions,
+): Promise<Git_Branch | null> => {
 	const current_branch = await git_current_branch_name(options);
 	if (branch === current_branch) {
-		return;
+		return null;
 	}
 	const result = await spawn('git', ['checkout', branch], options);
 	if (!result.ok) {
 		throw Error(`git_checkout failed for branch '${branch}' with code ${result.code}`);
 	}
+	return current_branch;
 };
 
 /**
@@ -196,11 +201,13 @@ export const git_reset_branch_to_first_commit = async (
 	branch: Git_Branch,
 	options?: SpawnOptions,
 ): Promise<void> => {
-	await git_checkout(branch, options);
+	const previous_branch = await git_checkout(branch, options);
 	const first_commit_hash = await git_current_branch_first_commit_hash(options);
 	await spawn('git', ['reset', '--hard', first_commit_hash], options);
 	await spawn('git', ['push', origin, branch, '--force'], options);
-	await git_checkout('-', options);
+	if (previous_branch) {
+		await git_checkout(previous_branch, options);
+	}
 };
 
 /**
