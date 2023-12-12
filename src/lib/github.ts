@@ -7,6 +7,12 @@ import {z} from 'zod';
 
 export const Github_Pull_Request = z.object({
 	url: z.string(),
+	id: z.number(),
+	html_url: z.string(),
+	number: z.number(),
+	user: z.object({
+		login: z.string(),
+	}),
 });
 export type Github_Pull_Request = z.infer<typeof Github_Pull_Request>;
 
