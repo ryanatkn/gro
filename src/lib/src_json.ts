@@ -120,12 +120,12 @@ export const to_src_modules = async (
 									k === 'InterfaceDeclaration' || k === 'TypeAliasDeclaration'
 										? 'type'
 										: k === 'ClassDeclaration'
-										  ? 'class'
-										  : k === 'VariableDeclaration'
-										    ? decl_type.getCallSignatures().length
+											? 'class'
+											: k === 'VariableDeclaration'
+												? decl_type.getCallSignatures().length
 													? 'function'
 													: 'variable' // TODO name?
-										    : null;
+												: null;
 								// TODO
 								// const code =
 								// 	k === 'InterfaceDeclaration' || k === 'TypeAliasDeclaration'
