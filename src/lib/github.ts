@@ -16,14 +16,18 @@ export const github_fetch_commit_prs = async (
 	owner: string,
 	repo: string,
 	commit_sha: string,
+	token?: string,
 ): Promise<Github_Pull_Request[]> => {
-	const url = `/repos/${owner}/${repo}/commits/${commit_sha}/pulls`;
+	const url = `https://api.github.com/repos/${owner}/${repo}/commits/${commit_sha}/pulls`;
 
-	const headers = {
-		accept: 'application/vnd.github+json',
-	};
+	const headers: Record<string, string> = {accept: 'application/vnd.github+json'};
+	if (token) {
+		headers.bearer = token;
+	}
 	const res = await fetch(url, {headers});
+	console.log(`res`, res);
 	const json = await res.json();
+	console.log(`json`, json);
 
 	return json.map((j: unknown) => Github_Pull_Request.parse(j));
 };
