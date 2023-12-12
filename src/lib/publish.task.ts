@@ -94,6 +94,8 @@ export const task: Task<Args> = {
 				throw Error('npm version failed: no commits were made: see the error above');
 			}
 
+			await update_changelog();
+
 			const package_json_after = await load_package_json();
 			version = package_json_after.version!;
 			if (package_json_before.version === version) {
