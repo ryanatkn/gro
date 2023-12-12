@@ -89,7 +89,7 @@ export const run_gen = async (
 								return file;
 							}
 						}),
-				  )
+					)
 				: gen_result.files;
 
 			output_count += files.length;

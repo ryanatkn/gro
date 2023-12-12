@@ -5,7 +5,7 @@ import type {Src_Json} from './src_json.js';
 
 export const package_json = {
 	name: '@grogarden/gro',
-	version: '0.103.2',
+	version: '0.104.0',
 	description: 'task runner and toolkit extending SvelteKit',
 	icon: '🌰',
 	public: true,
@@ -35,17 +35,17 @@ export const package_json = {
 	],
 	files: ['dist'],
 	dependencies: {
-		'@grogarden/util': '^0.17.0',
+		'@grogarden/util': '^0.18.0',
 		'@ryanatkn/json-schema-to-typescript': '^11.1.5',
 		chokidar: '^3.5.3',
 		dotenv: '^16.3.1',
 		'es-module-lexer': '^1.4.1',
 		kleur: '^4.1.5',
 		mri: '^1.2.0',
-		prettier: '^3.1.0',
+		prettier: '^3.1.1',
 		'prettier-plugin-svelte': '^3.1.2',
 		'tiny-glob': '^0.2.9',
-		'ts-morph': '^20.0.0',
+		'ts-morph': '^21.0.1',
 		tslib: '^2.6.2',
 		zod: '^3.22.4',
 	},
@@ -57,18 +57,18 @@ export const package_json = {
 		'@fuz.dev/fuz': '^0.81.0',
 		'@fuz.dev/fuz_library': '^0.23.0',
 		'@sveltejs/adapter-static': '^2.0.3',
-		'@sveltejs/kit': '^1.27.6',
+		'@sveltejs/kit': '^1.29.0',
 		'@sveltejs/package': '^2.2.3',
 		'@types/fs-extra': '^11.0.4',
-		'@types/node': '^20.10.0',
-		'@typescript-eslint/eslint-plugin': '^6.13.1',
-		'@typescript-eslint/parser': '^6.13.1',
+		'@types/node': '^20.10.4',
+		'@typescript-eslint/eslint-plugin': '^6.14.0',
+		'@typescript-eslint/parser': '^6.14.0',
 		esbuild: '^0.18.20',
-		eslint: '^8.54.0',
+		eslint: '^8.55.0',
 		'eslint-plugin-svelte': '^2.35.1',
-		svelte: '^4.2.7',
+		svelte: '^4.2.8',
 		'svelte-check': '^3.6.2',
-		typescript: '^5.3.2',
+		typescript: '^5.3.3',
 		uvu: '^0.5.6',
 	},
 	eslintConfig: {root: true, extends: '@feltjs', rules: {'no-console': 1}},
@@ -125,13 +125,13 @@ export const package_json = {
 			default: './dist/esbuild_plugin_sveltekit_shim_env.js',
 			types: './dist/esbuild_plugin_sveltekit_shim_env.d.ts',
 		},
-		'./exists.js': {default: './dist/exists.js', types: './dist/exists.d.ts'},
 		'./format_directory.js': {
 			default: './dist/format_directory.js',
 			types: './dist/format_directory.d.ts',
 		},
 		'./format_file.js': {default: './dist/format_file.js', types: './dist/format_file.d.ts'},
 		'./format.task.js': {default: './dist/format.task.js', types: './dist/format.task.d.ts'},
+		'./fs.js': {default: './dist/fs.js', types: './dist/fs.d.ts'},
 		'./gen_module.js': {default: './dist/gen_module.js', types: './dist/gen_module.d.ts'},
 		'./gen_schemas.js': {default: './dist/gen_schemas.js', types: './dist/gen_schemas.d.ts'},
 		'./gen.task.js': {default: './dist/gen.task.js', types: './dist/gen.task.d.ts'},
@@ -237,7 +237,7 @@ export const package_json = {
 
 export const src_json = {
 	name: '@grogarden/gro',
-	version: '0.103.2',
+	version: '0.104.0',
 	modules: {
 		'.': {
 			path: 'index.ts',
@@ -402,7 +402,6 @@ export const src_json = {
 				{name: 'esbuild_plugin_sveltekit_shim_env', kind: 'function'},
 			],
 		},
-		'./exists.js': {path: 'exists.ts', declarations: [{name: 'exists', kind: 'function'}]},
 		'./format_directory.js': {
 			path: 'format_directory.ts',
 			declarations: [{name: 'format_directory', kind: 'function'}],
@@ -418,6 +417,7 @@ export const src_json = {
 				{name: 'task', kind: 'variable'},
 			],
 		},
+		'./fs.js': {path: 'fs.ts', declarations: [{name: 'clean_fs', kind: 'function'}]},
 		'./gen_module.js': {
 			path: 'gen_module.ts',
 			declarations: [
@@ -493,12 +493,11 @@ export const src_json = {
 				{name: 'git_push_to_create', kind: 'function'},
 				{name: 'git_delete_local_branch', kind: 'function'},
 				{name: 'git_delete_remote_branch', kind: 'function'},
-				{name: 'WORKTREE_DIRNAME', kind: 'variable'},
-				{name: 'to_worktree_dir', kind: 'function'},
-				{name: 'git_clean_worktree', kind: 'function'},
 				{name: 'git_reset_branch_to_first_commit', kind: 'function'},
 				{name: 'git_current_commit_hash', kind: 'function'},
 				{name: 'git_current_branch_first_commit_hash', kind: 'function'},
+				{name: 'git_check_setting_pull_rebase', kind: 'function'},
+				{name: 'git_clone_locally', kind: 'function'},
 			],
 		},
 		'./gro_plugin_gen.js': {
@@ -810,6 +809,7 @@ export const src_json = {
 			declarations: [
 				{name: 'assets', kind: 'variable'},
 				{name: 'base', kind: 'variable'},
+				{name: 'resolveRoute', kind: 'function'},
 			],
 		},
 		'./sveltekit_shim_app_stores.js': {

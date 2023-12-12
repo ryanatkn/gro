@@ -4,7 +4,7 @@ import {dirname, join} from 'node:path';
 
 import type {Plugin, Plugin_Context} from './plugin.js';
 import {print_command_args, serialize_args, to_forwarded_args} from './args.js';
-import {exists} from './exists.js';
+import {exists} from './fs.js';
 import {serialize_package_json, type Map_Package_Json, load_package_json} from './package_json.js';
 import {init_sveltekit_config} from './sveltekit_config.js';
 import {Task_Error} from './task.js';
@@ -72,8 +72,8 @@ export const plugin = ({
 				const mapped_package_json = !well_known_package_json
 					? null
 					: well_known_package_json === true
-					  ? package_json
-					  : await well_known_package_json(package_json);
+						? package_json
+						: await well_known_package_json(package_json);
 				const serialized_package_json =
 					mapped_package_json && serialize_package_json(mapped_package_json);
 
@@ -86,8 +86,8 @@ export const plugin = ({
 				const mapped_src_json = !well_known_src_json
 					? null
 					: well_known_src_json === true
-					  ? src_json
-					  : await well_known_src_json(src_json);
+						? src_json
+						: await well_known_src_json(src_json);
 				const serialized_src_json = mapped_src_json && serialize_src_json(mapped_src_json);
 
 				// TODO this strategy means the files aren't available during development --
@@ -101,13 +101,13 @@ export const plugin = ({
 						? await create_temporarily(
 								join(assets_path, '.well-known/package.json'),
 								serialized_package_json,
-						  )
+							)
 						: null!,
 					serialized_src_json
 						? await create_temporarily(
 								join(assets_path, '.well-known/src.json'),
 								serialized_src_json,
-						  )
+							)
 						: null!,
 					serialized_src_json
 						? await copy_temporarily('src', assets_path, '.well-known', filter_well_known_src)

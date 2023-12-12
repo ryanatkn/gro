@@ -158,8 +158,8 @@ const gro_dir = join(
 	filename.includes('/gro/src/lib/')
 		? '../../../'
 		: filename.includes('/gro/dist/')
-		  ? '../../'
-		  : '../',
+			? '../../'
+			: '../',
 );
 export const gro_dir_basename = basename(gro_dir) + '/';
 export const paths = create_paths(process.cwd() + '/');

@@ -1,6 +1,6 @@
 {
   "name": "@grogarden/gro",
-  "version": "0.103.2",
+  "version": "0.104.0",
   "description": "task runner and toolkit extending SvelteKit",
   "icon": "🌰",
   "public": true,
@@ -46,17 +46,17 @@
     "dist"
   ],
   "dependencies": {
-    "@grogarden/util": "^0.17.0",
+    "@grogarden/util": "^0.18.0",
     "@ryanatkn/json-schema-to-typescript": "^11.1.5",
     "chokidar": "^3.5.3",
     "dotenv": "^16.3.1",
     "es-module-lexer": "^1.4.1",
     "kleur": "^4.1.5",
     "mri": "^1.2.0",
-    "prettier": "^3.1.0",
+    "prettier": "^3.1.1",
     "prettier-plugin-svelte": "^3.1.2",
     "tiny-glob": "^0.2.9",
-    "ts-morph": "^20.0.0",
+    "ts-morph": "^21.0.1",
     "tslib": "^2.6.2",
     "zod": "^3.22.4"
   },
@@ -71,18 +71,18 @@
     "@fuz.dev/fuz": "^0.81.0",
     "@fuz.dev/fuz_library": "^0.23.0",
     "@sveltejs/adapter-static": "^2.0.3",
-    "@sveltejs/kit": "^1.27.6",
+    "@sveltejs/kit": "^1.29.0",
     "@sveltejs/package": "^2.2.3",
     "@types/fs-extra": "^11.0.4",
-    "@types/node": "^20.10.0",
-    "@typescript-eslint/eslint-plugin": "^6.13.1",
-    "@typescript-eslint/parser": "^6.13.1",
+    "@types/node": "^20.10.4",
+    "@typescript-eslint/eslint-plugin": "^6.14.0",
+    "@typescript-eslint/parser": "^6.14.0",
     "esbuild": "^0.18.20",
-    "eslint": "^8.54.0",
+    "eslint": "^8.55.0",
     "eslint-plugin-svelte": "^2.35.1",
-    "svelte": "^4.2.7",
+    "svelte": "^4.2.8",
     "svelte-check": "^3.6.2",
-    "typescript": "^5.3.2",
+    "typescript": "^5.3.3",
     "uvu": "^0.5.6"
   },
   "eslintConfig": {
@@ -190,10 +190,6 @@
       "default": "./dist/esbuild_plugin_sveltekit_shim_env.js",
       "types": "./dist/esbuild_plugin_sveltekit_shim_env.d.ts"
     },
-    "./exists.js": {
-      "default": "./dist/exists.js",
-      "types": "./dist/exists.d.ts"
-    },
     "./format_directory.js": {
       "default": "./dist/format_directory.js",
       "types": "./dist/format_directory.d.ts"
@@ -205,6 +201,10 @@
     "./format.task.js": {
       "default": "./dist/format.task.js",
       "types": "./dist/format.task.d.ts"
+    },
+    "./fs.js": {
+      "default": "./dist/fs.js",
+      "types": "./dist/fs.d.ts"
     },
     "./gen_module.js": {
       "default": "./dist/gen_module.js",

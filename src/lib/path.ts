@@ -1,3 +1,8 @@
+import {fileURLToPath} from 'node:url';
+
+export const to_file_path = (path_or_url: string | URL): string =>
+	typeof path_or_url === 'string' ? path_or_url : fileURLToPath(path_or_url.href);
+
 // TODO ideally none of this exists
 
 export interface Path_Data {

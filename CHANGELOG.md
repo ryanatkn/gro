@@ -1,5 +1,21 @@
 # @grogarden/gro
 
+## 0.104.0
+
+### Minor Changes
+
+- 03da698: replace `exists.ts` with `fs.ts` and add `empty_dir`
+- 03da698: stop using `git workspace` for `gro deploy`
+- 88f4b00: upgrade deps:
+
+  - @grogarden/util@18
+  - prettier@3.1.1
+  - ts-morph@21
+
+### Patch Changes
+
+- 5e94cd4: shim SvelteKit's `resolveRoute`
+
 ## 0.103.2
 
 ### Patch Changes

@@ -127,7 +127,7 @@ export const find_modules = async (
 						)} contains no matching files.`,
 					),
 				),
-		  }
+			}
 		: {ok: true, source_ids_by_input_path, source_id_path_data_by_input_path};
 };
 
@@ -191,6 +191,6 @@ export const load_modules = async <
 				load_module_failures,
 				reasons,
 				modules,
-		  }
+			}
 		: {ok: true, modules};
 };

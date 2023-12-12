@@ -5,7 +5,7 @@ import type {Logger} from '@grogarden/util/log.js';
 import {Project} from 'ts-morph';
 
 import {paths, replace_extension} from './paths.js';
-import {exists} from './exists.js';
+import {exists} from './fs.js';
 import {
 	transform_empty_object_to_undefined,
 	type Package_Json,
@@ -120,12 +120,12 @@ export const to_src_modules = async (
 									k === 'InterfaceDeclaration' || k === 'TypeAliasDeclaration'
 										? 'type'
 										: k === 'ClassDeclaration'
-										  ? 'class'
-										  : k === 'VariableDeclaration'
-										    ? decl_type.getCallSignatures().length
+											? 'class'
+											: k === 'VariableDeclaration'
+												? decl_type.getCallSignatures().length
 													? 'function'
 													: 'variable' // TODO name?
-										    : null;
+												: null;
 								// TODO
 								// const code =
 								// 	k === 'InterfaceDeclaration' || k === 'TypeAliasDeclaration'

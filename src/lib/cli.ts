@@ -2,7 +2,7 @@ import type {SpawnOptions} from 'node:child_process';
 import {spawn, spawn_out, type Spawn_Result} from '@grogarden/util/process.js';
 import {join} from 'node:path';
 
-import {exists} from './exists.js';
+import {exists} from './fs.js';
 import {NODE_MODULES_DIRNAME} from './paths.js';
 
 /**
