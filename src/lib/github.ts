@@ -2,6 +2,7 @@
 // for now it's just calling a single endpoint so we do it manually
 // and we specify just the types we need
 
+import type {Logger} from '@grogarden/util/log.js';
 import {z} from 'zod';
 
 export const Github_Pull_Request = z.object({
@@ -17,17 +18,27 @@ export const github_fetch_commit_prs = async (
 	repo: string,
 	commit_sha: string,
 	token?: string,
+	log?: Logger,
+	cache?: Record<string, any>,
 ): Promise<Github_Pull_Request[]> => {
 	const url = `https://api.github.com/repos/${owner}/${repo}/commits/${commit_sha}/pulls`;
+	if (cache) {
+		const cached = cache[url];
+		log?.debug('[github_fetch_commit_prs] cached json', cached);
+		if (cached) return cached.map((p: unknown) => Github_Pull_Request.parse(p));
+	}
+
+	log?.info('[github_fetch_commit_prs] fetching GitHub PR info', url);
 
 	const headers: Record<string, string> = {accept: 'application/vnd.github+json'};
 	if (token) {
 		headers.bearer = token;
 	}
 	const res = await fetch(url, {headers});
-	console.log(`res`, res);
-	const json = await res.json();
-	console.log(`json`, json);
+	log?.info(`[github_fetch_commit_prs] res.headers`, Object.fromEntries(res.headers.entries()));
 
-	return json.map((j: unknown) => Github_Pull_Request.parse(j));
+	const json = await res.json();
+	log?.debug(`[github_fetch_commit_prs] fetched json`, json);
+
+	return json.map((p: unknown) => Github_Pull_Request.parse(p));
 };

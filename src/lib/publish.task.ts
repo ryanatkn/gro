@@ -87,7 +87,8 @@ export const task: Task<Args> = {
 		// Bump the version so the package.json is updated before building:
 		// TODO problem here is build may fail and put us in a bad state,
 		// but I don't see how we could do this to robustly
-		// have the new version in the build without building twice
+		// have the new version in the build without building twice -
+		// maybe the code should catch the error and revert the version and delete the tag?
 		if (dry) {
 			log.info('dry run, skipping changeset version');
 		} else {
@@ -95,6 +96,26 @@ export const task: Task<Args> = {
 			if (typeof package_json_before.version !== 'string') {
 				throw new Task_Error('failed to find package.json version');
 			}
+			const {repository} = package_json_before;
+			const repo_url = repository
+				? typeof repository === 'string'
+					? repository
+					: repository.url
+				: null;
+			if (!repo_url) {
+				throw new Task_Error(
+					'package.json must have a GitHub `repository` url to update the changelog',
+				);
+			}
+			const parsed_repo_url = /.+github.com\/(.+)\/(.+).+/u.exec(repo_url);
+			if (!parsed_repo_url) {
+				throw new Task_Error(
+					'package.json `repository` url must be a GitHub repo (for now, sorry)',
+				);
+			}
+			const [, owner, repo] = parsed_repo_url;
+
+			// This is the first line that alters the repo.
 
 			const npmVersionResult = await spawn_cli('changeset', ['version']);
 			if (!npmVersionResult?.ok) {
@@ -102,7 +123,8 @@ export const task: Task<Args> = {
 			}
 
 			if (!preserve_changelog) {
-				await update_changelog();
+				const token = undefined; // TODO BLOCK
+				await update_changelog(owner, repo, changelog, token, log);
 			}
 
 			const package_json_after = await load_package_json();
