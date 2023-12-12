@@ -98,7 +98,7 @@ export const load: LoadHook = async (url, context, nextLoad) => {
 		const preprocessed = svelte_preprocessors
 			? await preprocess(raw_source, svelte_preprocessors, {
 					filename: relative(dir, fileURLToPath(url)),
-			  })
+				})
 			: null;
 		const source = preprocessed?.code ?? raw_source;
 		const transformed = compile(source, svelte_compile_options);
