@@ -39,7 +39,7 @@ export const update_changelog = async (
 };
 
 const SECTION_MATCHER = /^## (\d+\.\d+\.\d+)$/u;
-const SUBSECTION_MATCHER = /^### $/u;
+const SUBSECTION_MATCHER = /^### (.+)$/u;
 
 export const parse_changelog = (contents: string): Parsed_Changelog => {
 	const parsed: Parsed_Changelog = {sections: []};
@@ -49,8 +49,15 @@ export const parse_changelog = (contents: string): Parsed_Changelog => {
 	for (const line of lines) {
 		const section_matches = SECTION_MATCHER.exec(line);
 		if (section_matches) {
-			const section = section_matches[1];
+			section = section_matches[1];
 			console.log(`section`, section);
+			continue;
+		}
+		const subsection_matches = SUBSECTION_MATCHER.exec(line);
+		if (subsection_matches) {
+			subsection = subsection_matches[1];
+			console.log(`subsection`, subsection);
+			continue;
 		}
 	}
 	console.log(`lines`, lines);
