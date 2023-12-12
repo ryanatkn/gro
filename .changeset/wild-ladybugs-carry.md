@@ -1,5 +1,9 @@
 ---
-"@grogarden/gro": minor
+'@grogarden/gro': minor
 ---
 
-upgrade deps
+upgrade deps:
+
+- @grogarden/util@18
+- prettier@3.1.1
+- ts-morph@21
