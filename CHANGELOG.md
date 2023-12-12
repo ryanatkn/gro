@@ -1,5 +1,28 @@
 # @grogarden/gro
 
+## 0.104.2
+
+### Patch Changes
+
+- cbc4762: avoid building twice on `gro release`
+
+  - if `gro publish` is called before `gro deploy`, we don't need to build to deploy
+
+## 0.104.1
+
+### Patch Changes
+
+- f7f6ee9: changelog test
+
+  this is just a test commit for testing purposes
+
+  because
+
+  - changelog
+  - other things
+
+  etc
+
 ## 0.104.0
 
 ### Minor Changes

@@ -10,9 +10,10 @@ export const task: Task<Args> = {
 	summary: 'publish and deploy',
 	Args,
 	run: async ({invoke_task}) => {
-		if (await has_library()) {
+		const publish = await has_library();
+		if (publish) {
 			await invoke_task('publish'); // TODO use `to_forwarded_args`
 		}
-		await invoke_task('deploy'); // TODO use `to_forwarded_args`
+		await invoke_task('deploy', {build: !publish}); // TODO use `to_forwarded_args`
 	},
 };
