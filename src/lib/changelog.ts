@@ -38,10 +38,21 @@ export const update_changelog = async (
 	return true;
 };
 
+const SECTION_MATCHER = /^## (\d+\.\d+\.\d+)$/u;
+const SUBSECTION_MATCHER = /^### $/u;
+
 export const parse_changelog = (contents: string): Parsed_Changelog => {
 	const parsed: Parsed_Changelog = {sections: []};
-	//
 	const lines = contents.split('\n');
+	let section = '';
+	let subsection = '';
+	for (const line of lines) {
+		const section_matches = SECTION_MATCHER.exec(line);
+		if (section_matches) {
+			const section = section_matches[1];
+			console.log(`section`, section);
+		}
+	}
 	console.log(`lines`, lines);
 
 	return parsed;
@@ -50,10 +61,12 @@ export const parse_changelog = (contents: string): Parsed_Changelog => {
 export const serialize_changelog = (parsed: Parsed_Changelog): string => {
 	let serialized = '';
 	for (const section of parsed.sections) {
-		console.log(`section`, section);
+		console.log(`serialize section`, section);
 	}
 	return serialized;
 };
+
+const LINE_WITH_SHA_MATCHER = /^- ([a-z0-9]{7,8}): /u;
 
 export const map_changelog = async (
 	parsed: Parsed_Changelog,
@@ -62,10 +75,16 @@ export const map_changelog = async (
 ): Promise<Parsed_Changelog> => {
 	const mapped: Parsed_Changelog = {sections: []};
 	for (const section of parsed.sections) {
-		const prs = await github_fetch_commit_prs(owner, repo, commit_sha); // eslint-disable-line no-await-in-loop
-		console.log(`prs`, prs);
+		for (const line of section.lines) {
+			const matches = LINE_WITH_SHA_MATCHER.exec(line);
+			if (matches) {
+				const commit_sha = matches[1];
+				console.log(`MATCHED line`, commit_sha, line);
+				const prs = await github_fetch_commit_prs(owner, repo, commit_sha); // eslint-disable-line no-await-in-loop
+				console.log(`prs`, prs);
+			}
+		}
 	}
-	console.log(`prs`, prs);
 	process.exit();
 	return mapped;
 };

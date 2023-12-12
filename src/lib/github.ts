@@ -25,5 +25,5 @@ export const github_fetch_commit_prs = async (
 	const res = await fetch(url, {headers});
 	const json = await res.json();
 
-	return json.map((j) => Github_Pull_Request.parse(j));
+	return json.map((j: unknown) => Github_Pull_Request.parse(j));
 };
