@@ -114,7 +114,6 @@ export const task: Task<Args> = {
 					'package.json `repository` url must be a GitHub repo (for now, sorry)',
 				);
 			}
-			const [, owner, repo] = parsed_repo_url;
 
 			// This is the first line that alters the repo.
 
@@ -124,6 +123,7 @@ export const task: Task<Args> = {
 			}
 
 			if (!preserve_changelog) {
+				const [, owner, repo] = parsed_repo_url;
 				if (!('GITHUB_TOKEN_SECRET' in process.env)) {
 					dotenv.config();
 				}
