@@ -53,11 +53,15 @@ export interface Map_Src_Json {
 	(src_json: Src_Json): Src_Json | null | Promise<Src_Json | null>;
 }
 
-export const create_src_json = async (package_json: Package_Json): Promise<Src_Json> => {
+export const create_src_json = async (
+	package_json: Package_Json,
+	log?: Logger,
+	lib_path?: string,
+): Promise<Src_Json> => {
 	return Src_Json.parse({
 		name: package_json.name,
 		version: package_json.version,
-		modules: await to_src_modules(package_json.exports),
+		modules: await to_src_modules(package_json.exports, log, lib_path),
 	});
 };
 
@@ -69,12 +73,12 @@ export const serialize_src_json = (src_json: Src_Json): string => {
 export const to_src_modules = async (
 	exports: Package_Json_Exports | undefined,
 	log?: Logger,
-	base_path = paths.lib,
+	lib_path = paths.lib,
 ): Promise<Src_Modules | undefined> => {
 	if (!exports) return undefined;
 
 	const project = new Project();
-	project.addSourceFilesAtPaths('src/**/*.ts'); // TODO dir? maybe rewrite with `base_path`?
+	project.addSourceFilesAtPaths('src/**/*.ts'); // TODO dir? maybe rewrite with `lib_path`?
 
 	return Object.fromEntries(
 		(
@@ -91,7 +95,7 @@ export const to_src_modules = async (
 						const src_module: Src_Module = {path: source_file_path, declarations: []};
 						return [k, src_module];
 					}
-					const source_file_id = join(base_path, source_file_path);
+					const source_file_id = join(lib_path, source_file_path);
 					if (!(await exists(source_file_id))) {
 						log?.warn(
 							'failed to infer source file from export path',
