@@ -36,17 +36,17 @@ export const github_fetch_commit_prs = async (
 		}
 	}
 
+	const headers: Record<string, string> = {accept: 'application/vnd.github+json'};
+	if (token) {
+		headers.authorization = 'Bearer ' + token;
+	}
+
 	log?.info(
 		'[github_fetch_commit_prs] fetching GitHub PR info',
 		url,
 		token ? 'with' : 'without',
-		'a token',
+		'authorization',
 	);
-
-	const headers: Record<string, string> = {accept: 'application/vnd.github+json'};
-	if (token) {
-		headers.bearer = token;
-	}
 	const res = await fetch(url, {headers});
 	log?.info(`[github_fetch_commit_prs] res.headers`, Object.fromEntries(res.headers.entries()));
 

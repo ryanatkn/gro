@@ -17,7 +17,7 @@ export const update_changelog = async (
 	path = 'CHANGELOG.md',
 	token?: string,
 	log?: Logger,
-	cache?: Record<string, any>,
+	cache: Record<string, any> = {}, // include a default cache to efficiently handle multiple changesets per commit
 ): Promise<boolean> => {
 	console.log(`path`, path);
 	const contents = await readFile(path, 'utf8');
