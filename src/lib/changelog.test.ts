@@ -5,7 +5,6 @@ import dotenv from 'dotenv';
 import {readFile, writeFile} from 'fs/promises';
 
 import {update_changelog} from './changelog.js';
-import {changelog_cache_fixture} from '$fixtures/changelog_cache.js';
 
 dotenv.config();
 const token = process.env.GITHUB_TOKEN_SECRET;
@@ -13,6 +12,11 @@ const token = process.env.GITHUB_TOKEN_SECRET;
 const log = new Logger();
 
 const fixture_path = 'src/fixtures/changelog_example.md';
+
+// TODO ideally this is just a ts file, but there's a problem where building outputs a `.d.ts` file (fix in SvelteKit/Vite/tsconfig?)
+const changelog_cache_fixture = JSON.parse(
+	await readFile('src/fixtures/changelog_cache.json', 'utf8'),
+);
 
 test('update_changelog', async () => {
 	const original = await readFile(fixture_path, 'utf8');
