@@ -19,15 +19,10 @@ export const update_changelog = async (
 	log?: Logger,
 	cache: Record<string, any> = {}, // include a default cache to efficiently handle multiple changesets per commit
 ): Promise<boolean> => {
-	console.log(`path`, path);
 	const contents = await readFile(path, 'utf8');
-	console.log(`contents`, contents.length);
 	const parsed = parse_changelog(contents);
-	console.log(`parsed`, parsed);
 	const mapped = await map_changelog(parsed, owner, repo, token, log, cache);
-	console.log(`mapped`, mapped);
 	const updated = serialize_changelog(mapped);
-	console.log(`updated`, updated);
 	if (contents === updated) {
 		return false;
 	}
@@ -56,10 +51,15 @@ const map_changelog = async (
 		const matches = LINE_WITH_SHA_MATCHER.exec(line);
 		if (matches) {
 			const commit_sha = matches[1];
-			console.log(`MATCHED line`, commit_sha, line);
 			const prs = await github_fetch_commit_prs(owner, repo, commit_sha, token, log, cache); // eslint-disable-line no-await-in-loop
-			console.log(`prs`, prs);
-			// TODO BLOCK if prs, link to it, otherwise link directly to the commit, at the end in parens in both cases
+			const l = '- ' + line.substring(commit_sha.length + 4);
+			if (prs.length) {
+				mapped.push(`${l} (${prs.map((p) => `[#${p.number}](${p.html_url})`).join(', ')})`);
+			} else {
+				mapped.push(
+					`${l} ([${commit_sha}](https://github.com/${owner}/${repo}/commit/${commit_sha}))`,
+				);
+			}
 		} else {
 			mapped.push(line);
 		}
