@@ -618,6 +618,7 @@ export const src_json = {
 				{name: 'serialize_package_json', kind: 'function'},
 				{name: 'update_package_json', kind: 'function'},
 				{name: 'to_package_exports', kind: 'function'},
+				{name: 'parse_repo_url', kind: 'function'},
 			],
 		},
 		'./package.gen.js': {path: 'package.gen.ts', declarations: [{name: 'gen', kind: 'function'}]},
