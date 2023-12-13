@@ -4,13 +4,13 @@
 
 ### Minor Changes
 
-- add and integrate `gro changelog` ([50750e3](https://github.com/grogarden/gro.gi/commit/50750e3))
+- 50750e3: add and integrate `gro changelog`
 
 ## 0.104.2
 
 ### Patch Changes
 
-- avoid building twice on `gro release` ([cbc4762](https://github.com/grogarden/gro.gi/commit/cbc4762))
+- cbc4762: avoid building twice on `gro release`
 
   - if `gro publish` is called before `gro deploy`, we don't need to build to deploy
 
@@ -18,7 +18,7 @@
 
 ### Patch Changes
 
-- changelog test ([f7f6ee9](https://github.com/grogarden/gro.gi/commit/f7f6ee9))
+- f7f6ee9: changelog test
 
   this is just a test commit for testing purposes
 
@@ -33,9 +33,9 @@
 
 ### Minor Changes
 
-- replace `exists.ts` with `fs.ts` and add `empty_dir` ([03da698](https://github.com/grogarden/gro.gi/commit/03da698))
-- stop using `git workspace` for `gro deploy` ([03da698](https://github.com/grogarden/gro.gi/commit/03da698))
-- upgrade deps: ([88f4b00](https://github.com/grogarden/gro.gi/commit/88f4b00))
+- 03da698: replace `exists.ts` with `fs.ts` and add `empty_dir`
+- 03da698: stop using `git workspace` for `gro deploy`
+- 88f4b00: upgrade deps:
 
   - @grogarden/util@18
   - prettier@3.1.1
@@ -43,509 +43,509 @@
 
 ### Patch Changes
 
-- shim SvelteKit's `resolveRoute` ([5e94cd4](https://github.com/grogarden/gro.gi/commit/5e94cd4))
+- 5e94cd4: shim SvelteKit's `resolveRoute`
 
 ## 0.103.2
 
 ### Patch Changes
 
-- fix gro build for deps that circularly import the building project ([e345eaa](https://github.com/grogarden/gro.gi/commit/e345eaa))
+- e345eaa: fix gro build for deps that circularly import the building project
 
 ## 0.103.1
 
 ### Patch Changes
 
-- improve `exists` ([094279d](https://github.com/grogarden/gro.gi/commit/094279d))
+- 094279d: improve `exists`
 
 ## 0.103.0
 
 ### Minor Changes
 
-- upgrade deps ([f6133f7](https://github.com/grogarden/gro.gi/commit/f6133f7))
+- f6133f7: upgrade deps
 
 ## 0.102.3
 
 ### Patch Changes
 
-- upgrade deps ([54b65ec](https://github.com/grogarden/gro.gi/commit/54b65ec))
+- 54b65ec: upgrade deps
 
 ## 0.102.2
 
 ### Patch Changes
 
-- catch server build errors ([80365d0](https://github.com/grogarden/gro.gi/commit/80365d0))
+- 80365d0: catch server build errors
 
 ## 0.102.1
 
 ### Patch Changes
 
-- clean sveltekit dist dir ([3d84dfd](https://github.com/grogarden/gro.gi/commit/3d84dfd))
-- check for clean git workspace in `gro publish` ([fc64b77](https://github.com/grogarden/gro.gi/commit/fc64b77))
+- 3d84dfd: clean sveltekit dist dir
+- fc64b77: check for clean git workspace in `gro publish`
 
 ## 0.102.0
 
 ### Minor Changes
 
-- - add `$lib/src_json.ts` ([3620932](https://github.com/grogarden/gro.gi/commit/3620932))
+- 3620932: - add `$lib/src_json.ts`
   - add `.well-known/src.json` and `.well-known/src/`
   - remove `modules` from `.well-known/package.json`
 
 ### Patch Changes
 
-- modify exports by default only for libraries ([3620932](https://github.com/grogarden/gro.gi/commit/3620932))
+- 3620932: modify exports by default only for libraries
 
 ## 0.101.0
 
 ### Minor Changes
 
-- improve modules type info ([57f0f32](https://github.com/grogarden/gro.gi/commit/57f0f32))
+- 57f0f32: improve modules type info
 
 ## 0.100.4
 
 ### Patch Changes
 
-- change `.well-known/package.json` and `.nojekyll` to use the static directory ([2b8d89e](https://github.com/grogarden/gro.gi/commit/2b8d89e))
+- 2b8d89e: change `.well-known/package.json` and `.nojekyll` to use the static directory
 
 ## 0.100.3
 
 ### Patch Changes
 
-- add icon 🌰 ([b8180ea](https://github.com/grogarden/gro.gi/commit/b8180ea))
+- b8180ea: add icon 🌰
 
 ## 0.100.2
 
 ### Patch Changes
 
-- add `icon` extension property to `package_json` ([d6c22f4](https://github.com/grogarden/gro.gi/commit/d6c22f4))
+- d6c22f4: add `icon` extension property to `package_json`
 
 ## 0.100.1
 
 ### Patch Changes
 
-- fix deps ([6a9a24d](https://github.com/grogarden/gro.gi/commit/6a9a24d))
+- 6a9a24d: fix deps
 
 ## 0.100.0
 
 ### Minor Changes
 
-- upgrade `@grogarden/util@0.16` ([88ac35b](https://github.com/grogarden/gro.gi/commit/88ac35b))
+- 88ac35b: upgrade `@grogarden/util@0.16`
 
 ## 0.99.0
 
 ### Minor Changes
 
-- rename to `Proper_Snakes` ([d272570](https://github.com/grogarden/gro.gi/commit/d272570))
+- d272570: rename to `Proper_Snakes`
 
 ### Patch Changes
 
-- throw on failed vite build ([d272570](https://github.com/grogarden/gro.gi/commit/d272570))
+- d272570: throw on failed vite build
 
 ## 0.98.3
 
 ### Patch Changes
 
-- improve type of `replace_plugin` ([9165ab8](https://github.com/grogarden/gro.gi/commit/9165ab8))
+- 9165ab8: improve type of `replace_plugin`
 
 ## 0.98.2
 
 ### Patch Changes
 
-- fix `to_package_modules` for nested modules ([a21578c](https://github.com/grogarden/gro.gi/commit/a21578c))
+- a21578c: fix `to_package_modules` for nested modules
 
 ## 0.98.1
 
 ### Patch Changes
 
-- fix `to_package_modules` ([4ae5082](https://github.com/grogarden/gro.gi/commit/4ae5082))
+- 4ae5082: fix `to_package_modules`
 
 ## 0.98.0
 
 ### Minor Changes
 
-- add `"global"` property to `package.json` to support `.well-known/package.json` instead of `"private"` ([debae94](https://github.com/grogarden/gro.gi/commit/debae94))
+- debae94: add `"global"` property to `package.json` to support `.well-known/package.json` instead of `"private"`
 
 ## 0.97.0
 
 ### Minor Changes
 
-- add `modules` to `package.json` ([0e779e6](https://github.com/grogarden/gro.gi/commit/0e779e6))
+- 0e779e6: add `modules` to `package.json`
 
 ## 0.96.4
 
 ### Patch Changes
 
-- fix $env imports in deps in loader ([dc6dddc](https://github.com/grogarden/gro.gi/commit/dc6dddc))
+- dc6dddc: fix $env imports in deps in loader
 
 ## 0.96.3
 
 ### Patch Changes
 
-- run `svelte-kit sync` before typecheck ([2794e20](https://github.com/grogarden/gro.gi/commit/2794e20))
+- 2794e20: run `svelte-kit sync` before typecheck
 
 ## 0.96.2
 
 ### Patch Changes
 
-- fix `gro release` to not `gro publish` if a library is not detected ([80a1dc0](https://github.com/grogarden/gro.gi/commit/80a1dc0))
+- 80a1dc0: fix `gro release` to not `gro publish` if a library is not detected
 
 ## 0.96.1
 
 ### Patch Changes
 
-- add default package exports to svelte files ([f0350f3](https://github.com/grogarden/gro.gi/commit/f0350f3))
+- f0350f3: add default package exports to svelte files
 
 ## 0.96.0
 
 ### Minor Changes
 
-- detect library by default by checking for @sveltejs/package ([2da22e6](https://github.com/grogarden/gro.gi/commit/2da22e6))
+- 2da22e6: detect library by default by checking for @sveltejs/package
 
 ## 0.95.8
 
 ### Patch Changes
 
-- support absolute filenames with gen ([40a427eb](https://github.com/grogarden/gro.gi/commit/40a427eb))
+- 40a427eb: support absolute filenames with gen
 
 ## 0.95.7
 
 ### Patch Changes
 
-- support json exports mapping in the loader ([07f170a](https://github.com/grogarden/gro.gi/commit/07f170a))
+- 07f170a: support json exports mapping in the loader
 
 ## 0.95.6
 
 ### Patch Changes
 
-- fix loader for node_modules ([af2ca30e](https://github.com/grogarden/gro.gi/commit/af2ca30e))
-- add `--no-sync` option to `gro dev` ([af2ca30e](https://github.com/grogarden/gro.gi/commit/af2ca30e))
-- add `$lib/resolve_node_specifier.ts` ([af2ca30e](https://github.com/grogarden/gro.gi/commit/af2ca30e))
+- af2ca30e: fix loader for node_modules
+- af2ca30e: add `--no-sync` option to `gro dev`
+- af2ca30e: add `$lib/resolve_node_specifier.ts`
 
 ## 0.95.5
 
 ### Patch Changes
 
-- upgrade @grogarden/util@0.15.1 from 0.15.0 ([52fad99](https://github.com/grogarden/gro.gi/commit/52fad99))
+- 52fad99: upgrade @grogarden/util@0.15.1 from 0.15.0
 
 ## 0.95.4
 
 ### Patch Changes
 
-- resolve json in the loader ([30556c4](https://github.com/grogarden/gro.gi/commit/30556c4))
-- fix esbuild plugin for unknown file extensions ([30556c4](https://github.com/grogarden/gro.gi/commit/30556c4))
+- 30556c4: resolve json in the loader
+- 30556c4: fix esbuild plugin for unknown file extensions
 
 ## 0.95.3
 
 ### Patch Changes
 
-- fix library detection ([c2b91bb](https://github.com/grogarden/gro.gi/commit/c2b91bb))
+- c2b91bb: fix library detection
 
 ## 0.95.2
 
 ### Patch Changes
 
-- upgrade deps ([b1264cc](https://github.com/grogarden/gro.gi/commit/b1264cc))
+- b1264cc: upgrade deps
 
 ## 0.95.1
 
 ### Patch Changes
 
-- add replace_plugin helper ([6b241cd](https://github.com/grogarden/gro.gi/commit/6b241cd))
-- fix loading package.json ([6b241cd](https://github.com/grogarden/gro.gi/commit/6b241cd))
+- 6b241cd: add replace_plugin helper
+- 6b241cd: fix loading package.json
 
 ## 0.95.0
 
 ### Minor Changes
 
-- rename Create_Gro_Config from Gro_ConfigCreator ([9cdb33d](https://github.com/grogarden/gro.gi/commit/9cdb33d))
-- add package.gen.ts for importing package.json data ([4b1a6cc](https://github.com/grogarden/gro.gi/commit/4b1a6cc))
-- change config to explictly publish `static/.well-known/package.json` and delete `gro exports` ([4b1a6cc](https://github.com/grogarden/gro.gi/commit/4b1a6cc))
-- rename `clean_fs.ts` from `clean.ts` ([4b1a6cc](https://github.com/grogarden/gro.gi/commit/4b1a6cc))
+- 9cdb33d: rename Create_Gro_Config from Gro_ConfigCreator
+- 4b1a6cc: add package.gen.ts for importing package.json data
+- 4b1a6cc: change config to explictly publish `static/.well-known/package.json` and delete `gro exports`
+- 4b1a6cc: rename `clean_fs.ts` from `clean.ts`
 
 ## 0.94.2
 
 ### Patch Changes
 
-- support prettier options to format_file ([9c860a5](https://github.com/grogarden/gro.gi/commit/9c860a5))
+- 9c860a5: support prettier options to format_file
 
 ## 0.94.1
 
 ### Patch Changes
 
-- support typed json exports ([c18723e](https://github.com/grogarden/gro.gi/commit/c18723e))
+- c18723e: support typed json exports
 
 ## 0.94.0
 
 ### Minor Changes
 
-- fix mutation of schemas during gen ([ae73cf0](https://github.com/grogarden/gro.gi/commit/ae73cf0))
+- ae73cf0: fix mutation of schemas during gen
 
 ## 0.93.1
 
 ### Patch Changes
 
-- fix pull on deploy ([3bd77ee](https://github.com/grogarden/gro.gi/commit/3bd77ee))
+- 3bd77ee: fix pull on deploy
 
 ## 0.93.0
 
 ### Minor Changes
 
-- change `invoke_task` to require a config param ([3a3c916](https://github.com/grogarden/gro.gi/commit/3a3c916))
+- 3a3c916: change `invoke_task` to require a config param
 
 ### Patch Changes
 
-- `git pull origin target` on deploy ([54f49ba](https://github.com/grogarden/gro.gi/commit/54f49ba))
+- 54f49ba: `git pull origin target` on deploy
 
 ## 0.92.5
 
 ### Patch Changes
 
-- loosen package_json bugs type to accept strings ([a8cec89](https://github.com/grogarden/gro.gi/commit/a8cec89))
+- a8cec89: loosen package_json bugs type to accept strings
 
 ## 0.92.4
 
 ### Patch Changes
 
-- add release task ([a088563](https://github.com/grogarden/gro.gi/commit/a088563))
+- a088563: add release task
 
 ## 0.92.3
 
 ### Patch Changes
 
-- run git status on workspace check failure ([da4b954](https://github.com/grogarden/gro.gi/commit/da4b954))
+- da4b954: run git status on workspace check failure
 
 ## 0.92.2
 
 ### Patch Changes
 
-- sync on `changeset` ([019d70b](https://github.com/grogarden/gro.gi/commit/019d70b))
+- 019d70b: sync on `changeset`
 
 ## 0.92.1
 
 ### Patch Changes
 
-- sync on `check` unless `--workspace` ([11e822e](https://github.com/grogarden/gro.gi/commit/11e822e))
+- 11e822e: sync on `check` unless `--workspace`
 
 ## 0.92.0
 
 ### Minor Changes
 
-- remove `.gro/dist` from the paths and clean task ([a088e73](https://github.com/grogarden/gro.gi/commit/a088e73))
+- a088e73: remove `.gro/dist` from the paths and clean task
 
 ## 0.91.0
 
 ### Minor Changes
 
-- upgrade to @grogarden/util@0.15 from 0.14 ([18cbcb5](https://github.com/grogarden/gro.gi/commit/18cbcb5))
+- 18cbcb5: upgrade to @grogarden/util@0.15 from 0.14
 
 ## 0.90.3
 
 ### Patch Changes
 
-- invoke `gro sync` at the end of `gro upgrade` ([f0ba85c](https://github.com/grogarden/gro.gi/commit/f0ba85c))
+- f0ba85c: invoke `gro sync` at the end of `gro upgrade`
 
 ## 0.90.2
 
 ### Patch Changes
 
-- add workspace flag to `gro check` that defaults to false ([305cdb2](https://github.com/grogarden/gro.gi/commit/305cdb2))
+- 305cdb2: add workspace flag to `gro check` that defaults to false
 
 ## 0.90.1
 
 ### Patch Changes
 
-- fix `gro exports` when there is no lib directory ([6b40acf](https://github.com/grogarden/gro.gi/commit/6b40acf))
+- 6b40acf: fix `gro exports` when there is no lib directory
 
 ## 0.90.0
 
 ### Minor Changes
 
-- fix git helpers for CI ([b32d5ef](https://github.com/grogarden/gro.gi/commit/b32d5ef))
+- b32d5ef: fix git helpers for CI
 
 ## 0.89.2
 
 ### Patch Changes
 
-- improve `gro exports` output ([c92b109](https://github.com/grogarden/gro.gi/commit/c92b109))
-- fix publish script ([bd0d061](https://github.com/grogarden/gro.gi/commit/bd0d061))
+- c92b109: improve `gro exports` output
+- bd0d061: fix publish script
 
 ## 0.89.1
 
 ### Patch Changes
 
-- fix import.meta.env shim ([45f4734](https://github.com/grogarden/gro.gi/commit/45f4734))
+- 45f4734: fix import.meta.env shim
 
 ## 0.89.0
 
 ### Minor Changes
 
-- fix bin ([51b0a74](https://github.com/grogarden/gro.gi/commit/51b0a74))
-- upgrade deps ([882cd1d](https://github.com/grogarden/gro.gi/commit/882cd1d))
+- 51b0a74: fix bin
+- 882cd1d: upgrade deps
 
 ## 0.88.0
 
 ### Minor Changes
 
-- change server plugin to output to `dist_server` ([07e3772](https://github.com/grogarden/gro.gi/commit/07e3772))
+- 07e3772: change server plugin to output to `dist_server`
 
 ## 0.87.5
 
 ### Patch Changes
 
-- sync on changeset ([dc5e0dd](https://github.com/grogarden/gro.gi/commit/dc5e0dd))
-- fix server plugin paths ([9bc4685](https://github.com/grogarden/gro.gi/commit/9bc4685))
+- dc5e0dd: sync on changeset
+- 9bc4685: fix server plugin paths
 
 ## 0.87.4
 
 ### Patch Changes
 
-- relax some Package_Json types" ([284ce48](https://github.com/grogarden/gro.gi/commit/284ce48))
+- 284ce48: relax some Package_Json types"
 
 ## 0.87.3
 
 ### Patch Changes
 
-- add enum support for cli args ([3e24565](https://github.com/grogarden/gro.gi/commit/3e24565))
+- 3e24565: add enum support for cli args
 
 ## 0.87.2
 
 ### Patch Changes
 
-- passthrough unknown `Package_Json` properties ([f16eaab](https://github.com/grogarden/gro.gi/commit/f16eaab))
+- f16eaab: passthrough unknown `Package_Json` properties
 
 ## 0.87.1
 
 ### Patch Changes
 
-- add `Package_Json` schema ([4466365](https://github.com/grogarden/gro.gi/commit/4466365))
+- 4466365: add `Package_Json` schema
 
 ## 0.87.0
 
 ### Minor Changes
 
-- remove execSync usage ([a63ef6c](https://github.com/grogarden/gro.gi/commit/a63ef6c))
-- upgrade to `@grogarden/util@0.14.0` from `0.13.0` ([a63ef6c](https://github.com/grogarden/gro.gi/commit/a63ef6c))
+- a63ef6c: remove execSync usage
+- a63ef6c: upgrade to `@grogarden/util@0.14.0` from `0.13.0`
 
 ## 0.86.0
 
 ### Minor Changes
 
-- add `package.json` to the static `/.well-known` directory by default ([5972c30](https://github.com/grogarden/gro.gi/commit/5972c30))
-- fix `gro deploy` ([47f7599](https://github.com/grogarden/gro.gi/commit/47f7599))
-- add git utils ([47f7599](https://github.com/grogarden/gro.gi/commit/47f7599))
-- add `package_json` to the config for customizing exports and `.well-known` ([5972c30](https://github.com/grogarden/gro.gi/commit/5972c30))
+- 5972c30: add `package.json` to the static `/.well-known` directory by default
+- 47f7599: fix `gro deploy`
+- 47f7599: add git utils
+- 5972c30: add `package_json` to the config for customizing exports and `.well-known`
 
 ### Patch Changes
 
-- fix `gro deploy --reset` flag ([aff9f07](https://github.com/grogarden/gro.gi/commit/aff9f07))
+- aff9f07: fix `gro deploy --reset` flag
 
 ## 0.85.0
 
 ### Minor Changes
 
-- rename some dir constants to prefix with GRO* instead of BUILD* ([4ed9065](https://github.com/grogarden/gro.gi/commit/4ed9065))
-- merge adapt into plugins ([4ed9065](https://github.com/grogarden/gro.gi/commit/4ed9065))
+- 4ed9065: rename some dir constants to prefix with GRO* instead of BUILD*
+- 4ed9065: merge adapt into plugins
 
 ### Patch Changes
 
-- fill out the package json type ([36d3a31](https://github.com/grogarden/gro.gi/commit/36d3a31))
+- 36d3a31: fill out the package json type
 
 ## 0.84.1
 
 ### Patch Changes
 
-- fix types in fixtures ([edd13f7](https://github.com/grogarden/gro.gi/commit/edd13f7))
+- edd13f7: fix types in fixtures
 
 ## 0.84.0
 
 ### Minor Changes
 
-- rename to `@grogarden/gro` from `@feltjs/gro` ([b5174f3](https://github.com/grogarden/gro.gi/commit/b5174f3))
-- flatten directories ([b5174f3](https://github.com/grogarden/gro.gi/commit/b5174f3))
+- b5174f3: rename to `@grogarden/gro` from `@feltjs/gro`
+- b5174f3: flatten directories
 
 ## 0.83.0
 
 ### Minor Changes
 
-- replace `@feltjs/util` with `@grogarden/util` ([8fcac65](https://github.com/grogarden/gro.gi/commit/8fcac65))
+- 8fcac65: replace `@feltjs/util` with `@grogarden/util`
 
 ## 0.82.9
 
 ### Patch Changes
 
-- infer the `gro changeset` access arg from `package.json#private` ([71ea36f](https://github.com/grogarden/gro.gi/commit/71ea36f))
+- 71ea36f: infer the `gro changeset` access arg from `package.json#private`
 
 ## 0.82.8
 
 ### Patch Changes
 
-- always init config ([5262967](https://github.com/grogarden/gro.gi/commit/5262967))
+- 5262967: always init config
 
 ## 0.82.7
 
 ### Patch Changes
 
-- add `gro changeset` task ([3ae04c5](https://github.com/grogarden/gro.gi/commit/3ae04c5))
+- 3ae04c5: add `gro changeset` task
 
 ## 0.82.6
 
 ### Patch Changes
 
-- make `@sveltejs/package` optional and warn when adapting the library ([989c39c](https://github.com/grogarden/gro.gi/commit/989c39c))
+- 989c39c: make `@sveltejs/package` optional and warn when adapting the library
 
 ## 0.82.5
 
 ### Patch Changes
 
-- import uvu dynamically to make it optional ([f195ddc](https://github.com/grogarden/gro.gi/commit/f195ddc))
+- f195ddc: import uvu dynamically to make it optional
 
 ## 0.82.4
 
 ### Patch Changes
 
-- upgrade es-module-lexer ([bd02918](https://github.com/grogarden/gro.gi/commit/bd02918))
+- bd02918: upgrade es-module-lexer
 
 ## 0.82.3
 
 ### Patch Changes
 
-- remove config caching ([693e4ceb](https://github.com/grogarden/gro.gi/commit/693e4ceb))
+- 693e4ceb: remove config caching
 
 ## 0.82.2
 
 ### Patch Changes
 
-- improve `gro exports` ([#396](https://github.com/grogarden/gro/pull/396)) ([8ffa6a8](https://github.com/grogarden/gro.gi/commit/8ffa6a8))
+- 8ffa6a8: improve `gro exports` ([#396](https://github.com/grogarden/gro/pull/396))
 
 ## 0.82.1
 
 ### Patch Changes
 
-- fix deploy task ([0e104e0](https://github.com/grogarden/gro.gi/commit/0e104e0))
+- 0e104e0: fix deploy task
 
 ## 0.82.0
 
 ### Minor Changes
 
-- replace the build system with a loader and esbuild plugins and integrate svelte-package ([c33ee5a](https://github.com/grogarden/gro.gi/commit/c33ee5a))
-- rename VocabSchema to Json_Schema ([5ae21fc](https://github.com/grogarden/gro.gi/commit/5ae21fc))
+- c33ee5a: replace the build system with a loader and esbuild plugins and integrate svelte-package
+- 5ae21fc: rename VocabSchema to Json_Schema
 
 ## 0.81.2
 
 ### Patch Changes
 
-- prefer project-local changeset command if available ([af8d5e1](https://github.com/grogarden/gro.gi/commit/af8d5e1))
+- af8d5e1: prefer project-local changeset command if available
 
 ## 0.81.1
 
 ### Patch Changes
 
-- detect changeset version failure ([edf3214](https://github.com/grogarden/gro.gi/commit/edf3214))
+- edf3214: detect changeset version failure
 
 ## 0.81.0
 
 ### Minor Changes
 
-- change gro publish to use changesets ([2daaee0](https://github.com/grogarden/gro.gi/commit/2daaee0))
+- 2daaee0: change gro publish to use changesets
 
 ## 0.80.0
 
