@@ -359,6 +359,7 @@ export const src_json = {
 				{name: 'merge_envs', kind: 'function'},
 				{name: 'is_private_env', kind: 'function'},
 				{name: 'is_public_env', kind: 'function'},
+				{name: 'load_from_env', kind: 'function'},
 			],
 		},
 		'./esbuild_helpers.js': {
