@@ -36,7 +36,12 @@ export const github_fetch_commit_prs = async (
 		}
 	}
 
-	log?.info('[github_fetch_commit_prs] fetching GitHub PR info', url);
+	log?.info(
+		'[github_fetch_commit_prs] fetching GitHub PR info',
+		url,
+		token ? 'with' : 'without',
+		'a token',
+	);
 
 	const headers: Record<string, string> = {accept: 'application/vnd.github+json'};
 	if (token) {
@@ -47,6 +52,8 @@ export const github_fetch_commit_prs = async (
 
 	const json = await res.json();
 	log?.debug(`[github_fetch_commit_prs] fetched json`, JSON.stringify(json));
+
+	if (cache) cache[url] = json;
 
 	return json.map((p: unknown) => Github_Pull_Request.parse(p));
 };

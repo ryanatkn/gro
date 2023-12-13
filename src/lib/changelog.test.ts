@@ -31,7 +31,7 @@ test('update_changelog', async () => {
 	const updated = await readFile(fixture_path, 'utf8');
 	await writeFile(fixture_path, original, 'utf8');
 	assert.ok(result);
-	assert.is(updated, '');
+	assert.is(updated, ''); // TODO BLOCK
 });
 
 test.run();
