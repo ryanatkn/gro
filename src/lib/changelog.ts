@@ -19,6 +19,7 @@ export const update_changelog = async (
 	log?: Logger,
 	cache?: Record<string, any>,
 ): Promise<boolean> => {
+	console.log(`path`, path);
 	const contents = await readFile(path, 'utf8');
 	console.log(`contents`, contents.length);
 	const parsed = parse_changelog(contents);

@@ -30,8 +30,10 @@ export const github_fetch_commit_prs = async (
 	const url = `https://api.github.com/repos/${owner}/${repo}/commits/${commit_sha}/pulls`;
 	if (cache) {
 		const cached = cache[url];
-		log?.debug('[github_fetch_commit_prs] cached json', cached);
-		if (cached) return cached.map((p: unknown) => Github_Pull_Request.parse(p));
+		if (cached) {
+			log?.debug('[github_fetch_commit_prs] cached', cached.length);
+			return cached.map((p: unknown) => Github_Pull_Request.parse(p));
+		}
 	}
 
 	log?.info('[github_fetch_commit_prs] fetching GitHub PR info', url);
@@ -44,7 +46,7 @@ export const github_fetch_commit_prs = async (
 	log?.info(`[github_fetch_commit_prs] res.headers`, Object.fromEntries(res.headers.entries()));
 
 	const json = await res.json();
-	log?.debug(`[github_fetch_commit_prs] fetched json`, json);
+	log?.debug(`[github_fetch_commit_prs] fetched json`, JSON.stringify(json));
 
 	return json.map((p: unknown) => Github_Pull_Request.parse(p));
 };

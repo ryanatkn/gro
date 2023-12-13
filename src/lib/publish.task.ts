@@ -1,6 +1,7 @@
 import {spawn} from '@grogarden/util/process.js';
 import {z} from 'zod';
 import {green, cyan} from 'kleur/colors';
+import dotenv from 'dotenv';
 
 import {Task_Error, type Task} from './task.js';
 import {load_package_json} from './package_json.js';
@@ -123,7 +124,10 @@ export const task: Task<Args> = {
 			}
 
 			if (!preserve_changelog) {
-				const token = undefined; // TODO BLOCK
+				if (!('GITHUB_TOKEN_SECRET' in process.env)) {
+					dotenv.config();
+				}
+				const token = process.env.GITHUB_TOKEN_SECRET;
 				await update_changelog(owner, repo, changelog, token, log);
 			}
 
