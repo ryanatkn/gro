@@ -6,9 +6,12 @@ import {readFile, writeFile} from 'fs/promises';
 import {update_changelog} from './changelog.js';
 import {load_from_env} from './env.js';
 
-const token = await load_from_env('GITHUB_TOKEN_SECRET');
-
 const log = new Logger();
+
+const token = await load_from_env('GITHUB_TOKEN_SECRET');
+if (!token) {
+	log.warn('the env var GITHUB_TOKEN_SECRET was not found, so API calls with be unauthorized');
+}
 
 const fixture_path = 'src/fixtures/changelog_example.md';
 

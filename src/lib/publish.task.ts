@@ -115,6 +115,11 @@ export const task: Task<Args> = {
 
 			if (!preserve_changelog) {
 				const token = await load_from_env('GITHUB_TOKEN_SECRET');
+				if (!token) {
+					log.warn(
+						'the env var GITHUB_TOKEN_SECRET was not found, so API calls with be unauthorized',
+					);
+				}
 				await update_changelog(parsed_repo_url.owner, parsed_repo_url.repo, changelog, token, log);
 			}
 
