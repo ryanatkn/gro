@@ -84,6 +84,7 @@ export const package_json = {
 		'.': {default: './dist/index.js', types: './dist/index.d.ts'},
 		'./args.js': {default: './dist/args.js', types: './dist/args.d.ts'},
 		'./build.task.js': {default: './dist/build.task.js', types: './dist/build.task.d.ts'},
+		'./changelog.js': {default: './dist/changelog.js', types: './dist/changelog.d.ts'},
 		'./changeset.task.js': {
 			default: './dist/changeset.task.js',
 			types: './dist/changeset.task.d.ts',
@@ -137,6 +138,7 @@ export const package_json = {
 		'./gen.task.js': {default: './dist/gen.task.js', types: './dist/gen.task.d.ts'},
 		'./gen.js': {default: './dist/gen.js', types: './dist/gen.d.ts'},
 		'./git.js': {default: './dist/git.js', types: './dist/git.d.ts'},
+		'./github.js': {default: './dist/github.js', types: './dist/github.d.ts'},
 		'./gro_plugin_gen.js': {
 			default: './dist/gro_plugin_gen.js',
 			types: './dist/gro_plugin_gen.d.ts',
@@ -275,6 +277,10 @@ export const src_json = {
 				{name: 'task', kind: 'variable'},
 			],
 		},
+		'./changelog.js': {
+			path: 'changelog.ts',
+			declarations: [{name: 'update_changelog', kind: 'function'}],
+		},
 		'./changeset.task.js': {
 			path: 'changeset.task.ts',
 			declarations: [
@@ -353,6 +359,7 @@ export const src_json = {
 				{name: 'merge_envs', kind: 'function'},
 				{name: 'is_private_env', kind: 'function'},
 				{name: 'is_public_env', kind: 'function'},
+				{name: 'load_from_env', kind: 'function'},
 			],
 		},
 		'./esbuild_helpers.js': {
@@ -498,6 +505,13 @@ export const src_json = {
 				{name: 'git_current_branch_first_commit_hash', kind: 'function'},
 				{name: 'git_check_setting_pull_rebase', kind: 'function'},
 				{name: 'git_clone_locally', kind: 'function'},
+			],
+		},
+		'./github.js': {
+			path: 'github.ts',
+			declarations: [
+				{name: 'Github_Pull_Request', kind: 'variable'},
+				{name: 'github_fetch_commit_prs', kind: 'function'},
 			],
 		},
 		'./gro_plugin_gen.js': {
