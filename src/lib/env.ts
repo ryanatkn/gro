@@ -22,11 +22,10 @@ export const load_env = async (
 	return merge_envs(envs, visibility, public_prefix, private_prefix);
 };
 
-const load = async (path: string): Promise<Record<string, string> | null> => {
-	if (!(await exists(path))) return null;
-	const source = await readFile(path, 'utf8');
-	const parsed = dotenv.parse(source);
-	return parsed;
+const load = async (path: string): Promise<Record<string, string> | undefined> => {
+	if (!(await exists(path))) return undefined;
+	const loaded = await readFile(path, 'utf8');
+	return dotenv.parse(loaded);
 };
 
 export const merge_envs = (
@@ -65,3 +64,19 @@ export const is_public_env = (
 	private_prefix: string,
 ): boolean =>
 	key.startsWith(public_prefix) && (private_prefix === '' || !key.startsWith(private_prefix));
+
+/**
+ * Loads a single env value without merging it into `process.env`.
+ * By default searches process.env, then a local `.env` if one exists, then `../.env` if it exists.
+ */
+export const load_from_env = async (
+	key: string,
+	paths = ['.env', '../.env'],
+): Promise<string | undefined> => {
+	if (process.env[key]) return process.env[key];
+	for (const path of paths) {
+		const env = await load(path); // eslint-disable-line no-await-in-loop
+		if (env?.[key]) return env[key];
+	}
+	return undefined;
+};

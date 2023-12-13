@@ -1,13 +1,12 @@
 import {test} from 'uvu';
 import * as assert from 'uvu/assert';
 import {Logger} from '@grogarden/util/log.js';
-import dotenv from 'dotenv';
 import {readFile, writeFile} from 'fs/promises';
 
 import {update_changelog} from './changelog.js';
+import {load_from_env} from './env.js';
 
-dotenv.config();
-const token = process.env.GITHUB_TOKEN_SECRET;
+const token = await load_from_env('GITHUB_TOKEN_SECRET');
 
 const log = new Logger();
 

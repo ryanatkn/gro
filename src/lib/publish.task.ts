@@ -1,7 +1,6 @@
 import {spawn} from '@grogarden/util/process.js';
 import {z} from 'zod';
 import {green, cyan} from 'kleur/colors';
-import dotenv from 'dotenv';
 
 import {Task_Error, type Task} from './task.js';
 import {load_package_json} from './package_json.js';
@@ -10,6 +9,7 @@ import {exists} from './fs.js';
 import {is_this_project_gro} from './paths.js';
 import {has_library} from './gro_plugin_library.js';
 import {update_changelog} from './changelog.js';
+import {load_from_env} from './env.js';
 
 // publish.task.ts
 // - usage: `gro publish patch`
@@ -124,10 +124,7 @@ export const task: Task<Args> = {
 
 			if (!preserve_changelog) {
 				const [, owner, repo] = parsed_repo_url;
-				if (!('GITHUB_TOKEN_SECRET' in process.env)) {
-					dotenv.config();
-				}
-				const token = process.env.GITHUB_TOKEN_SECRET;
+				const token = await load_from_env('GITHUB_TOKEN_SECRET');
 				await update_changelog(owner, repo, changelog, token, log);
 			}
 
