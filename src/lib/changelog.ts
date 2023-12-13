@@ -59,6 +59,9 @@ const map_changelog = async (
 			console.log(`MATCHED line`, commit_sha, line);
 			const prs = await github_fetch_commit_prs(owner, repo, commit_sha, token, log, cache); // eslint-disable-line no-await-in-loop
 			console.log(`prs`, prs);
+			// TODO BLOCK if prs, link to it, otherwise link directly to the commit, at the end in parens in both cases
+		} else {
+			mapped.push(line);
 		}
 	}
 	return mapped;
