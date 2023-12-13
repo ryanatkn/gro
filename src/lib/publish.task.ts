@@ -3,7 +3,7 @@ import {z} from 'zod';
 import {green, cyan} from 'kleur/colors';
 
 import {Task_Error, type Task} from './task.js';
-import {load_package_json} from './package_json.js';
+import {load_package_json, parse_repo_url} from './package_json.js';
 import {find_cli, spawn_cli} from './cli.js';
 import {exists} from './fs.js';
 import {is_this_project_gro} from './paths.js';
@@ -97,21 +97,12 @@ export const task: Task<Args> = {
 			if (typeof package_json_before.version !== 'string') {
 				throw new Task_Error('failed to find package.json version');
 			}
-			const {repository} = package_json_before;
-			const repo_url = repository
-				? typeof repository === 'string'
-					? repository
-					: repository.url
-				: null;
-			if (!repo_url) {
-				throw new Task_Error(
-					'package.json must have a GitHub `repository` url to update the changelog',
-				);
-			}
-			const parsed_repo_url = /.+github.com\/(.+)\/(.+).+/u.exec(repo_url);
+			const parsed_repo_url = parse_repo_url(package_json_before);
 			if (!parsed_repo_url) {
 				throw new Task_Error(
-					'package.json `repository` url must be a GitHub repo (for now, sorry)',
+					'package.json `repository` must contain a repo url (and GitHub only for now, sorry),' +
+						' like `git+https://github.com/grogarden/gro.git` or `https://github.com/grogarden/gro`' +
+						' or an object with the `url` key',
 				);
 			}
 
@@ -123,9 +114,8 @@ export const task: Task<Args> = {
 			}
 
 			if (!preserve_changelog) {
-				const [, owner, repo] = parsed_repo_url;
 				const token = await load_from_env('GITHUB_TOKEN_SECRET');
-				await update_changelog(owner, repo, changelog, token, log);
+				await update_changelog(parsed_repo_url.owner, parsed_repo_url.repo, changelog, token, log);
 			}
 
 			const package_json_after = await load_package_json();

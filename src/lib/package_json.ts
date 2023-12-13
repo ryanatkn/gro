@@ -3,6 +3,7 @@ import {join} from 'node:path';
 import {readFile, writeFile} from 'node:fs/promises';
 import {plural} from '@grogarden/util/string.js';
 import type {Logger} from '@grogarden/util/log.js';
+import {strip_end} from '@grogarden/util/string.js';
 
 import {
 	paths,
@@ -254,3 +255,26 @@ export const to_package_exports = (paths: string[]): Package_Json_Exports => {
 };
 
 const IMPORT_PREFIX = './' + SVELTEKIT_DIST_DIRNAME + '/';
+
+export const parse_repo_url = (
+	package_json: Package_Json,
+): {owner: string; repo: string} | undefined => {
+	const {repository} = package_json;
+	const repo_url = repository
+		? typeof repository === 'string'
+			? repository
+			: repository.url
+		: undefined;
+	if (!repo_url) {
+		return undefined;
+	}
+	const parsed_repo_url = /.+github.com\/(.+)\/(.+).+/u.exec(strip_end(repo_url, '.git'));
+	if (!parsed_repo_url) {
+		return undefined;
+	}
+	const [, owner, repo] = parsed_repo_url;
+	return {
+		owner,
+		repo: repo.split('/')[0], // just in case
+	};
+};
