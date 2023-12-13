@@ -268,13 +268,12 @@ export const parse_repo_url = (
 	if (!repo_url) {
 		return undefined;
 	}
-	const parsed_repo_url = /.+github.com\/(.+)\/(.+).+/u.exec(strip_end(repo_url, '.git'));
+	const parsed_repo_url = /.+github.com\/(.+)\/(.+)/u.exec(
+		strip_end(strip_end(repo_url, '/'), '.git'),
+	);
 	if (!parsed_repo_url) {
 		return undefined;
 	}
 	const [, owner, repo] = parsed_repo_url;
-	return {
-		owner,
-		repo: repo.split('/')[0], // just in case
-	};
+	return {owner, repo};
 };

@@ -4,6 +4,7 @@ import * as assert from 'uvu/assert';
 import {
 	Package_Json,
 	load_package_json,
+	parse_repo_url,
 	serialize_package_json,
 	to_package_exports,
 } from './package_json.js';
@@ -82,6 +83,12 @@ test('to_package_exports', async () => {
 			},
 		},
 	);
+});
+
+test('parse_repo_url', async () => {
+	const parsed = parse_repo_url(await load_package_json());
+	assert.is(parsed?.owner, 'grogarden');
+	assert.is(parsed?.repo, 'gro');
 });
 
 test.run();
