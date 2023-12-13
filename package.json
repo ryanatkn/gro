@@ -122,6 +122,10 @@
       "default": "./dist/build.task.js",
       "types": "./dist/build.task.d.ts"
     },
+    "./changelog.js": {
+      "default": "./dist/changelog.js",
+      "types": "./dist/changelog.d.ts"
+    },
     "./changeset.task.js": {
       "default": "./dist/changeset.task.js",
       "types": "./dist/changeset.task.d.ts"
@@ -225,6 +229,10 @@
     "./git.js": {
       "default": "./dist/git.js",
       "types": "./dist/git.d.ts"
+    },
+    "./github.js": {
+      "default": "./dist/github.js",
+      "types": "./dist/github.d.ts"
     },
     "./gro_plugin_gen.js": {
       "default": "./dist/gro_plugin_gen.js",
