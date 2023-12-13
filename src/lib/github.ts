@@ -26,10 +26,10 @@ export const github_fetch_commit_prs = async (
 	token?: string,
 	log?: Logger,
 	cache?: Record<string, any>,
-): Promise<Github_Pull_Request[]> => {
+): Promise<Github_Pull_Request[] | undefined> => {
 	const url = `https://api.github.com/repos/${owner}/${repo}/commits/${commit_sha}/pulls`;
 	if (cache) {
-		const cached = cache[url];
+		const cached: Github_Pull_Request[] | undefined = cache[url];
 		if (cached) {
 			log?.debug('[github_fetch_commit_prs] cached', cached.length);
 			return cached?.map?.((p: unknown) => Github_Pull_Request.parse(p));
