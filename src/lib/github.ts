@@ -32,7 +32,7 @@ export const github_fetch_commit_prs = async (
 		const cached = cache[url];
 		if (cached) {
 			log?.debug('[github_fetch_commit_prs] cached', cached.length);
-			return cached.map((p: unknown) => Github_Pull_Request.parse(p));
+			return cached?.map?.((p: unknown) => Github_Pull_Request.parse(p));
 		}
 	}
 
@@ -55,5 +55,5 @@ export const github_fetch_commit_prs = async (
 
 	if (cache) cache[url] = json;
 
-	return json.map((p: unknown) => Github_Pull_Request.parse(p));
+	return json?.map?.((p: unknown) => Github_Pull_Request.parse(p));
 };
