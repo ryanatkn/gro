@@ -22,6 +22,7 @@ import {
 	git_fetch,
 	git_check_setting_pull_rebase,
 	git_clone_locally,
+	git_current_branch_name,
 } from './git.js';
 
 // docs at ./docs/deploy.md
@@ -153,11 +154,18 @@ export const task: Task<Args> = {
 			// If anything goes wrong, delete the directory and we'll initialize it
 			// using the same code path as if it didn't exist in the first place.
 			if (await exists(resolved_deploy_dir)) {
-				await git_pull(origin, target, target_spawn_options);
-				if (await git_check_clean_workspace()) {
-					// We're in a bad state because the local branch lost continuity with the remote,
+				if (target !== (await git_current_branch_name(target_spawn_options))) {
+					// We're in a bad state because the target branch has changed,
 					// so delete the directory and continue as if it wasn't there.
 					await rm(resolved_deploy_dir, {recursive: true});
+				} else {
+					await spawn('git', ['reset', '--hard'], target_spawn_options); // in case it's dirty
+					await git_pull(origin, target, target_spawn_options);
+					if (await git_check_clean_workspace(target_spawn_options)) {
+						// We're in a bad state because the local branch lost continuity with the remote,
+						// so delete the directory and continue as if it wasn't there.
+						await rm(resolved_deploy_dir, {recursive: true});
+					}
 				}
 			}
 
