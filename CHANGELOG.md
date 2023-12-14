@@ -1,5 +1,12 @@
 # @grogarden/gro
 
+## 0.105.4
+
+### Patch Changes
+
+- reset target branch on deploy ([#438](https://github.com/grogarden/gro/pull/438))
+- handle target branch changes on deploy ([#438](https://github.com/grogarden/gro/pull/438))
+
 ## 0.105.3
 
 ### Patch Changes

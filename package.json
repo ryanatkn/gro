@@ -1,6 +1,6 @@
 {
   "name": "@grogarden/gro",
-  "version": "0.105.3",
+  "version": "0.105.4",
   "description": "task runner and toolkit extending SvelteKit",
   "icon": "🌰",
   "public": true,
