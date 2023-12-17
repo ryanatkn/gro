@@ -33,7 +33,7 @@ export const github_fetch_commit_prs = async (
 	const url = `https://api.github.com/repos/${owner}/${repo}/commits/${commit_sha}/pulls`;
 	const fetched = await fetch_value(url, {
 		request: {headers},
-		parse: (v) => v.map?.((p: unknown) => Github_Pull_Request.parse(p)),
+		parse: (v: any[]) => v.map((p) => Github_Pull_Request.parse(p)),
 		token,
 		cache,
 		return_early_from_cache: true,
