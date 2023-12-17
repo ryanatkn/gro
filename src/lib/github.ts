@@ -2,6 +2,7 @@
 // for now it's just calling a single endpoint so we do it manually
 // and we specify just the types we need
 
+import {Fetch_Cache_Data, fetch_value} from '@grogarden/util/fetch.js';
 import type {Logger} from '@grogarden/util/log.js';
 import {z} from 'zod';
 
@@ -17,7 +18,7 @@ export const Github_Pull_Request = z.object({
 export type Github_Pull_Request = z.infer<typeof Github_Pull_Request>;
 
 /**
- *@see https://docs.github.com/en/rest/commits/commits?apiVersion=2022-11-28#list-pull-requests-associated-with-a-commit
+ * @see https://docs.github.com/en/rest/commits/commits?apiVersion=2022-11-28#list-pull-requests-associated-with-a-commit
  */
 export const github_fetch_commit_prs = async (
 	owner: string,
@@ -25,35 +26,19 @@ export const github_fetch_commit_prs = async (
 	commit_sha: string,
 	token?: string,
 	log?: Logger,
-	cache?: Record<string, any>,
-): Promise<Github_Pull_Request[] | undefined> => {
+	cache?: Fetch_Cache_Data,
+	api_version?: string,
+): Promise<Github_Pull_Request[] | null> => {
+	const headers = api_version ? new Headers({'x-github-api-version': api_version}) : undefined;
 	const url = `https://api.github.com/repos/${owner}/${repo}/commits/${commit_sha}/pulls`;
-	if (cache) {
-		const cached: Github_Pull_Request[] | undefined = cache[url];
-		if (cached) {
-			log?.debug('[github_fetch_commit_prs] cached', cached.length);
-			return cached?.map?.((p: unknown) => Github_Pull_Request.parse(p));
-		}
-	}
-
-	const headers: Record<string, string> = {accept: 'application/vnd.github+json'};
-	if (token) {
-		headers.authorization = 'Bearer ' + token;
-	}
-
-	log?.info(
-		'[github_fetch_commit_prs] fetching GitHub PR info',
-		url,
-		token ? 'with' : 'without',
-		'authorization',
-	);
-	const res = await fetch(url, {headers});
-	log?.info(`[github_fetch_commit_prs] res.headers`, Object.fromEntries(res.headers.entries()));
-
-	const json = await res.json();
-	log?.debug(`[github_fetch_commit_prs] fetched json`, JSON.stringify(json));
-
-	if (cache) cache[url] = json;
-
-	return json?.map?.((p: unknown) => Github_Pull_Request.parse(p));
+	const fetched = await fetch_value(url, {
+		request: {headers},
+		parse: (v) => v.map?.((p: unknown) => Github_Pull_Request.parse(p)),
+		token,
+		cache,
+		return_early_from_cache: true,
+		log,
+	});
+	if (!fetched.ok) return null;
+	return fetched.value;
 };
