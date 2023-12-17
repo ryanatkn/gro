@@ -1,7 +1,7 @@
 import {readFile, writeFile} from 'fs/promises';
 import {z} from 'zod';
 import type {Logger} from '@grogarden/util/log.js';
-import type {Fetch_Cache_Data} from '@grogarden/util/fetch.js';
+import type {Fetch_Value_Cache} from '@grogarden/util/fetch.js';
 
 import {github_fetch_commit_prs} from './github.js';
 
@@ -18,7 +18,7 @@ export const update_changelog = async (
 	path = 'CHANGELOG.md',
 	token?: string,
 	log?: Logger,
-	cache: Fetch_Cache_Data = new Map(), // include a default cache to efficiently handle multiple changesets per commit
+	cache: Fetch_Value_Cache = new Map(), // include a default cache to efficiently handle multiple changesets per commit
 ): Promise<boolean> => {
 	const contents = await readFile(path, 'utf8');
 	const parsed = parse_changelog(contents);
@@ -45,7 +45,7 @@ const map_changelog = async (
 	repo: string,
 	token?: string,
 	log?: Logger,
-	cache?: Fetch_Cache_Data,
+	cache?: Fetch_Value_Cache,
 ): Promise<Parsed_Changelog> => {
 	const mapped: Parsed_Changelog = [];
 	for (const line of parsed) {

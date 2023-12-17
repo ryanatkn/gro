@@ -2,7 +2,7 @@
 // for now it's just calling a single endpoint so we do it manually
 // and we specify just the types we need
 
-import {Fetch_Cache_Data, fetch_value} from '@grogarden/util/fetch.js';
+import {Fetch_Value_Cache, fetch_value} from '@grogarden/util/fetch.js';
 import type {Logger} from '@grogarden/util/log.js';
 import {z} from 'zod';
 
@@ -26,7 +26,7 @@ export const github_fetch_commit_prs = async (
 	commit_sha: string,
 	token?: string,
 	log?: Logger,
-	cache?: Fetch_Cache_Data,
+	cache?: Fetch_Value_Cache,
 	api_version?: string,
 ): Promise<Github_Pull_Request[] | null> => {
 	const headers = api_version ? new Headers({'x-github-api-version': api_version}) : undefined;
