@@ -1,5 +1,11 @@
 # @grogarden/gro
 
+## 0.105.5
+
+### Patch Changes
+
+- upgrade @grogarden/util to use `fetch_value` ([#439](https://github.com/grogarden/gro/pull/439))
+
 ## 0.105.4
 
 ### Patch Changes
