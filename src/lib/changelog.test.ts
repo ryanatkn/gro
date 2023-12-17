@@ -2,6 +2,7 @@ import {test} from 'uvu';
 import * as assert from 'uvu/assert';
 import {Logger} from '@grogarden/util/log.js';
 import {readFile, writeFile} from 'fs/promises';
+import type {Fetch_Value_Cache} from '@grogarden/util/fetch.js';
 
 import {update_changelog} from './changelog.js';
 import {load_from_env} from './env.js';
@@ -15,9 +16,10 @@ if (!token) {
 
 const fixture_path = 'src/fixtures/changelog_example.md';
 
-// TODO ideally this is just a ts file, but there's a problem where building outputs a `.d.ts` file (fix in SvelteKit/Vite/tsconfig?)
-const changelog_cache_fixture = JSON.parse(
-	await readFile('src/fixtures/changelog_cache.json', 'utf8'),
+// TODO ideally this is just a ts file, but there's a problem where building outputs a `.d.ts` file
+// when importing from src/fixtures (fix in SvelteKit/Vite/tsconfig?) and I want to keep it in src/fixtures
+const changelog_cache_fixture: Fetch_Value_Cache = new Map(
+	JSON.parse(await readFile('src/fixtures/changelog_cache.json', 'utf8')),
 );
 
 test('update_changelog', async () => {
