@@ -16,7 +16,8 @@ if (!token) {
 
 const fixture_path = 'src/fixtures/changelog_example.md';
 
-// TODO ideally this is just a ts file, but there's a problem where building outputs a `.d.ts` file (fix in SvelteKit/Vite/tsconfig?)
+// TODO ideally this is just a ts file, but there's a problem where building outputs a `.d.ts` file
+// when importing from src/fixtures (fix in SvelteKit/Vite/tsconfig?) and I want to keep it in src/fixtures
 const changelog_cache_fixture: Fetch_Value_Cache = new Map(
 	JSON.parse(await readFile('src/fixtures/changelog_cache.json', 'utf8')),
 );
