@@ -3,17 +3,21 @@ import {spawn} from '@grogarden/util/process.js';
 import {red, blue} from 'kleur/colors';
 import type {WrittenConfig} from '@changesets/types';
 import {readFile, writeFile} from 'node:fs/promises';
+import {join} from 'node:path';
+import {readdir} from 'node:fs/promises';
 
 import {Task_Error, type Task} from './task.js';
 import {exists} from './fs.js';
-import {dirname} from 'node:path';
 import {load_package_json} from './package_json.js';
 import {find_cli, spawn_cli} from './cli.js';
 
 const RESTRICTED_ACCESS = 'restricted';
 const PUBLIC_ACCESS = 'public';
 
-const CHANGESET_CONFIG_PATH = './.changeset/config.json';
+const CHANGESET_DIR = '.changeset';
+
+export const Changeset_Bump = z.enum(['patch', 'minor', 'major']);
+export type Changeset_Bump = z.infer<typeof Changeset_Bump>;
 
 export const Args = z
 	.object({
@@ -21,16 +25,11 @@ export const Args = z
 		 * This API is designed for convenience in manual usage, not clarity.
 		 */
 		_: z
-			.union(
-				[
-					z.tuple([]),
-					z.tuple([z.string()]),
-					z.tuple([z.string(), z.enum(['patch', 'minor', 'major'])]),
-				],
-				{description: 'the commands to pass to changeset'},
-			)
+			.union([z.tuple([]), z.tuple([z.string()]), z.tuple([z.string(), Changeset_Bump])], {
+				description: 'the commands to pass to changeset',
+			})
 			.default([]),
-		path: z.string({description: 'changeset config file path'}).default(CHANGESET_CONFIG_PATH),
+		dir: z.string({description: 'changeset dir'}).default(CHANGESET_DIR),
 		access: z
 			.enum([RESTRICTED_ACCESS, PUBLIC_ACCESS], {
 				description: `changeset 'access' config value, the default depends on package.json#private`,
@@ -53,21 +52,20 @@ export const task: Task<Args> = {
 	run: async (ctx): Promise<void> => {
 		const {
 			invoke_task,
-			args: {
-				_: [message, bump],
-				path,
-				access: access_arg,
-				changelog,
-				install,
-			},
+			args: {_, dir, access: access_arg, changelog, install},
 			log,
 		} = ctx;
+
+		const message = _[0]; // TODO why can't these be destructured? dom.iterable is already included
+		const bump = _[1] ?? 'patch';
 
 		if (!(await find_cli('changeset'))) {
 			throw new Task_Error(
 				'changeset command not found: install @changesets/cli locally or globally',
 			);
 		}
+
+		const path = join(dir, 'config.json');
 
 		const inited = await exists(path);
 
@@ -95,23 +93,46 @@ export const task: Task<Args> = {
 
 		await invoke_task('sync'); // after the `npm i` above, and in all cases
 
-		await spawn_cli('changeset', ['add', '--empty']);
+		if (message) {
+			// TODO see the helper below, simplify this to CLI flags when support is added to Changesets
+			const changeset_adder = await create_changeset_adder(dir, message, bump);
+			await spawn_cli('changeset', ['add', '--empty']);
+			await changeset_adder();
+		} else {
+			await spawn_cli('changeset');
+		}
 
-		await spawn('git', ['add', dirname(CHANGESET_CONFIG_PATH)]);
+		await spawn('git', ['add', dir]);
 	},
 };
 
-export interface Changeset_Callback {
+/**
+ * TODO ideally this wouldn't exist and we'd use CLI flags, but it doesn't exist yet
+ * @see https://github.com/changesets/changesets/pull/1121
+ */
+const create_changeset_adder = async (dir: string, message: string, bump: Changeset_Bump) => {
+	const paths_before = await readdir(dir);
+	return async () => {
+		const paths_after = await readdir(dir);
+		const path = paths_after.find((p) => !paths_before.includes(p));
+		console.log(`path`, path);
+		console.log(`message`, message);
+		console.log(`bump`, bump);
+		process.exit();
+	};
+};
+
+interface Changeset_Callback {
 	(config: WrittenConfig): WrittenConfig | Promise<WrittenConfig>;
 }
 
-export interface Update_Written_Config {
+interface Update_Written_Config {
 	(path: string, cb: Changeset_Callback): Promise<boolean>;
 }
 
 // TODO refactor all of this with zod and package_json helpers - util file helper? JSON parse pluggable
 
-export const update_changeset_config: Update_Written_Config = async (path, cb) => {
+const update_changeset_config: Update_Written_Config = async (path, cb) => {
 	const config_contents = await load_changeset_config_contents(path);
 	const config = parse_changeset_config(config_contents);
 
@@ -123,20 +144,16 @@ export const update_changeset_config: Update_Written_Config = async (path, cb) =
 		return false;
 	}
 
-	await write_changeset_config(serialized);
+	await write_changeset_config(path, serialized);
 	return true;
 };
 
-export const load_changeset_config = async (): Promise<WrittenConfig> =>
-	JSON.parse(await load_changeset_config_contents(CHANGESET_CONFIG_PATH));
+const load_changeset_config_contents = (path: string): Promise<string> => readFile(path, 'utf8');
 
-export const load_changeset_config_contents = (path: string): Promise<string> =>
-	readFile(path, 'utf8');
+const write_changeset_config = (path: string, serialized: string): Promise<void> =>
+	writeFile(path, serialized);
 
-export const write_changeset_config = (serialized: string): Promise<void> =>
-	writeFile(CHANGESET_CONFIG_PATH, serialized);
-
-export const serialize_changeset_config = (config: WrittenConfig): string =>
+const serialize_changeset_config = (config: WrittenConfig): string =>
 	JSON.stringify(config, null, '\t') + '\n';
 
-export const parse_changeset_config = (contents: string): WrittenConfig => JSON.parse(contents);
+const parse_changeset_config = (contents: string): WrittenConfig => JSON.parse(contents);
