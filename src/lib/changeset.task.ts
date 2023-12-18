@@ -17,10 +17,18 @@ const CHANGESET_CONFIG_PATH = './.changeset/config.json';
 
 export const Args = z
 	.object({
+		/**
+		 * This API is designed for convenience in manual usage, not clarity.
+		 */
 		_: z
-			.union([z.tuple([z.string()]), z.tuple([z.string(), z.enum(['patch', 'minor', 'major'])])], {
-				description: 'the commands to pass to changeset',
-			})
+			.union(
+				[
+					z.tuple([]),
+					z.tuple([z.string()]),
+					z.tuple([z.string(), z.enum(['patch', 'minor', 'major'])]),
+				],
+				{description: 'the commands to pass to changeset'},
+			)
 			.default([]),
 		path: z.string({description: 'changeset config file path'}).default(CHANGESET_CONFIG_PATH),
 		access: z
@@ -46,7 +54,7 @@ export const task: Task<Args> = {
 		const {
 			invoke_task,
 			args: {
-				_: [message, bump = 'patch'],
+				_: [message, bump],
 				path,
 				access: access_arg,
 				changelog,
