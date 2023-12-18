@@ -284,16 +284,9 @@ export const src_json = {
 		'./changeset.task.js': {
 			path: 'changeset.task.ts',
 			declarations: [
+				{name: 'Changeset_Bump', kind: 'variable'},
 				{name: 'Args', kind: 'variable'},
 				{name: 'task', kind: 'variable'},
-				{name: 'Changeset_Callback', kind: 'type'},
-				{name: 'Update_Written_Config', kind: 'type'},
-				{name: 'update_changeset_config', kind: 'function'},
-				{name: 'load_changeset_config', kind: 'function'},
-				{name: 'load_changeset_config_contents', kind: 'function'},
-				{name: 'write_changeset_config', kind: 'function'},
-				{name: 'serialize_changeset_config', kind: 'function'},
-				{name: 'parse_changeset_config', kind: 'function'},
 			],
 		},
 		'./check.task.js': {
