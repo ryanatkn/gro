@@ -17,7 +17,11 @@ const CHANGESET_CONFIG_PATH = './.changeset/config.json';
 
 export const Args = z
 	.object({
-		_: z.array(z.string(), {description: 'the commands to pass to changeset'}).default([]),
+		_: z
+			.union([z.tuple([z.string()]), z.tuple([z.string(), z.enum(['patch', 'minor', 'major'])])], {
+				description: 'the commands to pass to changeset',
+			})
+			.default([]),
 		path: z.string({description: 'changeset config file path'}).default(CHANGESET_CONFIG_PATH),
 		access: z
 			.enum([RESTRICTED_ACCESS, PUBLIC_ACCESS], {
@@ -41,7 +45,13 @@ export const task: Task<Args> = {
 	run: async (ctx): Promise<void> => {
 		const {
 			invoke_task,
-			args: {_: changeset_args, path, access: access_arg, changelog, install},
+			args: {
+				_: [message, bump = 'patch'],
+				path,
+				access: access_arg,
+				changelog,
+				install,
+			},
 			log,
 		} = ctx;
 
@@ -77,7 +87,7 @@ export const task: Task<Args> = {
 
 		await invoke_task('sync'); // after the `npm i` above, and in all cases
 
-		await spawn_cli('changeset', changeset_args);
+		await spawn_cli('changeset', ['add', '--empty']);
 
 		await spawn('git', ['add', dirname(CHANGESET_CONFIG_PATH)]);
 	},
