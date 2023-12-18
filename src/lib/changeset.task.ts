@@ -8,7 +8,7 @@ import {readdir} from 'node:fs/promises';
 
 import {Task_Error, type Task} from './task.js';
 import {exists} from './fs.js';
-import {load_package_json} from './package_json.js';
+import {Package_Json, load_package_json, parse_repo_url} from './package_json.js';
 import {find_cli, spawn_cli} from './cli.js';
 
 const RESTRICTED_ACCESS = 'restricted';
@@ -78,11 +78,12 @@ export const task: Task<Args> = {
 
 		const inited = await exists(path);
 
+		const package_json = await load_package_json();
+
 		if (!inited) {
 			await spawn_cli('changeset', ['init']);
 
-			const access =
-				access_arg ?? (await load_package_json()).private ? RESTRICTED_ACCESS : PUBLIC_ACCESS;
+			const access = access_arg ?? package_json.private ? RESTRICTED_ACCESS : PUBLIC_ACCESS;
 
 			const access_color = access === RESTRICTED_ACCESS ? blue : red;
 			log.info('initing changeset with ' + access_color(access) + ' access');
@@ -106,7 +107,7 @@ export const task: Task<Args> = {
 
 		if (message) {
 			// TODO see the helper below, simplify this to CLI flags when support is added to Changesets
-			const changeset_adder = await create_changeset_adder(dir, message, bump);
+			const changeset_adder = await create_changeset_adder(package_json.name, dir, message, bump);
 			await spawn_cli('changeset', ['add', '--empty']);
 			await changeset_adder();
 		} else {
@@ -120,17 +121,32 @@ export const task: Task<Args> = {
  * TODO ideally this wouldn't exist and we'd use CLI flags, but it doesn't exist yet
  * @see https://github.com/changesets/changesets/pull/1121
  */
-const create_changeset_adder = async (dir: string, message: string, bump: Changeset_Bump) => {
+const create_changeset_adder = async (
+	repo_name: string,
+	dir: string,
+	message: string,
+	bump: Changeset_Bump,
+) => {
 	const paths_before = await readdir(dir);
 	return async () => {
 		const paths_after = await readdir(dir);
-		const path = paths_after.find((p) => !paths_before.includes(p));
-		console.log(`path`, path);
-		console.log(`message`, message);
-		console.log(`bump`, bump);
-		process.exit();
+		const path = paths_after.find((p) => !paths_before.includes(p))!;
+		const contents = create_new_changeset(repo_name, message, bump);
+		await writeFile(path, contents, 'utf8');
+		await spawn('git', ['add', path]);
 	};
 };
+
+const create_new_changeset = (
+	repo_name: string,
+	message: string,
+	bump: Changeset_Bump,
+): string => `---
+"${repo_name}": ${bump}
+---
+
+${message}
+`;
 
 interface Changeset_Callback {
 	(config: WrittenConfig): WrittenConfig | Promise<WrittenConfig>;
