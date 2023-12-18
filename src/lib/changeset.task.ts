@@ -110,6 +110,7 @@ export const task: Task<Args> = {
 			const changeset_adder = await create_changeset_adder(package_json.name, dir, message, bump);
 			await spawn_cli('changeset', ['add', '--empty']);
 			await changeset_adder();
+			// TODO BLOCK git commit with message
 		} else {
 			await spawn_cli('changeset');
 			await spawn('git', ['add', dir]);
