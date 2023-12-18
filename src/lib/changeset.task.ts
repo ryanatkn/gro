@@ -8,7 +8,7 @@ import {readdir} from 'node:fs/promises';
 
 import {Task_Error, type Task} from './task.js';
 import {exists} from './fs.js';
-import {Package_Json, load_package_json, parse_repo_url} from './package_json.js';
+import {load_package_json} from './package_json.js';
 import {find_cli, spawn_cli} from './cli.js';
 
 const RESTRICTED_ACCESS = 'restricted';
@@ -127,10 +127,12 @@ const create_changeset_adder = async (
 	message: string,
 	bump: Changeset_Bump,
 ) => {
-	const paths_before = await readdir(dir);
+	const filenames_before = await readdir(dir);
 	return async () => {
-		const paths_after = await readdir(dir);
-		const path = paths_after.find((p) => !paths_before.includes(p))!;
+		const filenames_after = await readdir(dir);
+		const filename = filenames_after.find((p) => !filenames_before.includes(p));
+		if (!filename) throw Error('expected to find a new changeset file');
+		const path = join(dir, filename);
 		const contents = create_new_changeset(repo_name, message, bump);
 		await writeFile(path, contents, 'utf8');
 		await spawn('git', ['add', path]);
