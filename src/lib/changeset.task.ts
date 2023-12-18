@@ -21,6 +21,7 @@ export type Changeset_Bump = z.infer<typeof Changeset_Bump>;
 
 export const Args = z
 	.object({
+		// TODO BLOCK bad error message if bump doesnt check
 		/**
 		 * This API is designed for convenience in manual usage, not clarity.
 		 */
