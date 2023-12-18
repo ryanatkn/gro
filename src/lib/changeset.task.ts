@@ -21,15 +21,12 @@ export type Changeset_Bump = z.infer<typeof Changeset_Bump>;
 
 export const Args = z
 	.object({
-		// TODO BLOCK bad error message if bump doesnt check
 		/**
-		 * This API is designed for convenience in manual usage, not clarity.
+		 * The optional rest args get joined with a space to form the `message`.
 		 */
-		_: z
-			.union([z.tuple([]), z.tuple([z.string()]), z.tuple([z.string(), Changeset_Bump])], {
-				description: 'the commands to pass to changeset',
-			})
-			.default([]),
+		_: z.array(z.string(), {description: 'the message for the changeset and commit'}).default([]),
+		minor: z.boolean({description: 'bump the minor version'}).default(false),
+		major: z.boolean({description: 'bump the major version'}).default(false),
 		dir: z.string({description: 'changeset dir'}).default(CHANGESET_DIR),
 		access: z
 			.enum([RESTRICTED_ACCESS, PUBLIC_ACCESS], {
@@ -47,18 +44,29 @@ export const Args = z
 	.strict();
 export type Args = z.infer<typeof Args>;
 
+/**
+ * Calls the `changeset` CLI with some simple automations.
+ * This API is designed for convenient manual usage, not clarity or normality.
+ *
+ * Usage:
+ * - gro changeset some commit message
+ * - gro changeset some commit message --minor
+ * - gro changeset "some commit message" --minor
+ */
 export const task: Task<Args> = {
 	summary: 'call changeset with gro patterns',
 	Args,
 	run: async (ctx): Promise<void> => {
 		const {
 			invoke_task,
-			args: {_, dir, access: access_arg, changelog, install},
+			args: {_, minor, major, dir, access: access_arg, changelog, install},
 			log,
 		} = ctx;
 
-		const message = _[0]; // TODO why can't these be destructured? dom.iterable is already included
-		const bump = _[1] ?? 'patch';
+		const message = _.join(' ');
+
+		if (minor && major) throw new Task_Error('cannot bump both minor and major');
+		const bump: Changeset_Bump = minor ? 'minor' : major ? 'major' : 'patch';
 
 		if (!(await find_cli('changeset'))) {
 			throw new Task_Error(
@@ -87,6 +95,8 @@ export const task: Task<Args> = {
 				});
 			}
 
+			await spawn('git', ['add', dir]);
+
 			if (install) {
 				await spawn('npm', ['i', '-D', changelog]);
 			}
@@ -101,9 +111,8 @@ export const task: Task<Args> = {
 			await changeset_adder();
 		} else {
 			await spawn_cli('changeset');
+			await spawn('git', ['add', dir]);
 		}
-
-		await spawn('git', ['add', dir]);
 	},
 };
 
