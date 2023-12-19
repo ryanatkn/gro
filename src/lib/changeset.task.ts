@@ -10,7 +10,7 @@ import {Task_Error, type Task} from './task.js';
 import {exists} from './fs.js';
 import {load_package_json} from './package_json.js';
 import {find_cli, spawn_cli} from './cli.js';
-import {DEFAULT_GIT_ORIGIN, Git_Origin, git_push_to_create} from './git.js';
+import {Git_Origin, git_push_to_create} from './git.js';
 
 const RESTRICTED_ACCESS = 'restricted';
 const PUBLIC_ACCESS = 'public';
@@ -42,7 +42,7 @@ export const Args = z
 		'no-install': z
 			.boolean({description: 'opt out of npm installing the changelog package'})
 			.default(false),
-		origin: Git_Origin.describe('git origin to deploy to').default(DEFAULT_GIT_ORIGIN),
+		origin: Git_Origin.describe('git origin to deploy to').default('origin'),
 	})
 	.strict();
 export type Args = z.infer<typeof Args>;

@@ -14,8 +14,6 @@ export type Git_Origin = z.infer<Flavored<typeof Git_Origin, 'Git_Origin'>>;
 export const Git_Branch = z.string();
 export type Git_Branch = z.infer<Flavored<typeof Git_Branch, 'Git_Branch'>>;
 
-export const DEFAULT_GIT_ORIGIN = 'origin';
-
 /**
  * Returns the current git branch name or throws if something goes wrong.
  */
