@@ -2,6 +2,7 @@ import {z} from 'zod';
 
 import type {Task} from './task.js';
 import {has_library} from './gro_plugin_library.js';
+import {has_sveltekit_frontend} from './gro_plugin_sveltekit_frontend.js';
 
 export const Args = z.object({}).strict();
 export type Args = z.infer<typeof Args>;
@@ -14,6 +15,9 @@ export const task: Task<Args> = {
 		if (publish) {
 			await invoke_task('publish'); // TODO use `to_forwarded_args`
 		}
-		await invoke_task('deploy', {build: !publish}); // TODO use `to_forwarded_args`
+		const deploy = await has_sveltekit_frontend();
+		if (deploy) {
+			await invoke_task('deploy', {build: !publish}); // TODO use `to_forwarded_args`
+		}
 	},
 };
