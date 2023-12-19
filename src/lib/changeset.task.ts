@@ -37,7 +37,6 @@ export const Args = z
 		changelog: z
 			.string({description: 'changeset "changelog" config value'})
 			.default('@changesets/changelog-git'),
-
 		install: z.boolean({description: 'dual of no-install'}).default(true),
 		'no-install': z
 			.boolean({description: 'opt out of npm installing the changelog package'})
