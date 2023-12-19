@@ -28,16 +28,17 @@ export const git_current_branch_name = async (options?: SpawnOptions): Promise<s
  * @returns a boolean indicating if the remote git branch exists
  */
 export const git_remote_branch_exists = async (
-	origin: Git_Origin,
-	branch: Git_Branch,
+	origin: Git_Origin = 'origin',
+	branch?: Git_Branch,
 	options?: SpawnOptions,
 ): Promise<boolean> => {
+	const final_branch = branch ?? (await git_current_branch_name(options));
 	if (options?.cwd && !(await exists(to_file_path(options.cwd)))) {
 		return false;
 	}
 	const result = await spawn(
 		'git',
-		['ls-remote', '--exit-code', '--heads', origin, 'refs/heads/' + branch],
+		['ls-remote', '--exit-code', '--heads', origin, 'refs/heads/' + final_branch],
 		options,
 	);
 	if (result.ok) {
@@ -46,7 +47,7 @@ export const git_remote_branch_exists = async (
 		return false;
 	} else {
 		throw Error(
-			`git_remote_branch_exists failed for origin '${origin}' and branch '${branch}' with code ${result.code}`,
+			`git_remote_branch_exists failed for origin '${origin}' and branch '${final_branch}' with code ${result.code}`,
 		);
 	}
 };
@@ -89,7 +90,7 @@ export const git_check_clean_workspace = async (options?: SpawnOptions): Promise
  * Calls `git fetch` and throws if anything goes wrong.
  */
 export const git_fetch = async (
-	origin: Git_Origin,
+	origin: Git_Origin = 'origin',
 	branch?: Git_Branch,
 	options?: SpawnOptions,
 ): Promise<void> => {
@@ -126,7 +127,7 @@ export const git_checkout = async (
  * Calls `git pull` and throws if anything goes wrong.
  */
 export const git_pull = async (
-	origin: Git_Origin,
+	origin: Git_Origin = 'origin',
 	branch?: Git_Branch,
 	options?: SpawnOptions,
 ): Promise<void> => {
@@ -146,9 +147,10 @@ export const git_push = async (
 	branch: Git_Branch,
 	options?: SpawnOptions,
 ): Promise<void> => {
-	const result = await spawn('git', ['push', origin, branch], options);
+	const final_branch = branch ?? (await git_current_branch_name(options));
+	const result = await spawn('git', ['push', origin, final_branch], options);
 	if (!result.ok) {
-		throw Error(`git_push failed for branch '${branch}' with code ${result.code}`);
+		throw Error(`git_push failed for branch '${final_branch}' with code ${result.code}`);
 	}
 };
 
@@ -156,7 +158,7 @@ export const git_push = async (
  * Calls `git push` and throws if anything goes wrong.
  */
 export const git_push_to_create = async (
-	origin: Git_Origin,
+	origin: Git_Origin = 'origin',
 	branch?: Git_Branch,
 	options?: SpawnOptions,
 ): Promise<void> => {
