@@ -123,7 +123,7 @@ export const task: Task<Args> = {
 };
 
 /**
- * TODO ideally this wouldn't exist and we'd use CLI flags, but it doesn't exist yet
+ * TODO ideally this wouldn't exist and we'd use CLI flags, but they doesn't exist yet
  * @see https://github.com/changesets/changesets/pull/1121
  */
 const create_changeset_adder = async (
