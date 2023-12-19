@@ -14,6 +14,8 @@ export type Git_Origin = z.infer<Flavored<typeof Git_Origin, 'Git_Origin'>>;
 export const Git_Branch = z.string();
 export type Git_Branch = z.infer<Flavored<typeof Git_Branch, 'Git_Branch'>>;
 
+export const DEFAULT_GIT_ORIGIN = 'origin';
+
 /**
  * Returns the current git branch name or throws if something goes wrong.
  */
@@ -157,12 +159,20 @@ export const git_push = async (
  */
 export const git_push_to_create = async (
 	origin: Git_Origin,
-	branch: Git_Branch,
+	branch?: Git_Branch,
 	options?: SpawnOptions,
 ): Promise<void> => {
-	const result = await spawn('git', ['push', '-u', origin, branch], options);
+	const final_branch = branch ?? (await git_current_branch_name(options));
+	const push_args = ['push'];
+	if (await git_remote_branch_exists(origin, final_branch, options)) {
+		push_args.push(origin);
+	} else {
+		push_args.push('-u', origin);
+	}
+	push_args.push(final_branch);
+	const result = await spawn('git', push_args, options);
 	if (!result.ok) {
-		throw Error(`git_push failed for branch '${branch}' with code ${result.code}`);
+		throw Error(`git_push failed for branch '${final_branch}' with code ${result.code}`);
 	}
 };
 

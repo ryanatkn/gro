@@ -10,6 +10,7 @@ import {Task_Error, type Task} from './task.js';
 import {exists} from './fs.js';
 import {load_package_json} from './package_json.js';
 import {find_cli, spawn_cli} from './cli.js';
+import {DEFAULT_GIT_ORIGIN, Git_Origin, git_push_to_create} from './git.js';
 
 const RESTRICTED_ACCESS = 'restricted';
 const PUBLIC_ACCESS = 'public';
@@ -36,10 +37,12 @@ export const Args = z
 		changelog: z
 			.string({description: 'changeset "changelog" config value'})
 			.default('@changesets/changelog-git'),
+
 		install: z.boolean({description: 'dual of no-install'}).default(true),
 		'no-install': z
 			.boolean({description: 'opt out of npm installing the changelog package'})
 			.default(false),
+		origin: Git_Origin.describe('git origin to deploy to').default(DEFAULT_GIT_ORIGIN),
 	})
 	.strict();
 export type Args = z.infer<typeof Args>;
@@ -59,7 +62,7 @@ export const task: Task<Args> = {
 	run: async (ctx): Promise<void> => {
 		const {
 			invoke_task,
-			args: {_, minor, major, dir, access: access_arg, changelog, install},
+			args: {_, minor, major, dir, access: access_arg, changelog, install, origin},
 			log,
 		} = ctx;
 
@@ -110,7 +113,8 @@ export const task: Task<Args> = {
 			const changeset_adder = await create_changeset_adder(package_json.name, dir, message, bump);
 			await spawn_cli('changeset', ['add', '--empty']);
 			await changeset_adder();
-			// TODO BLOCK git commit with message
+			await spawn('git', ['commit', '-m', '"' + message.replaceAll('"', '\\"') + '"']);
+			await git_push_to_create(origin);
 		} else {
 			await spawn_cli('changeset');
 			await spawn('git', ['add', dir]);
@@ -132,8 +136,12 @@ const create_changeset_adder = async (
 	return async () => {
 		const filenames_after = await readdir(dir);
 		const filenames_added = filenames_after.filter((p) => !filenames_before.includes(p));
-		if (!filenames_added.length) throw Error('expected to find a new changeset file');
-		if (filenames_added.length !== 1) throw Error('expected to find exactly one new changeset file');
+		if (!filenames_added.length) {
+			throw Error('expected to find a new changeset file');
+		}
+		if (filenames_added.length !== 1) {
+			throw Error('expected to find exactly one new changeset file');
+		}
 		const path = join(dir, filenames_added[0]);
 		const contents = create_new_changeset(repo_name, message, bump);
 		await writeFile(path, contents, 'utf8');
