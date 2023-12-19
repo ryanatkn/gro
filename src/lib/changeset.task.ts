@@ -67,7 +67,9 @@ export const task: Task<Args> = {
 
 		const message = _.join(' ');
 
+		if (!message && (minor || major)) throw new Task_Error('cannot bump version without a message');
 		if (minor && major) throw new Task_Error('cannot bump both minor and major');
+
 		const bump: Changeset_Bump = minor ? 'minor' : major ? 'major' : 'patch';
 
 		if (!(await find_cli('changeset'))) {
