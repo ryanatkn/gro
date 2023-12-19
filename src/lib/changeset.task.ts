@@ -131,9 +131,10 @@ const create_changeset_adder = async (
 	const filenames_before = await readdir(dir);
 	return async () => {
 		const filenames_after = await readdir(dir);
-		const filename = filenames_after.find((p) => !filenames_before.includes(p));
-		if (!filename) throw Error('expected to find a new changeset file');
-		const path = join(dir, filename);
+		const filenames_added = filenames_after.filter((p) => !filenames_before.includes(p));
+		if (!filenames_added.length) throw Error('expected to find a new changeset file');
+		if (filenames_added.length !== 1) throw Error('expected to find exactly one new changeset file');
+		const path = join(dir, filenames_added[0]);
 		const contents = create_new_changeset(repo_name, message, bump);
 		await writeFile(path, contents, 'utf8');
 		await spawn('git', ['add', path]);
