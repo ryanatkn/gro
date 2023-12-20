@@ -284,16 +284,9 @@ export const src_json = {
 		'./changeset.task.js': {
 			path: 'changeset.task.ts',
 			declarations: [
+				{name: 'Changeset_Bump', kind: 'variable'},
 				{name: 'Args', kind: 'variable'},
 				{name: 'task', kind: 'variable'},
-				{name: 'Changeset_Callback', kind: 'type'},
-				{name: 'Update_Written_Config', kind: 'type'},
-				{name: 'update_changeset_config', kind: 'function'},
-				{name: 'load_changeset_config', kind: 'function'},
-				{name: 'load_changeset_config_contents', kind: 'function'},
-				{name: 'write_changeset_config', kind: 'function'},
-				{name: 'serialize_changeset_config', kind: 'function'},
-				{name: 'parse_changeset_config', kind: 'function'},
 			],
 		},
 		'./check.task.js': {
@@ -542,6 +535,7 @@ export const src_json = {
 		'./gro_plugin_sveltekit_frontend.js': {
 			path: 'gro_plugin_sveltekit_frontend.ts',
 			declarations: [
+				{name: 'has_sveltekit_frontend', kind: 'function'},
 				{name: 'Options', kind: 'type'},
 				{name: 'Host_Target', kind: 'type'},
 				{name: 'plugin', kind: 'function'},
@@ -549,10 +543,7 @@ export const src_json = {
 		},
 		'./gro.config.default.js': {
 			path: 'gro.config.default.ts',
-			declarations: [
-				{name: 'default', kind: 'function'},
-				{name: 'has_sveltekit_frontend', kind: 'function'},
-			],
+			declarations: [{name: 'default', kind: 'function'}],
 		},
 		'./gro.js': {path: 'gro.ts', declarations: []},
 		'./hash.js': {path: 'hash.ts', declarations: [{name: 'to_hash', kind: 'function'}]},

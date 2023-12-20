@@ -34,7 +34,6 @@ import {
 
 // TODO customize
 const cwd = process.cwd();
-const ORIGIN = 'origin';
 const INITIAL_FILE_PATH = '.gitkeep';
 const INITIAL_FILE_CONTENTS = '';
 const DEPLOY_DIR = GRO_DIRNAME + '/deploy';
@@ -48,7 +47,7 @@ export const Args = z
 			SOURCE_BRANCH,
 		),
 		target: Git_Branch.describe('git target branch to deploy to').default(TARGET_BRANCH),
-		origin: Git_Origin.describe('git origin to deploy to').default(ORIGIN),
+		origin: Git_Origin.describe('git origin to deploy to').default('origin'),
 		deploy_dir: z.string({description: 'the deploy output directory'}).default(DEPLOY_DIR),
 		build_dir: z
 			.string({description: 'the SvelteKit build directory'})

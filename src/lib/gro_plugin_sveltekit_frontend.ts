@@ -11,6 +11,9 @@ import {Task_Error} from './task.js';
 import {spawn_cli} from './cli.js';
 import {type Map_Src_Json, serialize_src_json, create_src_json} from './src_json.js';
 import {DEFAULT_EXPORTS_EXCLUDER} from './config.js';
+import {SVELTEKIT_CONFIG_FILENAME} from './paths.js';
+
+export const has_sveltekit_frontend = (): Promise<boolean> => exists(SVELTEKIT_CONFIG_FILENAME);
 
 export interface Options {
 	/**

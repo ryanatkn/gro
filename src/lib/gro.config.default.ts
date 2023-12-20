@@ -1,8 +1,7 @@
 import type {Create_Gro_Config} from './config.js';
-import {exists} from './fs.js';
 import {has_library} from './gro_plugin_library.js';
 import {has_server} from './gro_plugin_server.js';
-import {SVELTEKIT_CONFIG_FILENAME} from './paths.js';
+import {has_sveltekit_frontend} from './gro_plugin_sveltekit_frontend.js';
 
 /**
  * This is the default config that's passed to `gro.config.ts`
@@ -36,5 +35,3 @@ const config: Create_Gro_Config = async (cfg) => {
 };
 
 export default config;
-
-export const has_sveltekit_frontend = (): Promise<boolean> => exists(SVELTEKIT_CONFIG_FILENAME);
