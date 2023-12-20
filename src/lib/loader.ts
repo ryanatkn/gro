@@ -31,7 +31,6 @@ import {resolve_specifier} from './resolve_specifier.js';
 import {resolve_node_specifier} from './resolve_node_specifier.js';
 import type {Package_Json} from './package_json.js';
 
-
 // TODO sourcemaps, including esbuild, svelte, and the svelte preprocessors
 // TODO `import.meta.resolve` doesn't seem to be available in loaders?
 
