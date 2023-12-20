@@ -63,7 +63,10 @@ if (await exists(gro_bin_path)) {
 	}
 }
 
+
 const result = await spawn('node', [
+	// '--import',
+	// 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("/home/lap/dev/gro/dist/loader.js", pathToFileURL("./"));',
 	'--loader',
 	join(path, '../loader.js'),
 	path,

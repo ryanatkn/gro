@@ -16,7 +16,7 @@ export const package_json = {
 	repository: {type: 'git', url: 'git+https://github.com/grogarden/gro.git'},
 	bugs: {url: 'https://github.com/grogarden/gro/issues', email: 'mail@ryanatkn.com'},
 	type: 'module',
-	engines: {node: '>=20.7'},
+	engines: {node: '>=20.10'},
 	scripts: {
 		build: 'rm -rf .gro dist && svelte-package && chmod +x ./dist/gro.js && npm link -f',
 		start: 'gro dev',

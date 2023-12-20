@@ -24,7 +24,7 @@
   },
   "type": "module",
   "engines": {
-    "node": ">=20.7"
+    "node": ">=20.10"
   },
   "scripts": {
     "build": "rm -rf .gro dist && svelte-package && chmod +x ./dist/gro.js && npm link -f",
