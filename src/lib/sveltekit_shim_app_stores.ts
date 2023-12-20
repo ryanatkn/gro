@@ -18,6 +18,7 @@ export const page: typeof base_page = readable({
 	status: 200,
 	error: null,
 	data: {},
+	state: {},
 	form: {},
 });
 export const updated: typeof base_updated = readable(true) as any;
