@@ -1,5 +1,16 @@
 # @grogarden/gro
 
+## 0.106.0
+
+### Minor Changes
+
+- upgrade node@20.10 ([#441](https://github.com/grogarden/gro/pull/441))
+
+### Patch Changes
+
+- use `--import` instead of `--loader` ([#441](https://github.com/grogarden/gro/pull/441))
+- add message and commit automation support to `gro changeset` ([#440](https://github.com/grogarden/gro/pull/440))
+
 ## 0.105.5
 
 ### Patch Changes
