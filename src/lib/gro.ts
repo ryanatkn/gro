@@ -67,9 +67,10 @@ const loader_path = join(path, '../loader.js');
 
 const result = await spawn('node', [
 	'--import',
-	`data:text/javascript,import {register} from "node:module"; import {pathToFileURL} from "node:url"; register("${loader_path}", pathToFileURL("./"));`,
-	// '--loader',
-	// loader_path,
+	`data:text/javascript,
+		import {register} from "node:module";
+		import {pathToFileURL} from "node:url";
+		register("${loader_path}", pathToFileURL("./"));`,
 	path,
 	...process.argv.slice(2),
 ]);
