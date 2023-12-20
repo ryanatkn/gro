@@ -79,7 +79,7 @@ It includes:
 
 ## install
 
-> depends on node >=20.7
+> depends on node >=20.10
 
 Typical usage installs [@grogarden/gro](https://www.npmjs.com/package/@grogarden/gro)
 as a dev dependency:
