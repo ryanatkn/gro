@@ -1,5 +1,11 @@
 # @grogarden/gro
 
+## 0.107.0
+
+### Minor Changes
+
+- upgrade @sveltejs/kit@2 with @esbuild@0.19 ([#442](https://github.com/grogarden/gro/pull/442)) ([9b0082e](https://github.com/grogarden/gro/commit/9b0082e))
+
 ## 0.106.0
 
 ### Minor Changes
