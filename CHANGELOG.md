@@ -1,5 +1,11 @@
 # @grogarden/gro
 
+## 0.107.1
+
+### Patch Changes
+
+- fix SvelteKit esbuild plugin to include `resolveDir` ([32da839](https://github.com/grogarden/gro/commit/32da839))
+
 ## 0.107.0
 
 ### Minor Changes
