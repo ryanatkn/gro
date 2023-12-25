@@ -1,5 +1,11 @@
 # @grogarden/gro
 
+## 0.107.3
+
+### Patch Changes
+
+- upgrade @grogarden/util ([dfcbe4c](https://github.com/grogarden/gro/commit/dfcbe4c))
+
 ## 0.107.2
 
 ### Patch Changes
