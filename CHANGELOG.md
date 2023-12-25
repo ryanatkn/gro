@@ -1,5 +1,11 @@
 # @grogarden/gro
 
+## 0.107.2
+
+### Patch Changes
+
+- upgrade @grogarden/util ([4baf889](https://github.com/grogarden/gro/commit/4baf889))
+
 ## 0.107.1
 
 ### Patch Changes
