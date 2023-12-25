@@ -35,7 +35,7 @@ export const package_json = {
 	],
 	files: ['dist'],
 	dependencies: {
-		'@grogarden/util': '^0.18.1',
+		'@grogarden/util': '^0.18.2',
 		'@ryanatkn/json-schema-to-typescript': '^11.1.5',
 		chokidar: '^3.5.3',
 		dotenv: '^16.3.1',
