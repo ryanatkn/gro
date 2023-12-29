@@ -2,15 +2,10 @@ import {
 	compile,
 	type Options as Json_SchemaToTypeScriptOptions,
 } from '@ryanatkn/json-schema-to-typescript';
-import {strip_end} from '@grogarden/util/string.js';
 import {traverse} from '@grogarden/util/object.js';
 
 import type {Gen_Context, Raw_Gen_Result} from './gen.js';
-import {
-	GEN_SCHEMA_IDENTIFIER_SUFFIX,
-	type Gen_Module_Meta,
-	type Schema_Gen_Module,
-} from './gen_module.js';
+import {to_gen_schema_name, type Gen_Module_Meta, type Schema_Gen_Module} from './gen_module.js';
 import {normalize_type_imports} from './type_imports.js';
 import {infer_schema_types, is_json_schema, type Json_Schema} from './schema.js';
 import {to_root_path} from './paths.js';
@@ -38,35 +33,38 @@ const run_schema_gen = async (
 	mod: Schema_Gen_Module,
 	options: Partial<Json_SchemaToTypeScriptOptions>,
 ): Promise<{imports: string[]; types: string[]}> => {
-	const raw_imports: string[] = [];
-	const types: string[] = [];
+	const compiled = await Promise.all(
+		to_schema_info_from_module(mod).map(async (schema_info) => {
+			// both `infer_schema_types` and `json-schema-to-typescript` mutate the schema, so clone first
+			const schema = structuredClone(schema_info.schema);
+			infer_schema_types(schema, ctx); // process the schema, adding inferred data
 
-	for (const schema_info of to_schema_info_from_module(mod)) {
-		// both `infer_schema_types` and `json-schema-to-typescript` mutate the schema, so clone first
-		const schema = structuredClone(schema_info.schema);
-		infer_schema_types(schema, ctx); // process the schema, adding inferred data
+			// Compile the schema to TypeScript.
+			const identifier = to_gen_schema_name(schema_info.identifier);
+			const type = await compile(structuredClone(schema), identifier, {
+				bannerComment: '',
+				format: false,
+				...options,
+			});
 
-		// Compile the schema to TypeScript.
-		const identifier = strip_end(schema_info.identifier, GEN_SCHEMA_IDENTIFIER_SUFFIX); // convenient to avoid name collisions
-		// eslint-disable-next-line no-await-in-loop
-		const result = await compile(structuredClone(schema), identifier, {
-			bannerComment: '',
-			format: false,
-			...options,
-		});
-		types.push(result);
-
-		// Walk the original schema and add any imports with `tsImport`.
-		traverse(schema, (key, v) => {
-			if (key === 'tsImport') {
-				if (typeof v === 'string') {
-					raw_imports.push(v);
-				} else if (Array.isArray(v)) {
-					raw_imports.push(...v);
+			// Walk the original schema and add any imports with `tsImport`.
+			const raw_imports: string[] = [];
+			traverse(schema, (key, v) => {
+				if (key === 'tsImport') {
+					if (typeof v === 'string') {
+						raw_imports.push(v);
+					} else if (Array.isArray(v)) {
+						raw_imports.push(...v);
+					}
 				}
-			}
-		});
-	}
+			});
+
+			return {type, raw_imports};
+		}),
+	);
+
+	const types = compiled.map((c) => c.type);
+	const raw_imports = compiled.map((c) => c.raw_imports).flat();
 
 	const imports = await normalize_type_imports(raw_imports, ctx.origin_id);
 
