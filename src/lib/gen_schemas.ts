@@ -2,16 +2,10 @@ import {
 	compile,
 	type Options as Json_SchemaToTypeScriptOptions,
 } from '@ryanatkn/json-schema-to-typescript';
-import {strip_end} from '@grogarden/util/string.js';
 import {traverse} from '@grogarden/util/object.js';
 
 import type {Gen_Context, Raw_Gen_Result} from './gen.js';
-import {
-	GEN_SCHEMA_IDENTIFIER_SUFFIX,
-	to_gen_schema_name,
-	type Gen_Module_Meta,
-	type Schema_Gen_Module,
-} from './gen_module.js';
+import {to_gen_schema_name, type Gen_Module_Meta, type Schema_Gen_Module} from './gen_module.js';
 import {normalize_type_imports} from './type_imports.js';
 import {infer_schema_types, is_json_schema, type Json_Schema} from './schema.js';
 import {to_root_path} from './paths.js';
@@ -42,7 +36,7 @@ const run_schema_gen = async (
 	const raw_imports: string[] = [];
 	const types: string[] = [];
 
-	// TODO BLOCK could parallelize
+	// TODO BLOCK could parallelize but need to preserve order, map and flatten
 	for (const schema_info of to_schema_info_from_module(mod)) {
 		// both `infer_schema_types` and `json-schema-to-typescript` mutate the schema, so clone first
 		const schema = structuredClone(schema_info.schema);

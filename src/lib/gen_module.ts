@@ -24,8 +24,16 @@ export const GEN_SCHEMA_FILE_PATTERN = '.' + GEN_SCHEMA_FILE_PATTERN_TEXT + '.';
 export const GEN_SCHEMA_PATH_SUFFIX = GEN_SCHEMA_FILE_PATTERN + 'ts';
 export const GEN_SCHEMA_IDENTIFIER_SUFFIX = 'Schema';
 
-export const to_gen_schema_name = (identifier: string): string =>
-	strip_end(identifier, GEN_SCHEMA_IDENTIFIER_SUFFIX);
+/**
+ * Convert a schema identifer to the final type identifier, e.g. `A_Schema` to `A`.
+ */
+export const to_gen_schema_name = (identifier: string): string => {
+	const full_suffix = '_' + GEN_SCHEMA_IDENTIFIER_SUFFIX;
+	return strip_end(
+		identifier,
+		identifier.endsWith(full_suffix) ? full_suffix : GEN_SCHEMA_IDENTIFIER_SUFFIX,
+	);
+};
 
 export type Gen_Module_Type = 'basic' | 'schema';
 export type Gen_Module = Basic_Gen_Module | Schema_Gen_Module;
