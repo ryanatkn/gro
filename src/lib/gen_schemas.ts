@@ -33,36 +33,38 @@ const run_schema_gen = async (
 	mod: Schema_Gen_Module,
 	options: Partial<Json_SchemaToTypeScriptOptions>,
 ): Promise<{imports: string[]; types: string[]}> => {
-	const raw_imports: string[] = [];
-	const types: string[] = [];
+	const compiled = await Promise.all(
+		to_schema_info_from_module(mod).map(async (schema_info) => {
+			// both `infer_schema_types` and `json-schema-to-typescript` mutate the schema, so clone first
+			const schema = structuredClone(schema_info.schema);
+			infer_schema_types(schema, ctx); // process the schema, adding inferred data
 
-	// TODO BLOCK could parallelize but need to preserve order, map and flatten
-	for (const schema_info of to_schema_info_from_module(mod)) {
-		// both `infer_schema_types` and `json-schema-to-typescript` mutate the schema, so clone first
-		const schema = structuredClone(schema_info.schema);
-		infer_schema_types(schema, ctx); // process the schema, adding inferred data
+			// Compile the schema to TypeScript.
+			const identifier = to_gen_schema_name(schema_info.identifier);
+			const type = await compile(structuredClone(schema), identifier, {
+				bannerComment: '',
+				format: false,
+				...options,
+			});
 
-		// Compile the schema to TypeScript.
-		const identifier = to_gen_schema_name(schema_info.identifier);
-		// eslint-disable-next-line no-await-in-loop
-		const result = await compile(structuredClone(schema), identifier, {
-			bannerComment: '',
-			format: false,
-			...options,
-		});
-		types.push(result);
-
-		// Walk the original schema and add any imports with `tsImport`.
-		traverse(schema, (key, v) => {
-			if (key === 'tsImport') {
-				if (typeof v === 'string') {
-					raw_imports.push(v);
-				} else if (Array.isArray(v)) {
-					raw_imports.push(...v);
+			// Walk the original schema and add any imports with `tsImport`.
+			const raw_imports: string[] = [];
+			traverse(schema, (key, v) => {
+				if (key === 'tsImport') {
+					if (typeof v === 'string') {
+						raw_imports.push(v);
+					} else if (Array.isArray(v)) {
+						raw_imports.push(...v);
+					}
 				}
-			}
-		});
-	}
+			});
+
+			return {type, raw_imports};
+		}),
+	);
+
+	const types = compiled.map((c) => c.type);
+	const raw_imports = compiled.map((c) => c.raw_imports).flat();
 
 	const imports = await normalize_type_imports(raw_imports, ctx.origin_id);
 
