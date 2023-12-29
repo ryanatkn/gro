@@ -1,5 +1,11 @@
 # @grogarden/gro
 
+## 0.107.4
+
+### Patch Changes
+
+- support schema identifiers with underscores ([#443](https://github.com/grogarden/gro/pull/443))
+
 ## 0.107.3
 
 ### Patch Changes
