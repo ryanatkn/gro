@@ -6,11 +6,7 @@ import {Unreachable_Error} from '@grogarden/util/error.js';
 import type {Options as Json_Schema_To_Typescript_Options} from '@ryanatkn/json-schema-to-typescript';
 import {strip_end} from '@grogarden/util/string.js';
 
-import {
-	GEN_SCHEMA_IDENTIFIER_SUFFIX,
-	type Gen_Module_Meta,
-	GEN_SCHEMA_PATH_SUFFIX,
-} from './gen_module.js';
+import {type Gen_Module_Meta, GEN_SCHEMA_PATH_SUFFIX, to_gen_schema_name} from './gen_module.js';
 import {
 	type Gen_Results,
 	type Gen_Module_Result,
@@ -135,7 +131,7 @@ export const to_gen_context_imports = (gen_modules: Gen_Module_Meta[]): Record<s
 		if (gen_module.type === 'schema') {
 			const import_path = to_gen_import_path(gen_module.id);
 			for (const identifier of Object.keys(gen_module.mod)) {
-				const name = strip_end(identifier, GEN_SCHEMA_IDENTIFIER_SUFFIX);
+				const name = to_gen_schema_name(identifier);
 				imports[name] = `import type {${name}} from '${import_path}';`;
 			}
 		}

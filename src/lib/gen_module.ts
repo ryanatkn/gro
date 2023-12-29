@@ -1,4 +1,5 @@
 import {readFile} from 'node:fs/promises';
+import {strip_end} from '@grogarden/util/string.js';
 
 import {
 	type Module_Meta,
@@ -22,6 +23,9 @@ export const GEN_SCHEMA_FILE_PATTERN_TEXT = 'schema';
 export const GEN_SCHEMA_FILE_PATTERN = '.' + GEN_SCHEMA_FILE_PATTERN_TEXT + '.';
 export const GEN_SCHEMA_PATH_SUFFIX = GEN_SCHEMA_FILE_PATTERN + 'ts';
 export const GEN_SCHEMA_IDENTIFIER_SUFFIX = 'Schema';
+
+export const to_gen_schema_name = (identifier: string): string =>
+	strip_end(identifier, GEN_SCHEMA_IDENTIFIER_SUFFIX);
 
 export type Gen_Module_Type = 'basic' | 'schema';
 export type Gen_Module = Basic_Gen_Module | Schema_Gen_Module;
