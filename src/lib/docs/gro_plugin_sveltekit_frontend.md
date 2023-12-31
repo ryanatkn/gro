@@ -1,16 +1,17 @@
 # SvelteKit frontend plugin
 
-Gro's [SvelteKit frontend plugin](/src/lib/gro_plugin_sveltekit_frontend.ts)
+Gro's [SvelteKit frontend plugin](/src/lib/gro_plugin_sveltekit_app.ts)
 calls `vite dev` and `vite build` with some additional behaviors.
 
 ```ts
 // gro.config.ts
 import type {Gro_ConfigCreator} from '@grogarden/gro';
+import {gro_plugin_sveltekit_app} from '@grogarden/gro/gro_plugin_sveltekit_app.js';
 
 const config: Gro_ConfigCreator = async (cfg) => {
 	cfg.plugins = async () => [
 		// this is included in the default config for SvelteKit projects:
-		(await import('@grogarden/gro/gro_plugin_sveltekit_frontend.js')).plugin({
+		gro_plugin_sveltekit_app({
 			// host_target?: Host_Target;
 			// well_known_package_json?: boolean | Map_Package_Json;
 			// well_known_src_json?: boolean | Map_Src_Json;
@@ -22,7 +23,7 @@ const config: Gro_ConfigCreator = async (cfg) => {
 
 export default config;
 
-// src/lib/gro_plugin_sveltekit_frontend.ts
+// src/lib/gro_plugin_sveltekit_app.ts
 export type Host_Target = 'github_pages' | 'static' | 'node';
 
 export interface Map_Package_Json {

@@ -75,6 +75,17 @@ export interface Options {
 	 * @default 1000
 	 */
 	rebuild_throttle_delay?: number; // TODO could detect the backpressure problem and at least warn, shouldn't be a big deal
+	/**
+	 * The CLI command to run the server, like `'node'` or `'bun'` or `'deno'`.
+	 * Receives the path to the server js file as its argument.
+	 * @default 'node'
+	 */
+	cli_command?: string;
+	/**
+	 * Whether to run the server or not after building.
+	 * @default dev
+	 */
+	run?: boolean;
 }
 
 export interface Outpaths {
@@ -96,7 +107,7 @@ export interface Create_Outpaths {
 	(dev: boolean): Outpaths;
 }
 
-export const plugin = ({
+export const gro_plugin_server = ({
 	entry_points = [SERVER_SOURCE_ID],
 	dir = cwd(),
 	outpaths = (dev) => ({
@@ -110,6 +121,8 @@ export const plugin = ({
 	target = 'esnext',
 	esbuild_build_options = identity,
 	rebuild_throttle_delay = 1000,
+	cli_command = 'node',
+	run, // `dev` default is not available in this scope
 }: Options = {}): Plugin<Plugin_Context> => {
 	let build_ctx: esbuild.BuildContext;
 	let watcher: Watch_Node_Fs;
@@ -223,7 +236,9 @@ export const plugin = ({
 				throw Error(`Node server failed to start due to missing file: ${server_outpath}`);
 			}
 
-			server_process = spawn_restartable_process('node', [server_outpath]);
+			if (run ?? dev) {
+				server_process = spawn_restartable_process(cli_command, [server_outpath]);
+			}
 		},
 		teardown: async () => {
 			if (server_process) {

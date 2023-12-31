@@ -8,17 +8,17 @@ with additional functionality.
 Setting `"public": true` in `package.json` opts into
 behavior designed for public open source projects:
 
-- [`gro_plugin_sveltekit_frontend`](./gro_plugin_sveltekit_frontend.md)
+- [`gro_plugin_sveltekit_app`](./gro_plugin_sveltekit_app.md)
   copies `package.json` from your project root to your
   SvelteKit static directory at `.well-known/package.json` during `vite build`,
   mapping it with the optional
-  [`well_known_package_json` option](./gro_plugin_sveltekit_frontend.md#well_known_package_json)
-- `gro_plugin_sveltekit_frontend` outputs `.well-known/src.json`
+  [`well_known_package_json` option](./gro_plugin_sveltekit_app.md#well_known_package_json)
+- `gro_plugin_sveltekit_app` outputs `.well-known/src.json`
   using the `exports` property of `package.json` during `vite build`,
   containing additional information about the source modules,
   mapping it with the optional
-  [`well_known_src_json` option](./gro_plugin_sveltekit_frontend.md#well_known_src_json)
-- `gro_plugin_sveltekit_frontend` outputs `.well-known/src/` by
+  [`well_known_src_json` option](./gro_plugin_sveltekit_app.md#well_known_src_json)
+- `gro_plugin_sveltekit_app` outputs `.well-known/src/` by
   copying over `src/` filtered by `filter_well_known_src` during `vite build` -
   this is costly (usually more than doubling the final output size
   of the code files in bytes, not counting images and such),

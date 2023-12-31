@@ -13,7 +13,7 @@ import {type Map_Src_Json, serialize_src_json, create_src_json} from './src_json
 import {DEFAULT_EXPORTS_EXCLUDER} from './config.js';
 import {SVELTEKIT_CONFIG_FILENAME} from './paths.js';
 
-export const has_sveltekit_frontend = (): Promise<boolean> => exists(SVELTEKIT_CONFIG_FILENAME);
+export const has_sveltekit_app = (): Promise<boolean> => exists(SVELTEKIT_CONFIG_FILENAME);
 
 export interface Options {
 	/**
@@ -42,7 +42,7 @@ export interface Options {
 
 export type Host_Target = 'github_pages' | 'static' | 'node';
 
-export const plugin = ({
+export const gro_plugin_sveltekit_app = ({
 	host_target = 'github_pages',
 	well_known_package_json,
 	well_known_src_json,
@@ -50,7 +50,7 @@ export const plugin = ({
 }: Options = {}): Plugin<Plugin_Context> => {
 	let sveltekit_process: Spawned_Process | null = null;
 	return {
-		name: 'gro_plugin_sveltekit_frontend',
+		name: 'gro_plugin_sveltekit_app',
 		setup: async ({dev, watch, log}) => {
 			if (dev) {
 				// `vite dev` in development mode
