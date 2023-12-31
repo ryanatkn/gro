@@ -8,7 +8,7 @@ import {find_cli, spawn_cli} from './cli.js';
 
 export const plugin = (): Plugin<Plugin_Context> => {
 	return {
-		name: 'gro_plugin_library',
+		name: 'gro_plugin_sveltekit_library',
 		setup: async ({log}) => {
 			if ((await find_cli('svelte-package')) !== 'local') {
 				throw new Task_Error('Failed to find svelte-package, run `npm i -D @sveltejs/package`');

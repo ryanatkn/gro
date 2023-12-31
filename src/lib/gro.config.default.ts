@@ -1,5 +1,5 @@
 import type {Create_Gro_Config} from './config.js';
-import {has_library} from './gro_plugin_library.js';
+import {has_library} from './gro_plugin_sveltekit_library.js';
 import {has_server} from './gro_plugin_server.js';
 import {has_sveltekit_frontend} from './gro_plugin_sveltekit_app.js';
 
@@ -20,7 +20,7 @@ const config: Create_Gro_Config = async (cfg) => {
 	]);
 
 	cfg.plugins = async () => [
-		enable_library ? (await import('./gro_plugin_library.js')).plugin() : null,
+		enable_library ? (await import('./gro_plugin_sveltekit_library.js')).plugin() : null,
 		enable_server ? (await import('./gro_plugin_server.js')).plugin() : null,
 		enable_sveltekit_frontend
 			? (await import('./gro_plugin_sveltekit_app.js')).plugin({

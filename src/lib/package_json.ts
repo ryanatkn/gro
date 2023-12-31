@@ -15,7 +15,7 @@ import {
 	Email,
 } from './paths.js';
 import {search_fs} from './search_fs.js';
-import {has_library} from './gro_plugin_library.js';
+import {has_library} from './gro_plugin_sveltekit_library.js';
 
 // TODO move this where?
 export const transform_empty_object_to_undefined = (val: any): any => {

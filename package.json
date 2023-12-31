@@ -239,9 +239,9 @@
       "default": "./dist/gro_plugin_gen.js",
       "types": "./dist/gro_plugin_gen.d.ts"
     },
-    "./gro_plugin_library.js": {
-      "default": "./dist/gro_plugin_library.js",
-      "types": "./dist/gro_plugin_library.d.ts"
+    "./gro_plugin_sveltekit_library.js": {
+      "default": "./dist/gro_plugin_sveltekit_library.js",
+      "types": "./dist/gro_plugin_sveltekit_library.d.ts"
     },
     "./gro_plugin_server.js": {
       "default": "./dist/gro_plugin_server.js",

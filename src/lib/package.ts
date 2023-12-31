@@ -144,9 +144,9 @@ export const package_json = {
 			default: './dist/gro_plugin_gen.js',
 			types: './dist/gro_plugin_gen.d.ts',
 		},
-		'./gro_plugin_library.js': {
-			default: './dist/gro_plugin_library.js',
-			types: './dist/gro_plugin_library.d.ts',
+		'./gro_plugin_sveltekit_library.js': {
+			default: './dist/gro_plugin_sveltekit_library.js',
+			types: './dist/gro_plugin_sveltekit_library.d.ts',
 		},
 		'./gro_plugin_server.js': {
 			default: './dist/gro_plugin_server.js',
@@ -516,8 +516,8 @@ export const src_json = {
 				{name: 'plugin', kind: 'function'},
 			],
 		},
-		'./gro_plugin_library.js': {
-			path: 'gro_plugin_library.ts',
+		'./gro_plugin_sveltekit_library.js': {
+			path: 'gro_plugin_sveltekit_library.ts',
 			declarations: [
 				{name: 'plugin', kind: 'function'},
 				{name: 'has_library', kind: 'function'},
