@@ -96,7 +96,7 @@ export interface Create_Outpaths {
 	(dev: boolean): Outpaths;
 }
 
-export const plugin = ({
+export const gro_plugin_server = ({
 	entry_points = [SERVER_SOURCE_ID],
 	dir = cwd(),
 	outpaths = (dev) => ({

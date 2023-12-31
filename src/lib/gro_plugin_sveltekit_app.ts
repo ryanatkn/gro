@@ -42,7 +42,7 @@ export interface Options {
 
 export type Host_Target = 'github_pages' | 'static' | 'node';
 
-export const plugin = ({
+export const gro_plugin_sveltekit_app = ({
 	host_target = 'github_pages',
 	well_known_package_json,
 	well_known_src_json,

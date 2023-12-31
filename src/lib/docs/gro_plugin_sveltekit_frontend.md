@@ -6,11 +6,12 @@ calls `vite dev` and `vite build` with some additional behaviors.
 ```ts
 // gro.config.ts
 import type {Gro_ConfigCreator} from '@grogarden/gro';
+import {gro_plugin_sveltekit_app} from '@grogarden/gro/gro_plugin_sveltekit_app.js';
 
 const config: Gro_ConfigCreator = async (cfg) => {
 	cfg.plugins = async () => [
 		// this is included in the default config for SvelteKit projects:
-		(await import('@grogarden/gro/gro_plugin_sveltekit_app.js')).plugin({
+		gro_plugin_sveltekit_app({
 			// host_target?: Host_Target;
 			// well_known_package_json?: boolean | Map_Package_Json;
 			// well_known_src_json?: boolean | Map_Src_Json;

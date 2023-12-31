@@ -1,4 +1,6 @@
 import {create_empty_config} from './src/lib/config.js';
+import {gro_plugin_sveltekit_library} from './src/lib/gro_plugin_sveltekit_library.js';
+import {gro_plugin_sveltekit_app} from './src/lib/gro_plugin_sveltekit_app.js';
 
 /**
  * This is the config for the Gro project itself.
@@ -9,10 +11,11 @@ import {create_empty_config} from './src/lib/config.js';
 const config = create_empty_config();
 
 config.plugins = async () => [
-	(await import('./src/lib/gro_plugin_sveltekit_library.js')).plugin(),
-	(await import('./src/lib/gro_plugin_sveltekit_app.js')).plugin(),
+	gro_plugin_sveltekit_library(),
+	gro_plugin_sveltekit_app(),
 	// TODO replace with an esbuild plugin, see the module for more
-	// (await import('./lib/gro_plugin_gen.js')).plugin(),
+	// import {gro_plugin_gen} from './gro_plugin_gen.js';
+	// gro_plugin_gen(),
 ];
 
 export default config;

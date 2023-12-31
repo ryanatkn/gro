@@ -14,7 +14,7 @@ export const has_sveltekit_library = async (package_json?: Package_Json): Promis
 	// && exists(sveltekit_config.lib_path);
 };
 
-export const plugin = (): Plugin<Plugin_Context> => {
+export const gro_plugin_sveltekit_library = (): Plugin<Plugin_Context> => {
 	return {
 		name: 'gro_plugin_sveltekit_library',
 		setup: async ({log}) => {
