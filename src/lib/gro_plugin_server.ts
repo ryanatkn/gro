@@ -122,7 +122,7 @@ export const gro_plugin_server = ({
 	esbuild_build_options = identity,
 	rebuild_throttle_delay = 1000,
 	cli_command = 'node',
-	run,
+	run, // `dev` default is not available in this scope
 }: Options = {}): Plugin<Plugin_Context> => {
 	let build_ctx: esbuild.BuildContext;
 	let watcher: Watch_Node_Fs;
