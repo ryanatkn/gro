@@ -16,16 +16,16 @@ import {has_sveltekit_app, gro_plugin_sveltekit_app} from './gro_plugin_svelteki
  * - if `src/lib/server/server.ts`, assumes a Node server
  */
 const config: Create_Gro_Config = async (cfg) => {
-	const [enable_library, enable_server, enable_sveltekit_frontend] = await Promise.all([
+	const [enable_sveltekit_library, enable_server, enable_sveltekit_app] = await Promise.all([
 		has_sveltekit_library(),
 		has_server(),
 		has_sveltekit_app(),
 	]);
 
 	cfg.plugins = async () => [
-		enable_library ? gro_plugin_sveltekit_library() : null,
+		enable_sveltekit_library ? gro_plugin_sveltekit_library() : null,
 		enable_server ? gro_plugin_server() : null,
-		enable_sveltekit_frontend
+		enable_sveltekit_app
 			? gro_plugin_sveltekit_app({host_target: enable_server ? 'node' : 'github_pages'})
 			: null,
 		// TODO replace with an esbuild plugin, see the module for more

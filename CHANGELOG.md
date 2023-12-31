@@ -1373,7 +1373,7 @@
   ([#207](https://github.com/grogarden/gro/pull/207))
 - **break**: change `validate_build_configs` function signature
   ([#207](https://github.com/grogarden/gro/pull/207))
-- **break**: change `gro_adapter_sveltekit_frontend` output so it composes with others
+- **break**: change `gro_adapter_sveltekit_app` output so it composes with others
   ([#207](https://github.com/grogarden/gro/pull/207))
 - **break**: rename the `Task` `summary` property from `description`
   ([#212](https://github.com/grogarden/gro/pull/212))
