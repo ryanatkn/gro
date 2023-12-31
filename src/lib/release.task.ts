@@ -2,7 +2,7 @@ import {z} from 'zod';
 
 import type {Task} from './task.js';
 import {has_library} from './gro_plugin_library.js';
-import {has_sveltekit_frontend} from './gro_plugin_sveltekit_frontend.js';
+import {has_sveltekit_frontend} from './gro_plugin_sveltekit_app.js';
 
 export const Args = z.object({}).strict();
 export type Args = z.infer<typeof Args>;

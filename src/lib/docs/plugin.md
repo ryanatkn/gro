@@ -23,7 +23,7 @@ Gro's builtin plugins:
 
 - [`@grogarden/gro_plugin_server`](../gro_plugin_server.ts)
 - [`@grogarden/gro_plugin_library`](../gro_plugin_library.ts)
-- [`@grogarden/gro_plugin_sveltekit_frontend`](../gro_plugin_sveltekit_frontend.ts)
+- [`@grogarden/gro_plugin_sveltekit_app`](../gro_plugin_sveltekit_app.ts)
 - [`@grogarden/gro_plugin_gen`](../gro_plugin_gen.ts)
   (currently disabled, will be replaced with an esbuild plugin)
 

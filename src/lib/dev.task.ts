@@ -35,9 +35,7 @@ export const task: Task<Args> = {
 		}
 
 		const plugins = await Plugins.create({...ctx, dev: true, watch});
-
 		await plugins.setup();
-
 		if (!watch) {
 			await plugins.teardown();
 		}

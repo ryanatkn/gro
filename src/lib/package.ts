@@ -152,9 +152,9 @@ export const package_json = {
 			default: './dist/gro_plugin_server.js',
 			types: './dist/gro_plugin_server.d.ts',
 		},
-		'./gro_plugin_sveltekit_frontend.js': {
-			default: './dist/gro_plugin_sveltekit_frontend.js',
-			types: './dist/gro_plugin_sveltekit_frontend.d.ts',
+		'./gro_plugin_sveltekit_app.js': {
+			default: './dist/gro_plugin_sveltekit_app.js',
+			types: './dist/gro_plugin_sveltekit_app.d.ts',
 		},
 		'./gro.config.default.js': {
 			default: './dist/gro.config.default.js',
@@ -534,8 +534,8 @@ export const src_json = {
 				{name: 'plugin', kind: 'function'},
 			],
 		},
-		'./gro_plugin_sveltekit_frontend.js': {
-			path: 'gro_plugin_sveltekit_frontend.ts',
+		'./gro_plugin_sveltekit_app.js': {
+			path: 'gro_plugin_sveltekit_app.ts',
 			declarations: [
 				{name: 'has_sveltekit_frontend', kind: 'function'},
 				{name: 'Options', kind: 'type'},

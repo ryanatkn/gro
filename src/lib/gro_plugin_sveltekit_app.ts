@@ -50,7 +50,7 @@ export const plugin = ({
 }: Options = {}): Plugin<Plugin_Context> => {
 	let sveltekit_process: Spawned_Process | null = null;
 	return {
-		name: 'gro_plugin_sveltekit_frontend',
+		name: 'gro_plugin_sveltekit_app',
 		setup: async ({dev, watch, log}) => {
 			if (dev) {
 				// `vite dev` in development mode

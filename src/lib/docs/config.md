@@ -55,7 +55,7 @@ import type {Create_Gro_Config} from '@grogarden/gro';
 const config: Create_Gro_Config = async (cfg) => {
 	// example setting your own plugins:
 	cfg.plugins = async () => [
-		(await import('@grogarden/gro/gro_plugin_sveltekit_frontend.js')).plugin(),
+		(await import('@grogarden/gro/gro_plugin_sveltekit_app.js')).plugin(),
 		(await import('./src/custom_plugin.js')).plugin(),
 	];
 
@@ -65,11 +65,11 @@ const config: Create_Gro_Config = async (cfg) => {
 		// replace a base plugin with `import {replace_plugin} from '@grogarden/gro';`:
 		const updated_plugins = replace_plugin(
 			await get_base_plugins(ctx),
-			(await import('@grogarden/gro/gro_plugin_sveltekit_frontend.js')).plugin({
+			(await import('@grogarden/gro/gro_plugin_sveltekit_app.js')).plugin({
 				// host_target?: Host_Target;
 				// well_known_package_json?: boolean | Map_Package_Json;
 			}),
-			// 'gro_plugin_sveltekit_frontend', // optional name if they don't match
+			// 'gro_plugin_sveltekit_app', // optional name if they don't match
 		);
 		return updated_plugins.concat(create_some_custom_plugin());
 	};
