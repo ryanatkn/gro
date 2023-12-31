@@ -1,7 +1,7 @@
 import type {Create_Gro_Config} from './config.js';
-import {has_library} from './gro_plugin_sveltekit_library.js';
+import {has_sveltekit_library} from './gro_plugin_sveltekit_library.js';
 import {has_server} from './gro_plugin_server.js';
-import {has_sveltekit_frontend} from './gro_plugin_sveltekit_app.js';
+import {has_sveltekit_app} from './gro_plugin_sveltekit_app.js';
 
 /**
  * This is the default config that's passed to `gro.config.ts`
@@ -14,9 +14,9 @@ import {has_sveltekit_frontend} from './gro_plugin_sveltekit_app.js';
  */
 const config: Create_Gro_Config = async (cfg) => {
 	const [enable_library, enable_server, enable_sveltekit_frontend] = await Promise.all([
-		has_library(),
+		has_sveltekit_library(),
 		has_server(),
-		has_sveltekit_frontend(),
+		has_sveltekit_app(),
 	]);
 
 	cfg.plugins = async () => [

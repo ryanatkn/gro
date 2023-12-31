@@ -15,7 +15,7 @@ import {
 	Email,
 } from './paths.js';
 import {search_fs} from './search_fs.js';
-import {has_library} from './gro_plugin_sveltekit_library.js';
+import {has_sveltekit_library} from './gro_plugin_sveltekit_library.js';
 
 // TODO move this where?
 export const transform_empty_object_to_undefined = (val: any): any => {
@@ -154,7 +154,7 @@ export const sync_package_json = async (
 	const updated = await update_package_json(
 		dir,
 		async (package_json) => {
-			if (await has_library(package_json)) {
+			if (await has_sveltekit_library(package_json)) {
 				const exports = to_package_exports(exported_paths);
 				package_json.exports = exports;
 			}

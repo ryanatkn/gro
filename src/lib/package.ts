@@ -530,7 +530,7 @@ export const src_json = {
 		'./gro_plugin_sveltekit_app.js': {
 			path: 'gro_plugin_sveltekit_app.ts',
 			declarations: [
-				{name: 'has_sveltekit_frontend', kind: 'function'},
+				{name: 'has_sveltekit_app', kind: 'function'},
 				{name: 'Options', kind: 'type'},
 				{name: 'Host_Target', kind: 'type'},
 				{name: 'plugin', kind: 'function'},
@@ -540,7 +540,7 @@ export const src_json = {
 			path: 'gro_plugin_sveltekit_library.ts',
 			declarations: [
 				{name: 'plugin', kind: 'function'},
-				{name: 'has_library', kind: 'function'},
+				{name: 'has_sveltekit_library', kind: 'function'},
 			],
 		},
 		'./gro.config.default.js': {

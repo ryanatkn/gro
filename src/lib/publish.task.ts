@@ -7,7 +7,7 @@ import {load_package_json, parse_repo_url} from './package_json.js';
 import {find_cli, spawn_cli} from './cli.js';
 import {exists} from './fs.js';
 import {is_this_project_gro} from './paths.js';
-import {has_library} from './gro_plugin_sveltekit_library.js';
+import {has_sveltekit_library} from './gro_plugin_sveltekit_library.js';
 import {update_changelog} from './changelog.js';
 import {load_from_env} from './env.js';
 
@@ -54,7 +54,7 @@ export const task: Task<Args> = {
 			log.info(green('dry run!'));
 		}
 
-		if (!(await has_library())) {
+		if (!(await has_sveltekit_library())) {
 			throw new Task_Error(
 				'gro publish failed to detect a library, run `npm i -D @sveltejs/package` to enable it',
 			);
