@@ -239,10 +239,6 @@
       "default": "./dist/gro_plugin_gen.js",
       "types": "./dist/gro_plugin_gen.d.ts"
     },
-    "./gro_plugin_sveltekit_library.js": {
-      "default": "./dist/gro_plugin_sveltekit_library.js",
-      "types": "./dist/gro_plugin_sveltekit_library.d.ts"
-    },
     "./gro_plugin_server.js": {
       "default": "./dist/gro_plugin_server.js",
       "types": "./dist/gro_plugin_server.d.ts"
@@ -250,6 +246,10 @@
     "./gro_plugin_sveltekit_app.js": {
       "default": "./dist/gro_plugin_sveltekit_app.js",
       "types": "./dist/gro_plugin_sveltekit_app.d.ts"
+    },
+    "./gro_plugin_sveltekit_library.js": {
+      "default": "./dist/gro_plugin_sveltekit_library.js",
+      "types": "./dist/gro_plugin_sveltekit_library.d.ts"
     },
     "./gro.config.default.js": {
       "default": "./dist/gro.config.default.js",
