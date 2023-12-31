@@ -1,5 +1,16 @@
 # @grogarden/gro
 
+## 0.108.0
+
+### Minor Changes
+
+- rename `gro_plugin_sveltekit_app` from `gro_plugin_sveltekit_frontend` ([#444](https://github.com/grogarden/gro/pull/444))
+- rename `gro_plugin_sveltekit_library` from `gro_plugin_sveltekit_library` ([#444](https://github.com/grogarden/gro/pull/444))
+
+### Patch Changes
+
+- fix the server plugin while building ([#444](https://github.com/grogarden/gro/pull/444))
+
 ## 0.107.4
 
 ### Patch Changes
