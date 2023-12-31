@@ -13,7 +13,7 @@ import {has_sveltekit_app, gro_plugin_sveltekit_app} from './gro_plugin_svelteki
  *
  * - if `src/routes`, assumes a SvelteKit frontend
  * - if `src/lib`, assumes a Node library
- * - if `src/lib/server/server.ts`, assumes a Node  server
+ * - if `src/lib/server/server.ts`, assumes a Node server
  */
 const config: Create_Gro_Config = async (cfg) => {
 	const [enable_library, enable_server, enable_sveltekit_frontend] = await Promise.all([
