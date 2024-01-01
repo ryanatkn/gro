@@ -28,6 +28,7 @@ test__resolve_input_path('directories', () => {
 	const target_dir = resolve('dist/foo/bar');
 	assert.is(resolve_input_path('foo/bar'), target_dir);
 	assert.is(resolve_input_path('foo/bar/'), target_dir);
+	throw Error();
 	assert.is(resolve_input_path('./foo/bar'), target_dir);
 	assert.is(resolve_input_path('./foo/bar/'), target_dir);
 	assert.is.not(resolve_input_path('bar'), target_dir);

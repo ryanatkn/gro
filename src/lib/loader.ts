@@ -53,6 +53,7 @@ const {
 const final_ts_transform_options: esbuild.TransformOptions = {
 	...ts_transform_options,
 	define: to_define_import_meta_env(dev, base_url),
+	sourcemap: 'inline',
 };
 
 const aliases = Object.entries({$lib: 'src/lib', ...alias});
