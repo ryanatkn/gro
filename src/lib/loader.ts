@@ -1,9 +1,10 @@
 /*
 
-Usage:
+Usage (see also `$lib/gro.ts`):
 
-node --import 'data:text/javascript,import {register} from "node:module"; import {pathToFileURL} from "node:url"; register("@grogarden/gro/loader.js", pathToFileURL("./"
-));' foo.ts
+```bash
+node --import 'data:text/javascript,import {register} from "node:module"; import {pathToFileURL} from "node:url"; register("@grogarden/gro/loader.js", pathToFileURL("./"));' --enable-source-maps' foo.ts
+```
 
 TODO how to improve that gnarly import line? was originally designed for the now-deprecated `--loader`
 
@@ -30,8 +31,6 @@ import {to_define_import_meta_env, ts_transform_options} from './esbuild_helpers
 import {resolve_specifier} from './resolve_specifier.js';
 import {resolve_node_specifier} from './resolve_node_specifier.js';
 import type {Package_Json} from './package_json.js';
-
-process.setSourceMapsEnabled(true);
 
 // TODO sourcemaps, including esbuild, svelte, and the svelte preprocessors
 // TODO `import.meta.resolve` doesn't seem to be available in loaders?
