@@ -30,7 +30,7 @@ It includes:
   [testing](/src/lib/docs/test.md),
   [deploying](/src/lib/docs/deploy.md),
   and [publishing](/src/lib/docs/publish.md)
-  [SvelteKit](https://github.com/sveltejs/kit) frontends, Node servers, and libraries
+  [SvelteKit](https://github.com/sveltejs/kit) apps, library packages, and Node servers
   - integrated [TypeScript](https://github.com/microsoft/typescript),
     [Svelte](https://github.com/sveltejs/svelte),
     and [SvelteKit](https://github.com/sveltejs/kit)
