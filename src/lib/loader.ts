@@ -1,9 +1,10 @@
 /*
 
-Usage:
+Usage (see also `$lib/gro.ts`):
 
-node --import 'data:text/javascript,import {register} from "node:module"; import {pathToFileURL} from "node:url"; register("@grogarden/gro/loader.js", pathToFileURL("./"
-));' foo.ts
+```bash
+node --import 'data:text/javascript,import {register} from "node:module"; import {pathToFileURL} from "node:url"; register("@grogarden/gro/loader.js", pathToFileURL("./"));' --enable-source-maps' foo.ts
+```
 
 TODO how to improve that gnarly import line? was originally designed for the now-deprecated `--loader`
 
@@ -53,6 +54,7 @@ const {
 const final_ts_transform_options: esbuild.TransformOptions = {
 	...ts_transform_options,
 	define: to_define_import_meta_env(dev, base_url),
+	sourcemap: 'inline',
 };
 
 const aliases = Object.entries({$lib: 'src/lib', ...alias});
@@ -88,11 +90,12 @@ export const load: LoadHook = async (url, context, nextLoad) => {
 		);
 		const transformed = await esbuild.transform(
 			loaded.source!.toString(), // eslint-disable-line @typescript-eslint/no-base-to-string
-			final_ts_transform_options,
+			{...final_ts_transform_options, sourcefile: url},
 		);
 		return {format: 'module', shortCircuit: true, source: transformed.code};
 	} else if (svelte_matcher.test(url)) {
 		// svelte
+		// TODO support sourcemaps
 		const loaded = await nextLoad(
 			url,
 			context.format === 'module' ? context : {...context, format: 'module'}, // TODO dunno why this is needed, specifically with tests

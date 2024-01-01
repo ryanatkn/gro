@@ -71,6 +71,7 @@ const result = await spawn('node', [
 		import {register} from "node:module";
 		import {pathToFileURL} from "node:url";
 		register("${loader_path}", pathToFileURL("./"));`,
+	'--enable-source-maps',
 	path,
 	...process.argv.slice(2),
 ]);
