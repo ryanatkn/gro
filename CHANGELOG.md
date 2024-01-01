@@ -1,5 +1,15 @@
 # @grogarden/gro
 
+## 0.109.0
+
+### Minor Changes
+
+- upgrade @grogarden/util@0.19 ([0f53451](https://github.com/grogarden/gro/commit/0f53451))
+
+### Patch Changes
+
+- fix `gro changeset` commit message quotes ([88aaa95](https://github.com/grogarden/gro/commit/88aaa95))
+
 ## 0.108.1
 
 ### Patch Changes
