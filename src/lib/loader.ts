@@ -91,12 +91,12 @@ export const load: LoadHook = async (url, context, nextLoad) => {
 		);
 		const transformed = await esbuild.transform(
 			loaded.source!.toString(), // eslint-disable-line @typescript-eslint/no-base-to-string
-			final_ts_transform_options,
+			{...final_ts_transform_options, sourcefile: url},
 		);
-		console.log(`transformed`, transformed);
 		return {format: 'module', shortCircuit: true, source: transformed.code};
 	} else if (svelte_matcher.test(url)) {
 		// svelte
+		// TODO support sourcemaps
 		const loaded = await nextLoad(
 			url,
 			context.format === 'module' ? context : {...context, format: 'module'}, // TODO dunno why this is needed, specifically with tests
