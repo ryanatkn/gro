@@ -1,5 +1,11 @@
 # @grogarden/gro
 
+## 0.108.1
+
+### Patch Changes
+
+- support sourcemaps ([#445](https://github.com/grogarden/gro/pull/445))
+
 ## 0.108.0
 
 ### Minor Changes
