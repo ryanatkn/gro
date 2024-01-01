@@ -31,6 +31,8 @@ import {resolve_specifier} from './resolve_specifier.js';
 import {resolve_node_specifier} from './resolve_node_specifier.js';
 import type {Package_Json} from './package_json.js';
 
+process.setSourceMapsEnabled(true);
+
 // TODO sourcemaps, including esbuild, svelte, and the svelte preprocessors
 // TODO `import.meta.resolve` doesn't seem to be available in loaders?
 
@@ -91,6 +93,7 @@ export const load: LoadHook = async (url, context, nextLoad) => {
 			loaded.source!.toString(), // eslint-disable-line @typescript-eslint/no-base-to-string
 			final_ts_transform_options,
 		);
+		console.log(`transformed`, transformed);
 		return {format: 'module', shortCircuit: true, source: transformed.code};
 	} else if (svelte_matcher.test(url)) {
 		// svelte
