@@ -114,7 +114,7 @@ export const task: Task<Args> = {
 			const changeset_adder = await create_changeset_adder(package_json.name, dir, message, bump);
 			await spawn_cli('changeset', ['add', '--empty']);
 			await changeset_adder();
-			await spawn('git', ['commit', '-m', '"' + message.replaceAll('"', '\\"') + '"']);
+			await spawn('git', ['commit', '-m', message]);
 			await git_push_to_create(origin);
 		} else {
 			await spawn_cli('changeset');
