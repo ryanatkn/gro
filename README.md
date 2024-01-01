@@ -60,7 +60,8 @@ It includes:
 - linting with [ESLint](https://github.com/eslint/eslint)
   (I also maintain [`@feltjs/eslint-config`](https://github.com/feltjs/eslint-config))
 - formatting with [Prettier](https://github.com/prettier/prettier)
-  (it's not always pretty, but it's consistent and it saves a lot of time)
+  (it's not always pretty but it saves time writing and reading code,
+  my time is more precious than my formatting style)
 
 ## docs
 
