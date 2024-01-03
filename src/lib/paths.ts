@@ -60,16 +60,16 @@ export interface Paths {
 
 // TODO upstream to util, and probably add `Path`/`FilePath` and `FileUrl`
 export const Url = z.string();
-export type Url = Zod.infer<Flavored<typeof Url, 'Url'>>;
+export type Url = Flavored<z.infer<typeof Url>, 'Url'>;
 
 export const Email = z.string();
-export type Email = Zod.infer<Flavored<typeof Email, 'Email'>>;
+export type Email = Flavored<z.infer<typeof Email>, 'Email'>;
 
 export const Source_Id = z.string();
-export type Source_Id = Zod.infer<Flavored<typeof Source_Id, 'Source_Id'>>;
+export type Source_Id = Flavored<z.infer<typeof Source_Id>, 'Source_Id'>;
 
 export const Build_Id = z.string();
-export type Build_Id = Zod.infer<Flavored<typeof Build_Id, 'Build_Id'>>;
+export type Build_Id = Flavored<z.infer<typeof Build_Id>, 'Build_Id'>;
 
 export const create_paths = (root_dir: string): Paths => {
 	// TODO remove reliance on trailing slash towards windows support

@@ -6,13 +6,13 @@ import {z} from 'zod';
 import {exists} from './fs.js';
 import {to_file_path} from './path.js';
 
-// TODO probably extract to `util-git`
+// TODO maybe extract to `util-git`
 
 export const Git_Origin = z.string();
-export type Git_Origin = z.infer<Flavored<typeof Git_Origin, 'Git_Origin'>>;
+export type Git_Origin = Flavored<z.infer<typeof Git_Origin>, 'Git_Origin'>;
 
 export const Git_Branch = z.string();
-export type Git_Branch = z.infer<Flavored<typeof Git_Branch, 'Git_Branch'>>;
+export type Git_Branch = Flavored<z.infer<typeof Git_Branch>, 'Git_Branch'>;
 
 /**
  * Returns the current git branch name or throws if something goes wrong.
