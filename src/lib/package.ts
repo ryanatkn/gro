@@ -188,6 +188,7 @@ export const package_json = {
 		},
 		'./run_gen.js': {default: './dist/run_gen.js', types: './dist/run_gen.d.ts'},
 		'./run_task.js': {default: './dist/run_task.js', types: './dist/run_task.d.ts'},
+		'./run.task.js': {default: './dist/run.task.js', types: './dist/run.task.d.ts'},
 		'./schema.js': {default: './dist/schema.js', types: './dist/schema.d.ts'},
 		'./search_fs.js': {default: './dist/search_fs.js', types: './dist/search_fs.d.ts'},
 		'./src_json.js': {default: './dist/src_json.js', types: './dist/src_json.d.ts'},
@@ -745,6 +746,13 @@ export const src_json = {
 			declarations: [
 				{name: 'Run_Task_Result', kind: 'type'},
 				{name: 'run_task', kind: 'function'},
+			],
+		},
+		'./run.task.js': {
+			path: 'run.task.ts',
+			declarations: [
+				{name: 'Args', kind: 'variable'},
+				{name: 'task', kind: 'variable'},
 			],
 		},
 		'./schema.js': {

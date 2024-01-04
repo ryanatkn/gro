@@ -343,6 +343,10 @@
       "default": "./dist/run_task.js",
       "types": "./dist/run_task.d.ts"
     },
+    "./run.task.js": {
+      "default": "./dist/run.task.js",
+      "types": "./dist/run.task.d.ts"
+    },
     "./schema.js": {
       "default": "./dist/schema.js",
       "types": "./dist/schema.d.ts"
