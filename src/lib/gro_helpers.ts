@@ -1,6 +1,7 @@
 import {realpath} from 'node:fs/promises';
 import {join, resolve} from 'node:path';
 import {fileURLToPath} from 'node:url';
+import {spawn, type Spawn_Result} from '@grogarden/util/process.js';
 
 import {exists} from './fs.js';
 import {NODE_MODULES_DIRNAME} from './paths.js';
@@ -60,3 +61,25 @@ export const resolve_gro_module_path = async (path = ''): Promise<string> => {
 		}
 	}
 };
+
+/**
+ * Runs a file using the Gro loader.
+ *
+ * @param loader_path path to loader
+ * @param invoke_path path to file to spawn with `node`
+ */
+export const spawn_with_loader = async (
+	loader_path: string,
+	invoke_path: string,
+	argv: string[],
+): Promise<Spawn_Result> =>
+	spawn('node', [
+		'--import',
+		`data:text/javascript,
+			import {register} from "node:module";
+			import {pathToFileURL} from "node:url";
+			register("${loader_path}", pathToFileURL("./"));`,
+		'--enable-source-maps',
+		invoke_path,
+		...argv,
+	]);

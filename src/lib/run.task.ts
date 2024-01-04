@@ -1,10 +1,9 @@
 import {z} from 'zod';
-import {spawn} from '@grogarden/util/process.js';
 import {green, cyan} from 'kleur/colors';
 
 import {Task_Error, type Task} from './task.js';
 import {exists} from './fs.js';
-import {resolve_gro_module_path} from './gro_helpers.js';
+import {resolve_gro_module_path, spawn_with_loader} from './gro_helpers.js';
 
 export const Args = z
 	.object({
@@ -33,19 +32,10 @@ export const task: Task<Args> = {
 		}
 
 		const loader_path = await resolve_gro_module_path('loader.js');
-		const result = await spawn('node', [
-			'--import',
-			`data:text/javascript,
-        import {register} from "node:module";
-        import {pathToFileURL} from "node:url";
-        register("${loader_path}", pathToFileURL("./"));`,
-			'--enable-source-maps',
-			path,
-			...argv,
-		]);
 
-		if (!result.ok) {
-			process.exit(result.code || 1);
+		const spawned = await spawn_with_loader(loader_path, path, argv);
+		if (!spawned.ok) {
+			process.exit(spawned.code || 1);
 		}
 	},
 };
