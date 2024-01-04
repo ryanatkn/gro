@@ -15,9 +15,9 @@ where we're running Gro inside Gro's own repo for development.
 
 */
 
-const path = await find_gro_path('invoke.js');
+const invoke_path = await find_gro_path('invoke.js');
 
-const loader_path = join(path, '../loader.js');
+const loader_path = join(invoke_path, '../loader.js');
 
 const result = await spawn('node', [
 	'--import',
@@ -26,7 +26,7 @@ const result = await spawn('node', [
 		import {pathToFileURL} from "node:url";
 		register("${loader_path}", pathToFileURL("./"));`,
 	'--enable-source-maps',
-	path,
+	invoke_path,
 	...process.argv.slice(2),
 ]);
 
