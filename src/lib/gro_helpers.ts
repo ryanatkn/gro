@@ -45,19 +45,19 @@ export const resolve_gro_module_path = async (path = ''): Promise<string> => {
 	if (await exists(gro_bin_path)) {
 		// case 1
 		// Prefer any locally installed version of Gro.
-		return join(await realpath(gro_bin_path), `../${path}`);
+		return join(await realpath(gro_bin_path), '..', path);
 	} else {
 		// case 2
 		// If running Gro inside its own repo, require the local dist.
 		// If the local dist is not yet built it will fall back to the global.
 		const file_path = fileURLToPath(import.meta.url);
 		const base_path = 'dist';
-		if ((await exists(`${base_path}/gro.js`)) && (await exists(`${base_path}/${path}`))) {
-			return join(file_path, `../../${base_path}/${path}`);
+		if ((await exists(join(base_path, 'gro.js'))) && (await exists(join(base_path, path)))) {
+			return join(file_path, '../..', base_path, path);
 		} else {
 			// case 3
 			// Fall back to the version associated with the running CLI.
-			return join(file_path, `../${path}`);
+			return join(file_path, '..', path);
 		}
 	}
 };
