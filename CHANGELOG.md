@@ -1,5 +1,12 @@
 # @grogarden/gro
 
+## 0.109.1
+
+### Patch Changes
+
+- fix flavored zod types ([3822041](https://github.com/grogarden/gro/commit/3822041))
+- add `gro run` task ([#446](https://github.com/grogarden/gro/pull/446))
+
 ## 0.109.0
 
 ### Minor Changes
