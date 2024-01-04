@@ -1,7 +1,8 @@
 import {z} from 'zod';
 import {spawn} from '@grogarden/util/process.js';
 
-import type {Task} from './task.js';
+import {Task_Error, type Task} from './task.js';
+import {exists} from './fs.js';
 
 export const Args = z
 	.object({
@@ -20,6 +21,11 @@ export const task: Task<Args> = {
 		const {
 			_: [path, ...argv],
 		} = args;
+
+		if (!(await exists(path))) {
+			throw new Task_Error('cannot find file to run at path: ' + path);
+		}
+
 		const loader_path = './dist/loader.js'; // TODO BLOCK
 		const result = await spawn('node', [
 			'--import',
