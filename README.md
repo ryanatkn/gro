@@ -19,7 +19,7 @@ Gro is a task runner and toolkit
 extending [SvelteKit](https://github.com/sveltejs/kit),
 [Vite](https://github.com/vitejs/vite),
 and [esbuild](https://github.com/evanw/esbuild)
-for making web frontends, servers, and libraries.
+for making web frontends, servers, and libraries with TypeScript.
 It includes:
 
 - [task runner](/src/lib/docs/task.md) that uses the filesystem convention `*.task.ts`
