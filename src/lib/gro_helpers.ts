@@ -39,7 +39,7 @@ import {NODE_MODULES_DIRNAME} from './paths.js';
  * When using the global CLI, this uses the global Gro installation.
  *
  */
-export const find_gro_path = async (path = ''): Promise<string> => {
+export const resolve_gro_module_path = async (path = ''): Promise<string> => {
 	const gro_bin_path = resolve(NODE_MODULES_DIRNAME, '.bin/gro');
 	if (await exists(gro_bin_path)) {
 		// case 1

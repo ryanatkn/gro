@@ -3,7 +3,7 @@ import {spawn} from '@grogarden/util/process.js';
 
 import {Task_Error, type Task} from './task.js';
 import {exists} from './fs.js';
-import {find_gro_path} from './gro_helpers.js';
+import {resolve_gro_module_path} from './gro_helpers.js';
 
 export const Args = z
 	.object({
@@ -27,7 +27,7 @@ export const task: Task<Args> = {
 			throw new Task_Error('cannot find file to run at path: ' + path);
 		}
 
-		const loader_path = await find_gro_path('loader.js');
+		const loader_path = await resolve_gro_module_path('loader.js');
 		const result = await spawn('node', [
 			'--import',
 			`data:text/javascript,
