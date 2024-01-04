@@ -513,7 +513,10 @@ export const src_json = {
 		},
 		'./gro_helpers.js': {
 			path: 'gro_helpers.ts',
-			declarations: [{name: 'resolve_gro_module_path', kind: 'function'}],
+			declarations: [
+				{name: 'resolve_gro_module_path', kind: 'function'},
+				{name: 'spawn_with_loader', kind: 'function'},
+			],
 		},
 		'./gro_plugin_gen.js': {
 			path: 'gro_plugin_gen.ts',
