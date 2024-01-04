@@ -9,7 +9,8 @@ import {find_gro_path} from './gro_helpers.js';
 
 This file is a loader for the Gro CLI.
 Its only purpose is to import the `invoke.js` script in the correct directory.
-It lets the global Gro CLI defer to a local installation of Gro if one is available,
+By using `find_gro_path` it lets the global Gro CLI defer
+to a local installation of Gro if one is available,
 and it also provides special handling for the case
 where we're running Gro inside Gro's own repo for development.
 
