@@ -140,6 +140,7 @@ export const package_json = {
 		'./gen.js': {default: './dist/gen.js', types: './dist/gen.d.ts'},
 		'./git.js': {default: './dist/git.js', types: './dist/git.d.ts'},
 		'./github.js': {default: './dist/github.js', types: './dist/github.d.ts'},
+		'./gro_helpers.js': {default: './dist/gro_helpers.js', types: './dist/gro_helpers.d.ts'},
 		'./gro_plugin_gen.js': {
 			default: './dist/gro_plugin_gen.js',
 			types: './dist/gro_plugin_gen.d.ts',
@@ -509,6 +510,10 @@ export const src_json = {
 				{name: 'Github_Pull_Request', kind: 'variable'},
 				{name: 'github_fetch_commit_prs', kind: 'function'},
 			],
+		},
+		'./gro_helpers.js': {
+			path: 'gro_helpers.ts',
+			declarations: [{name: 'resolve_gro_module_path', kind: 'function'}],
 		},
 		'./gro_plugin_gen.js': {
 			path: 'gro_plugin_gen.ts',

@@ -235,6 +235,10 @@
       "default": "./dist/github.js",
       "types": "./dist/github.d.ts"
     },
+    "./gro_helpers.js": {
+      "default": "./dist/gro_helpers.js",
+      "types": "./dist/gro_helpers.d.ts"
+    },
     "./gro_plugin_gen.js": {
       "default": "./dist/gro_plugin_gen.js",
       "types": "./dist/gro_plugin_gen.d.ts"
