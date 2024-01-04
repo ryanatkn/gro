@@ -20,6 +20,7 @@ const invoke_path = await resolve_gro_module_path('invoke.js');
 
 const loader_path = join(invoke_path, '../loader.js');
 
+// TODO BLOCK extract
 const result = await spawn('node', [
 	'--import',
 	`data:text/javascript,
