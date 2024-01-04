@@ -35,7 +35,7 @@ export const task: Task<Args> = {
 
 		const spawned = await spawn_with_loader(loader_path, path, argv);
 		if (!spawned.ok) {
-			process.exit(spawned.code || 1);
+			throw new Task_Error(`\`gro run ${path}\` failed with exit code ${spawned.code}`);
 		}
 	},
 };
