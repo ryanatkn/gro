@@ -235,6 +235,10 @@
       "default": "./dist/github.js",
       "types": "./dist/github.d.ts"
     },
+    "./gro_helpers.js": {
+      "default": "./dist/gro_helpers.js",
+      "types": "./dist/gro_helpers.d.ts"
+    },
     "./gro_plugin_gen.js": {
       "default": "./dist/gro_plugin_gen.js",
       "types": "./dist/gro_plugin_gen.d.ts"
@@ -342,6 +346,10 @@
     "./run_task.js": {
       "default": "./dist/run_task.js",
       "types": "./dist/run_task.d.ts"
+    },
+    "./run.task.js": {
+      "default": "./dist/run.task.js",
+      "types": "./dist/run.task.d.ts"
     },
     "./schema.js": {
       "default": "./dist/schema.js",

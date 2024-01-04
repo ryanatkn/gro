@@ -140,6 +140,7 @@ export const package_json = {
 		'./gen.js': {default: './dist/gen.js', types: './dist/gen.d.ts'},
 		'./git.js': {default: './dist/git.js', types: './dist/git.d.ts'},
 		'./github.js': {default: './dist/github.js', types: './dist/github.d.ts'},
+		'./gro_helpers.js': {default: './dist/gro_helpers.js', types: './dist/gro_helpers.d.ts'},
 		'./gro_plugin_gen.js': {
 			default: './dist/gro_plugin_gen.js',
 			types: './dist/gro_plugin_gen.d.ts',
@@ -188,6 +189,7 @@ export const package_json = {
 		},
 		'./run_gen.js': {default: './dist/run_gen.js', types: './dist/run_gen.d.ts'},
 		'./run_task.js': {default: './dist/run_task.js', types: './dist/run_task.d.ts'},
+		'./run.task.js': {default: './dist/run.task.js', types: './dist/run.task.d.ts'},
 		'./schema.js': {default: './dist/schema.js', types: './dist/schema.d.ts'},
 		'./search_fs.js': {default: './dist/search_fs.js', types: './dist/search_fs.d.ts'},
 		'./src_json.js': {default: './dist/src_json.js', types: './dist/src_json.d.ts'},
@@ -509,6 +511,13 @@ export const src_json = {
 				{name: 'github_fetch_commit_prs', kind: 'function'},
 			],
 		},
+		'./gro_helpers.js': {
+			path: 'gro_helpers.ts',
+			declarations: [
+				{name: 'resolve_gro_module_path', kind: 'function'},
+				{name: 'spawn_with_loader', kind: 'function'},
+			],
+		},
 		'./gro_plugin_gen.js': {
 			path: 'gro_plugin_gen.ts',
 			declarations: [
@@ -745,6 +754,13 @@ export const src_json = {
 			declarations: [
 				{name: 'Run_Task_Result', kind: 'type'},
 				{name: 'run_task', kind: 'function'},
+			],
+		},
+		'./run.task.js': {
+			path: 'run.task.ts',
+			declarations: [
+				{name: 'Args', kind: 'variable'},
+				{name: 'task', kind: 'variable'},
 			],
 		},
 		'./schema.js': {

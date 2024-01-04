@@ -45,6 +45,7 @@ It includes:
       and other code outside of the SvelteKit frontend,
       so you can use SvelteKit patterns everywhere
       (these are best-effort shims, not perfect)
+    - supports running TypeScript files directly without a task via `gro run a.ts`
   - [configurable plugins](/src/lib/docs/plugin.md)
     to support SvelteKit, auto-restarting Node servers, and other external build processes
     - see the [Gro config docs](/src/lib/docs/config.md) and

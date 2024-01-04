@@ -1,15 +1,3 @@
-/*
-
-Usage (see also `$lib/gro.ts`):
-
-```bash
-node --import 'data:text/javascript,import {register} from "node:module"; import {pathToFileURL} from "node:url"; register("@grogarden/gro/loader.js", pathToFileURL("./"));' --enable-source-maps' foo.ts
-```
-
-TODO how to improve that gnarly import line? was originally designed for the now-deprecated `--loader`
-
-*/
-
 import * as esbuild from 'esbuild';
 import {compile, preprocess} from 'svelte/compiler';
 import {fileURLToPath, pathToFileURL} from 'node:url';
@@ -32,8 +20,26 @@ import {resolve_specifier} from './resolve_specifier.js';
 import {resolve_node_specifier} from './resolve_node_specifier.js';
 import type {Package_Json} from './package_json.js';
 
-// TODO sourcemaps, including esbuild, svelte, and the svelte preprocessors
-// TODO `import.meta.resolve` doesn't seem to be available in loaders?
+/*
+
+Usage via `$lib/run.task.ts`:
+
+```bash
+gro run foo.ts
+```
+
+Direct usage (see also `$lib/gro.ts`):
+
+```bash
+node --import 'data:text/javascript,import {register} from "node:module"; import {pathToFileURL} from "node:url"; register("@grogarden/gro/loader.js", pathToFileURL("./"));' --enable-source-maps' foo.ts
+```
+
+TODO how to improve that gnarly import line? was originally designed for the now-deprecated `--loader`
+
+*/
+
+// TODO sourcemaps for svelte and the svelte preprocessors
+// TODO `import.meta.resolve` wasn't available in loaders when this was first implemented, but might be now
 
 // dev is always true in the loader
 const dev = true;

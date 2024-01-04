@@ -18,6 +18,7 @@ What is a `Task`? See [`task.md`](./task.md).
 - [lint](../lint.task.ts) - run eslint
 - [publish](../publish.task.ts) - bump version, publish to npm, and git push
 - [release](../release.task.ts) - publish and deploy
+- [run](../run.task.ts) - execute a file with the loader, like `node` but works for TypeScript
 - [sync](../sync.task.ts) - run `gro gen`, update `package.json`, and optionally `npm i` to sync up
 - [test](../test.task.ts) - run tests with uvu
 - [typecheck](../typecheck.task.ts) - run tsc on the project without emitting any files
