@@ -227,7 +227,6 @@ export const package_json = {
 		'./task.js': {default: './dist/task.js', types: './dist/task.d.ts'},
 		'./test.task.js': {default: './dist/test.task.js', types: './dist/test.task.d.ts'},
 		'./throttle.js': {default: './dist/throttle.js', types: './dist/throttle.d.ts'},
-		'./type_imports.js': {default: './dist/type_imports.js', types: './dist/type_imports.d.ts'},
 		'./typecheck.task.js': {
 			default: './dist/typecheck.task.js',
 			types: './dist/typecheck.task.d.ts',
@@ -863,10 +862,6 @@ export const src_json = {
 			],
 		},
 		'./throttle.js': {path: 'throttle.ts', declarations: [{name: 'throttle', kind: 'function'}]},
-		'./type_imports.js': {
-			path: 'type_imports.ts',
-			declarations: [{name: 'normalize_type_imports', kind: 'function'}],
-		},
 		'./typecheck.task.js': {
 			path: 'typecheck.task.ts',
 			declarations: [

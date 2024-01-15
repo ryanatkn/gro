@@ -406,10 +406,6 @@
       "default": "./dist/throttle.js",
       "types": "./dist/throttle.d.ts"
     },
-    "./type_imports.js": {
-      "default": "./dist/type_imports.js",
-      "types": "./dist/type_imports.d.ts"
-    },
     "./typecheck.task.js": {
       "default": "./dist/typecheck.task.js",
       "types": "./dist/typecheck.task.d.ts"
