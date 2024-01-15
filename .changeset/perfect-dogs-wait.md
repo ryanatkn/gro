@@ -1,5 +1,5 @@
 ---
-"@grogarden/gro": patch
+'@grogarden/gro': minor
 ---
 
 remove json schema support for zod
