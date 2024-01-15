@@ -30,12 +30,6 @@ Normally you'll want to commit generated files to git,
 but you can always gitignore a specific pattern like `*.ignore.*`
 and name the output files accordingly.
 
-To bridge the worlds of types and runtimes, `gro gen` has a feature that uses
-[JSON Schema](https://json-schema.org/) and
-[json-schema-to-typescript](https://github.com/bcherny/json-schema-to-typescript)
-to generate types for all `.schema.` files in your project.
-[See below](#generate-typescript-types-from-schemas) for more.
-
 Integrating codegen into our development process
 is a simple idea with vast potential.
 It lets us have a single source of truth for data

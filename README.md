@@ -252,9 +252,7 @@ Gro builds on
 [@grogarden/util](https://github.com/grogarden/util) ∙
 [ESLint](https://github.com/eslint/eslint) ∙
 [Prettier](https://github.com/prettier/prettier) ∙
-[svelte-check](https://github.com/sveltejs/language-tools/tree/master/packages/svelte-check) ∙
-[JSON Schema](https://json-schema.org/) ∙
-[json-schema-to-typescript](https://github.com/bcherny/json-schema-to-typescript) &
+[svelte-check](https://github.com/sveltejs/language-tools/tree/master/packages/svelte-check) &
 [more](package.json)
 
 ## license [🐦](https://wikipedia.org/wiki/Free_and_open-source_software)

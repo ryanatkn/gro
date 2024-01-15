@@ -214,10 +214,6 @@
       "default": "./dist/gen_module.js",
       "types": "./dist/gen_module.d.ts"
     },
-    "./gen_schemas.js": {
-      "default": "./dist/gen_schemas.js",
-      "types": "./dist/gen_schemas.d.ts"
-    },
     "./gen.task.js": {
       "default": "./dist/gen.task.js",
       "types": "./dist/gen.task.d.ts"
