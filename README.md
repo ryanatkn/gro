@@ -55,9 +55,6 @@ It includes:
       [`@feltjs/felt`](https://github.com/feltjs/felt) for a more complex example with custom tasks
 - [testing](/src/lib/docs/test.md) with [`uvu`](https://github.com/lukeed/uvu)
 - codegen by convention with [`gen`](/src/lib/docs/gen.md)
-  - supports automatic type generation by convention with `.schema.` files
-    using [JSON Schema](https://json-schema.org/) and
-    [json-schema-to-typescript](https://github.com/bcherny/json-schema-to-typescript)
 - linting with [ESLint](https://github.com/eslint/eslint)
   (I also maintain [`@feltjs/eslint-config`](https://github.com/feltjs/eslint-config))
 - formatting with [Prettier](https://github.com/prettier/prettier)
