@@ -5,7 +5,7 @@ import type {Src_Json} from './src_json.js';
 
 export const package_json = {
 	name: '@grogarden/gro',
-	version: '0.110.1',
+	version: '0.110.2',
 	description: 'task runner and toolkit extending SvelteKit',
 	icon: '🌰',
 	public: true,
@@ -238,7 +238,7 @@ export const package_json = {
 
 export const src_json = {
 	name: '@grogarden/gro',
-	version: '0.110.1',
+	version: '0.110.2',
 	modules: {
 		'.': {
 			path: 'index.ts',

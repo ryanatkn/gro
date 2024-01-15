@@ -1,5 +1,11 @@
 # @grogarden/gro
 
+## 0.110.2
+
+### Patch Changes
+
+- clean up type imports from schema removal ([4d3c8ee](https://github.com/grogarden/gro/commit/4d3c8ee))
+
 ## 0.110.1
 
 ### Patch Changes
