@@ -36,7 +36,6 @@ export const package_json = {
 	files: ['dist'],
 	dependencies: {
 		'@grogarden/util': '^0.19.0',
-		'@ryanatkn/json-schema-to-typescript': '^11.1.5',
 		chokidar: '^3.5.3',
 		dotenv: '^16.3.1',
 		'es-module-lexer': '^1.4.1',
@@ -135,7 +134,6 @@ export const package_json = {
 		'./format.task.js': {default: './dist/format.task.js', types: './dist/format.task.d.ts'},
 		'./fs.js': {default: './dist/fs.js', types: './dist/fs.d.ts'},
 		'./gen_module.js': {default: './dist/gen_module.js', types: './dist/gen_module.d.ts'},
-		'./gen_schemas.js': {default: './dist/gen_schemas.js', types: './dist/gen_schemas.d.ts'},
 		'./gen.task.js': {default: './dist/gen.task.js', types: './dist/gen.task.d.ts'},
 		'./gen.js': {default: './dist/gen.js', types: './dist/gen.d.ts'},
 		'./git.js': {default: './dist/git.js', types: './dist/git.d.ts'},
@@ -190,7 +188,6 @@ export const package_json = {
 		'./run_gen.js': {default: './dist/run_gen.js', types: './dist/run_gen.d.ts'},
 		'./run_task.js': {default: './dist/run_task.js', types: './dist/run_task.d.ts'},
 		'./run.task.js': {default: './dist/run.task.js', types: './dist/run.task.d.ts'},
-		'./schema.js': {default: './dist/schema.js', types: './dist/schema.d.ts'},
 		'./search_fs.js': {default: './dist/search_fs.js', types: './dist/search_fs.d.ts'},
 		'./src_json.js': {default: './dist/src_json.js', types: './dist/src_json.d.ts'},
 		'./sveltekit_config.js': {
@@ -441,19 +438,11 @@ export const src_json = {
 				{name: 'validate_gen_module', kind: 'variable'},
 				{name: 'Gen_Module_Meta', kind: 'type'},
 				{name: 'Basic_Gen_Module_Meta', kind: 'type'},
-				{name: 'Schema_Gen_Module_Meta', kind: 'type'},
 				{name: 'load_gen_module', kind: 'function'},
 				{name: 'Check_Gen_Module_Result', kind: 'type'},
 				{name: 'check_gen_modules', kind: 'function'},
 				{name: 'check_gen_module', kind: 'function'},
 				{name: 'find_gen_modules', kind: 'function'},
-			],
-		},
-		'./gen_schemas.js': {
-			path: 'gen_schemas.ts',
-			declarations: [
-				{name: 'gen_schemas', kind: 'function'},
-				{name: 'to_schemas_from_modules', kind: 'function'},
 			],
 		},
 		'./gen.task.js': {
@@ -746,7 +735,6 @@ export const src_json = {
 				{name: 'GEN_NO_PROD_MESSAGE', kind: 'variable'},
 				{name: 'run_gen', kind: 'function'},
 				{name: 'to_gen_import_path', kind: 'function'},
-				{name: 'to_gen_context_imports', kind: 'function'},
 			],
 		},
 		'./run_task.js': {
@@ -761,13 +749,6 @@ export const src_json = {
 			declarations: [
 				{name: 'Args', kind: 'variable'},
 				{name: 'task', kind: 'variable'},
-			],
-		},
-		'./schema.js': {
-			path: 'schema.ts',
-			declarations: [
-				{name: 'Some_Test_Object_Schema', kind: 'variable'},
-				{name: 'Some_Test_Primitive_Schema', kind: 'variable'},
 			],
 		},
 		'./search_fs.js': {
