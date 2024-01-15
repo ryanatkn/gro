@@ -1,5 +1,11 @@
 # @grogarden/gro
 
+## 0.110.1
+
+### Patch Changes
+
+- cleanup schema removal ([1bb28cd](https://github.com/grogarden/gro/commit/1bb28cd))
+
 ## 0.110.0
 
 ### Minor Changes
