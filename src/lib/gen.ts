@@ -22,7 +22,6 @@ export interface Gen {
 export interface Gen_Context {
 	origin_id: string;
 	log: Logger;
-	imports: Record<string, string>;
 }
 // TODO consider other return data - metadata? effects? non-file build artifacts?
 export type Raw_Gen_Result = string | Raw_Gen_File | null | Raw_Gen_Result[];

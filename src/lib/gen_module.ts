@@ -35,7 +35,7 @@ export const to_gen_schema_name = (identifier: string): string => {
 	);
 };
 
-export type Gen_Module_Type = 'basic' | 'schema';
+export type Gen_Module_Type = 'basic';
 export type Gen_Module = Basic_Gen_Module | Schema_Gen_Module;
 export interface Basic_Gen_Module {
 	gen: Gen;
@@ -44,12 +44,11 @@ export interface Schema_Gen_Module extends Basic_Gen_Module {
 	[key: string]: unknown;
 }
 
-export const to_gen_module_type = (filename: string): Gen_Module_Type =>
-	filename.includes(GEN_SCHEMA_FILE_PATTERN) ? 'schema' : 'basic';
+// TODO remove if not used, but we may generic stuff from Zod schemas or other things
+export const to_gen_module_type = (_filename: string): Gen_Module_Type => 'basic';
 
 export const gen_module_meta: Record<Gen_Module_Type, {pattern: string; text: string}> = {
 	basic: {pattern: GEN_FILE_PATTERN, text: GEN_FILE_PATTERN_TEXT},
-	schema: {pattern: GEN_SCHEMA_FILE_PATTERN, text: GEN_SCHEMA_FILE_PATTERN_TEXT},
 };
 
 export const validate_gen_module = {
@@ -57,14 +56,10 @@ export const validate_gen_module = {
 	schema: (mod: Record<string, any>): mod is Schema_Gen_Module => !!mod,
 };
 
-export type Gen_Module_Meta = Basic_Gen_Module_Meta | Schema_Gen_Module_Meta;
+export type Gen_Module_Meta = Basic_Gen_Module_Meta;
 export interface Basic_Gen_Module_Meta extends Module_Meta<Gen_Module> {
 	type: 'basic';
 	mod: Basic_Gen_Module;
-}
-export interface Schema_Gen_Module_Meta extends Module_Meta<Gen_Module> {
-	type: 'schema';
-	mod: Schema_Gen_Module;
 }
 
 export const load_gen_module = async (id: string): Promise<Load_Module_Result<Gen_Module_Meta>> => {

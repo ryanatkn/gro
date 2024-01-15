@@ -101,67 +101,6 @@ Outputs `src/script.ts`:
 console.log('generated a string');
 ```
 
-### generate TypeScript types from schemas
-
-In addition to `.gen.` files, `gro gen` also looks for `.schema.` files
-to automatically generate TypeScript types using
-[JSON Schema](https://json-schema.org/) and
-[json-schema-to-typescript](https://github.com/bcherny/json-schema-to-typescript).
-
-Given `src/something.schema.ts`:
-
-```ts
-export const SomeObjectSchema: Json_Schema = {
-	$id: '/schemas/SomeObject',
-	type: 'object',
-	properties: {
-		a: {type: 'number'},
-		b: {type: 'string'},
-		c: {$ref: '/schemas/SomeOtherObject'},
-		d: {type: 'object', tsType: 'Dep', tsImport: `import type {Dep} from './dep.js'`},
-		e: {
-			type: 'object',
-			tsType: 'SomeGeneric<Dep>',
-			tsImport: [
-				`import type {Dep} from './dep.js'`,
-				`import type {SomeGeneric} from './generic.js'`,
-			],
-		},
-	},
-	required: ['a', 'b'],
-	additionalProperties: false,
-};
-```
-
-Outputs `src/something.ts`:
-
-```ts
-import type {Dep} from './dep.js';
-import type {SomeGeneric} from './generic.js';
-
-export interface SomeObject {
-	a: number;
-	b: string;
-	c?: Dep;
-	d?: SomeGeneric<Dep>;
-}
-```
-
-Some details:
-
-- `.schema.` modules may export any number of schemas:
-  all top-level exports with the JSONSchema
-  [`$id`](https://json-schema.org/draft/2020-12/json-schema-core.html#anchor) property
-  are considered to be vocab schemas by `is_json_schema` (this detection may need tweaking)
-- vocab schemas suffixed with `Schema` will output types without the suffix,
-  as a convenience to avoid name collisions
-  (note that your declared `$id` should omit the suffix)
-- `tsType` is specific to
-  [json-schema-to-typescript](https://github.com/bcherny/json-schema-to-typescript)
-- `tsImport` is specific to the fork
-  [@ryanatkn/json-schema-to-typescript](https://github.com/ryanatkn/json-schema-to-typescript) -
-  it can be a string or array of strings
-
 ### generate other filetypes
 
 Files with any extension can be generated without configuration.
