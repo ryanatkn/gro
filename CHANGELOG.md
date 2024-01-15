@@ -1,5 +1,11 @@
 # @grogarden/gro
 
+## 0.110.0
+
+### Minor Changes
+
+- remove json schema support for zod ([#447](https://github.com/grogarden/gro/pull/447))
+
 ## 0.109.1
 
 ### Patch Changes
