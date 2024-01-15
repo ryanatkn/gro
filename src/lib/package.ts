@@ -428,7 +428,6 @@ export const src_json = {
 				{name: 'GEN_SCHEMA_FILE_PATTERN', kind: 'variable'},
 				{name: 'GEN_SCHEMA_PATH_SUFFIX', kind: 'variable'},
 				{name: 'GEN_SCHEMA_IDENTIFIER_SUFFIX', kind: 'variable'},
-				{name: 'to_gen_schema_name', kind: 'function'},
 				{name: 'Gen_Module_Type', kind: 'type'},
 				{name: 'Gen_Module', kind: 'type'},
 				{name: 'Basic_Gen_Module', kind: 'type'},

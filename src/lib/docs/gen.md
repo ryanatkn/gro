@@ -18,7 +18,6 @@ By convention, `gro gen` looks through `src/`
 for any TypeScript files with `.gen.` in the file name,
 and it outputs a file stripped of `.gen.` to the same directory.
 The `*.gen.*` origin files export a `gen` function
-that returns the content of the output file.
 More flexibility is available when needed
 including multiple custom output files.
 
@@ -33,7 +32,6 @@ and name the output files accordingly.
 Integrating codegen into our development process
 is a simple idea with vast potential.
 It lets us have a single source of truth for data
-that would otherwise be scattered throughout our codebases
 without compromising any of our code's runtime characteristics.
 We can generate documentation, types,
 `index.ts` files exporting directories,
@@ -41,7 +39,6 @@ data for a UI,
 validators, tests, fakes,
 and more by introspecting our data at buildtime,
 which speeds up development
-and helps us write code that's easier to understand and change.
 The goal is to leverage automation to increase the power we wield over our code
 with a straightforward developer experience.
 Ergonomics are key to unlocking codegen's full potential.
@@ -73,7 +70,6 @@ gro gen --check # exits with error code 1 if anything is new or different; no-op
 ```
 
 > in the following examples,
-> note that importing the `Gen` type is optional,
 > but it makes for a better DX
 
 ### generate arbitrary TypeScript
@@ -208,8 +204,6 @@ and `src/data/thing.json`:
 }
 ```
 
-### check that generated files have not changed
-
 It's often helpful to check if any generated files are new or have changed.
 We don't want to forget to regenerate files before committing or publishing!
 The `check` CLI argument can be passed to perform this check
@@ -240,14 +234,8 @@ which is called during `gro publish`, and it's recommended in CI.
 
 - [x] basic functionality
 - [x] format output with Prettier
-- [x] add type generation for `.schema.` files
 - [x] [watch mode and build integration](https://github.com/grogarden/gro/pull/283),
       opt out with `watch: false` for expensive gen use cases
 - [ ] change the exported `gen` function to an object with a `summary` and other properties like `watch`
-- [ ] properly implement the hacks that de-dupe and combine `tsImport` statements for `.schema.` files
-- [ ] support gen files authored in languages beyond TypeScript like
-      Svelte/[MDSveX](https://github.com/pngwn/MDsveX)/etc
-      to generate html/markdown/etc (similar to the `.schema.` support)
 - [ ] support generating non-text files
-- [ ] sourcemaps
 - [ ] think about how to handle gen file dependency graphs (generated files as inputs to gen files)

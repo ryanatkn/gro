@@ -29,7 +29,6 @@ test__search_fs('basic behavior', async () => {
 			'test_file.other.ext',
 			'test_failing_task_module.ts',
 			'some_test_side_effect.ts',
-			'some_test_object.ts',
 			'some_test_json.json',
 			'some_test_exports3.ts',
 			'some_test_exports2.ts',

@@ -27,7 +27,7 @@ export interface Gen_Context {
 export type Raw_Gen_Result = string | Raw_Gen_File | null | Raw_Gen_Result[];
 export interface Raw_Gen_File {
 	content: string;
-	// Defaults to file name without the `.gen` or `.schema`, and can be a relative path.
+	// Defaults to file name without the `.gen`, and can be a relative path.
 	// TODO maybe support a transform pattern or callback fn? like '[stem].thing.[ext]'
 	filename?: string;
 	format?: boolean; // defaults to `true`
@@ -122,7 +122,7 @@ export const to_output_file_name = (filename: string): string => {
 	const has_different_ext = gen_pattern_index === parts.length - 3;
 	const length = has_different_ext ? parts.length - 1 : parts.length;
 	for (let i = 0; i < length; i++) {
-		if (i === gen_pattern_index) continue; // skip the `.gen.` or `.schema.` pattern
+		if (i === gen_pattern_index) continue; // skip the `.gen.` pattern
 		if (i === length - 1 && parts[i] === '') continue; // allow empty extension
 		final_parts.push(parts[i]);
 	}
