@@ -35,7 +35,7 @@
 
 ### Minor Changes
 
-- upgrade @grogarden/util@0.19 ([0f53451](https://github.com/ryanatkn/gro/commit/0f53451))
+- upgrade @ryanatkn/util@0.19 ([0f53451](https://github.com/ryanatkn/gro/commit/0f53451))
 
 ### Patch Changes
 
@@ -68,13 +68,13 @@
 
 ### Patch Changes
 
-- upgrade @grogarden/util ([dfcbe4c](https://github.com/ryanatkn/gro/commit/dfcbe4c))
+- upgrade @ryanatkn/util ([dfcbe4c](https://github.com/ryanatkn/gro/commit/dfcbe4c))
 
 ## 0.107.2
 
 ### Patch Changes
 
-- upgrade @grogarden/util ([4baf889](https://github.com/ryanatkn/gro/commit/4baf889))
+- upgrade @ryanatkn/util ([4baf889](https://github.com/ryanatkn/gro/commit/4baf889))
 
 ## 0.107.1
 
@@ -103,7 +103,7 @@
 
 ### Patch Changes
 
-- upgrade @grogarden/util to use `fetch_value` ([#439](https://github.com/ryanatkn/gro/pull/439))
+- upgrade @ryanatkn/util to use `fetch_value` ([#439](https://github.com/ryanatkn/gro/pull/439))
 
 ## 0.105.4
 
@@ -168,7 +168,7 @@
 - stop using `git workspace` for `gro deploy` ([#429](https://github.com/ryanatkn/gro/pull/429))
 - upgrade deps: ([#437](https://github.com/ryanatkn/gro/pull/437))
 
-  - @grogarden/util@18
+  - @ryanatkn/util@18
   - prettier@3.1.1
   - ts-morph@21
 
@@ -259,7 +259,7 @@
 
 ### Minor Changes
 
-- upgrade `@grogarden/util@0.16` ([88ac35b](https://github.com/ryanatkn/gro/commit/88ac35b))
+- upgrade `@ryanatkn/util@0.16` ([88ac35b](https://github.com/ryanatkn/gro/commit/88ac35b))
 
 ## 0.99.0
 
@@ -355,7 +355,7 @@
 
 ### Patch Changes
 
-- upgrade @grogarden/util@0.15.1 from 0.15.0 ([52fad99](https://github.com/ryanatkn/gro/commit/52fad99))
+- upgrade @ryanatkn/util@0.15.1 from 0.15.0 ([52fad99](https://github.com/ryanatkn/gro/commit/52fad99))
 
 ## 0.95.4
 
@@ -466,7 +466,7 @@
 
 ### Minor Changes
 
-- upgrade to @grogarden/util@0.15 from 0.14 ([18cbcb5](https://github.com/ryanatkn/gro/commit/18cbcb5))
+- upgrade to @ryanatkn/util@0.15 from 0.14 ([18cbcb5](https://github.com/ryanatkn/gro/commit/18cbcb5))
 
 ## 0.90.3
 
@@ -554,7 +554,7 @@
 ### Minor Changes
 
 - remove execSync usage ([#407](https://github.com/ryanatkn/gro/pull/407))
-- upgrade to `@grogarden/util@0.14.0` from `0.13.0` ([#407](https://github.com/ryanatkn/gro/pull/407))
+- upgrade to `@ryanatkn/util@0.14.0` from `0.13.0` ([#407](https://github.com/ryanatkn/gro/pull/407))
 
 ## 0.86.0
 
@@ -597,7 +597,7 @@
 
 ### Minor Changes
 
-- replace `@feltjs/util` with `@grogarden/util` ([8fcac65](https://github.com/ryanatkn/gro/commit/8fcac65))
+- replace `@feltjs/util` with `@ryanatkn/util` ([8fcac65](https://github.com/ryanatkn/gro/commit/8fcac65))
 
 ## 0.82.9
 
@@ -697,7 +697,7 @@
 
 ## 0.79.0
 
-- **break**: upgrade to `@grogarden/util@0.9.0` and peer dep `svelte@4`,
+- **break**: upgrade to `@ryanatkn/util@0.9.0` and peer dep `svelte@4`,
   and change peer deps to avoid breaking changes
   ([#378](https://github.com/ryanatkn/gro/pull/378))
 
@@ -771,19 +771,19 @@
 
 ## 0.73.0
 
-- **break**: upgrade dep `@grogarden/util@0.8.0` and `esbuild@0.17.0`
+- **break**: upgrade dep `@ryanatkn/util@0.8.0` and `esbuild@0.17.0`
   ([#366](https://github.com/ryanatkn/gro/pull/366))
 - `npm i` before `gro build`, add `--no-install` flag to override
   ([#365](https://github.com/ryanatkn/gro/pull/365))
 
 ## 0.72.0
 
-- **break**: upgrade dep `@grogarden/util@0.7.4`
+- **break**: upgrade dep `@ryanatkn/util@0.7.4`
   ([commit](https://github.com/ryanatkn/gro/commit/731007d1533f981e524e318c00af3a6fa861e909))
 
 ## 0.71.0
 
-- **break**: upgrade dep `@grogarden/util@0.6.0`
+- **break**: upgrade dep `@ryanatkn/util@0.6.0`
   ([#364](https://github.com/ryanatkn/gro/pull/364))
 
 ## 0.70.5
@@ -796,7 +796,7 @@
 
 ## 0.70.3
 
-- upgrade `@grogarden/util`
+- upgrade `@ryanatkn/util`
   ([#362](https://github.com/ryanatkn/gro/pull/362))
 
 ## 0.70.2
@@ -851,7 +851,7 @@
 
 ## 0.67.0
 
-- upgrade `@grogarden/util@0.3.0`
+- upgrade `@ryanatkn/util@0.3.0`
 
 ## 0.66.1
 
@@ -859,12 +859,12 @@
 
 ## 0.66.0
 
-- **break**: upgrade `@grogarden/util`
+- **break**: upgrade `@ryanatkn/util`
   ([#356](https://github.com/ryanatkn/gro/pull/356))
 
 ## 0.65.0
 
-- **break**: depend on `@grogarden/util` instead of `@feltjs/felt-ui`
+- **break**: depend on `@ryanatkn/util` instead of `@feltjs/felt-ui`
   ([#355](https://github.com/ryanatkn/gro/pull/355))
 
 ## 0.64.0

@@ -35,7 +35,7 @@ export const package_json = {
 	],
 	files: ['dist'],
 	dependencies: {
-		'@grogarden/util': '^0.19.0',
+		'@ryanatkn/util': '^0.20.0',
 		chokidar: '^3.5.3',
 		dotenv: '^16.3.1',
 		'es-module-lexer': '^1.4.1',

@@ -1,9 +1,9 @@
 import {red} from 'kleur/colors';
-import {print_error} from '@grogarden/util/print.js';
-import type {Timings} from '@grogarden/util/timings.js';
-import type {Logger} from '@grogarden/util/log.js';
-import {Unreachable_Error} from '@grogarden/util/error.js';
-import {strip_end} from '@grogarden/util/string.js';
+import {print_error} from '@ryanatkn/util/print.js';
+import type {Timings} from '@ryanatkn/util/timings.js';
+import type {Logger} from '@ryanatkn/util/log.js';
+import {Unreachable_Error} from '@ryanatkn/util/error.js';
+import {strip_end} from '@ryanatkn/util/string.js';
 
 import {type Gen_Module_Meta, GEN_SCHEMA_PATH_SUFFIX} from './gen_module.js';
 import {
