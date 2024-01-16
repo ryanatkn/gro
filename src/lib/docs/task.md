@@ -16,6 +16,11 @@ Gro prefers conventions and code over configuration,
 and its task runner leverages the filesystem as the API
 and defers composition to the user in regular TypeScript modules.
 
+> Tasks are a special Gro construct.
+> If you want to simply execute regular TypeScript files,
+> use the `gro run` task, which works like the normal `node` CLI
+> but uses the Gro loader to support `.ts`.
+
 - Gro automatically discovers [all `*.task.ts` files](../docs/tasks.md)
   in your source directory, so creating a new task
   is as simple as [creating a new file](#define-a-task), no config needed,

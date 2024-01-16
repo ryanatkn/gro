@@ -11,7 +11,7 @@ export const package_json = {
 	public: true,
 	bin: {gro: 'dist/gro.js'},
 	license: 'MIT',
-	homepage: 'https://www.grogarden.org/',
+	homepage: 'https://gro.ryanatkn.com/',
 	author: {name: 'Ryan Atkinson', email: 'mail@ryanatkn.com', url: 'https://www.ryanatkn.com/'},
 	repository: {type: 'git', url: 'git+https://github.com/ryanatkn/gro.git'},
 	bugs: {url: 'https://github.com/ryanatkn/gro/issues', email: 'mail@ryanatkn.com'},
