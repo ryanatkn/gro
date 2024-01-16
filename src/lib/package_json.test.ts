@@ -87,7 +87,7 @@ test('to_package_exports', async () => {
 
 test('parse_repo_url', async () => {
 	const parsed = parse_repo_url(await load_package_json());
-	assert.is(parsed?.owner, 'grogarden');
+	assert.is(parsed?.owner, 'ryanatkn');
 	assert.is(parsed?.repo, 'gro');
 });
 
