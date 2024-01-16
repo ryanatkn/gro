@@ -21,10 +21,10 @@ Maybe let you map the array of each method batch. (is that possible with those?)
 
 Gro's builtin plugins:
 
-- [`@grogarden/gro_plugin_server`](../gro_plugin_server.ts)
-- [`@grogarden/gro_plugin_sveltekit_library`](../gro_plugin_sveltekit_library.ts)
-- [`@grogarden/gro_plugin_sveltekit_app`](../gro_plugin_sveltekit_app.ts)
-- [`@grogarden/gro_plugin_gen`](../gro_plugin_gen.ts)
+- [`@ryanatkn/gro_plugin_server`](../gro_plugin_server.ts)
+- [`@ryanatkn/gro_plugin_sveltekit_library`](../gro_plugin_sveltekit_library.ts)
+- [`@ryanatkn/gro_plugin_sveltekit_app`](../gro_plugin_sveltekit_app.ts)
+- [`@ryanatkn/gro_plugin_gen`](../gro_plugin_gen.ts)
   (currently disabled, will be replaced with an esbuild plugin)
 
 Also see [`config.plugin` in the config docs](config.md#plugin)

@@ -25,7 +25,7 @@ const changelog_cache_fixture: Fetch_Value_Cache = new Map(
 test('update_changelog', async () => {
 	const original = await readFile(fixture_path, 'utf8');
 	const result = await update_changelog(
-		'grogarden',
+		'ryanatkn',
 		'gro',
 		fixture_path,
 		token,
@@ -37,15 +37,15 @@ test('update_changelog', async () => {
 	assert.ok(result);
 	assert.is(
 		updated,
-		`# @grogarden/gro
+		`# @ryanatkn/gro
 
 ## 0.6.0
 
 ### Minor Changes
 
-- duplicate 1 ([#429](https://github.com/grogarden/gro/pull/429))
-- duplicate 2 ([#429](https://github.com/grogarden/gro/pull/429))
-- abc ([#437](https://github.com/grogarden/gro/pull/437))
+- duplicate 1 ([#429](https://github.com/ryanatkn/gro/pull/429))
+- duplicate 2 ([#429](https://github.com/ryanatkn/gro/pull/429))
+- abc ([#437](https://github.com/ryanatkn/gro/pull/437))
 
   - 123
   - 123
@@ -53,56 +53,56 @@ test('update_changelog', async () => {
 
 ### Patch Changes
 
-- abc ([5e94cd4](https://github.com/grogarden/gro/commit/5e94cd4))
+- abc ([5e94cd4](https://github.com/ryanatkn/gro/commit/5e94cd4))
 
 ## 0.5.2
 
 ### Patch Changes
 
-- abc ([e345eaa](https://github.com/grogarden/gro/commit/e345eaa))
+- abc ([e345eaa](https://github.com/ryanatkn/gro/commit/e345eaa))
 
 ## 0.5.1
 
 ### Patch Changes
 
-- abc ([094279d](https://github.com/grogarden/gro/commit/094279d))
+- abc ([094279d](https://github.com/ryanatkn/gro/commit/094279d))
 
 ## 0.5.0
 
 ### Minor Changes
 
-- abc ([f6133f7](https://github.com/grogarden/gro/commit/f6133f7))
+- abc ([f6133f7](https://github.com/ryanatkn/gro/commit/f6133f7))
 
 ## 0.4.3
 
 ### Patch Changes
 
-- abc ([54b65ec](https://github.com/grogarden/gro/commit/54b65ec))
+- abc ([54b65ec](https://github.com/ryanatkn/gro/commit/54b65ec))
 
 ## 0.4.2
 
 ### Patch Changes
 
-- abc ([80365d0](https://github.com/grogarden/gro/commit/80365d0))
+- abc ([80365d0](https://github.com/ryanatkn/gro/commit/80365d0))
 
 ## 0.4.1
 
 ### Patch Changes
 
-- abc ([3d84dfd](https://github.com/grogarden/gro/commit/3d84dfd))
-- abc ([fc64b77](https://github.com/grogarden/gro/commit/fc64b77))
+- abc ([3d84dfd](https://github.com/ryanatkn/gro/commit/3d84dfd))
+- abc ([fc64b77](https://github.com/ryanatkn/gro/commit/fc64b77))
 
 ## 0.4.0
 
 ### Minor Changes
 
-- abc ([#434](https://github.com/grogarden/gro/pull/434))
+- abc ([#434](https://github.com/ryanatkn/gro/pull/434))
   - 123
   - 123
 
 ### Patch Changes
 
-- abc ([#434](https://github.com/grogarden/gro/pull/434))
+- abc ([#434](https://github.com/ryanatkn/gro/pull/434))
 
 ## 0.3.1
 

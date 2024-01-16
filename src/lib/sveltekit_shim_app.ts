@@ -9,11 +9,11 @@ export const sveltekit_shim_app_environment_matcher =
  * @see https://kit.svelte.dev/docs/modules
  */
 export const sveltekit_shim_app_specifiers = new Map([
-	['$app/environment', '@grogarden/gro/sveltekit_shim_app_environment.js'],
-	['$app/forms', '@grogarden/gro/sveltekit_shim_app_forms.js'],
-	['$app/navigation', '@grogarden/gro/sveltekit_shim_app_navigation.js'],
-	['$app/paths', '@grogarden/gro/sveltekit_shim_app_paths.js'],
-	['$app/stores', '@grogarden/gro/sveltekit_shim_app_stores.js'],
+	['$app/environment', '@ryanatkn/gro/sveltekit_shim_app_environment.js'],
+	['$app/forms', '@ryanatkn/gro/sveltekit_shim_app_forms.js'],
+	['$app/navigation', '@ryanatkn/gro/sveltekit_shim_app_navigation.js'],
+	['$app/paths', '@ryanatkn/gro/sveltekit_shim_app_paths.js'],
+	['$app/stores', '@ryanatkn/gro/sveltekit_shim_app_stores.js'],
 ]);
 
 export const render_sveltekit_shim_app_paths = (

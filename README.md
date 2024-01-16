@@ -2,16 +2,16 @@
 
 <img src="static/favicon.png" align="right" width="192" height="192">
 
-> task runner and toolkit extending SvelteKit - [grogarden.org](https://grogarden.org)
+> task runner and toolkit extending SvelteKit - [gro.ryanatkn.com](https://gro.ryanatkn.com)
 
-[`npm i -D @grogarden/gro`](https://www.npmjs.com/package/@grogarden/gro)
+[`npm i -D @ryanatkn/gro`](https://www.npmjs.com/package/@ryanatkn/gro)
 
 limitations:
 
 - Gro has been actively used since 2019 but it has few users,
   so you'll likely encounter problems and undesirable limitations --
   please open issues!
-- [Windows won't be supported](https://github.com/grogarden/gro/issues/319)
+- [Windows won't be supported](https://github.com/ryanatkn/gro/issues/319)
 
 ## about
 
@@ -49,7 +49,7 @@ It includes:
   - [configurable plugins](/src/lib/docs/plugin.md)
     to support SvelteKit, auto-restarting Node servers, and other external build processes
     - see the [Gro config docs](/src/lib/docs/config.md) and
-      [the default config](https://github.com/grogarden/gro/blob/main/src/lib/gro.config.default.ts)
+      [the default config](https://github.com/ryanatkn/gro/blob/main/src/lib/gro.config.default.ts)
     - see [`fuz_template`](https://github.com/fuz-dev/fuz_template)
       for a simple starter project example, and
       [`@feltjs/felt`](https://github.com/feltjs/felt) for a more complex example with custom tasks
@@ -80,18 +80,18 @@ It includes:
 
 > depends on node >=20.10
 
-Typical usage installs [@grogarden/gro](https://www.npmjs.com/package/@grogarden/gro)
+Typical usage installs [@ryanatkn/gro](https://www.npmjs.com/package/@ryanatkn/gro)
 as a dev dependency:
 
 ```bash
-npm i -D @grogarden/gro
+npm i -D @ryanatkn/gro
 npx gro
 ```
 
 It's handy to install globally too:
 
 ```bash
-npm i -g @grogarden/gro
+npm i -g @ryanatkn/gro
 gro
 ```
 
@@ -246,7 +246,7 @@ Gro builds on
 [mri](https://github.com/lukeed/mri) ∙
 [chokidar](https://github.com/paulmillr/chokidar) ∙
 [zod](https://github.com/colinhacks/zod) ∙
-[@grogarden/util](https://github.com/grogarden/util) ∙
+[@grogarden/util](https://github.com/ryanatkn/util) ∙
 [ESLint](https://github.com/eslint/eslint) ∙
 [Prettier](https://github.com/prettier/prettier) ∙
 [svelte-check](https://github.com/sveltejs/language-tools/tree/master/packages/svelte-check) &

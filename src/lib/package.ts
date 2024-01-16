@@ -4,17 +4,17 @@ import type {Package_Json} from './package_json.js';
 import type {Src_Json} from './src_json.js';
 
 export const package_json = {
-	name: '@grogarden/gro',
+	name: '@ryanatkn/gro',
 	version: '0.110.2',
 	description: 'task runner and toolkit extending SvelteKit',
 	icon: '🌰',
 	public: true,
 	bin: {gro: 'dist/gro.js'},
 	license: 'MIT',
-	homepage: 'https://www.grogarden.org/',
+	homepage: 'https://gro.ryanatkn.com/',
 	author: {name: 'Ryan Atkinson', email: 'mail@ryanatkn.com', url: 'https://www.ryanatkn.com/'},
-	repository: {type: 'git', url: 'git+https://github.com/grogarden/gro.git'},
-	bugs: {url: 'https://github.com/grogarden/gro/issues', email: 'mail@ryanatkn.com'},
+	repository: {type: 'git', url: 'git+https://github.com/ryanatkn/gro.git'},
+	bugs: {url: 'https://github.com/ryanatkn/gro/issues', email: 'mail@ryanatkn.com'},
 	type: 'module',
 	engines: {node: '>=20.10'},
 	scripts: {
@@ -237,7 +237,7 @@ export const package_json = {
 } satisfies Package_Json;
 
 export const src_json = {
-	name: '@grogarden/gro',
+	name: '@ryanatkn/gro',
 	version: '0.110.2',
 	modules: {
 		'.': {

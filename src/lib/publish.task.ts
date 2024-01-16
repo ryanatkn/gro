@@ -101,7 +101,7 @@ export const task: Task<Args> = {
 			if (!parsed_repo_url) {
 				throw new Task_Error(
 					'package.json `repository` must contain a repo url (and GitHub only for now, sorry),' +
-						' like `git+https://github.com/grogarden/gro.git` or `https://github.com/grogarden/gro`' +
+						' like `git+https://github.com/ryanatkn/gro.git` or `https://github.com/ryanatkn/gro`' +
 						' or an object with the `url` key',
 				);
 			}

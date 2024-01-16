@@ -19,7 +19,7 @@
 	<div class="box width_md">
 		<section class="prose box">
 			<h1>gro</h1>
-			<a class="panel padded_md box" title="source repo" href="https://github.com/grogarden/gro">
+			<a class="panel padded_md box" title="source repo" href="https://github.com/ryanatkn/gro">
 				<img
 					alt="a pixelated green oak acorn with a glint of sun"
 					src="{base}/favicon.png"
@@ -32,7 +32,7 @@
 			this website is a work in progress!<br />
 			<div class="box row spaced">
 				for now, docs are in&nbsp;
-				<a href="https://github.com/grogarden/gro">the source repo</a>
+				<a href="https://github.com/ryanatkn/gro">the source repo</a>
 			</div>
 		</section>
 		<section class="panel spaced padded_md width_full relative">

@@ -31,7 +31,7 @@ gro run foo.ts
 Direct usage (see also `$lib/gro.ts`):
 
 ```bash
-node --import 'data:text/javascript,import {register} from "node:module"; import {pathToFileURL} from "node:url"; register("@grogarden/gro/loader.js", pathToFileURL("./"));' --enable-source-maps' foo.ts
+node --import 'data:text/javascript,import {register} from "node:module"; import {pathToFileURL} from "node:url"; register("@ryanatkn/gro/loader.js", pathToFileURL("./"));' --enable-source-maps' foo.ts
 ```
 
 TODO how to improve that gnarly import line? was originally designed for the now-deprecated `--loader`

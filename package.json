@@ -1,5 +1,5 @@
 {
-  "name": "@grogarden/gro",
+  "name": "@ryanatkn/gro",
   "version": "0.110.2",
   "description": "task runner and toolkit extending SvelteKit",
   "icon": "🌰",
@@ -8,7 +8,7 @@
     "gro": "dist/gro.js"
   },
   "license": "MIT",
-  "homepage": "https://www.grogarden.org/",
+  "homepage": "https://gro.ryanatkn.com/",
   "author": {
     "name": "Ryan Atkinson",
     "email": "mail@ryanatkn.com",
@@ -16,10 +16,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/grogarden/gro.git"
+    "url": "git+https://github.com/ryanatkn/gro.git"
   },
   "bugs": {
-    "url": "https://github.com/grogarden/gro/issues",
+    "url": "https://github.com/ryanatkn/gro/issues",
     "email": "mail@ryanatkn.com"
   },
   "type": "module",

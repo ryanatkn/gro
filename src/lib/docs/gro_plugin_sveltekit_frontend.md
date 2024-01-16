@@ -5,8 +5,8 @@ calls `vite dev` and `vite build` with some additional behaviors.
 
 ```ts
 // gro.config.ts
-import type {Gro_ConfigCreator} from '@grogarden/gro';
-import {gro_plugin_sveltekit_app} from '@grogarden/gro/gro_plugin_sveltekit_app.js';
+import type {Gro_ConfigCreator} from '@ryanatkn/gro';
+import {gro_plugin_sveltekit_app} from '@ryanatkn/gro/gro_plugin_sveltekit_app.js';
 
 const config: Gro_ConfigCreator = async (cfg) => {
 	cfg.plugins = async () => [
