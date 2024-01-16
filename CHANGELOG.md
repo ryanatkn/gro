@@ -1,5 +1,11 @@
 # @ryanatkn/gro
 
+## 0.112.0
+
+### Minor Changes
+
+- republish ([717be93](https://github.com/ryanatkn/gro/commit/717be93))
+
 ## 0.111.1
 
 ### Patch Changes
