@@ -5,7 +5,7 @@ import type {Src_Json} from './src_json.js';
 
 export const package_json = {
 	name: '@ryanatkn/gro',
-	version: '0.111.1',
+	version: '0.112.0',
 	description: 'task runner and toolkit extending SvelteKit',
 	icon: '🌰',
 	public: true,
@@ -35,7 +35,7 @@ export const package_json = {
 	],
 	files: ['dist'],
 	dependencies: {
-		'@ryanatkn/util': '^0.20.0',
+		'@ryanatkn/belt': '^0.20.1',
 		chokidar: '^3.5.3',
 		dotenv: '^16.3.1',
 		'es-module-lexer': '^1.4.1',
@@ -238,7 +238,7 @@ export const package_json = {
 
 export const src_json = {
 	name: '@ryanatkn/gro',
-	version: '0.111.1',
+	version: '0.112.0',
 	modules: {
 		'.': {
 			path: 'index.ts',

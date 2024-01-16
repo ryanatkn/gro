@@ -1,9 +1,9 @@
 import {red} from 'kleur/colors';
-import {print_error} from '@ryanatkn/util/print.js';
-import type {Timings} from '@ryanatkn/util/timings.js';
-import type {Logger} from '@ryanatkn/util/log.js';
-import {Unreachable_Error} from '@ryanatkn/util/error.js';
-import {strip_end} from '@ryanatkn/util/string.js';
+import {print_error} from '@ryanatkn/belt/print.js';
+import type {Timings} from '@ryanatkn/belt/timings.js';
+import type {Logger} from '@ryanatkn/belt/log.js';
+import {Unreachable_Error} from '@ryanatkn/belt/error.js';
+import {strip_end} from '@ryanatkn/belt/string.js';
 
 import {type Gen_Module_Meta, GEN_SCHEMA_PATH_SUFFIX} from './gen_module.js';
 import {

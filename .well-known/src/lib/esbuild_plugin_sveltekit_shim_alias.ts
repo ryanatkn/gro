@@ -1,5 +1,5 @@
 import type * as esbuild from 'esbuild';
-import {escape_regexp} from '@ryanatkn/util/regexp.js';
+import {escape_regexp} from '@ryanatkn/belt/regexp.js';
 import {cwd} from 'node:process';
 import {join} from 'node:path';
 

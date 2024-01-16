@@ -1,4 +1,4 @@
-import {spawn} from '@ryanatkn/util/process.js';
+import {spawn} from '@ryanatkn/belt/process.js';
 import {z} from 'zod';
 
 import type {Task} from './task.js';

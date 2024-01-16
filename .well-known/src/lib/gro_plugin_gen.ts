@@ -2,7 +2,7 @@
 // because we no longer have a normal system build - replace with an esbuild plugin
 // @ts-nocheck
 
-import {spawn} from '@ryanatkn/util/process.js';
+import {spawn} from '@ryanatkn/belt/process.js';
 
 import type {Plugin, Plugin_Context} from './plugin.js';
 import type {Args} from './args.js';

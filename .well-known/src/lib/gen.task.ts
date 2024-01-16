@@ -1,6 +1,6 @@
 import {red, green, gray} from 'kleur/colors';
-import {print_ms, print_error} from '@ryanatkn/util/print.js';
-import {plural} from '@ryanatkn/util/string.js';
+import {print_ms, print_error} from '@ryanatkn/belt/print.js';
+import {plural} from '@ryanatkn/belt/string.js';
 import {z} from 'zod';
 import {dirname} from 'node:path';
 import {mkdir, writeFile} from 'node:fs/promises';

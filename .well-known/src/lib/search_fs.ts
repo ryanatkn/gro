@@ -1,8 +1,8 @@
 import glob from 'tiny-glob';
 import {stat} from 'node:fs/promises';
-import {sort_map, compare_simple_map_entries} from '@ryanatkn/util/map.js';
-import {strip_end, strip_start} from '@ryanatkn/util/string.js';
-import {EMPTY_OBJECT} from '@ryanatkn/util/object.js';
+import {sort_map, compare_simple_map_entries} from '@ryanatkn/belt/map.js';
+import {strip_end, strip_start} from '@ryanatkn/belt/string.js';
+import {EMPTY_OBJECT} from '@ryanatkn/belt/object.js';
 
 import type {Path_Stats, Path_Filter} from './path.js';
 import {exists} from './fs.js';

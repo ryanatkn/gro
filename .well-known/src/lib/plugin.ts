@@ -1,4 +1,4 @@
-import {to_array} from '@ryanatkn/util/array.js';
+import {to_array} from '@ryanatkn/belt/array.js';
 
 import type {Task_Context} from './task.js';
 

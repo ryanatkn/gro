@@ -1,10 +1,10 @@
-import {spawn_restartable_process, type Restartable_Process} from '@ryanatkn/util/process.js';
+import {spawn_restartable_process, type Restartable_Process} from '@ryanatkn/belt/process.js';
 import * as esbuild from 'esbuild';
 import {cwd} from 'node:process';
 import type {Config as SvelteKitConfig} from '@sveltejs/kit';
 import {join, resolve} from 'node:path';
-import {identity} from '@ryanatkn/util/function.js';
-import {strip_before} from '@ryanatkn/util/string.js';
+import {identity} from '@ryanatkn/belt/function.js';
+import {strip_before} from '@ryanatkn/belt/string.js';
 
 import type {Plugin, Plugin_Context} from './plugin.js';
 import {
