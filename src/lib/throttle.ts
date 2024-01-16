@@ -1,4 +1,4 @@
-import {wait} from '@ryanatkn/util/async.js';
+import {wait} from '@grogarden/util/async.js';
 
 // TODO maybe support non-promise return values?
 

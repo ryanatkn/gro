@@ -1,4 +1,4 @@
-import {attach_process_error_handlers} from '@ryanatkn/util/process.js';
+import {attach_process_error_handlers} from '@grogarden/util/process.js';
 
 import {invoke_task} from './invoke_task.js';
 import {to_task_args} from './args.js';

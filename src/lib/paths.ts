@@ -1,8 +1,8 @@
 import {join, basename, extname, relative} from 'node:path';
 import {fileURLToPath} from 'node:url';
-import {strip_end, strip_start} from '@ryanatkn/util/string.js';
+import {strip_end, strip_start} from '@grogarden/util/string.js';
 import {gray} from 'kleur/colors';
-import type {Flavored} from '@ryanatkn/util/types.js';
+import type {Flavored} from '@grogarden/util/types.js';
 import {z} from 'zod';
 
 /*

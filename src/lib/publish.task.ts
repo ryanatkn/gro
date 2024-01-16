@@ -1,4 +1,4 @@
-import {spawn} from '@ryanatkn/util/process.js';
+import {spawn} from '@grogarden/util/process.js';
 import {z} from 'zod';
 import {green, cyan} from 'kleur/colors';
 

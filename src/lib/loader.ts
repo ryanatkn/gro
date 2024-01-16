@@ -3,7 +3,7 @@ import {compile, preprocess} from 'svelte/compiler';
 import {fileURLToPath, pathToFileURL} from 'node:url';
 import {dirname, join, relative} from 'node:path';
 import type {LoadHook, ResolveHook} from 'node:module';
-import {escape_regexp} from '@ryanatkn/util/regexp.js';
+import {escape_regexp} from '@grogarden/util/regexp.js';
 
 import {render_env_shim_module} from './sveltekit_shim_env.js';
 import {

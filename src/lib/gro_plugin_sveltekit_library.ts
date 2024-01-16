@@ -1,4 +1,4 @@
-import {print_spawn_result, spawn} from '@ryanatkn/util/process.js';
+import {print_spawn_result, spawn} from '@grogarden/util/process.js';
 
 import type {Plugin, Plugin_Context} from './plugin.js';
 import {Task_Error} from './task.js';

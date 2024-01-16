@@ -2,8 +2,8 @@
 // for now it's just calling a single endpoint so we do it manually
 // and we specify just the types we need
 
-import {Fetch_Value_Cache, fetch_value} from '@ryanatkn/util/fetch.js';
-import type {Logger} from '@ryanatkn/util/log.js';
+import {Fetch_Value_Cache, fetch_value} from '@grogarden/util/fetch.js';
+import type {Logger} from '@grogarden/util/log.js';
 import {z} from 'zod';
 
 export const Github_Pull_Request = z.object({

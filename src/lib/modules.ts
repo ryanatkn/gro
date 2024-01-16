@@ -1,8 +1,8 @@
 import {red} from 'kleur/colors';
-import type {Timings} from '@ryanatkn/util/timings.js';
-import {Unreachable_Error} from '@ryanatkn/util/error.js';
-import type {Result} from '@ryanatkn/util/result.js';
-import {print_error} from '@ryanatkn/util/print.js';
+import type {Timings} from '@grogarden/util/timings.js';
+import {Unreachable_Error} from '@grogarden/util/error.js';
+import type {Result} from '@grogarden/util/result.js';
+import {print_error} from '@grogarden/util/print.js';
 
 import {load_source_path_data_by_input_path, load_source_ids_by_input_path} from './input_path.js';
 import type {Path_Data} from './path.js';

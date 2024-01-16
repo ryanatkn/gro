@@ -1,5 +1,5 @@
-import {spawn, type Spawn_Result} from '@ryanatkn/util/process.js';
-import type {Logger} from '@ryanatkn/util/log.js';
+import {spawn, type Spawn_Result} from '@grogarden/util/process.js';
+import type {Logger} from '@grogarden/util/log.js';
 
 import {
 	GITHUB_DIRNAME,
