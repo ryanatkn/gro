@@ -1,0 +1,2150 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<link rel="icon" href="./favicon.png" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		
+		<link href="./_app/immutable/assets/0.BUBgyyTj.css" rel="stylesheet">
+		<link href="./_app/immutable/assets/3.oTpm1-fn.css" rel="stylesheet">
+		<link href="./_app/immutable/assets/package.XWQhbnHc.css" rel="stylesheet">
+		<link rel="modulepreload" href="./_app/immutable/entry/start.THM5DJen.js">
+		<link rel="modulepreload" href="./_app/immutable/chunks/scheduler.AFoXYETE.js">
+		<link rel="modulepreload" href="./_app/immutable/chunks/singletons.A0D4q6hj.js">
+		<link rel="modulepreload" href="./_app/immutable/chunks/index.W_l_kxFX.js">
+		<link rel="modulepreload" href="./_app/immutable/entry/app.DwmyV0QV.js">
+		<link rel="modulepreload" href="./_app/immutable/chunks/index.NXzj7nqe.js">
+		<link rel="modulepreload" href="./_app/immutable/nodes/0.QwzRhwGK.js">
+		<link rel="modulepreload" href="./_app/immutable/nodes/3.mYhhE2cT.js">
+		<link rel="modulepreload" href="./_app/immutable/chunks/package.AyJBcXER.js">
+		<link rel="modulepreload" href="./_app/immutable/chunks/stores.bgKDnGSG.js"><title>@ryanatkn/gro</title><!-- HEAD_svelte-1alm3e5_START --><!-- HEAD_svelte-1alm3e5_END --><!-- HEAD_svelte-1qw2uo0_START --><meta name="color-scheme" content="light dark"> <meta name="theme-color" content="#257e25"> <script><!-- HTML_TAG_START -->
+	try {
+		let c = localStorage.getItem('color-scheme');
+		if (c === 'auto' || (c !== 'dark' && c !== 'light')) {
+			c = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+		}
+		if (c === 'dark') document.documentElement.classList.add('dark');
+	} catch (_) {  }
+<!-- HTML_TAG_END --></script><!-- HEAD_svelte-1qw2uo0_END -->
+	</head>
+	<body data-sveltekit-preload-data="hover">
+		<div style="display: contents">     <main class="width_md svelte-1tz8tj3"><div class="prose"><section class="svelte-1tz8tj3"><header class="box"><h1 class="svelte-1tz8tj3">gro</h1></header> <div class="breadcrumb svelte-g6c005"> <a href="." class="svelte-g6c005">🧶</a><span class="separator svelte-g6c005">/</span><a href="./about" class="svelte-g6c005 selected">about</a> </div></section></div> <section class="box width_full spaced svelte-1tz8tj3"><div class="panel padded_md width_md"><div class="package_detail svelte-1rnqnfh"> <header class="spaced"><div class="repo_name svelte-1rnqnfh">gro 🌰</div></header>  <div class="spaced">task runner and toolkit extending SvelteKit</div> <blockquote class="npm_url spaced svelte-1rnqnfh">npm i -D @ryanatkn/gro</blockquote> <section class="properties width_full spaced svelte-1rnqnfh"> <div class="row svelte-1rnqnfh">homepage:
+					<a class="chip row svelte-1rnqnfh" href="https://gro.ryanatkn.com/"><img src="https://gro.ryanatkn.com/favicon.png" alt="favicon to homepage at https://gro.ryanatkn.com/" style="width: 16px; height: 16px; margin-right: var(--spacing_xs);"> gro.ryanatkn.com</a></div>  <div class="row svelte-1rnqnfh">repo: <a class="chip svelte-1rnqnfh" title="repo" href="https://github.com/ryanatkn/gro">gro</a></div> <div class="row svelte-1rnqnfh">npm: <a class="chip svelte-1rnqnfh" title="npm" href="https://www.npmjs.com/package/@ryanatkn/gro">@ryanatkn/gro</a></div> <div class="row svelte-1rnqnfh">version: <a class="chip svelte-1rnqnfh" title="version" href="https://github.com/ryanatkn/gro/blob/main/CHANGELOG.md">0.111.0</a></div> <div class="row svelte-1rnqnfh">license: <a class="chip svelte-1rnqnfh" title="license" href="https://github.com/ryanatkn/gro/blob/main/LICENSE">MIT</a></div> <section class="row spaced svelte-1rnqnfh">data:
+				<a class="chip svelte-1rnqnfh" title="data" href="https://gro.ryanatkn.com/.well-known/package.json">package.json</a> <a class="chip svelte-1rnqnfh" title="data" href="https://gro.ryanatkn.com/.well-known/src.json">src.json</a></section></section> <section class="width_full spaced"><menu>   <li class="module svelte-1rnqnfh ts"><div><a class="chip svelte-1rnqnfh" href="https://github.com/ryanatkn/gro/blob/main/src/lib/index.ts">index.js</a></div> <ul class="declarations svelte-1rnqnfh"><li class="declaration chip type_declaration svelte-1rnqnfh">Gro_Config </li><li class="declaration chip type_declaration svelte-1rnqnfh">Create_Gro_Config </li><li class="declaration chip type_declaration svelte-1rnqnfh">Plugin </li><li class="declaration chip function_declaration svelte-1rnqnfh">replace_plugin </li><li class="declaration chip type_declaration svelte-1rnqnfh">Gen </li><li class="declaration chip type_declaration svelte-1rnqnfh">Gen_Context </li><li class="declaration chip type_declaration svelte-1rnqnfh">Task </li><li class="declaration chip type_declaration svelte-1rnqnfh">Task_Context </li><li class="declaration chip class_declaration svelte-1rnqnfh">Task_Error </li> </ul> </li>   <li class="module svelte-1rnqnfh ts"><div><a class="chip svelte-1rnqnfh" href="https://github.com/ryanatkn/gro/blob/main/src/lib/args.ts">args.js</a></div> <ul class="declarations svelte-1rnqnfh"><li class="declaration chip type_declaration svelte-1rnqnfh">Args </li><li class="declaration chip type_declaration svelte-1rnqnfh">Arg_Value </li><li class="declaration chip type_declaration svelte-1rnqnfh">Arg_Schema </li><li class="declaration chip function_declaration svelte-1rnqnfh">parse_args </li><li class="declaration chip function_declaration svelte-1rnqnfh">serialize_args </li><li class="declaration chip function_declaration svelte-1rnqnfh">to_task_args </li><li class="declaration chip function_declaration svelte-1rnqnfh">to_raw_rest_args </li><li class="declaration chip function_declaration svelte-1rnqnfh">to_forwarded_args </li><li class="declaration chip function_declaration svelte-1rnqnfh">to_forwarded_args_by_command </li><li class="declaration chip function_declaration svelte-1rnqnfh">print_command_args </li> </ul> </li>   <li class="module svelte-1rnqnfh ts"><div><a class="chip svelte-1rnqnfh" href="https://github.com/ryanatkn/gro/blob/main/src/lib/build.task.ts">build.task.js</a></div> <ul class="declarations svelte-1rnqnfh"><li class="declaration chip variable_declaration svelte-1rnqnfh">Args </li><li class="declaration chip variable_declaration svelte-1rnqnfh">task </li> </ul> </li>   <li class="module svelte-1rnqnfh ts"><div><a class="chip svelte-1rnqnfh" href="https://github.com/ryanatkn/gro/blob/main/src/lib/changelog.ts">changelog.js</a></div> <ul class="declarations svelte-1rnqnfh"><li class="declaration chip function_declaration svelte-1rnqnfh">update_changelog </li> </ul> </li>   <li class="module svelte-1rnqnfh ts"><div><a class="chip svelte-1rnqnfh" href="https://github.com/ryanatkn/gro/blob/main/src/lib/changeset.task.ts">changeset.task.js</a></div> <ul class="declarations svelte-1rnqnfh"><li class="declaration chip variable_declaration svelte-1rnqnfh">Changeset_Bump </li><li class="declaration chip variable_declaration svelte-1rnqnfh">Args </li><li class="declaration chip variable_declaration svelte-1rnqnfh">task </li> </ul> </li>   <li class="module svelte-1rnqnfh ts"><div><a class="chip svelte-1rnqnfh" href="https://github.com/ryanatkn/gro/blob/main/src/lib/check.task.ts">check.task.js</a></div> <ul class="declarations svelte-1rnqnfh"><li class="declaration chip variable_declaration svelte-1rnqnfh">Args </li><li class="declaration chip variable_declaration svelte-1rnqnfh">task </li> </ul> </li>   <li class="module svelte-1rnqnfh ts"><div><a class="chip svelte-1rnqnfh" href="https://github.com/ryanatkn/gro/blob/main/src/lib/clean_fs.ts">clean_fs.js</a></div> <ul class="declarations svelte-1rnqnfh"><li class="declaration chip function_declaration svelte-1rnqnfh">clean_fs </li> </ul> </li>   <li class="module svelte-1rnqnfh ts"><div><a class="chip svelte-1rnqnfh" href="https://github.com/ryanatkn/gro/blob/main/src/lib/clean.task.ts">clean.task.js</a></div> <ul class="declarations svelte-1rnqnfh"><li class="declaration chip variable_declaration svelte-1rnqnfh">Args </li><li class="declaration chip variable_declaration svelte-1rnqnfh">task </li> </ul> </li>   <li class="module svelte-1rnqnfh ts"><div><a class="chip svelte-1rnqnfh" href="https://github.com/ryanatkn/gro/blob/main/src/lib/cli.ts">cli.js</a></div> <ul class="declarations svelte-1rnqnfh"><li class="declaration chip function_declaration svelte-1rnqnfh">find_cli </li><li class="declaration chip function_declaration svelte-1rnqnfh">spawn_cli </li> </ul> </li>   <li class="module svelte-1rnqnfh ts"><div><a class="chip svelte-1rnqnfh" href="https://github.com/ryanatkn/gro/blob/main/src/lib/commit.task.ts">commit.task.js</a></div> <ul class="declarations svelte-1rnqnfh"><li class="declaration chip variable_declaration svelte-1rnqnfh">Args </li><li class="declaration chip variable_declaration svelte-1rnqnfh">task </li> </ul> </li>   <li class="module svelte-1rnqnfh ts"><div><a class="chip svelte-1rnqnfh" href="https://github.com/ryanatkn/gro/blob/main/src/lib/config.ts">config.js</a></div> <ul class="declarations svelte-1rnqnfh"><li class="declaration chip type_declaration svelte-1rnqnfh">Gro_Config </li><li class="declaration chip type_declaration svelte-1rnqnfh">Create_Gro_Config </li><li class="declaration chip function_declaration svelte-1rnqnfh">create_empty_config </li><li class="declaration chip variable_declaration svelte-1rnqnfh">DEFAULT_EXPORTS_EXCLUDER </li><li class="declaration chip type_declaration svelte-1rnqnfh">Gro_Config_Module </li><li class="declaration chip function_declaration svelte-1rnqnfh">load_config </li><li class="declaration chip function_declaration svelte-1rnqnfh">validate_config_module </li> </ul> </li>   <li class="module svelte-1rnqnfh ts"><div><a class="chip svelte-1rnqnfh" href="https://github.com/ryanatkn/gro/blob/main/src/lib/deploy.task.ts">deploy.task.js</a></div> <ul class="declarations svelte-1rnqnfh"><li class="declaration chip variable_declaration svelte-1rnqnfh">Args </li><li class="declaration chip variable_declaration svelte-1rnqnfh">task </li> </ul> </li>   <li class="module svelte-1rnqnfh ts"><div><a class="chip svelte-1rnqnfh" href="https://github.com/ryanatkn/gro/blob/main/src/lib/dev.task.ts">dev.task.js</a></div> <ul class="declarations svelte-1rnqnfh"><li class="declaration chip variable_declaration svelte-1rnqnfh">Args </li><li class="declaration chip type_declaration svelte-1rnqnfh">DevTask_Context </li><li class="declaration chip variable_declaration svelte-1rnqnfh">task </li> </ul> </li>   <li class="module svelte-1rnqnfh ts"><div><a class="chip svelte-1rnqnfh" href="https://github.com/ryanatkn/gro/blob/main/src/lib/env.ts">env.js</a></div> <ul class="declarations svelte-1rnqnfh"><li class="declaration chip function_declaration svelte-1rnqnfh">load_env </li><li class="declaration chip function_declaration svelte-1rnqnfh">merge_envs </li><li class="declaration chip function_declaration svelte-1rnqnfh">is_private_env </li><li class="declaration chip function_declaration svelte-1rnqnfh">is_public_env </li><li class="declaration chip function_declaration svelte-1rnqnfh">load_from_env </li> </ul> </li>   <li class="module svelte-1rnqnfh ts"><div><a class="chip svelte-1rnqnfh" href="https://github.com/ryanatkn/gro/blob/main/src/lib/esbuild_helpers.ts">esbuild_helpers.js</a></div> <ul class="declarations svelte-1rnqnfh"><li class="declaration chip function_declaration svelte-1rnqnfh">print_build_result </li><li class="declaration chip function_declaration svelte-1rnqnfh">to_define_import_meta_env </li><li class="declaration chip variable_declaration svelte-1rnqnfh">ts_transform_options </li> </ul> </li>   <li class="module svelte-1rnqnfh ts"><div><a class="chip svelte-1rnqnfh" href="https://github.com/ryanatkn/gro/blob/main/src/lib/esbuild_plugin_external_worker.ts">esbuild_plugin_external_worker.js</a></div> <ul class="declarations svelte-1rnqnfh"><li class="declaration chip type_declaration svelte-1rnqnfh">Options </li><li class="declaration chip function_declaration svelte-1rnqnfh">esbuild_plugin_external_worker </li> </ul> </li>   <li class="module svelte-1rnqnfh ts"><div><a class="chip svelte-1rnqnfh" href="https://github.com/ryanatkn/gro/blob/main/src/lib/esbuild_plugin_svelte.ts">esbuild_plugin_svelte.js</a></div> <ul class="declarations svelte-1rnqnfh"><li class="declaration chip type_declaration svelte-1rnqnfh">Options </li><li class="declaration chip function_declaration svelte-1rnqnfh">esbuild_plugin_svelte </li> </ul> </li>   <li class="module svelte-1rnqnfh ts"><div><a class="chip svelte-1rnqnfh" href="https://github.com/ryanatkn/gro/blob/main/src/lib/esbuild_plugin_sveltekit_local_imports.ts">esbuild_plugin_sveltekit_local_imports.js</a></div> <ul class="declarations svelte-1rnqnfh"><li class="declaration chip function_declaration svelte-1rnqnfh">esbuild_plugin_sveltekit_local_imports </li> </ul> </li>   <li class="module svelte-1rnqnfh ts"><div><a class="chip svelte-1rnqnfh" href="https://github.com/ryanatkn/gro/blob/main/src/lib/esbuild_plugin_sveltekit_shim_alias.ts">esbuild_plugin_sveltekit_shim_alias.js</a></div> <ul class="declarations svelte-1rnqnfh"><li class="declaration chip type_declaration svelte-1rnqnfh">Options </li><li class="declaration chip function_declaration svelte-1rnqnfh">esbuild_plugin_sveltekit_shim_alias </li> </ul> </li>   <li class="module svelte-1rnqnfh ts"><div><a class="chip svelte-1rnqnfh" href="https://github.com/ryanatkn/gro/blob/main/src/lib/esbuild_plugin_sveltekit_shim_app.ts">esbuild_plugin_sveltekit_shim_app.js</a></div> <ul class="declarations svelte-1rnqnfh"><li class="declaration chip type_declaration svelte-1rnqnfh">Options </li><li class="declaration chip function_declaration svelte-1rnqnfh">esbuild_plugin_sveltekit_shim_app </li> </ul> </li>   <li class="module svelte-1rnqnfh ts"><div><a class="chip svelte-1rnqnfh" href="https://github.com/ryanatkn/gro/blob/main/src/lib/esbuild_plugin_sveltekit_shim_env.ts">esbuild_plugin_sveltekit_shim_env.js</a></div> <ul class="declarations svelte-1rnqnfh"><li class="declaration chip type_declaration svelte-1rnqnfh">Options </li><li class="declaration chip function_declaration svelte-1rnqnfh">esbuild_plugin_sveltekit_shim_env </li> </ul> </li>   <li class="module svelte-1rnqnfh ts"><div><a class="chip svelte-1rnqnfh" href="https://github.com/ryanatkn/gro/blob/main/src/lib/format_directory.ts">format_directory.js</a></div> <ul class="declarations svelte-1rnqnfh"><li class="declaration chip function_declaration svelte-1rnqnfh">format_directory </li> </ul> </li>   <li class="module svelte-1rnqnfh ts"><div><a class="chip svelte-1rnqnfh" href="https://github.com/ryanatkn/gro/blob/main/src/lib/format_file.ts">format_file.js</a></div> <ul class="declarations svelte-1rnqnfh"><li class="declaration chip function_declaration svelte-1rnqnfh">format_file </li> </ul> </li>   <li class="module svelte-1rnqnfh ts"><div><a class="chip svelte-1rnqnfh" href="https://github.com/ryanatkn/gro/blob/main/src/lib/format.task.ts">format.task.js</a></div> <ul class="declarations svelte-1rnqnfh"><li class="declaration chip variable_declaration svelte-1rnqnfh">Args </li><li class="declaration chip variable_declaration svelte-1rnqnfh">task </li> </ul> </li>   <li class="module svelte-1rnqnfh ts"><div><a class="chip svelte-1rnqnfh" href="https://github.com/ryanatkn/gro/blob/main/src/lib/fs.ts">fs.js</a></div> <ul class="declarations svelte-1rnqnfh"><li class="declaration chip function_declaration svelte-1rnqnfh">clean_fs </li> </ul> </li>   <li class="module svelte-1rnqnfh ts"><div><a class="chip svelte-1rnqnfh" href="https://github.com/ryanatkn/gro/blob/main/src/lib/gen_module.ts">gen_module.js</a></div> <ul class="declarations svelte-1rnqnfh"><li class="declaration chip variable_declaration svelte-1rnqnfh">GEN_FILE_PATTERN_TEXT </li><li class="declaration chip variable_declaration svelte-1rnqnfh">GEN_FILE_PATTERN </li><li class="declaration chip function_declaration svelte-1rnqnfh">is_gen_path </li><li class="declaration chip variable_declaration svelte-1rnqnfh">GEN_SCHEMA_FILE_PATTERN_TEXT </li><li class="declaration chip variable_declaration svelte-1rnqnfh">GEN_SCHEMA_FILE_PATTERN </li><li class="declaration chip variable_declaration svelte-1rnqnfh">GEN_SCHEMA_PATH_SUFFIX </li><li class="declaration chip variable_declaration svelte-1rnqnfh">GEN_SCHEMA_IDENTIFIER_SUFFIX </li><li class="declaration chip type_declaration svelte-1rnqnfh">Gen_Module_Type </li><li class="declaration chip type_declaration svelte-1rnqnfh">Gen_Module </li><li class="declaration chip type_declaration svelte-1rnqnfh">Basic_Gen_Module </li><li class="declaration chip type_declaration svelte-1rnqnfh">Schema_Gen_Module </li><li class="declaration chip function_declaration svelte-1rnqnfh">to_gen_module_type </li><li class="declaration chip variable_declaration svelte-1rnqnfh">gen_module_meta </li><li class="declaration chip variable_declaration svelte-1rnqnfh">validate_gen_module </li><li class="declaration chip type_declaration svelte-1rnqnfh">Gen_Module_Meta </li><li class="declaration chip type_declaration svelte-1rnqnfh">Basic_Gen_Module_Meta </li><li class="declaration chip function_declaration svelte-1rnqnfh">load_gen_module </li><li class="declaration chip type_declaration svelte-1rnqnfh">Check_Gen_Module_Result </li><li class="declaration chip function_declaration svelte-1rnqnfh">check_gen_modules </li><li class="declaration chip function_declaration svelte-1rnqnfh">check_gen_module </li><li class="declaration chip function_declaration svelte-1rnqnfh">find_gen_modules </li> </ul> </li>   <li class="module svelte-1rnqnfh ts"><div><a class="chip svelte-1rnqnfh" href="https://github.com/ryanatkn/gro/blob/main/src/lib/gen.task.ts">gen.task.js</a></div> <ul class="declarations svelte-1rnqnfh"><li class="declaration chip variable_declaration svelte-1rnqnfh">Args </li><li class="declaration chip variable_declaration svelte-1rnqnfh">task </li> </ul> </li>   <li class="module svelte-1rnqnfh ts"><div><a class="chip svelte-1rnqnfh" href="https://github.com/ryanatkn/gro/blob/main/src/lib/gen.ts">gen.js</a></div> <ul class="declarations svelte-1rnqnfh"><li class="declaration chip type_declaration svelte-1rnqnfh">Gen_Result </li><li class="declaration chip type_declaration svelte-1rnqnfh">Gen_File </li><li class="declaration chip type_declaration svelte-1rnqnfh">Gen </li><li class="declaration chip type_declaration svelte-1rnqnfh">Gen_Context </li><li class="declaration chip type_declaration svelte-1rnqnfh">Raw_Gen_Result </li><li class="declaration chip type_declaration svelte-1rnqnfh">Raw_Gen_File </li><li class="declaration chip variable_declaration svelte-1rnqnfh">Gen_Config </li><li class="declaration chip type_declaration svelte-1rnqnfh">Gen_Results </li><li class="declaration chip type_declaration svelte-1rnqnfh">Gen_Module_Result </li><li class="declaration chip type_declaration svelte-1rnqnfh">Gen_Module_Result_Success </li><li class="declaration chip type_declaration svelte-1rnqnfh">Gen_Module_Result_Failure </li><li class="declaration chip function_declaration svelte-1rnqnfh">to_gen_result </li><li class="declaration chip function_declaration svelte-1rnqnfh">to_output_file_name </li> </ul> </li>   <li class="module svelte-1rnqnfh ts"><div><a class="chip svelte-1rnqnfh" href="https://github.com/ryanatkn/gro/blob/main/src/lib/git.ts">git.js</a></div> <ul class="declarations svelte-1rnqnfh"><li class="declaration chip variable_declaration svelte-1rnqnfh">Git_Origin </li><li class="declaration chip variable_declaration svelte-1rnqnfh">Git_Branch </li><li class="declaration chip function_declaration svelte-1rnqnfh">git_current_branch_name </li><li class="declaration chip function_declaration svelte-1rnqnfh">git_remote_branch_exists </li><li class="declaration chip function_declaration svelte-1rnqnfh">git_local_branch_exists </li><li class="declaration chip function_declaration svelte-1rnqnfh">git_check_clean_workspace </li><li class="declaration chip function_declaration svelte-1rnqnfh">git_fetch </li><li class="declaration chip function_declaration svelte-1rnqnfh">git_checkout </li><li class="declaration chip function_declaration svelte-1rnqnfh">git_pull </li><li class="declaration chip function_declaration svelte-1rnqnfh">git_push </li><li class="declaration chip function_declaration svelte-1rnqnfh">git_push_to_create </li><li class="declaration chip function_declaration svelte-1rnqnfh">git_delete_local_branch </li><li class="declaration chip function_declaration svelte-1rnqnfh">git_delete_remote_branch </li><li class="declaration chip function_declaration svelte-1rnqnfh">git_reset_branch_to_first_commit </li><li class="declaration chip function_declaration svelte-1rnqnfh">git_current_commit_hash </li><li class="declaration chip function_declaration svelte-1rnqnfh">git_current_branch_first_commit_hash </li><li class="declaration chip function_declaration svelte-1rnqnfh">git_check_setting_pull_rebase </li><li class="declaration chip function_declaration svelte-1rnqnfh">git_clone_locally </li> </ul> </li>   <li class="module svelte-1rnqnfh ts"><div><a class="chip svelte-1rnqnfh" href="https://github.com/ryanatkn/gro/blob/main/src/lib/github.ts">github.js</a></div> <ul class="declarations svelte-1rnqnfh"><li class="declaration chip variable_declaration svelte-1rnqnfh">Github_Pull_Request </li><li class="declaration chip function_declaration svelte-1rnqnfh">github_fetch_commit_prs </li> </ul> </li>   <li class="module svelte-1rnqnfh ts"><div><a class="chip svelte-1rnqnfh" href="https://github.com/ryanatkn/gro/blob/main/src/lib/gro_helpers.ts">gro_helpers.js</a></div> <ul class="declarations svelte-1rnqnfh"><li class="declaration chip function_declaration svelte-1rnqnfh">resolve_gro_module_path </li><li class="declaration chip function_declaration svelte-1rnqnfh">spawn_with_loader </li> </ul> </li>   <li class="module svelte-1rnqnfh ts"><div><a class="chip svelte-1rnqnfh" href="https://github.com/ryanatkn/gro/blob/main/src/lib/gro_plugin_gen.ts">gro_plugin_gen.js</a></div> <ul class="declarations svelte-1rnqnfh"><li class="declaration chip type_declaration svelte-1rnqnfh">Task_Args </li><li class="declaration chip function_declaration svelte-1rnqnfh">plugin </li> </ul> </li>   <li class="module svelte-1rnqnfh ts"><div><a class="chip svelte-1rnqnfh" href="https://github.com/ryanatkn/gro/blob/main/src/lib/gro_plugin_server.ts">gro_plugin_server.js</a></div> <ul class="declarations svelte-1rnqnfh"><li class="declaration chip variable_declaration svelte-1rnqnfh">SERVER_SOURCE_ID </li><li class="declaration chip function_declaration svelte-1rnqnfh">has_server </li><li class="declaration chip type_declaration svelte-1rnqnfh">Options </li><li class="declaration chip type_declaration svelte-1rnqnfh">Outpaths </li><li class="declaration chip type_declaration svelte-1rnqnfh">Create_Outpaths </li><li class="declaration chip function_declaration svelte-1rnqnfh">gro_plugin_server </li> </ul> </li>   <li class="module svelte-1rnqnfh ts"><div><a class="chip svelte-1rnqnfh" href="https://github.com/ryanatkn/gro/blob/main/src/lib/gro_plugin_sveltekit_app.ts">gro_plugin_sveltekit_app.js</a></div> <ul class="declarations svelte-1rnqnfh"><li class="declaration chip function_declaration svelte-1rnqnfh">has_sveltekit_app </li><li class="declaration chip type_declaration svelte-1rnqnfh">Options </li><li class="declaration chip type_declaration svelte-1rnqnfh">Host_Target </li><li class="declaration chip function_declaration svelte-1rnqnfh">gro_plugin_sveltekit_app </li> </ul> </li>   <li class="module svelte-1rnqnfh ts"><div><a class="chip svelte-1rnqnfh" href="https://github.com/ryanatkn/gro/blob/main/src/lib/gro_plugin_sveltekit_library.ts">gro_plugin_sveltekit_library.js</a></div> <ul class="declarations svelte-1rnqnfh"><li class="declaration chip function_declaration svelte-1rnqnfh">has_sveltekit_library </li><li class="declaration chip function_declaration svelte-1rnqnfh">gro_plugin_sveltekit_library </li> </ul> </li>   <li class="module svelte-1rnqnfh ts"><div><a class="chip svelte-1rnqnfh" href="https://github.com/ryanatkn/gro/blob/main/src/lib/gro.config.default.ts">gro.config.default.js</a></div> <ul class="declarations svelte-1rnqnfh"><li class="declaration chip function_declaration svelte-1rnqnfh">default </li> </ul> </li>   <li class="module svelte-1rnqnfh ts"><div><a class="chip svelte-1rnqnfh" href="https://github.com/ryanatkn/gro/blob/main/src/lib/gro.ts">gro.js</a></div> <ul class="declarations svelte-1rnqnfh"> </ul> </li>   <li class="module svelte-1rnqnfh ts"><div><a class="chip svelte-1rnqnfh" href="https://github.com/ryanatkn/gro/blob/main/src/lib/hash.ts">hash.js</a></div> <ul class="declarations svelte-1rnqnfh"><li class="declaration chip function_declaration svelte-1rnqnfh">to_hash </li> </ul> </li>   <li class="module svelte-1rnqnfh ts"><div><a class="chip svelte-1rnqnfh" href="https://github.com/ryanatkn/gro/blob/main/src/lib/input_path.ts">input_path.js</a></div> <ul class="declarations svelte-1rnqnfh"><li class="declaration chip function_declaration svelte-1rnqnfh">resolve_input_path </li><li class="declaration chip function_declaration svelte-1rnqnfh">resolve_input_paths </li><li class="declaration chip function_declaration svelte-1rnqnfh">get_possible_source_ids </li><li class="declaration chip function_declaration svelte-1rnqnfh">load_source_path_data_by_input_path </li><li class="declaration chip function_declaration svelte-1rnqnfh">load_source_ids_by_input_path </li> </ul> </li>   <li class="module svelte-1rnqnfh ts"><div><a class="chip svelte-1rnqnfh" href="https://github.com/ryanatkn/gro/blob/main/src/lib/invoke_task.ts">invoke_task.js</a></div> <ul class="declarations svelte-1rnqnfh"><li class="declaration chip function_declaration svelte-1rnqnfh">invoke_task </li> </ul> </li>   <li class="module svelte-1rnqnfh ts"><div><a class="chip svelte-1rnqnfh" href="https://github.com/ryanatkn/gro/blob/main/src/lib/invoke.ts">invoke.js</a></div> <ul class="declarations svelte-1rnqnfh"> </ul> </li>   <li class="module svelte-1rnqnfh ts"><div><a class="chip svelte-1rnqnfh" href="https://github.com/ryanatkn/gro/blob/main/src/lib/lint.task.ts">lint.task.js</a></div> <ul class="declarations svelte-1rnqnfh"><li class="declaration chip variable_declaration svelte-1rnqnfh">Args </li><li class="declaration chip variable_declaration svelte-1rnqnfh">task </li> </ul> </li>   <li class="module svelte-1rnqnfh ts"><div><a class="chip svelte-1rnqnfh" href="https://github.com/ryanatkn/gro/blob/main/src/lib/loader.ts">loader.js</a></div> <ul class="declarations svelte-1rnqnfh"><li class="declaration chip function_declaration svelte-1rnqnfh">load </li><li class="declaration chip function_declaration svelte-1rnqnfh">resolve </li> </ul> </li>   <li class="module svelte-1rnqnfh ts"><div><a class="chip svelte-1rnqnfh" href="https://github.com/ryanatkn/gro/blob/main/src/lib/module.ts">module.js</a></div> <ul class="declarations svelte-1rnqnfh"> </ul> </li>   <li class="module svelte-1rnqnfh ts"><div><a class="chip svelte-1rnqnfh" href="https://github.com/ryanatkn/gro/blob/main/src/lib/modules.ts">modules.js</a></div> <ul class="declarations svelte-1rnqnfh"><li class="declaration chip type_declaration svelte-1rnqnfh">Module_Meta </li><li class="declaration chip type_declaration svelte-1rnqnfh">Load_Module_Result </li><li class="declaration chip type_declaration svelte-1rnqnfh">Load_Module_Failure </li><li class="declaration chip function_declaration svelte-1rnqnfh">load_module </li><li class="declaration chip type_declaration svelte-1rnqnfh">Find_Modules_Result </li><li class="declaration chip type_declaration svelte-1rnqnfh">Find_Modules_Failure </li><li class="declaration chip type_declaration svelte-1rnqnfh">Load_Modules_Result </li><li class="declaration chip function_declaration svelte-1rnqnfh">find_modules </li><li class="declaration chip function_declaration svelte-1rnqnfh">load_modules </li> </ul> </li>   <li class="module svelte-1rnqnfh ts"><div><a class="chip svelte-1rnqnfh" href="https://github.com/ryanatkn/gro/blob/main/src/lib/package_json.ts">package_json.js</a></div> <ul class="declarations svelte-1rnqnfh"><li class="declaration chip function_declaration svelte-1rnqnfh">transform_empty_object_to_undefined </li><li class="declaration chip variable_declaration svelte-1rnqnfh">Package_Json_Repository </li><li class="declaration chip variable_declaration svelte-1rnqnfh">Package_Json_Author </li><li class="declaration chip variable_declaration svelte-1rnqnfh">Package_Json_Funding </li><li class="declaration chip variable_declaration svelte-1rnqnfh">Package_Json_Exports </li><li class="declaration chip variable_declaration svelte-1rnqnfh">Package_Json </li><li class="declaration chip type_declaration svelte-1rnqnfh">Map_Package_Json </li><li class="declaration chip variable_declaration svelte-1rnqnfh">EMPTY_PACKAGE_JSON </li><li class="declaration chip function_declaration svelte-1rnqnfh">load_package_json </li><li class="declaration chip function_declaration svelte-1rnqnfh">sync_package_json </li><li class="declaration chip function_declaration svelte-1rnqnfh">load_gro_package_json </li><li class="declaration chip function_declaration svelte-1rnqnfh">write_package_json </li><li class="declaration chip function_declaration svelte-1rnqnfh">serialize_package_json </li><li class="declaration chip function_declaration svelte-1rnqnfh">update_package_json </li><li class="declaration chip function_declaration svelte-1rnqnfh">to_package_exports </li><li class="declaration chip function_declaration svelte-1rnqnfh">parse_repo_url </li> </ul> </li>   <li class="module svelte-1rnqnfh ts"><div><a class="chip svelte-1rnqnfh" href="https://github.com/ryanatkn/gro/blob/main/src/lib/package.gen.ts">package.gen.js</a></div> <ul class="declarations svelte-1rnqnfh"><li class="declaration chip function_declaration svelte-1rnqnfh">gen </li> </ul> </li>   <li class="module svelte-1rnqnfh ts"><div><a class="chip svelte-1rnqnfh" href="https://github.com/ryanatkn/gro/blob/main/src/lib/package.ts">package.js</a></div> <ul class="declarations svelte-1rnqnfh"><li class="declaration chip variable_declaration svelte-1rnqnfh">package_json </li><li class="declaration chip variable_declaration svelte-1rnqnfh">src_json </li> </ul> </li>   <li class="module svelte-1rnqnfh ts"><div><a class="chip svelte-1rnqnfh" href="https://github.com/ryanatkn/gro/blob/main/src/lib/path.ts">path.js</a></div> <ul class="declarations svelte-1rnqnfh"><li class="declaration chip function_declaration svelte-1rnqnfh">resolve_input_path </li><li class="declaration chip function_declaration svelte-1rnqnfh">resolve_input_paths </li><li class="declaration chip function_declaration svelte-1rnqnfh">get_possible_source_ids </li><li class="declaration chip function_declaration svelte-1rnqnfh">load_source_path_data_by_input_path </li><li class="declaration chip function_declaration svelte-1rnqnfh">load_source_ids_by_input_path </li> </ul> </li>   <li class="module svelte-1rnqnfh ts"><div><a class="chip svelte-1rnqnfh" href="https://github.com/ryanatkn/gro/blob/main/src/lib/paths.ts">paths.js</a></div> <ul class="declarations svelte-1rnqnfh"><li class="declaration chip variable_declaration svelte-1rnqnfh">SOURCE_DIRNAME </li><li class="declaration chip variable_declaration svelte-1rnqnfh">GRO_DIRNAME </li><li class="declaration chip variable_declaration svelte-1rnqnfh">GRO_DIST_PREFIX </li><li class="declaration chip variable_declaration svelte-1rnqnfh">SERVER_DIST_PATH </li><li class="declaration chip variable_declaration svelte-1rnqnfh">LIB_DIRNAME </li><li class="declaration chip variable_declaration svelte-1rnqnfh">ROUTES_DIRNAME </li><li class="declaration chip variable_declaration svelte-1rnqnfh">GRO_DEV_DIRNAME </li><li class="declaration chip variable_declaration svelte-1rnqnfh">SOURCE_DIR </li><li class="declaration chip variable_declaration svelte-1rnqnfh">GRO_DIR </li><li class="declaration chip variable_declaration svelte-1rnqnfh">GRO_DEV_DIR </li><li class="declaration chip variable_declaration svelte-1rnqnfh">LIB_PATH </li><li class="declaration chip variable_declaration svelte-1rnqnfh">LIB_DIR </li><li class="declaration chip variable_declaration svelte-1rnqnfh">CONFIG_PATH </li><li class="declaration chip variable_declaration svelte-1rnqnfh">README_FILENAME </li><li class="declaration chip variable_declaration svelte-1rnqnfh">SVELTEKIT_CONFIG_FILENAME </li><li class="declaration chip variable_declaration svelte-1rnqnfh">VITE_CONFIG_FILENAME </li><li class="declaration chip variable_declaration svelte-1rnqnfh">SVELTEKIT_DEV_DIRNAME </li><li class="declaration chip variable_declaration svelte-1rnqnfh">SVELTEKIT_BUILD_DIRNAME </li><li class="declaration chip variable_declaration svelte-1rnqnfh">SVELTEKIT_DIST_DIRNAME </li><li class="declaration chip variable_declaration svelte-1rnqnfh">NODE_MODULES_DIRNAME </li><li class="declaration chip variable_declaration svelte-1rnqnfh">SVELTEKIT_VITE_CACHE_PATH </li><li class="declaration chip variable_declaration svelte-1rnqnfh">GITHUB_DIRNAME </li><li class="declaration chip variable_declaration svelte-1rnqnfh">GIT_DIRNAME </li><li class="declaration chip variable_declaration svelte-1rnqnfh">TSCONFIG_FILENAME </li><li class="declaration chip type_declaration svelte-1rnqnfh">Paths </li><li class="declaration chip variable_declaration svelte-1rnqnfh">Url </li><li class="declaration chip variable_declaration svelte-1rnqnfh">Email </li><li class="declaration chip variable_declaration svelte-1rnqnfh">Source_Id </li><li class="declaration chip variable_declaration svelte-1rnqnfh">Build_Id </li><li class="declaration chip function_declaration svelte-1rnqnfh">create_paths </li><li class="declaration chip function_declaration svelte-1rnqnfh">paths_from_id </li><li class="declaration chip function_declaration svelte-1rnqnfh">is_gro_id </li><li class="declaration chip function_declaration svelte-1rnqnfh">to_root_path </li><li class="declaration chip function_declaration svelte-1rnqnfh">source_id_to_base_path </li><li class="declaration chip function_declaration svelte-1rnqnfh">base_path_to_source_id </li><li class="declaration chip function_declaration svelte-1rnqnfh">lib_path_to_import_id </li><li class="declaration chip function_declaration svelte-1rnqnfh">import_id_to_lib_path </li><li class="declaration chip function_declaration svelte-1rnqnfh">to_gro_input_path </li><li class="declaration chip function_declaration svelte-1rnqnfh">replace_root_dir </li><li class="declaration chip function_declaration svelte-1rnqnfh">print_path </li><li class="declaration chip function_declaration svelte-1rnqnfh">print_path_or_gro_path </li><li class="declaration chip function_declaration svelte-1rnqnfh">replace_extension </li><li class="declaration chip variable_declaration svelte-1rnqnfh">gro_dir_basename </li><li class="declaration chip variable_declaration svelte-1rnqnfh">paths </li><li class="declaration chip variable_declaration svelte-1rnqnfh">is_this_project_gro </li><li class="declaration chip variable_declaration svelte-1rnqnfh">gro_paths </li><li class="declaration chip variable_declaration svelte-1rnqnfh">gro_sveltekit_dist_dir </li> </ul> </li>   <li class="module svelte-1rnqnfh ts"><div><a class="chip svelte-1rnqnfh" href="https://github.com/ryanatkn/gro/blob/main/src/lib/plugin.ts">plugin.js</a></div> <ul class="declarations svelte-1rnqnfh"><li class="declaration chip type_declaration svelte-1rnqnfh">Plugin </li><li class="declaration chip type_declaration svelte-1rnqnfh">Create_Config_Plugins </li><li class="declaration chip type_declaration svelte-1rnqnfh">Plugin_Context </li><li class="declaration chip class_declaration svelte-1rnqnfh">Plugins </li><li class="declaration chip function_declaration svelte-1rnqnfh">replace_plugin </li> </ul> </li>   <li class="module svelte-1rnqnfh ts"><div><a class="chip svelte-1rnqnfh" href="https://github.com/ryanatkn/gro/blob/main/src/lib/print_task.ts">print_task.js</a></div> <ul class="declarations svelte-1rnqnfh"><li class="declaration chip function_declaration svelte-1rnqnfh">log_available_tasks </li><li class="declaration chip function_declaration svelte-1rnqnfh">log_error_reasons </li><li class="declaration chip function_declaration svelte-1rnqnfh">print_task_help </li> </ul> </li>   <li class="module svelte-1rnqnfh ts"><div><a class="chip svelte-1rnqnfh" href="https://github.com/ryanatkn/gro/blob/main/src/lib/publish.task.ts">publish.task.js</a></div> <ul class="declarations svelte-1rnqnfh"><li class="declaration chip variable_declaration svelte-1rnqnfh">Args </li><li class="declaration chip variable_declaration svelte-1rnqnfh">task </li> </ul> </li>   <li class="module svelte-1rnqnfh ts"><div><a class="chip svelte-1rnqnfh" href="https://github.com/ryanatkn/gro/blob/main/src/lib/release.task.ts">release.task.js</a></div> <ul class="declarations svelte-1rnqnfh"><li class="declaration chip variable_declaration svelte-1rnqnfh">Args </li><li class="declaration chip variable_declaration svelte-1rnqnfh">task </li> </ul> </li>   <li class="module svelte-1rnqnfh ts"><div><a class="chip svelte-1rnqnfh" href="https://github.com/ryanatkn/gro/blob/main/src/lib/resolve_node_specifier.ts">resolve_node_specifier.js</a></div> <ul class="declarations svelte-1rnqnfh"><li class="declaration chip function_declaration svelte-1rnqnfh">resolve_node_specifier </li><li class="declaration chip type_declaration svelte-1rnqnfh">Parsed_Node_Specifier </li><li class="declaration chip function_declaration svelte-1rnqnfh">parse_node_specifier </li> </ul> </li>   <li class="module svelte-1rnqnfh ts"><div><a class="chip svelte-1rnqnfh" href="https://github.com/ryanatkn/gro/blob/main/src/lib/resolve_specifier.ts">resolve_specifier.js</a></div> <ul class="declarations svelte-1rnqnfh"><li class="declaration chip type_declaration svelte-1rnqnfh">Resolved_Specifier </li><li class="declaration chip function_declaration svelte-1rnqnfh">resolve_specifier </li> </ul> </li>   <li class="module svelte-1rnqnfh ts"><div><a class="chip svelte-1rnqnfh" href="https://github.com/ryanatkn/gro/blob/main/src/lib/run_gen.ts">run_gen.js</a></div> <ul class="declarations svelte-1rnqnfh"><li class="declaration chip variable_declaration svelte-1rnqnfh">GEN_NO_PROD_MESSAGE </li><li class="declaration chip function_declaration svelte-1rnqnfh">run_gen </li><li class="declaration chip function_declaration svelte-1rnqnfh">to_gen_import_path </li> </ul> </li>   <li class="module svelte-1rnqnfh ts"><div><a class="chip svelte-1rnqnfh" href="https://github.com/ryanatkn/gro/blob/main/src/lib/run_task.ts">run_task.js</a></div> <ul class="declarations svelte-1rnqnfh"><li class="declaration chip type_declaration svelte-1rnqnfh">Run_Task_Result </li><li class="declaration chip function_declaration svelte-1rnqnfh">run_task </li> </ul> </li>   <li class="module svelte-1rnqnfh ts"><div><a class="chip svelte-1rnqnfh" href="https://github.com/ryanatkn/gro/blob/main/src/lib/run.task.ts">run.task.js</a></div> <ul class="declarations svelte-1rnqnfh"><li class="declaration chip variable_declaration svelte-1rnqnfh">Args </li><li class="declaration chip variable_declaration svelte-1rnqnfh">task </li> </ul> </li>   <li class="module svelte-1rnqnfh ts"><div><a class="chip svelte-1rnqnfh" href="https://github.com/ryanatkn/gro/blob/main/src/lib/search_fs.ts">search_fs.js</a></div> <ul class="declarations svelte-1rnqnfh"><li class="declaration chip type_declaration svelte-1rnqnfh">Search_Fs_Options </li><li class="declaration chip function_declaration svelte-1rnqnfh">search_fs </li> </ul> </li>   <li class="module svelte-1rnqnfh ts"><div><a class="chip svelte-1rnqnfh" href="https://github.com/ryanatkn/gro/blob/main/src/lib/src_json.ts">src_json.js</a></div> <ul class="declarations svelte-1rnqnfh"><li class="declaration chip variable_declaration svelte-1rnqnfh">Src_Module_Declaration </li><li class="declaration chip variable_declaration svelte-1rnqnfh">Src_Module </li><li class="declaration chip variable_declaration svelte-1rnqnfh">Src_Modules </li><li class="declaration chip variable_declaration svelte-1rnqnfh">Src_Json </li><li class="declaration chip type_declaration svelte-1rnqnfh">Map_Src_Json </li><li class="declaration chip function_declaration svelte-1rnqnfh">create_src_json </li><li class="declaration chip function_declaration svelte-1rnqnfh">serialize_src_json </li><li class="declaration chip function_declaration svelte-1rnqnfh">to_src_modules </li> </ul> </li>   <li class="module svelte-1rnqnfh ts"><div><a class="chip svelte-1rnqnfh" href="https://github.com/ryanatkn/gro/blob/main/src/lib/sveltekit_config.ts">sveltekit_config.js</a></div> <ul class="declarations svelte-1rnqnfh"><li class="declaration chip function_declaration svelte-1rnqnfh">load_sveltekit_config </li><li class="declaration chip type_declaration svelte-1rnqnfh">Parsed_Sveltekit_Config </li><li class="declaration chip function_declaration svelte-1rnqnfh">init_sveltekit_config </li> </ul> </li>   <li class="module svelte-1rnqnfh ts"><div><a class="chip svelte-1rnqnfh" href="https://github.com/ryanatkn/gro/blob/main/src/lib/sveltekit_shim_app_environment.ts">sveltekit_shim_app_environment.js</a></div> <ul class="declarations svelte-1rnqnfh"><li class="declaration chip variable_declaration svelte-1rnqnfh">browser </li><li class="declaration chip variable_declaration svelte-1rnqnfh">building </li><li class="declaration chip variable_declaration svelte-1rnqnfh">dev </li><li class="declaration chip variable_declaration svelte-1rnqnfh">version </li> </ul> </li>   <li class="module svelte-1rnqnfh ts"><div><a class="chip svelte-1rnqnfh" href="https://github.com/ryanatkn/gro/blob/main/src/lib/sveltekit_shim_app_forms.ts">sveltekit_shim_app_forms.js</a></div> <ul class="declarations svelte-1rnqnfh"><li class="declaration chip function_declaration svelte-1rnqnfh">applyAction </li><li class="declaration chip function_declaration svelte-1rnqnfh">deserialize </li><li class="declaration chip function_declaration svelte-1rnqnfh">enhance </li> </ul> </li>   <li class="module svelte-1rnqnfh ts"><div><a class="chip svelte-1rnqnfh" href="https://github.com/ryanatkn/gro/blob/main/src/lib/sveltekit_shim_app_navigation.ts">sveltekit_shim_app_navigation.js</a></div> <ul class="declarations svelte-1rnqnfh"><li class="declaration chip function_declaration svelte-1rnqnfh">afterNavigate </li><li class="declaration chip function_declaration svelte-1rnqnfh">beforeNavigate </li><li class="declaration chip function_declaration svelte-1rnqnfh">disableScrollHandling </li><li class="declaration chip function_declaration svelte-1rnqnfh">goto </li><li class="declaration chip function_declaration svelte-1rnqnfh">invalidate </li><li class="declaration chip function_declaration svelte-1rnqnfh">invalidateAll </li><li class="declaration chip function_declaration svelte-1rnqnfh">preloadCode </li><li class="declaration chip function_declaration svelte-1rnqnfh">preloadData </li> </ul> </li>   <li class="module svelte-1rnqnfh ts"><div><a class="chip svelte-1rnqnfh" href="https://github.com/ryanatkn/gro/blob/main/src/lib/sveltekit_shim_app_paths.ts">sveltekit_shim_app_paths.js</a></div> <ul class="declarations svelte-1rnqnfh"><li class="declaration chip variable_declaration svelte-1rnqnfh">assets </li><li class="declaration chip variable_declaration svelte-1rnqnfh">base </li><li class="declaration chip function_declaration svelte-1rnqnfh">resolveRoute </li> </ul> </li>   <li class="module svelte-1rnqnfh ts"><div><a class="chip svelte-1rnqnfh" href="https://github.com/ryanatkn/gro/blob/main/src/lib/sveltekit_shim_app_stores.ts">sveltekit_shim_app_stores.js</a></div> <ul class="declarations svelte-1rnqnfh"><li class="declaration chip function_declaration svelte-1rnqnfh">getStores </li><li class="declaration chip variable_declaration svelte-1rnqnfh">navigating </li><li class="declaration chip variable_declaration svelte-1rnqnfh">page </li><li class="declaration chip variable_declaration svelte-1rnqnfh">updated </li> </ul> </li>   <li class="module svelte-1rnqnfh ts"><div><a class="chip svelte-1rnqnfh" href="https://github.com/ryanatkn/gro/blob/main/src/lib/sveltekit_shim_app.ts">sveltekit_shim_app.js</a></div> <ul class="declarations svelte-1rnqnfh"><li class="declaration chip type_declaration svelte-1rnqnfh">Options </li><li class="declaration chip function_declaration svelte-1rnqnfh">esbuild_plugin_sveltekit_shim_app </li> </ul> </li>   <li class="module svelte-1rnqnfh ts"><div><a class="chip svelte-1rnqnfh" href="https://github.com/ryanatkn/gro/blob/main/src/lib/sveltekit_shim_env.ts">sveltekit_shim_env.js</a></div> <ul class="declarations svelte-1rnqnfh"><li class="declaration chip type_declaration svelte-1rnqnfh">Options </li><li class="declaration chip function_declaration svelte-1rnqnfh">esbuild_plugin_sveltekit_shim_env </li> </ul> </li>   <li class="module svelte-1rnqnfh ts"><div><a class="chip svelte-1rnqnfh" href="https://github.com/ryanatkn/gro/blob/main/src/lib/sync.task.ts">sync.task.js</a></div> <ul class="declarations svelte-1rnqnfh"><li class="declaration chip variable_declaration svelte-1rnqnfh">Args </li><li class="declaration chip variable_declaration svelte-1rnqnfh">task </li><li class="declaration chip function_declaration svelte-1rnqnfh">sveltekit_sync </li> </ul> </li>   <li class="module svelte-1rnqnfh ts"><div><a class="chip svelte-1rnqnfh" href="https://github.com/ryanatkn/gro/blob/main/src/lib/task_module.ts">task_module.js</a></div> <ul class="declarations svelte-1rnqnfh"> </ul> </li>   <li class="module svelte-1rnqnfh ts"><div><a class="chip svelte-1rnqnfh" href="https://github.com/ryanatkn/gro/blob/main/src/lib/task.ts">task.js</a></div> <ul class="declarations svelte-1rnqnfh"><li class="declaration chip variable_declaration svelte-1rnqnfh">Args </li><li class="declaration chip variable_declaration svelte-1rnqnfh">task </li> </ul> </li>   <li class="module svelte-1rnqnfh ts"><div><a class="chip svelte-1rnqnfh" href="https://github.com/ryanatkn/gro/blob/main/src/lib/test.task.ts">test.task.js</a></div> <ul class="declarations svelte-1rnqnfh"><li class="declaration chip variable_declaration svelte-1rnqnfh">Args </li><li class="declaration chip variable_declaration svelte-1rnqnfh">task </li> </ul> </li>   <li class="module svelte-1rnqnfh ts"><div><a class="chip svelte-1rnqnfh" href="https://github.com/ryanatkn/gro/blob/main/src/lib/throttle.ts">throttle.js</a></div> <ul class="declarations svelte-1rnqnfh"><li class="declaration chip function_declaration svelte-1rnqnfh">throttle </li> </ul> </li>   <li class="module svelte-1rnqnfh ts"><div><a class="chip svelte-1rnqnfh" href="https://github.com/ryanatkn/gro/blob/main/src/lib/typecheck.task.ts">typecheck.task.js</a></div> <ul class="declarations svelte-1rnqnfh"><li class="declaration chip variable_declaration svelte-1rnqnfh">Args </li><li class="declaration chip variable_declaration svelte-1rnqnfh">task </li> </ul> </li>   <li class="module svelte-1rnqnfh ts"><div><a class="chip svelte-1rnqnfh" href="https://github.com/ryanatkn/gro/blob/main/src/lib/upgrade.task.ts">upgrade.task.js</a></div> <ul class="declarations svelte-1rnqnfh"><li class="declaration chip variable_declaration svelte-1rnqnfh">Args </li><li class="declaration chip variable_declaration svelte-1rnqnfh">task </li> </ul> </li>   <li class="module svelte-1rnqnfh ts"><div><a class="chip svelte-1rnqnfh" href="https://github.com/ryanatkn/gro/blob/main/src/lib/watch_dir.ts">watch_dir.js</a></div> <ul class="declarations svelte-1rnqnfh"><li class="declaration chip type_declaration svelte-1rnqnfh">Watch_Node_Fs </li><li class="declaration chip type_declaration svelte-1rnqnfh">Watcher_Change </li><li class="declaration chip type_declaration svelte-1rnqnfh">Watcher_Change_Type </li><li class="declaration chip type_declaration svelte-1rnqnfh">Watcher_Change_Callback </li><li class="declaration chip type_declaration svelte-1rnqnfh">Options </li><li class="declaration chip function_declaration svelte-1rnqnfh">watch_dir </li> </ul> </li></menu></section> <section class="width_full spaced"><details><summary data-svelte-h="svelte-k220bw">raw data for <code>pkg: Package_Meta</code></summary> <pre class="svelte-1rnqnfh"><code>{
+	"url": "https://gro.ryanatkn.com/",
+	"package_json": {
+		"name": "@ryanatkn/gro",
+		"version": "0.111.0",
+		"description": "task runner and toolkit extending SvelteKit",
+		"icon": "🌰",
+		"public": true,
+		"bin": {
+			"gro": "dist/gro.js"
+		},
+		"license": "MIT",
+		"homepage": "https://gro.ryanatkn.com/",
+		"author": {
+			"name": "Ryan Atkinson",
+			"email": "mail@ryanatkn.com",
+			"url": "https://www.ryanatkn.com/"
+		},
+		"repository": {
+			"type": "git",
+			"url": "git+https://github.com/ryanatkn/gro.git"
+		},
+		"bugs": {
+			"url": "https://github.com/ryanatkn/gro/issues",
+			"email": "mail@ryanatkn.com"
+		},
+		"type": "module",
+		"engines": {
+			"node": ">=20.10"
+		},
+		"scripts": {
+			"build": "rm -rf .gro dist &amp;&amp; svelte-package &amp;&amp; chmod +x ./dist/gro.js &amp;&amp; npm link -f",
+			"start": "gro dev",
+			"test": "gro test"
+		},
+		"keywords": [
+			"web",
+			"tools",
+			"task runner",
+			"tasks",
+			"codegen",
+			"svelte",
+			"sveltekit",
+			"vite",
+			"typescript"
+		],
+		"files": [
+			"dist"
+		],
+		"dependencies": {
+			"@grogarden/util": "^0.19.0",
+			"chokidar": "^3.5.3",
+			"dotenv": "^16.3.1",
+			"es-module-lexer": "^1.4.1",
+			"kleur": "^4.1.5",
+			"mri": "^1.2.0",
+			"prettier": "^3.1.1",
+			"prettier-plugin-svelte": "^3.1.2",
+			"tiny-glob": "^0.2.9",
+			"ts-morph": "^21.0.1",
+			"tslib": "^2.6.2",
+			"zod": "^3.22.4"
+		},
+		"peerDependencies": {
+			"esbuild": "^0.19",
+			"svelte": "*"
+		},
+		"devDependencies": {
+			"@changesets/changelog-git": "^0.2.0",
+			"@changesets/types": "^6.0.0",
+			"@feltjs/eslint-config": "^0.4.1",
+			"@fuz.dev/fuz": "^0.81.0",
+			"@fuz.dev/fuz_library": "^0.23.0",
+			"@sveltejs/adapter-static": "^3.0.1",
+			"@sveltejs/kit": "^2.0.6",
+			"@sveltejs/package": "^2.2.5",
+			"@sveltejs/vite-plugin-svelte": "^3.0.1",
+			"@types/fs-extra": "^11.0.4",
+			"@types/node": "^20.10.6",
+			"@typescript-eslint/eslint-plugin": "^6.17.0",
+			"@typescript-eslint/parser": "^6.17.0",
+			"esbuild": "^0.19.11",
+			"eslint": "^8.56.0",
+			"eslint-plugin-svelte": "^2.35.1",
+			"svelte": "^4.2.8",
+			"svelte-check": "^3.6.2",
+			"typescript": "^5.3.3",
+			"uvu": "^0.5.6"
+		},
+		"eslintConfig": {
+			"root": true,
+			"extends": "@feltjs",
+			"rules": {
+				"no-console": 1
+			}
+		},
+		"prettier": {
+			"plugins": [
+				"prettier-plugin-svelte"
+			],
+			"useTabs": true,
+			"printWidth": 100,
+			"singleQuote": true,
+			"bracketSpacing": false,
+			"overrides": [
+				{
+					"files": "package.json",
+					"options": {
+						"useTabs": false
+					}
+				}
+			]
+		},
+		"exports": {
+			".": {
+				"default": "./dist/index.js",
+				"types": "./dist/index.d.ts"
+			},
+			"./args.js": {
+				"default": "./dist/args.js",
+				"types": "./dist/args.d.ts"
+			},
+			"./build.task.js": {
+				"default": "./dist/build.task.js",
+				"types": "./dist/build.task.d.ts"
+			},
+			"./changelog.js": {
+				"default": "./dist/changelog.js",
+				"types": "./dist/changelog.d.ts"
+			},
+			"./changeset.task.js": {
+				"default": "./dist/changeset.task.js",
+				"types": "./dist/changeset.task.d.ts"
+			},
+			"./check.task.js": {
+				"default": "./dist/check.task.js",
+				"types": "./dist/check.task.d.ts"
+			},
+			"./clean_fs.js": {
+				"default": "./dist/clean_fs.js",
+				"types": "./dist/clean_fs.d.ts"
+			},
+			"./clean.task.js": {
+				"default": "./dist/clean.task.js",
+				"types": "./dist/clean.task.d.ts"
+			},
+			"./cli.js": {
+				"default": "./dist/cli.js",
+				"types": "./dist/cli.d.ts"
+			},
+			"./commit.task.js": {
+				"default": "./dist/commit.task.js",
+				"types": "./dist/commit.task.d.ts"
+			},
+			"./config.js": {
+				"default": "./dist/config.js",
+				"types": "./dist/config.d.ts"
+			},
+			"./deploy.task.js": {
+				"default": "./dist/deploy.task.js",
+				"types": "./dist/deploy.task.d.ts"
+			},
+			"./dev.task.js": {
+				"default": "./dist/dev.task.js",
+				"types": "./dist/dev.task.d.ts"
+			},
+			"./env.js": {
+				"default": "./dist/env.js",
+				"types": "./dist/env.d.ts"
+			},
+			"./esbuild_helpers.js": {
+				"default": "./dist/esbuild_helpers.js",
+				"types": "./dist/esbuild_helpers.d.ts"
+			},
+			"./esbuild_plugin_external_worker.js": {
+				"default": "./dist/esbuild_plugin_external_worker.js",
+				"types": "./dist/esbuild_plugin_external_worker.d.ts"
+			},
+			"./esbuild_plugin_svelte.js": {
+				"default": "./dist/esbuild_plugin_svelte.js",
+				"types": "./dist/esbuild_plugin_svelte.d.ts"
+			},
+			"./esbuild_plugin_sveltekit_local_imports.js": {
+				"default": "./dist/esbuild_plugin_sveltekit_local_imports.js",
+				"types": "./dist/esbuild_plugin_sveltekit_local_imports.d.ts"
+			},
+			"./esbuild_plugin_sveltekit_shim_alias.js": {
+				"default": "./dist/esbuild_plugin_sveltekit_shim_alias.js",
+				"types": "./dist/esbuild_plugin_sveltekit_shim_alias.d.ts"
+			},
+			"./esbuild_plugin_sveltekit_shim_app.js": {
+				"default": "./dist/esbuild_plugin_sveltekit_shim_app.js",
+				"types": "./dist/esbuild_plugin_sveltekit_shim_app.d.ts"
+			},
+			"./esbuild_plugin_sveltekit_shim_env.js": {
+				"default": "./dist/esbuild_plugin_sveltekit_shim_env.js",
+				"types": "./dist/esbuild_plugin_sveltekit_shim_env.d.ts"
+			},
+			"./format_directory.js": {
+				"default": "./dist/format_directory.js",
+				"types": "./dist/format_directory.d.ts"
+			},
+			"./format_file.js": {
+				"default": "./dist/format_file.js",
+				"types": "./dist/format_file.d.ts"
+			},
+			"./format.task.js": {
+				"default": "./dist/format.task.js",
+				"types": "./dist/format.task.d.ts"
+			},
+			"./fs.js": {
+				"default": "./dist/fs.js",
+				"types": "./dist/fs.d.ts"
+			},
+			"./gen_module.js": {
+				"default": "./dist/gen_module.js",
+				"types": "./dist/gen_module.d.ts"
+			},
+			"./gen.task.js": {
+				"default": "./dist/gen.task.js",
+				"types": "./dist/gen.task.d.ts"
+			},
+			"./gen.js": {
+				"default": "./dist/gen.js",
+				"types": "./dist/gen.d.ts"
+			},
+			"./git.js": {
+				"default": "./dist/git.js",
+				"types": "./dist/git.d.ts"
+			},
+			"./github.js": {
+				"default": "./dist/github.js",
+				"types": "./dist/github.d.ts"
+			},
+			"./gro_helpers.js": {
+				"default": "./dist/gro_helpers.js",
+				"types": "./dist/gro_helpers.d.ts"
+			},
+			"./gro_plugin_gen.js": {
+				"default": "./dist/gro_plugin_gen.js",
+				"types": "./dist/gro_plugin_gen.d.ts"
+			},
+			"./gro_plugin_server.js": {
+				"default": "./dist/gro_plugin_server.js",
+				"types": "./dist/gro_plugin_server.d.ts"
+			},
+			"./gro_plugin_sveltekit_app.js": {
+				"default": "./dist/gro_plugin_sveltekit_app.js",
+				"types": "./dist/gro_plugin_sveltekit_app.d.ts"
+			},
+			"./gro_plugin_sveltekit_library.js": {
+				"default": "./dist/gro_plugin_sveltekit_library.js",
+				"types": "./dist/gro_plugin_sveltekit_library.d.ts"
+			},
+			"./gro.config.default.js": {
+				"default": "./dist/gro.config.default.js",
+				"types": "./dist/gro.config.default.d.ts"
+			},
+			"./gro.js": {
+				"default": "./dist/gro.js",
+				"types": "./dist/gro.d.ts"
+			},
+			"./hash.js": {
+				"default": "./dist/hash.js",
+				"types": "./dist/hash.d.ts"
+			},
+			"./input_path.js": {
+				"default": "./dist/input_path.js",
+				"types": "./dist/input_path.d.ts"
+			},
+			"./invoke_task.js": {
+				"default": "./dist/invoke_task.js",
+				"types": "./dist/invoke_task.d.ts"
+			},
+			"./invoke.js": {
+				"default": "./dist/invoke.js",
+				"types": "./dist/invoke.d.ts"
+			},
+			"./lint.task.js": {
+				"default": "./dist/lint.task.js",
+				"types": "./dist/lint.task.d.ts"
+			},
+			"./loader.js": {
+				"default": "./dist/loader.js",
+				"types": "./dist/loader.d.ts"
+			},
+			"./module.js": {
+				"default": "./dist/module.js",
+				"types": "./dist/module.d.ts"
+			},
+			"./modules.js": {
+				"default": "./dist/modules.js",
+				"types": "./dist/modules.d.ts"
+			},
+			"./package_json.js": {
+				"default": "./dist/package_json.js",
+				"types": "./dist/package_json.d.ts"
+			},
+			"./package.gen.js": {
+				"default": "./dist/package.gen.js",
+				"types": "./dist/package.gen.d.ts"
+			},
+			"./package.js": {
+				"default": "./dist/package.js",
+				"types": "./dist/package.d.ts"
+			},
+			"./path.js": {
+				"default": "./dist/path.js",
+				"types": "./dist/path.d.ts"
+			},
+			"./paths.js": {
+				"default": "./dist/paths.js",
+				"types": "./dist/paths.d.ts"
+			},
+			"./plugin.js": {
+				"default": "./dist/plugin.js",
+				"types": "./dist/plugin.d.ts"
+			},
+			"./print_task.js": {
+				"default": "./dist/print_task.js",
+				"types": "./dist/print_task.d.ts"
+			},
+			"./publish.task.js": {
+				"default": "./dist/publish.task.js",
+				"types": "./dist/publish.task.d.ts"
+			},
+			"./release.task.js": {
+				"default": "./dist/release.task.js",
+				"types": "./dist/release.task.d.ts"
+			},
+			"./resolve_node_specifier.js": {
+				"default": "./dist/resolve_node_specifier.js",
+				"types": "./dist/resolve_node_specifier.d.ts"
+			},
+			"./resolve_specifier.js": {
+				"default": "./dist/resolve_specifier.js",
+				"types": "./dist/resolve_specifier.d.ts"
+			},
+			"./run_gen.js": {
+				"default": "./dist/run_gen.js",
+				"types": "./dist/run_gen.d.ts"
+			},
+			"./run_task.js": {
+				"default": "./dist/run_task.js",
+				"types": "./dist/run_task.d.ts"
+			},
+			"./run.task.js": {
+				"default": "./dist/run.task.js",
+				"types": "./dist/run.task.d.ts"
+			},
+			"./search_fs.js": {
+				"default": "./dist/search_fs.js",
+				"types": "./dist/search_fs.d.ts"
+			},
+			"./src_json.js": {
+				"default": "./dist/src_json.js",
+				"types": "./dist/src_json.d.ts"
+			},
+			"./sveltekit_config.js": {
+				"default": "./dist/sveltekit_config.js",
+				"types": "./dist/sveltekit_config.d.ts"
+			},
+			"./sveltekit_shim_app_environment.js": {
+				"default": "./dist/sveltekit_shim_app_environment.js",
+				"types": "./dist/sveltekit_shim_app_environment.d.ts"
+			},
+			"./sveltekit_shim_app_forms.js": {
+				"default": "./dist/sveltekit_shim_app_forms.js",
+				"types": "./dist/sveltekit_shim_app_forms.d.ts"
+			},
+			"./sveltekit_shim_app_navigation.js": {
+				"default": "./dist/sveltekit_shim_app_navigation.js",
+				"types": "./dist/sveltekit_shim_app_navigation.d.ts"
+			},
+			"./sveltekit_shim_app_paths.js": {
+				"default": "./dist/sveltekit_shim_app_paths.js",
+				"types": "./dist/sveltekit_shim_app_paths.d.ts"
+			},
+			"./sveltekit_shim_app_stores.js": {
+				"default": "./dist/sveltekit_shim_app_stores.js",
+				"types": "./dist/sveltekit_shim_app_stores.d.ts"
+			},
+			"./sveltekit_shim_app.js": {
+				"default": "./dist/sveltekit_shim_app.js",
+				"types": "./dist/sveltekit_shim_app.d.ts"
+			},
+			"./sveltekit_shim_env.js": {
+				"default": "./dist/sveltekit_shim_env.js",
+				"types": "./dist/sveltekit_shim_env.d.ts"
+			},
+			"./sync.task.js": {
+				"default": "./dist/sync.task.js",
+				"types": "./dist/sync.task.d.ts"
+			},
+			"./task_module.js": {
+				"default": "./dist/task_module.js",
+				"types": "./dist/task_module.d.ts"
+			},
+			"./task.js": {
+				"default": "./dist/task.js",
+				"types": "./dist/task.d.ts"
+			},
+			"./test.task.js": {
+				"default": "./dist/test.task.js",
+				"types": "./dist/test.task.d.ts"
+			},
+			"./throttle.js": {
+				"default": "./dist/throttle.js",
+				"types": "./dist/throttle.d.ts"
+			},
+			"./typecheck.task.js": {
+				"default": "./dist/typecheck.task.js",
+				"types": "./dist/typecheck.task.d.ts"
+			},
+			"./upgrade.task.js": {
+				"default": "./dist/upgrade.task.js",
+				"types": "./dist/upgrade.task.d.ts"
+			},
+			"./watch_dir.js": {
+				"default": "./dist/watch_dir.js",
+				"types": "./dist/watch_dir.d.ts"
+			}
+		}
+	},
+	"src_json": {
+		"name": "@ryanatkn/gro",
+		"version": "0.111.0",
+		"modules": {
+			".": {
+				"path": "index.ts",
+				"declarations": [
+					{
+						"name": "Gro_Config",
+						"kind": "type"
+					},
+					{
+						"name": "Create_Gro_Config",
+						"kind": "type"
+					},
+					{
+						"name": "Plugin",
+						"kind": "type"
+					},
+					{
+						"name": "replace_plugin",
+						"kind": "function"
+					},
+					{
+						"name": "Gen",
+						"kind": "type"
+					},
+					{
+						"name": "Gen_Context",
+						"kind": "type"
+					},
+					{
+						"name": "Task",
+						"kind": "type"
+					},
+					{
+						"name": "Task_Context",
+						"kind": "type"
+					},
+					{
+						"name": "Task_Error",
+						"kind": "class"
+					}
+				]
+			},
+			"./args.js": {
+				"path": "args.ts",
+				"declarations": [
+					{
+						"name": "Args",
+						"kind": "type"
+					},
+					{
+						"name": "Arg_Value",
+						"kind": "type"
+					},
+					{
+						"name": "Arg_Schema",
+						"kind": "type"
+					},
+					{
+						"name": "parse_args",
+						"kind": "function"
+					},
+					{
+						"name": "serialize_args",
+						"kind": "function"
+					},
+					{
+						"name": "to_task_args",
+						"kind": "function"
+					},
+					{
+						"name": "to_raw_rest_args",
+						"kind": "function"
+					},
+					{
+						"name": "to_forwarded_args",
+						"kind": "function"
+					},
+					{
+						"name": "to_forwarded_args_by_command",
+						"kind": "function"
+					},
+					{
+						"name": "print_command_args",
+						"kind": "function"
+					}
+				]
+			},
+			"./build.task.js": {
+				"path": "build.task.ts",
+				"declarations": [
+					{
+						"name": "Args",
+						"kind": "variable"
+					},
+					{
+						"name": "task",
+						"kind": "variable"
+					}
+				]
+			},
+			"./changelog.js": {
+				"path": "changelog.ts",
+				"declarations": [
+					{
+						"name": "update_changelog",
+						"kind": "function"
+					}
+				]
+			},
+			"./changeset.task.js": {
+				"path": "changeset.task.ts",
+				"declarations": [
+					{
+						"name": "Changeset_Bump",
+						"kind": "variable"
+					},
+					{
+						"name": "Args",
+						"kind": "variable"
+					},
+					{
+						"name": "task",
+						"kind": "variable"
+					}
+				]
+			},
+			"./check.task.js": {
+				"path": "check.task.ts",
+				"declarations": [
+					{
+						"name": "Args",
+						"kind": "variable"
+					},
+					{
+						"name": "task",
+						"kind": "variable"
+					}
+				]
+			},
+			"./clean_fs.js": {
+				"path": "clean_fs.ts",
+				"declarations": [
+					{
+						"name": "clean_fs",
+						"kind": "function"
+					}
+				]
+			},
+			"./clean.task.js": {
+				"path": "clean.task.ts",
+				"declarations": [
+					{
+						"name": "Args",
+						"kind": "variable"
+					},
+					{
+						"name": "task",
+						"kind": "variable"
+					}
+				]
+			},
+			"./cli.js": {
+				"path": "cli.ts",
+				"declarations": [
+					{
+						"name": "find_cli",
+						"kind": "function"
+					},
+					{
+						"name": "spawn_cli",
+						"kind": "function"
+					}
+				]
+			},
+			"./commit.task.js": {
+				"path": "commit.task.ts",
+				"declarations": [
+					{
+						"name": "Args",
+						"kind": "variable"
+					},
+					{
+						"name": "task",
+						"kind": "variable"
+					}
+				]
+			},
+			"./config.js": {
+				"path": "config.ts",
+				"declarations": [
+					{
+						"name": "Gro_Config",
+						"kind": "type"
+					},
+					{
+						"name": "Create_Gro_Config",
+						"kind": "type"
+					},
+					{
+						"name": "create_empty_config",
+						"kind": "function"
+					},
+					{
+						"name": "DEFAULT_EXPORTS_EXCLUDER",
+						"kind": "variable"
+					},
+					{
+						"name": "Gro_Config_Module",
+						"kind": "type"
+					},
+					{
+						"name": "load_config",
+						"kind": "function"
+					},
+					{
+						"name": "validate_config_module",
+						"kind": "function"
+					}
+				]
+			},
+			"./deploy.task.js": {
+				"path": "deploy.task.ts",
+				"declarations": [
+					{
+						"name": "Args",
+						"kind": "variable"
+					},
+					{
+						"name": "task",
+						"kind": "variable"
+					}
+				]
+			},
+			"./dev.task.js": {
+				"path": "dev.task.ts",
+				"declarations": [
+					{
+						"name": "Args",
+						"kind": "variable"
+					},
+					{
+						"name": "DevTask_Context",
+						"kind": "type"
+					},
+					{
+						"name": "task",
+						"kind": "variable"
+					}
+				]
+			},
+			"./env.js": {
+				"path": "env.ts",
+				"declarations": [
+					{
+						"name": "load_env",
+						"kind": "function"
+					},
+					{
+						"name": "merge_envs",
+						"kind": "function"
+					},
+					{
+						"name": "is_private_env",
+						"kind": "function"
+					},
+					{
+						"name": "is_public_env",
+						"kind": "function"
+					},
+					{
+						"name": "load_from_env",
+						"kind": "function"
+					}
+				]
+			},
+			"./esbuild_helpers.js": {
+				"path": "esbuild_helpers.ts",
+				"declarations": [
+					{
+						"name": "print_build_result",
+						"kind": "function"
+					},
+					{
+						"name": "to_define_import_meta_env",
+						"kind": "function"
+					},
+					{
+						"name": "ts_transform_options",
+						"kind": "variable"
+					}
+				]
+			},
+			"./esbuild_plugin_external_worker.js": {
+				"path": "esbuild_plugin_external_worker.ts",
+				"declarations": [
+					{
+						"name": "Options",
+						"kind": "type"
+					},
+					{
+						"name": "esbuild_plugin_external_worker",
+						"kind": "function"
+					}
+				]
+			},
+			"./esbuild_plugin_svelte.js": {
+				"path": "esbuild_plugin_svelte.ts",
+				"declarations": [
+					{
+						"name": "Options",
+						"kind": "type"
+					},
+					{
+						"name": "esbuild_plugin_svelte",
+						"kind": "function"
+					}
+				]
+			},
+			"./esbuild_plugin_sveltekit_local_imports.js": {
+				"path": "esbuild_plugin_sveltekit_local_imports.ts",
+				"declarations": [
+					{
+						"name": "esbuild_plugin_sveltekit_local_imports",
+						"kind": "function"
+					}
+				]
+			},
+			"./esbuild_plugin_sveltekit_shim_alias.js": {
+				"path": "esbuild_plugin_sveltekit_shim_alias.ts",
+				"declarations": [
+					{
+						"name": "Options",
+						"kind": "type"
+					},
+					{
+						"name": "esbuild_plugin_sveltekit_shim_alias",
+						"kind": "function"
+					}
+				]
+			},
+			"./esbuild_plugin_sveltekit_shim_app.js": {
+				"path": "esbuild_plugin_sveltekit_shim_app.ts",
+				"declarations": [
+					{
+						"name": "Options",
+						"kind": "type"
+					},
+					{
+						"name": "esbuild_plugin_sveltekit_shim_app",
+						"kind": "function"
+					}
+				]
+			},
+			"./esbuild_plugin_sveltekit_shim_env.js": {
+				"path": "esbuild_plugin_sveltekit_shim_env.ts",
+				"declarations": [
+					{
+						"name": "Options",
+						"kind": "type"
+					},
+					{
+						"name": "esbuild_plugin_sveltekit_shim_env",
+						"kind": "function"
+					}
+				]
+			},
+			"./format_directory.js": {
+				"path": "format_directory.ts",
+				"declarations": [
+					{
+						"name": "format_directory",
+						"kind": "function"
+					}
+				]
+			},
+			"./format_file.js": {
+				"path": "format_file.ts",
+				"declarations": [
+					{
+						"name": "format_file",
+						"kind": "function"
+					}
+				]
+			},
+			"./format.task.js": {
+				"path": "format.task.ts",
+				"declarations": [
+					{
+						"name": "Args",
+						"kind": "variable"
+					},
+					{
+						"name": "task",
+						"kind": "variable"
+					}
+				]
+			},
+			"./fs.js": {
+				"path": "fs.ts",
+				"declarations": [
+					{
+						"name": "clean_fs",
+						"kind": "function"
+					}
+				]
+			},
+			"./gen_module.js": {
+				"path": "gen_module.ts",
+				"declarations": [
+					{
+						"name": "GEN_FILE_PATTERN_TEXT",
+						"kind": "variable"
+					},
+					{
+						"name": "GEN_FILE_PATTERN",
+						"kind": "variable"
+					},
+					{
+						"name": "is_gen_path",
+						"kind": "function"
+					},
+					{
+						"name": "GEN_SCHEMA_FILE_PATTERN_TEXT",
+						"kind": "variable"
+					},
+					{
+						"name": "GEN_SCHEMA_FILE_PATTERN",
+						"kind": "variable"
+					},
+					{
+						"name": "GEN_SCHEMA_PATH_SUFFIX",
+						"kind": "variable"
+					},
+					{
+						"name": "GEN_SCHEMA_IDENTIFIER_SUFFIX",
+						"kind": "variable"
+					},
+					{
+						"name": "Gen_Module_Type",
+						"kind": "type"
+					},
+					{
+						"name": "Gen_Module",
+						"kind": "type"
+					},
+					{
+						"name": "Basic_Gen_Module",
+						"kind": "type"
+					},
+					{
+						"name": "Schema_Gen_Module",
+						"kind": "type"
+					},
+					{
+						"name": "to_gen_module_type",
+						"kind": "function"
+					},
+					{
+						"name": "gen_module_meta",
+						"kind": "variable"
+					},
+					{
+						"name": "validate_gen_module",
+						"kind": "variable"
+					},
+					{
+						"name": "Gen_Module_Meta",
+						"kind": "type"
+					},
+					{
+						"name": "Basic_Gen_Module_Meta",
+						"kind": "type"
+					},
+					{
+						"name": "load_gen_module",
+						"kind": "function"
+					},
+					{
+						"name": "Check_Gen_Module_Result",
+						"kind": "type"
+					},
+					{
+						"name": "check_gen_modules",
+						"kind": "function"
+					},
+					{
+						"name": "check_gen_module",
+						"kind": "function"
+					},
+					{
+						"name": "find_gen_modules",
+						"kind": "function"
+					}
+				]
+			},
+			"./gen.task.js": {
+				"path": "gen.task.ts",
+				"declarations": [
+					{
+						"name": "Args",
+						"kind": "variable"
+					},
+					{
+						"name": "task",
+						"kind": "variable"
+					}
+				]
+			},
+			"./gen.js": {
+				"path": "gen.ts",
+				"declarations": [
+					{
+						"name": "Gen_Result",
+						"kind": "type"
+					},
+					{
+						"name": "Gen_File",
+						"kind": "type"
+					},
+					{
+						"name": "Gen",
+						"kind": "type"
+					},
+					{
+						"name": "Gen_Context",
+						"kind": "type"
+					},
+					{
+						"name": "Raw_Gen_Result",
+						"kind": "type"
+					},
+					{
+						"name": "Raw_Gen_File",
+						"kind": "type"
+					},
+					{
+						"name": "Gen_Config",
+						"kind": "variable"
+					},
+					{
+						"name": "Gen_Results",
+						"kind": "type"
+					},
+					{
+						"name": "Gen_Module_Result",
+						"kind": "type"
+					},
+					{
+						"name": "Gen_Module_Result_Success",
+						"kind": "type"
+					},
+					{
+						"name": "Gen_Module_Result_Failure",
+						"kind": "type"
+					},
+					{
+						"name": "to_gen_result",
+						"kind": "function"
+					},
+					{
+						"name": "to_output_file_name",
+						"kind": "function"
+					}
+				]
+			},
+			"./git.js": {
+				"path": "git.ts",
+				"declarations": [
+					{
+						"name": "Git_Origin",
+						"kind": "variable"
+					},
+					{
+						"name": "Git_Branch",
+						"kind": "variable"
+					},
+					{
+						"name": "git_current_branch_name",
+						"kind": "function"
+					},
+					{
+						"name": "git_remote_branch_exists",
+						"kind": "function"
+					},
+					{
+						"name": "git_local_branch_exists",
+						"kind": "function"
+					},
+					{
+						"name": "git_check_clean_workspace",
+						"kind": "function"
+					},
+					{
+						"name": "git_fetch",
+						"kind": "function"
+					},
+					{
+						"name": "git_checkout",
+						"kind": "function"
+					},
+					{
+						"name": "git_pull",
+						"kind": "function"
+					},
+					{
+						"name": "git_push",
+						"kind": "function"
+					},
+					{
+						"name": "git_push_to_create",
+						"kind": "function"
+					},
+					{
+						"name": "git_delete_local_branch",
+						"kind": "function"
+					},
+					{
+						"name": "git_delete_remote_branch",
+						"kind": "function"
+					},
+					{
+						"name": "git_reset_branch_to_first_commit",
+						"kind": "function"
+					},
+					{
+						"name": "git_current_commit_hash",
+						"kind": "function"
+					},
+					{
+						"name": "git_current_branch_first_commit_hash",
+						"kind": "function"
+					},
+					{
+						"name": "git_check_setting_pull_rebase",
+						"kind": "function"
+					},
+					{
+						"name": "git_clone_locally",
+						"kind": "function"
+					}
+				]
+			},
+			"./github.js": {
+				"path": "github.ts",
+				"declarations": [
+					{
+						"name": "Github_Pull_Request",
+						"kind": "variable"
+					},
+					{
+						"name": "github_fetch_commit_prs",
+						"kind": "function"
+					}
+				]
+			},
+			"./gro_helpers.js": {
+				"path": "gro_helpers.ts",
+				"declarations": [
+					{
+						"name": "resolve_gro_module_path",
+						"kind": "function"
+					},
+					{
+						"name": "spawn_with_loader",
+						"kind": "function"
+					}
+				]
+			},
+			"./gro_plugin_gen.js": {
+				"path": "gro_plugin_gen.ts",
+				"declarations": [
+					{
+						"name": "Task_Args",
+						"kind": "type"
+					},
+					{
+						"name": "plugin",
+						"kind": "function"
+					}
+				]
+			},
+			"./gro_plugin_server.js": {
+				"path": "gro_plugin_server.ts",
+				"declarations": [
+					{
+						"name": "SERVER_SOURCE_ID",
+						"kind": "variable"
+					},
+					{
+						"name": "has_server",
+						"kind": "function"
+					},
+					{
+						"name": "Options",
+						"kind": "type"
+					},
+					{
+						"name": "Outpaths",
+						"kind": "type"
+					},
+					{
+						"name": "Create_Outpaths",
+						"kind": "type"
+					},
+					{
+						"name": "gro_plugin_server",
+						"kind": "function"
+					}
+				]
+			},
+			"./gro_plugin_sveltekit_app.js": {
+				"path": "gro_plugin_sveltekit_app.ts",
+				"declarations": [
+					{
+						"name": "has_sveltekit_app",
+						"kind": "function"
+					},
+					{
+						"name": "Options",
+						"kind": "type"
+					},
+					{
+						"name": "Host_Target",
+						"kind": "type"
+					},
+					{
+						"name": "gro_plugin_sveltekit_app",
+						"kind": "function"
+					}
+				]
+			},
+			"./gro_plugin_sveltekit_library.js": {
+				"path": "gro_plugin_sveltekit_library.ts",
+				"declarations": [
+					{
+						"name": "has_sveltekit_library",
+						"kind": "function"
+					},
+					{
+						"name": "gro_plugin_sveltekit_library",
+						"kind": "function"
+					}
+				]
+			},
+			"./gro.config.default.js": {
+				"path": "gro.config.default.ts",
+				"declarations": [
+					{
+						"name": "default",
+						"kind": "function"
+					}
+				]
+			},
+			"./gro.js": {
+				"path": "gro.ts",
+				"declarations": []
+			},
+			"./hash.js": {
+				"path": "hash.ts",
+				"declarations": [
+					{
+						"name": "to_hash",
+						"kind": "function"
+					}
+				]
+			},
+			"./input_path.js": {
+				"path": "input_path.ts",
+				"declarations": [
+					{
+						"name": "resolve_input_path",
+						"kind": "function"
+					},
+					{
+						"name": "resolve_input_paths",
+						"kind": "function"
+					},
+					{
+						"name": "get_possible_source_ids",
+						"kind": "function"
+					},
+					{
+						"name": "load_source_path_data_by_input_path",
+						"kind": "function"
+					},
+					{
+						"name": "load_source_ids_by_input_path",
+						"kind": "function"
+					}
+				]
+			},
+			"./invoke_task.js": {
+				"path": "invoke_task.ts",
+				"declarations": [
+					{
+						"name": "invoke_task",
+						"kind": "function"
+					}
+				]
+			},
+			"./invoke.js": {
+				"path": "invoke.ts",
+				"declarations": []
+			},
+			"./lint.task.js": {
+				"path": "lint.task.ts",
+				"declarations": [
+					{
+						"name": "Args",
+						"kind": "variable"
+					},
+					{
+						"name": "task",
+						"kind": "variable"
+					}
+				]
+			},
+			"./loader.js": {
+				"path": "loader.ts",
+				"declarations": [
+					{
+						"name": "load",
+						"kind": "function"
+					},
+					{
+						"name": "resolve",
+						"kind": "function"
+					}
+				]
+			},
+			"./module.js": {
+				"path": "module.ts",
+				"declarations": []
+			},
+			"./modules.js": {
+				"path": "modules.ts",
+				"declarations": [
+					{
+						"name": "Module_Meta",
+						"kind": "type"
+					},
+					{
+						"name": "Load_Module_Result",
+						"kind": "type"
+					},
+					{
+						"name": "Load_Module_Failure",
+						"kind": "type"
+					},
+					{
+						"name": "load_module",
+						"kind": "function"
+					},
+					{
+						"name": "Find_Modules_Result",
+						"kind": "type"
+					},
+					{
+						"name": "Find_Modules_Failure",
+						"kind": "type"
+					},
+					{
+						"name": "Load_Modules_Result",
+						"kind": "type"
+					},
+					{
+						"name": "find_modules",
+						"kind": "function"
+					},
+					{
+						"name": "load_modules",
+						"kind": "function"
+					}
+				]
+			},
+			"./package_json.js": {
+				"path": "package_json.ts",
+				"declarations": [
+					{
+						"name": "transform_empty_object_to_undefined",
+						"kind": "function"
+					},
+					{
+						"name": "Package_Json_Repository",
+						"kind": "variable"
+					},
+					{
+						"name": "Package_Json_Author",
+						"kind": "variable"
+					},
+					{
+						"name": "Package_Json_Funding",
+						"kind": "variable"
+					},
+					{
+						"name": "Package_Json_Exports",
+						"kind": "variable"
+					},
+					{
+						"name": "Package_Json",
+						"kind": "variable"
+					},
+					{
+						"name": "Map_Package_Json",
+						"kind": "type"
+					},
+					{
+						"name": "EMPTY_PACKAGE_JSON",
+						"kind": "variable"
+					},
+					{
+						"name": "load_package_json",
+						"kind": "function"
+					},
+					{
+						"name": "sync_package_json",
+						"kind": "function"
+					},
+					{
+						"name": "load_gro_package_json",
+						"kind": "function"
+					},
+					{
+						"name": "write_package_json",
+						"kind": "function"
+					},
+					{
+						"name": "serialize_package_json",
+						"kind": "function"
+					},
+					{
+						"name": "update_package_json",
+						"kind": "function"
+					},
+					{
+						"name": "to_package_exports",
+						"kind": "function"
+					},
+					{
+						"name": "parse_repo_url",
+						"kind": "function"
+					}
+				]
+			},
+			"./package.gen.js": {
+				"path": "package.gen.ts",
+				"declarations": [
+					{
+						"name": "gen",
+						"kind": "function"
+					}
+				]
+			},
+			"./package.js": {
+				"path": "package.ts",
+				"declarations": [
+					{
+						"name": "package_json",
+						"kind": "variable"
+					},
+					{
+						"name": "src_json",
+						"kind": "variable"
+					}
+				]
+			},
+			"./path.js": {
+				"path": "path.ts",
+				"declarations": [
+					{
+						"name": "resolve_input_path",
+						"kind": "function"
+					},
+					{
+						"name": "resolve_input_paths",
+						"kind": "function"
+					},
+					{
+						"name": "get_possible_source_ids",
+						"kind": "function"
+					},
+					{
+						"name": "load_source_path_data_by_input_path",
+						"kind": "function"
+					},
+					{
+						"name": "load_source_ids_by_input_path",
+						"kind": "function"
+					}
+				]
+			},
+			"./paths.js": {
+				"path": "paths.ts",
+				"declarations": [
+					{
+						"name": "SOURCE_DIRNAME",
+						"kind": "variable"
+					},
+					{
+						"name": "GRO_DIRNAME",
+						"kind": "variable"
+					},
+					{
+						"name": "GRO_DIST_PREFIX",
+						"kind": "variable"
+					},
+					{
+						"name": "SERVER_DIST_PATH",
+						"kind": "variable"
+					},
+					{
+						"name": "LIB_DIRNAME",
+						"kind": "variable"
+					},
+					{
+						"name": "ROUTES_DIRNAME",
+						"kind": "variable"
+					},
+					{
+						"name": "GRO_DEV_DIRNAME",
+						"kind": "variable"
+					},
+					{
+						"name": "SOURCE_DIR",
+						"kind": "variable"
+					},
+					{
+						"name": "GRO_DIR",
+						"kind": "variable"
+					},
+					{
+						"name": "GRO_DEV_DIR",
+						"kind": "variable"
+					},
+					{
+						"name": "LIB_PATH",
+						"kind": "variable"
+					},
+					{
+						"name": "LIB_DIR",
+						"kind": "variable"
+					},
+					{
+						"name": "CONFIG_PATH",
+						"kind": "variable"
+					},
+					{
+						"name": "README_FILENAME",
+						"kind": "variable"
+					},
+					{
+						"name": "SVELTEKIT_CONFIG_FILENAME",
+						"kind": "variable"
+					},
+					{
+						"name": "VITE_CONFIG_FILENAME",
+						"kind": "variable"
+					},
+					{
+						"name": "SVELTEKIT_DEV_DIRNAME",
+						"kind": "variable"
+					},
+					{
+						"name": "SVELTEKIT_BUILD_DIRNAME",
+						"kind": "variable"
+					},
+					{
+						"name": "SVELTEKIT_DIST_DIRNAME",
+						"kind": "variable"
+					},
+					{
+						"name": "NODE_MODULES_DIRNAME",
+						"kind": "variable"
+					},
+					{
+						"name": "SVELTEKIT_VITE_CACHE_PATH",
+						"kind": "variable"
+					},
+					{
+						"name": "GITHUB_DIRNAME",
+						"kind": "variable"
+					},
+					{
+						"name": "GIT_DIRNAME",
+						"kind": "variable"
+					},
+					{
+						"name": "TSCONFIG_FILENAME",
+						"kind": "variable"
+					},
+					{
+						"name": "Paths",
+						"kind": "type"
+					},
+					{
+						"name": "Url",
+						"kind": "variable"
+					},
+					{
+						"name": "Email",
+						"kind": "variable"
+					},
+					{
+						"name": "Source_Id",
+						"kind": "variable"
+					},
+					{
+						"name": "Build_Id",
+						"kind": "variable"
+					},
+					{
+						"name": "create_paths",
+						"kind": "function"
+					},
+					{
+						"name": "paths_from_id",
+						"kind": "function"
+					},
+					{
+						"name": "is_gro_id",
+						"kind": "function"
+					},
+					{
+						"name": "to_root_path",
+						"kind": "function"
+					},
+					{
+						"name": "source_id_to_base_path",
+						"kind": "function"
+					},
+					{
+						"name": "base_path_to_source_id",
+						"kind": "function"
+					},
+					{
+						"name": "lib_path_to_import_id",
+						"kind": "function"
+					},
+					{
+						"name": "import_id_to_lib_path",
+						"kind": "function"
+					},
+					{
+						"name": "to_gro_input_path",
+						"kind": "function"
+					},
+					{
+						"name": "replace_root_dir",
+						"kind": "function"
+					},
+					{
+						"name": "print_path",
+						"kind": "function"
+					},
+					{
+						"name": "print_path_or_gro_path",
+						"kind": "function"
+					},
+					{
+						"name": "replace_extension",
+						"kind": "function"
+					},
+					{
+						"name": "gro_dir_basename",
+						"kind": "variable"
+					},
+					{
+						"name": "paths",
+						"kind": "variable"
+					},
+					{
+						"name": "is_this_project_gro",
+						"kind": "variable"
+					},
+					{
+						"name": "gro_paths",
+						"kind": "variable"
+					},
+					{
+						"name": "gro_sveltekit_dist_dir",
+						"kind": "variable"
+					}
+				]
+			},
+			"./plugin.js": {
+				"path": "plugin.ts",
+				"declarations": [
+					{
+						"name": "Plugin",
+						"kind": "type"
+					},
+					{
+						"name": "Create_Config_Plugins",
+						"kind": "type"
+					},
+					{
+						"name": "Plugin_Context",
+						"kind": "type"
+					},
+					{
+						"name": "Plugins",
+						"kind": "class"
+					},
+					{
+						"name": "replace_plugin",
+						"kind": "function"
+					}
+				]
+			},
+			"./print_task.js": {
+				"path": "print_task.ts",
+				"declarations": [
+					{
+						"name": "log_available_tasks",
+						"kind": "function"
+					},
+					{
+						"name": "log_error_reasons",
+						"kind": "function"
+					},
+					{
+						"name": "print_task_help",
+						"kind": "function"
+					}
+				]
+			},
+			"./publish.task.js": {
+				"path": "publish.task.ts",
+				"declarations": [
+					{
+						"name": "Args",
+						"kind": "variable"
+					},
+					{
+						"name": "task",
+						"kind": "variable"
+					}
+				]
+			},
+			"./release.task.js": {
+				"path": "release.task.ts",
+				"declarations": [
+					{
+						"name": "Args",
+						"kind": "variable"
+					},
+					{
+						"name": "task",
+						"kind": "variable"
+					}
+				]
+			},
+			"./resolve_node_specifier.js": {
+				"path": "resolve_node_specifier.ts",
+				"declarations": [
+					{
+						"name": "resolve_node_specifier",
+						"kind": "function"
+					},
+					{
+						"name": "Parsed_Node_Specifier",
+						"kind": "type"
+					},
+					{
+						"name": "parse_node_specifier",
+						"kind": "function"
+					}
+				]
+			},
+			"./resolve_specifier.js": {
+				"path": "resolve_specifier.ts",
+				"declarations": [
+					{
+						"name": "Resolved_Specifier",
+						"kind": "type"
+					},
+					{
+						"name": "resolve_specifier",
+						"kind": "function"
+					}
+				]
+			},
+			"./run_gen.js": {
+				"path": "run_gen.ts",
+				"declarations": [
+					{
+						"name": "GEN_NO_PROD_MESSAGE",
+						"kind": "variable"
+					},
+					{
+						"name": "run_gen",
+						"kind": "function"
+					},
+					{
+						"name": "to_gen_import_path",
+						"kind": "function"
+					}
+				]
+			},
+			"./run_task.js": {
+				"path": "run_task.ts",
+				"declarations": [
+					{
+						"name": "Run_Task_Result",
+						"kind": "type"
+					},
+					{
+						"name": "run_task",
+						"kind": "function"
+					}
+				]
+			},
+			"./run.task.js": {
+				"path": "run.task.ts",
+				"declarations": [
+					{
+						"name": "Args",
+						"kind": "variable"
+					},
+					{
+						"name": "task",
+						"kind": "variable"
+					}
+				]
+			},
+			"./search_fs.js": {
+				"path": "search_fs.ts",
+				"declarations": [
+					{
+						"name": "Search_Fs_Options",
+						"kind": "type"
+					},
+					{
+						"name": "search_fs",
+						"kind": "function"
+					}
+				]
+			},
+			"./src_json.js": {
+				"path": "src_json.ts",
+				"declarations": [
+					{
+						"name": "Src_Module_Declaration",
+						"kind": "variable"
+					},
+					{
+						"name": "Src_Module",
+						"kind": "variable"
+					},
+					{
+						"name": "Src_Modules",
+						"kind": "variable"
+					},
+					{
+						"name": "Src_Json",
+						"kind": "variable"
+					},
+					{
+						"name": "Map_Src_Json",
+						"kind": "type"
+					},
+					{
+						"name": "create_src_json",
+						"kind": "function"
+					},
+					{
+						"name": "serialize_src_json",
+						"kind": "function"
+					},
+					{
+						"name": "to_src_modules",
+						"kind": "function"
+					}
+				]
+			},
+			"./sveltekit_config.js": {
+				"path": "sveltekit_config.ts",
+				"declarations": [
+					{
+						"name": "load_sveltekit_config",
+						"kind": "function"
+					},
+					{
+						"name": "Parsed_Sveltekit_Config",
+						"kind": "type"
+					},
+					{
+						"name": "init_sveltekit_config",
+						"kind": "function"
+					}
+				]
+			},
+			"./sveltekit_shim_app_environment.js": {
+				"path": "sveltekit_shim_app_environment.ts",
+				"declarations": [
+					{
+						"name": "browser",
+						"kind": "variable"
+					},
+					{
+						"name": "building",
+						"kind": "variable"
+					},
+					{
+						"name": "dev",
+						"kind": "variable"
+					},
+					{
+						"name": "version",
+						"kind": "variable"
+					}
+				]
+			},
+			"./sveltekit_shim_app_forms.js": {
+				"path": "sveltekit_shim_app_forms.ts",
+				"declarations": [
+					{
+						"name": "applyAction",
+						"kind": "function"
+					},
+					{
+						"name": "deserialize",
+						"kind": "function"
+					},
+					{
+						"name": "enhance",
+						"kind": "function"
+					}
+				]
+			},
+			"./sveltekit_shim_app_navigation.js": {
+				"path": "sveltekit_shim_app_navigation.ts",
+				"declarations": [
+					{
+						"name": "afterNavigate",
+						"kind": "function"
+					},
+					{
+						"name": "beforeNavigate",
+						"kind": "function"
+					},
+					{
+						"name": "disableScrollHandling",
+						"kind": "function"
+					},
+					{
+						"name": "goto",
+						"kind": "function"
+					},
+					{
+						"name": "invalidate",
+						"kind": "function"
+					},
+					{
+						"name": "invalidateAll",
+						"kind": "function"
+					},
+					{
+						"name": "preloadCode",
+						"kind": "function"
+					},
+					{
+						"name": "preloadData",
+						"kind": "function"
+					}
+				]
+			},
+			"./sveltekit_shim_app_paths.js": {
+				"path": "sveltekit_shim_app_paths.ts",
+				"declarations": [
+					{
+						"name": "assets",
+						"kind": "variable"
+					},
+					{
+						"name": "base",
+						"kind": "variable"
+					},
+					{
+						"name": "resolveRoute",
+						"kind": "function"
+					}
+				]
+			},
+			"./sveltekit_shim_app_stores.js": {
+				"path": "sveltekit_shim_app_stores.ts",
+				"declarations": [
+					{
+						"name": "getStores",
+						"kind": "function"
+					},
+					{
+						"name": "navigating",
+						"kind": "variable"
+					},
+					{
+						"name": "page",
+						"kind": "variable"
+					},
+					{
+						"name": "updated",
+						"kind": "variable"
+					}
+				]
+			},
+			"./sveltekit_shim_app.js": {
+				"path": "sveltekit_shim_app.ts",
+				"declarations": [
+					{
+						"name": "Options",
+						"kind": "type"
+					},
+					{
+						"name": "esbuild_plugin_sveltekit_shim_app",
+						"kind": "function"
+					}
+				]
+			},
+			"./sveltekit_shim_env.js": {
+				"path": "sveltekit_shim_env.ts",
+				"declarations": [
+					{
+						"name": "Options",
+						"kind": "type"
+					},
+					{
+						"name": "esbuild_plugin_sveltekit_shim_env",
+						"kind": "function"
+					}
+				]
+			},
+			"./sync.task.js": {
+				"path": "sync.task.ts",
+				"declarations": [
+					{
+						"name": "Args",
+						"kind": "variable"
+					},
+					{
+						"name": "task",
+						"kind": "variable"
+					},
+					{
+						"name": "sveltekit_sync",
+						"kind": "function"
+					}
+				]
+			},
+			"./task_module.js": {
+				"path": "task_module.ts",
+				"declarations": []
+			},
+			"./task.js": {
+				"path": "task.ts",
+				"declarations": [
+					{
+						"name": "Args",
+						"kind": "variable"
+					},
+					{
+						"name": "task",
+						"kind": "variable"
+					}
+				]
+			},
+			"./test.task.js": {
+				"path": "test.task.ts",
+				"declarations": [
+					{
+						"name": "Args",
+						"kind": "variable"
+					},
+					{
+						"name": "task",
+						"kind": "variable"
+					}
+				]
+			},
+			"./throttle.js": {
+				"path": "throttle.ts",
+				"declarations": [
+					{
+						"name": "throttle",
+						"kind": "function"
+					}
+				]
+			},
+			"./typecheck.task.js": {
+				"path": "typecheck.task.ts",
+				"declarations": [
+					{
+						"name": "Args",
+						"kind": "variable"
+					},
+					{
+						"name": "task",
+						"kind": "variable"
+					}
+				]
+			},
+			"./upgrade.task.js": {
+				"path": "upgrade.task.ts",
+				"declarations": [
+					{
+						"name": "Args",
+						"kind": "variable"
+					},
+					{
+						"name": "task",
+						"kind": "variable"
+					}
+				]
+			},
+			"./watch_dir.js": {
+				"path": "watch_dir.ts",
+				"declarations": [
+					{
+						"name": "Watch_Node_Fs",
+						"kind": "type"
+					},
+					{
+						"name": "Watcher_Change",
+						"kind": "type"
+					},
+					{
+						"name": "Watcher_Change_Type",
+						"kind": "type"
+					},
+					{
+						"name": "Watcher_Change_Callback",
+						"kind": "type"
+					},
+					{
+						"name": "Options",
+						"kind": "type"
+					},
+					{
+						"name": "watch_dir",
+						"kind": "function"
+					}
+				]
+			}
+		}
+	},
+	"name": "@ryanatkn/gro",
+	"repo_name": "gro",
+	"repo_url": "https://github.com/ryanatkn/gro",
+	"owner_name": "ryanatkn",
+	"homepage_url": "https://gro.ryanatkn.com/",
+	"npm_url": "https://www.npmjs.com/package/@ryanatkn/gro",
+	"changelog_url": "https://github.com/ryanatkn/gro/blob/main/CHANGELOG.md",
+	"published": true
+}</code></pre></details></section>  </div> </div></section> <section class="box svelte-1tz8tj3"><footer class="panel padded_lg svelte-1o3q16b"> <div class="logo svelte-1o3q16b"><a href="https://github.com/ryanatkn/gro" rel="me" class="svelte-1o3q16b"><svg xmlns="http://www.w3.org/2000/svg" aria-label="GitHub icon" viewBox="0 0 1024 1024" fill="none" style="width: var(--spacing_7, 64px); height: var(--spacing_7, 64px);"><path fill="var(--color, #000)" fill-rule="evenodd" clip-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8C0 11.54 2.29 14.53 5.47 15.59C5.87 15.66 6.02
+		15.42 6.02 15.21C6.02 15.02 6.01 14.39 6.01 13.72C4 14.09 3.48 13.23 3.32
+		12.78C3.23 12.55 2.84 11.84 2.5 11.65C2.22 11.5 1.82 11.13 2.49 11.12C3.12
+		11.11 3.57 11.7 3.72 11.94C4.44 13.15 5.59 12.81 6.05 12.6C6.12 12.08 6.33
+		11.73 6.56 11.53C4.78 11.33 2.92 10.64 2.92 7.58C2.92 6.71 3.23 5.99 3.74
+		5.43C3.66 5.23 3.38 4.41 3.82 3.31C3.82 3.31 4.49 3.1 6.02 4.13C6.66 3.95
+		7.34 3.86 8.02 3.86C8.7 3.86 9.38 3.95 10.02 4.13C11.55 3.09 12.22 3.31
+		12.22 3.31C12.66 4.41 12.38 5.23 12.3 5.43C12.81 5.99 13.12 6.7 13.12
+		7.58C13.12 10.65 11.25 11.33 9.47 11.53C9.76 11.78 10.01 12.26 10.01
+		13.01C10.01 14.08 10 14.94 10 15.21C10 15.42 10.15 15.67 10.55 15.59C13.71
+		14.53 16 11.53 16 8C16 3.58 12.42 0 8 0Z" transform="scale(64)"></path></svg></a></div>  </footer> <div class="breadcrumb svelte-g6c005"> <a href="." class="svelte-g6c005">🧶</a><span class="separator svelte-g6c005">/</span><a href="./about" class="svelte-g6c005 selected">about</a> </div></section> </main> 
+			
+			<script>
+				{
+					__sveltekit_q9xexj = {
+						base: new URL(".", location).pathname.slice(0, -1),
+						env: null
+					};
+
+					const element = document.currentScript.parentElement;
+
+					const data = [null,null];
+
+					Promise.all([
+						import("./_app/immutable/entry/start.THM5DJen.js"),
+						import("./_app/immutable/entry/app.DwmyV0QV.js")
+					]).then(([kit, app]) => {
+						kit.start(app, element, {
+							node_ids: [0, 3],
+							data,
+							form: null,
+							error: null
+						});
+					});
+				}
+			</script>
+		</div>
+	</body>
+</html>
