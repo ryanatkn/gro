@@ -1,4 +1,4 @@
-import {wait} from '@ryanatkn/util/async.js';
+import {wait} from '@ryanatkn/belt/async.js';
 import {test} from 'uvu';
 import * as assert from 'uvu/assert';
 

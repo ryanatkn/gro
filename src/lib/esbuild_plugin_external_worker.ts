@@ -1,5 +1,5 @@
 import * as esbuild from 'esbuild';
-import type {Logger} from '@ryanatkn/util/log.js';
+import type {Logger} from '@ryanatkn/belt/log.js';
 import {basename} from 'node:path';
 import {cwd} from 'node:process';
 import type {CompileOptions, PreprocessorGroup} from 'svelte/compiler';

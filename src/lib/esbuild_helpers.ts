@@ -1,5 +1,5 @@
 import {yellow, red} from 'kleur/colors';
-import type {Logger} from '@ryanatkn/util/log.js';
+import type {Logger} from '@ryanatkn/belt/log.js';
 import type * as esbuild from 'esbuild';
 
 import type {Parsed_Sveltekit_Config} from './sveltekit_config.js';

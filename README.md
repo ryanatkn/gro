@@ -246,7 +246,7 @@ Gro builds on
 [mri](https://github.com/lukeed/mri) ∙
 [chokidar](https://github.com/paulmillr/chokidar) ∙
 [zod](https://github.com/colinhacks/zod) ∙
-[@ryanatkn/util](https://github.com/ryanatkn/util) ∙
+[@ryanatkn/belt](https://github.com/ryanatkn/belt) ∙
 [ESLint](https://github.com/eslint/eslint) ∙
 [Prettier](https://github.com/prettier/prettier) ∙
 [svelte-check](https://github.com/sveltejs/language-tools/tree/master/packages/svelte-check) &

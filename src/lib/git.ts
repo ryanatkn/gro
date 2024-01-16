@@ -1,5 +1,5 @@
-import {spawn, spawn_out} from '@ryanatkn/util/process.js';
-import type {Flavored} from '@ryanatkn/util/types.js';
+import {spawn, spawn_out} from '@ryanatkn/belt/process.js';
+import type {Flavored} from '@ryanatkn/belt/types.js';
 import type {SpawnOptions} from 'child_process';
 import {z} from 'zod';
 

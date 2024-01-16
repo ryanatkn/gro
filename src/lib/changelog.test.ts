@@ -1,8 +1,8 @@
 import {test} from 'uvu';
 import * as assert from 'uvu/assert';
-import {Logger} from '@ryanatkn/util/log.js';
+import {Logger} from '@ryanatkn/belt/log.js';
 import {readFile, writeFile} from 'fs/promises';
-import type {Fetch_Value_Cache} from '@ryanatkn/util/fetch.js';
+import type {Fetch_Value_Cache} from '@ryanatkn/belt/fetch.js';
 
 import {update_changelog} from './changelog.js';
 import {load_from_env} from './env.js';

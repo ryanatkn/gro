@@ -1,7 +1,7 @@
 import {realpath} from 'node:fs/promises';
 import {join, resolve} from 'node:path';
 import {fileURLToPath} from 'node:url';
-import {spawn, type Spawn_Result} from '@ryanatkn/util/process.js';
+import {spawn, type Spawn_Result} from '@ryanatkn/belt/process.js';
 
 import {exists} from './fs.js';
 import {NODE_MODULES_DIRNAME} from './paths.js';
