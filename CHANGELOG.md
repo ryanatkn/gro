@@ -1,5 +1,11 @@
 # @ryanatkn/gro
 
+## 0.111.0
+
+### Minor Changes
+
+- move org to @ryanatkn from @grogarden ([#448](https://github.com/ryanatkn/gro/pull/448))
+
 ## 0.110.2
 
 ### Patch Changes
