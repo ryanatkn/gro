@@ -1,6 +1,6 @@
 import {dirname, relative, basename} from 'node:path';
-import {parse_path_parts, parse_path_segments} from '@grogarden/util/path.js';
-import {strip_start} from '@grogarden/util/string.js';
+import {parse_path_parts, parse_path_segments} from '@ryanatkn/util/path.js';
+import {strip_start} from '@ryanatkn/util/string.js';
 
 import {type Gen, to_output_file_name} from '../gen.js';
 import {paths, base_path_to_source_id} from '../paths.js';

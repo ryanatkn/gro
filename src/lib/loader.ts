@@ -3,7 +3,7 @@ import {compile, preprocess} from 'svelte/compiler';
 import {fileURLToPath, pathToFileURL} from 'node:url';
 import {dirname, join, relative} from 'node:path';
 import type {LoadHook, ResolveHook} from 'node:module';
-import {escape_regexp} from '@grogarden/util/regexp.js';
+import {escape_regexp} from '@ryanatkn/util/regexp.js';
 
 import {render_env_shim_module} from './sveltekit_shim_env.js';
 import {
@@ -31,7 +31,7 @@ gro run foo.ts
 Direct usage (see also `$lib/gro.ts`):
 
 ```bash
-node --import 'data:text/javascript,import {register} from "node:module"; import {pathToFileURL} from "node:url"; register("@grogarden/gro/loader.js", pathToFileURL("./"));' --enable-source-maps' foo.ts
+node --import 'data:text/javascript,import {register} from "node:module"; import {pathToFileURL} from "node:url"; register("@ryanatkn/gro/loader.js", pathToFileURL("./"));' --enable-source-maps' foo.ts
 ```
 
 TODO how to improve that gnarly import line? was originally designed for the now-deprecated `--loader`

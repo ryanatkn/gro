@@ -24,7 +24,7 @@ A simple config that does nothing:
 
 ```ts
 // gro.config.ts
-import type {Create_Gro_Config} from '@grogarden/gro';
+import type {Create_Gro_Config} from '@ryanatkn/gro';
 
 const config: Create_Gro_Config = async (cfg) => {
 	// mutate `cfg` or return a new object
@@ -50,8 +50,8 @@ export interface Gro_Config {
 To define a user config that overrides the default plugins:
 
 ```ts
-import type {Create_Gro_Config} from '@grogarden/gro';
-import {gro_plugin_sveltekit_app} from '@grogarden/gro/gro_plugin_sveltekit_app.js';
+import type {Create_Gro_Config} from '@ryanatkn/gro';
+import {gro_plugin_sveltekit_app} from '@ryanatkn/gro/gro_plugin_sveltekit_app.js';
 
 const config: Create_Gro_Config = async (cfg) => {
 	// example setting your own plugins:
@@ -63,7 +63,7 @@ const config: Create_Gro_Config = async (cfg) => {
 	// example extending the default plugins:
 	const get_base_plugins = cfg.plugins;
 	cfg.plugins = async (ctx) => {
-		// replace a base plugin with `import {replace_plugin} from '@grogarden/gro';`:
+		// replace a base plugin with `import {replace_plugin} from '@ryanatkn/gro';`:
 		const updated_plugins = replace_plugin(
 			await get_base_plugins(ctx),
 			gro_plugin_sveltekit_app({

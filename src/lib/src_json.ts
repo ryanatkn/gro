@@ -1,7 +1,7 @@
 import {z} from 'zod';
 import {join} from 'node:path';
-import {strip_start} from '@grogarden/util/string.js';
-import type {Logger} from '@grogarden/util/log.js';
+import {strip_start} from '@ryanatkn/util/string.js';
+import type {Logger} from '@ryanatkn/util/log.js';
 import {Project} from 'ts-morph';
 
 import {paths, replace_extension} from './paths.js';
@@ -35,7 +35,7 @@ export const Src_Modules = z.record(Src_Module);
 export type Src_Modules = z.infer<typeof Src_Modules>;
 
 /**
- * @see https://github.com/grogarden/gro/blob/main/src/lib/docs/gro_plugin_sveltekit_app.md#well-known-src
+ * @see https://github.com/ryanatkn/gro/blob/main/src/lib/docs/gro_plugin_sveltekit_app.md#well-known-src
  */
 export const Src_Json = z.intersection(
 	z.record(z.unknown()), // TODO is this what we want?

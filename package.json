@@ -1,5 +1,5 @@
 {
-  "name": "@grogarden/gro",
+  "name": "@ryanatkn/gro",
   "version": "0.110.2",
   "description": "task runner and toolkit extending SvelteKit",
   "icon": "🌰",
@@ -16,10 +16,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/grogarden/gro.git"
+    "url": "git+https://github.com/ryanatkn/gro.git"
   },
   "bugs": {
-    "url": "https://github.com/grogarden/gro/issues",
+    "url": "https://github.com/ryanatkn/gro/issues",
     "email": "mail@ryanatkn.com"
   },
   "type": "module",
@@ -46,7 +46,7 @@
     "dist"
   ],
   "dependencies": {
-    "@grogarden/util": "^0.19.0",
+    "@ryanatkn/util": "^0.19.0",
     "chokidar": "^3.5.3",
     "dotenv": "^16.3.1",
     "es-module-lexer": "^1.4.1",

@@ -1,4 +1,4 @@
-# @grogarden/gro
+# @ryanatkn/gro
 
 ## 0.6.0
 

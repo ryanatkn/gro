@@ -1,7 +1,7 @@
-import type {Logger} from '@grogarden/util/log.js';
-import {strip_end} from '@grogarden/util/string.js';
+import type {Logger} from '@ryanatkn/util/log.js';
+import {strip_end} from '@ryanatkn/util/string.js';
 import type {z} from 'zod';
-import type {Timings} from '@grogarden/util/timings.js';
+import type {Timings} from '@ryanatkn/util/timings.js';
 
 import type {Args} from './args.js';
 import {import_id_to_lib_path, type Source_Id} from './paths.js';

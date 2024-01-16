@@ -1,141 +1,141 @@
-# @grogarden/gro
+# @ryanatkn/gro
 
 ## 0.110.2
 
 ### Patch Changes
 
-- clean up type imports from schema removal ([4d3c8ee](https://github.com/grogarden/gro/commit/4d3c8ee))
+- clean up type imports from schema removal ([4d3c8ee](https://github.com/ryanatkn/gro/commit/4d3c8ee))
 
 ## 0.110.1
 
 ### Patch Changes
 
-- cleanup schema removal ([1bb28cd](https://github.com/grogarden/gro/commit/1bb28cd))
+- cleanup schema removal ([1bb28cd](https://github.com/ryanatkn/gro/commit/1bb28cd))
 
 ## 0.110.0
 
 ### Minor Changes
 
-- remove json schema support for zod ([#447](https://github.com/grogarden/gro/pull/447))
+- remove json schema support for zod ([#447](https://github.com/ryanatkn/gro/pull/447))
 
 ## 0.109.1
 
 ### Patch Changes
 
-- fix flavored zod types ([3822041](https://github.com/grogarden/gro/commit/3822041))
-- add `gro run` task ([#446](https://github.com/grogarden/gro/pull/446))
+- fix flavored zod types ([3822041](https://github.com/ryanatkn/gro/commit/3822041))
+- add `gro run` task ([#446](https://github.com/ryanatkn/gro/pull/446))
 
 ## 0.109.0
 
 ### Minor Changes
 
-- upgrade @grogarden/util@0.19 ([0f53451](https://github.com/grogarden/gro/commit/0f53451))
+- upgrade @ryanatkn/util@0.19 ([0f53451](https://github.com/ryanatkn/gro/commit/0f53451))
 
 ### Patch Changes
 
-- fix `gro changeset` commit message quotes ([88aaa95](https://github.com/grogarden/gro/commit/88aaa95))
+- fix `gro changeset` commit message quotes ([88aaa95](https://github.com/ryanatkn/gro/commit/88aaa95))
 
 ## 0.108.1
 
 ### Patch Changes
 
-- support sourcemaps ([#445](https://github.com/grogarden/gro/pull/445))
+- support sourcemaps ([#445](https://github.com/ryanatkn/gro/pull/445))
 
 ## 0.108.0
 
 ### Minor Changes
 
-- rename `gro_plugin_sveltekit_app` from `gro_plugin_sveltekit_frontend` ([#444](https://github.com/grogarden/gro/pull/444))
-- rename `gro_plugin_sveltekit_library` from `gro_plugin_sveltekit_library` ([#444](https://github.com/grogarden/gro/pull/444))
+- rename `gro_plugin_sveltekit_app` from `gro_plugin_sveltekit_frontend` ([#444](https://github.com/ryanatkn/gro/pull/444))
+- rename `gro_plugin_sveltekit_library` from `gro_plugin_sveltekit_library` ([#444](https://github.com/ryanatkn/gro/pull/444))
 
 ### Patch Changes
 
-- fix the server plugin while building ([#444](https://github.com/grogarden/gro/pull/444))
+- fix the server plugin while building ([#444](https://github.com/ryanatkn/gro/pull/444))
 
 ## 0.107.4
 
 ### Patch Changes
 
-- support schema identifiers with underscores ([#443](https://github.com/grogarden/gro/pull/443))
+- support schema identifiers with underscores ([#443](https://github.com/ryanatkn/gro/pull/443))
 
 ## 0.107.3
 
 ### Patch Changes
 
-- upgrade @grogarden/util ([dfcbe4c](https://github.com/grogarden/gro/commit/dfcbe4c))
+- upgrade @ryanatkn/util ([dfcbe4c](https://github.com/ryanatkn/gro/commit/dfcbe4c))
 
 ## 0.107.2
 
 ### Patch Changes
 
-- upgrade @grogarden/util ([4baf889](https://github.com/grogarden/gro/commit/4baf889))
+- upgrade @ryanatkn/util ([4baf889](https://github.com/ryanatkn/gro/commit/4baf889))
 
 ## 0.107.1
 
 ### Patch Changes
 
-- fix SvelteKit esbuild plugin to include `resolveDir` ([32da839](https://github.com/grogarden/gro/commit/32da839))
+- fix SvelteKit esbuild plugin to include `resolveDir` ([32da839](https://github.com/ryanatkn/gro/commit/32da839))
 
 ## 0.107.0
 
 ### Minor Changes
 
-- upgrade @sveltejs/kit@2 with @esbuild@0.19 ([#442](https://github.com/grogarden/gro/pull/442)) ([9b0082e](https://github.com/grogarden/gro/commit/9b0082e))
+- upgrade @sveltejs/kit@2 with @esbuild@0.19 ([#442](https://github.com/ryanatkn/gro/pull/442)) ([9b0082e](https://github.com/ryanatkn/gro/commit/9b0082e))
 
 ## 0.106.0
 
 ### Minor Changes
 
-- upgrade node@20.10 ([#441](https://github.com/grogarden/gro/pull/441))
+- upgrade node@20.10 ([#441](https://github.com/ryanatkn/gro/pull/441))
 
 ### Patch Changes
 
-- use `--import` instead of `--loader` ([#441](https://github.com/grogarden/gro/pull/441))
-- add message and commit automation support to `gro changeset` ([#440](https://github.com/grogarden/gro/pull/440))
+- use `--import` instead of `--loader` ([#441](https://github.com/ryanatkn/gro/pull/441))
+- add message and commit automation support to `gro changeset` ([#440](https://github.com/ryanatkn/gro/pull/440))
 
 ## 0.105.5
 
 ### Patch Changes
 
-- upgrade @grogarden/util to use `fetch_value` ([#439](https://github.com/grogarden/gro/pull/439))
+- upgrade @ryanatkn/util to use `fetch_value` ([#439](https://github.com/ryanatkn/gro/pull/439))
 
 ## 0.105.4
 
 ### Patch Changes
 
-- reset target branch on deploy ([#438](https://github.com/grogarden/gro/pull/438))
-- handle target branch changes on deploy ([#438](https://github.com/grogarden/gro/pull/438))
+- reset target branch on deploy ([#438](https://github.com/ryanatkn/gro/pull/438))
+- handle target branch changes on deploy ([#438](https://github.com/ryanatkn/gro/pull/438))
 
 ## 0.105.3
 
 ### Patch Changes
 
-- warn if no github token ([caf585c](https://github.com/grogarden/gro/commit/caf585c))
-- forward args from `create_src_json` ([edbc4c1](https://github.com/grogarden/gro/commit/edbc4c1))
+- warn if no github token ([caf585c](https://github.com/ryanatkn/gro/commit/caf585c))
+- forward args from `create_src_json` ([edbc4c1](https://github.com/ryanatkn/gro/commit/edbc4c1))
 
 ## 0.105.2
 
 ### Patch Changes
 
-- finally fix issues with [#427](https://github.com/grogarden/gro/pull/427) ([9a9b174](https://github.com/grogarden/gro/commit/9a9b174))
+- finally fix issues with [#427](https://github.com/ryanatkn/gro/pull/427) ([9a9b174](https://github.com/ryanatkn/gro/commit/9a9b174))
 
 ## 0.105.1
 
 ### Patch Changes
 
-- fix issues with [#427](https://github.com/grogarden/gro/pull/427) ([c9dc961](https://github.com/grogarden/gro/commit/c9dc961))
+- fix issues with [#427](https://github.com/ryanatkn/gro/pull/427) ([c9dc961](https://github.com/ryanatkn/gro/commit/c9dc961))
 
 ## 0.105.0
 
 ### Minor Changes
 
-- add and integrate `gro changelog` ([#427](https://github.com/grogarden/gro/pull/427))
+- add and integrate `gro changelog` ([#427](https://github.com/ryanatkn/gro/pull/427))
 
 ## 0.104.2
 
 ### Patch Changes
 
-- avoid building twice on `gro release` ([cbc4762](https://github.com/grogarden/gro/commit/cbc4762))
+- avoid building twice on `gro release` ([cbc4762](https://github.com/ryanatkn/gro/commit/cbc4762))
 
   - if `gro publish` is called before `gro deploy`, we don't need to build to deploy
 
@@ -143,7 +143,7 @@
 
 ### Patch Changes
 
-- changelog test ([f7f6ee9](https://github.com/grogarden/gro/commit/f7f6ee9))
+- changelog test ([f7f6ee9](https://github.com/ryanatkn/gro/commit/f7f6ee9))
 
   this is just a test commit for testing purposes
 
@@ -158,627 +158,627 @@
 
 ### Minor Changes
 
-- replace `exists.ts` with `fs.ts` and add `empty_dir` ([#429](https://github.com/grogarden/gro/pull/429))
-- stop using `git workspace` for `gro deploy` ([#429](https://github.com/grogarden/gro/pull/429))
-- upgrade deps: ([#437](https://github.com/grogarden/gro/pull/437))
+- replace `exists.ts` with `fs.ts` and add `empty_dir` ([#429](https://github.com/ryanatkn/gro/pull/429))
+- stop using `git workspace` for `gro deploy` ([#429](https://github.com/ryanatkn/gro/pull/429))
+- upgrade deps: ([#437](https://github.com/ryanatkn/gro/pull/437))
 
-  - @grogarden/util@18
+  - @ryanatkn/util@18
   - prettier@3.1.1
   - ts-morph@21
 
 ### Patch Changes
 
-- shim SvelteKit's `resolveRoute` ([5e94cd4](https://github.com/grogarden/gro/commit/5e94cd4))
+- shim SvelteKit's `resolveRoute` ([5e94cd4](https://github.com/ryanatkn/gro/commit/5e94cd4))
 
 ## 0.103.2
 
 ### Patch Changes
 
-- fix gro build for deps that circularly import the building project ([e345eaa](https://github.com/grogarden/gro/commit/e345eaa))
+- fix gro build for deps that circularly import the building project ([e345eaa](https://github.com/ryanatkn/gro/commit/e345eaa))
 
 ## 0.103.1
 
 ### Patch Changes
 
-- improve `exists` ([094279d](https://github.com/grogarden/gro/commit/094279d))
+- improve `exists` ([094279d](https://github.com/ryanatkn/gro/commit/094279d))
 
 ## 0.103.0
 
 ### Minor Changes
 
-- upgrade deps ([f6133f7](https://github.com/grogarden/gro/commit/f6133f7))
+- upgrade deps ([f6133f7](https://github.com/ryanatkn/gro/commit/f6133f7))
 
 ## 0.102.3
 
 ### Patch Changes
 
-- upgrade deps ([54b65ec](https://github.com/grogarden/gro/commit/54b65ec))
+- upgrade deps ([54b65ec](https://github.com/ryanatkn/gro/commit/54b65ec))
 
 ## 0.102.2
 
 ### Patch Changes
 
-- catch server build errors ([80365d0](https://github.com/grogarden/gro/commit/80365d0))
+- catch server build errors ([80365d0](https://github.com/ryanatkn/gro/commit/80365d0))
 
 ## 0.102.1
 
 ### Patch Changes
 
-- clean sveltekit dist dir ([3d84dfd](https://github.com/grogarden/gro/commit/3d84dfd))
-- check for clean git workspace in `gro publish` ([fc64b77](https://github.com/grogarden/gro/commit/fc64b77))
+- clean sveltekit dist dir ([3d84dfd](https://github.com/ryanatkn/gro/commit/3d84dfd))
+- check for clean git workspace in `gro publish` ([fc64b77](https://github.com/ryanatkn/gro/commit/fc64b77))
 
 ## 0.102.0
 
 ### Minor Changes
 
-- - add `$lib/src_json.ts` ([#434](https://github.com/grogarden/gro/pull/434))
+- - add `$lib/src_json.ts` ([#434](https://github.com/ryanatkn/gro/pull/434))
   - add `.well-known/src.json` and `.well-known/src/`
   - remove `modules` from `.well-known/package.json`
 
 ### Patch Changes
 
-- modify exports by default only for libraries ([#434](https://github.com/grogarden/gro/pull/434))
+- modify exports by default only for libraries ([#434](https://github.com/ryanatkn/gro/pull/434))
 
 ## 0.101.0
 
 ### Minor Changes
 
-- improve modules type info ([#435](https://github.com/grogarden/gro/pull/435))
+- improve modules type info ([#435](https://github.com/ryanatkn/gro/pull/435))
 
 ## 0.100.4
 
 ### Patch Changes
 
-- change `.well-known/package.json` and `.nojekyll` to use the static directory ([#428](https://github.com/grogarden/gro/pull/428))
+- change `.well-known/package.json` and `.nojekyll` to use the static directory ([#428](https://github.com/ryanatkn/gro/pull/428))
 
 ## 0.100.3
 
 ### Patch Changes
 
-- add icon 🌰 ([b8180ea](https://github.com/grogarden/gro/commit/b8180ea))
+- add icon 🌰 ([b8180ea](https://github.com/ryanatkn/gro/commit/b8180ea))
 
 ## 0.100.2
 
 ### Patch Changes
 
-- add `icon` extension property to `package_json` ([d6c22f4](https://github.com/grogarden/gro/commit/d6c22f4))
+- add `icon` extension property to `package_json` ([d6c22f4](https://github.com/ryanatkn/gro/commit/d6c22f4))
 
 ## 0.100.1
 
 ### Patch Changes
 
-- fix deps ([6a9a24d](https://github.com/grogarden/gro/commit/6a9a24d))
+- fix deps ([6a9a24d](https://github.com/ryanatkn/gro/commit/6a9a24d))
 
 ## 0.100.0
 
 ### Minor Changes
 
-- upgrade `@grogarden/util@0.16` ([88ac35b](https://github.com/grogarden/gro/commit/88ac35b))
+- upgrade `@ryanatkn/util@0.16` ([88ac35b](https://github.com/ryanatkn/gro/commit/88ac35b))
 
 ## 0.99.0
 
 ### Minor Changes
 
-- rename to `Proper_Snakes` ([#433](https://github.com/grogarden/gro/pull/433))
+- rename to `Proper_Snakes` ([#433](https://github.com/ryanatkn/gro/pull/433))
 
 ### Patch Changes
 
-- throw on failed vite build ([#433](https://github.com/grogarden/gro/pull/433))
+- throw on failed vite build ([#433](https://github.com/ryanatkn/gro/pull/433))
 
 ## 0.98.3
 
 ### Patch Changes
 
-- improve type of `replace_plugin` ([9165ab8](https://github.com/grogarden/gro/commit/9165ab8))
+- improve type of `replace_plugin` ([9165ab8](https://github.com/ryanatkn/gro/commit/9165ab8))
 
 ## 0.98.2
 
 ### Patch Changes
 
-- fix `to_package_modules` for nested modules ([a21578c](https://github.com/grogarden/gro/commit/a21578c))
+- fix `to_package_modules` for nested modules ([a21578c](https://github.com/ryanatkn/gro/commit/a21578c))
 
 ## 0.98.1
 
 ### Patch Changes
 
-- fix `to_package_modules` ([#432](https://github.com/grogarden/gro/pull/432))
+- fix `to_package_modules` ([#432](https://github.com/ryanatkn/gro/pull/432))
 
 ## 0.98.0
 
 ### Minor Changes
 
-- add `"global"` property to `package.json` to support `.well-known/package.json` instead of `"private"` ([#431](https://github.com/grogarden/gro/pull/431))
+- add `"global"` property to `package.json` to support `.well-known/package.json` instead of `"private"` ([#431](https://github.com/ryanatkn/gro/pull/431))
 
 ## 0.97.0
 
 ### Minor Changes
 
-- add `modules` to `package.json` ([#430](https://github.com/grogarden/gro/pull/430))
+- add `modules` to `package.json` ([#430](https://github.com/ryanatkn/gro/pull/430))
 
 ## 0.96.4
 
 ### Patch Changes
 
-- fix $env imports in deps in loader ([dc6dddc](https://github.com/grogarden/gro/commit/dc6dddc))
+- fix $env imports in deps in loader ([dc6dddc](https://github.com/ryanatkn/gro/commit/dc6dddc))
 
 ## 0.96.3
 
 ### Patch Changes
 
-- run `svelte-kit sync` before typecheck ([2794e20](https://github.com/grogarden/gro/commit/2794e20))
+- run `svelte-kit sync` before typecheck ([2794e20](https://github.com/ryanatkn/gro/commit/2794e20))
 
 ## 0.96.2
 
 ### Patch Changes
 
-- fix `gro release` to not `gro publish` if a library is not detected ([80a1dc0](https://github.com/grogarden/gro/commit/80a1dc0))
+- fix `gro release` to not `gro publish` if a library is not detected ([80a1dc0](https://github.com/ryanatkn/gro/commit/80a1dc0))
 
 ## 0.96.1
 
 ### Patch Changes
 
-- add default package exports to svelte files ([f0350f3](https://github.com/grogarden/gro/commit/f0350f3))
+- add default package exports to svelte files ([f0350f3](https://github.com/ryanatkn/gro/commit/f0350f3))
 
 ## 0.96.0
 
 ### Minor Changes
 
-- detect library by default by checking for @sveltejs/package ([#426](https://github.com/grogarden/gro/pull/426))
+- detect library by default by checking for @sveltejs/package ([#426](https://github.com/ryanatkn/gro/pull/426))
 
 ## 0.95.8
 
 ### Patch Changes
 
-- support absolute filenames with gen ([40a427eb](https://github.com/grogarden/gro/commit/40a427eb))
+- support absolute filenames with gen ([40a427eb](https://github.com/ryanatkn/gro/commit/40a427eb))
 
 ## 0.95.7
 
 ### Patch Changes
 
-- support json exports mapping in the loader ([07f170a](https://github.com/grogarden/gro/commit/07f170a))
+- support json exports mapping in the loader ([07f170a](https://github.com/ryanatkn/gro/commit/07f170a))
 
 ## 0.95.6
 
 ### Patch Changes
 
-- fix loader for node_modules ([#425](https://github.com/grogarden/gro/pull/425))
-- add `--no-sync` option to `gro dev` ([#425](https://github.com/grogarden/gro/pull/425))
-- add `$lib/resolve_node_specifier.ts` ([#425](https://github.com/grogarden/gro/pull/425))
+- fix loader for node_modules ([#425](https://github.com/ryanatkn/gro/pull/425))
+- add `--no-sync` option to `gro dev` ([#425](https://github.com/ryanatkn/gro/pull/425))
+- add `$lib/resolve_node_specifier.ts` ([#425](https://github.com/ryanatkn/gro/pull/425))
 
 ## 0.95.5
 
 ### Patch Changes
 
-- upgrade @grogarden/util@0.15.1 from 0.15.0 ([52fad99](https://github.com/grogarden/gro/commit/52fad99))
+- upgrade @ryanatkn/util@0.15.1 from 0.15.0 ([52fad99](https://github.com/ryanatkn/gro/commit/52fad99))
 
 ## 0.95.4
 
 ### Patch Changes
 
-- resolve json in the loader ([#424](https://github.com/grogarden/gro/pull/424))
-- fix esbuild plugin for unknown file extensions ([#424](https://github.com/grogarden/gro/pull/424))
+- resolve json in the loader ([#424](https://github.com/ryanatkn/gro/pull/424))
+- fix esbuild plugin for unknown file extensions ([#424](https://github.com/ryanatkn/gro/pull/424))
 
 ## 0.95.3
 
 ### Patch Changes
 
-- fix library detection ([c2b91bb](https://github.com/grogarden/gro/commit/c2b91bb))
+- fix library detection ([c2b91bb](https://github.com/ryanatkn/gro/commit/c2b91bb))
 
 ## 0.95.2
 
 ### Patch Changes
 
-- upgrade deps ([b1264cc](https://github.com/grogarden/gro/commit/b1264cc))
+- upgrade deps ([b1264cc](https://github.com/ryanatkn/gro/commit/b1264cc))
 
 ## 0.95.1
 
 ### Patch Changes
 
-- add replace_plugin helper ([#423](https://github.com/grogarden/gro/pull/423))
-- fix loading package.json ([#423](https://github.com/grogarden/gro/pull/423))
+- add replace_plugin helper ([#423](https://github.com/ryanatkn/gro/pull/423))
+- fix loading package.json ([#423](https://github.com/ryanatkn/gro/pull/423))
 
 ## 0.95.0
 
 ### Minor Changes
 
-- rename Create_Gro_Config from Gro_ConfigCreator ([#422](https://github.com/grogarden/gro/pull/422))
-- add package.gen.ts for importing package.json data ([#419](https://github.com/grogarden/gro/pull/419))
-- change config to explictly publish `static/.well-known/package.json` and delete `gro exports` ([#419](https://github.com/grogarden/gro/pull/419))
-- rename `clean_fs.ts` from `clean.ts` ([#419](https://github.com/grogarden/gro/pull/419))
+- rename Create_Gro_Config from Gro_ConfigCreator ([#422](https://github.com/ryanatkn/gro/pull/422))
+- add package.gen.ts for importing package.json data ([#419](https://github.com/ryanatkn/gro/pull/419))
+- change config to explictly publish `static/.well-known/package.json` and delete `gro exports` ([#419](https://github.com/ryanatkn/gro/pull/419))
+- rename `clean_fs.ts` from `clean.ts` ([#419](https://github.com/ryanatkn/gro/pull/419))
 
 ## 0.94.2
 
 ### Patch Changes
 
-- support prettier options to format_file ([#421](https://github.com/grogarden/gro/pull/421))
+- support prettier options to format_file ([#421](https://github.com/ryanatkn/gro/pull/421))
 
 ## 0.94.1
 
 ### Patch Changes
 
-- support typed json exports ([#420](https://github.com/grogarden/gro/pull/420))
+- support typed json exports ([#420](https://github.com/ryanatkn/gro/pull/420))
 
 ## 0.94.0
 
 ### Minor Changes
 
-- fix mutation of schemas during gen ([#418](https://github.com/grogarden/gro/pull/418))
+- fix mutation of schemas during gen ([#418](https://github.com/ryanatkn/gro/pull/418))
 
 ## 0.93.1
 
 ### Patch Changes
 
-- fix pull on deploy ([3bd77ee](https://github.com/grogarden/gro/commit/3bd77ee))
+- fix pull on deploy ([3bd77ee](https://github.com/ryanatkn/gro/commit/3bd77ee))
 
 ## 0.93.0
 
 ### Minor Changes
 
-- change `invoke_task` to require a config param ([#415](https://github.com/grogarden/gro/pull/415))
+- change `invoke_task` to require a config param ([#415](https://github.com/ryanatkn/gro/pull/415))
 
 ### Patch Changes
 
-- `git pull origin target` on deploy ([54f49ba](https://github.com/grogarden/gro/commit/54f49ba))
+- `git pull origin target` on deploy ([54f49ba](https://github.com/ryanatkn/gro/commit/54f49ba))
 
 ## 0.92.5
 
 ### Patch Changes
 
-- loosen package_json bugs type to accept strings ([a8cec89](https://github.com/grogarden/gro/commit/a8cec89))
+- loosen package_json bugs type to accept strings ([a8cec89](https://github.com/ryanatkn/gro/commit/a8cec89))
 
 ## 0.92.4
 
 ### Patch Changes
 
-- add release task ([a088563](https://github.com/grogarden/gro/commit/a088563))
+- add release task ([a088563](https://github.com/ryanatkn/gro/commit/a088563))
 
 ## 0.92.3
 
 ### Patch Changes
 
-- run git status on workspace check failure ([da4b954](https://github.com/grogarden/gro/commit/da4b954))
+- run git status on workspace check failure ([da4b954](https://github.com/ryanatkn/gro/commit/da4b954))
 
 ## 0.92.2
 
 ### Patch Changes
 
-- sync on `changeset` ([019d70b](https://github.com/grogarden/gro/commit/019d70b))
+- sync on `changeset` ([019d70b](https://github.com/ryanatkn/gro/commit/019d70b))
 
 ## 0.92.1
 
 ### Patch Changes
 
-- sync on `check` unless `--workspace` ([11e822e](https://github.com/grogarden/gro/commit/11e822e))
+- sync on `check` unless `--workspace` ([11e822e](https://github.com/ryanatkn/gro/commit/11e822e))
 
 ## 0.92.0
 
 ### Minor Changes
 
-- remove `.gro/dist` from the paths and clean task ([#413](https://github.com/grogarden/gro/pull/413))
+- remove `.gro/dist` from the paths and clean task ([#413](https://github.com/ryanatkn/gro/pull/413))
 
 ## 0.91.0
 
 ### Minor Changes
 
-- upgrade to @grogarden/util@0.15 from 0.14 ([18cbcb5](https://github.com/grogarden/gro/commit/18cbcb5))
+- upgrade to @ryanatkn/util@0.15 from 0.14 ([18cbcb5](https://github.com/ryanatkn/gro/commit/18cbcb5))
 
 ## 0.90.3
 
 ### Patch Changes
 
-- invoke `gro sync` at the end of `gro upgrade` ([f0ba85c](https://github.com/grogarden/gro/commit/f0ba85c))
+- invoke `gro sync` at the end of `gro upgrade` ([f0ba85c](https://github.com/ryanatkn/gro/commit/f0ba85c))
 
 ## 0.90.2
 
 ### Patch Changes
 
-- add workspace flag to `gro check` that defaults to false ([#412](https://github.com/grogarden/gro/pull/412))
+- add workspace flag to `gro check` that defaults to false ([#412](https://github.com/ryanatkn/gro/pull/412))
 
 ## 0.90.1
 
 ### Patch Changes
 
-- fix `gro exports` when there is no lib directory ([#411](https://github.com/grogarden/gro/pull/411))
+- fix `gro exports` when there is no lib directory ([#411](https://github.com/ryanatkn/gro/pull/411))
 
 ## 0.90.0
 
 ### Minor Changes
 
-- fix git helpers for CI ([#410](https://github.com/grogarden/gro/pull/410))
+- fix git helpers for CI ([#410](https://github.com/ryanatkn/gro/pull/410))
 
 ## 0.89.2
 
 ### Patch Changes
 
-- improve `gro exports` output ([c92b109](https://github.com/grogarden/gro/commit/c92b109))
-- fix publish script ([bd0d061](https://github.com/grogarden/gro/commit/bd0d061))
+- improve `gro exports` output ([c92b109](https://github.com/ryanatkn/gro/commit/c92b109))
+- fix publish script ([bd0d061](https://github.com/ryanatkn/gro/commit/bd0d061))
 
 ## 0.89.1
 
 ### Patch Changes
 
-- fix import.meta.env shim ([45f4734](https://github.com/grogarden/gro/commit/45f4734))
+- fix import.meta.env shim ([45f4734](https://github.com/ryanatkn/gro/commit/45f4734))
 
 ## 0.89.0
 
 ### Minor Changes
 
-- fix bin ([51b0a74](https://github.com/grogarden/gro/commit/51b0a74))
-- upgrade deps ([882cd1d](https://github.com/grogarden/gro/commit/882cd1d))
+- fix bin ([51b0a74](https://github.com/ryanatkn/gro/commit/51b0a74))
+- upgrade deps ([882cd1d](https://github.com/ryanatkn/gro/commit/882cd1d))
 
 ## 0.88.0
 
 ### Minor Changes
 
-- change server plugin to output to `dist_server` ([#409](https://github.com/grogarden/gro/pull/409))
+- change server plugin to output to `dist_server` ([#409](https://github.com/ryanatkn/gro/pull/409))
 
 ## 0.87.5
 
 ### Patch Changes
 
-- sync on changeset ([dc5e0dd](https://github.com/grogarden/gro/commit/dc5e0dd))
-- fix server plugin paths ([9bc4685](https://github.com/grogarden/gro/commit/9bc4685))
+- sync on changeset ([dc5e0dd](https://github.com/ryanatkn/gro/commit/dc5e0dd))
+- fix server plugin paths ([9bc4685](https://github.com/ryanatkn/gro/commit/9bc4685))
 
 ## 0.87.4
 
 ### Patch Changes
 
-- relax some Package_Json types" ([284ce48](https://github.com/grogarden/gro/commit/284ce48))
+- relax some Package_Json types" ([284ce48](https://github.com/ryanatkn/gro/commit/284ce48))
 
 ## 0.87.3
 
 ### Patch Changes
 
-- add enum support for cli args ([3e24565](https://github.com/grogarden/gro/commit/3e24565))
+- add enum support for cli args ([3e24565](https://github.com/ryanatkn/gro/commit/3e24565))
 
 ## 0.87.2
 
 ### Patch Changes
 
-- passthrough unknown `Package_Json` properties ([f16eaab](https://github.com/grogarden/gro/commit/f16eaab))
+- passthrough unknown `Package_Json` properties ([f16eaab](https://github.com/ryanatkn/gro/commit/f16eaab))
 
 ## 0.87.1
 
 ### Patch Changes
 
-- add `Package_Json` schema ([#408](https://github.com/grogarden/gro/pull/408))
+- add `Package_Json` schema ([#408](https://github.com/ryanatkn/gro/pull/408))
 
 ## 0.87.0
 
 ### Minor Changes
 
-- remove execSync usage ([#407](https://github.com/grogarden/gro/pull/407))
-- upgrade to `@grogarden/util@0.14.0` from `0.13.0` ([#407](https://github.com/grogarden/gro/pull/407))
+- remove execSync usage ([#407](https://github.com/ryanatkn/gro/pull/407))
+- upgrade to `@ryanatkn/util@0.14.0` from `0.13.0` ([#407](https://github.com/ryanatkn/gro/pull/407))
 
 ## 0.86.0
 
 ### Minor Changes
 
-- add `package.json` to the static `/.well-known` directory by default ([#405](https://github.com/grogarden/gro/pull/405))
-- fix `gro deploy` ([#406](https://github.com/grogarden/gro/pull/406))
-- add git utils ([#406](https://github.com/grogarden/gro/pull/406))
-- add `package_json` to the config for customizing exports and `.well-known` ([#405](https://github.com/grogarden/gro/pull/405))
+- add `package.json` to the static `/.well-known` directory by default ([#405](https://github.com/ryanatkn/gro/pull/405))
+- fix `gro deploy` ([#406](https://github.com/ryanatkn/gro/pull/406))
+- add git utils ([#406](https://github.com/ryanatkn/gro/pull/406))
+- add `package_json` to the config for customizing exports and `.well-known` ([#405](https://github.com/ryanatkn/gro/pull/405))
 
 ### Patch Changes
 
-- fix `gro deploy --reset` flag ([#389](https://github.com/grogarden/gro/pull/389))
+- fix `gro deploy --reset` flag ([#389](https://github.com/ryanatkn/gro/pull/389))
 
 ## 0.85.0
 
 ### Minor Changes
 
-- rename some dir constants to prefix with GRO* instead of BUILD* ([#404](https://github.com/grogarden/gro/pull/404))
-- merge adapt into plugins ([#404](https://github.com/grogarden/gro/pull/404))
+- rename some dir constants to prefix with GRO* instead of BUILD* ([#404](https://github.com/ryanatkn/gro/pull/404))
+- merge adapt into plugins ([#404](https://github.com/ryanatkn/gro/pull/404))
 
 ### Patch Changes
 
-- fill out the package json type ([#403](https://github.com/grogarden/gro/pull/403))
+- fill out the package json type ([#403](https://github.com/ryanatkn/gro/pull/403))
 
 ## 0.84.1
 
 ### Patch Changes
 
-- fix types in fixtures ([#402](https://github.com/grogarden/gro/pull/402))
+- fix types in fixtures ([#402](https://github.com/ryanatkn/gro/pull/402))
 
 ## 0.84.0
 
 ### Minor Changes
 
-- rename to `@grogarden/gro` from `@feltjs/gro` ([#400](https://github.com/grogarden/gro/pull/400))
-- flatten directories ([#400](https://github.com/grogarden/gro/pull/400))
+- rename to `@ryanatkn/gro` from `@feltjs/gro` ([#400](https://github.com/ryanatkn/gro/pull/400))
+- flatten directories ([#400](https://github.com/ryanatkn/gro/pull/400))
 
 ## 0.83.0
 
 ### Minor Changes
 
-- replace `@feltjs/util` with `@grogarden/util` ([8fcac65](https://github.com/grogarden/gro/commit/8fcac65))
+- replace `@feltjs/util` with `@ryanatkn/util` ([8fcac65](https://github.com/ryanatkn/gro/commit/8fcac65))
 
 ## 0.82.9
 
 ### Patch Changes
 
-- infer the `gro changeset` access arg from `package.json#private` ([71ea36f](https://github.com/grogarden/gro/commit/71ea36f))
+- infer the `gro changeset` access arg from `package.json#private` ([71ea36f](https://github.com/ryanatkn/gro/commit/71ea36f))
 
 ## 0.82.8
 
 ### Patch Changes
 
-- always init config ([5262967](https://github.com/grogarden/gro/commit/5262967))
+- always init config ([5262967](https://github.com/ryanatkn/gro/commit/5262967))
 
 ## 0.82.7
 
 ### Patch Changes
 
-- add `gro changeset` task ([#399](https://github.com/grogarden/gro/pull/399))
+- add `gro changeset` task ([#399](https://github.com/ryanatkn/gro/pull/399))
 
 ## 0.82.6
 
 ### Patch Changes
 
-- make `@sveltejs/package` optional and warn when adapting the library ([989c39c](https://github.com/grogarden/gro/commit/989c39c))
+- make `@sveltejs/package` optional and warn when adapting the library ([989c39c](https://github.com/ryanatkn/gro/commit/989c39c))
 
 ## 0.82.5
 
 ### Patch Changes
 
-- import uvu dynamically to make it optional ([#398](https://github.com/grogarden/gro/pull/398))
+- import uvu dynamically to make it optional ([#398](https://github.com/ryanatkn/gro/pull/398))
 
 ## 0.82.4
 
 ### Patch Changes
 
-- upgrade es-module-lexer ([#397](https://github.com/grogarden/gro/pull/397))
+- upgrade es-module-lexer ([#397](https://github.com/ryanatkn/gro/pull/397))
 
 ## 0.82.3
 
 ### Patch Changes
 
-- remove config caching ([693e4ceb](https://github.com/grogarden/gro/commit/693e4ceb))
+- remove config caching ([693e4ceb](https://github.com/ryanatkn/gro/commit/693e4ceb))
 
 ## 0.82.2
 
 ### Patch Changes
 
-- improve `gro exports` ([#396](https://github.com/grogarden/gro/pull/396)) ([#396](https://github.com/grogarden/gro/pull/396))
+- improve `gro exports` ([#396](https://github.com/ryanatkn/gro/pull/396)) ([#396](https://github.com/ryanatkn/gro/pull/396))
 
 ## 0.82.1
 
 ### Patch Changes
 
-- fix deploy task ([#395](https://github.com/grogarden/gro/pull/395))
+- fix deploy task ([#395](https://github.com/ryanatkn/gro/pull/395))
 
 ## 0.82.0
 
 ### Minor Changes
 
-- replace the build system with a loader and esbuild plugins and integrate svelte-package ([#382](https://github.com/grogarden/gro/pull/382))
-- rename VocabSchema to Json_Schema ([#394](https://github.com/grogarden/gro/pull/394))
+- replace the build system with a loader and esbuild plugins and integrate svelte-package ([#382](https://github.com/ryanatkn/gro/pull/382))
+- rename VocabSchema to Json_Schema ([#394](https://github.com/ryanatkn/gro/pull/394))
 
 ## 0.81.2
 
 ### Patch Changes
 
-- prefer project-local changeset command if available ([#393](https://github.com/grogarden/gro/pull/393))
+- prefer project-local changeset command if available ([#393](https://github.com/ryanatkn/gro/pull/393))
 
 ## 0.81.1
 
 ### Patch Changes
 
-- detect changeset version failure ([edf3214](https://github.com/grogarden/gro/commit/edf3214))
+- detect changeset version failure ([edf3214](https://github.com/ryanatkn/gro/commit/edf3214))
 
 ## 0.81.0
 
 ### Minor Changes
 
-- change gro publish to use changesets ([#385](https://github.com/grogarden/gro/pull/385))
+- change gro publish to use changesets ([#385](https://github.com/ryanatkn/gro/pull/385))
 
 ## 0.80.0
 
 - **break**: replace `cheap-watch` with `chokidar` and `fast-glob`
-  ([#386](https://github.com/grogarden/gro/pull/386))
+  ([#386](https://github.com/ryanatkn/gro/pull/386))
 - fix `gen` error on startup for projects with no gen modules
-  ([#387](https://github.com/grogarden/gro/pull/387))
+  ([#387](https://github.com/ryanatkn/gro/pull/387))
 
 ## 0.79.1
 
 - add `gro commit` task
-  ([#379](https://github.com/grogarden/gro/pull/379))
+  ([#379](https://github.com/ryanatkn/gro/pull/379))
 - add `gen` plugin that defaults to watch mode
-  ([#283](https://github.com/grogarden/gro/pull/283),
-  [#381](https://github.com/grogarden/gro/pull/381))
+  ([#283](https://github.com/ryanatkn/gro/pull/283),
+  [#381](https://github.com/ryanatkn/gro/pull/381))
 - add `--reset` and `--origin` flags to `gro deploy`
-  ([#383](https://github.com/grogarden/gro/pull/383))
+  ([#383](https://github.com/ryanatkn/gro/pull/383))
 
 ## 0.79.0
 
-- **break**: upgrade to `@grogarden/util@0.9.0` and peer dep `svelte@4`,
+- **break**: upgrade to `@ryanatkn/util@0.9.0` and peer dep `svelte@4`,
   and change peer deps to avoid breaking changes
-  ([#378](https://github.com/grogarden/gro/pull/378))
+  ([#378](https://github.com/ryanatkn/gro/pull/378))
 
 ## 0.78.2
 
 - upgrade deps
-  ([#377](https://github.com/grogarden/gro/pull/377))
+  ([#377](https://github.com/ryanatkn/gro/pull/377))
 
 ## 0.78.1
 
 - upgrade deps
-  ([#376](https://github.com/grogarden/gro/pull/376))
+  ([#376](https://github.com/ryanatkn/gro/pull/376))
 
 ## 0.78.0
 
 - **break**: change schema bundling to use the parsed name in `$defs` instead of the `$id`
-  ([commit](https://github.com/grogarden/gro/commit/b5623e2867196823bb146c4794dde035ce6e7fc5))
+  ([commit](https://github.com/ryanatkn/gro/commit/b5623e2867196823bb146c4794dde035ce6e7fc5))
 
 ## 0.77.0
 
 - **break**: move `toJson_Schema` to `$lib/schemaHelpers.ts` and export all of `$lib/schema.ts`
-  ([commit](https://github.com/grogarden/gro/commit/21a107633f950ffb540b180b57fc3227146993c5))
+  ([commit](https://github.com/ryanatkn/gro/commit/21a107633f950ffb540b180b57fc3227146993c5))
 
 ## 0.76.1
 
 - upgrade deps
-  ([commit](https://github.com/grogarden/gro/commit/538bff4b8f092c0e176fc242cab9da7bfa3f2db9))
+  ([commit](https://github.com/ryanatkn/gro/commit/538bff4b8f092c0e176fc242cab9da7bfa3f2db9))
 
 ## 0.76.0
 
 - **break**: change `toJson_Schema` to not suffix with `.json`, and add the `bundle_schemas` helper
-  ([#372](https://github.com/grogarden/gro/pull/372))
+  ([#372](https://github.com/ryanatkn/gro/pull/372))
 
 ## 0.75.5
 
 - upgrade `@ryanatkn/json-schema-to-typescript` dep,
   changing `tsImport` type from `string` to `string | string[]`
-  ([commit](https://github.com/grogarden/gro/commit/ff088ae789486fb1348d894078c3a1c2bbb2974a))
+  ([commit](https://github.com/ryanatkn/gro/commit/ff088ae789486fb1348d894078c3a1c2bbb2974a))
 
 ## 0.75.4
 
 - export `Json_Schema` type from root
-  ([commit](https://github.com/grogarden/gro/commit/8b3956994060165cccf7c0d6b692ea8e89b7e63a))
+  ([commit](https://github.com/ryanatkn/gro/commit/8b3956994060165cccf7c0d6b692ea8e89b7e63a))
 
 ## 0.75.3
 
 - upgrade deps
-  ([#371](https://github.com/grogarden/gro/pull/371))
+  ([#371](https://github.com/ryanatkn/gro/pull/371))
 
 ## 0.75.2
 
 - de-dupe when generating types
-  ([commit](https://github.com/grogarden/gro/commit/01d02a17a5b050b63d7699371e559802fed6407d))
+  ([commit](https://github.com/ryanatkn/gro/commit/01d02a17a5b050b63d7699371e559802fed6407d))
 
 ## 0.75.1
 
 - export `to_gen_context_imports` from `lib/run_gen`
-  ([commit](https://github.com/grogarden/gro/commit/980f75bf43f77cb3107b446c079cc401c88b3f94))
+  ([commit](https://github.com/ryanatkn/gro/commit/980f75bf43f77cb3107b446c079cc401c88b3f94))
 
 ## 0.75.0
 
 - **break**: change schema type generation to infer `tsType` and `tsImport` from `$ref` and `instanceof`
-  ([#370](https://github.com/grogarden/gro/pull/370))
+  ([#370](https://github.com/ryanatkn/gro/pull/370))
 - **break**: bump peer dep `svelte@0.58.0`
-  ([#370](https://github.com/grogarden/gro/pull/370))
+  ([#370](https://github.com/ryanatkn/gro/pull/370))
 
 ## 0.74.0
 
 - **break**: fix schema type generation to be shallow, excluding the types of referenced schemas
-  ([#367](https://github.com/grogarden/gro/pull/367))
+  ([#367](https://github.com/ryanatkn/gro/pull/367))
 
 ## 0.73.0
 
-- **break**: upgrade dep `@grogarden/util@0.8.0` and `esbuild@0.17.0`
-  ([#366](https://github.com/grogarden/gro/pull/366))
+- **break**: upgrade dep `@ryanatkn/util@0.8.0` and `esbuild@0.17.0`
+  ([#366](https://github.com/ryanatkn/gro/pull/366))
 - `npm i` before `gro build`, add `--no-install` flag to override
-  ([#365](https://github.com/grogarden/gro/pull/365))
+  ([#365](https://github.com/ryanatkn/gro/pull/365))
 
 ## 0.72.0
 
-- **break**: upgrade dep `@grogarden/util@0.7.4`
-  ([commit](https://github.com/grogarden/gro/commit/731007d1533f981e524e318c00af3a6fa861e909))
+- **break**: upgrade dep `@ryanatkn/util@0.7.4`
+  ([commit](https://github.com/ryanatkn/gro/commit/731007d1533f981e524e318c00af3a6fa861e909))
 
 ## 0.71.0
 
-- **break**: upgrade dep `@grogarden/util@0.6.0`
-  ([#364](https://github.com/grogarden/gro/pull/364))
+- **break**: upgrade dep `@ryanatkn/util@0.6.0`
+  ([#364](https://github.com/ryanatkn/gro/pull/364))
 
 ## 0.70.5
 
@@ -790,13 +790,13 @@
 
 ## 0.70.3
 
-- upgrade `@grogarden/util`
-  ([#362](https://github.com/grogarden/gro/pull/362))
+- upgrade `@ryanatkn/util`
+  ([#362](https://github.com/ryanatkn/gro/pull/362))
 
 ## 0.70.2
 
 - fix production types for builds that don't specify a value
-  ([#363](https://github.com/grogarden/gro/pull/363))
+  ([#363](https://github.com/ryanatkn/gro/pull/363))
 - undo adding TypeScript as a peer dependency
 
 ## 0.70.1
@@ -806,29 +806,29 @@
 ## 0.70.0
 
 - **break**: remove `tsconfig` arg from `gro typecheck` since `svelte-check` 3 no longer needs it
-  ([#360](https://github.com/grogarden/gro/pull/360))
+  ([#360](https://github.com/ryanatkn/gro/pull/360))
 - **break**: move the SvelteKit build instead of copying it
-  ([5719273](https://github.com/grogarden/gro/commit/5719273aba7b3634fdd6c4f8a6d4714a1512b8d4))
+  ([5719273](https://github.com/ryanatkn/gro/commit/5719273aba7b3634fdd6c4f8a6d4714a1512b8d4))
 
 ## 0.69.0
 
 - **break**: upgrade deps including SvelteKit 1.0
-  ([#359](https://github.com/grogarden/gro/pull/359))
+  ([#359](https://github.com/ryanatkn/gro/pull/359))
 
 ## 0.68.2
 
 - relax the type of `Raw_Gen_Result` to let the array have any value
-  ([6faf95b](https://github.com/grogarden/gro/commit/6faf95b36bc0769aee45d0c96454a445ebb8485c))
+  ([6faf95b](https://github.com/ryanatkn/gro/commit/6faf95b36bc0769aee45d0c96454a445ebb8485c))
 
 ## 0.68.1
 
 - relax the type of `Raw_Gen_Result` to include an ignored `null`
-  ([a8cf511](https://github.com/grogarden/gro/commit/a8cf51129ff53a4d8257c1f2e728aee2ffd7f2ac))
+  ([a8cf511](https://github.com/ryanatkn/gro/commit/a8cf51129ff53a4d8257c1f2e728aee2ffd7f2ac))
 
 ## 0.68.0
 
 - **break**: move `types` from the main config to the build config
-  ([#358](https://github.com/grogarden/gro/pull/358))
+  ([#358](https://github.com/ryanatkn/gro/pull/358))
 
 ## 0.67.3
 
@@ -845,7 +845,7 @@
 
 ## 0.67.0
 
-- upgrade `@grogarden/util@0.3.0`
+- upgrade `@ryanatkn/util@0.3.0`
 
 ## 0.66.1
 
@@ -853,51 +853,51 @@
 
 ## 0.66.0
 
-- **break**: upgrade `@grogarden/util`
-  ([#356](https://github.com/grogarden/gro/pull/356))
+- **break**: upgrade `@ryanatkn/util`
+  ([#356](https://github.com/ryanatkn/gro/pull/356))
 
 ## 0.65.0
 
-- **break**: depend on `@grogarden/util` instead of `@feltjs/felt-ui`
-  ([#355](https://github.com/grogarden/gro/pull/355))
+- **break**: depend on `@ryanatkn/util` instead of `@feltjs/felt-ui`
+  ([#355](https://github.com/ryanatkn/gro/pull/355))
 
 ## 0.64.0
 
 - **break**: upgrade peer dep `@feltjs/felt-ui@0.42.0`
-  ([#354](https://github.com/grogarden/gro/pull/354))
+  ([#354](https://github.com/ryanatkn/gro/pull/354))
 
 ## 0.63.2
 
 - call `svelte-kit sync` only if it's installed
-  ([#353](https://github.com/grogarden/gro/pull/353))
+  ([#353](https://github.com/ryanatkn/gro/pull/353))
 
 ## 0.63.1
 
 - pass `--skipLibCheck` to `tsc` on `gro build` so it can be disabled in dependents' tsconfigs
-  ([#352](https://github.com/grogarden/gro/pull/352))
+  ([#352](https://github.com/ryanatkn/gro/pull/352))
 - always run `svelte-kit sync` instead of checking for the directory first
-  ([#352](https://github.com/grogarden/gro/pull/352))
+  ([#352](https://github.com/ryanatkn/gro/pull/352))
 
 ## 0.63.0
 
 - **break**: change `gro.config.ts` to export a default value instead of a `config` property
-  ([#348](https://github.com/grogarden/gro/pull/348))
+  ([#348](https://github.com/ryanatkn/gro/pull/348))
 - **break**: change `plugin/gro_plugin_server.ts` to a no-op outside of dev mode
-  ([#347](https://github.com/grogarden/gro/pull/347))
+  ([#347](https://github.com/ryanatkn/gro/pull/347))
 - fix `gro deploy` for unfetched branches
-  ([#350](https://github.com/grogarden/gro/pull/350))
+  ([#350](https://github.com/ryanatkn/gro/pull/350))
 - upgrade deps
-  ([#351](https://github.com/grogarden/gro/pull/351))
+  ([#351](https://github.com/ryanatkn/gro/pull/351))
 
 ## 0.62.4
 
 - skip `gro test` if `uvu` is not installed, and log a warning
-  ([#346](https://github.com/grogarden/gro/pull/346))
+  ([#346](https://github.com/ryanatkn/gro/pull/346))
 
 ## 0.62.3
 
 - do not run `tsc` in `gro check` if `svelte-check` is available
-  ([#345](https://github.com/grogarden/gro/pull/345))
+  ([#345](https://github.com/ryanatkn/gro/pull/345))
 
 ## 0.62.2
 
@@ -906,347 +906,347 @@
 ## 0.62.1
 
 - upgrade deps
-  ([#342](https://github.com/grogarden/gro/pull/342))
+  ([#342](https://github.com/ryanatkn/gro/pull/342))
 - use [zod](https://github.com/colinhacks/zod) for task schemas
-  ([#344](https://github.com/grogarden/gro/pull/344))
+  ([#344](https://github.com/ryanatkn/gro/pull/344))
 
 ## 0.62.0
 
 - **break**: upgrade deps
-  ([#341](https://github.com/grogarden/gro/pull/341))
+  ([#341](https://github.com/ryanatkn/gro/pull/341))
 - respect the `types` config property for Svelte files
-  ([#341](https://github.com/grogarden/gro/pull/341))
+  ([#341](https://github.com/ryanatkn/gro/pull/341))
 
 ## 0.61.3
 
 - fix type parsing for Svelte files
-  ([#340](https://github.com/grogarden/gro/pull/340))
+  ([#340](https://github.com/ryanatkn/gro/pull/340))
 
 ## 0.61.2
 
 - change `gro typecheck` to always run both `tsc` and `svelte-check`
   instead of stopping when `tsc` finds an error
-  ([#339](https://github.com/grogarden/gro/pull/339))
+  ([#339](https://github.com/ryanatkn/gro/pull/339))
 
 ## 0.61.1
 
 - upgrade SvelteKit import mocks
-  ([#338](https://github.com/grogarden/gro/pull/338))
+  ([#338](https://github.com/ryanatkn/gro/pull/338))
 
 ## 0.61.0
 
 - **break**: upgrade deps and remove peer deps for `@sveltejs/kit`, `uvu`, and `typescript`
-  ([#337](https://github.com/grogarden/gro/pull/337))
+  ([#337](https://github.com/ryanatkn/gro/pull/337))
 
 ## 0.60.2
 
 - fix `gro deploy` when the deployment branch isn't loaded locally
-  ([#336](https://github.com/grogarden/gro/pull/336))
+  ([#336](https://github.com/ryanatkn/gro/pull/336))
 
 ## 0.60.1
 
 - add exclude functionality to the upgrade task: `gro upgrade foo bar`
-  ([#335](https://github.com/grogarden/gro/pull/335))
+  ([#335](https://github.com/ryanatkn/gro/pull/335))
 
 ## 0.60.0
 
 - **break**: upgrade deps
-  ([#334](https://github.com/grogarden/gro/pull/334))
+  ([#334](https://github.com/ryanatkn/gro/pull/334))
 - add upgrade task
-  ([#334](https://github.com/grogarden/gro/pull/334))
+  ([#334](https://github.com/ryanatkn/gro/pull/334))
 
 ## 0.59.0
 
 - **break**: upgrade deps
-  ([#332](https://github.com/grogarden/gro/pull/332))
+  ([#332](https://github.com/ryanatkn/gro/pull/332))
 
 ## 0.58.0
 
 - **break**: upgrade deps
-  ([#331](https://github.com/grogarden/gro/pull/331))
+  ([#331](https://github.com/ryanatkn/gro/pull/331))
 
 ## 0.57.0
 
 - **break**: upgrade deps
-  ([#330](https://github.com/grogarden/gro/pull/330))
+  ([#330](https://github.com/ryanatkn/gro/pull/330))
 
 ## 0.56.0
 
 - **break**: rename adapter and plugin modules to use dash-case
-  ([#327](https://github.com/grogarden/gro/pull/327))
+  ([#327](https://github.com/ryanatkn/gro/pull/327))
 - upgrade some deps
-  ([#326](https://github.com/grogarden/gro/pull/326))
+  ([#326](https://github.com/ryanatkn/gro/pull/326))
 
 ## 0.55.2
 
 - build only the included TypeScript files to `dist/src/`
-  ([#325](https://github.com/grogarden/gro/pull/325))
+  ([#325](https://github.com/ryanatkn/gro/pull/325))
 
 ## 0.55.1
 
 - add `format` option to gen files, defaults to `true`
-  ([#324](https://github.com/grogarden/gro/pull/324))
+  ([#324](https://github.com/ryanatkn/gro/pull/324))
 
 ## 0.55.0
 
 - **break**: remove the dev server, including `gro serve` and project metadata
-  ([#321](https://github.com/grogarden/gro/pull/321))
+  ([#321](https://github.com/ryanatkn/gro/pull/321))
 - always build before running tasks
-  ([#322](https://github.com/grogarden/gro/pull/322))
+  ([#322](https://github.com/ryanatkn/gro/pull/322))
 
 ## 0.54.0
 
 - **break**: upgrade deps including peer dep for `@feltjs/felt-ui@0.26.0`
-  ([#320](https://github.com/grogarden/gro/pull/320))
+  ([#320](https://github.com/ryanatkn/gro/pull/320))
 - **break**: remove `deploymentMode` option from SvelteKit frontend adapter
-  ([#320](https://github.com/grogarden/gro/pull/320))
+  ([#320](https://github.com/ryanatkn/gro/pull/320))
 
 ## 0.53.0
 
 - **break**: upgrade `@sveltejs/kit@1.0.0-next.298` and run `svelte-kit sync` before typechecking
-  ([#317](https://github.com/grogarden/gro/pull/317))
+  ([#317](https://github.com/ryanatkn/gro/pull/317))
 
 ## 0.52.3
 
 - register schemas for gen and search for them before the file resolver
-  ([#316](https://github.com/grogarden/gro/pull/316))
+  ([#316](https://github.com/ryanatkn/gro/pull/316))
 
 ## 0.52.2
 
 - improve safety of `gro deploy` and update its docs
-  ([#315](https://github.com/grogarden/gro/pull/315))
+  ([#315](https://github.com/ryanatkn/gro/pull/315))
 
 ## 0.52.1
 
 - fix args type for `invoke_task`
-  ([#314](https://github.com/grogarden/gro/pull/314))
+  ([#314](https://github.com/ryanatkn/gro/pull/314))
 
 ## 0.52.0
 
 - **break**: validate task `args` from schemas,
   setting defaults automatically and disallowing additional properties
-  ([#313](https://github.com/grogarden/gro/pull/313))
+  ([#313](https://github.com/ryanatkn/gro/pull/313))
 - **break**: change `invoke_task` to no longer forward `args` automatically
-  ([#313](https://github.com/grogarden/gro/pull/313))
+  ([#313](https://github.com/ryanatkn/gro/pull/313))
 - **break**: add generic agnostic command args forwarding
   [using the `--` pattern](src/lib/docs/task.md#task-args-forwarding)
-  ([#313](https://github.com/grogarden/gro/pull/313))
+  ([#313](https://github.com/ryanatkn/gro/pull/313))
 - **break**: remove `-v` alias for `gro --version`
-  ([#313](https://github.com/grogarden/gro/pull/313))
+  ([#313](https://github.com/ryanatkn/gro/pull/313))
 
 ## 0.51.3
 
 - fix task name printing for task directories
-  ([#312](https://github.com/grogarden/gro/pull/312))
+  ([#312](https://github.com/ryanatkn/gro/pull/312))
 
 ## 0.51.2
 
 - support task dirs
-  ([#311](https://github.com/grogarden/gro/pull/311))
+  ([#311](https://github.com/ryanatkn/gro/pull/311))
 
 ## 0.51.1
 
 - fix value printing in args logging
-  ([#310](https://github.com/grogarden/gro/pull/310))
+  ([#310](https://github.com/ryanatkn/gro/pull/310))
 
 ## 0.51.0
 
 - **break**: rename the `gro publish` `branch` arg to `source` and add `target` branch arg
-  ([#306](https://github.com/grogarden/gro/pull/306))
+  ([#306](https://github.com/ryanatkn/gro/pull/306))
 - **break**: move `mapBundleOptions` from args to the Node library adapter options
-  ([#306](https://github.com/grogarden/gro/pull/306))
+  ([#306](https://github.com/ryanatkn/gro/pull/306))
 - add schema information to task args
-  ([#306](https://github.com/grogarden/gro/pull/306))
+  ([#306](https://github.com/ryanatkn/gro/pull/306))
 - add `--help` flag to `gro` and `gro taskname`, along with `gro help` alias
-  ([#306](https://github.com/grogarden/gro/pull/306), [#307](https://github.com/grogarden/gro/pull/307))
+  ([#306](https://github.com/ryanatkn/gro/pull/306), [#307](https://github.com/ryanatkn/gro/pull/307))
 - combine imports in generated schema types
-  ([#304](https://github.com/grogarden/gro/pull/304))
+  ([#304](https://github.com/ryanatkn/gro/pull/304))
 - add CLI opt-outs to `gro check` for `no-typecheck`, `no-test`, `no-gen`, `no-format`, & `no-lint`
-  ([#305](https://github.com/grogarden/gro/pull/305))
+  ([#305](https://github.com/ryanatkn/gro/pull/305))
 - fix inline type parsing to include type dependencies
-  ([#308](https://github.com/grogarden/gro/pull/308))
+  ([#308](https://github.com/ryanatkn/gro/pull/308))
 
 ## 0.50.5
 
 - make `gro check` fail on lint warnings
-  ([#302](https://github.com/grogarden/gro/pull/302))
+  ([#302](https://github.com/ryanatkn/gro/pull/302))
 - pass through args in `gro lint` to `eslint`
-  ([#302](https://github.com/grogarden/gro/pull/302))
+  ([#302](https://github.com/ryanatkn/gro/pull/302))
 
 ## 0.50.4
 
 - run `eslint` in `gro check` if it's available
-  ([#301](https://github.com/grogarden/gro/pull/301))
+  ([#301](https://github.com/ryanatkn/gro/pull/301))
 
 ## 0.50.3
 
 - fix default config to build types only for production
-  ([#300](https://github.com/grogarden/gro/pull/300))
+  ([#300](https://github.com/ryanatkn/gro/pull/300))
 
 ## 0.50.2
 
 - add `.schema.` files to system build
-  ([#299](https://github.com/grogarden/gro/pull/299))
+  ([#299](https://github.com/ryanatkn/gro/pull/299))
 
 ## 0.50.1
 
 - add `gro gen` support for `.schema.` files with automatically generated types
-  ([#298](https://github.com/grogarden/gro/pull/298))
+  ([#298](https://github.com/ryanatkn/gro/pull/298))
 
 ## 0.50.0
 
 - **break**: upgrade `@feltjs/felt-ui@0.18.0`
-  ([#297](https://github.com/grogarden/gro/pull/297))
+  ([#297](https://github.com/ryanatkn/gro/pull/297))
 
 ## 0.49.0
 
 - **break**: remove `svelte-check` as a dependency,
   but still call it in `gro typecheck` if installed
-  ([#296](https://github.com/grogarden/gro/pull/296))
+  ([#296](https://github.com/ryanatkn/gro/pull/296))
 
 ## 0.48.0
 
 - **break**: remove Rollup and its plugins as a dependency, and use esbuild for bundling instead;
   this changes the Node library adapter interface to use `mapBundleOptions`
   and removes the Rollup mapping functions
-  ([#295](https://github.com/grogarden/gro/pull/295))
+  ([#295](https://github.com/ryanatkn/gro/pull/295))
 
 ## 0.47.5
 
 - mock SvelteKit imports like `'$app/navigation'` for tests
-  ([#294](https://github.com/grogarden/gro/pull/294))
+  ([#294](https://github.com/ryanatkn/gro/pull/294))
 
 ## 0.47.4
 
 - fix 404 page for GitHub pages with SvelteKit adapter
-  ([#293](https://github.com/grogarden/gro/pull/293))
+  ([#293](https://github.com/ryanatkn/gro/pull/293))
 
 ## 0.47.3
 
 - make the `throttle` cache key optional
-  ([#290](https://github.com/grogarden/gro/pull/290))
-- attempt to fix deps broken by [#286](https://github.com/grogarden/gro/pull/286)
-  ([#291](https://github.com/grogarden/gro/pull/291))
+  ([#290](https://github.com/ryanatkn/gro/pull/290))
+- attempt to fix deps broken by [#286](https://github.com/ryanatkn/gro/pull/286)
+  ([#291](https://github.com/ryanatkn/gro/pull/291))
 
 ## 0.47.2
 
 - fix bug with the `throttle` `delay` option
-  ([#289](https://github.com/grogarden/gro/pull/289))
+  ([#289](https://github.com/ryanatkn/gro/pull/289))
 
 ## 0.47.1
 
 - fix `svelte-check` to scope to `src/`
-  ([#273](https://github.com/grogarden/gro/pull/273))
+  ([#273](https://github.com/ryanatkn/gro/pull/273))
 - fix writing source meta concurrently
-  ([#288](https://github.com/grogarden/gro/pull/288))
+  ([#288](https://github.com/ryanatkn/gro/pull/288))
 - add `util/throttle.ts`
-  ([#288](https://github.com/grogarden/gro/pull/288))
+  ([#288](https://github.com/ryanatkn/gro/pull/288))
 
 ## 0.47.0
 
 - **break**: update deps
-  ([#286](https://github.com/grogarden/gro/pull/286))
+  ([#286](https://github.com/ryanatkn/gro/pull/286))
 
 ## 0.46.0
 
 - **break**: change task `dev` property to `production`
-  ([#284](https://github.com/grogarden/gro/pull/284))
+  ([#284](https://github.com/ryanatkn/gro/pull/284))
 - fix `process.env.NODE_ENV` for production tasks
-  ([#284](https://github.com/grogarden/gro/pull/284),
-  [#287](https://github.com/grogarden/gro/pull/287))
+  ([#284](https://github.com/ryanatkn/gro/pull/284),
+  [#287](https://github.com/ryanatkn/gro/pull/287))
 
 ## 0.45.2
 
 - clean dist for production builds
-  ([#285](https://github.com/grogarden/gro/pull/285))
+  ([#285](https://github.com/ryanatkn/gro/pull/285))
 
 ## 0.45.1
 
 - fix peer dependency versions
-  ([#282](https://github.com/grogarden/gro/pull/282))
+  ([#282](https://github.com/ryanatkn/gro/pull/282))
 
 ## 0.45.0
 
 - **break**: remove frontend build support in favor of SvelteKit
-  ([#281](https://github.com/grogarden/gro/pull/281))
+  ([#281](https://github.com/ryanatkn/gro/pull/281))
 
 ## 0.44.3
 
 - process `.js` files with the esbuild builder
-  ([#280](https://github.com/grogarden/gro/pull/280))
+  ([#280](https://github.com/ryanatkn/gro/pull/280))
 
 ## 0.44.2
 
 - add optional `paths` to `Filer` and improve its tests
-  ([#276](https://github.com/grogarden/gro/pull/276))
+  ([#276](https://github.com/ryanatkn/gro/pull/276))
 - make `gro test` ignore sourcemap files by default so patterns don't need `.js$`
-  ([#277](https://github.com/grogarden/gro/pull/277))
+  ([#277](https://github.com/ryanatkn/gro/pull/277))
 - make `gro gen` build before running
-  ([#279](https://github.com/grogarden/gro/pull/279))
+  ([#279](https://github.com/ryanatkn/gro/pull/279))
 
 ## 0.44.1
 
 - change default config to not run the api server during build
-  ([#275](https://github.com/grogarden/gro/pull/275))
+  ([#275](https://github.com/ryanatkn/gro/pull/275))
 
 ## 0.44.0
 
 - **break**: upgrade `@feltjs/felt-ui@0.13.0` and make it a peer dependency
-  ([#274](https://github.com/grogarden/gro/pull/274))
+  ([#274](https://github.com/ryanatkn/gro/pull/274))
 
 ## 0.43.0
 
 - **break**: upgrade `@feltjs/felt-ui@0.12.0` and `rollup@2.57.0`
-  ([#272](https://github.com/grogarden/gro/pull/272))
+  ([#272](https://github.com/ryanatkn/gro/pull/272))
 
 ## 0.42.0
 
 - **break**: add `svelte-check` and typecheck Svelte files in `gro typecheck` and `gro check`
-  ([#271](https://github.com/grogarden/gro/pull/271))
+  ([#271](https://github.com/ryanatkn/gro/pull/271))
 
 ## 0.41.1
 
 - support js imports
-  ([#270](https://github.com/grogarden/gro/pull/270))
+  ([#270](https://github.com/ryanatkn/gro/pull/270))
 
 ## 0.41.0
 
 - **break**: update deps and remove most peer deps
-  ([#269](https://github.com/grogarden/gro/pull/269))
+  ([#269](https://github.com/ryanatkn/gro/pull/269))
 - make `gro deploy` safer by excluding branches `'main'` and `'master'` unless `--force`
-  ([#268](https://github.com/grogarden/gro/pull/268))
+  ([#268](https://github.com/ryanatkn/gro/pull/268))
 
 ## 0.40.0
 
 - rename to `camelCase` from `snake_case`
-  ([#267](https://github.com/grogarden/gro/pull/267))
+  ([#267](https://github.com/ryanatkn/gro/pull/267))
 
 ## 0.39.1
 
 - fix dev server plugin defaults to not load for prod builds
-  ([#265](https://github.com/grogarden/gro/pull/265))
+  ([#265](https://github.com/ryanatkn/gro/pull/265))
 
 ## 0.39.0
 
 - **break**: rename to `PascalCase` from `Proper_Snake_Case`
-  ([#263](https://github.com/grogarden/gro/pull/263),
-  [#264](https://github.com/grogarden/gro/pull/264))
+  ([#263](https://github.com/ryanatkn/gro/pull/263),
+  [#264](https://github.com/ryanatkn/gro/pull/264))
 
 ## 0.38.0
 
 - **break**: require Node >=16.6.0
-  ([#262](https://github.com/grogarden/gro/pull/262))
+  ([#262](https://github.com/ryanatkn/gro/pull/262))
 
 ## 0.37.0
 
 - **break**: remove `main_test` config option and behavior
-  ([#261](https://github.com/grogarden/gro/pull/261))
+  ([#261](https://github.com/ryanatkn/gro/pull/261))
 
 ## 0.36.1
 
 - add some convenience peer dependencies like `@types/source-map-support` --
   is this a good idea?
-  ([#260](https://github.com/grogarden/gro/pull/260))
+  ([#260](https://github.com/ryanatkn/gro/pull/260))
 
 ## 0.36.0
 
@@ -1254,248 +1254,248 @@
   [`Gro_Config` option `main_test`](src/lib/docs/config.md#main_test),
   which initializes projects with a conventional `lib/main.test.ts`
   for installing sourcemaps and other global test concerns (update: reverted in 0.37.0)
-  ([#259](https://github.com/grogarden/gro/pull/259))
+  ([#259](https://github.com/ryanatkn/gro/pull/259))
 - add some peer deps
-  ([#259](https://github.com/grogarden/gro/pull/259))
+  ([#259](https://github.com/ryanatkn/gro/pull/259))
 
 ## 0.35.0
 
 - **break**: remove dev task event `dev.create_server` and add `dev.create_context`
-  ([#258](https://github.com/grogarden/gro/pull/258))
+  ([#258](https://github.com/ryanatkn/gro/pull/258))
 - make the dev server a plugin
-  ([#258](https://github.com/grogarden/gro/pull/258))
+  ([#258](https://github.com/ryanatkn/gro/pull/258))
 
 ## 0.34.3
 
 - clean during `gro build` except when invoked by `gro publish` and `gro deploy`
-  ([#255](https://github.com/grogarden/gro/pull/255))
+  ([#255](https://github.com/ryanatkn/gro/pull/255))
 
 ## 0.34.2
 
 - forward args to `svelte-kit dev` and `svelte-kit build`
-  ([#254](https://github.com/grogarden/gro/pull/254))
+  ([#254](https://github.com/ryanatkn/gro/pull/254))
 - improve type matcher regexp
-  ([#253](https://github.com/grogarden/gro/pull/253))
+  ([#253](https://github.com/ryanatkn/gro/pull/253))
 
 ## 0.34.1
 
 - fix type publishing
-  ([#252](https://github.com/grogarden/gro/pull/252))
+  ([#252](https://github.com/ryanatkn/gro/pull/252))
 
 ## 0.34.0
 
 - **break**: remove `cjs` and `esm` options from `gro_adapter_library`;
   for now only ESM is supported, to be revisited when we support package exports;
   in the meantime users can fork the adapter for commonjs outputs
-  ([#251](https://github.com/grogarden/gro/pull/251))
+  ([#251](https://github.com/ryanatkn/gro/pull/251))
 - **break**: disallow running some tasks in development: `gro build`, `gro deploy`, `gro publish`
-  ([#251](https://github.com/grogarden/gro/pull/251))
+  ([#251](https://github.com/ryanatkn/gro/pull/251))
 - rename `src/lib/adapt.ts` module and improve docs for `adapt` and `plugin`
-  ([#250](https://github.com/grogarden/gro/pull/250))
+  ([#250](https://github.com/ryanatkn/gro/pull/250))
 
 ## 0.33.1
 
 - fix `gro_adapter_gro_frontend` by prebundling externals only in development
-  ([#249](https://github.com/grogarden/gro/pull/249))
+  ([#249](https://github.com/ryanatkn/gro/pull/249))
 - upgrade `es-module-lexer@0.7.1`
-  ([#248](https://github.com/grogarden/gro/pull/248))
+  ([#248](https://github.com/ryanatkn/gro/pull/248))
 
 ## 0.33.0
 
 - **break**: refactor `postprocess` into builders and delete `Build` and `Build_Result`
-  ([#243](https://github.com/grogarden/gro/pull/243))
+  ([#243](https://github.com/ryanatkn/gro/pull/243))
 - **break**: rename builders and builder util
-  ([#244](https://github.com/grogarden/gro/pull/244))
+  ([#244](https://github.com/ryanatkn/gro/pull/244))
 - **break**: merge `util/path_filter.ts` and `util/file.ts` into `util/filter.ts`,
   rename `Id_Filter` from `File_Filter`, and add `Id_Stats_Filter`
-  ([#246](https://github.com/grogarden/gro/pull/246))
+  ([#246](https://github.com/ryanatkn/gro/pull/246))
 - support JSON imports
-  ([#245](https://github.com/grogarden/gro/pull/245))
+  ([#245](https://github.com/ryanatkn/gro/pull/245))
 - ignore unwanted assets in frontend build
-  ([#242](https://github.com/grogarden/gro/pull/242),
-  [#246](https://github.com/grogarden/gro/pull/246))
+  ([#242](https://github.com/ryanatkn/gro/pull/242),
+  [#246](https://github.com/ryanatkn/gro/pull/246))
 
 ## 0.32.1
 
 - change `gro deploy` to infer default `dirname`
-  ([#241](https://github.com/grogarden/gro/pull/241))
+  ([#241](https://github.com/ryanatkn/gro/pull/241))
 
 ## 0.32.0
 
 - **break**: add `gro_adapter_gro_frontend` adapter
-  ([#231](https://github.com/grogarden/gro/pull/231))
+  ([#231](https://github.com/ryanatkn/gro/pull/231))
 
 ## 0.31.0
 
 - **break**: change `gro_adapter_library` option `type` to boolean `bundle`
-  ([#239](https://github.com/grogarden/gro/pull/239))
+  ([#239](https://github.com/ryanatkn/gro/pull/239))
 - support outputting Svelte source files in production builds
-  ([#239](https://github.com/grogarden/gro/pull/239))
+  ([#239](https://github.com/ryanatkn/gro/pull/239))
 
 ## 0.30.3
 
 - fix dynamic import parsing to allow non-interpolated template string literals
-  ([#238](https://github.com/grogarden/gro/pull/238))
+  ([#238](https://github.com/ryanatkn/gro/pull/238))
 
 ## 0.30.2
 
 - fix import parsing to ignore non-literal dynamic imports
-  ([#237](https://github.com/grogarden/gro/pull/237))
+  ([#237](https://github.com/ryanatkn/gro/pull/237))
 
 ## 0.30.1
 
 - fix conversion of absolute specifiers to include `./` if bare
-  ([#236](https://github.com/grogarden/gro/pull/236))
+  ([#236](https://github.com/ryanatkn/gro/pull/236))
 - upgrade to esbuild@0.12.15
-  ([#235](https://github.com/grogarden/gro/pull/235))
+  ([#235](https://github.com/ryanatkn/gro/pull/235))
 
 ## 0.30.0
 
 - **break**: change default server to `src/lib/server/server.ts` from `src/server/server.ts`
-  ([#234](https://github.com/grogarden/gro/pull/234))
+  ([#234](https://github.com/ryanatkn/gro/pull/234))
 
 ## 0.29.0
 
 - **break**: rename plugins, adapters, and builders to `snake_case` from `kebab-case`
-  ([#232](https://github.com/grogarden/gro/pull/232))
+  ([#232](https://github.com/ryanatkn/gro/pull/232))
 - update deps
-  ([#233](https://github.com/grogarden/gro/pull/233))
+  ([#233](https://github.com/ryanatkn/gro/pull/233))
 
 ## 0.28.3
 
 - add Gro frontend support with `gro_adapter_gro_frontend`
-  ([#231](https://github.com/grogarden/gro/pull/231))
+  ([#231](https://github.com/ryanatkn/gro/pull/231))
 - fix buildless builds to handle SvelteKit-only frontend projects
-  ([#230](https://github.com/grogarden/gro/pull/230))
+  ([#230](https://github.com/ryanatkn/gro/pull/230))
 
 ## 0.28.2
 
 - upgrade to `@feltjs/felt-ui@0.3.0`
-  ([#229](https://github.com/grogarden/gro/pull/229))
+  ([#229](https://github.com/ryanatkn/gro/pull/229))
 
 ## 0.28.1
 
 - fix library adapter `package.json` paths
-  ([#228](https://github.com/grogarden/gro/pull/228))
+  ([#228](https://github.com/ryanatkn/gro/pull/228))
 
 ## 0.28.0
 
 - **break**: remove `gro start` task
-  ([#223](https://github.com/grogarden/gro/pull/223))
+  ([#223](https://github.com/ryanatkn/gro/pull/223))
 - add `Plugin`s and `config.plugin` to support SvelteKit and Node servers
-  ([#223](https://github.com/grogarden/gro/pull/223),
-  [#224](https://github.com/grogarden/gro/pull/224))
+  ([#223](https://github.com/ryanatkn/gro/pull/223),
+  [#224](https://github.com/ryanatkn/gro/pull/224))
 - implement Node server config and adapter
-  ([#223](https://github.com/grogarden/gro/pull/223))
+  ([#223](https://github.com/ryanatkn/gro/pull/223))
 - implement library adapter
-  ([#226](https://github.com/grogarden/gro/pull/226),
-  [#227](https://github.com/grogarden/gro/pull/227))
+  ([#226](https://github.com/ryanatkn/gro/pull/226),
+  [#227](https://github.com/ryanatkn/gro/pull/227))
 
 ## 0.27.3
 
 - fix default library build to include types in production
-  ([#222](https://github.com/grogarden/gro/pull/222))
+  ([#222](https://github.com/ryanatkn/gro/pull/222))
 
 ## 0.27.2
 
 - fix deploy task
-  ([#221](https://github.com/grogarden/gro/pull/221))
+  ([#221](https://github.com/ryanatkn/gro/pull/221))
 
 ## 0.27.1
 
 - support absolute path imports `$lib/` and `src/`
-  ([#153](https://github.com/grogarden/gro/pull/153))
+  ([#153](https://github.com/ryanatkn/gro/pull/153))
 - infer `npm link` in Node library adapter
-  ([#218](https://github.com/grogarden/gro/pull/218))
+  ([#218](https://github.com/ryanatkn/gro/pull/218))
 - fix build config validation and normalization
-  ([#220](https://github.com/grogarden/gro/pull/220))
+  ([#220](https://github.com/ryanatkn/gro/pull/220))
 
 ## 0.27.0
 
 - **break**: convert to `snake_case` from `camelCase`
-  ([#210](https://github.com/grogarden/gro/pull/210))
+  ([#210](https://github.com/ryanatkn/gro/pull/210))
 - **break**: rename `'system'` build from `'node'`
-  ([#207](https://github.com/grogarden/gro/pull/207))
+  ([#207](https://github.com/ryanatkn/gro/pull/207))
 - **break**: add `'config'` build to simplify internals
-  ([#207](https://github.com/grogarden/gro/pull/207),
-  [#212](https://github.com/grogarden/gro/pull/212))
+  ([#207](https://github.com/ryanatkn/gro/pull/207),
+  [#212](https://github.com/ryanatkn/gro/pull/212))
 - **break**: build configs now fail to validate if any input path strings do not exist
-  ([#207](https://github.com/grogarden/gro/pull/207))
+  ([#207](https://github.com/ryanatkn/gro/pull/207))
 - **break**: rename `load_config` from `loadGro_Config`
-  ([#207](https://github.com/grogarden/gro/pull/207))
+  ([#207](https://github.com/ryanatkn/gro/pull/207))
 - **break**: change `validate_build_configs` function signature
-  ([#207](https://github.com/grogarden/gro/pull/207))
+  ([#207](https://github.com/ryanatkn/gro/pull/207))
 - **break**: change `gro_adapter_sveltekit_app` output so it composes with others
-  ([#207](https://github.com/grogarden/gro/pull/207))
+  ([#207](https://github.com/ryanatkn/gro/pull/207))
 - **break**: rename the `Task` `summary` property from `description`
-  ([#212](https://github.com/grogarden/gro/pull/212))
+  ([#212](https://github.com/ryanatkn/gro/pull/212))
 - **break**: rename `content` from `contents`
-  ([#216](https://github.com/grogarden/gro/pull/216))
+  ([#216](https://github.com/ryanatkn/gro/pull/216))
 - add `no-watch` arg to `gro dev`
-  ([#211](https://github.com/grogarden/gro/pull/211))
+  ([#211](https://github.com/ryanatkn/gro/pull/211))
 - rename some args in `gro dev` and `gro serve`
-  ([#211](https://github.com/grogarden/gro/pull/211))
+  ([#211](https://github.com/ryanatkn/gro/pull/211))
 - optimize writing source meta to disk
-  ([#214](https://github.com/grogarden/gro/pull/214))
+  ([#214](https://github.com/ryanatkn/gro/pull/214))
 - add `typemap` option to Gro config
-  ([#215](https://github.com/grogarden/gro/pull/215))
+  ([#215](https://github.com/ryanatkn/gro/pull/215))
 - add `types` option to Gro config
-  ([#215](https://github.com/grogarden/gro/pull/215))
+  ([#215](https://github.com/ryanatkn/gro/pull/215))
 
 ## 0.26.2
 
 - support publishing library builds
-  ([#209](https://github.com/grogarden/gro/pull/209))
+  ([#209](https://github.com/ryanatkn/gro/pull/209))
 - fix typemaps for production builds
-  ([#209](https://github.com/grogarden/gro/pull/209))
+  ([#209](https://github.com/ryanatkn/gro/pull/209))
 
 ## 0.26.1
 
 - rename default `'library'` build from `'lib'`
-  ([#208](https://github.com/grogarden/gro/pull/208))
+  ([#208](https://github.com/ryanatkn/gro/pull/208))
 
 ## 0.26.0
 
 - **break**: move util to `@feltjs/felt-ui` and add it as a dependency
-  ([#206](https://github.com/grogarden/gro/pull/206))
+  ([#206](https://github.com/ryanatkn/gro/pull/206))
 
 ## 0.25.2
 
 - properly detect unclean git state for `gro deploy`
-  ([#205](https://github.com/grogarden/gro/pull/205))
+  ([#205](https://github.com/ryanatkn/gro/pull/205))
 
 ## 0.25.1
 
 - add `.nojekyll` support to frontend adapters for GitHub Pages compatibility
-  ([#204](https://github.com/grogarden/gro/pull/204))
+  ([#204](https://github.com/ryanatkn/gro/pull/204))
 
 ## 0.25.0
 
 - **break**: upgrade to latest SvelteKit, changing the dir `.svelte` to `.svelte-kit`
-  ([#202](https://github.com/grogarden/gro/pull/202))
+  ([#202](https://github.com/ryanatkn/gro/pull/202))
 - add SvelteKit frontend adapter
-  ([#193](https://github.com/grogarden/gro/pull/193))
+  ([#193](https://github.com/ryanatkn/gro/pull/193))
 - fix `gro deploy`
-  ([#193](https://github.com/grogarden/gro/pull/193))
+  ([#193](https://github.com/ryanatkn/gro/pull/193))
 
 ## 0.24.1
 
 - separate source meta for dev and prod
-  ([#201](https://github.com/grogarden/gro/pull/201))
+  ([#201](https://github.com/ryanatkn/gro/pull/201))
 
 ## 0.24.0
 
 - **break**: extend config with detected defaults
-  ([#199](https://github.com/grogarden/gro/pull/199))
+  ([#199](https://github.com/ryanatkn/gro/pull/199))
 - improve `gro publish` errors and suport restricted packages
-  ([#199](https://github.com/grogarden/gro/pull/199))
+  ([#199](https://github.com/ryanatkn/gro/pull/199))
 
 ## 0.23.7
 
 - fix `gro publish` arg forwarding to `npm version`
-  ([#200](https://github.com/grogarden/gro/pull/200))
+  ([#200](https://github.com/ryanatkn/gro/pull/200))
 - fix `gro publish` to initialize scoped packages
-  ([#200](https://github.com/grogarden/gro/pull/200))
+  ([#200](https://github.com/ryanatkn/gro/pull/200))
 
 ## 0.23.6
 
@@ -1508,331 +1508,331 @@
 ## 0.23.4
 
 - fix typemap source path
-  ([#198](https://github.com/grogarden/gro/pull/198))
+  ([#198](https://github.com/ryanatkn/gro/pull/198))
 - improve publishing changelog UX
-  ([#197](https://github.com/grogarden/gro/pull/197))
+  ([#197](https://github.com/ryanatkn/gro/pull/197))
 
 ## 0.23.3
 
 - generate types for bundled production builds
-  ([#196](https://github.com/grogarden/gro/pull/196))
+  ([#196](https://github.com/ryanatkn/gro/pull/196))
 
 ## 0.23.2
 
 - generate types for production builds
-  ([#194](https://github.com/grogarden/gro/pull/194),
-  [#195](https://github.com/grogarden/gro/pull/195))
+  ([#194](https://github.com/ryanatkn/gro/pull/194),
+  [#195](https://github.com/ryanatkn/gro/pull/195))
 
 ## 0.23.1
 
 - fix arg forwarding
-  ([#191](https://github.com/grogarden/gro/pull/191),
-  [#192](https://github.com/grogarden/gro/pull/192))
+  ([#191](https://github.com/ryanatkn/gro/pull/191),
+  [#192](https://github.com/ryanatkn/gro/pull/192))
 - fix `gro test` in production, also fixing `gro publish`
-  ([#192](https://github.com/grogarden/gro/pull/192))
+  ([#192](https://github.com/ryanatkn/gro/pull/192))
 
 ## 0.23.0
 
 - **break**: rename `gro publish` from `gro version` and improve its safety
-  ([#189](https://github.com/grogarden/gro/pull/189))
+  ([#189](https://github.com/ryanatkn/gro/pull/189))
 - make `config.builds` optional and accept non-array values
-  ([#189](https://github.com/grogarden/gro/pull/189))
+  ([#189](https://github.com/ryanatkn/gro/pull/189))
 - document more about `adapt`
-  ([#189](https://github.com/grogarden/gro/pull/189))
+  ([#189](https://github.com/ryanatkn/gro/pull/189))
 
 ## 0.22.0
 
 - **break**: redesign `gro publish` and `gro deploy`
-  ([#187](https://github.com/grogarden/gro/pull/187))
+  ([#187](https://github.com/ryanatkn/gro/pull/187))
 - **break**: add [`Adapter` system](/src/lib/docs/adapt.md) and
   [Node library adapter](/src/lib/gro_adapter_library.ts)
-  ([#187](https://github.com/grogarden/gro/pull/187))
+  ([#187](https://github.com/ryanatkn/gro/pull/187))
 - **break**: add a default `"node"` build named `"node"` if one is not defined
-  ([#187](https://github.com/grogarden/gro/pull/187))
+  ([#187](https://github.com/ryanatkn/gro/pull/187))
 - **break**: rename `toObtainable` from `createObtainable`
-  ([#187](https://github.com/grogarden/gro/pull/187))
+  ([#187](https://github.com/ryanatkn/gro/pull/187))
 - **break**: rename `Filesystem.write_file` from `outputFile`
-  ([#188](https://github.com/grogarden/gro/pull/188))
+  ([#188](https://github.com/ryanatkn/gro/pull/188))
 - **break**: upgrade to `fs-extra@10.0.0`
-  ([#188](https://github.com/grogarden/gro/pull/188))
+  ([#188](https://github.com/ryanatkn/gro/pull/188))
 
 ## 0.21.6
 
 - hack: add temporary support for extensionless import paths to internal modules
-  ([#186](https://github.com/grogarden/gro/pull/186))
+  ([#186](https://github.com/ryanatkn/gro/pull/186))
 
 ## 0.21.5
 
 - export config types and helpers from root
-  ([#185](https://github.com/grogarden/gro/pull/185))
+  ([#185](https://github.com/ryanatkn/gro/pull/185))
 
 ## 0.21.4
 
 - export `Unreachable_Error` and time util from root
-  ([#184](https://github.com/grogarden/gro/pull/184))
+  ([#184](https://github.com/ryanatkn/gro/pull/184))
 
 ## 0.21.3
 
 - force push on `gro deploy`
-  ([#183](https://github.com/grogarden/gro/pull/183))
+  ([#183](https://github.com/ryanatkn/gro/pull/183))
 
 ## 0.21.2
 
 - ignore error on failed `git pull` during `gro deploy`
-  ([#182](https://github.com/grogarden/gro/pull/182))
+  ([#182](https://github.com/ryanatkn/gro/pull/182))
 
 ## 0.21.1
 
 - change `gro gen` to handle failed formatting gracefully
-  ([#181](https://github.com/grogarden/gro/pull/181))
+  ([#181](https://github.com/ryanatkn/gro/pull/181))
 
 ## 0.21.0
 
 - **break**: change `gro clean` args to longhand and
   add option `--git` to prune dead branches
-  ([#180](https://github.com/grogarden/gro/pull/180))
+  ([#180](https://github.com/ryanatkn/gro/pull/180))
 - fix `gro build` to copy files to `dist/` with `src/lib/build/dist.ts` helper `copy_dist`
-  ([#179](https://github.com/grogarden/gro/pull/179))
+  ([#179](https://github.com/ryanatkn/gro/pull/179))
 
 ## 0.20.4
 
 - fix `gro deploy` to first pull the remote deploy branch
-  ([#178](https://github.com/grogarden/gro/pull/178))
+  ([#178](https://github.com/ryanatkn/gro/pull/178))
 
 ## 0.20.3
 
 - fix production builds
-  ([#177](https://github.com/grogarden/gro/pull/177))
+  ([#177](https://github.com/ryanatkn/gro/pull/177))
 
 ## 0.20.2
 
 - refactor Gro's production build
-  ([#176](https://github.com/grogarden/gro/pull/176))
+  ([#176](https://github.com/ryanatkn/gro/pull/176))
 
 ## 0.20.1
 
 - upgrade to npm 7 and its v2 lockfile
-  ([#174](https://github.com/grogarden/gro/pull/174),
-  [#175](https://github.com/grogarden/gro/pull/175))
+  ([#174](https://github.com/ryanatkn/gro/pull/174),
+  [#175](https://github.com/ryanatkn/gro/pull/175))
 
 ## 0.20.0
 
 - **break**: rework the `Filesystem` interfaces
-  ([#173](https://github.com/grogarden/gro/pull/173))
+  ([#173](https://github.com/ryanatkn/gro/pull/173))
   - export a `fs` instance from each `Filesystem` implementation
     and do not export individual functions
   - rename `pathExists` to `exists`
   - remove `readJson`
 - add abstract class `Fs` and implement `Memory_Fs`
   to complement the `fs-extra` implementation at `src/lib/node.ts`
-  ([#173](https://github.com/grogarden/gro/pull/173))
+  ([#173](https://github.com/ryanatkn/gro/pull/173))
 
 ## 0.19.0
 
 - **break**: extract the `Filesystem` interface and
   thread it everywhere from `src/lib/invoke.ts` and tests
-  ([#171](https://github.com/grogarden/gro/pull/171))
+  ([#171](https://github.com/ryanatkn/gro/pull/171))
 - **break**: replace `src/lib/gitignore.ts` helper `is_gitignored`
   with `src/lib/path_filter.ts` helper `to_path_filter`
-  ([#172](https://github.com/grogarden/gro/pull/172))
+  ([#172](https://github.com/ryanatkn/gro/pull/172))
 
 ## 0.18.2
 
 - fix `gro start` task to serve static builds to port 3000 like the others
-  ([#170](https://github.com/grogarden/gro/pull/170))
+  ([#170](https://github.com/ryanatkn/gro/pull/170))
 
 ## 0.18.1
 
 - fix `gro start` task to work with SvelteKit and the Node server if detected
-  ([#169](https://github.com/grogarden/gro/pull/169))
+  ([#169](https://github.com/ryanatkn/gro/pull/169))
 
 ## 0.18.0
 
 - **break**: change the interface of `gro dev` and `gro build` to support the Node server
-  ([#168](https://github.com/grogarden/gro/pull/168))
+  ([#168](https://github.com/ryanatkn/gro/pull/168))
 
 ## 0.17.1
 
 - fix `gro format` to whitelist files off root when formatting `src/`
-  ([#166](https://github.com/grogarden/gro/pull/166))
+  ([#166](https://github.com/ryanatkn/gro/pull/166))
 - fix `gro test` to gracefully handle projects with no Gro build outputs
-  ([#167](https://github.com/grogarden/gro/pull/167))
+  ([#167](https://github.com/ryanatkn/gro/pull/167))
 - run `gro check` before building in `gro version`
-  ([#167](https://github.com/grogarden/gro/pull/167))
+  ([#167](https://github.com/ryanatkn/gro/pull/167))
 
 ## 0.17.0
 
 - **break**: rename `src/lib/equal.ts` module from `deepEqual.ts`
-  ([#162](https://github.com/grogarden/gro/pull/162))
+  ([#162](https://github.com/ryanatkn/gro/pull/162))
 - **break**: rename `Gro_Config_Partial` from `PartialGro_Config`
   and `Build_Config_Partial` from `PartialBuild_Config`
-  ([#164](https://github.com/grogarden/gro/pull/164))
+  ([#164](https://github.com/ryanatkn/gro/pull/164))
 - make serve task work for production SvelteKit builds
-  ([#163](https://github.com/grogarden/gro/pull/163))
+  ([#163](https://github.com/ryanatkn/gro/pull/163))
 - add `src/lib/gitignore.ts` with `is_gitignored` and `load_gitignore_filter`
-  ([#165](https://github.com/grogarden/gro/pull/165))
+  ([#165](https://github.com/ryanatkn/gro/pull/165))
 - add helper `to_sveltekit_base_path` to `src/lib/build/sveltekit_helpers.ts`
-  ([#163](https://github.com/grogarden/gro/pull/163))
+  ([#163](https://github.com/ryanatkn/gro/pull/163))
 - default to some environment variables
   for undefined Gro config properties:
   `GRO_HOST`, `GRO_PORT`, `GRO_LOG_LEVEL`
-  ([#162](https://github.com/grogarden/gro/pull/162))
+  ([#162](https://github.com/ryanatkn/gro/pull/162))
 - export the logger API from root and fix it
-  ([#162](https://github.com/grogarden/gro/pull/162))
+  ([#162](https://github.com/ryanatkn/gro/pull/162))
 
 ## 0.16.0
 
 - **break**: rename some paths constants for consistency
-  ([#161](https://github.com/grogarden/gro/pull/161))
+  ([#161](https://github.com/ryanatkn/gro/pull/161))
 - patch SvelteKit bug with duplicate build directories
-  ([#160](https://github.com/grogarden/gro/pull/160))
+  ([#160](https://github.com/ryanatkn/gro/pull/160))
 - add [contributing.md🌄](./contributing.md)
-  ([#108](https://github.com/grogarden/gro/pull/108))
+  ([#108](https://github.com/ryanatkn/gro/pull/108))
 
 ## 0.15.0
 
 - **break**: make `src/lib/build.task.ts`, `src/deploy.task.ts`,
   and `src/lib/start.task.ts` work with SvelteKit
-  ([#157](https://github.com/grogarden/gro/pull/157),
-  [#159](https://github.com/grogarden/gro/pull/159))
+  ([#157](https://github.com/ryanatkn/gro/pull/157),
+  [#159](https://github.com/ryanatkn/gro/pull/159))
   - add flag `gro deploy --clean` to reset deployment state
   - add flag `--branch` to both tasks, default to `main`
   - default to the `deploy` branch instead of `gh-pages`
 - **break**: rename `to_env_string` and `to_env_number` from `stringFromEnv` and `numberFromEnv`
-  ([#158](https://github.com/grogarden/gro/pull/158))
+  ([#158](https://github.com/ryanatkn/gro/pull/158))
 - add helper `read_dir` to `src/lib/node.ts`
-  ([#159](https://github.com/grogarden/gro/pull/159))
+  ([#159](https://github.com/ryanatkn/gro/pull/159))
 
 ## 0.14.0
 
 - **break**: rename `src/lib/node.ts` from `src/lib/nodeFs.ts`
-  ([#154](https://github.com/grogarden/gro/pull/154))
+  ([#154](https://github.com/ryanatkn/gro/pull/154))
 - **break**: rename `src/lib/clean.ts` from `src/lib/clean.ts`
-  ([#155](https://github.com/grogarden/gro/pull/155))
+  ([#155](https://github.com/ryanatkn/gro/pull/155))
 - **break**: rename `to_array` from `ensureArray`
-  ([#117](https://github.com/grogarden/gro/pull/117))
+  ([#117](https://github.com/ryanatkn/gro/pull/117))
 - upgrade to `svelte@3.37.0`
-  ([#102](https://github.com/grogarden/gro/pull/102))
+  ([#102](https://github.com/ryanatkn/gro/pull/102))
 - fix `dist/` build
-  ([#156](https://github.com/grogarden/gro/pull/156))
-- export many more things from root: `import {/* !!! */} from '@grogarden/gro';`
-  ([#117](https://github.com/grogarden/gro/pull/117))
+  ([#156](https://github.com/ryanatkn/gro/pull/156))
+- export many more things from root: `import {/* !!! */} from '@ryanatkn/gro';`
+  ([#117](https://github.com/ryanatkn/gro/pull/117))
 - improve logging readability
-  ([#152](https://github.com/grogarden/gro/pull/152))
+  ([#152](https://github.com/ryanatkn/gro/pull/152))
 
 ## 0.13.0
 
 - **break**: require Node >=14.16.0
-  ([#150](https://github.com/grogarden/gro/pull/150))
+  ([#150](https://github.com/ryanatkn/gro/pull/150))
 - fix false positive Node server detection in default config
-  ([#151](https://github.com/grogarden/gro/pull/151))
+  ([#151](https://github.com/ryanatkn/gro/pull/151))
 - add `get_mime_types` and `get_extensions` returning iterators to `src/lib/mime.ts`
-  ([#149](https://github.com/grogarden/gro/pull/149))
+  ([#149](https://github.com/ryanatkn/gro/pull/149))
 - improve default asset paths to use registered mime types
-  ([#149](https://github.com/grogarden/gro/pull/149))
+  ([#149](https://github.com/ryanatkn/gro/pull/149))
 
 ## 0.12.1
 
 - fix swapped Node server ports
-  ([#148](https://github.com/grogarden/gro/pull/148))
+  ([#148](https://github.com/ryanatkn/gro/pull/148))
 
 ## 0.12.0
 
 - **break**: output builds to `dist/` mirroring the source tree as much as possible
-  ([#147](https://github.com/grogarden/gro/pull/147))
+  ([#147](https://github.com/ryanatkn/gro/pull/147))
 - **break**: rename some things around the Node server
-  ([#147](https://github.com/grogarden/gro/pull/147))
+  ([#147](https://github.com/ryanatkn/gro/pull/147))
 - add `gro start` as an alias for `npm start`
-  ([#147](https://github.com/grogarden/gro/pull/147))
+  ([#147](https://github.com/ryanatkn/gro/pull/147))
 - integrate the default Gro Node server with SvelteKit and Gro's build task
-  ([#145](https://github.com/grogarden/gro/pull/145))
+  ([#145](https://github.com/ryanatkn/gro/pull/145))
 - add task `gro server` to support the default Node server use case in SvelteKit
-  ([#145](https://github.com/grogarden/gro/pull/145))
+  ([#145](https://github.com/ryanatkn/gro/pull/145))
 - remove the `gro dist` task; it's now part of `gro build`
-  ([#146](https://github.com/grogarden/gro/pull/146))
+  ([#146](https://github.com/ryanatkn/gro/pull/146))
 
 ## 0.11.3
 
 - add `events` to `Task_Context` and its generic type to `Task`,
   so tasks can communicate with each other using a normal Node `EventEmitter`
-  ([#143](https://github.com/grogarden/gro/pull/143))
+  ([#143](https://github.com/ryanatkn/gro/pull/143))
   - events aren't great for everything;
     this PR also documents a value mapping pattern convention for tasks in `src/lib/README.md`
 - `gro build` now correctly builds only `Build_Config`s that have `dist: true`,
   allowing users to customize the `dist/` output in each `gro build` via `gro.config.ts`
-  ([#144](https://github.com/grogarden/gro/pull/144))
+  ([#144](https://github.com/ryanatkn/gro/pull/144))
 
 ## 0.11.2
 
 - add a generic parameter to `Task` to type its `Task_Args`
-  ([#142](https://github.com/grogarden/gro/pull/142))
+  ([#142](https://github.com/ryanatkn/gro/pull/142))
 
 ## 0.11.1
 
 - track and clean up child processes in `src/lib/process.ts` helpers
   and expose the functionality to users as `registerGlobalSpawn`
-  ([#141](https://github.com/grogarden/gro/pull/141))
+  ([#141](https://github.com/ryanatkn/gro/pull/141))
 - add a confirmation prompt to `gro version`
   with version validations between `changelog.md` and `package.json`
-  ([#140](https://github.com/grogarden/gro/pull/140))
+  ([#140](https://github.com/ryanatkn/gro/pull/140))
 
 ## 0.11.0
 
 - **break**: update dependencies
-  ([#139](https://github.com/grogarden/gro/pull/139))
+  ([#139](https://github.com/ryanatkn/gro/pull/139))
 
 ## 0.10.1
 
 - add the `Filer` option `filter` with type `Path_Filter`
   and ignore directories like `.git` by default
-  ([#138](https://github.com/grogarden/gro/pull/138))
+  ([#138](https://github.com/ryanatkn/gro/pull/138))
 
 ## 0.10.0
 
 - **break**: change `gro.config.ts` to export a `config` identifer instead of `default`
-  ([#137](https://github.com/grogarden/gro/pull/137))
+  ([#137](https://github.com/ryanatkn/gro/pull/137))
 
 ## 0.9.5
 
 - set `process.env.NODE_ENV` when running tasks with explicit `dev` values
-  ([#136](https://github.com/grogarden/gro/pull/136))
+  ([#136](https://github.com/ryanatkn/gro/pull/136))
 - remove `import.meta.-env.DEV` support for now despite SvelteKit alignment
-  ([#136](https://github.com/grogarden/gro/pull/136))
+  ([#136](https://github.com/ryanatkn/gro/pull/136))
 
 ## 0.9.4
 
 - forward the optional `dev` arg through the task invocation tree via `invoke_task` and `run_task`
-  ([#135](https://github.com/grogarden/gro/pull/135))
+  ([#135](https://github.com/ryanatkn/gro/pull/135))
 
 ## 0.9.3
 
 - add the optional `dev` property to `Task` definitions to fix the inherited context
-  ([#134](https://github.com/grogarden/gro/pull/134))
+  ([#134](https://github.com/ryanatkn/gro/pull/134))
 
 ## 0.9.2
 
-- fix `src/lib/build.task.ts` ([#133](https://github.com/grogarden/gro/pull/133)):
+- fix `src/lib/build.task.ts` ([#133](https://github.com/ryanatkn/gro/pull/133)):
   - forward dev arg to esbuild options builder
   - fix return values of rollup plugins to respect sourcemaps
 
 ## 0.9.1
 
 - fix `src/lib/build.task.ts` to correctly use `sourcemap` and `target` Gro config options
-  ([#132](https://github.com/grogarden/gro/pull/132))
+  ([#132](https://github.com/ryanatkn/gro/pull/132))
 - turn sourcemaps off by default in production
-  ([#132](https://github.com/grogarden/gro/pull/132))
+  ([#132](https://github.com/ryanatkn/gro/pull/132))
 
 ## 0.9.0
 
 - **break**: separate the default server and primary Node builds
   in `src/lib/gro.config.default.ts`
-  ([#131](https://github.com/grogarden/gro/pull/131))
+  ([#131](https://github.com/ryanatkn/gro/pull/131))
 - **break**: rename `src/lib/toObtainable.ts` to `src/lib/obtainable.ts` to fit convention
-  ([#131](https://github.com/grogarden/gro/pull/131))
+  ([#131](https://github.com/ryanatkn/gro/pull/131))
 - add server auto-restart to `src/lib/dev.task.ts`
-  ([#129](https://github.com/grogarden/gro/pull/129))
-- improve the [clean task](https://github.com/grogarden/gro/blob/main/src/lib/clean.task.ts)
-  ([#130](https://github.com/grogarden/gro/pull/130))
+  ([#129](https://github.com/ryanatkn/gro/pull/129))
+- improve the [clean task](https://github.com/ryanatkn/gro/blob/main/src/lib/clean.task.ts)
+  ([#130](https://github.com/ryanatkn/gro/pull/130))
   - running `gro clean` with no options behaves the same, deleting `/.gro/` and `/dist/`
   - `gro clean` now accepts a number of options:
     - `-s`: delete `/.svelte/`
@@ -1843,74 +1843,74 @@
 ## 0.8.4
 
 - add `src/lib/version.task.ts` to automate versioning and publishing
-  ([#127](https://github.com/grogarden/gro/pull/127))
+  ([#127](https://github.com/ryanatkn/gro/pull/127))
 - change `src/lib/build.task.ts` to work internally for Gro
-  ([#128](https://github.com/grogarden/gro/pull/128))
+  ([#128](https://github.com/ryanatkn/gro/pull/128))
 
 ## 0.8.3
 
 - change type deps exposed to users to regular dependencies
-  ([#126](https://github.com/grogarden/gro/pull/126))
+  ([#126](https://github.com/ryanatkn/gro/pull/126))
 
 ## 0.8.2
 
 - change `Filer` to extend `EventEmitter` and emit a `'build'` event
-  ([#125](https://github.com/grogarden/gro/pull/125))
+  ([#125](https://github.com/ryanatkn/gro/pull/125))
 
 ## 0.8.1
 
 - fix build not filtering out `null` inputs
-  ([#124](https://github.com/grogarden/gro/pull/124))
+  ([#124](https://github.com/ryanatkn/gro/pull/124))
 
 ## 0.8.0
 
 - **break**: redesign prod build task `src/lib/build.task.ts`
   and remove support for CLI build inputs in favor of config
-  ([#123](https://github.com/grogarden/gro/pull/123))
+  ([#123](https://github.com/ryanatkn/gro/pull/123))
 - internal rename of `src/globalTypes.ts` to `src/globals.d.ts`
   now that they only declare module types
-  ([#120](https://github.com/grogarden/gro/pull/120))
+  ([#120](https://github.com/ryanatkn/gro/pull/120))
 
 ## 0.7.2
 
 - gracefully handle deprecated Gro frontends
-  ([#118](https://github.com/grogarden/gro/pull/118))
+  ([#118](https://github.com/ryanatkn/gro/pull/118))
 - detect default server build at `src/server/server.ts`
-  ([#119](https://github.com/grogarden/gro/pull/119))
+  ([#119](https://github.com/ryanatkn/gro/pull/119))
 
 ## 0.7.1
 
 - rename `src/types.ts` to `src/lib/types.ts`
-  ([#115](https://github.com/grogarden/gro/pull/115))
+  ([#115](https://github.com/ryanatkn/gro/pull/115))
 - add `unwrap` helper to `src/lib/types.ts`
-  ([#116](https://github.com/grogarden/gro/pull/116))
+  ([#116](https://github.com/ryanatkn/gro/pull/116))
 
 ## 0.7.0
 
 - **break**: change global types to root exports
-  ([#114](https://github.com/grogarden/gro/pull/114))
+  ([#114](https://github.com/ryanatkn/gro/pull/114))
 
 ## 0.6.5
 
 - improve the error message when a build config input is missing
-  ([#113](https://github.com/grogarden/gro/pull/113))
+  ([#113](https://github.com/ryanatkn/gro/pull/113))
 
 ## 0.6.4
 
 - add `args` hooks to `src/lib/dev.task.ts`
-  ([#112](https://github.com/grogarden/gro/pull/112))
+  ([#112](https://github.com/ryanatkn/gro/pull/112))
 
 ## 0.6.3
 
 - fix import path
-  ([#111](https://github.com/grogarden/gro/pull/111))
+  ([#111](https://github.com/ryanatkn/gro/pull/111))
 - restrict the dev server to development usage
-  ([#107](https://github.com/grogarden/gro/pull/107))
+  ([#107](https://github.com/ryanatkn/gro/pull/107))
 
 ## 0.6.2
 
 - allow deleting input files
-  ([#105](https://github.com/grogarden/gro/pull/105))
+  ([#105](https://github.com/ryanatkn/gro/pull/105))
 
 ## 0.6.1
 
@@ -1920,175 +1920,175 @@
 
 - replace Gro's internal testing library `oki` with
   [`uvu`](https://github.com/lukeed/uvu)
-  ([#103](https://github.com/grogarden/gro/pull/103))
+  ([#103](https://github.com/ryanatkn/gro/pull/103))
 - add http2 and https support to the dev server
-  ([#104](https://github.com/grogarden/gro/pull/104))
+  ([#104](https://github.com/ryanatkn/gro/pull/104))
 
 ## 0.5.0
 
 - change the `build/` directory to `.gro/` and support multiple builds
-  ([#59](https://github.com/grogarden/gro/pull/59))
+  ([#59](https://github.com/ryanatkn/gro/pull/59))
 - add support for a config file at `gro.config.ts` for custom builds
-  ([#67](https://github.com/grogarden/gro/pull/67),
-  [#68](https://github.com/grogarden/gro/pull/68),
-  [#82](https://github.com/grogarden/gro/pull/82),
-  [#83](https://github.com/grogarden/gro/pull/83),
-  [#95](https://github.com/grogarden/gro/pull/95))
+  ([#67](https://github.com/ryanatkn/gro/pull/67),
+  [#68](https://github.com/ryanatkn/gro/pull/68),
+  [#82](https://github.com/ryanatkn/gro/pull/82),
+  [#83](https://github.com/ryanatkn/gro/pull/83),
+  [#95](https://github.com/ryanatkn/gro/pull/95))
 - add `Filer` to replace `CachingCompiler` with additional filesystem capabilities
-  ([#54](https://github.com/grogarden/gro/pull/54),
-  [#55](https://github.com/grogarden/gro/pull/55),
-  [#58](https://github.com/grogarden/gro/pull/58),
-  [#60](https://github.com/grogarden/gro/pull/60),
-  [#62](https://github.com/grogarden/gro/pull/62),
-  [#63](https://github.com/grogarden/gro/pull/63),
-  [#94](https://github.com/grogarden/gro/pull/94),
-  [#98](https://github.com/grogarden/gro/pull/98),
-  [#99](https://github.com/grogarden/gro/pull/99),
-  [#100](https://github.com/grogarden/gro/pull/100),
-  [#101](https://github.com/grogarden/gro/pull/101))
+  ([#54](https://github.com/ryanatkn/gro/pull/54),
+  [#55](https://github.com/ryanatkn/gro/pull/55),
+  [#58](https://github.com/ryanatkn/gro/pull/58),
+  [#60](https://github.com/ryanatkn/gro/pull/60),
+  [#62](https://github.com/ryanatkn/gro/pull/62),
+  [#63](https://github.com/ryanatkn/gro/pull/63),
+  [#94](https://github.com/ryanatkn/gro/pull/94),
+  [#98](https://github.com/ryanatkn/gro/pull/98),
+  [#99](https://github.com/ryanatkn/gro/pull/99),
+  [#100](https://github.com/ryanatkn/gro/pull/100),
+  [#101](https://github.com/ryanatkn/gro/pull/101))
 - add Svelte compilation to the unbundled compilation strategies
-  ([#52](https://github.com/grogarden/gro/pull/52),
-  [#56](https://github.com/grogarden/gro/pull/56),
-  [#65](https://github.com/grogarden/gro/pull/65),
-  [#66](https://github.com/grogarden/gro/pull/66))
+  ([#52](https://github.com/ryanatkn/gro/pull/52),
+  [#56](https://github.com/ryanatkn/gro/pull/56),
+  [#65](https://github.com/ryanatkn/gro/pull/65),
+  [#66](https://github.com/ryanatkn/gro/pull/66))
 - bundle external modules for the browser
-  ([#61](https://github.com/grogarden/gro/pull/61),
-  [#71](https://github.com/grogarden/gro/pull/71),
-  [#76](https://github.com/grogarden/gro/pull/76),
-  [#81](https://github.com/grogarden/gro/pull/81),
-  [#88](https://github.com/grogarden/gro/pull/88),
-  [#89](https://github.com/grogarden/gro/pull/89))
+  ([#61](https://github.com/ryanatkn/gro/pull/61),
+  [#71](https://github.com/ryanatkn/gro/pull/71),
+  [#76](https://github.com/ryanatkn/gro/pull/76),
+  [#81](https://github.com/ryanatkn/gro/pull/81),
+  [#88](https://github.com/ryanatkn/gro/pull/88),
+  [#89](https://github.com/ryanatkn/gro/pull/89))
 - replace swc with esbuild
-  ([#92](https://github.com/grogarden/gro/pull/92))
+  ([#92](https://github.com/ryanatkn/gro/pull/92))
 - make `createBuilder` pluggable allowing users to provide a compiler for each file
-  ([#57](https://github.com/grogarden/gro/pull/57))
+  ([#57](https://github.com/ryanatkn/gro/pull/57))
 - rename `compiler` to `builder`
-  ([#70](https://github.com/grogarden/gro/pull/70))
+  ([#70](https://github.com/ryanatkn/gro/pull/70))
 - replace deep equality helpers with `dequal`
-  ([#73](https://github.com/grogarden/gro/pull/73))
+  ([#73](https://github.com/ryanatkn/gro/pull/73))
 - add a basic client to view project data
-  ([#86](https://github.com/grogarden/gro/pull/86),
-  [#87](https://github.com/grogarden/gro/pull/87),
-  [#90](https://github.com/grogarden/gro/pull/90))
+  ([#86](https://github.com/ryanatkn/gro/pull/86),
+  [#87](https://github.com/ryanatkn/gro/pull/87),
+  [#90](https://github.com/ryanatkn/gro/pull/90))
 - move terminal color module to src/lib/util
-  ([#93](https://github.com/grogarden/gro/pull/93))
+  ([#93](https://github.com/ryanatkn/gro/pull/93))
 - add server caching
-  ([#77](https://github.com/grogarden/gro/pull/77))
+  ([#77](https://github.com/ryanatkn/gro/pull/77))
 
 ## 0.4.0
 
 - add `swc` dependency along with a Rollup plugin and Svelte preprocessor
-  ([#45](https://github.com/grogarden/gro/pull/45))
+  ([#45](https://github.com/ryanatkn/gro/pull/45))
 - add the `compile` task and use `swc` for non-watchmode builds
-  ([#46](https://github.com/grogarden/gro/pull/46))
+  ([#46](https://github.com/ryanatkn/gro/pull/46))
 - add `CachingCompiler` which uses `swc` to replace `tsc` watchmode
-  ([#51](https://github.com/grogarden/gro/pull/51))
+  ([#51](https://github.com/ryanatkn/gro/pull/51))
 - add stop function return value to `Timings#start`
-  ([#47](https://github.com/grogarden/gro/pull/47))
+  ([#47](https://github.com/ryanatkn/gro/pull/47))
 - rename identifiers from "ext" to "extension" to follow newer convention
-  ([#48](https://github.com/grogarden/gro/pull/48))
+  ([#48](https://github.com/ryanatkn/gro/pull/48))
 - convert `AssertionOperator` from an enum to a union of string types
-  ([#49](https://github.com/grogarden/gro/pull/49))
+  ([#49](https://github.com/ryanatkn/gro/pull/49))
 - rename `AsyncState` to `AsyncStatus` and convert it from an enum to a union of string types
-  ([#50](https://github.com/grogarden/gro/pull/50))
+  ([#50](https://github.com/ryanatkn/gro/pull/50))
 
 ## 0.3.0
 
 - handle build errors in the deploy task and add the `--dry` deploy flag
-  ([#42](https://github.com/grogarden/gro/pull/42))
+  ([#42](https://github.com/ryanatkn/gro/pull/42))
 - upgrade dependencies
-  ([#43](https://github.com/grogarden/gro/pull/43),
-  [#44](https://github.com/grogarden/gro/pull/44))
+  ([#43](https://github.com/ryanatkn/gro/pull/43),
+  [#44](https://github.com/ryanatkn/gro/pull/44))
 
 ## 0.2.12
 
 - fix log message when listing all tasks
-  ([#41](https://github.com/grogarden/gro/pull/41))
+  ([#41](https://github.com/ryanatkn/gro/pull/41))
 
 ## 0.2.11
 
 - change the deploy task to delete `dist/` when done to avoid git worktree issues
-  ([#40](https://github.com/grogarden/gro/pull/40))
+  ([#40](https://github.com/ryanatkn/gro/pull/40))
 
 ## 0.2.10
 
 - add a default `gro deploy` task for GitHub pages
-  ([#39](https://github.com/grogarden/gro/pull/39))
+  ([#39](https://github.com/ryanatkn/gro/pull/39))
 - run the clean task at the beginning of the check task
-  ([#37](https://github.com/grogarden/gro/pull/37))
+  ([#37](https://github.com/ryanatkn/gro/pull/37))
 
 ## 0.2.9
 
 - sort CSS builds to make output deterministic
-  ([#36](https://github.com/grogarden/gro/pull/36))
+  ([#36](https://github.com/ryanatkn/gro/pull/36))
 
 ## 0.2.8
 
 - make Rollup build extensible
-  ([#35](https://github.com/grogarden/gro/pull/35))
+  ([#35](https://github.com/ryanatkn/gro/pull/35))
 - upgrade peer dependencies
-  ([#34](https://github.com/grogarden/gro/pull/34))
+  ([#34](https://github.com/ryanatkn/gro/pull/34))
 
 ## 0.2.7
 
 - enable sourcemaps for build in development mode
-  ([#33](https://github.com/grogarden/gro/pull/33))
+  ([#33](https://github.com/ryanatkn/gro/pull/33))
 
 ## 0.2.6
 
 - add `uuid` utilities
-  ([#31](https://github.com/grogarden/gro/pull/31))
+  ([#31](https://github.com/ryanatkn/gro/pull/31))
 
 ## 0.2.5
 
 - add `randomFloat` utility
-  ([#30](https://github.com/grogarden/gro/pull/30))
+  ([#30](https://github.com/ryanatkn/gro/pull/30))
 
 ## 0.2.4
 
 - add `Result` type helper to `src/globalTypes.ts`
-  ([#29](https://github.com/grogarden/gro/pull/29))
+  ([#29](https://github.com/ryanatkn/gro/pull/29))
 
 ## 0.2.3
 
 - fix external module type declarations by merging
   `src/lib/globalTypes.d.ts` into `src/globalTypes.ts`
-  ([#28](https://github.com/grogarden/gro/pull/28))
+  ([#28](https://github.com/ryanatkn/gro/pull/28))
 
 ## 0.2.2
 
 - export `kleur/colors` from `src/lib/terminal.js`
-  ([#27](https://github.com/grogarden/gro/pull/27))
+  ([#27](https://github.com/ryanatkn/gro/pull/27))
 
 ## 0.2.1
 
 - add type helpers `Branded` and `Flavored` for nominal-ish typing
-  ([#23](https://github.com/grogarden/gro/pull/23))
+  ([#23](https://github.com/ryanatkn/gro/pull/23))
 
 ## 0.2.0
 
 - **breaking:** upgrade `kleur` dep and remove color wrappers
-  ([#26](https://github.com/grogarden/gro/pull/26))
+  ([#26](https://github.com/ryanatkn/gro/pull/26))
 
 ## 0.1.14
 
 - correctly fix `.js` module resolution where
-  [#24](https://github.com/grogarden/gro/pull/24) failed
-  ([#25](https://github.com/grogarden/gro/pull/25))
+  [#24](https://github.com/ryanatkn/gro/pull/24) failed
+  ([#25](https://github.com/ryanatkn/gro/pull/25))
 
 ## 0.1.13
 
 - change assertions `t.is` and `t.equal` to use a shared generic type for extra safety
-  ([#22](https://github.com/grogarden/gro/pull/22))
+  ([#22](https://github.com/ryanatkn/gro/pull/22))
 - fix `.js` module resolution in the Rollup TypeScript plugin
-  ([#24](https://github.com/grogarden/gro/pull/24))
+  ([#24](https://github.com/ryanatkn/gro/pull/24))
 
 ## 0.1.12
 
 - add the `invoke_task` helper for task composition
-  ([#20](https://github.com/grogarden/gro/pull/20))
+  ([#20](https://github.com/ryanatkn/gro/pull/20))
 - add CLI flags to print the Gro version with `--version` or `-v`
-  ([#21](https://github.com/grogarden/gro/pull/21))
+  ([#21](https://github.com/ryanatkn/gro/pull/21))
 
 ## 0.1.11
 
@@ -2098,45 +2098,45 @@
 ## 0.1.10
 
 - add async `rejects` assertion
-  ([#19](https://github.com/grogarden/gro/pull/19))
+  ([#19](https://github.com/ryanatkn/gro/pull/19))
 - change the check task to run tests only if some exist
-  ([#18](https://github.com/grogarden/gro/pull/18))
+  ([#18](https://github.com/ryanatkn/gro/pull/18))
 
 ## 0.1.9
 
 - actually fix unbuilt project detection when invoking builtin Gro tasks
-  ([#17](https://github.com/grogarden/gro/pull/17))
+  ([#17](https://github.com/ryanatkn/gro/pull/17))
 
 ## 0.1.8
 
 - fix unbuilt project detection when invoking builtin Gro tasks
-  ([#16](https://github.com/grogarden/gro/pull/16))
+  ([#16](https://github.com/ryanatkn/gro/pull/16))
 
 ## 0.1.7
 
 - compile TypeScript if an invoked task cannot be found in `build/`
-  ([#12](https://github.com/grogarden/gro/pull/12))
+  ([#12](https://github.com/ryanatkn/gro/pull/12))
 - change the check task to look for stale generated files only if the project contains gen files
-  ([#13](https://github.com/grogarden/gro/pull/13))
+  ([#13](https://github.com/ryanatkn/gro/pull/13))
 - format files in the root directory, not just `src/`
-  ([#15](https://github.com/grogarden/gro/pull/15))
+  ([#15](https://github.com/ryanatkn/gro/pull/15))
 
 ## 0.1.6
 
 - change `gro clean` to delete directories instead of emptying them
-  ([#11](https://github.com/grogarden/gro/pull/11))
+  ([#11](https://github.com/ryanatkn/gro/pull/11))
 
 ## 0.1.5
 
 - add `gro format` and `gro format --check` and format generated code
-  ([#8](https://github.com/grogarden/gro/pull/8))
+  ([#8](https://github.com/ryanatkn/gro/pull/8))
 - add `prettier` and `prettier-plugin-svelte` as peer dependencies and upgrade to Prettier 2
-  ([#8](https://github.com/grogarden/gro/pull/8))
+  ([#8](https://github.com/ryanatkn/gro/pull/8))
 
 ## 0.1.4
 
 - ensure the project has been built when invoking tasks
-  ([#5](https://github.com/grogarden/gro/pull/5))
+  ([#5](https://github.com/ryanatkn/gro/pull/5))
 
 ## 0.1.3
 

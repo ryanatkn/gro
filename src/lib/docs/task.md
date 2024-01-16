@@ -1,7 +1,7 @@
 # task
 
 > task runner for
-> [Gro](https://github.com/grogarden/gro)
+> [Gro](https://github.com/ryanatkn/gro)
 
 ## contents
 
@@ -26,7 +26,7 @@ and defers composition to the user in regular TypeScript modules.
 - on the command line, tasks replace the concept of commands,
   so running them is as simple as `gro <task>`,
   and in code the task object's `run` function has access to CLI args;
-  to view [the available tasks](https://github.com/grogarden/gro/blob/main/src/lib/docs/tasks.md)
+  to view [the available tasks](https://github.com/ryanatkn/gro/blob/main/src/lib/docs/tasks.md)
   run `gro` with no arguments
 - tasks optionally use [zod](https://github.com/colinhacks/zod) schemas
   for `args` types, runtime parsing with helpful validation errors,
@@ -87,7 +87,7 @@ $ gro gro/some/file
 
 ```ts
 // src/lib/some/file.task.ts
-import type {Task} from '@grogarden/gro';
+import type {Task} from '@ryanatkn/gro';
 
 export const task: Task = {
 	run: async ({log, args}) => {
@@ -110,7 +110,7 @@ Minimum with [`Args`](#task-args):
 
 ```ts
 // src/lib/some/withargs.task.ts
-import type {Task} from '@grogarden/gro';
+import type {Task} from '@ryanatkn/gro';
 import {z} from 'zod';
 
 export const Args = z
@@ -131,7 +131,7 @@ export const task: Task = {
 ### type `Task`
 
 ```ts
-import type {Task} from '@grogarden/gro';
+import type {Task} from '@ryanatkn/gro';
 
 export interface Task<
 	T_Args = Args, // same as `z.infer<typeof Args>`
@@ -147,7 +147,7 @@ export interface Task<
 ### type `Task_Context`
 
 ```ts
-import type {Task_Context} from '@grogarden/gro';
+import type {Task_Context} from '@ryanatkn/gro';
 
 export interface Task_Context<T_Args = object> {
 	args: T_Args;
@@ -181,7 +181,7 @@ gro some/file
 
 ```ts
 // src/lib/some/file.task.ts
-import type {Task} from '@grogarden/gro';
+import type {Task} from '@ryanatkn/gro';
 
 export const task: Task = {
 	run: async ({args, invoke_task}) => {
@@ -216,13 +216,13 @@ $ gro test
 
 ```ts
 // src/lib/test.task.ts
-import type {Task} from '@grogarden/gro';
+import type {Task} from '@ryanatkn/gro';
 
 export const task: Task = {
 	run: async ({args, invoke_task}) => {
 		await doSomethingFirst();
 		// As discussed in the `invoke_task` section above,
-		// it's possible to `import {task as groBuiltinTestTask} from '@grogarden/gro/test.task.js'`
+		// it's possible to `import {task as groBuiltinTestTask} from '@ryanatkn/gro/test.task.js'`
 		// and then call `groBuiltinTestTask.run` directly,
 		// but that loses some important benefits.
 		// Still, the task is available to import if you want it for any reason!
@@ -250,7 +250,7 @@ Using zod has some benefits:
 
 ```ts
 // src/lib/dosomething.task.ts
-import type {Task} from '@grogarden/gro';
+import type {Task} from '@ryanatkn/gro';
 import type {z} from 'zod';
 
 export const Args = z
@@ -311,7 +311,7 @@ To suppress logging the stack trace for an error,
 throw a `Task_Error`.
 
 ```ts
-import {Task, Task_Error} from '@grogarden/gro';
+import {Task, Task_Error} from '@ryanatkn/gro';
 
 export const task: Task = {
 	run: async () => {

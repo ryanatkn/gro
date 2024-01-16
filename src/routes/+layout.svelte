@@ -6,7 +6,7 @@
 </script>
 
 <svelte:head>
-	<title>@grogarden/gro</title>
+	<title>@ryanatkn/gro</title>
 </svelte:head>
 
 <Themed>
