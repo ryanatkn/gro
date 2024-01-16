@@ -1,5 +1,11 @@
 # @ryanatkn/gro
 
+## 0.111.1
+
+### Patch Changes
+
+- move util org ([a4095eb](https://github.com/ryanatkn/gro/commit/a4095eb))
+
 ## 0.111.0
 
 ### Minor Changes
