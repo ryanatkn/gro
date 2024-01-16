@@ -1,5 +1,5 @@
 import type {SpawnOptions} from 'node:child_process';
-import {spawn, spawn_out, type Spawn_Result} from '@grogarden/util/process.js';
+import {spawn, spawn_out, type Spawn_Result} from '@ryanatkn/util/process.js';
 import {join} from 'node:path';
 
 import {exists} from './fs.js';

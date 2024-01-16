@@ -1,7 +1,7 @@
 import {readFile, writeFile} from 'fs/promises';
 import {z} from 'zod';
-import type {Logger} from '@grogarden/util/log.js';
-import type {Fetch_Value_Cache} from '@grogarden/util/fetch.js';
+import type {Logger} from '@ryanatkn/util/log.js';
+import type {Fetch_Value_Cache} from '@ryanatkn/util/fetch.js';
 
 import {github_fetch_commit_prs} from './github.js';
 

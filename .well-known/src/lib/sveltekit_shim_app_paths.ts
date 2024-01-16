@@ -9,7 +9,7 @@
  */
 
 import type {resolveRoute as base_resolveRoute} from '$app/paths';
-import {noop} from '@grogarden/util/function.js';
+import {noop} from '@ryanatkn/util/function.js';
 
 export const assets = '';
 export const base = '';

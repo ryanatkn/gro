@@ -1,4 +1,4 @@
-import type {Logger} from '@grogarden/util/log.js';
+import type {Logger} from '@ryanatkn/util/log.js';
 import {join, basename, dirname, isAbsolute} from 'node:path';
 import {z} from 'zod';
 

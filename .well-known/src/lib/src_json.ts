@@ -1,7 +1,7 @@
 import {z} from 'zod';
 import {join} from 'node:path';
-import {strip_start} from '@grogarden/util/string.js';
-import type {Logger} from '@grogarden/util/log.js';
+import {strip_start} from '@ryanatkn/util/string.js';
+import type {Logger} from '@ryanatkn/util/log.js';
 import {Project} from 'ts-morph';
 
 import {paths, replace_extension} from './paths.js';

@@ -1,9 +1,9 @@
 import {z} from 'zod';
 import {join} from 'node:path';
 import {readFile, writeFile} from 'node:fs/promises';
-import {plural} from '@grogarden/util/string.js';
-import type {Logger} from '@grogarden/util/log.js';
-import {strip_end} from '@grogarden/util/string.js';
+import {plural} from '@ryanatkn/util/string.js';
+import type {Logger} from '@ryanatkn/util/log.js';
+import {strip_end} from '@ryanatkn/util/string.js';
 
 import {
 	paths,

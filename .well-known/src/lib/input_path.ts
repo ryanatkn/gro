@@ -1,5 +1,5 @@
 import {join, isAbsolute, basename} from 'node:path';
-import {strip_end, strip_start} from '@grogarden/util/string.js';
+import {strip_end, strip_start} from '@ryanatkn/util/string.js';
 import {stat} from 'node:fs/promises';
 
 import {
