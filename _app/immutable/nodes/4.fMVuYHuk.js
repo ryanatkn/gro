@@ -1,4 +1,0 @@
-import{n,e as a}from"../chunks/scheduler.AFoXYETE.js";import{S as o,i as l,g as h,h as d,B as p,k as c,a as v,f as u}from"../chunks/index.NXzj7nqe.js";function m(s){let e,r=`<p>Gro previously had a dev server with an experimental frontend for visualizing and working with
-		build data. And then SvelteKit and Vite came along!</p> <p>It was removed in <a href="https://github.com/ryanatkn/gro/pull/321">PR #321</a> and is archived
-		here:
-		<a href="https://github.com/spiderspace/gro/tree/archive/devserver">https://github.com/spiderspace/gro/tree/archive/devserver</a></p> <p>Vite plugins should be used going forward.</p>`;return{c(){e=h("div"),e.innerHTML=r,this.h()},l(t){e=d(t,"DIV",{class:!0,"data-svelte-h":!0}),p(e)!=="svelte-j37lbe"&&(e.innerHTML=r),this.h()},h(){c(e,"class","markup svelte-18vk2t")},m(t,i){v(t,e,i)},p:a,i:a,o:a,d(t){t&&u(e)}}}class b extends o{constructor(e){super(),l(this,e,null,m,n,{})}}export{b as component};
