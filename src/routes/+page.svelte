@@ -1,9 +1,9 @@
 <script lang="ts">
 	import {base} from '$app/paths';
-	import {parse_package_meta} from '@fuz.dev/fuz_library/package_meta.js';
-	import Library_Footer from '@fuz.dev/fuz_library/Library_Footer.svelte';
-	import Package_Detail from '@fuz.dev/fuz_library/Package_Detail.svelte';
-	import Package_Summary from '@fuz.dev/fuz_library/Package_Summary.svelte';
+	import {parse_package_meta} from '@ryanatkn/fuz/package_meta.js';
+	import Library_Footer from '@ryanatkn/fuz/Library_Footer.svelte';
+	import Package_Detail from '@ryanatkn/fuz/Package_Detail.svelte';
+	import Package_Summary from '@ryanatkn/fuz/Package_Summary.svelte';
 	import {slide} from 'svelte/transition';
 
 	import {package_json, src_json} from '$lib/package.js';
