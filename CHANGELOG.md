@@ -1,5 +1,11 @@
 # @ryanatkn/gro
 
+## 0.112.1
+
+### Patch Changes
+
+- upgrade deps ([4bf736f](https://github.com/ryanatkn/gro/commit/4bf736f))
+
 ## 0.112.0
 
 ### Minor Changes
