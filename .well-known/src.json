@@ -1,6 +1,6 @@
 {
   "name": "@ryanatkn/gro",
-  "version": "0.112.1",
+  "version": "0.112.2",
   "modules": {
     ".": {
       "path": "index.ts",
@@ -941,6 +941,31 @@
         },
         {
           "name": "parse_repo_url",
+          "kind": "function"
+        }
+      ]
+    },
+    "./package_meta.js": {
+      "path": "package_meta.ts",
+      "declarations": [
+        {
+          "name": "Package_Meta",
+          "kind": "type"
+        },
+        {
+          "name": "parse_package_meta",
+          "kind": "function"
+        },
+        {
+          "name": "parse_repo_name",
+          "kind": "function"
+        },
+        {
+          "name": "format_host",
+          "kind": "function"
+        },
+        {
+          "name": "parse_org_url",
           "kind": "function"
         }
       ]
