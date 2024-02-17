@@ -1,7 +1,8 @@
-import type {Package_Json} from '$lib/package_json.js';
-import type {Src_Json} from '$lib/src_json.js';
-import type {Url} from '$lib/paths.js';
 import {strip_start, strip_end} from '@ryanatkn/belt/string.js';
+
+import type {Package_Json} from './package_json.js';
+import type {Src_Json} from './src_json.js';
+import type {Url} from './paths.js';
 
 // TODO refactor/rethink
 export interface Package {
