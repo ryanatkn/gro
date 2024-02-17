@@ -1,5 +1,11 @@
 # @ryanatkn/gro
 
+## 0.112.2
+
+### Patch Changes
+
+- add package meta ([#451](https://github.com/ryanatkn/gro/pull/451))
+
 ## 0.112.1
 
 ### Patch Changes
