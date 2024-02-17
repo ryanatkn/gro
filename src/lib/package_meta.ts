@@ -4,14 +4,11 @@ import type {Package_Json} from './package_json.js';
 import type {Src_Json} from './src_json.js';
 import type {Url} from './paths.js';
 
-// TODO refactor/rethink
-export interface Package {
+// TODO needs refactoring, more clarity
+export interface Package_Meta {
 	url: Url;
 	package_json: Package_Json;
 	src_json: Src_Json;
-}
-
-export interface Package_Meta extends Package {
 	name: string; // '@ryanatkn/fuz_library';
 	repo_name: string; // fuz_library
 	repo_url: Url | null; // 'https://github.com/ryanatkn/fuz';
