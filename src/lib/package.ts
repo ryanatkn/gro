@@ -613,7 +613,6 @@ export const src_json = {
 		'./package_meta.js': {
 			path: 'package_meta.ts',
 			declarations: [
-				{name: 'Package', kind: 'type'},
 				{name: 'Package_Meta', kind: 'type'},
 				{name: 'parse_package_meta', kind: 'function'},
 				{name: 'parse_repo_name', kind: 'function'},
