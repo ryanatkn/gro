@@ -1,6 +1,6 @@
-import type {Package_Json} from '@ryanatkn/gro/package_json.js';
-import type {Src_Json} from '@ryanatkn/gro/src_json.js';
-import type {Url} from '@ryanatkn/gro/paths.js';
+import type {Package_Json} from '$lib/package_json.js';
+import type {Src_Json} from '$lib/src_json.js';
+import type {Url} from '$lib/paths.js';
 import {strip_start, strip_end} from '@ryanatkn/belt/string.js';
 
 // TODO refactor/rethink

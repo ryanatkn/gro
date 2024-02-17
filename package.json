@@ -293,6 +293,10 @@
       "default": "./dist/package_json.js",
       "types": "./dist/package_json.d.ts"
     },
+    "./package_meta.js": {
+      "default": "./dist/package_meta.js",
+      "types": "./dist/package_meta.d.ts"
+    },
     "./package.gen.js": {
       "default": "./dist/package.gen.js",
       "types": "./dist/package.gen.d.ts"
