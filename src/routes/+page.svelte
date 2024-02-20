@@ -1,11 +1,11 @@
 <script lang="ts">
 	import {base} from '$app/paths';
-	import {parse_package_meta} from '@ryanatkn/fuz/package_meta.js';
 	import Library_Footer from '@ryanatkn/fuz/Library_Footer.svelte';
 	import Package_Detail from '@ryanatkn/fuz/Package_Detail.svelte';
 	import Package_Summary from '@ryanatkn/fuz/Package_Summary.svelte';
 	import {slide} from 'svelte/transition';
 
+	import {parse_package_meta} from '$lib/package_meta.js';
 	import {package_json, src_json} from '$lib/package.js';
 
 	// TODO add website, rewriting the markdown docs as Svelte
