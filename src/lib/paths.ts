@@ -8,15 +8,7 @@ import {z} from 'zod';
 /*
 
 A path `id` is an absolute path to the source/.gro/dist directory.
-It's the same nomenclature that Rollup uses.
-
-A `base_path` is the format used by `CheapWatch`.
-It's a bare relative path without a source or .gro directory,
-e.g. 'foo/bar.ts'.
-
-`CheapWatch` also uses an array of `path_parts`.
-For path './foo/bar/baz.ts',
-the `path_parts` are `['foo', 'foo/bar', 'foo/bar/baz.ts']`.
+It's the same name that Rollup uses.
 
 */
 
