@@ -67,20 +67,20 @@
 
 <style>
 	main {
-		margin-bottom: var(--spacing_5);
+		margin-bottom: var(--space_xl5);
 	}
 	section {
-		margin-top: var(--spacing_3);
-		margin-bottom: var(--spacing_3);
+		margin-top: var(--space_xl3);
+		margin-bottom: var(--space_xl3);
 		display: flex;
 		flex-direction: column;
 		align-items: center;
 	}
 	.toggle {
 		position: absolute;
-		top: var(--spacing_sm);
-		right: var(--spacing_sm);
-		font-size: var(--size_1);
+		top: var(--space_sm);
+		right: var(--space_sm);
+		font-size: var(--size_xl);
 		z-index: 1;
 	}
 </style>
