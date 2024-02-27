@@ -1,5 +1,11 @@
 # @ryanatkn/gro
 
+## 0.112.4
+
+### Patch Changes
+
+- upgrade @ryanatkn/belt ([3622e1d](https://github.com/ryanatkn/gro/commit/3622e1d))
+
 ## 0.112.3
 
 ### Patch Changes
