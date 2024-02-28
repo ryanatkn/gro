@@ -15,11 +15,11 @@
 	let show_detail = false;
 </script>
 
-<main class="box width_full">
+<main class="box w_100">
 	<div class="box width_md">
 		<section class="prose box">
 			<h1>gro</h1>
-			<a class="panel padded_md box" title="source repo" href="https://github.com/ryanatkn/gro">
+			<a class="panel p_md box" title="source repo" href="https://github.com/ryanatkn/gro">
 				<img
 					alt="a pixelated green oak acorn with a glint of sun"
 					src="{base}/favicon.png"
@@ -28,14 +28,14 @@
 				/>
 			</a>
 		</section>
-		<section class="panel spaced padded_md text_align_center">
+		<section class="panel mb_lg p_md text_align_center">
 			this website is a work in progress!<br />
-			<div class="box row spaced">
+			<div class="box row mb_lg">
 				for now, docs are in&nbsp;
 				<a href="https://github.com/ryanatkn/gro">the source repo</a>
 			</div>
 		</section>
-		<section class="panel spaced padded_md width_full relative">
+		<section class="panel mb_lg p_md w_100 relative">
 			<button
 				class="toggle icon_button"
 				title={show_detail ? 'show package summary' : 'show package detail'}
@@ -43,7 +43,7 @@
 				>{#if show_detail}🪜{:else}🔨{/if}</button
 			>
 			{#if show_detail}
-				<div class="box width_full" transition:slide>
+				<div class="box w_100" transition:slide>
 					<Package_Detail {pkg} />
 				</div>
 			{:else}
