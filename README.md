@@ -113,13 +113,13 @@ clean      remove temporary dev and build files, and optionally prune git branch
 commit     commit and push to a new branch
 deploy     deploy to a branch
 dev        start SvelteKit and other dev plugins
-exports    write the "exports" property of package.json and copy the file to .well-known
 format     format source files
 gen        run code generation scripts
 lint       run eslint
 publish    bump version, publish to npm, and git push
 release    publish and deploy
-sync       run `gro gen`, `gro exports`, and optionally `npm i` to sync up
+run        execute a file with the loader, like `node` but works for TypeScript
+sync       run `gro gen`, update `package.json`, and optionally `npm i` to sync up
 test       run tests with uvu
 typecheck  run tsc on the project without emitting any files
 upgrade    upgrade deps
