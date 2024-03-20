@@ -20,8 +20,8 @@
 			<Breadcrumb>🧶</Breadcrumb>
 		</section>
 	</div>
-	<section class="box width_full spaced">
-		<div class="panel padded_md width_md">
+	<section class="box w_100 mb_lg">
+		<div class="panel p_md width_md">
 			<Package_Detail {pkg} />
 		</div>
 	</section>
@@ -44,6 +44,6 @@
 		text-align: center;
 	}
 	section {
-		margin-bottom: var(--spacing_5);
+		margin-bottom: var(--space_xl5);
 	}
 </style>
