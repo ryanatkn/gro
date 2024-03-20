@@ -6,12 +6,7 @@
 
 [`npm i -D @ryanatkn/gro`](https://www.npmjs.com/package/@ryanatkn/gro)
 
-limitations:
-
-- Gro has been actively used since 2019 but it has few users,
-  so you'll likely encounter problems and undesirable limitations --
-  please open issues!
-- [Windows won't be supported](https://github.com/ryanatkn/gro/issues/319)
+[Windows won't be supported](https://github.com/ryanatkn/gro/issues/319), I chose Bash instead
 
 ## about
 
@@ -58,8 +53,6 @@ It includes:
 - linting with [ESLint](https://github.com/eslint/eslint)
   (I also maintain [`@feltjs/eslint-config`](https://github.com/feltjs/eslint-config))
 - formatting with [Prettier](https://github.com/prettier/prettier)
-  (it's not always pretty but it saves time writing and reading code,
-  my time is more precious than my formatting style)
 
 ## docs
 
@@ -118,13 +111,13 @@ clean      remove temporary dev and build files, and optionally prune git branch
 commit     commit and push to a new branch
 deploy     deploy to a branch
 dev        start SvelteKit and other dev plugins
-exports    write the "exports" property of package.json and copy the file to .well-known
 format     format source files
 gen        run code generation scripts
 lint       run eslint
 publish    bump version, publish to npm, and git push
 release    publish and deploy
-sync       run `gro gen`, `gro exports`, and optionally `npm i` to sync up
+run        execute a file with the loader, like `node` but works for TypeScript
+sync       run `gro gen`, update `package.json`, and optionally `npm i` to sync up
 test       run tests with uvu
 typecheck  run tsc on the project without emitting any files
 upgrade    upgrade deps
