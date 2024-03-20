@@ -6,12 +6,7 @@
 
 [`npm i -D @ryanatkn/gro`](https://www.npmjs.com/package/@ryanatkn/gro)
 
-limitations:
-
-- Gro has been actively used since 2019 but it has few users,
-  so you'll likely encounter problems and undesirable limitations --
-  please open issues!
-- [Windows won't be supported](https://github.com/ryanatkn/gro/issues/319)
+[Windows won't be supported](https://github.com/ryanatkn/gro/issues/319), I chose Bash instead
 
 ## about
 
