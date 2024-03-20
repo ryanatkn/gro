@@ -1,5 +1,11 @@
 # @ryanatkn/gro
 
+## 0.112.5
+
+### Patch Changes
+
+- upgrade deps ([#453](https://github.com/ryanatkn/gro/pull/453))
+
 ## 0.112.4
 
 ### Patch Changes
