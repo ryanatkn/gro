@@ -70,14 +70,13 @@ export type Load_Modules_Result<T_Module_Meta extends Module_Meta> = Result<
 	}
 >;
 
-/*
-
-Finds modules from input paths. (see `src/lib/input_path.ts` for more)
-
-*/
+/**
+ * Finds modules from input paths. (see `src/lib/input_path.ts` for more)
+ */
 export const find_modules = async (
 	input_paths: string[],
 	custom_search_fs = search_fs,
+	// TODO BLOCK review
 	get_possible_source_ids?: (input_path: string) => string[],
 	timings?: Timings,
 ): Promise<Find_Modules_Result> => {
@@ -131,13 +130,7 @@ export const find_modules = async (
 		: {ok: true, source_ids_by_input_path, source_id_path_data_by_input_path};
 };
 
-/*
-
-Load modules by source id.
-
-TODO parallelize, originally it needed to be serial for a specific usecase we no longer have
-
-*/
+// TODO parallelize, originally it needed to be serial for a specific usecase we no longer have
 export const load_modules = async <
 	Module_Type extends Record<string, any>,
 	T_Module_Meta extends Module_Meta<Module_Type>,

@@ -172,6 +172,7 @@ export const invoke_task = async (
 
 const to_gro_dir_find_modules_result = async (input_path: string, log: Logger) => {
 	const gro_dir_input_path = to_gro_input_path(input_path);
+	// TODO BLOCK review
 	const gro_dir_find_modules_result = await find_modules([gro_dir_input_path], (id) =>
 		search_fs(id, {filter: (path) => is_task_path(path)}),
 	);
