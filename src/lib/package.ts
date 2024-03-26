@@ -14,7 +14,8 @@ export const package_json = {
 	homepage: 'https://gro.ryanatkn.com/',
 	author: {name: 'Ryan Atkinson', email: 'mail@ryanatkn.com', url: 'https://www.ryanatkn.com/'},
 	repository: {type: 'git', url: 'git+https://github.com/ryanatkn/gro.git'},
-	bugs: {url: 'https://github.com/ryanatkn/gro/issues', email: 'mail@ryanatkn.com'},
+	bugs: 'https://github.com/ryanatkn/gro/issues',
+	funding: 'https://www.ryanatkn.com/funding',
 	type: 'module',
 	engines: {node: '>=20.10'},
 	scripts: {
@@ -616,7 +617,6 @@ export const src_json = {
 				{name: 'Package_Meta', kind: 'type'},
 				{name: 'parse_package_meta', kind: 'function'},
 				{name: 'parse_repo_name', kind: 'function'},
-				{name: 'format_host', kind: 'function'},
 				{name: 'parse_org_url', kind: 'function'},
 			],
 		},

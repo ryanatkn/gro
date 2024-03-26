@@ -18,10 +18,8 @@
     "type": "git",
     "url": "git+https://github.com/ryanatkn/gro.git"
   },
-  "bugs": {
-    "url": "https://github.com/ryanatkn/gro/issues",
-    "email": "mail@ryanatkn.com"
-  },
+  "bugs": "https://github.com/ryanatkn/gro/issues",
+  "funding": "https://www.ryanatkn.com/funding",
   "type": "module",
   "engines": {
     "node": ">=20.10"
