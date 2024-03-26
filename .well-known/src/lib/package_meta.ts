@@ -76,8 +76,6 @@ export const parse_package_meta = (
 export const parse_repo_name = (name: string): string =>
 	name[0] === '@' ? name.split('/')[1] : name;
 
-export const format_host = (url: string): string => strip_start(new URL(url).host, 'www.');
-
 export const parse_org_url = (pkg: Package_Meta): string | null => {
 	const {repo_name, repo_url} = pkg;
 	if (!repo_url) return null;
