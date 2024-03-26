@@ -1,5 +1,12 @@
 # @ryanatkn/gro
 
+## 0.113.0
+
+### Minor Changes
+
+- upgrade deps ([c7521a6](https://github.com/ryanatkn/gro/commit/c7521a6))
+- remove `format_host` ([5ab1a33](https://github.com/ryanatkn/gro/commit/5ab1a33))
+
 ## 0.112.5
 
 ### Patch Changes
