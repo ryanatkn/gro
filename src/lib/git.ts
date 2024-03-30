@@ -1,5 +1,4 @@
 import {spawn, spawn_out} from '@ryanatkn/belt/process.js';
-import type {Flavored} from '@ryanatkn/belt/types.js';
 import type {SpawnOptions} from 'child_process';
 import {z} from 'zod';
 
@@ -8,19 +7,19 @@ import {to_file_path} from './path.js';
 
 // TODO maybe extract to `util-git`
 
-export const Git_Origin = z.string();
-export type Git_Origin = Flavored<z.infer<typeof Git_Origin>, 'Git_Origin'>;
+export const Git_Origin = z.string().brand('Git_Origin');
+export type Git_Origin = z.infer<typeof Git_Origin>;
 
-export const Git_Branch = z.string();
-export type Git_Branch = Flavored<z.infer<typeof Git_Branch>, 'Git_Branch'>;
+export const Git_Branch = z.string().brand('Git_Branch');
+export type Git_Branch = z.infer<typeof Git_Branch>;
 
 /**
  * Returns the current git branch name or throws if something goes wrong.
  */
-export const git_current_branch_name = async (options?: SpawnOptions): Promise<string> => {
+export const git_current_branch_name = async (options?: SpawnOptions): Promise<Git_Branch> => {
 	const {stdout} = await spawn_out('git', ['rev-parse', '--abbrev-ref', 'HEAD'], options);
 	if (!stdout) throw Error('git_current_branch_name failed');
-	const branch_name = stdout.toString().trim();
+	const branch_name = stdout.toString().trim() as Git_Branch;
 	return branch_name;
 };
 
@@ -28,7 +27,7 @@ export const git_current_branch_name = async (options?: SpawnOptions): Promise<s
  * @returns a boolean indicating if the remote git branch exists
  */
 export const git_remote_branch_exists = async (
-	origin: Git_Origin = 'origin',
+	origin: Git_Origin = 'origin' as Git_Origin,
 	branch?: Git_Branch,
 	options?: SpawnOptions,
 ): Promise<boolean> => {
@@ -90,7 +89,7 @@ export const git_check_clean_workspace = async (options?: SpawnOptions): Promise
  * Calls `git fetch` and throws if anything goes wrong.
  */
 export const git_fetch = async (
-	origin: Git_Origin = 'origin',
+	origin: Git_Origin = 'origin' as Git_Origin,
 	branch?: Git_Branch,
 	options?: SpawnOptions,
 ): Promise<void> => {
@@ -127,7 +126,7 @@ export const git_checkout = async (
  * Calls `git pull` and throws if anything goes wrong.
  */
 export const git_pull = async (
-	origin: Git_Origin = 'origin',
+	origin: Git_Origin = 'origin' as Git_Origin,
 	branch?: Git_Branch,
 	options?: SpawnOptions,
 ): Promise<void> => {
@@ -158,7 +157,7 @@ export const git_push = async (
  * Calls `git push` and throws if anything goes wrong.
  */
 export const git_push_to_create = async (
-	origin: Git_Origin = 'origin',
+	origin: Git_Origin = 'origin' as Git_Origin,
 	branch?: Git_Branch,
 	options?: SpawnOptions,
 ): Promise<void> => {
