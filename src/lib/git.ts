@@ -145,9 +145,12 @@ export const git_push = async (
 	origin: Git_Origin,
 	branch: Git_Branch,
 	options?: SpawnOptions,
+	set_upstream = false,
 ): Promise<void> => {
 	const final_branch = branch ?? (await git_current_branch_name(options));
-	const result = await spawn('git', ['push', origin, final_branch], options);
+	const args = ['push', origin, final_branch];
+	if (set_upstream) args.push('-u');
+	const result = await spawn('git', args, options);
 	if (!result.ok) {
 		throw Error(`git_push failed for branch '${final_branch}' with code ${result.code}`);
 	}
