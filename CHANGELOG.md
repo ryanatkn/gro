@@ -1,5 +1,15 @@
 # @ryanatkn/gro
 
+## 0.113.1
+
+### Patch Changes
+
+- add `origin` to `gro publish` and brand Git_Branch and Git_Origin ([028a509](https://github.com/ryanatkn/gro/commit/028a509))
+- add `origin` to `gro commit` options ([3c9bfe8](https://github.com/ryanatkn/gro/commit/3c9bfe8))
+- add `--force` flag to `gro upgrade` ([6a16004](https://github.com/ryanatkn/gro/commit/6a16004))
+- error on `gro changeset` if no lib detected ([ac55984](https://github.com/ryanatkn/gro/commit/ac55984))
+- add `origin` to `gro upgrade` and pull first ([1c171e1](https://github.com/ryanatkn/gro/commit/1c171e1))
+
 ## 0.113.0
 
 ### Minor Changes
