@@ -1,5 +1,11 @@
 # @ryanatkn/gro
 
+## 0.115.0
+
+### Minor Changes
+
+- rename `well_known_src_files` from `well_known_src` to reduce ambiguity with `well_known_src_json` ([fddf9ad](https://github.com/ryanatkn/gro/commit/fddf9ad))
+
 ## 0.114.0
 
 ### Minor Changes
