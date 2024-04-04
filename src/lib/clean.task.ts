@@ -3,6 +3,7 @@ import {z} from 'zod';
 
 import type {Task} from './task.js';
 import {clean_fs} from './clean_fs.js';
+import {Git_Origin} from './git.js';
 
 export const Args = z
 	.object({
@@ -18,11 +19,7 @@ export const Args = z
 					'run "git remote prune" to delete local branches referencing nonexistent remote branches',
 			})
 			.default(false),
-		git_origin: z
-			.string({
-				description: 'the origin to "git remote prune"',
-			})
-			.default('origin'),
+		git_origin: Git_Origin.describe('the origin to "git remote prune"').default('origin'),
 	})
 	.strict();
 export type Args = z.infer<typeof Args>;

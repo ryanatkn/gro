@@ -5,7 +5,7 @@ import type {Src_Json} from './src_json.js';
 
 export const package_json = {
 	name: '@ryanatkn/gro',
-	version: '0.113.0',
+	version: '0.114.0',
 	description: 'task runner and toolkit extending SvelteKit',
 	icon: '🌰',
 	public: true,
@@ -82,6 +82,7 @@ export const package_json = {
 	},
 	exports: {
 		'.': {default: './dist/index.js', types: './dist/index.d.ts'},
+		'./package.json': './package.json',
 		'./args.js': {default: './dist/args.js', types: './dist/args.d.ts'},
 		'./build.task.js': {default: './dist/build.task.js', types: './dist/build.task.d.ts'},
 		'./changelog.js': {default: './dist/changelog.js', types: './dist/changelog.d.ts'},
@@ -239,7 +240,7 @@ export const package_json = {
 
 export const src_json = {
 	name: '@ryanatkn/gro',
-	version: '0.113.0',
+	version: '0.114.0',
 	modules: {
 		'.': {
 			path: 'index.ts',
@@ -255,6 +256,7 @@ export const src_json = {
 				{name: 'Task_Error', kind: 'class'},
 			],
 		},
+		'./package.json': {path: 'package.json', declarations: []},
 		'./args.js': {
 			path: 'args.ts',
 			declarations: [
@@ -530,6 +532,7 @@ export const src_json = {
 				{name: 'has_sveltekit_app', kind: 'function'},
 				{name: 'Options', kind: 'type'},
 				{name: 'Host_Target', kind: 'type'},
+				{name: 'Copy_File_Filter', kind: 'type'},
 				{name: 'gro_plugin_sveltekit_app', kind: 'function'},
 			],
 		},

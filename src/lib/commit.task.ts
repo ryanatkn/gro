@@ -2,7 +2,7 @@ import {spawn} from '@ryanatkn/belt/process.js';
 import {z} from 'zod';
 
 import type {Task} from './task.js';
-import {git_current_branch_name} from './git.js';
+import {Git_Origin, git_current_branch_name, git_push} from './git.js';
 
 export const Args = z
 	.object({
@@ -11,6 +11,7 @@ export const Args = z
 				description: 'the git commit message, the same as git commit -m or --message',
 			})
 			.default([]),
+		origin: Git_Origin.describe('git origin to commit to').default('origin'),
 	})
 	.strict();
 export type Args = z.infer<typeof Args>;
@@ -21,14 +22,12 @@ export const task: Task<Args> = {
 	run: async ({args}): Promise<void> => {
 		const {
 			_: [message],
+			origin,
 		} = args;
 
 		const branch = await git_current_branch_name();
+
 		await spawn('git', ['commit', '-a', '-m', message]);
-		await spawn(
-			`git push -u origin ${branch}`,
-			[],
-			{shell: true}, // TODO using `shell: true` because it's failing with standard command construction - why?
-		);
+		await git_push(origin, branch, undefined, true);
 	},
 };

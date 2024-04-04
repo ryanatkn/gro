@@ -57,6 +57,7 @@ test('serialize_package_json fails with bad data', async () => {
 
 test('to_package_exports', async () => {
 	assert.equal(to_package_exports(['a/b.ts']), {
+		'./package.json': './package.json',
 		'./a/b.js': {
 			default: './dist/a/b.js',
 			types: './dist/a/b.d.ts',
@@ -67,8 +68,14 @@ test('to_package_exports', async () => {
 			'a/b/Some_Test_Svelte.svelte',
 			'a/b/some_test_ts.ts',
 			'a/b/some_test_json.json',
+			'index.ts',
 		]),
 		{
+			'.': {
+				default: './dist/index.js',
+				types: './dist/index.d.ts',
+			},
+			'./package.json': './package.json',
 			'./a/b/some_test_json.json': {
 				default: './dist/a/b/some_test_json.json',
 			},

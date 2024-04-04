@@ -18,6 +18,7 @@ test('to_package_modules', async () => {
 			paths.source,
 		),
 		{
+			'./package.json': {path: 'package.json', declarations: []},
 			'./fixtures/modules/some_test_css.css': {
 				path: 'fixtures/modules/some_test_css.css',
 				declarations: [],
