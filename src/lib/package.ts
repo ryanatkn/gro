@@ -82,6 +82,7 @@ export const package_json = {
 	},
 	exports: {
 		'.': {default: './dist/index.js', types: './dist/index.d.ts'},
+		'./package.json': './package.json',
 		'./args.js': {default: './dist/args.js', types: './dist/args.d.ts'},
 		'./build.task.js': {default: './dist/build.task.js', types: './dist/build.task.d.ts'},
 		'./changelog.js': {default: './dist/changelog.js', types: './dist/changelog.d.ts'},
@@ -255,6 +256,7 @@ export const src_json = {
 				{name: 'Task_Error', kind: 'class'},
 			],
 		},
+		'./package.json': {path: 'package.json', declarations: []},
 		'./args.js': {
 			path: 'args.ts',
 			declarations: [
