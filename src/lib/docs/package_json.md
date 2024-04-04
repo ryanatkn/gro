@@ -11,19 +11,22 @@ behavior designed for public open source projects:
 - [`gro_plugin_sveltekit_app`](./gro_plugin_sveltekit_app.md)
   copies `package.json` from your project root to your
   SvelteKit static directory at `.well-known/package.json` during `vite build`,
-  mapping it with the optional
+  mapping it with the optional.
   [`well_known_package_json` option](./gro_plugin_sveltekit_app.md#well_known_package_json)
 - `gro_plugin_sveltekit_app` outputs `.well-known/src.json`
   using the `exports` property of `package.json` during `vite build`,
   containing additional information about the source modules,
-  mapping it with the optional
+  mapping it with the optional.
   [`well_known_src_json` option](./gro_plugin_sveltekit_app.md#well_known_src_json)
-- `gro_plugin_sveltekit_app` outputs `.well-known/src/` by
-  copying over `src/` filtered by `filter_well_known_src` during `vite build` -
-  this is costly (usually more than doubling the final output size
+- If you opt in with `well_known_src`,
+  `gro_plugin_sveltekit_app` outputs `.well-known/src/` by
+  copying over `src/` during `vite build`, filtered by `well_known_src` if it's a function.
+  This is costly (usually more than doubling the final output size
   of the code files in bytes, not counting images and such),
-  and it slows the build because it copies your entire source tree (sorry to hard drives),
-  but the UX is not affected
+  it slows the build because it copies your entire source tree (sorry to hard drives),
+  and it exposes your source code the same as the built files.
 
-> ⚠️ Setting `"public": true` in `package.json` exposes your source code at your deployed endpoint!
-> If that's the public web, that means your source code is public.
+> ⚠️ Setting `"public": true` in `package.json` exposes your `package.json`
+> and `src.json` metadata with your other built files by default!
+> Further opting in with `well_known_src` exposes your actual source files.
+> If your built files are public, that means these additional files are also public.

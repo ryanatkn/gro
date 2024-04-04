@@ -7,7 +7,7 @@
 - [deploy](deploy.md)
 - [dev](dev.md)
 - [gen](gen.md)
-- [gro_plugin_sveltekit_frontend](gro_plugin_sveltekit_frontend.md)
+- [gro_plugin_sveltekit_app](gro_plugin_sveltekit_app.md)
 - [package_json](package_json.md)
 - [plugin](plugin.md)
 - [publish](publish.md)

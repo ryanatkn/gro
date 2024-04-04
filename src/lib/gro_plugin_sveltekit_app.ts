@@ -35,18 +35,23 @@ export interface Options {
 	well_known_src_json?: boolean | Map_Src_Json;
 
 	/**
-	 * Filter what's copied from `src/` to `.well-known/src/`.
+	 * If truthy, copies `src/` to `/.well-known/src/` to the static output.
+	 * Pass a function to customize which files get copied.
 	 */
-	filter_well_known_src?: (source: string, destination: string) => boolean | Promise<boolean>;
+	well_known_src?: boolean | Copy_File_Filter;
 }
 
 export type Host_Target = 'github_pages' | 'static' | 'node';
+
+export interface Copy_File_Filter {
+	(file_path: string): boolean | Promise<boolean>;
+}
 
 export const gro_plugin_sveltekit_app = ({
 	host_target = 'github_pages',
 	well_known_package_json,
 	well_known_src_json,
-	filter_well_known_src = (source) => !DEFAULT_EXPORTS_EXCLUDER.test(source),
+	well_known_src,
 }: Options = {}): Plugin<Plugin_Context> => {
 	let sveltekit_process: Spawned_Process | null = null;
 	return {
@@ -112,8 +117,15 @@ export const gro_plugin_sveltekit_app = ({
 								serialized_src_json,
 							)
 						: null!,
-					serialized_src_json
-						? await copy_temporarily('src', assets_path, '.well-known', filter_well_known_src)
+					serialized_src_json && well_known_src
+						? await copy_temporarily(
+								'src',
+								assets_path,
+								'.well-known',
+								well_known_src === true
+									? (file_path) => !DEFAULT_EXPORTS_EXCLUDER.test(file_path)
+									: well_known_src,
+							)
 						: null!,
 					/**
 					 * GitHub pages processes everything with Jekyll by default,
@@ -159,7 +171,7 @@ const copy_temporarily = async (
 	source_path: string,
 	dest_dir: string,
 	dest_base_dir = '',
-	filter?: (source: string, destination: string) => boolean | Promise<boolean>,
+	filter?: Copy_File_Filter,
 ): Promise<Cleanup> => {
 	const path = join(dest_dir, dest_base_dir, source_path);
 	const dir = dirname(path);
