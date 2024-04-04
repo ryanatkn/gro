@@ -11,13 +11,13 @@ behavior designed for public open source projects:
 - [`gro_plugin_sveltekit_app`](./gro_plugin_sveltekit_app.md)
   copies `package.json` from your project root to your
   SvelteKit static directory at `.well-known/package.json` during `vite build`,
-  mapping it with the optional.
-  [`well_known_package_json` option](./gro_plugin_sveltekit_app.md#well_known_package_json)
+  mapping it with the optional
+  [`well_known_package_json` option](./gro_plugin_sveltekit_app.md#well_known_package_json).
 - `gro_plugin_sveltekit_app` outputs `.well-known/src.json`
   using the `exports` property of `package.json` during `vite build`,
   containing additional information about the source modules,
-  mapping it with the optional.
-  [`well_known_src_json` option](./gro_plugin_sveltekit_app.md#well_known_src_json)
+  mapping it with the optional
+  [`well_known_src_json` option](./gro_plugin_sveltekit_app.md#well_known_src_json).
 - If you opt in with `well_known_src`,
   `gro_plugin_sveltekit_app` outputs `.well-known/src/` by
   copying over `src/` during `vite build`, filtered by `well_known_src` if it's a function.
