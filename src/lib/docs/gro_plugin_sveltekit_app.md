@@ -105,7 +105,7 @@ It maps each export to a source file in `.well-known/src/`.
 ## `well_known_src`
 
 The contents of your `src/` directory can be included in the output
-if you want your app's source code to be publicly available.
+if you want your app's source code to be available the same as the built files.
 This is disabled by default.
 If `well_known_src` is truthy,
 the plugin copies `src/` to `static/.well-known/src/` during `vite build`.
