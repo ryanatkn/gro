@@ -38,7 +38,7 @@ export interface Options {
 	 * If truthy, copies `src/` to `/.well-known/src/` to the static output.
 	 * Pass a function to customize which files get copied.
 	 */
-	well_known_src?: boolean | Copy_File_Filter;
+	well_known_src_files?: boolean | Copy_File_Filter;
 }
 
 export type Host_Target = 'github_pages' | 'static' | 'node';
@@ -51,7 +51,7 @@ export const gro_plugin_sveltekit_app = ({
 	host_target = 'github_pages',
 	well_known_package_json,
 	well_known_src_json,
-	well_known_src,
+	well_known_src_files,
 }: Options = {}): Plugin<Plugin_Context> => {
 	let sveltekit_process: Spawned_Process | null = null;
 	return {
@@ -117,14 +117,14 @@ export const gro_plugin_sveltekit_app = ({
 								serialized_src_json,
 							)
 						: null!,
-					serialized_src_json && well_known_src
+					serialized_src_json && well_known_src_files
 						? await copy_temporarily(
 								'src',
 								assets_path,
 								'.well-known',
-								well_known_src === true
+								well_known_src_files === true
 									? (file_path) => !DEFAULT_EXPORTS_EXCLUDER.test(file_path)
-									: well_known_src,
+									: well_known_src_files,
 							)
 						: null!,
 					/**

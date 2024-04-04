@@ -18,9 +18,9 @@ behavior designed for public open source projects:
   containing additional information about the source modules,
   mapping it with the optional
   [`well_known_src_json` option](./gro_plugin_sveltekit_app.md#well_known_src_json).
-- If you opt in with `well_known_src`,
+- If you opt in with `well_known_src_files`,
   `gro_plugin_sveltekit_app` outputs `.well-known/src/` by
-  copying over `src/` during `vite build`, filtered by `well_known_src` if it's a function.
+  copying over `src/` during `vite build`, filtered by `well_known_src_files` if it's a function.
   This is costly (usually more than doubling the final output size
   of the code files in bytes, not counting images and such),
   it slows the build because it copies your entire source tree (sorry to hard drives),
@@ -28,5 +28,5 @@ behavior designed for public open source projects:
 
 > ⚠️ Setting `"public": true` in `package.json` exposes your `package.json`
 > and `src.json` metadata with your other built files by default!
-> Further opting in with `well_known_src` exposes your actual source files.
+> Further opting in with `well_known_src_files` exposes your actual source files.
 > If your built files are public, that means these additional files are also public.

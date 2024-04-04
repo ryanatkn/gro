@@ -5,8 +5,8 @@
 ### Minor Changes
 
 - - don't copy `src/` to `static/.well-known/` by default ([#456](https://github.com/ryanatkn/gro/pull/456))
-  - rename `filter_well_known_src` to `well_known_src`
-  - change `well_known_src` to accept a boolean that defaults to `false`
+  - rename `filter_well_known_src` to `well_known_src_files`
+  - change `well_known_src_files` to accept a boolean that defaults to `false`
 
 ### Patch Changes
 
