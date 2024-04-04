@@ -68,8 +68,13 @@ test('to_package_exports', async () => {
 			'a/b/Some_Test_Svelte.svelte',
 			'a/b/some_test_ts.ts',
 			'a/b/some_test_json.json',
+			'index.ts',
 		]),
 		{
+			'.': {
+				default: './dist/index.js',
+				types: './dist/index.d.ts',
+			},
 			'./package.json': './package.json',
 			'./a/b/some_test_json.json': {
 				default: './dist/a/b/some_test_json.json',
