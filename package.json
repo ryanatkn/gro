@@ -111,6 +111,7 @@
       "default": "./dist/index.js",
       "types": "./dist/index.d.ts"
     },
+    "./package.json": "./package.json",
     "./args.js": {
       "default": "./dist/args.js",
       "types": "./dist/args.d.ts"
