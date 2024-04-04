@@ -530,6 +530,7 @@ export const src_json = {
 				{name: 'has_sveltekit_app', kind: 'function'},
 				{name: 'Options', kind: 'type'},
 				{name: 'Host_Target', kind: 'type'},
+				{name: 'Copy_File_Filter', kind: 'type'},
 				{name: 'gro_plugin_sveltekit_app', kind: 'function'},
 			],
 		},
