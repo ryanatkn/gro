@@ -60,7 +60,9 @@ export const Package_Json_Funding = z.union([
 ]);
 export type Package_Json_Funding = z.infer<typeof Package_Json_Funding>;
 
-export const Package_Json_Exports = z.record(z.record(z.string()).optional());
+export const Package_Json_Exports = z.record(
+	z.union([z.string(), z.record(z.string())]).optional(),
+);
 export type Package_Json_Exports = z.infer<typeof Package_Json_Exports>;
 
 /**
@@ -214,13 +216,22 @@ export const update_package_json = async (
 	return {package_json: updated, changed: true};
 };
 
+const is_index = (path: string): boolean => path === 'index.ts' || path === 'index.js';
+
 export const to_package_exports = (paths: string[]): Package_Json_Exports => {
 	const sorted = paths
 		.slice()
-		.sort((a, b) => (a === 'index.ts' ? -1 : b === 'index.ts' ? 1 : a.localeCompare(b)));
+		.sort((a, b) => (is_index(a) ? -1 : is_index(b) ? 1 : a.localeCompare(b)));
+	// Add the package.json after the index, if one exists.
+	// Including the `./` here ensures we don't conflict with any potential `$lib/package.json`.
+	const final_sorted = is_index(sorted[0])
+		? [sorted[0]].concat('./package.json', sorted.slice(1))
+		: ['./package.json'].concat(sorted);
 	const exports: Package_Json_Exports = {};
-	for (const path of sorted) {
-		if (path.endsWith('.json.d.ts')) {
+	for (const path of final_sorted) {
+		if (path === './package.json') {
+			exports['./package.json'] = './package.json';
+		} else if (path.endsWith('.json.d.ts')) {
 			const json_path = path.substring(0, path.length - 5);
 			exports['./' + json_path] = {
 				default: IMPORT_PREFIX + json_path, // assuming a matching json file
@@ -228,13 +239,13 @@ export const to_package_exports = (paths: string[]): Package_Json_Exports => {
 			};
 		} else if (path.endsWith('.ts') && !path.endsWith('.d.ts')) {
 			const js_path = replace_extension(path, '.js');
-			const key = path === 'index.ts' ? '.' : './' + js_path;
+			const key = is_index(path) ? '.' : './' + js_path;
 			exports[key] = {
 				default: IMPORT_PREFIX + js_path,
 				types: IMPORT_PREFIX + replace_extension(path, '.d.ts'),
 			};
 		} else if (path.endsWith('.js')) {
-			const key = path === 'index.js' ? '.' : './' + path;
+			const key = is_index(path) ? '.' : './' + path;
 			exports[key] = {
 				default: IMPORT_PREFIX + path,
 				types: IMPORT_PREFIX + replace_extension(path, '.d.ts'), // assuming JSDoc types

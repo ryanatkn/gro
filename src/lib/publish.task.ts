@@ -10,6 +10,7 @@ import {is_this_project_gro} from './paths.js';
 import {has_sveltekit_library} from './gro_plugin_sveltekit_library.js';
 import {update_changelog} from './changelog.js';
 import {load_from_env} from './env.js';
+import {Git_Branch, Git_Origin, git_checkout, git_fetch, git_pull} from './git.js';
 
 // publish.task.ts
 // - usage: `gro publish patch`
@@ -20,7 +21,8 @@ import {load_from_env} from './env.js';
 
 export const Args = z
 	.object({
-		branch: z.string({description: 'branch to publish from'}).default('main'),
+		branch: Git_Branch.describe('branch to publish from').default('main'),
+		origin: Git_Origin.describe('git origin to publish from').default('origin'),
 		changelog: z
 			.string({description: 'file name and path of the changelog'})
 			.default('CHANGELOG.md'),
@@ -49,7 +51,7 @@ export const task: Task<Args> = {
 	summary: 'bump version, publish to npm, and git push',
 	Args,
 	run: async ({args, log, invoke_task}): Promise<void> => {
-		const {branch, changelog, preserve_changelog, dry, check, install} = args;
+		const {branch, changelog, preserve_changelog, dry, check, install, origin} = args;
 		if (dry) {
 			log.info(green('dry run!'));
 		}
@@ -74,9 +76,9 @@ export const task: Task<Args> = {
 		}
 
 		// Make sure we're on the right branch:
-		await spawn('git', ['fetch', 'origin', branch]);
-		await spawn('git', ['checkout', branch]);
-		await spawn('git', ['pull', 'origin', branch]);
+		await git_fetch(origin, branch);
+		await git_checkout(branch);
+		await git_pull(origin, branch);
 
 		// Check before proceeding.
 		if (check) {

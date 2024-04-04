@@ -5,7 +5,7 @@ import type {Src_Json} from './src_json.js';
 
 export const package_json = {
 	name: '@ryanatkn/gro',
-	version: '0.112.5',
+	version: '0.114.0',
 	description: 'task runner and toolkit extending SvelteKit',
 	icon: '🌰',
 	public: true,
@@ -14,7 +14,8 @@ export const package_json = {
 	homepage: 'https://gro.ryanatkn.com/',
 	author: {name: 'Ryan Atkinson', email: 'mail@ryanatkn.com', url: 'https://www.ryanatkn.com/'},
 	repository: {type: 'git', url: 'git+https://github.com/ryanatkn/gro.git'},
-	bugs: {url: 'https://github.com/ryanatkn/gro/issues', email: 'mail@ryanatkn.com'},
+	bugs: 'https://github.com/ryanatkn/gro/issues',
+	funding: 'https://www.ryanatkn.com/funding',
 	type: 'module',
 	engines: {node: '>=20.10'},
 	scripts: {
@@ -35,10 +36,10 @@ export const package_json = {
 	],
 	files: ['dist'],
 	dependencies: {
-		'@ryanatkn/belt': '^0.20.9',
+		'@ryanatkn/belt': '^0.20.10',
 		chokidar: '^3.6.0',
 		dotenv: '^16.4.5',
-		'es-module-lexer': '^1.4.2',
+		'es-module-lexer': '^1.5.0',
 		kleur: '^4.1.5',
 		mri: '^1.2.0',
 		prettier: '^3.2.5',
@@ -53,15 +54,15 @@ export const package_json = {
 		'@changesets/changelog-git': '^0.2.0',
 		'@changesets/types': '^6.0.0',
 		'@ryanatkn/eslint-config': '^0.1.0',
-		'@ryanatkn/fuz': '^0.91.5',
+		'@ryanatkn/fuz': '^0.92.0',
 		'@sveltejs/adapter-static': '^3.0.1',
 		'@sveltejs/kit': '^2.5.4',
 		'@sveltejs/package': '^2.3.0',
 		'@sveltejs/vite-plugin-svelte': '^3.0.2',
 		'@types/fs-extra': '^11.0.4',
 		'@types/node': '^20.11.30',
-		'@typescript-eslint/eslint-plugin': '^7.3.1',
-		'@typescript-eslint/parser': '^7.3.1',
+		'@typescript-eslint/eslint-plugin': '^7.4.0',
+		'@typescript-eslint/parser': '^7.4.0',
 		esbuild: '^0.19.0',
 		eslint: '^8.57.0',
 		'eslint-plugin-svelte': '^2.35.1',
@@ -81,6 +82,7 @@ export const package_json = {
 	},
 	exports: {
 		'.': {default: './dist/index.js', types: './dist/index.d.ts'},
+		'./package.json': './package.json',
 		'./args.js': {default: './dist/args.js', types: './dist/args.d.ts'},
 		'./build.task.js': {default: './dist/build.task.js', types: './dist/build.task.d.ts'},
 		'./changelog.js': {default: './dist/changelog.js', types: './dist/changelog.d.ts'},
@@ -238,7 +240,7 @@ export const package_json = {
 
 export const src_json = {
 	name: '@ryanatkn/gro',
-	version: '0.112.5',
+	version: '0.114.0',
 	modules: {
 		'.': {
 			path: 'index.ts',
@@ -254,6 +256,7 @@ export const src_json = {
 				{name: 'Task_Error', kind: 'class'},
 			],
 		},
+		'./package.json': {path: 'package.json', declarations: []},
 		'./args.js': {
 			path: 'args.ts',
 			declarations: [
@@ -529,6 +532,7 @@ export const src_json = {
 				{name: 'has_sveltekit_app', kind: 'function'},
 				{name: 'Options', kind: 'type'},
 				{name: 'Host_Target', kind: 'type'},
+				{name: 'Copy_File_Filter', kind: 'type'},
 				{name: 'gro_plugin_sveltekit_app', kind: 'function'},
 			],
 		},
@@ -616,7 +620,6 @@ export const src_json = {
 				{name: 'Package_Meta', kind: 'type'},
 				{name: 'parse_package_meta', kind: 'function'},
 				{name: 'parse_repo_name', kind: 'function'},
-				{name: 'format_host', kind: 'function'},
 				{name: 'parse_org_url', kind: 'function'},
 			],
 		},

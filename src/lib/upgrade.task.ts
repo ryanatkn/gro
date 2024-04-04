@@ -3,10 +3,13 @@ import {z} from 'zod';
 
 import type {Task} from './task.js';
 import {load_package_json, type Package_Json} from './package_json.js';
+import {Git_Origin, git_pull} from './git.js';
 
 export const Args = z
 	.object({
 		_: z.array(z.string(), {description: 'names of deps to exclude from the upgrade'}).default([]),
+		origin: Git_Origin.describe('git origin to deploy to').default('origin'),
+		force: z.boolean({description: 'if true, print out the planned upgrades'}).default(false),
 		dry: z.boolean({description: 'if true, print out the planned upgrades'}).default(false),
 	})
 	.strict();
@@ -16,7 +19,10 @@ export const task: Task<Args> = {
 	summary: 'upgrade deps',
 	Args,
 	run: async ({args, log, invoke_task}): Promise<void> => {
-		const {_, dry} = args;
+		const {_, origin, force, dry} = args;
+
+		// TODO maybe a different task that pulls and does other things, like `gro ready`
+		await git_pull(origin);
 
 		const package_json = await load_package_json();
 
@@ -24,15 +30,20 @@ export const task: Task<Args> = {
 
 		const upgrade_items = to_upgrade_items(deps);
 
-		if (dry) {
-			log.info(`deps`, deps);
-			log.info(`upgrade_items`, upgrade_items);
-			return;
-		}
-
 		log.info(`upgrading:`, upgrade_items.join(' '));
 
-		await spawn('npm', ['i'].concat(upgrade_items));
+		const install_args = ['install'].concat(upgrade_items);
+
+		if (dry) {
+			install_args.push('--dry-run');
+			log.info(`deps`, deps);
+		}
+
+		if (force) {
+			install_args.push('--force');
+		}
+
+		await spawn('npm', install_args);
 
 		await invoke_task('sync');
 	},

@@ -15,7 +15,7 @@ const config: Gro_ConfigCreator = async (cfg) => {
 			// host_target?: Host_Target;
 			// well_known_package_json?: boolean | Map_Package_Json;
 			// well_known_src_json?: boolean | Map_Src_Json;
-			// filter_well_known_src?: (source: string, destination: string) => boolean | Promise<boolean>;
+			// well_known_src?: boolean | Copy_File_Filter;
 		}),
 	];
 	return cfg;
@@ -26,8 +26,18 @@ export default config;
 // src/lib/gro_plugin_sveltekit_app.ts
 export type Host_Target = 'github_pages' | 'static' | 'node';
 
+export interface Copy_File_Filter {
+	(file_path: string): boolean | Promise<boolean>;
+}
+
+// src/lib/package_json.ts
 export interface Map_Package_Json {
 	(package_json: Package_Json): Package_Json | null | Promise<Package_Json | null>;
+}
+
+// src/lib/src_json.ts
+export interface Map_Src_Json {
+	(src_json: Src_Json): Src_Json | null | Promise<Src_Json | null>;
 }
 ```
 
@@ -92,6 +102,12 @@ The `.well-known/src.json` file contains more details about
 the `package.json`'s `exports`, like exported identifier names and types.
 It maps each export to a source file in `.well-known/src/`.
 
-The contents of your `src/` directory are copied to `.well-known/src/`
-using the same filter as `exports` in `package.json` by default,
-and this can be customized with `filter_well_known_src`.
+## `well_known_src`
+
+The contents of your `src/` directory can be included in the output
+if you want your app's source code to be available the same as the built files.
+This is disabled by default.
+If `well_known_src` is truthy,
+the plugin copies `src/` to `static/.well-known/src/` during `vite build`.
+Passing `true` uses the same filter as `exports` in `package.json` by default,
+and it also accepts a custom filter function.
