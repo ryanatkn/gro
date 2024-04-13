@@ -1,12 +1,18 @@
 # @ryanatkn/gro
 
+## 0.115.0
+
+### Minor Changes
+
+- rename `well_known_src_files` from `well_known_src` to reduce ambiguity with `well_known_src_json` ([fddf9ad](https://github.com/ryanatkn/gro/commit/fddf9ad))
+
 ## 0.114.0
 
 ### Minor Changes
 
 - - don't copy `src/` to `static/.well-known/` by default ([#456](https://github.com/ryanatkn/gro/pull/456))
-  - rename `filter_well_known_src` to `well_known_src`
-  - change `well_known_src` to accept a boolean that defaults to `false`
+  - rename `filter_well_known_src` to `well_known_src_files`
+  - change `well_known_src_files` to accept a boolean that defaults to `false`
 
 ### Patch Changes
 
