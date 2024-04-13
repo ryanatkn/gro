@@ -28,12 +28,12 @@
 				/>
 			</a>
 		</section>
-		<section class="panel mb_lg p_md text_align_center">
-			this website is a work in progress!<br />
-			<div class="box row mb_lg">
-				for now, docs are in&nbsp;
+		<section class="panel mb_0 p_md text_align_center">
+			<p>This website is a work in progress!</p>
+			<p class="mb_0">
+				For now, docs are in
 				<a href="https://github.com/ryanatkn/gro">the source repo</a>
-			</div>
+			</p>
 		</section>
 		<section class="panel mb_lg p_md w_100 relative">
 			<button
@@ -52,11 +52,10 @@
 				</div>
 			{/if}
 		</section>
-		<section class="box">
-			<a href="{base}/about" class="chip">about</a>
-		</section>
 		<section>
-			<Library_Footer {pkg} />
+			<Library_Footer {pkg}>
+				{#snippet logo_header()}<a href="{base}/about" class="mb_xs">about</a>{/snippet}
+				</Library_Footer>
 		</section>
 	</div>
 	<div hidden>
@@ -71,7 +70,6 @@
 	}
 	section {
 		margin-top: var(--space_xl3);
-		margin-bottom: var(--space_xl3);
 		display: flex;
 		flex-direction: column;
 		align-items: center;
