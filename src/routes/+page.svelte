@@ -39,7 +39,7 @@
 			<button
 				class="toggle icon_button"
 				title={show_detail ? 'show package summary' : 'show package detail'}
-				on:click={() => (show_detail = !show_detail)}
+				onclick={() => (show_detail = !show_detail)}
 				>{#if show_detail}🪜{:else}🔨{/if}</button
 			>
 			{#if show_detail}
