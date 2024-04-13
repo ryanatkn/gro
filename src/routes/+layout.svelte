@@ -1,8 +1,9 @@
 <script lang="ts">
 	import '@ryanatkn/fuz/style.css';
 	import '@ryanatkn/fuz/theme.css';
-
+	
 	import Themed from '@ryanatkn/fuz/Themed.svelte';
+	import type { Snippet } from 'svelte';
 
 	interface Props {
 		children: Snippet;
