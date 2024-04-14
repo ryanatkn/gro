@@ -1,5 +1,11 @@
 # @ryanatkn/gro
 
+## 0.115.2
+
+### Patch Changes
+
+- add `--no-pull` to `gro upgrade` ([975f9d3](https://github.com/ryanatkn/gro/commit/975f9d3))
+
 ## 0.115.1
 
 ### Patch Changes
