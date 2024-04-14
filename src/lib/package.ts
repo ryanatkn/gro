@@ -7,6 +7,7 @@ export const package_json = {
 	name: '@ryanatkn/gro',
 	version: '0.115.0',
 	description: 'task runner and toolkit extending SvelteKit',
+	motto: 'generate, run, optimize',
 	icon: '🌰',
 	public: true,
 	bin: {gro: 'dist/gro.js'},

@@ -2,7 +2,9 @@
 
 <img src="static/favicon.png" align="right" width="192" height="192">
 
-> task runner and toolkit extending SvelteKit - [gro.ryanatkn.com](https://gro.ryanatkn.com)
+> task runner and toolkit extending SvelteKit 🌰 generate, run, optimize
+
+[gro.ryanatkn.com](https://gro.ryanatkn.com/)
 
 [`npm i -D @ryanatkn/gro`](https://www.npmjs.com/package/@ryanatkn/gro)
 
