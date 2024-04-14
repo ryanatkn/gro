@@ -1,12 +1,30 @@
 # @ryanatkn/gro
 
+## 0.115.2
+
+### Patch Changes
+
+- add `--no-pull` to `gro upgrade` ([975f9d3](https://github.com/ryanatkn/gro/commit/975f9d3))
+
+## 0.115.1
+
+### Patch Changes
+
+- add optional `motto` property to `Package_Json` ([600143f](https://github.com/ryanatkn/gro/commit/600143f))
+
+## 0.115.0
+
+### Minor Changes
+
+- rename `well_known_src_files` from `well_known_src` to reduce ambiguity with `well_known_src_json` ([fddf9ad](https://github.com/ryanatkn/gro/commit/fddf9ad))
+
 ## 0.114.0
 
 ### Minor Changes
 
 - - don't copy `src/` to `static/.well-known/` by default ([#456](https://github.com/ryanatkn/gro/pull/456))
-  - rename `filter_well_known_src` to `well_known_src`
-  - change `well_known_src` to accept a boolean that defaults to `false`
+  - rename `filter_well_known_src` to `well_known_src_files`
+  - change `well_known_src_files` to accept a boolean that defaults to `false`
 
 ### Patch Changes
 
@@ -1075,7 +1093,7 @@
 
 - **break**: upgrade deps including peer dep for `@feltjs/felt-ui@0.26.0`
   ([#320](https://github.com/ryanatkn/gro/pull/320))
-- **break**: remove `deploymentMode` option from SvelteKit frontend adapter
+- **break**: remove `deploymentMode` option from SvelteKit app adapter
   ([#320](https://github.com/ryanatkn/gro/pull/320))
 
 ## 0.53.0
@@ -1550,7 +1568,7 @@
 
 - **break**: upgrade to latest SvelteKit, changing the dir `.svelte` to `.svelte-kit`
   ([#202](https://github.com/ryanatkn/gro/pull/202))
-- add SvelteKit frontend adapter
+- add SvelteKit app adapter
   ([#193](https://github.com/ryanatkn/gro/pull/193))
 - fix `gro deploy`
   ([#193](https://github.com/ryanatkn/gro/pull/193))

@@ -10,6 +10,8 @@ export const Args = z
 		_: z.array(z.string(), {description: 'names of deps to exclude from the upgrade'}).default([]),
 		origin: Git_Origin.describe('git origin to deploy to').default('origin'),
 		force: z.boolean({description: 'if true, print out the planned upgrades'}).default(false),
+		pull: z.boolean({description: 'dual of no-pull'}).default(true),
+		'no-pull': z.boolean({description: 'opt out of git pull'}).default(false),
 		dry: z.boolean({description: 'if true, print out the planned upgrades'}).default(false),
 	})
 	.strict();
@@ -19,10 +21,12 @@ export const task: Task<Args> = {
 	summary: 'upgrade deps',
 	Args,
 	run: async ({args, log, invoke_task}): Promise<void> => {
-		const {_, origin, force, dry} = args;
+		const {_, origin, force, pull, dry} = args;
 
 		// TODO maybe a different task that pulls and does other things, like `gro ready`
-		await git_pull(origin);
+		if (pull) {
+			await git_pull(origin);
+		}
 
 		const package_json = await load_package_json();
 

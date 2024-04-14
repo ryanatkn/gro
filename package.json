@@ -1,7 +1,8 @@
 {
   "name": "@ryanatkn/gro",
-  "version": "0.114.0",
+  "version": "0.115.2",
   "description": "task runner and toolkit extending SvelteKit",
+  "motto": "generate, run, optimize",
   "icon": "🌰",
   "public": true,
   "bin": {

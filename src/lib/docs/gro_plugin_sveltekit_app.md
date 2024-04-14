@@ -1,6 +1,6 @@
-# SvelteKit frontend plugin
+# SvelteKit app plugin
 
-Gro's [SvelteKit frontend plugin](/src/lib/gro_plugin_sveltekit_app.ts)
+Gro's [SvelteKit app plugin](/src/lib/gro_plugin_sveltekit_app.ts)
 calls `vite dev` and `vite build` with some additional behaviors.
 
 ```ts
@@ -15,7 +15,7 @@ const config: Gro_ConfigCreator = async (cfg) => {
 			// host_target?: Host_Target;
 			// well_known_package_json?: boolean | Map_Package_Json;
 			// well_known_src_json?: boolean | Map_Src_Json;
-			// well_known_src?: boolean | Copy_File_Filter;
+			// well_known_src_files?: boolean | Copy_File_Filter;
 		}),
 	];
 	return cfg;
@@ -102,12 +102,12 @@ The `.well-known/src.json` file contains more details about
 the `package.json`'s `exports`, like exported identifier names and types.
 It maps each export to a source file in `.well-known/src/`.
 
-## `well_known_src`
+## `well_known_src_files`
 
 The contents of your `src/` directory can be included in the output
 if you want your app's source code to be available the same as the built files.
 This is disabled by default.
-If `well_known_src` is truthy,
+If `well_known_src_files` is truthy,
 the plugin copies `src/` to `static/.well-known/src/` during `vite build`.
 Passing `true` uses the same filter as `exports` in `package.json` by default,
 and it also accepts a custom filter function.

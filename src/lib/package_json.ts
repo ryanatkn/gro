@@ -88,6 +88,7 @@ export const Package_Json = z.intersection(
 			private: z.boolean({description: 'disallow npm publish'}).optional(),
 
 			description: z.string().optional(),
+			motto: z.string().optional(),
 			license: z.string().optional(),
 			homepage: Url.optional(),
 			repository: z.union([z.string(), Url, Package_Json_Repository]).optional(),
