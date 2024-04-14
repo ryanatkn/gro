@@ -1,6 +1,6 @@
-# SvelteKit frontend plugin
+# SvelteKit app plugin
 
-Gro's [SvelteKit frontend plugin](/src/lib/gro_plugin_sveltekit_app.ts)
+Gro's [SvelteKit app plugin](/src/lib/gro_plugin_sveltekit_app.ts)
 calls `vite dev` and `vite build` with some additional behaviors.
 
 ```ts

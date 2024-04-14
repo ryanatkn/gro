@@ -65,7 +65,7 @@ export const gro_plugin_sveltekit_app = ({
 					sveltekit_process = spawn_process('npx', serialized_args);
 				} else {
 					log.debug(
-						`the SvelteKit frontend plugin is loaded but will not output anything` +
+						`the SvelteKit app plugin is loaded but will not output anything` +
 							' because `dev` is true and `watch` is false',
 					);
 				}
