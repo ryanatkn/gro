@@ -1,5 +1,11 @@
 # @ryanatkn/gro
 
+## 0.115.1
+
+### Patch Changes
+
+- add optional `motto` property to `Package_Json` ([600143f](https://github.com/ryanatkn/gro/commit/600143f))
+
 ## 0.115.0
 
 ### Minor Changes
