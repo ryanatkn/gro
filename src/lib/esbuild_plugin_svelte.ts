@@ -15,7 +15,7 @@ export interface Options {
 
 export const esbuild_plugin_svelte = ({
 	dir = cwd(),
-	svelte_compile_options,
+	svelte_compile_options = {},
 	svelte_preprocessors,
 }: Options): esbuild.Plugin => ({
 	name: 'svelte',
