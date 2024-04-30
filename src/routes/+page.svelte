@@ -55,7 +55,7 @@
 		<section>
 			<Library_Footer {pkg}>
 				{#snippet logo_header()}<a href="{base}/about" class="mb_xs">about</a>{/snippet}
-				</Library_Footer>
+			</Library_Footer>
 		</section>
 	</div>
 	<div hidden>

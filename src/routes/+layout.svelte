@@ -3,13 +3,13 @@
 	import '@ryanatkn/moss/theme.css';
 
 	import Themed from '@ryanatkn/fuz/Themed.svelte';
-	import type { Snippet } from 'svelte';
+	import type {Snippet} from 'svelte';
 
 	interface Props {
 		children: Snippet;
 	}
 
-	const {children}:Props = $props();
+	const {children}: Props = $props();
 </script>
 
 <svelte:head>
