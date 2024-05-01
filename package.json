@@ -59,15 +59,15 @@
     "zod": "^3.23.5"
   },
   "peerDependencies": {
-    "esbuild": "^0.20.2",
-    "svelte": "*"
+    "esbuild": "^0.20",
+    "svelte": "^5"
   },
   "devDependencies": {
     "@changesets/changelog-git": "^0.2.0",
     "@changesets/types": "^6.0.0",
     "@ryanatkn/eslint-config": "^0.1.2",
     "@ryanatkn/fuz": "^0.99.4",
-    "@ryanatkn/moss": "^0.2.0",
+    "@ryanatkn/moss": "^0.3.0",
     "@sveltejs/adapter-static": "^3.0.1",
     "@sveltejs/kit": "^2.5.7",
     "@sveltejs/package": "^2.3.1",

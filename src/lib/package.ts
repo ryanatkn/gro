@@ -50,7 +50,7 @@ export const package_json = {
 		tslib: '^2.6.2',
 		zod: '^3.23.5',
 	},
-	peerDependencies: {esbuild: '^0.20.2', svelte: '*'},
+	peerDependencies: {esbuild: '^0.20', svelte: '^5'},
 	devDependencies: {
 		'@changesets/changelog-git': '^0.2.0',
 		'@changesets/types': '^6.0.0',
