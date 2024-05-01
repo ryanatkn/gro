@@ -43,6 +43,8 @@ export const Args = z
 		'no-install': z
 			.boolean({description: 'opt out of npm installing before building'})
 			.default(false),
+		build: z.boolean({description: 'dual of no-build'}).default(true),
+		'no-build': z.boolean({description: 'opt out of building'}).default(false),
 	})
 	.strict();
 export type Args = z.infer<typeof Args>;
@@ -51,7 +53,7 @@ export const task: Task<Args> = {
 	summary: 'bump version, publish to npm, and git push',
 	Args,
 	run: async ({args, log, invoke_task}): Promise<void> => {
-		const {branch, changelog, preserve_changelog, dry, check, install, origin} = args;
+		const {branch, origin, changelog, preserve_changelog, dry, check, install, build} = args;
 		if (dry) {
 			log.info(green('dry run!'));
 		}
@@ -132,8 +134,9 @@ export const task: Task<Args> = {
 			}
 		}
 
-		// Build to create the final artifacts:
-		await invoke_task('build', {install});
+		if (build) {
+			await invoke_task('build', {install});
+		}
 
 		if (dry) {
 			log.info('publishing branch ' + branch);
