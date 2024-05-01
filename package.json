@@ -60,13 +60,13 @@
   },
   "peerDependencies": {
     "esbuild": "^0.20",
-    "svelte": "^5"
+    "svelte": "^5.0.0-next.0"
   },
   "devDependencies": {
     "@changesets/changelog-git": "^0.2.0",
     "@changesets/types": "^6.0.0",
     "@ryanatkn/eslint-config": "^0.1.2",
-    "@ryanatkn/fuz": "^0.99.4",
+    "@ryanatkn/fuz": "^0.100.2",
     "@ryanatkn/moss": "^0.3.0",
     "@sveltejs/adapter-static": "^3.0.1",
     "@sveltejs/kit": "^2.5.7",
