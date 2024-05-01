@@ -1,5 +1,11 @@
 # @ryanatkn/gro
 
+## 0.115.3
+
+### Patch Changes
+
+- feat: add --build flag to `gro publish` ([dd23fab](https://github.com/ryanatkn/gro/commit/dd23fab))
+
 ## 0.115.2
 
 ### Patch Changes
