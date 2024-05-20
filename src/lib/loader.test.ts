@@ -13,13 +13,27 @@ test('import ts', async () => {
 });
 
 test('import css', async () => {
+	// TODO BLOCK
 	// const imported = await import(resolve('src/fixtures/modules/some_test_css.css'));
 	// assert.ok(imported);
 });
 
 test('import svelte', async () => {
 	const imported = await import(resolve('src/fixtures/modules/Some_Test_Svelte.svelte'));
+	console.log(`imported`, imported);
 	assert.ok(imported);
+});
+
+test('import svelte.js', async () => {
+	// const imported = await import(resolve('src/fixtures/modules/some_test_svelte_js.js'));
+	// console.log(`imported`, imported);
+	// assert.ok(imported);
+});
+
+test('import svelte.ts', async () => {
+	// const imported = await import(resolve('src/fixtures/modules/some_test_svelte_ts.svelte.ts'));
+	// console.log(`imported`, imported);
+	// assert.ok(imported);
 });
 
 test.run();
