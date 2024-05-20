@@ -20,7 +20,8 @@ export const package_json = {
 	type: 'module',
 	engines: {node: '>=20.10'},
 	scripts: {
-		build: 'rm -rf .gro dist && svelte-package && chmod +x ./dist/gro.js && npm link -f',
+		build:
+			'rm -rf .gro dist && svelte-kit sync && svelte-package && chmod +x ./dist/gro.js && npm link -f',
 		start: 'gro dev',
 		test: 'gro test',
 	},

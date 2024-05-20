@@ -1,10 +1,7 @@
 {
 	"extends": "./.svelte-kit/tsconfig.json",
 	"compilerOptions": {
-		"target": "esnext",
 		"types": ["@sveltejs/kit"],
-		"moduleResolution": "bundler",
-		"noEmit": true,
 		"strict": true,
 		"useUnknownInCatchVariables": false,
 		"exactOptionalPropertyTypes": false,
