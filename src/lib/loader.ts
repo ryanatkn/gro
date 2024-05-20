@@ -38,6 +38,7 @@ TODO how to improve that gnarly import line? was originally designed for the now
 
 */
 
+// TODO support `?raw` import variants
 // TODO sourcemaps for svelte and the svelte preprocessors
 // TODO `import.meta.resolve` wasn't available in loaders when this was first implemented, but might be now
 
@@ -68,6 +69,7 @@ const aliases = Object.entries({$lib: 'src/lib', ...alias});
 const ts_matcher = /\.(ts|tsx|mts|cts)$/u;
 const svelte_matcher = /\.(svelte)$/u;
 const json_matcher = /\.(json)$/u;
+const noop_matcher = /\.(css|svg)$/u; // TODO others? configurable?
 const env_matcher = /src\/lib\/\$env\/(static|dynamic)\/(public|private)$/u;
 const node_modules_matcher = new RegExp(escape_regexp('/' + NODE_MODULES_DIRNAME + '/'), 'u');
 
@@ -75,14 +77,14 @@ const package_json_cache: Record<string, Package_Json> = {};
 
 export const load: LoadHook = async (url, context, nextLoad) => {
 	if (sveltekit_shim_app_paths_matcher.test(url)) {
-		// $app/paths shim
+		// SvelteKit `$app/paths` shim
 		return {
 			format: 'module',
 			shortCircuit: true,
 			source: render_sveltekit_shim_app_paths(base_url, assets_url),
 		};
 	} else if (sveltekit_shim_app_environment_matcher.test(url)) {
-		// $app/environment shim
+		// SvelteKit `$app/environment` shim
 		return {
 			format: 'module',
 			shortCircuit: true,
@@ -122,10 +124,14 @@ export const load: LoadHook = async (url, context, nextLoad) => {
 		const raw_source = loaded.source!.toString(); // eslint-disable-line @typescript-eslint/no-base-to-string
 		const source = `export default ` + raw_source;
 		return {format: 'module', shortCircuit: true, source};
+	} else if (noop_matcher.test(url)) {
+		// no-ops like `.css` and `.svg`
+		const source = `export default 'no-op import from ${url}'`;
+		return {format: 'module', shortCircuit: true, source};
 	} else {
-		// neither ts nor svelte
 		const matched_env = env_matcher.exec(url);
 		if (matched_env) {
+			// SvelteKit `$env`
 			const mode: 'static' | 'dynamic' = matched_env[1] as any;
 			const visibility: 'public' | 'private' = matched_env[2] as any;
 			return {
@@ -143,6 +149,7 @@ export const load: LoadHook = async (url, context, nextLoad) => {
 		}
 	}
 
+	// fallback to default behavior
 	return nextLoad(url, context);
 };
 

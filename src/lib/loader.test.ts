@@ -20,10 +20,10 @@ test('import json', async () => {
 	assert.is(imported.default.a, 'ok');
 });
 
-test('import css', async () => {
-	// TODO BLOCK
-	// const imported = await import(resolve('src/fixtures/modules/some_test_css.css'));
-	// assert.ok(imported);
+test('import css as a no-op', async () => {
+	const imported = await import(resolve('src/fixtures/modules/some_test_css.css'));
+	assert.is(typeof imported.default, 'string');
+	assert.ok(imported);
 });
 
 test('import svelte', async () => {
