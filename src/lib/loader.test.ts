@@ -14,6 +14,12 @@ test('import ts', async () => {
 	assert.is(imported.a, 'ok');
 });
 
+test('import json', async () => {
+	const imported = await import(resolve('src/fixtures/modules/some_test_json.json'));
+	assert.ok(imported);
+	assert.is(imported.default.a, 'ok');
+});
+
 test('import css', async () => {
 	// TODO BLOCK
 	// const imported = await import(resolve('src/fixtures/modules/some_test_css.css'));
