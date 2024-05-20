@@ -27,12 +27,14 @@ test('import svelte', async () => {
 });
 
 test('import svelte.js', async () => {
+	// TODO BLOCK
 	// const imported = await import(resolve('src/fixtures/modules/some_test_svelte_js.js'));
 	// console.log(`imported`, imported);
 	// assert.ok(imported);
 });
 
 test('import svelte.ts', async () => {
+	// TODO BLOCK
 	// const imported = await import(resolve('src/fixtures/modules/some_test_svelte_ts.svelte.ts'));
 	// console.log(`imported`, imported);
 	// assert.ok(imported);
