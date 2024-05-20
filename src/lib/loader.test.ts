@@ -5,11 +5,13 @@ import {resolve} from 'node:path';
 test('import js', async () => {
 	const imported = await import(resolve('src/fixtures/modules/some_test_ts.js'));
 	assert.ok(imported);
+	assert.ok(imported.a, 'ok');
 });
 
 test('import ts', async () => {
 	const imported = await import(resolve('src/fixtures/modules/some_test_ts.ts'));
 	assert.ok(imported);
+	assert.ok(imported.a, 'ok');
 });
 
 test('import css', async () => {
@@ -20,8 +22,8 @@ test('import css', async () => {
 
 test('import svelte', async () => {
 	const imported = await import(resolve('src/fixtures/modules/Some_Test_Svelte.svelte'));
-	console.log(`imported`, imported);
 	assert.ok(imported);
+	assert.ok(imported.a, 'ok');
 });
 
 test('import svelte.js', async () => {
