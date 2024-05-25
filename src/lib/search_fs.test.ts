@@ -35,6 +35,8 @@ test__search_fs('basic behavior', async () => {
 			'some_test_exports.ts',
 			'modules/some_test_ts.ts',
 			'modules/Some_Test_Svelte.svelte',
+			'modules/some_test_svelte_ts.svelte.ts',
+			'modules/some_test_svelte_js.svelte.js',
 			'modules/some_test_json.json',
 			'modules/some_test_js.js',
 			'modules/some_test_css.css',

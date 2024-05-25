@@ -1,7 +1,7 @@
 import * as esbuild from 'esbuild';
-import {compile, preprocess} from 'svelte/compiler';
+import {compile, compileModule, preprocess} from 'svelte/compiler';
 import {fileURLToPath, pathToFileURL} from 'node:url';
-import {dirname, join, relative} from 'node:path';
+import {dirname, join} from 'node:path';
 import type {LoadHook, ResolveHook} from 'node:module';
 import {escape_regexp} from '@ryanatkn/belt/regexp.js';
 
@@ -55,6 +55,7 @@ const {
 	private_prefix,
 	public_prefix,
 	svelte_compile_options,
+	svelte_compile_module_options,
 	svelte_preprocessors,
 } = await init_sveltekit_config(dir); // always load it to keep things simple ahead
 
@@ -67,7 +68,8 @@ const final_ts_transform_options: esbuild.TransformOptions = {
 const aliases = Object.entries({$lib: 'src/lib', ...alias});
 
 const ts_matcher = /\.(ts|tsx|mts|cts)$/u;
-const svelte_matcher = /\.(svelte)$/u;
+const svelte_matcher = /\.svelte$/u;
+const svelte_runes_matcher = /\.svelte\.(js|ts)$/u; // TODO probably let `.svelte.` appear anywhere - https://github.com/sveltejs/svelte/issues/11536
 const json_matcher = /\.(json)$/u;
 const noop_matcher = /\.(css|svg)$/u; // TODO others? configurable?
 const env_matcher = /src\/lib\/\$env\/(static|dynamic)\/(public|private)$/u;
@@ -90,6 +92,17 @@ export const load: LoadHook = async (url, context, nextLoad) => {
 			shortCircuit: true,
 			source: render_sveltekit_shim_app_environment(dev),
 		};
+	} else if (svelte_runes_matcher.test(url)) {
+		// Svelte runes in js/ts
+		// TODO support sourcemaps
+		const loaded = await nextLoad(
+			url,
+			context.format === 'module' ? context : {...context, format: 'module'}, // TODO dunno why this is needed, specifically with tests
+		);
+		const filename = fileURLToPath(url);
+		const source = loaded.source!.toString(); // eslint-disable-line @typescript-eslint/no-base-to-string
+		const transformed = compileModule(source, {...svelte_compile_module_options, filename});
+		return {format: 'module', shortCircuit: true, source: transformed.js.code};
 	} else if (ts_matcher.test(url)) {
 		// ts
 		const loaded = await nextLoad(
@@ -102,20 +115,19 @@ export const load: LoadHook = async (url, context, nextLoad) => {
 		);
 		return {format: 'module', shortCircuit: true, source: transformed.code};
 	} else if (svelte_matcher.test(url)) {
-		// svelte
+		// Svelte
 		// TODO support sourcemaps
 		const loaded = await nextLoad(
 			url,
 			context.format === 'module' ? context : {...context, format: 'module'}, // TODO dunno why this is needed, specifically with tests
 		);
+		const filename = fileURLToPath(url);
 		const raw_source = loaded.source!.toString(); // eslint-disable-line @typescript-eslint/no-base-to-string
 		const preprocessed = svelte_preprocessors
-			? await preprocess(raw_source, svelte_preprocessors, {
-					filename: relative(dir, fileURLToPath(url)),
-				})
+			? await preprocess(raw_source, svelte_preprocessors, {filename})
 			: null;
 		const source = preprocessed?.code ?? raw_source;
-		const transformed = compile(source, svelte_compile_options);
+		const transformed = compile(source, {...svelte_compile_options, filename});
 		return {format: 'module', shortCircuit: true, source: transformed.js.code};
 	} else if (json_matcher.test(url)) {
 		// json

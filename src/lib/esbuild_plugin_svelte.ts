@@ -1,5 +1,11 @@
 import type * as esbuild from 'esbuild';
-import {compile, preprocess, type CompileOptions, type PreprocessorGroup} from 'svelte/compiler';
+import {
+	compile,
+	compileModule,
+	preprocess,
+	type CompileOptions,
+	type PreprocessorGroup,
+} from 'svelte/compiler';
 import {readFile} from 'node:fs/promises';
 import {relative} from 'node:path';
 import {cwd} from 'node:process';

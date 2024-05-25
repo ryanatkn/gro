@@ -1,5 +1,5 @@
 import type {Config as SveltekitConfig} from '@sveltejs/kit';
-import type {CompileOptions, PreprocessorGroup} from 'svelte/compiler';
+import type {CompileOptions, PreprocessorGroup, ModuleCompileOptions} from 'svelte/compiler';
 import {join} from 'node:path';
 import {cwd} from 'node:process';
 
@@ -43,6 +43,7 @@ export interface Parsed_Sveltekit_Config {
 	private_prefix: string | undefined;
 	public_prefix: string | undefined;
 	svelte_compile_options: CompileOptions;
+	svelte_compile_module_options: ModuleCompileOptions;
 	svelte_preprocessors: PreprocessorGroup | PreprocessorGroup[] | undefined;
 }
 
@@ -74,6 +75,7 @@ export const init_sveltekit_config = async (
 	const public_prefix = kit?.env?.publicPrefix;
 
 	const svelte_compile_options = sveltekit_config?.compilerOptions ?? {};
+	const svelte_compile_module_options = {}; // TODO from `kit`?
 	const svelte_preprocessors = sveltekit_config?.preprocess;
 
 	return {
@@ -88,6 +90,7 @@ export const init_sveltekit_config = async (
 		private_prefix,
 		public_prefix,
 		svelte_compile_options,
+		svelte_compile_module_options,
 		svelte_preprocessors,
 	};
 };

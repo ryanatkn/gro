@@ -33,17 +33,17 @@ test('import svelte', async () => {
 });
 
 test('import svelte.js', async () => {
-	// TODO BLOCK
-	// const imported = await import(resolve('src/fixtures/modules/some_test_svelte_js.js'));
-	// console.log(`imported`, imported);
-	// assert.ok(imported);
+	const imported = await import(resolve('src/fixtures/modules/some_test_svelte_js.svelte.js'));
+	assert.ok(imported.Some_Test_Svelte_Js);
+	const instance = new imported.Some_Test_Svelte_Js();
+	assert.is(instance.a, 'ok');
 });
 
 test('import svelte.ts', async () => {
-	// TODO BLOCK
-	// const imported = await import(resolve('src/fixtures/modules/some_test_svelte_ts.svelte.ts'));
-	// console.log(`imported`, imported);
-	// assert.ok(imported);
+	const imported = await import(resolve('src/fixtures/modules/some_test_svelte_ts.svelte.ts'));
+	assert.ok(imported.Some_Test_Svelte_Ts);
+	const instance = new imported.Some_Test_Svelte_Ts();
+	assert.is(instance.a, 'ok');
 });
 
 test.run();
