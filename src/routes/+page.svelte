@@ -7,16 +7,12 @@
 
 	import {parse_package_meta} from '$lib/package_meta.js';
 	import {package_json, src_json} from '$lib/package.js';
-	import {Foo} from '$routes/foo.svelte.js';
 
 	// TODO add website, rewriting the markdown docs as Svelte
 
 	const pkg = parse_package_meta(package_json.homepage, package_json, src_json);
 
 	let show_detail = false;
-
-	const foo = new Foo();
-	console.log(`foo.a`, foo.foo);
 </script>
 
 <main class="box w_100">
