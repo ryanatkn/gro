@@ -28,7 +28,6 @@ export const esbuild_plugin_sveltekit_shim_app = ({
 			namespace: 'sveltekit_shim_app_paths',
 		}));
 		build.onLoad({filter: /.*/u, namespace: 'sveltekit_shim_app_paths'}, () => ({
-			loader: 'js',
 			contents: render_sveltekit_shim_app_paths(base_url, assets_url),
 		}));
 		build.onResolve({filter: /^\$app\/environment$/u}, ({path}) => ({
@@ -36,7 +35,6 @@ export const esbuild_plugin_sveltekit_shim_app = ({
 			namespace: 'sveltekit_shim_app_environment',
 		}));
 		build.onLoad({filter: /.*/u, namespace: 'sveltekit_shim_app_environment'}, () => ({
-			loader: 'js',
 			contents: render_sveltekit_shim_app_environment(dev),
 		}));
 	},
