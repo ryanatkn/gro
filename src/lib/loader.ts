@@ -1,7 +1,7 @@
 import * as esbuild from 'esbuild';
-import {compile, preprocess} from 'svelte/compiler';
+import {compile, compileModule, preprocess} from 'svelte/compiler';
 import {fileURLToPath, pathToFileURL} from 'node:url';
-import {dirname, join, relative} from 'node:path';
+import {dirname, join} from 'node:path';
 import type {LoadHook, ResolveHook} from 'node:module';
 import {escape_regexp} from '@ryanatkn/belt/regexp.js';
 
@@ -14,6 +14,7 @@ import {
 	sveltekit_shim_app_specifiers,
 } from './sveltekit_shim_app.js';
 import {init_sveltekit_config} from './sveltekit_config.js';
+import {SVELTE_MATCHER, SVELTE_RUNES_MATCHER} from './svelte_helpers.js';
 import {paths, NODE_MODULES_DIRNAME} from './paths.js';
 import {to_define_import_meta_env, ts_transform_options} from './esbuild_helpers.js';
 import {resolve_specifier} from './resolve_specifier.js';
@@ -38,6 +39,7 @@ TODO how to improve that gnarly import line? was originally designed for the now
 
 */
 
+// TODO support `?raw` import variants
 // TODO sourcemaps for svelte and the svelte preprocessors
 // TODO `import.meta.resolve` wasn't available in loaders when this was first implemented, but might be now
 
@@ -54,6 +56,7 @@ const {
 	private_prefix,
 	public_prefix,
 	svelte_compile_options,
+	svelte_compile_module_options,
 	svelte_preprocessors,
 } = await init_sveltekit_config(dir); // always load it to keep things simple ahead
 
@@ -66,8 +69,8 @@ const final_ts_transform_options: esbuild.TransformOptions = {
 const aliases = Object.entries({$lib: 'src/lib', ...alias});
 
 const ts_matcher = /\.(ts|tsx|mts|cts)$/u;
-const svelte_matcher = /\.(svelte)$/u;
 const json_matcher = /\.(json)$/u;
+const noop_matcher = /\.(css|svg)$/u; // TODO others? configurable?
 const env_matcher = /src\/lib\/\$env\/(static|dynamic)\/(public|private)$/u;
 const node_modules_matcher = new RegExp(escape_regexp('/' + NODE_MODULES_DIRNAME + '/'), 'u');
 
@@ -75,19 +78,30 @@ const package_json_cache: Record<string, Package_Json> = {};
 
 export const load: LoadHook = async (url, context, nextLoad) => {
 	if (sveltekit_shim_app_paths_matcher.test(url)) {
-		// $app/paths shim
+		// SvelteKit `$app/paths` shim
 		return {
 			format: 'module',
 			shortCircuit: true,
 			source: render_sveltekit_shim_app_paths(base_url, assets_url),
 		};
 	} else if (sveltekit_shim_app_environment_matcher.test(url)) {
-		// $app/environment shim
+		// SvelteKit `$app/environment` shim
 		return {
 			format: 'module',
 			shortCircuit: true,
 			source: render_sveltekit_shim_app_environment(dev),
 		};
+	} else if (SVELTE_RUNES_MATCHER.test(url)) {
+		// Svelte runes in js/ts
+		// TODO support sourcemaps
+		const loaded = await nextLoad(
+			url,
+			context.format === 'module' ? context : {...context, format: 'module'}, // TODO dunno why this is needed, specifically with tests
+		);
+		const filename = fileURLToPath(url);
+		const source = loaded.source!.toString(); // eslint-disable-line @typescript-eslint/no-base-to-string
+		const transformed = compileModule(source, {...svelte_compile_module_options, filename});
+		return {format: 'module', shortCircuit: true, source: transformed.js.code};
 	} else if (ts_matcher.test(url)) {
 		// ts
 		const loaded = await nextLoad(
@@ -99,21 +113,20 @@ export const load: LoadHook = async (url, context, nextLoad) => {
 			{...final_ts_transform_options, sourcefile: url},
 		);
 		return {format: 'module', shortCircuit: true, source: transformed.code};
-	} else if (svelte_matcher.test(url)) {
-		// svelte
+	} else if (SVELTE_MATCHER.test(url)) {
+		// Svelte
 		// TODO support sourcemaps
 		const loaded = await nextLoad(
 			url,
 			context.format === 'module' ? context : {...context, format: 'module'}, // TODO dunno why this is needed, specifically with tests
 		);
+		const filename = fileURLToPath(url);
 		const raw_source = loaded.source!.toString(); // eslint-disable-line @typescript-eslint/no-base-to-string
 		const preprocessed = svelte_preprocessors
-			? await preprocess(raw_source, svelte_preprocessors, {
-					filename: relative(dir, fileURLToPath(url)),
-				})
+			? await preprocess(raw_source, svelte_preprocessors, {filename})
 			: null;
 		const source = preprocessed?.code ?? raw_source;
-		const transformed = compile(source, svelte_compile_options);
+		const transformed = compile(source, {...svelte_compile_options, filename});
 		return {format: 'module', shortCircuit: true, source: transformed.js.code};
 	} else if (json_matcher.test(url)) {
 		// json
@@ -122,10 +135,14 @@ export const load: LoadHook = async (url, context, nextLoad) => {
 		const raw_source = loaded.source!.toString(); // eslint-disable-line @typescript-eslint/no-base-to-string
 		const source = `export default ` + raw_source;
 		return {format: 'module', shortCircuit: true, source};
+	} else if (noop_matcher.test(url)) {
+		// no-ops like `.css` and `.svg`
+		const source = `export default 'no-op import from ${url}'`;
+		return {format: 'module', shortCircuit: true, source};
 	} else {
-		// neither ts nor svelte
 		const matched_env = env_matcher.exec(url);
 		if (matched_env) {
+			// SvelteKit `$env`
 			const mode: 'static' | 'dynamic' = matched_env[1] as any;
 			const visibility: 'public' | 'private' = matched_env[2] as any;
 			return {
@@ -143,6 +160,7 @@ export const load: LoadHook = async (url, context, nextLoad) => {
 		}
 	}
 
+	// fallback to default behavior
 	return nextLoad(url, context);
 };
 
@@ -185,7 +203,7 @@ export const resolve: ResolveHook = async (specifier, context, nextResolve) => {
 	// The specifier `path` has now been mapped to its final form, so we can inspect it.
 	if (path[0] !== '.' && path[0] !== '/') {
 		// Resolve to `node_modules`.
-		if (svelte_matcher.test(path) || json_matcher.test(path)) {
+		if (SVELTE_MATCHER.test(path) || json_matcher.test(path)) {
 			// Match the behavior of Vite and esbuild for Svelte and JSON imports.
 			// TODO maybe `.ts` too
 			const source_id = await resolve_node_specifier(path, dir, parent_url, package_json_cache);

@@ -143,6 +143,11 @@ export const gro_plugin_server = ({
 				svelte_preprocessors,
 			} = await init_sveltekit_config(sveltekit_config ?? dir);
 
+			// TODO feels hacky
+			if (svelte_compile_options.generate === undefined) {
+				svelte_compile_options.generate = 'server';
+			}
+
 			const {outbase, outdir, outname} = outpaths(dev);
 
 			const server_outpath = join(outdir, outname);

@@ -26,8 +26,10 @@
 		</div>
 	</section>
 	<section class="box">
+		<nav class="mb_lg">
+			<Breadcrumb>🧶</Breadcrumb>
+		</nav>
 		<Library_Footer {pkg} />
-		<Breadcrumb>🧶</Breadcrumb>
 	</section>
 </main>
 

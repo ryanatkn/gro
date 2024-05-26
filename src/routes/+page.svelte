@@ -19,7 +19,7 @@
 	<div class="box width_md">
 		<section class="prose box">
 			<h1>gro</h1>
-			<a class="panel p_md box" title="source repo" href="https://github.com/ryanatkn/gro">
+			<a class="panel p_md box mb_xl3" title="source repo" href="https://github.com/ryanatkn/gro">
 				<img
 					alt="a pixelated green oak acorn with a glint of sun"
 					src="{base}/favicon.png"
@@ -27,19 +27,17 @@
 					style:height="var(--icon_size_lg)"
 				/>
 			</a>
-		</section>
-		<section class="panel mb_lg p_md text_align_center">
-			this website is a work in progress!<br />
-			<div class="box row mb_lg">
-				for now, docs are in&nbsp;
+			<aside>
+				This website is a work in progress!<br />
+				For now, docs are in
 				<a href="https://github.com/ryanatkn/gro">the source repo</a>
-			</div>
+			</aside>
 		</section>
 		<section class="panel mb_lg p_md w_100 relative">
 			<button
 				class="toggle icon_button"
 				title={show_detail ? 'show package summary' : 'show package detail'}
-				on:click={() => (show_detail = !show_detail)}
+				onclick={() => (show_detail = !show_detail)}
 				>{#if show_detail}🪜{:else}🔨{/if}</button
 			>
 			{#if show_detail}
@@ -52,11 +50,10 @@
 				</div>
 			{/if}
 		</section>
-		<section class="box">
-			<a href="{base}/about" class="chip">about</a>
-		</section>
 		<section>
-			<Library_Footer {pkg} />
+			<Library_Footer {pkg}>
+				{#snippet logo_header()}<a href="{base}/about" class="mb_xs">about</a>{/snippet}
+			</Library_Footer>
 		</section>
 	</div>
 	<div hidden>
@@ -71,7 +68,6 @@
 	}
 	section {
 		margin-top: var(--space_xl3);
-		margin-bottom: var(--space_xl3);
 		display: flex;
 		flex-direction: column;
 		align-items: center;

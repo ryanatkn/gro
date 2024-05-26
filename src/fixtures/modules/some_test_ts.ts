@@ -1,3 +1,5 @@
+export const a = 'ok';
+
 export const some_test_ts = '.ts';
 
 export const some_test_fn = (): boolean => true;

@@ -26,7 +26,7 @@
     "node": ">=20.10"
   },
   "scripts": {
-    "build": "rm -rf .gro dist && svelte-package && chmod +x ./dist/gro.js && npm link -f",
+    "build": "rm -rf .gro dist && svelte-kit sync && svelte-package && chmod +x ./dist/gro.js && npm link -f",
     "start": "gro dev",
     "test": "gro test"
   },
@@ -48,39 +48,40 @@
     "@ryanatkn/belt": "^0.20.10",
     "chokidar": "^3.6.0",
     "dotenv": "^16.4.5",
-    "es-module-lexer": "^1.5.0",
+    "es-module-lexer": "^1.5.3",
     "kleur": "^4.1.5",
     "mri": "^1.2.0",
     "prettier": "^3.2.5",
-    "prettier-plugin-svelte": "^3.2.2",
+    "prettier-plugin-svelte": "^3.2.3",
     "tiny-glob": "^0.2.9",
     "ts-morph": "^22.0.0",
     "tslib": "^2.6.2",
-    "zod": "^3.22.4"
+    "zod": "^3.23.8"
   },
   "peerDependencies": {
-    "esbuild": "^0.19",
-    "svelte": "*"
+    "esbuild": "^0.20",
+    "svelte": "^5.0.0-next.0"
   },
   "devDependencies": {
     "@changesets/changelog-git": "^0.2.0",
     "@changesets/types": "^6.0.0",
-    "@ryanatkn/eslint-config": "^0.1.0",
-    "@ryanatkn/fuz": "^0.92.0",
+    "@ryanatkn/eslint-config": "^0.1.2",
+    "@ryanatkn/fuz": "^0.101.2",
+    "@ryanatkn/moss": "^0.3.0",
     "@sveltejs/adapter-static": "^3.0.1",
-    "@sveltejs/kit": "^2.5.4",
-    "@sveltejs/package": "^2.3.0",
-    "@sveltejs/vite-plugin-svelte": "^3.0.2",
+    "@sveltejs/kit": "^2.5.10",
+    "@sveltejs/package": "^2.3.1",
+    "@sveltejs/vite-plugin-svelte": "^3.1.0",
     "@types/fs-extra": "^11.0.4",
-    "@types/node": "^20.11.30",
-    "@typescript-eslint/eslint-plugin": "^7.4.0",
-    "@typescript-eslint/parser": "^7.4.0",
-    "esbuild": "^0.19.0",
+    "@types/node": "^20.12.12",
+    "@typescript-eslint/eslint-plugin": "^7.10.0",
+    "@typescript-eslint/parser": "^7.10.0",
+    "esbuild": "^0.20.2",
     "eslint": "^8.57.0",
-    "eslint-plugin-svelte": "^2.35.1",
-    "svelte": "^4.2.12",
-    "svelte-check": "^3.6.8",
-    "typescript": "^5.4.3",
+    "eslint-plugin-svelte": "^2.39.0",
+    "svelte": "^5.0.0-next.141",
+    "svelte-check": "^3.7.1",
+    "typescript": "^5.4.5",
     "uvu": "^0.5.6"
   },
   "eslintConfig": {
@@ -356,6 +357,10 @@
     "./src_json.js": {
       "default": "./dist/src_json.js",
       "types": "./dist/src_json.d.ts"
+    },
+    "./svelte_helpers.js": {
+      "default": "./dist/svelte_helpers.js",
+      "types": "./dist/svelte_helpers.d.ts"
     },
     "./sveltekit_config.js": {
       "default": "./dist/sveltekit_config.js",

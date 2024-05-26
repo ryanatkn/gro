@@ -1,4 +1,5 @@
 /* some_test_css */
 .some_test_css {
+	--a: ok;
 	--some_test_property: red;
 }
