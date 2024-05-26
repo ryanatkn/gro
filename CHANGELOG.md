@@ -1,5 +1,11 @@
 # @ryanatkn/gro
 
+## 0.116.0
+
+### Minor Changes
+
+- upgrade to svelte@5 and esbuild@0.20 ([#454](https://github.com/ryanatkn/gro/pull/454))
+
 ## 0.115.3
 
 ### Patch Changes
