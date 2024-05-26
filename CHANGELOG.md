@@ -1,5 +1,11 @@
 # @ryanatkn/gro
 
+## 0.116.1
+
+### Patch Changes
+
+- improve options forwarding for svelte module compilation ([ef49d46](https://github.com/ryanatkn/gro/commit/ef49d46))
+
 ## 0.116.0
 
 ### Minor Changes
