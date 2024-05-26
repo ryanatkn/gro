@@ -10,6 +10,8 @@ import {readFile} from 'node:fs/promises';
 import {relative} from 'node:path';
 import {cwd} from 'node:process';
 
+import {SVELTE_MATCHER} from './svelte_helpers.js';
+
 export interface Options {
 	dir?: string;
 	// These `svelte_` prefixes are unnecessary and verbose
@@ -26,7 +28,7 @@ export const esbuild_plugin_svelte = ({
 }: Options): esbuild.Plugin => ({
 	name: 'svelte',
 	setup: (build) => {
-		build.onLoad({filter: /\.svelte$/u}, async ({path}) => {
+		build.onLoad({filter: SVELTE_MATCHER}, async ({path}) => {
 			let source = await readFile(path, 'utf8');
 			try {
 				const filename = relative(dir, path);
@@ -39,10 +41,10 @@ export const esbuild_plugin_svelte = ({
 				const contents = js.map ? js.code + '//# sourceMappingURL=' + js.map.toUrl() : js.code;
 				return {
 					contents,
-					warnings: warnings.map((w) => to_sveltekit_message(filename, source, w)),
+					warnings: warnings.map((w) => convert_svelte_message_to_esbuild(filename, source, w)),
 				};
 			} catch (err) {
-				return {errors: [to_sveltekit_message(path, source, err)]};
+				return {errors: [convert_svelte_message_to_esbuild(path, source, err)]};
 			}
 		});
 	},
@@ -52,7 +54,7 @@ export const esbuild_plugin_svelte = ({
  * Following the example in the esbuild docs:
  * https://esbuild.github.io/plugins/#svelte-plugin
  */
-const to_sveltekit_message = (
+const convert_svelte_message_to_esbuild = (
 	path: string,
 	source: string,
 	{message, start, end}: SvelteError,

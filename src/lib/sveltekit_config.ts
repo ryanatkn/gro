@@ -75,7 +75,7 @@ export const init_sveltekit_config = async (
 	const public_prefix = kit?.env?.publicPrefix;
 
 	const svelte_compile_options = sveltekit_config?.compilerOptions ?? {};
-	const svelte_compile_module_options = {}; // TODO from `kit`?
+	const svelte_compile_module_options = {}; // TODO from `kit`? or subset of `svelte_compile_options`?
 	const svelte_preprocessors = sveltekit_config?.preprocess;
 
 	return {

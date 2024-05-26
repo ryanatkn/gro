@@ -14,6 +14,7 @@ import {
 	sveltekit_shim_app_specifiers,
 } from './sveltekit_shim_app.js';
 import {init_sveltekit_config} from './sveltekit_config.js';
+import {SVELTE_MATCHER, SVELTE_RUNES_MATCHER} from './svelte_helpers.js';
 import {paths, NODE_MODULES_DIRNAME} from './paths.js';
 import {to_define_import_meta_env, ts_transform_options} from './esbuild_helpers.js';
 import {resolve_specifier} from './resolve_specifier.js';
@@ -68,8 +69,6 @@ const final_ts_transform_options: esbuild.TransformOptions = {
 const aliases = Object.entries({$lib: 'src/lib', ...alias});
 
 const ts_matcher = /\.(ts|tsx|mts|cts)$/u;
-const svelte_matcher = /\.svelte$/u;
-const svelte_runes_matcher = /\.svelte\.(js|ts)$/u; // TODO probably let `.svelte.` appear anywhere - https://github.com/sveltejs/svelte/issues/11536
 const json_matcher = /\.(json)$/u;
 const noop_matcher = /\.(css|svg)$/u; // TODO others? configurable?
 const env_matcher = /src\/lib\/\$env\/(static|dynamic)\/(public|private)$/u;
@@ -92,7 +91,7 @@ export const load: LoadHook = async (url, context, nextLoad) => {
 			shortCircuit: true,
 			source: render_sveltekit_shim_app_environment(dev),
 		};
-	} else if (svelte_runes_matcher.test(url)) {
+	} else if (SVELTE_RUNES_MATCHER.test(url)) {
 		// Svelte runes in js/ts
 		// TODO support sourcemaps
 		const loaded = await nextLoad(
@@ -114,7 +113,7 @@ export const load: LoadHook = async (url, context, nextLoad) => {
 			{...final_ts_transform_options, sourcefile: url},
 		);
 		return {format: 'module', shortCircuit: true, source: transformed.code};
-	} else if (svelte_matcher.test(url)) {
+	} else if (SVELTE_MATCHER.test(url)) {
 		// Svelte
 		// TODO support sourcemaps
 		const loaded = await nextLoad(
@@ -204,7 +203,7 @@ export const resolve: ResolveHook = async (specifier, context, nextResolve) => {
 	// The specifier `path` has now been mapped to its final form, so we can inspect it.
 	if (path[0] !== '.' && path[0] !== '/') {
 		// Resolve to `node_modules`.
-		if (svelte_matcher.test(path) || json_matcher.test(path)) {
+		if (SVELTE_MATCHER.test(path) || json_matcher.test(path)) {
 			// Match the behavior of Vite and esbuild for Svelte and JSON imports.
 			// TODO maybe `.ts` too
 			const source_id = await resolve_node_specifier(path, dir, parent_url, package_json_cache);

@@ -195,6 +195,10 @@ export const package_json = {
 		'./run.task.js': {default: './dist/run.task.js', types: './dist/run.task.d.ts'},
 		'./search_fs.js': {default: './dist/search_fs.js', types: './dist/search_fs.d.ts'},
 		'./src_json.js': {default: './dist/src_json.js', types: './dist/src_json.d.ts'},
+		'./svelte_helpers.js': {
+			default: './dist/svelte_helpers.js',
+			types: './dist/svelte_helpers.d.ts',
+		},
 		'./sveltekit_config.js': {
 			default: './dist/sveltekit_config.js',
 			types: './dist/sveltekit_config.d.ts',
@@ -783,6 +787,13 @@ export const src_json = {
 				{name: 'create_src_json', kind: 'function'},
 				{name: 'serialize_src_json', kind: 'function'},
 				{name: 'to_src_modules', kind: 'function'},
+			],
+		},
+		'./svelte_helpers.js': {
+			path: 'svelte_helpers.ts',
+			declarations: [
+				{name: 'SVELTE_MATCHER', kind: 'variable'},
+				{name: 'SVELTE_RUNES_MATCHER', kind: 'variable'},
 			],
 		},
 		'./sveltekit_config.js': {
