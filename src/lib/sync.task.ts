@@ -45,8 +45,7 @@ export const task: Task<Args> = {
 
 export const sveltekit_sync = async (): Promise<void> => {
 	if (!(await find_cli('svelte-kit'))) {
-		// TODO BLOCK throw an error? include instructions to run `npm i` maybe, or `npm i -D @sveltejs/kit`
-		return;
+		throw new Task_Error('failed to find svelte-kit CLI - do you need to run `npm i`?');
 	}
 	const result = await spawn_cli('svelte-kit', ['sync']);
 	if (!result?.ok) {
