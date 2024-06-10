@@ -142,7 +142,9 @@ const to_args_schema_type = ({_def}: ZodTypeAny): Arg_Schema['type'] => {
 		case ZodFirstPartyTypeKind.ZodUnion:
 			return 'string | string[]'; // TODO support unions of arbitrary types, or more hardcoded ones as needed
 		default: {
-			if ('innerType' in _def) {
+			if ('type' in _def) {
+				return to_args_schema_type(_def.type);
+			} else if ('innerType' in _def) {
 				return to_args_schema_type(_def.innerType);
 			} else {
 				throw Error('Unknown zod type ' + t);
