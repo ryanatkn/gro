@@ -1,5 +1,11 @@
 # @ryanatkn/gro
 
+## 0.116.2
+
+### Patch Changes
+
+- fix `gro --help` for `ZodBranded` type ([#458](https://github.com/ryanatkn/gro/pull/458))
+
 ## 0.116.1
 
 ### Patch Changes

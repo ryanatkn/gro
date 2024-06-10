@@ -5,7 +5,7 @@ import type {Src_Json} from './src_json.js';
 
 export const package_json = {
 	name: '@ryanatkn/gro',
-	version: '0.116.1',
+	version: '0.116.2',
 	description: 'task runner and toolkit extending SvelteKit',
 	motto: 'generate, run, optimize',
 	icon: '🌰',
@@ -56,7 +56,7 @@ export const package_json = {
 		'@changesets/changelog-git': '^0.2.0',
 		'@changesets/types': '^6.0.0',
 		'@ryanatkn/eslint-config': '^0.1.2',
-		'@ryanatkn/fuz': '^0.101.2',
+		'@ryanatkn/fuz': '^0.101.4',
 		'@ryanatkn/moss': '^0.3.0',
 		'@sveltejs/adapter-static': '^3.0.1',
 		'@sveltejs/kit': '^2.5.10',
@@ -69,7 +69,7 @@ export const package_json = {
 		esbuild: '^0.20.2',
 		eslint: '^8.57.0',
 		'eslint-plugin-svelte': '^2.39.0',
-		svelte: '^5.0.0-next.141',
+		svelte: '^5.0.0-next.153',
 		'svelte-check': '^3.7.1',
 		typescript: '^5.4.5',
 		uvu: '^0.5.6',
@@ -247,7 +247,7 @@ export const package_json = {
 
 export const src_json = {
 	name: '@ryanatkn/gro',
-	version: '0.116.1',
+	version: '0.116.2',
 	modules: {
 		'.': {
 			path: 'index.ts',
