@@ -109,6 +109,7 @@ export const load_source_path_data_by_input_path = async (
 	source_id_path_data_by_input_path: Map<string, Path_Data>;
 	unmapped_input_paths: string[];
 }> => {
+	console.log(`load_source_path_data_by_input_path input_paths`, input_paths);
 	const source_id_path_data_by_input_path = new Map<string, Path_Data>();
 	const unmapped_input_paths: string[] = [];
 	for (const input_path of input_paths) {
@@ -117,6 +118,7 @@ export const load_source_path_data_by_input_path = async (
 		const possible_source_ids = get_possible_source_ids_for_input_path
 			? get_possible_source_ids_for_input_path(input_path)
 			: [input_path];
+		console.log(`possible_source_ids`, possible_source_ids);
 		for (const possible_source_id of possible_source_ids) {
 			if (!(await exists(possible_source_id))) continue; // eslint-disable-line no-await-in-loop
 			const stats = await stat(possible_source_id); // eslint-disable-line no-await-in-loop
@@ -129,8 +131,9 @@ export const load_source_path_data_by_input_path = async (
 				break;
 			}
 		}
-		if (file_path_data || dir_path_data) {
-			source_id_path_data_by_input_path.set(input_path, file_path_data || dir_path_data!); // the ! is needed because TypeScript inference fails
+		const path_data = file_path_data || dir_path_data;
+		if (path_data) {
+			source_id_path_data_by_input_path.set(input_path, path_data);
 		} else {
 			unmapped_input_paths.push(input_path);
 		}
