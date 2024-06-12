@@ -12,6 +12,7 @@ import {
 	is_this_project_gro,
 	gro_sveltekit_dist_dir,
 	paths,
+	type Paths,
 } from './paths.js';
 import {to_path_data, type Path_Data} from './path.js';
 import {exists} from './fs.js';
@@ -40,7 +41,7 @@ export const resolve_input_path = (raw_input_path: string): string => {
 	if (isAbsolute(raw_input_path)) return strip_end(raw_input_path, '/');
 	// Allow prefix `./` and just remove it if it's there.
 	let base_path = strip_end(strip_start(raw_input_path, './'), '/');
-	let paths;
+	let paths: Paths | undefined;
 	// If it's prefixed with `gro/` or exactly `gro`, use the Gro paths.
 	if (is_this_project_gro || (base_path + '/').startsWith(gro_dir_basename)) {
 		paths = gro_paths;

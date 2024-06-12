@@ -66,6 +66,7 @@ export const invoke_task = async (
 	const find_modules_result = await find_task_modules([input_path], undefined, [
 		gro_sveltekit_dist_dir,
 	]);
+	console.log(`find_modules_result`, find_modules_result);
 	if (find_modules_result.ok) {
 		// Found a match either in the current working directory or Gro's directory.
 		const path_data = find_modules_result.source_id_path_data_by_input_path.get(input_path)!; // this is null safe because result is ok
