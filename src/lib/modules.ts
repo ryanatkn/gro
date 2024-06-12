@@ -86,10 +86,10 @@ export const find_modules = async (
 		await load_source_path_data_by_input_path(input_paths, get_possible_source_ids);
 	timing_to_map_input_paths?.();
 	console.log(`source_id_path_data_by_input_path`, source_id_path_data_by_input_path);
-	console.log(`unmapped_input_paths`, unmapped_input_paths);
 
 	// Error if any input path could not be mapped.
 	if (unmapped_input_paths.length) {
+		console.log(`unmapped_input_paths`, unmapped_input_paths);
 		return {
 			ok: false,
 			type: 'unmapped_input_paths',

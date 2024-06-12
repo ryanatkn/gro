@@ -109,10 +109,10 @@ export const load_source_path_data_by_input_path = async (
 	source_id_path_data_by_input_path: Map<string, Path_Data>;
 	unmapped_input_paths: string[];
 }> => {
-	console.log(`load_source_path_data_by_input_path input_paths`, input_paths);
 	const source_id_path_data_by_input_path = new Map<string, Path_Data>();
 	const unmapped_input_paths: string[] = [];
 	for (const input_path of input_paths) {
+		console.log(`load_source_path_data_by_input_path input_path`, input_path);
 		let file_path_data: Path_Data | null = null;
 		let dir_path_data: Path_Data | null = null;
 		const possible_source_ids = get_possible_source_ids_for_input_path
