@@ -85,6 +85,8 @@ export const find_modules = async (
 	const {source_id_path_data_by_input_path, unmapped_input_paths} =
 		await load_source_path_data_by_input_path(input_paths, get_possible_source_ids);
 	timing_to_map_input_paths?.();
+	console.log(`source_id_path_data_by_input_path`, source_id_path_data_by_input_path);
+	console.log(`unmapped_input_paths`, unmapped_input_paths);
 
 	// Error if any input path could not be mapped.
 	if (unmapped_input_paths.length) {
@@ -109,6 +111,8 @@ export const find_modules = async (
 	const {source_ids_by_input_path, input_directories_with_no_files} =
 		await load_source_ids_by_input_path(source_id_path_data_by_input_path, custom_search_fs);
 	timing_to_search_fs?.();
+	console.log(`source_ids_by_input_path`, source_ids_by_input_path);
+	console.log(`input_directories_with_no_files`, input_directories_with_no_files);
 
 	// Error if any input path has no files. (means we have an empty directory)
 	return input_directories_with_no_files.length

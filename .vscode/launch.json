@@ -6,7 +6,7 @@
 			"request": "launch",
 			"name": "gro",
 			"program": "${workspaceFolder}/dist/gro.js",
-			"args": ["test", "resolve_specifier.test"],
+			"args": ["foo"],
 			"runtimeArgs": [],
 			// TODO need to add support sourcemaps to fix this, need to add back since we removed the build system
 			// enables breakpoints in TS source

@@ -93,17 +93,6 @@ export const source_id_to_base_path = (source_id: Source_Id, p = paths): string 
 export const base_path_to_source_id = (base_path: string, p = paths): Source_Id =>
 	join(p.source, base_path);
 
-// To run Gro's tasks from its own project, we resolve from dist/ instead of src/.
-// 'foo/bar/baz.ts' → '/home/me/app/src/lib/foo/bar/baz.ts'
-// 'foo/bar/baz.ts' → '/home/me/app/dist/foo/bar/baz.ts'
-export const lib_path_to_import_id = (base_path: string, p = paths): Source_Id => {
-	if (p.root === gro_paths.root) {
-		return p.root + 'dist/' + base_path;
-	} else {
-		return base_path_to_source_id(LIB_DIRNAME + '/' + base_path, p);
-	}
-};
-
 // An `import_id` can be a source_id in a project,
 // or a Gro source_id when running inside Gro,
 // or a `gro/dist/` file id in node_modules when inside another project.

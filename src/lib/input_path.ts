@@ -3,16 +3,16 @@ import {strip_end, strip_start} from '@ryanatkn/belt/string.js';
 import {stat} from 'node:fs/promises';
 
 import {
-	lib_path_to_import_id,
 	replace_root_dir,
 	gro_dir_basename,
 	gro_paths,
 	LIB_DIR,
 	LIB_PATH,
-	is_this_project_gro,
 	gro_sveltekit_dist_dir,
 	paths,
 	type Paths,
+	LIB_DIRNAME,
+	base_path_to_source_id,
 } from './paths.js';
 import {to_path_data, type Path_Data} from './path.js';
 import {exists} from './fs.js';
@@ -43,7 +43,7 @@ export const resolve_input_path = (raw_input_path: string): string => {
 	let base_path = strip_end(strip_start(raw_input_path, './'), '/');
 	let paths: Paths | undefined;
 	// If it's prefixed with `gro/` or exactly `gro`, use the Gro paths.
-	if (is_this_project_gro || (base_path + '/').startsWith(gro_dir_basename)) {
+	if ((base_path + '/').startsWith(gro_dir_basename)) {
 		paths = gro_paths;
 		base_path = strip_end(strip_start(base_path + '/', gro_dir_basename), '/');
 	}
@@ -51,7 +51,8 @@ export const resolve_input_path = (raw_input_path: string): string => {
 	if (base_path === LIB_PATH) base_path = ''; // TODO @multiple get from the sveltekit config
 	// Allow prefix `src/lib/` and just remove it if it's there.
 	base_path = strip_start(base_path, LIB_DIR);
-	return lib_path_to_import_id(base_path, paths);
+	// TODO BLOCK hardcoded lib above and below
+	return base_path_to_source_id(LIB_DIRNAME + '/' + base_path, paths);
 };
 
 export const resolve_input_paths = (raw_input_paths?: string[]): string[] =>
