@@ -64,9 +64,11 @@ export const invoke_task = async (
 
 	// Find the task or directory specified by the `input_path`.
 	// Fall back to searching the Gro directory as well.
-	const find_modules_result = await find_task_modules([input_path], undefined, [
-		gro_sveltekit_dist_dir,
-	]);
+	const find_modules_result = await find_task_modules(
+		[input_path],
+		undefined,
+		is_this_project_gro ? undefined : [gro_sveltekit_dist_dir],
+	);
 	console.log(cyan(`find_task_modules result`), find_modules_result);
 	if (find_modules_result.ok) {
 		// Found a match either in the current working directory or Gro's directory.
