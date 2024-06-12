@@ -58,7 +58,6 @@ test__get_possible_source_ids('in the gro directory', () => {
 	assert.equal(get_possible_source_ids(input_path, ['.baz.ts']), [
 		input_path,
 		input_path + '.baz.ts',
-		input_path + '/bar.baz.ts',
 	]);
 });
 

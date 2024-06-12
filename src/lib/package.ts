@@ -130,6 +130,7 @@ export const package_json = {
 			default: './dist/esbuild_plugin_sveltekit_shim_env.js',
 			types: './dist/esbuild_plugin_sveltekit_shim_env.d.ts',
 		},
+		'./foo/foo': {default: './dist/foo/foo'},
 		'./format_directory.js': {
 			default: './dist/format_directory.js',
 			types: './dist/format_directory.d.ts',
@@ -411,6 +412,7 @@ export const src_json = {
 				{name: 'esbuild_plugin_sveltekit_shim_env', kind: 'function'},
 			],
 		},
+		'./foo/foo': {path: 'foo/foo', declarations: []},
 		'./format_directory.js': {
 			path: 'format_directory.ts',
 			declarations: [{name: 'format_directory', kind: 'function'}],
