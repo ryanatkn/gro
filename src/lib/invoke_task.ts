@@ -175,7 +175,6 @@ const to_gro_dir_find_modules_result = async (
 	log: Logger,
 ): Promise<Find_Modules_Result> => {
 	const gro_dir_input_path = to_gro_input_path(input_path);
-	console.log(`gro_dir_input_path`, gro_dir_input_path);
 	// TODO BLOCK review
 	const gro_dir_find_modules_result = await find_modules([gro_dir_input_path], (id) =>
 		search_fs(id, {filter: (path) => is_task_path(path)}),
