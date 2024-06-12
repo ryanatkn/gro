@@ -15,7 +15,7 @@ import {
 	gro_sveltekit_dist_dir,
 	to_gro_input_path,
 } from './paths.js';
-import {find_modules, load_modules} from './modules.js';
+import {find_modules, load_modules, type Find_Modules_Result} from './modules.js';
 import {find_task_modules, load_task_module} from './task_module.js';
 import {load_gro_package_json} from './package_json.js';
 import {log_available_tasks, log_error_reasons} from './print_task.js';
@@ -170,8 +170,12 @@ export const invoke_task = async (
 	log.info(`🕒 ${print_ms(total_timing())}`);
 };
 
-const to_gro_dir_find_modules_result = async (input_path: string, log: Logger) => {
+const to_gro_dir_find_modules_result = async (
+	input_path: string,
+	log: Logger,
+): Promise<Find_Modules_Result> => {
 	const gro_dir_input_path = to_gro_input_path(input_path);
+	console.log(`gro_dir_input_path`, gro_dir_input_path);
 	// TODO BLOCK review
 	const gro_dir_find_modules_result = await find_modules([gro_dir_input_path], (id) =>
 		search_fs(id, {filter: (path) => is_task_path(path)}),
