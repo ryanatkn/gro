@@ -36,7 +36,7 @@ export const load_task_module = async (
 	return {...result, mod: {...result.mod, name: to_task_name(id)}};
 };
 
-// TODO review
+// TODO BLOCK review
 export const find_task_modules = async (
 	input_paths: string[] = [paths.lib],
 	extensions: string[] = [TASK_FILE_SUFFIX_TS, TASK_FILE_SUFFIX_JS],
