@@ -13,6 +13,7 @@ What is a `Task`? See [`task.md`](./task.md).
 - [commit](../commit.task.ts) - commit and push to a new branch
 - [deploy](../deploy.task.ts) - deploy to a branch
 - [dev](../dev.task.ts) - start SvelteKit and other dev plugins
+- [foo](../foo.task.ts)
 - [format](../format.task.ts) - format source files
 - [gen](../gen.task.ts) - run code generation scripts
 - [lint](../lint.task.ts) - run eslint

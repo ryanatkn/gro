@@ -130,6 +130,7 @@ export const package_json = {
 			default: './dist/esbuild_plugin_sveltekit_shim_env.js',
 			types: './dist/esbuild_plugin_sveltekit_shim_env.d.ts',
 		},
+		'./foo.task.js': {default: './dist/foo.task.js', types: './dist/foo.task.d.ts'},
 		'./format_directory.js': {
 			default: './dist/format_directory.js',
 			types: './dist/format_directory.d.ts',
@@ -411,6 +412,7 @@ export const src_json = {
 				{name: 'esbuild_plugin_sveltekit_shim_env', kind: 'function'},
 			],
 		},
+		'./foo.task.js': {path: 'foo.task.ts', declarations: [{name: 'task', kind: 'variable'}]},
 		'./format_directory.js': {
 			path: 'format_directory.ts',
 			declarations: [{name: 'format_directory', kind: 'function'}],
@@ -686,7 +688,6 @@ export const src_json = {
 				{name: 'to_root_path', kind: 'function'},
 				{name: 'source_id_to_base_path', kind: 'function'},
 				{name: 'base_path_to_source_id', kind: 'function'},
-				{name: 'lib_path_to_import_id', kind: 'function'},
 				{name: 'import_id_to_lib_path', kind: 'function'},
 				{name: 'to_gro_input_path', kind: 'function'},
 				{name: 'replace_root_dir', kind: 'function'},
