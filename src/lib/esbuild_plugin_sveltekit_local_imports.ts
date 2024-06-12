@@ -25,7 +25,6 @@ export const esbuild_plugin_sveltekit_local_imports = (): esbuild.Plugin => ({
 		}));
 		build.onLoad({filter: /.*/u, namespace: 'sveltekit_local_imports_js'}, async ({path}) => ({
 			contents: await readFile(path),
-			loader: 'js',
 			resolveDir: dirname(path),
 		}));
 	},

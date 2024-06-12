@@ -1,12 +1,15 @@
 <script lang="ts">
-	import '@ryanatkn/fuz/style.css';
-	import '@ryanatkn/fuz/theme.css';
-	import '@ryanatkn/fuz/utility_classes.css';
-	import '@ryanatkn/fuz/variable_classes.css';
-	import '@ryanatkn/fuz/semantic_classes.css';
-	import '@ryanatkn/fuz/animations.css';
+	import '@ryanatkn/moss/style.css';
+	import '@ryanatkn/moss/theme.css';
 
 	import Themed from '@ryanatkn/fuz/Themed.svelte';
+	import type {Snippet} from 'svelte';
+
+	interface Props {
+		children: Snippet;
+	}
+
+	const {children}: Props = $props();
 </script>
 
 <svelte:head>
@@ -14,5 +17,5 @@
 </svelte:head>
 
 <Themed>
-	<slot />
+	{@render children()}
 </Themed>

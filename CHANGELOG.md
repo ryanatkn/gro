@@ -1,5 +1,29 @@
 # @ryanatkn/gro
 
+## 0.116.2
+
+### Patch Changes
+
+- fix `gro --help` for `ZodBranded` type ([#458](https://github.com/ryanatkn/gro/pull/458))
+
+## 0.116.1
+
+### Patch Changes
+
+- improve options forwarding for svelte module compilation ([ef49d46](https://github.com/ryanatkn/gro/commit/ef49d46))
+
+## 0.116.0
+
+### Minor Changes
+
+- upgrade to svelte@5 and esbuild@0.20 ([#454](https://github.com/ryanatkn/gro/pull/454))
+
+## 0.115.3
+
+### Patch Changes
+
+- feat: add --build flag to `gro publish` ([dd23fab](https://github.com/ryanatkn/gro/commit/dd23fab))
+
 ## 0.115.2
 
 ### Patch Changes
