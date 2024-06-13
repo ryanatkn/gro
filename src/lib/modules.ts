@@ -1,4 +1,4 @@
-import {red} from 'kleur/colors';
+import {blue, red} from 'kleur/colors';
 import type {Timings} from '@ryanatkn/belt/timings.js';
 import {Unreachable_Error} from '@ryanatkn/belt/error.js';
 import type {Result} from '@ryanatkn/belt/result.js';
@@ -85,11 +85,15 @@ export const find_modules = async (
 	const {source_id_path_data_by_input_path, unmapped_input_paths} =
 		await load_source_path_data_by_input_path(input_paths, get_possible_source_ids);
 	timing_to_map_input_paths?.();
-	console.log(`source_id_path_data_by_input_path`, source_id_path_data_by_input_path);
+	console.log(
+		blue(`[find_modules]`),
+		`source_id_path_data_by_input_path`,
+		source_id_path_data_by_input_path,
+	);
 
 	// Error if any input path could not be mapped.
 	if (unmapped_input_paths.length) {
-		console.log(`unmapped_input_paths`, unmapped_input_paths);
+		console.log(blue(`[find_modules]`), `unmapped_input_paths`, unmapped_input_paths);
 		return {
 			ok: false,
 			type: 'unmapped_input_paths',
@@ -111,8 +115,12 @@ export const find_modules = async (
 	const {source_ids_by_input_path, input_directories_with_no_files} =
 		await load_source_ids_by_input_path(source_id_path_data_by_input_path, custom_search_fs);
 	timing_to_search_fs?.();
-	console.log(`source_ids_by_input_path`, source_ids_by_input_path);
-	console.log(`input_directories_with_no_files`, input_directories_with_no_files);
+	console.log(blue(`[find_modules]`), `source_ids_by_input_path`, source_ids_by_input_path);
+	console.log(
+		blue(`[find_modules]`),
+		`input_directories_with_no_files`,
+		input_directories_with_no_files,
+	);
 
 	// Error if any input path has no files. (means we have an empty directory)
 	return input_directories_with_no_files.length
@@ -180,6 +188,8 @@ export const load_modules = async <
 		}
 	}
 	timing_to_load_modules?.();
+
+	console.log(`[load_modules]`, load_module_failures.length ? load_module_failures : modules);
 
 	return load_module_failures.length
 		? {
