@@ -73,11 +73,9 @@ export const get_possible_source_ids = (
 
 	if (isAbsolute(input_path)) {
 		add_possible_source_ids(input_path);
-	} else {
-		if (root_dirs?.length) {
-			for (const root_dir of root_dirs) {
-				add_possible_source_ids(join(root_dir, input_path));
-			}
+	} else if (root_dirs?.length) {
+		for (const root_dir of root_dirs) {
+			add_possible_source_ids(join(root_dir, input_path));
 		}
 	}
 	console.log(red(`[get_possible_source_ids]`), `possible_source_ids`, possible_source_ids);
