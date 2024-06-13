@@ -35,9 +35,8 @@ export type Raw_Input_Path = Flavored<z.infer<typeof Raw_Input_Path>, 'Raw_Input
  *
  * - an absolute path to a file or directory
  * - an explicit relative path to a file, e.g. `./src/foo`
- * - an implicit relative path to a file, e.g. `src/foo`
- * - a directory containing any number of files, e.g. `src/foo`
- * - any of the above but leading with `gro/` to ignore the local directory
+ * - an implicit relative path to a file or directory, e.g. `src/foo`
+ * - an implicit relative path prefixed with `gro/`
  *
  */
 export const resolve_input_path = (raw_input_path: Raw_Input_Path): Input_Path => {
@@ -73,6 +72,9 @@ export const get_possible_source_ids = (
 	extensions: string[],
 	root_dirs?: string[],
 ): Source_Id[] => {
+	console.log(`[get_possible_source_ids] input_path`, input_path);
+	console.log(`[get_possible_source_ids] extensions`, extensions);
+	console.log(`[get_possible_source_ids] root_dirs`, root_dirs);
 	const possible_source_ids: Source_Id[] = [input_path as Source_Id];
 	if (!input_path.endsWith('/')) {
 		for (const extension of extensions) {

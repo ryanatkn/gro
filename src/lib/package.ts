@@ -562,6 +562,7 @@ export const src_json = {
 			path: 'input_path.ts',
 			declarations: [
 				{name: 'Input_Path', kind: 'variable'},
+				{name: 'Raw_Input_Path', kind: 'variable'},
 				{name: 'resolve_input_path', kind: 'function'},
 				{name: 'resolve_input_paths', kind: 'function'},
 				{name: 'get_possible_source_ids', kind: 'function'},
@@ -646,6 +647,7 @@ export const src_json = {
 			path: 'path.ts',
 			declarations: [
 				{name: 'Input_Path', kind: 'variable'},
+				{name: 'Raw_Input_Path', kind: 'variable'},
 				{name: 'resolve_input_path', kind: 'function'},
 				{name: 'resolve_input_paths', kind: 'function'},
 				{name: 'get_possible_source_ids', kind: 'function'},
@@ -696,8 +698,8 @@ export const src_json = {
 				{name: 'print_path', kind: 'function'},
 				{name: 'print_path_or_gro_path', kind: 'function'},
 				{name: 'replace_extension', kind: 'function'},
-				{name: 'GRO_PACKAGE_DIR', kind: 'variable'},
 				{name: 'paths', kind: 'variable'},
+				{name: 'GRO_PACKAGE_DIR', kind: 'variable'},
 				{name: 'IS_THIS_GRO', kind: 'variable'},
 				{name: 'gro_paths', kind: 'variable'},
 				{name: 'GRO_SVELTEKIT_DIST_DIR', kind: 'variable'},

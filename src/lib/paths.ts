@@ -127,6 +127,11 @@ export const replace_extension = (path: string, new_extension: string): string =
 	return (length === 0 ? path : path.substring(0, path.length - length)) + new_extension;
 };
 
+/**
+ * Paths for the user repo.
+ */
+export const paths = create_paths(process.cwd() + '/');
+
 export const GRO_PACKAGE_DIR = 'gro/';
 // TODO document these conditions with comments
 // TODO there's probably a more robust way to do this
@@ -139,7 +144,9 @@ const gro_package_dir_path = join(
 			? '../../'
 			: '../',
 );
-export const paths = create_paths(process.cwd() + '/');
 export const IS_THIS_GRO = gro_package_dir_path === paths.root;
+/**
+ * Paths for the Gro package being used by the user repo.
+ */
 export const gro_paths = IS_THIS_GRO ? paths : create_paths(gro_package_dir_path);
 export const GRO_SVELTEKIT_DIST_DIR = gro_paths.root + SVELTEKIT_DIST_DIRNAME + '/';
