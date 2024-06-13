@@ -96,6 +96,7 @@ export const get_possible_source_ids = (
 /**
  * Gets the path data for each input path, checking the filesystem for the possibilities
  * and stopping at the first existing file or falling back to the first existing directory.
+ * If none is found for an input path, it's added to `unmapped_input_paths`.
  */
 export const load_source_path_data_by_input_path = async (
 	input_paths: Input_Path[],
@@ -189,7 +190,7 @@ export const load_source_ids_by_input_path = async (
 				if (!has_files) {
 					input_directories_with_no_files.push(input_path);
 				}
-				// do callers ever need `inputDirectoriesWithDuplicateFiles`?
+				// do callers ever need `input_directories_with_duplicate_files`?
 			} else {
 				input_directories_with_no_files.push(input_path);
 			}
