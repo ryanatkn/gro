@@ -1,5 +1,5 @@
-import {join, isAbsolute, resolve} from 'node:path';
-import {strip_end, strip_start} from '@ryanatkn/belt/string.js';
+import {join, resolve} from 'node:path';
+import {strip_start} from '@ryanatkn/belt/string.js';
 import {stat} from 'node:fs/promises';
 import {z} from 'zod';
 import type {Flavored} from '@ryanatkn/belt/types.js';
@@ -7,14 +7,8 @@ import type {Flavored} from '@ryanatkn/belt/types.js';
 import {
 	replace_root_dir,
 	GRO_PACKAGE_DIR,
-	gro_paths,
-	LIB_DIR,
-	LIB_PATH,
 	GRO_SVELTEKIT_DIST_DIR,
 	paths,
-	type Paths,
-	LIB_DIRNAME,
-	base_path_to_source_id,
 	Source_Id,
 } from './paths.js';
 import {to_path_data, type Path_Data} from './path.js';
@@ -32,46 +26,30 @@ export type Raw_Input_Path = Flavored<z.infer<typeof Raw_Input_Path>, 'Raw_Input
 /**
  * Raw input paths are paths that users provide to Gro to reference files for tasks and gen.
  *
- * A raw input path can be:
+ * A raw input path can be to a file or directory in the following forms:
  *
- * - an absolute path to a file or directory
- * - an explicit relative path to a file, e.g. `./src/foo`
- * - an implicit relative path to a file or directory, e.g. `src/foo`
- * - an implicit relative path prefixed with `gro/`
+ * - an absolute path, preserved
+ * - an explicit relative path, e.g. `./src/foo`, resolved to `root_path` which defaults to the cwd
+ * - an implicit relative path, e.g. `src/foo`, preserved
+ * - an implicit relative path prefixed with `gro/`, transformed to absolute in the Gro directory
  *
  */
-export const resolve_input_path = (raw_input_path: Raw_Input_Path): Input_Path => {
-	console.log(`[resolve_input_path] raw_input_path`, raw_input_path);
-	// TODO maybe stripping `'/'` is not the right thing, but normally doesn't matter because all usage is with files with extensions
-	let path = strip_end(raw_input_path, '/');
-	if (isAbsolute(path)) {
-		console.log(`[resolve_input_path] input_path absolute`, path);
-		return path;
+export const to_input_path = (
+	raw_input_path: Raw_Input_Path,
+	root_path = process.cwd(),
+): Input_Path => {
+	if (raw_input_path.startsWith(GRO_PACKAGE_DIR)) {
+		return GRO_SVELTEKIT_DIST_DIR + strip_start(raw_input_path, GRO_PACKAGE_DIR);
+	} else if (raw_input_path[0] === '.') {
+		return resolve(root_path, raw_input_path);
 	}
-	if (path[0] === '.') {
-		console.log(`[resolve_input_path] input_path explicit relative`, resolve(path));
-		return resolve(path);
-	}
-	let paths: Paths | undefined;
-	// If it's prefixed with `gro/` use the Gro paths.
-	if (path.startsWith(GRO_PACKAGE_DIR)) {
-		paths = gro_paths;
-		path = strip_start(path, GRO_PACKAGE_DIR);
-	}
-	// Handle `src/lib` by itself without conflicting with `src/libFoo` names.
-	if (path === LIB_PATH) path = ''; // TODO @multiple get from the sveltekit config
-	// Allow prefix `src/lib/` and just remove it if it's there.
-	path = strip_start(path, LIB_DIR);
-	// TODO BLOCK hardcoded lib above and below
-	console.log(
-		`[resolve_input_path] input_path implicit relative`,
-		base_path_to_source_id(LIB_DIRNAME + '/' + path, paths),
-	);
-	return base_path_to_source_id(LIB_DIRNAME + '/' + path, paths) as Input_Path;
+	return raw_input_path as Input_Path;
 };
 
-export const resolve_input_paths = (raw_input_paths?: Raw_Input_Path[]): Input_Path[] =>
-	raw_input_paths?.length ? raw_input_paths.map((p) => resolve_input_path(p)) : [paths.source];
+export const to_input_paths = (
+	raw_input_paths: Raw_Input_Path[],
+	root_path?: string,
+): Input_Path[] => raw_input_paths.map((p) => to_input_path(p, root_path));
 
 /**
  * Gets a list of possible source ids for each input path with `extensions`,
@@ -223,6 +201,8 @@ export const load_source_ids_by_input_path = async (
 	return {source_ids_by_input_path, input_directories_with_no_files};
 };
 
+// TODO BLOCK I don't think this is valid any more, we shouldn't transform absolute paths like this,
+// the searching should happen with the input paths
 export const to_gro_input_path = (input_path: Input_Path): Input_Path => {
 	const base_path = input_path === paths.lib.slice(0, -1) ? '' : strip_start(input_path, paths.lib);
 	return GRO_SVELTEKIT_DIST_DIR + base_path;

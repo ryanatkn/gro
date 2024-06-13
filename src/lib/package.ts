@@ -563,8 +563,8 @@ export const src_json = {
 			declarations: [
 				{name: 'Input_Path', kind: 'variable'},
 				{name: 'Raw_Input_Path', kind: 'variable'},
-				{name: 'resolve_input_path', kind: 'function'},
-				{name: 'resolve_input_paths', kind: 'function'},
+				{name: 'to_input_path', kind: 'function'},
+				{name: 'to_input_paths', kind: 'function'},
 				{name: 'get_possible_source_ids', kind: 'function'},
 				{name: 'load_source_path_data_by_input_path', kind: 'function'},
 				{name: 'load_source_ids_by_input_path', kind: 'function'},
@@ -648,8 +648,8 @@ export const src_json = {
 			declarations: [
 				{name: 'Input_Path', kind: 'variable'},
 				{name: 'Raw_Input_Path', kind: 'variable'},
-				{name: 'resolve_input_path', kind: 'function'},
-				{name: 'resolve_input_paths', kind: 'function'},
+				{name: 'to_input_path', kind: 'function'},
+				{name: 'to_input_paths', kind: 'function'},
 				{name: 'get_possible_source_ids', kind: 'function'},
 				{name: 'load_source_path_data_by_input_path', kind: 'function'},
 				{name: 'load_source_ids_by_input_path', kind: 'function'},

@@ -5,7 +5,7 @@ import {print_ms, print_timings} from '@ryanatkn/belt/print.js';
 
 import {to_forwarded_args, type Args} from './args.js';
 import {run_task} from './run_task.js';
-import {Input_Path, resolve_input_path, to_gro_input_path} from './input_path.js';
+import {Input_Path, to_input_path, to_gro_input_path, Raw_Input_Path} from './input_path.js';
 import {is_task_path} from './task.js';
 import {
 	is_gro_id,
@@ -39,7 +39,7 @@ import type {Gro_Config} from './config.js';
  * The comments describe each condition.
  */
 export const invoke_task = async (
-	task_name: string,
+	task_name: Raw_Input_Path,
 	args: Args,
 	config: Gro_Config,
 	timings = new Timings(),
@@ -59,7 +59,7 @@ export const invoke_task = async (
 
 	// TODO BLOCK load config, and probably pass it downstream
 	// Resolve the input path for the provided task name.
-	const input_path = resolve_input_path(task_name);
+	const input_path = to_input_path(task_name);
 	console.log(cyan(`[invoke_task] input_path`), input_path);
 
 	// Find the task or directory specified by the `input_path`.

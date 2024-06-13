@@ -8,10 +8,10 @@ import {mkdir, writeFile} from 'node:fs/promises';
 import {Task_Error, type Task} from './task.js';
 import {run_gen} from './run_gen.js';
 import {load_gen_module, check_gen_modules, find_gen_modules} from './gen_module.js';
-import {Raw_Input_Path, resolve_input_paths} from './input_path.js';
+import {Raw_Input_Path, to_input_paths} from './input_path.js';
 import {load_modules} from './modules.js';
 import {format_file} from './format_file.js';
-import {print_path} from './paths.js';
+import {paths, print_path} from './paths.js';
 import {log_error_reasons} from './print_task.js';
 
 export const Args = z
@@ -32,8 +32,7 @@ export const task: Task<Args> = {
 	run: async ({args, log, timings}): Promise<void> => {
 		const {_: raw_input_paths, check} = args;
 
-		// resolve the input paths relative to src/lib/
-		const input_paths = resolve_input_paths(raw_input_paths);
+		const input_paths = raw_input_paths.length ? to_input_paths(raw_input_paths) : [paths.source];
 
 		// load all of the gen modules
 		const find_modules_result = await find_gen_modules(input_paths);
