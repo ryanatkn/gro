@@ -561,11 +561,13 @@ export const src_json = {
 		'./input_path.js': {
 			path: 'input_path.ts',
 			declarations: [
+				{name: 'Input_Path', kind: 'variable'},
 				{name: 'resolve_input_path', kind: 'function'},
 				{name: 'resolve_input_paths', kind: 'function'},
 				{name: 'get_possible_source_ids', kind: 'function'},
 				{name: 'load_source_path_data_by_input_path', kind: 'function'},
 				{name: 'load_source_ids_by_input_path', kind: 'function'},
+				{name: 'to_gro_input_path', kind: 'function'},
 			],
 		},
 		'./invoke_task.js': {
@@ -643,11 +645,13 @@ export const src_json = {
 		'./path.js': {
 			path: 'path.ts',
 			declarations: [
+				{name: 'Input_Path', kind: 'variable'},
 				{name: 'resolve_input_path', kind: 'function'},
 				{name: 'resolve_input_paths', kind: 'function'},
 				{name: 'get_possible_source_ids', kind: 'function'},
 				{name: 'load_source_path_data_by_input_path', kind: 'function'},
 				{name: 'load_source_ids_by_input_path', kind: 'function'},
+				{name: 'to_gro_input_path', kind: 'function'},
 			],
 		},
 		'./paths.js': {
@@ -678,10 +682,9 @@ export const src_json = {
 				{name: 'GIT_DIRNAME', kind: 'variable'},
 				{name: 'TSCONFIG_FILENAME', kind: 'variable'},
 				{name: 'Paths', kind: 'type'},
+				{name: 'Source_Id', kind: 'variable'},
 				{name: 'Url', kind: 'variable'},
 				{name: 'Email', kind: 'variable'},
-				{name: 'Source_Id', kind: 'variable'},
-				{name: 'Build_Id', kind: 'variable'},
 				{name: 'create_paths', kind: 'function'},
 				{name: 'paths_from_id', kind: 'function'},
 				{name: 'is_gro_id', kind: 'function'},
@@ -689,7 +692,6 @@ export const src_json = {
 				{name: 'source_id_to_base_path', kind: 'function'},
 				{name: 'base_path_to_source_id', kind: 'function'},
 				{name: 'import_id_to_lib_path', kind: 'function'},
-				{name: 'to_gro_input_path', kind: 'function'},
 				{name: 'replace_root_dir', kind: 'function'},
 				{name: 'print_path', kind: 'function'},
 				{name: 'print_path_or_gro_path', kind: 'function'},

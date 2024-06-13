@@ -14,7 +14,7 @@ import {
 	type Task,
 	TASK_FILE_SUFFIX_JS,
 } from './task.js';
-import {get_possible_source_ids} from './input_path.js';
+import {Input_Path, get_possible_source_ids} from './input_path.js';
 import {search_fs} from './search_fs.js';
 
 export interface Task_Module {
@@ -38,7 +38,7 @@ export const load_task_module = async (
 
 // TODO BLOCK review
 export const find_task_modules = async (
-	input_paths: string[] = [paths.lib],
+	input_paths: Input_Path[] = [paths.lib],
 	extensions: string[] = [TASK_FILE_SUFFIX_TS, TASK_FILE_SUFFIX_JS],
 	root_dirs?: string[],
 ): Promise<ReturnType<typeof find_modules>> =>
@@ -49,7 +49,7 @@ export const find_task_modules = async (
 	);
 
 export const load_task_modules = async (
-	input_paths?: string[],
+	input_paths?: Input_Path[],
 	extensions?: string[],
 	root_dirs?: string[],
 ): Promise<

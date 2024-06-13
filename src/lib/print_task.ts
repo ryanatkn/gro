@@ -7,11 +7,13 @@ import {ZodFirstPartyTypeKind, type ZodObjectDef, type ZodTypeAny, type ZodTypeD
 import type {Arg_Schema} from './args.js';
 import {load_modules} from './modules.js';
 import {load_task_module, type Task_Module_Meta} from './task_module.js';
+import type {Input_Path} from './input_path.js';
+import type {Source_Id} from './paths.js';
 
 export const log_available_tasks = async (
 	log: Logger,
 	dir_label: string,
-	source_ids_by_input_path: Map<string, string[]>,
+	source_ids_by_input_path: Map<Input_Path, Source_Id[]>,
 	print_intro = true,
 ): Promise<void> => {
 	const source_ids = Array.from(source_ids_by_input_path.values()).flat();

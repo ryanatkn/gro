@@ -5,7 +5,7 @@ import {print_ms, print_timings} from '@ryanatkn/belt/print.js';
 
 import {to_forwarded_args, type Args} from './args.js';
 import {run_task} from './run_task.js';
-import {resolve_input_path} from './input_path.js';
+import {Input_Path, resolve_input_path, to_gro_input_path} from './input_path.js';
 import {is_task_path} from './task.js';
 import {
 	is_gro_id,
@@ -13,7 +13,6 @@ import {
 	print_path,
 	print_path_or_gro_path,
 	GRO_SVELTEKIT_DIST_DIR,
-	to_gro_input_path,
 } from './paths.js';
 import {find_modules, load_modules, type Find_Modules_Result} from './modules.js';
 import {find_task_modules, load_task_module} from './task_module.js';
@@ -202,7 +201,7 @@ export const invoke_task = async (
 };
 
 const to_gro_dir_find_modules_result = async (
-	input_path: string,
+	input_path: Input_Path,
 	log: Logger,
 ): Promise<Find_Modules_Result> => {
 	const gro_dir_input_path = to_gro_input_path(input_path);

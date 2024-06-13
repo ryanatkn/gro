@@ -50,18 +50,17 @@ export interface Paths {
 	config: string;
 }
 
-// TODO upstream to util, and probably add `Path`/`FilePath` and `FileUrl`
-export const Url = z.string();
-export type Url = Flavored<z.infer<typeof Url>, 'Url'>;
-
-export const Email = z.string();
-export type Email = Flavored<z.infer<typeof Email>, 'Email'>;
-
+// TODO Flavored doesn't work when used in schemas, use Zod brand instead? problem is ergonomics
 export const Source_Id = z.string();
 export type Source_Id = Flavored<z.infer<typeof Source_Id>, 'Source_Id'>;
 
-export const Build_Id = z.string();
-export type Build_Id = Flavored<z.infer<typeof Build_Id>, 'Build_Id'>;
+// TODO @multiple belongs elsewhere
+export const Url = z.string();
+export type Url = Flavored<z.infer<typeof Url>, 'Url'>;
+
+// TODO @multiple belongs elsewhere
+export const Email = z.string();
+export type Email = Flavored<z.infer<typeof Email>, 'Email'>;
 
 export const create_paths = (root_dir: string): Paths => {
 	// TODO remove reliance on trailing slash towards windows support
@@ -104,11 +103,6 @@ export const import_id_to_lib_path = (import_id: string, p = paths_from_id(impor
 	} else {
 		return strip_start(import_id, p.lib);
 	}
-};
-
-export const to_gro_input_path = (input_path: string): string => {
-	const base_path = input_path === paths.lib.slice(0, -1) ? '' : strip_start(input_path, paths.lib);
-	return GRO_SVELTEKIT_DIST_DIR + base_path;
 };
 
 // Can be used to map a source id from e.g. the cwd to gro's.

@@ -8,7 +8,7 @@ import {
 	type Find_Modules_Result,
 } from './modules.js';
 import type {Gen, Gen_Results, Gen_File} from './gen.js';
-import {get_possible_source_ids} from './input_path.js';
+import {Input_Path, get_possible_source_ids} from './input_path.js';
 import {paths} from './paths.js';
 import {search_fs} from './search_fs.js';
 import {exists} from './fs.js';
@@ -99,7 +99,7 @@ export const check_gen_module = async (file: Gen_File): Promise<Check_Gen_Module
 };
 
 export const find_gen_modules = (
-	input_paths: string[] = [paths.source],
+	input_paths: Input_Path[] = [paths.source],
 	// TODO improve this API to allow config, maybe just a simple `gen` filter function, so the user could return a Rollup pluginutils filter,
 	// gets a little tricky with the `get_possible_source_ids` API usage, which would probably need to change
 	extensions: string[] = [GEN_FILE_PATTERN, GEN_SCHEMA_FILE_PATTERN],
