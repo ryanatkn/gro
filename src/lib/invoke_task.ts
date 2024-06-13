@@ -7,7 +7,7 @@ import {to_forwarded_args, type Args} from './args.js';
 import {run_task} from './run_task.js';
 import {Input_Path, to_input_path, to_gro_input_path, Raw_Input_Path} from './input_path.js';
 import {is_task_path} from './task.js';
-import {is_gro_id, IS_THIS_GRO, print_path, print_path_or_gro_path, GRO_DIST_DIR} from './paths.js';
+import {is_gro_id, IS_THIS_GRO, print_path, print_path_or_gro_path} from './paths.js';
 import {find_modules, load_modules, type Find_Modules_Result} from './modules.js';
 import {find_task_modules, load_task_module} from './task_module.js';
 import {load_gro_package_json} from './package_json.js';

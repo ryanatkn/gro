@@ -1,4 +1,3 @@
-import {paths} from './paths.js';
 import {
 	load_module,
 	load_modules,
