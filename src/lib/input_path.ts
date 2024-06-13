@@ -42,14 +42,14 @@ export type Raw_Input_Path = Flavored<z.infer<typeof Raw_Input_Path>, 'Raw_Input
  */
 export const resolve_input_path = (raw_input_path: Raw_Input_Path): Input_Path => {
 	// TODO maybe stripping `'/'` is not the right thing, but normally doesn't matter because all usage is with files with extensions
-	if (isAbsolute(raw_input_path)) return strip_end(raw_input_path, '/');
-	if (raw_input_path[0] === '.') return strip_end(resolve(raw_input_path), '/');
 	let path = strip_end(raw_input_path, '/');
+	if (isAbsolute(path)) return path;
+	if (path[0] === '.') return resolve(path);
 	let paths: Paths | undefined;
-	// If it's prefixed with `gro/` or exactly `gro`, use the Gro paths.
-	if ((path + '/').startsWith(GRO_PACKAGE_DIR)) {
+	// If it's prefixed with `gro/` use the Gro paths.
+	if (path.startsWith(GRO_PACKAGE_DIR)) {
 		paths = gro_paths;
-		path = strip_end(strip_start(path + '/', GRO_PACKAGE_DIR), '/');
+		path = strip_start(path, GRO_PACKAGE_DIR);
 	}
 	// Handle `src/lib` by itself without conflicting with `src/libFoo` names.
 	if (path === LIB_PATH) path = ''; // TODO @multiple get from the sveltekit config
