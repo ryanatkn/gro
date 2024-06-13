@@ -40,10 +40,17 @@ export type Raw_Input_Path = Flavored<z.infer<typeof Raw_Input_Path>, 'Raw_Input
  *
  */
 export const resolve_input_path = (raw_input_path: Raw_Input_Path): Input_Path => {
+	console.log(`[resolve_input_path] raw_input_path`, raw_input_path);
 	// TODO maybe stripping `'/'` is not the right thing, but normally doesn't matter because all usage is with files with extensions
 	let path = strip_end(raw_input_path, '/');
-	if (isAbsolute(path)) return path;
-	if (path[0] === '.') return resolve(path);
+	if (isAbsolute(path)) {
+		console.log(`[resolve_input_path] input_path absolute`, path);
+		return path;
+	}
+	if (path[0] === '.') {
+		console.log(`[resolve_input_path] input_path explicit relative`, resolve(path));
+		return resolve(path);
+	}
 	let paths: Paths | undefined;
 	// If it's prefixed with `gro/` use the Gro paths.
 	if (path.startsWith(GRO_PACKAGE_DIR)) {
@@ -55,6 +62,10 @@ export const resolve_input_path = (raw_input_path: Raw_Input_Path): Input_Path =
 	// Allow prefix `src/lib/` and just remove it if it's there.
 	path = strip_start(path, LIB_DIR);
 	// TODO BLOCK hardcoded lib above and below
+	console.log(
+		`[resolve_input_path] input_path implicit relative`,
+		base_path_to_source_id(LIB_DIRNAME + '/' + path, paths),
+	);
 	return base_path_to_source_id(LIB_DIRNAME + '/' + path, paths) as Input_Path;
 };
 
