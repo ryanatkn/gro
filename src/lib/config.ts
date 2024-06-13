@@ -1,6 +1,6 @@
-import {join} from 'node:path';
+import {isAbsolute, join, resolve} from 'node:path';
 
-import {CONFIG_PATH, GRO_DIST_DIR, paths} from './paths.js';
+import {CONFIG_PATH, GRO_DIST_DIR, IS_THIS_GRO, paths} from './paths.js';
 import create_default_config from './gro.config.default.js';
 import type {Create_Config_Plugins} from './plugin.js';
 import {exists} from './fs.js';
@@ -29,7 +29,7 @@ export const create_empty_config = (): Gro_Config => ({
 	plugins: () => [],
 	// TODO maybe disable if no SvelteKit `lib` directory? or other detection to improve defaults
 	map_package_json: default_map_package_json,
-	task_paths: [paths.lib, paths.root, GRO_DIST_DIR],
+	task_paths: [paths.lib, paths.root, IS_THIS_GRO ? null! : GRO_DIST_DIR].filter(Boolean),
 });
 
 const default_map_package_json: Map_Package_Json = async (package_json) => {
@@ -58,10 +58,17 @@ export const load_config = async (dir = paths.root): Promise<Gro_Config> => {
 			typeof config_module.default === 'function'
 				? await config_module.default(default_config)
 				: config_module.default;
+		normalize_config(config);
 	} else {
 		config = default_config;
 	}
 	return config;
+};
+
+// Mutates `config` with cleaned up values.
+const normalize_config = (config: Gro_Config): void => {
+	// TODO any validation?
+	config.task_paths = config.task_paths.map((p) => resolve(p));
 };
 
 export const validate_config_module: (

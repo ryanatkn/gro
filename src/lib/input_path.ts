@@ -1,4 +1,4 @@
-import {join, resolve} from 'node:path';
+import {isAbsolute, join, resolve} from 'node:path';
 import {strip_start} from '@ryanatkn/belt/string.js';
 import {stat} from 'node:fs/promises';
 import {z} from 'zod';
@@ -27,6 +27,7 @@ export type Raw_Input_Path = Flavored<z.infer<typeof Raw_Input_Path>, 'Raw_Input
  * - an implicit relative path, e.g. `src/foo`, preserved
  * - an implicit relative path prefixed with `gro/`, transformed to absolute in the Gro directory
  *
+ * Thus, input paths are either absolute or implicitly relative.
  */
 export const to_input_path = (
 	raw_input_path: Raw_Input_Path,
@@ -60,14 +61,12 @@ export const get_possible_source_ids = (
 	console.log(red(`[get_possible_source_ids]`), `extensions`, extensions);
 	console.log(red(`[get_possible_source_ids]`), `root_dirs`, root_dirs);
 	const possible_source_ids: Source_Id[] = [input_path as Source_Id];
-	if (!input_path.endsWith('/')) {
+	if (!input_path.endsWith('/') && !extensions.some((e) => input_path.endsWith(e))) {
 		for (const extension of extensions) {
-			if (!input_path.endsWith(extension)) {
-				possible_source_ids.push(input_path + extension);
-			}
+			possible_source_ids.push(input_path + extension);
 		}
 	}
-	if (root_dirs?.length) {
+	if (!isAbsolute(input_path) && root_dirs?.length) {
 		const ids = possible_source_ids.slice(); // make a copy or infinitely loop!
 		for (const root_dir of root_dirs) {
 			if (input_path.startsWith(root_dir)) continue; // avoid duplicates
