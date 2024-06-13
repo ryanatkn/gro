@@ -9,6 +9,7 @@ import {to_path_data, type Path_Data} from './path.js';
 import {exists} from './fs.js';
 import {search_fs} from './search_fs.js';
 import {blue, red} from 'kleur/colors';
+import {TASK_FILE_SUFFIX_JS} from './task.js';
 
 // TODO Flavored doesn't work when used in schemas, use Zod brand instead? problem is ergonomics
 export const Input_Path = z.string();
@@ -63,10 +64,17 @@ export const get_possible_source_ids = (
 	const possible_source_ids: Source_Id[] = [];
 
 	const add_possible_source_ids = (path: string) => {
-		possible_source_ids.push(path as Source_Id);
-		if (!path.endsWith('/') && !extensions.some((e) => path.endsWith(e))) {
-			for (const extension of extensions) {
-				possible_source_ids.push(path + extension);
+		// Specifically for paths to the Gro package dist, optimize by only looking for `.task.js`.
+		if (path.startsWith(GRO_DIST_DIR)) {
+			possible_source_ids.push(
+				(path.endsWith(TASK_FILE_SUFFIX_JS) ? path : path + TASK_FILE_SUFFIX_JS) as Source_Id,
+			);
+		} else {
+			possible_source_ids.push(path as Source_Id);
+			if (!path.endsWith('/') && !extensions.some((e) => path.endsWith(e))) {
+				for (const extension of extensions) {
+					possible_source_ids.push(path + extension);
+				}
 			}
 		}
 	};
