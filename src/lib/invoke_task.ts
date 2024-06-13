@@ -58,7 +58,6 @@ export const invoke_task = async (
 
 	// Find the task or directory specified by the `input_path`.
 	// Fall back to searching the Gro directory as well.
-	// TODO could customize the extensions easily here
 	const find_modules_result = await find_task_modules([input_path], undefined, config.task_paths);
 	console.log(cyan(`[invoke_task] find_task_modules result`), find_modules_result);
 	if (!find_modules_result.ok) {
