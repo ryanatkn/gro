@@ -97,7 +97,7 @@ export const base_path_to_source_id = (base_path: string, p = paths): Source_Id 
 // or a `gro/dist/` file id in node_modules when inside another project.
 export const import_id_to_lib_path = (import_id: string, p = paths_from_id(import_id)): string => {
 	if (p.root === gro_paths.root) {
-		const stripped = strip_start(strip_start(import_id, p.lib), GRO_SVELTEKIT_DIST_DIR); // TODO hacky, needs more work to clarify related things
+		const stripped = strip_start(strip_start(import_id, p.lib), GRO_DIST_DIR); // TODO hacky, needs more work to clarify related things
 		const lib_path = IS_THIS_GRO ? stripped : replace_extension(stripped, '.ts');
 		return lib_path;
 	} else {
@@ -110,7 +110,7 @@ export const replace_root_dir = (id: string, root_dir: string, p = paths): strin
 	join(root_dir, to_root_path(id, p));
 
 export const print_path = (path: string, p = paths, prefix = './'): string => {
-	const root_path = path === GRO_SVELTEKIT_DIST_DIR ? 'gro' : to_root_path(path, p);
+	const root_path = path === GRO_DIST_DIR ? 'gro' : to_root_path(path, p);
 	return gray(`${prefix}${root_path}`);
 };
 
@@ -149,4 +149,4 @@ export const IS_THIS_GRO = gro_package_dir_path === paths.root;
  * Paths for the Gro package being used by the user repo.
  */
 export const gro_paths = IS_THIS_GRO ? paths : create_paths(gro_package_dir_path);
-export const GRO_SVELTEKIT_DIST_DIR = gro_paths.root + SVELTEKIT_DIST_DIRNAME + '/';
+export const GRO_DIST_DIR = gro_paths.root + SVELTEKIT_DIST_DIRNAME + '/';

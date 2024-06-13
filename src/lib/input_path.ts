@@ -4,13 +4,7 @@ import {stat} from 'node:fs/promises';
 import {z} from 'zod';
 import type {Flavored} from '@ryanatkn/belt/types.js';
 
-import {
-	replace_root_dir,
-	GRO_PACKAGE_DIR,
-	GRO_SVELTEKIT_DIST_DIR,
-	paths,
-	Source_Id,
-} from './paths.js';
+import {replace_root_dir, GRO_PACKAGE_DIR, GRO_DIST_DIR, paths, Source_Id} from './paths.js';
 import {to_path_data, type Path_Data} from './path.js';
 import {exists} from './fs.js';
 import {search_fs} from './search_fs.js';
@@ -39,7 +33,7 @@ export const to_input_path = (
 	root_path = process.cwd(),
 ): Input_Path => {
 	if (raw_input_path.startsWith(GRO_PACKAGE_DIR)) {
-		return GRO_SVELTEKIT_DIST_DIR + strip_start(raw_input_path, GRO_PACKAGE_DIR);
+		return GRO_DIST_DIR + strip_start(raw_input_path, GRO_PACKAGE_DIR);
 	} else if (raw_input_path[0] === '.') {
 		return resolve(root_path, raw_input_path);
 	}
@@ -77,13 +71,13 @@ export const get_possible_source_ids = (
 		const ids = possible_source_ids.slice(); // make a copy or infinitely loop!
 		for (const root_dir of root_dirs) {
 			if (input_path.startsWith(root_dir)) continue; // avoid duplicates
-			const is_gro_dist = root_dir === GRO_SVELTEKIT_DIST_DIR; // TODO hacky to handle Gro importing its JS tasks from dist/
+			const is_gro_dist = root_dir === GRO_DIST_DIR; // TODO hacky to handle Gro importing its JS tasks from dist/
 			for (const possible_source_id of ids) {
 				if (is_gro_dist && !possible_source_id.endsWith('.js')) continue;
 				// TODO hacky to handle Gro importing its JS tasks from dist/
 				possible_source_ids.push(
 					is_gro_dist
-						? GRO_SVELTEKIT_DIST_DIR + strip_start(possible_source_id, paths.lib)
+						? GRO_DIST_DIR + strip_start(possible_source_id, paths.lib)
 						: replace_root_dir(possible_source_id, root_dir, paths),
 				);
 			}
@@ -206,5 +200,5 @@ export const load_source_ids_by_input_path = async (
 // the searching should happen with the input paths
 export const to_gro_input_path = (input_path: Input_Path): Input_Path => {
 	const base_path = input_path === paths.lib.slice(0, -1) ? '' : strip_start(input_path, paths.lib);
-	return GRO_SVELTEKIT_DIST_DIR + base_path;
+	return GRO_DIST_DIR + base_path;
 };

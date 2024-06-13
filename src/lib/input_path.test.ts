@@ -9,13 +9,13 @@ import {
 	get_possible_source_ids,
 } from './input_path.js';
 import type {Path_Stats} from './path.js';
-import {GRO_SVELTEKIT_DIST_DIR, paths} from './paths.js';
+import {GRO_DIST_DIR, paths} from './paths.js';
 
 test('to_input_path', () => {
 	assert.is(to_input_path(resolve('foo.ts')), resolve('foo.ts'));
 	assert.is(to_input_path('./foo.ts'), resolve('foo.ts'));
 	assert.is(to_input_path('foo.ts'), 'foo.ts');
-	assert.is(to_input_path('gro/foo'), GRO_SVELTEKIT_DIST_DIR + 'foo');
+	assert.is(to_input_path('gro/foo'), GRO_DIST_DIR + 'foo');
 	// trailing slashes are preserved:
 	assert.is(to_input_path(resolve('foo/bar/')), resolve('foo/bar/'));
 	assert.is(to_input_path('./foo/bar/'), resolve('foo/bar/'));

@@ -702,7 +702,7 @@ export const src_json = {
 				{name: 'GRO_PACKAGE_DIR', kind: 'variable'},
 				{name: 'IS_THIS_GRO', kind: 'variable'},
 				{name: 'gro_paths', kind: 'variable'},
-				{name: 'GRO_SVELTEKIT_DIST_DIR', kind: 'variable'},
+				{name: 'GRO_DIST_DIR', kind: 'variable'},
 			],
 		},
 		'./plugin.js': {

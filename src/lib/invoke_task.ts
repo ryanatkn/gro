@@ -7,13 +7,7 @@ import {to_forwarded_args, type Args} from './args.js';
 import {run_task} from './run_task.js';
 import {Input_Path, to_input_path, to_gro_input_path, Raw_Input_Path} from './input_path.js';
 import {is_task_path} from './task.js';
-import {
-	is_gro_id,
-	IS_THIS_GRO,
-	print_path,
-	print_path_or_gro_path,
-	GRO_SVELTEKIT_DIST_DIR,
-} from './paths.js';
+import {is_gro_id, IS_THIS_GRO, print_path, print_path_or_gro_path, GRO_DIST_DIR} from './paths.js';
 import {find_modules, load_modules, type Find_Modules_Result} from './modules.js';
 import {find_task_modules, load_task_module} from './task_module.js';
 import {load_gro_package_json} from './package_json.js';
@@ -64,11 +58,8 @@ export const invoke_task = async (
 
 	// Find the task or directory specified by the `input_path`.
 	// Fall back to searching the Gro directory as well.
-	const find_modules_result = await find_task_modules(
-		[input_path],
-		undefined,
-		IS_THIS_GRO ? undefined : [GRO_SVELTEKIT_DIST_DIR],
-	);
+	// TODO could customize the extensions easily here
+	const find_modules_result = await find_task_modules([input_path], undefined, config.task_paths);
 	console.log(cyan(`[invoke_task] find_task_modules result`), find_modules_result);
 	if (!find_modules_result.ok) {
 		if (find_modules_result.type === 'input_directories_with_no_files') {
