@@ -88,7 +88,6 @@ test('load_source_ids_by_input_path', async () => {
 		]),
 		async (id) => test_files[id],
 	);
-	console.log(`result`, result);
 	assert.equal(result, {
 		source_ids_by_input_path: new Map([
 			['fake/test1.bar.ts', ['fake/test1.bar.ts']],
