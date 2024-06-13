@@ -15,21 +15,25 @@ import {paths} from './paths.js';
 const test__resolve_input_path = suite('resolve_input_path');
 
 test__resolve_input_path('basic behavior', () => {
-	const target = resolve('dist/foo/bar.ts');
+	const target = resolve('foo.ts');
+	assert.is(resolve_input_path(target), target);
+	assert.is(resolve_input_path('./foo.ts'), target);
+	assert.is.not(resolve_input_path('foo.ts'), target);
+});
+
+test__resolve_input_path('resolve to lib', () => {
+	const target = resolve('src/lib/foo/bar.ts');
 	assert.is(resolve_input_path('foo/bar.ts'), target);
 	assert.is(resolve_input_path('src/lib/foo/bar.ts'), target);
 	assert.is(resolve_input_path('./src/lib/foo/bar.ts'), target);
-	assert.is(resolve_input_path('./foo/bar.ts'), target); // questionable
 	assert.is(resolve_input_path(target), target);
 	assert.is.not(resolve_input_path('bar.ts'), target);
 });
 
 test__resolve_input_path('directories', () => {
-	const target_dir = resolve('dist/foo/bar');
+	const target_dir = resolve('src/lib/foo/bar');
 	assert.is(resolve_input_path('foo/bar'), target_dir);
 	assert.is(resolve_input_path('foo/bar/'), target_dir);
-	assert.is(resolve_input_path('./foo/bar'), target_dir);
-	assert.is(resolve_input_path('./foo/bar/'), target_dir);
 	assert.is.not(resolve_input_path('bar'), target_dir);
 });
 
@@ -40,10 +44,10 @@ test__resolve_input_path.run();
 const test__resolve_input_paths = suite('resolve_input_paths');
 
 test__resolve_input_paths('resolves multiple input path forms', () => {
-	assert.equal(resolve_input_paths(['foo/bar.ts', 'baz', './']), [
-		resolve('dist/foo/bar.ts'),
-		resolve('dist/baz'),
-		resolve('dist') + '/',
+	assert.equal(resolve_input_paths(['foo/bar.ts', 'baz', '']), [
+		resolve('src/lib/foo/bar.ts'),
+		resolve('src/lib/baz'),
+		resolve('src/lib') + '/',
 	]);
 });
 

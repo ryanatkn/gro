@@ -1,14 +1,14 @@
-import {join, isAbsolute} from 'node:path';
+import {join, isAbsolute, resolve} from 'node:path';
 import {strip_end, strip_start} from '@ryanatkn/belt/string.js';
 import {stat} from 'node:fs/promises';
 
 import {
 	replace_root_dir,
-	gro_dir_basename,
+	GRO_PACKAGE_DIR,
 	gro_paths,
 	LIB_DIR,
 	LIB_PATH,
-	gro_sveltekit_dist_dir,
+	GRO_SVELTEKIT_DIST_DIR,
 	paths,
 	type Paths,
 	LIB_DIRNAME,
@@ -19,40 +19,34 @@ import {exists} from './fs.js';
 import {search_fs} from './search_fs.js';
 
 /**
- * Raw input paths are paths that users provide to Gro to reference files
- * enhanced with Gro's conventions like `.test.`, `.task.`, and `.gen.`.
+ * Raw input paths are paths that users provide to Gro to reference files for tasks and gen.
  *
  * A raw input path can be:
  *
- * - a relative path to a file, e.g. `src/foo/bar.test.ts`
- * - a file without an extension, e.g. `src/foo/bar` if `extensions` is `.test.ts`
+ * - an absolute path to a file or directory
+ * - an explicit relative path to a file, e.g. `./src/foo`
+ * - an implicit relative path to a file, e.g. `src/foo`
  * - a directory containing any number of files, e.g. `src/foo`
- * - any of the above without the leading `src/` or with a leading `./`
  * - any of the above but leading with `gro/` to ignore the local directory
- * - an absolute path to a file or directory in the current directory or Gro's
  *
- * The input path API lets the caller customize the allowable extensions.
- * That means that the caller can look for `.test.` files but not `.gen.`,
- * or both, or neither, depending on its needs.
- *
- * In the future we may want to support globbing or regexps.
  */
 export const resolve_input_path = (raw_input_path: string): string => {
+	// TODO maybe stripping `'/'` is not the right thing, but normally doesn't matter because all usage is with files with extensions
 	if (isAbsolute(raw_input_path)) return strip_end(raw_input_path, '/');
-	// Allow prefix `./` and just remove it if it's there.
-	let base_path = strip_end(strip_start(raw_input_path, './'), '/');
+	if (raw_input_path[0] === '.') return strip_end(resolve(raw_input_path), '/');
+	let path = strip_end(raw_input_path, '/');
 	let paths: Paths | undefined;
 	// If it's prefixed with `gro/` or exactly `gro`, use the Gro paths.
-	if ((base_path + '/').startsWith(gro_dir_basename)) {
+	if ((path + '/').startsWith(GRO_PACKAGE_DIR)) {
 		paths = gro_paths;
-		base_path = strip_end(strip_start(base_path + '/', gro_dir_basename), '/');
+		path = strip_end(strip_start(path + '/', GRO_PACKAGE_DIR), '/');
 	}
 	// Handle `src/lib` by itself without conflicting with `src/libFoo` names.
-	if (base_path === LIB_PATH) base_path = ''; // TODO @multiple get from the sveltekit config
+	if (path === LIB_PATH) path = ''; // TODO @multiple get from the sveltekit config
 	// Allow prefix `src/lib/` and just remove it if it's there.
-	base_path = strip_start(base_path, LIB_DIR);
+	path = strip_start(path, LIB_DIR);
 	// TODO BLOCK hardcoded lib above and below
-	return base_path_to_source_id(LIB_DIRNAME + '/' + base_path, paths);
+	return base_path_to_source_id(LIB_DIRNAME + '/' + path, paths);
 };
 
 export const resolve_input_paths = (raw_input_paths?: string[]): string[] =>
@@ -81,13 +75,13 @@ export const get_possible_source_ids = (
 		const ids = possible_source_ids.slice(); // make a copy or infinitely loop!
 		for (const root_dir of root_dirs) {
 			if (input_path.startsWith(root_dir)) continue; // avoid duplicates
-			const is_gro_dist = root_dir === gro_sveltekit_dist_dir; // TODO hacky to handle Gro importing its JS tasks from dist/
+			const is_gro_dist = root_dir === GRO_SVELTEKIT_DIST_DIR; // TODO hacky to handle Gro importing its JS tasks from dist/
 			for (const possible_source_id of ids) {
 				if (is_gro_dist && !possible_source_id.endsWith('.js')) continue;
 				// TODO hacky to handle Gro importing its JS tasks from dist/
 				possible_source_ids.push(
 					is_gro_dist
-						? gro_sveltekit_dist_dir + strip_start(possible_source_id, paths.lib)
+						? GRO_SVELTEKIT_DIST_DIR + strip_start(possible_source_id, paths.lib)
 						: replace_root_dir(possible_source_id, root_dir, paths),
 				);
 			}

@@ -1,4 +1,4 @@
-import {join, basename, extname, relative} from 'node:path';
+import {join, extname, relative} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {strip_end, strip_start} from '@ryanatkn/belt/string.js';
 import {gray} from 'kleur/colors';
@@ -98,8 +98,8 @@ export const base_path_to_source_id = (base_path: string, p = paths): Source_Id 
 // or a `gro/dist/` file id in node_modules when inside another project.
 export const import_id_to_lib_path = (import_id: string, p = paths_from_id(import_id)): string => {
 	if (p.root === gro_paths.root) {
-		const stripped = strip_start(strip_start(import_id, p.lib), gro_sveltekit_dist_dir); // TODO hacky, needs more work to clarify related things
-		const lib_path = is_this_project_gro ? stripped : replace_extension(stripped, '.ts');
+		const stripped = strip_start(strip_start(import_id, p.lib), GRO_SVELTEKIT_DIST_DIR); // TODO hacky, needs more work to clarify related things
+		const lib_path = IS_THIS_GRO ? stripped : replace_extension(stripped, '.ts');
 		return lib_path;
 	} else {
 		return strip_start(import_id, p.lib);
@@ -108,7 +108,7 @@ export const import_id_to_lib_path = (import_id: string, p = paths_from_id(impor
 
 export const to_gro_input_path = (input_path: string): string => {
 	const base_path = input_path === paths.lib.slice(0, -1) ? '' : strip_start(input_path, paths.lib);
-	return gro_sveltekit_dist_dir + base_path;
+	return GRO_SVELTEKIT_DIST_DIR + base_path;
 };
 
 // Can be used to map a source id from e.g. the cwd to gro's.
@@ -116,7 +116,7 @@ export const replace_root_dir = (id: string, root_dir: string, p = paths): strin
 	join(root_dir, to_root_path(id, p));
 
 export const print_path = (path: string, p = paths, prefix = './'): string => {
-	const root_path = path === gro_sveltekit_dist_dir ? 'gro' : to_root_path(path, p);
+	const root_path = path === GRO_SVELTEKIT_DIST_DIR ? 'gro' : to_root_path(path, p);
 	return gray(`${prefix}${root_path}`);
 };
 
@@ -133,8 +133,11 @@ export const replace_extension = (path: string, new_extension: string): string =
 	return (length === 0 ? path : path.substring(0, path.length - length)) + new_extension;
 };
 
+export const GRO_PACKAGE_DIR = 'gro/';
+// TODO document these conditions with comments
+// TODO there's probably a more robust way to do this
 const filename = fileURLToPath(import.meta.url);
-const gro_dir = join(
+const gro_package_dir_path = join(
 	filename,
 	filename.includes('/gro/src/lib/')
 		? '../../../'
@@ -142,8 +145,7 @@ const gro_dir = join(
 			? '../../'
 			: '../',
 );
-export const gro_dir_basename = basename(gro_dir) + '/';
 export const paths = create_paths(process.cwd() + '/');
-export const is_this_project_gro = gro_dir === paths.root;
-export const gro_paths = is_this_project_gro ? paths : create_paths(gro_dir);
-export const gro_sveltekit_dist_dir = gro_paths.root + SVELTEKIT_DIST_DIRNAME + '/';
+export const IS_THIS_GRO = gro_package_dir_path === paths.root;
+export const gro_paths = IS_THIS_GRO ? paths : create_paths(gro_package_dir_path);
+export const GRO_SVELTEKIT_DIST_DIR = gro_paths.root + SVELTEKIT_DIST_DIRNAME + '/';

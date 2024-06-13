@@ -9,10 +9,10 @@ import {resolve_input_path} from './input_path.js';
 import {is_task_path} from './task.js';
 import {
 	is_gro_id,
-	is_this_project_gro,
+	IS_THIS_GRO,
 	print_path,
 	print_path_or_gro_path,
-	gro_sveltekit_dist_dir,
+	GRO_SVELTEKIT_DIST_DIR,
 	to_gro_input_path,
 } from './paths.js';
 import {find_modules, load_modules, type Find_Modules_Result} from './modules.js';
@@ -67,7 +67,7 @@ export const invoke_task = async (
 	const find_modules_result = await find_task_modules(
 		[input_path],
 		undefined,
-		is_this_project_gro ? undefined : [gro_sveltekit_dist_dir],
+		IS_THIS_GRO ? undefined : [GRO_SVELTEKIT_DIST_DIR],
 	);
 	console.log(cyan(`find_task_modules result`), find_modules_result);
 	if (find_modules_result.ok) {
@@ -112,7 +112,7 @@ export const invoke_task = async (
 			}
 		} else {
 			// The input path matches a directory. Log the tasks but don't run them.
-			if (is_this_project_gro) {
+			if (IS_THIS_GRO) {
 				// Is the Gro directory the same as the cwd? Log the matching files.
 				await log_available_tasks(
 					log,
@@ -146,7 +146,7 @@ export const invoke_task = async (
 	} else if (find_modules_result.type === 'input_directories_with_no_files') {
 		// The input path matched a directory, but it contains no matching files.
 		if (
-			is_this_project_gro ||
+			IS_THIS_GRO ||
 			// this is null safe because of the failure type
 			is_gro_id(find_modules_result.source_id_path_data_by_input_path.get(input_path)!.id)
 		) {
