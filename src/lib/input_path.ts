@@ -69,6 +69,7 @@ export const get_possible_source_ids = (
 	if (!isAbsolute(input_path) && root_dirs?.length) {
 		const ids = possible_source_ids.slice(); // make a copy or infinitely loop!
 		for (const root_dir of root_dirs) {
+			// TODO BLOCK replace root doesn't look right, and probably don't need the `GRO_DIST_DIR` hack?
 			const is_gro_dist = root_dir === GRO_DIST_DIR; // TODO hacky to handle Gro importing its JS tasks from dist/
 			for (const possible_source_id of ids) {
 				if (is_gro_dist && !possible_source_id.endsWith('.js')) continue;
