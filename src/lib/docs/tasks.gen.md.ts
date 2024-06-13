@@ -19,7 +19,7 @@ import {log_error_reasons} from '../print_task.js';
 // TODO add backlinks to every document that links to this one
 
 export const gen: Gen = async ({origin_id, log}) => {
-	const result = await load_task_modules();
+	const result = await load_task_modules([paths.lib]);
 	if (!result.ok) {
 		log_error_reasons(log, result.reasons);
 		throw new Error(result.type);

@@ -15,7 +15,8 @@ export interface Gro_Config {
 	 */
 	map_package_json: Map_Package_Json | null;
 	/**
-	 * Where to search for tasks. Defaults to `./src/lib`, `.`, and the Gro package dist.
+	 * The root directories to search for tasks given implicit relative input paths.
+	 * Defaults to `./src/lib`, then the cwd, then the Gro package dist.
 	 */
 	task_paths: string[];
 }
