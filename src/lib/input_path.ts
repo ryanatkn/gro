@@ -173,7 +173,8 @@ export const load_source_ids_by_input_path = async (
 			if (files.size) {
 				const source_ids: Source_Id[] = [];
 				let has_files = false;
-				for (const path of files.keys()) {
+				for (const [path, stats] of files) {
+					if (stats.isDirectory()) continue;
 					has_files = true;
 					const source_id = join(id, path);
 					if (!existing_source_ids.has(source_id)) {
