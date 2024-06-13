@@ -1,4 +1,4 @@
-import {isAbsolute, join, resolve} from 'node:path';
+import {join, resolve} from 'node:path';
 
 import {CONFIG_PATH, GRO_DIST_DIR, IS_THIS_GRO, paths} from './paths.js';
 import create_default_config from './gro.config.default.js';
