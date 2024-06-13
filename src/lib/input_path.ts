@@ -118,13 +118,13 @@ export const load_source_path_data_by_input_path = async (
 	const source_id_path_data_by_input_path = new Map<Input_Path, Path_Data>();
 	const unmapped_input_paths: Input_Path[] = [];
 	for (const input_path of input_paths) {
-		console.log(`load_source_path_data_by_input_path input_path`, input_path);
+		console.log(`[load_source_path_data_by_input_path] input_path`, input_path);
 		let file_path_data: Path_Data | null = null;
 		let dir_path_data: Path_Data | null = null;
 		const possible_source_ids = get_possible_source_ids_for_input_path
 			? get_possible_source_ids_for_input_path(input_path)
 			: [input_path];
-		console.log(`possible_source_ids`, possible_source_ids);
+		console.log(`[load_source_path_data_by_input_path] possible_source_ids`, possible_source_ids);
 		for (const possible_source_id of possible_source_ids) {
 			if (!(await exists(possible_source_id))) continue; // eslint-disable-line no-await-in-loop
 			const stats = await stat(possible_source_id); // eslint-disable-line no-await-in-loop
@@ -159,6 +159,10 @@ export const load_source_ids_by_input_path = async (
 	source_ids_by_input_path: Map<Input_Path, Source_Id[]>;
 	input_directories_with_no_files: Input_Path[];
 }> => {
+	console.log(
+		`[load_source_ids_by_input_path] source_id_path_data_by_input_path`,
+		source_id_path_data_by_input_path,
+	);
 	const source_ids_by_input_path = new Map<Input_Path, Source_Id[]>();
 	const input_directories_with_no_files: Input_Path[] = [];
 	const existing_source_ids = new Set<Source_Id>();

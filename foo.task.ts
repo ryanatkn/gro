@@ -1,4 +1,4 @@
 // TODO BLOCK deleteme
 export const task = {
-	run: () => console.log('foo at ROOT'),
+	run: () => console.log('GRO foo at ROOT'),
 };
