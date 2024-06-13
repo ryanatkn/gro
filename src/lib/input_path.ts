@@ -116,10 +116,8 @@ export const get_possible_source_ids = (
 };
 
 /**
- * Gets the path data for each input path,
- * searching for the possibilities based on `extensions`
- * and stopping at the first match.
- * Parameterized by `exists` and `stat` so it's fs-agnostic.
+ * Gets the path data for each input path, checking the filesystem for the possibilities
+ * and stopping at the first existing file or falling back to the first existing directory.
  */
 export const load_source_path_data_by_input_path = async (
 	input_paths: Input_Path[],
@@ -142,13 +140,13 @@ export const load_source_path_data_by_input_path = async (
 			` possible_source_ids`,
 			possible_source_ids,
 		);
+		// Find the first existing file path or fallback to the first directory path.
 		for (const possible_source_id of possible_source_ids) {
 			if (!(await exists(possible_source_id))) continue; // eslint-disable-line no-await-in-loop
 			const stats = await stat(possible_source_id); // eslint-disable-line no-await-in-loop
 			if (stats.isDirectory()) {
-				if (!dir_path_data) {
-					dir_path_data = to_path_data(possible_source_id, stats);
-				}
+				if (dir_path_data) continue;
+				dir_path_data = to_path_data(possible_source_id, stats);
 			} else {
 				file_path_data = to_path_data(possible_source_id, stats);
 				break;
@@ -176,7 +174,6 @@ export const load_source_path_data_by_input_path = async (
 
 /**
  * Finds all of the matching files for the given input paths.
- * Parameterized by `find_files` so it's fs-agnostic.
  * De-dupes source ids.
  */
 export const load_source_ids_by_input_path = async (
