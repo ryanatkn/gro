@@ -105,10 +105,6 @@ export const import_id_to_lib_path = (import_id: string, p = paths_from_id(impor
 	}
 };
 
-// Can be used to map a source id from e.g. the cwd to gro's.
-export const replace_root_dir = (id: string, root_dir: string, p = paths): string =>
-	join(root_dir, to_root_path(id, p));
-
 export const print_path = (path: string, p = paths, prefix = './'): string => {
 	const root_path = path === GRO_DIST_DIR ? 'gro' : to_root_path(path, p);
 	return gray(`${prefix}${root_path}`);

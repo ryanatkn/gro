@@ -4,7 +4,7 @@ import {stat} from 'node:fs/promises';
 import {z} from 'zod';
 import type {Flavored} from '@ryanatkn/belt/types.js';
 
-import {replace_root_dir, GRO_PACKAGE_DIR, GRO_DIST_DIR, paths, Source_Id} from './paths.js';
+import {GRO_PACKAGE_DIR, GRO_DIST_DIR, paths, Source_Id} from './paths.js';
 import {to_path_data, type Path_Data} from './path.js';
 import {exists} from './fs.js';
 import {search_fs} from './search_fs.js';
@@ -60,25 +60,23 @@ export const get_possible_source_ids = (
 	console.log(red(`[get_possible_source_ids]`), `input_path`, input_path);
 	console.log(red(`[get_possible_source_ids]`), `extensions`, extensions);
 	console.log(red(`[get_possible_source_ids]`), `root_dirs`, root_dirs);
-	const possible_source_ids: Source_Id[] = [input_path as Source_Id];
-	if (!input_path.endsWith('/') && !extensions.some((e) => input_path.endsWith(e))) {
-		for (const extension of extensions) {
-			possible_source_ids.push(input_path + extension);
+	const possible_source_ids: Source_Id[] = [];
+
+	const add_possible_source_ids = (path: string) => {
+		possible_source_ids.push(path as Source_Id);
+		if (!path.endsWith('/') && !extensions.some((e) => path.endsWith(e))) {
+			for (const extension of extensions) {
+				possible_source_ids.push(path + extension);
+			}
 		}
-	}
-	if (!isAbsolute(input_path) && root_dirs?.length) {
-		const ids = possible_source_ids.slice(); // make a copy or infinitely loop!
-		for (const root_dir of root_dirs) {
-			// TODO BLOCK replace root doesn't look right, and probably don't need the `GRO_DIST_DIR` hack?
-			const is_gro_dist = root_dir === GRO_DIST_DIR; // TODO hacky to handle Gro importing its JS tasks from dist/
-			for (const possible_source_id of ids) {
-				if (is_gro_dist && !possible_source_id.endsWith('.js')) continue;
-				// TODO hacky to handle Gro importing its JS tasks from dist/
-				possible_source_ids.push(
-					is_gro_dist
-						? GRO_DIST_DIR + strip_start(possible_source_id, paths.lib)
-						: replace_root_dir(possible_source_id, root_dir, paths),
-				);
+	};
+
+	if (isAbsolute(input_path)) {
+		add_possible_source_ids(input_path);
+	} else {
+		if (root_dirs?.length) {
+			for (const root_dir of root_dirs) {
+				add_possible_source_ids(join(root_dir, input_path));
 			}
 		}
 	}
