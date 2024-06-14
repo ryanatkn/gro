@@ -161,7 +161,7 @@ export const invoke_task = async (
 			);
 		} else {
 			// The Gro directory is not the same as the cwd and it doesn't contain the matching files.
-			// Find all of the possible matches in the Gro directory as well,
+			// Find all of the possible matches in both the current project and the Gro directory,
 			// and log everything out.
 			// Ignore any errors - the directory may not exist or have any files!
 			console.log(
