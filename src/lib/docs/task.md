@@ -23,32 +23,27 @@ and defers composition to the user in regular TypeScript modules.
 
 - tasks are defined by naming files with the `.task.ts` and `.task.js` suffixes
 - tasks can be run from the CLI via a name (`gro foo`),
-  which uses Gro's task resolution (more below),
+  which uses Gro's task resolution (see more below),
   or via paths that are absolute (`gro /path/to/foo`) or explicitly relative (`gro ./foo`)
-- Gro automatically discovers [all `*.task.ts` files](../docs/tasks.md)
+- Gro automatically discovers all `*.task.ts|js` files
   in its configurable directory, so creating a new task
   is as simple as [creating a new file](#define-a-task), no config needed
   (defaults to `src/lib`, see the config option [`task_root_paths`](./config.md#task_root_paths))
+- to view [the available tasks](https://github.com/ryanatkn/gro/blob/main/src/lib/docs/tasks.md)
+  run `gro` with no arguments
 - task definitions are just objects with an async `run` function and some optional properties,
   so composing tasks is explicit in your code, just like any other module
-  (but there's also the helper `invoke_task`: see more below)
-- on the command line, tasks replace the concept of commands,
-  so running them is as simple as `gro <task>`,
-  and in code the task object's `run` function has access to CLI args;
-  to view [the available tasks](https://github.com/ryanatkn/gro/blob/main/src/lib/docs/tasks.md)
-  run `gro` with no arguments
+  (but there's also the helper `invoke_task`, see more below)
+- the task object's `run` function has access to CLI args
 - tasks optionally use [zod](https://github.com/colinhacks/zod) schemas
   for `args` types, runtime parsing with helpful validation errors,
-  and automatic help output, with DRY co-located definitions
-- it's easy to hook into or override any of Gro's builtin tasks,
-  like [`gro test`](/src/lib/test.task.ts) and [`gro gen`](/src/lib/gen.task.ts)
-  (tasks are copy-paste friendly! just update the imports)
-- the task execution environment is filesystem agnostic by default; `run` receives a
-  [`Task_Context` argument](#user-content-types-task-and-taskcontext) with an `fs` property
-- the `Task_Context` provides a rich baseline context object
-  for both development/build tasks and one-off script authoring/execution;
-  it attempts to be portable and extensibile, but there's a _lot_ of room for improvement
-- it's fast because it imports only the modules that your chosen tasks need
+  and generated help docs (`gro foo --help`), with DRY co-located definitions
+- it's easy to call into or override any of Gro's builtin tasks,
+  like [`gro test`](/src/lib/test.task.ts) and [`gro gen`](/src/lib/gen.task.ts) -
+  your own versions with the same name take precedence, and you can invoke the base
+  tasks using the `gro/` prefix, e.g. `gro gro/test`
+  (tasks are also copy-paste friendly! just update the imports)
+- it's fast because it imports only the modules imported by your invoked tasks, not every task's
 
 The task runner's purpose is to provide an ergonomic interface
 between the CLI, build tools, and app code.
@@ -59,8 +54,8 @@ As a developer, it's nice to be able to reuse TypeScript modules in every contex
 ### show all available tasks
 
 ```bash
-# This looks through `src/lib` in both the current working directory
-# and Gro's source for all files matching `*.task.ts` and logs them out.
+# This looks through `src/lib` in both the current working directory and Gro's source
+# for all files matching `*.task.ts|js` and logs them out with their args docs.
 $ gro
 ```
 
@@ -76,7 +71,7 @@ tells Gro where to search for tasks.
 ### show tasks in a directory
 
 ```bash
-# Logs all `*.task.ts` files in `src/lib/some/dir` and `gro/src/lib/some/dir`.
+# Logs all `*.task.ts|js` files in `src/lib/some/dir` and `gro/src/lib/some/dir`.
 # If no tasks are found, it displays an error.
 $ gro some/dir
 ```
@@ -339,7 +334,7 @@ export const task: Task = {
 
 ## why?
 
-Gro usage on the command line (`gro <taskOrDirectory> [...flags]`)
+Gro usage on the command line (`gro <task_name_or_directory> [...flags]`)
 looks a lot like using `node`.
 What makes Gro different?
 
@@ -347,14 +342,15 @@ What makes Gro different?
   contains task modules that conform to some interface.
   This allows them to be discoverable by convention,
   so running `gro` displays them all without any config, and it puts generic handles on them,
-  enabling various verbs (e.g. `run`) and structured metadata (e.g. `summary`).
-- Tasks aren't just a script, they can be inspected, composed, and manipulated in code.
+  enabling various verbs (e.g. `run`) and
+  structured metadata (e.g. `summary` and args schemas for docs and validation).
+- Tasks aren't just a script on the filesystem, they can be composed and inspected in code.
   Task modules do not have any side effects when imported,
   while Node scripts just execute when imported -
-  their primary purpose is to cause side effects.
+  their primary purpose is to cause side effects, and they're limited to the filesystem API.
   This is useful in many cases - for example `gro taskname --help`
   inspects the args schema and other metadata to print help to the console,
-  and `gro` prints the `summary` property of each task it finds.
+  and `gro` prints the `summary` property of each task it discovers.
   There's lots more to explore here, like task composition
   and improved DX with new capabilities.
 - Tasks support CLI args that are validated and typesafe
