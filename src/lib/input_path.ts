@@ -202,7 +202,7 @@ export const load_source_ids_by_input_path = async (
 	return {source_ids_by_input_path, input_directories_with_no_files};
 };
 
-// TODO BLOCK I don't think this is valid any more, we shouldn't transform absolute paths like this,
+// TODO I don't think this is valid any more, we shouldn't transform absolute paths like this,
 // the searching should happen with the input paths
 export const to_gro_input_path = (input_path: Input_Path): Input_Path => {
 	const base_path = input_path === paths.lib.slice(0, -1) ? '' : strip_start(input_path, paths.lib);

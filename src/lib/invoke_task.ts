@@ -40,6 +40,10 @@ export const invoke_task = async (
 	log.info('invoking', task_name ? cyan(task_name) : 'gro');
 
 	const total_timing = create_stopwatch();
+	const finish = () => {
+		print_timings(timings, log);
+		log.info(`🕒 ${print_ms(total_timing())}`);
+	};
 
 	// Check if the caller just wants to see the version.
 	if (!task_name && (args.version || args.v)) {
@@ -49,7 +53,6 @@ export const invoke_task = async (
 		return;
 	}
 
-	// TODO BLOCK load config, and probably pass it downstream
 	// Resolve the input path for the provided task name.
 	const input_path = to_input_path(task_name);
 	console.log(cyan(`[invoke_task] input_path`), input_path);
@@ -82,13 +85,15 @@ export const invoke_task = async (
 					),
 				);
 				const gro_dir_find_modules_result = await log_gro_package_tasks(input_path, log);
-				// TODO BLOCK this doesn't seem to be working as commented, test this condition in another repo (maybe like "gro sync" when there's a "src/lib/sync" folder)
+				// TODO this doesn't seem to be working as commented, test this condition in another repo (maybe like "gro sync" when there's a "src/lib/sync" folder)
 				if (!gro_dir_find_modules_result.ok) {
 					// Log the original errors, not the Gro-specific ones.
 					console.log(yellow(`// Log the original errors, not the Gro-specific ones.`));
 					log_error_reasons(log, find_modules_result.reasons);
 					process.exit(1);
 				}
+				finish();
+				return;
 			}
 		} else {
 			// Some unknown find modules result failure happened, so log it out.
@@ -151,7 +156,7 @@ export const invoke_task = async (
 			console.log(yellow(`// Is the Gro directory the same as the cwd? Log the matching files.`));
 			await log_tasks(log, print_path(path_data.id), find_modules_result.source_ids_by_input_path);
 		} else if (is_gro_id(path_data.id)) {
-			// TODO BLOCK delete this? merge behavior with the block above/below?
+			// TODO delete this? merge behavior with the block above/below?
 			// Does the Gro directory contain the matching files? Log them.
 			console.log(yellow(`// Does the Gro directory contain the matching files? Log them.`));
 			await log_tasks(
@@ -180,6 +185,5 @@ export const invoke_task = async (
 		}
 	}
 
-	print_timings(timings, log);
-	log.info(`🕒 ${print_ms(total_timing())}`);
+	finish();
 };

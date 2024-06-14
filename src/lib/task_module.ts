@@ -32,7 +32,7 @@ export const load_task_module = async (
 ): Promise<Load_Module_Result<Task_Module_Meta>> => {
 	const result = await load_module(id, validate_task_module);
 	if (!result.ok) return result;
-	return {...result, mod: {...result.mod, name: to_task_name(id)}}; // TODO BLOCK this task name needs to use task root paths
+	return {...result, mod: {...result.mod, name: to_task_name(id)}}; // TODO this task name needs to use task root paths or cwd
 };
 
 export const find_task_modules = async (

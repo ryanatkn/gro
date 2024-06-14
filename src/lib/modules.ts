@@ -80,7 +80,6 @@ export type Load_Modules_Result<T_Module_Meta extends Module_Meta> = Result<
 export const find_modules = async (
 	input_paths: Input_Path[],
 	custom_search_fs = search_fs,
-	// TODO BLOCK review
 	get_possible_source_ids?: (input_path: Input_Path) => Source_Id[],
 	timings?: Timings,
 ): Promise<Find_Modules_Result> => {
