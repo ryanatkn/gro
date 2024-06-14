@@ -5,10 +5,12 @@ import {print_value} from '@ryanatkn/belt/print.js';
 import {ZodFirstPartyTypeKind, type ZodObjectDef, type ZodTypeAny, type ZodTypeDef} from 'zod';
 
 import type {Arg_Schema} from './args.js';
-import {load_modules} from './modules.js';
+import {find_modules, load_modules, type Find_Modules_Result} from './modules.js';
 import {load_task_module, type Task_Module_Meta} from './task_module.js';
-import type {Input_Path} from './input_path.js';
-import type {Source_Id} from './paths.js';
+import {to_gro_input_path, type Input_Path} from './input_path.js';
+import {print_path_or_gro_path, type Source_Id} from './paths.js';
+import {is_task_path} from './task.js';
+import {search_fs} from './search_fs.js';
 
 export const print_tasks = async (
 	log: Logger,
@@ -47,6 +49,29 @@ export const print_tasks = async (
 	} else {
 		log.info(`No tasks found in ${dir_label}.`);
 	}
+};
+
+export const print_gro_package_tasks = async (
+	input_path: Input_Path,
+	log: Logger,
+): Promise<Find_Modules_Result> => {
+	const gro_dir_input_path = to_gro_input_path(input_path);
+	// TODO BLOCK review
+	const gro_dir_find_modules_result = await find_modules([gro_dir_input_path], (id) =>
+		search_fs(id, {filter: (path) => is_task_path(path)}),
+	);
+	if (gro_dir_find_modules_result.ok) {
+		const gro_path_data =
+			gro_dir_find_modules_result.source_id_path_data_by_input_path.get(gro_dir_input_path)!;
+		// Log the Gro matches.
+		await print_tasks(
+			log,
+			print_path_or_gro_path(gro_path_data.id),
+			gro_dir_find_modules_result.source_ids_by_input_path,
+		);
+	}
+	console.log(cyan(`[invoke_task] gro_dir_find_modules_result`), gro_dir_find_modules_result);
+	return gro_dir_find_modules_result;
 };
 
 export const print_error_reasons = (log: Logger, reasons: string[]): void => {

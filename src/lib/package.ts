@@ -718,6 +718,7 @@ export const src_json = {
 			path: 'print_task.ts',
 			declarations: [
 				{name: 'print_tasks', kind: 'function'},
+				{name: 'print_gro_package_tasks', kind: 'function'},
 				{name: 'print_error_reasons', kind: 'function'},
 				{name: 'print_task_help', kind: 'function'},
 			],
