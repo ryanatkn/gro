@@ -59,7 +59,7 @@ export const package_json = {
 		'@ryanatkn/fuz': '^0.102.1',
 		'@ryanatkn/moss': '^0.4.0',
 		'@sveltejs/adapter-static': '^3.0.2',
-		'@sveltejs/kit': '^2.5.11',
+		'@sveltejs/kit': '^2.5.13',
 		'@sveltejs/package': '^2.3.2',
 		'@sveltejs/vite-plugin-svelte': '^3.1.1',
 		'@types/fs-extra': '^11.0.4',
