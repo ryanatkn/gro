@@ -10,7 +10,7 @@ import {is_gro_id, IS_THIS_GRO, print_path, print_path_or_gro_path} from './path
 import {load_modules} from './modules.js';
 import {find_task_modules, load_task_module} from './task_module.js';
 import {load_gro_package_json} from './package_json.js';
-import {print_tasks, print_error_reasons, print_gro_package_tasks} from './print_task.js';
+import {log_tasks, log_error_reasons, log_gro_package_tasks} from './task_logging.js';
 import type {Gro_Config} from './config.js';
 
 /**
@@ -71,7 +71,7 @@ export const invoke_task = async (
 			) {
 				// If the directory is inside Gro, just log the errors.
 				console.log(yellow(`// If the directory is inside Gro, just log the errors.`));
-				print_error_reasons(log, find_modules_result.reasons);
+				log_error_reasons(log, find_modules_result.reasons);
 				process.exit(1);
 			} else {
 				// If there's a matching directory in the current working directory,
@@ -81,12 +81,12 @@ export const invoke_task = async (
 						`// If there's a matching directory in the current working directory, but it has no matching files, we still want to search Gro's directory.`,
 					),
 				);
-				const gro_dir_find_modules_result = await print_gro_package_tasks(input_path, log);
+				const gro_dir_find_modules_result = await log_gro_package_tasks(input_path, log);
 				// TODO BLOCK this doesn't seem to be working as commented, test this condition in another repo (maybe like "gro sync" when there's a "src/lib/sync" folder)
 				if (!gro_dir_find_modules_result.ok) {
 					// Log the original errors, not the Gro-specific ones.
 					console.log(yellow(`// Log the original errors, not the Gro-specific ones.`));
-					print_error_reasons(log, find_modules_result.reasons);
+					log_error_reasons(log, find_modules_result.reasons);
 					process.exit(1);
 				}
 			}
@@ -94,7 +94,7 @@ export const invoke_task = async (
 			// Some unknown find modules result failure happened, so log it out.
 			// (currently, just "unmapped_input_paths")
 			console.log(yellow(`// Some unknown find modules result failure happened, so log it out.`));
-			print_error_reasons(log, find_modules_result.reasons);
+			log_error_reasons(log, find_modules_result.reasons);
 			process.exit(1);
 		}
 	}
@@ -136,12 +136,12 @@ export const invoke_task = async (
 				log.info(`✓ ${cyan(task.name)}`);
 			} else {
 				log.info(`${red('🞩')} ${cyan(task.name)}`);
-				print_error_reasons(log, [result.reason]);
+				log_error_reasons(log, [result.reason]);
 				throw result.error;
 			}
 		} else {
 			console.log(yellow(`no task module found`));
-			print_error_reasons(log, load_modules_result.reasons);
+			log_error_reasons(log, load_modules_result.reasons);
 			process.exit(1);
 		}
 	} else {
@@ -149,16 +149,12 @@ export const invoke_task = async (
 		if (IS_THIS_GRO) {
 			// Is the Gro directory the same as the cwd? Log the matching files.
 			console.log(yellow(`// Is the Gro directory the same as the cwd? Log the matching files.`));
-			await print_tasks(
-				log,
-				print_path(path_data.id),
-				find_modules_result.source_ids_by_input_path,
-			);
+			await log_tasks(log, print_path(path_data.id), find_modules_result.source_ids_by_input_path);
 		} else if (is_gro_id(path_data.id)) {
 			// TODO BLOCK delete this? merge behavior with the block above/below?
 			// Does the Gro directory contain the matching files? Log them.
 			console.log(yellow(`// Does the Gro directory contain the matching files? Log them.`));
-			await print_tasks(
+			await log_tasks(
 				log,
 				print_path_or_gro_path(path_data.id),
 				find_modules_result.source_ids_by_input_path,
@@ -173,9 +169,9 @@ export const invoke_task = async (
 					`// The Gro directory is not the same as the cwd and it doesn't contain the matching files.`,
 				),
 			);
-			const gro_dir_find_modules_result = await print_gro_package_tasks(input_path, log);
+			const gro_dir_find_modules_result = await log_gro_package_tasks(input_path, log);
 			// Then log the current working directory matches.
-			await print_tasks(
+			await log_tasks(
 				log,
 				print_path(path_data.id),
 				find_modules_result.source_ids_by_input_path,

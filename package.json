@@ -322,10 +322,6 @@
       "default": "./dist/plugin.js",
       "types": "./dist/plugin.d.ts"
     },
-    "./print_task.js": {
-      "default": "./dist/print_task.js",
-      "types": "./dist/print_task.d.ts"
-    },
     "./publish.task.js": {
       "default": "./dist/publish.task.js",
       "types": "./dist/publish.task.d.ts"
@@ -401,6 +397,10 @@
     "./sync.task.js": {
       "default": "./dist/sync.task.js",
       "types": "./dist/sync.task.d.ts"
+    },
+    "./task_logging.js": {
+      "default": "./dist/task_logging.js",
+      "types": "./dist/task_logging.d.ts"
     },
     "./task_module.js": {
       "default": "./dist/task_module.js",

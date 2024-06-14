@@ -12,51 +12,50 @@ import {print_path_or_gro_path, type Source_Id} from './paths.js';
 import {is_task_path} from './task.js';
 import {search_fs} from './search_fs.js';
 
-export const print_tasks = async (
+export const log_tasks = async (
 	log: Logger,
 	dir_label: string,
 	source_ids_by_input_path: Map<Input_Path, Source_Id[]>,
-	print_intro = true,
+	log_intro = true,
 ): Promise<void> => {
 	const source_ids = Array.from(source_ids_by_input_path.values()).flat();
 	if (source_ids.length) {
-		// Load all of the tasks so we can print their summary, and args for the `--help` flag.
+		// Load all of the tasks so we can log their summary, and args for the `--help` flag.
 		const load_modules_result = await load_modules(source_ids_by_input_path, load_task_module);
 		if (!load_modules_result.ok) {
-			print_error_reasons(log, load_modules_result.reasons);
+			log_error_reasons(log, load_modules_result.reasons);
 			process.exit(1);
 		}
-		const printed: string[] = [
-			`${print_intro ? '\n\n' : ''}${source_ids.length} task${plural(
+		const logged: string[] = [
+			`${log_intro ? '\n\n' : ''}${source_ids.length} task${plural(
 				source_ids.length,
 			)} in ${dir_label}:\n`,
 		];
-		if (print_intro) {
-			printed.unshift(
+		if (log_intro) {
+			logged.unshift(
 				`\n\n${gray('Run a task:')} gro [name]`,
 				`\n${gray('View help:')}  gro [name] --help`,
 			);
 		}
 		const longest_task_name = to_max_length(load_modules_result.modules, (m) => m.name);
 		for (const meta of load_modules_result.modules) {
-			printed.push(
+			logged.push(
 				'\n' + cyan(pad(meta.name, longest_task_name)),
 				'  ',
 				meta.mod.task.summary || '',
 			);
 		}
-		log[print_intro ? 'info' : 'plain'](printed.join('') + '\n');
+		log[log_intro ? 'info' : 'plain'](logged.join('') + '\n');
 	} else {
 		log.info(`No tasks found in ${dir_label}.`);
 	}
 };
 
-export const print_gro_package_tasks = async (
+export const log_gro_package_tasks = async (
 	input_path: Input_Path,
 	log: Logger,
 ): Promise<Find_Modules_Result> => {
 	const gro_dir_input_path = to_gro_input_path(input_path);
-	// TODO BLOCK review
 	const gro_dir_find_modules_result = await find_modules([gro_dir_input_path], (id) =>
 		search_fs(id, {filter: (path) => is_task_path(path)}),
 	);
@@ -64,7 +63,7 @@ export const print_gro_package_tasks = async (
 		const gro_path_data =
 			gro_dir_find_modules_result.source_id_path_data_by_input_path.get(gro_dir_input_path)!;
 		// Log the Gro matches.
-		await print_tasks(
+		await log_tasks(
 			log,
 			print_path_or_gro_path(gro_path_data.id),
 			gro_dir_find_modules_result.source_ids_by_input_path,
@@ -74,7 +73,7 @@ export const print_gro_package_tasks = async (
 	return gro_dir_find_modules_result;
 };
 
-export const print_error_reasons = (log: Logger, reasons: string[]): void => {
+export const log_error_reasons = (log: Logger, reasons: string[]): void => {
 	for (const reason of reasons) {
 		log.error(red(reason));
 	}
@@ -82,13 +81,13 @@ export const print_error_reasons = (log: Logger, reasons: string[]): void => {
 
 const ARGS_PROPERTY_NAME = '[...args]';
 
-export const print_task_help = (log: Logger, meta: Task_Module_Meta): void => {
+export const log_task_help = (log: Logger, meta: Task_Module_Meta): void => {
 	const {
 		name,
 		mod: {task},
 	} = meta;
-	const printed: string[] = [];
-	printed.push(
+	const logged: string[] = [];
+	logged.push(
 		cyan(name),
 		'help',
 		cyan(`\n\ngro ${name}`) + `: ${task.summary || '(no summary available)'}\n`,
@@ -104,7 +103,7 @@ export const print_task_help = (log: Logger, meta: Task_Module_Meta): void => {
 		const longest_default = to_max_length(properties, (p) => print_value(p.schema.default));
 		for (const property of properties) {
 			const name = property.name === '_' ? ARGS_PROPERTY_NAME : property.name;
-			printed.push(
+			logged.push(
 				`\n${green(pad(name, longest_task_name))} `,
 				gray(pad(property.schema.type, longest_type)) + ' ',
 				pad(print_value(property.schema.default), longest_default) + ' ',
@@ -112,10 +111,10 @@ export const print_task_help = (log: Logger, meta: Task_Module_Meta): void => {
 			);
 		}
 		if (!properties.length) {
-			printed.push('\n' + gray('this task has no args'));
+			logged.push('\n' + gray('this task has no args'));
 		}
 	}
-	log.info(...printed, '\n');
+	log.info(...logged, '\n');
 };
 
 interface Arg_Schema_Property {

@@ -180,7 +180,6 @@ export const package_json = {
 		'./path.js': {default: './dist/path.js', types: './dist/path.d.ts'},
 		'./paths.js': {default: './dist/paths.js', types: './dist/paths.d.ts'},
 		'./plugin.js': {default: './dist/plugin.js', types: './dist/plugin.d.ts'},
-		'./print_task.js': {default: './dist/print_task.js', types: './dist/print_task.d.ts'},
 		'./publish.task.js': {default: './dist/publish.task.js', types: './dist/publish.task.d.ts'},
 		'./release.task.js': {default: './dist/release.task.js', types: './dist/release.task.d.ts'},
 		'./resolve_node_specifier.js': {
@@ -233,6 +232,7 @@ export const package_json = {
 			types: './dist/sveltekit_shim_env.d.ts',
 		},
 		'./sync.task.js': {default: './dist/sync.task.js', types: './dist/sync.task.d.ts'},
+		'./task_logging.js': {default: './dist/task_logging.js', types: './dist/task_logging.d.ts'},
 		'./task_module.js': {default: './dist/task_module.js', types: './dist/task_module.d.ts'},
 		'./task.js': {default: './dist/task.js', types: './dist/task.d.ts'},
 		'./test.task.js': {default: './dist/test.task.js', types: './dist/test.task.d.ts'},
@@ -714,15 +714,6 @@ export const src_json = {
 				{name: 'replace_plugin', kind: 'function'},
 			],
 		},
-		'./print_task.js': {
-			path: 'print_task.ts',
-			declarations: [
-				{name: 'print_tasks', kind: 'function'},
-				{name: 'print_gro_package_tasks', kind: 'function'},
-				{name: 'print_error_reasons', kind: 'function'},
-				{name: 'print_task_help', kind: 'function'},
-			],
-		},
 		'./publish.task.js': {
 			path: 'publish.task.ts',
 			declarations: [
@@ -876,6 +867,15 @@ export const src_json = {
 				{name: 'Args', kind: 'variable'},
 				{name: 'task', kind: 'variable'},
 				{name: 'sveltekit_sync', kind: 'function'},
+			],
+		},
+		'./task_logging.js': {
+			path: 'task_logging.ts',
+			declarations: [
+				{name: 'log_tasks', kind: 'function'},
+				{name: 'log_gro_package_tasks', kind: 'function'},
+				{name: 'log_error_reasons', kind: 'function'},
+				{name: 'log_task_help', kind: 'function'},
 			],
 		},
 		'./task_module.js': {path: 'task_module.ts', declarations: []},
