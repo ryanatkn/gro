@@ -4,7 +4,11 @@ import {Unreachable_Error} from '@ryanatkn/belt/error.js';
 import type {Result} from '@ryanatkn/belt/result.js';
 import {print_error} from '@ryanatkn/belt/print.js';
 
-import {load_source_path_data_by_input_path, load_source_ids_by_input_path} from './input_path.js';
+import {
+	load_source_path_data_by_input_path,
+	load_source_ids_by_input_path,
+	Input_Path,
+} from './input_path.js';
 import type {Path_Data} from './path.js';
 import {paths_from_id, print_path, print_path_or_gro_path, type Source_Id} from './paths.js';
 import {search_fs} from './search_fs.js';
@@ -37,23 +41,23 @@ export const load_module = async <T extends Record<string, any>>(
 
 export type Find_Modules_Result = Result<
 	{
-		source_ids_by_input_path: Map<string, string[]>;
-		source_id_path_data_by_input_path: Map<string, Path_Data>;
+		source_ids_by_input_path: Map<Input_Path, Source_Id[]>;
+		source_id_path_data_by_input_path: Map<Input_Path, Path_Data>;
 	},
 	Find_Modules_Failure
 >;
 export type Find_Modules_Failure =
 	| {
 			type: 'unmapped_input_paths';
-			source_id_path_data_by_input_path: Map<string, Path_Data>;
-			unmapped_input_paths: string[];
+			source_id_path_data_by_input_path: Map<Input_Path, Path_Data>;
+			unmapped_input_paths: Input_Path[];
 			reasons: string[];
 	  }
 	| {
 			type: 'input_directories_with_no_files';
-			source_ids_by_input_path: Map<string, string[]>;
-			source_id_path_data_by_input_path: Map<string, Path_Data>;
-			input_directories_with_no_files: string[];
+			source_ids_by_input_path: Map<Input_Path, Source_Id[]>;
+			source_id_path_data_by_input_path: Map<Input_Path, Path_Data>;
+			input_directories_with_no_files: Input_Path[];
 			reasons: string[];
 	  };
 
@@ -70,15 +74,13 @@ export type Load_Modules_Result<T_Module_Meta extends Module_Meta> = Result<
 	}
 >;
 
-/*
-
-Finds modules from input paths. (see `src/lib/input_path.ts` for more)
-
-*/
+/**
+ * Finds modules from input paths. (see `src/lib/input_path.ts` for more)
+ */
 export const find_modules = async (
-	input_paths: string[],
+	input_paths: Input_Path[],
 	custom_search_fs = search_fs,
-	get_possible_source_ids?: (input_path: string) => string[],
+	get_possible_source_ids?: (input_path: Input_Path) => Source_Id[],
 	timings?: Timings,
 ): Promise<Find_Modules_Result> => {
 	// Check which extension variation works - if it's a directory, prefer others first!
@@ -131,18 +133,12 @@ export const find_modules = async (
 		: {ok: true, source_ids_by_input_path, source_id_path_data_by_input_path};
 };
 
-/*
-
-Load modules by source id.
-
-TODO parallelize, originally it needed to be serial for a specific usecase we no longer have
-
-*/
+// TODO parallelize, originally it needed to be serial for a specific usecase we no longer have
 export const load_modules = async <
 	Module_Type extends Record<string, any>,
 	T_Module_Meta extends Module_Meta<Module_Type>,
 >(
-	source_ids_by_input_path: Map<string, string[]>, // TODO maybe make this a flat array and remove `input_path`?
+	source_ids_by_input_path: Map<Input_Path, Source_Id[]>, // TODO maybe make this a flat array and remove `input_path`?
 	load_module_by_id: (source_id: Source_Id) => Promise<Load_Module_Result<T_Module_Meta>>,
 	timings?: Timings,
 ): Promise<Load_Modules_Result<T_Module_Meta>> => {

@@ -8,7 +8,7 @@ import {strip_end} from '@ryanatkn/belt/string.js';
 import {
 	paths,
 	gro_paths,
-	is_this_project_gro,
+	IS_THIS_GRO,
 	replace_extension,
 	SVELTEKIT_DIST_DIRNAME,
 	Url,
@@ -129,7 +129,7 @@ export interface Map_Package_Json {
 export const EMPTY_PACKAGE_JSON: Package_Json = {name: '', version: ''};
 
 export const load_package_json = async (
-	dir = is_this_project_gro ? gro_paths.root : paths.root,
+	dir = IS_THIS_GRO ? gro_paths.root : paths.root,
 	cache?: Record<string, Package_Json>,
 ): Promise<Package_Json> => {
 	let package_json: Package_Json;
@@ -139,7 +139,7 @@ export const load_package_json = async (
 	try {
 		package_json = JSON.parse(await load_package_json_contents(dir));
 	} catch (err) {
-		throw Error('failed to load package.json at ' + dir);
+		return EMPTY_PACKAGE_JSON;
 	}
 	if (cache) cache[dir] = package_json;
 	return package_json;

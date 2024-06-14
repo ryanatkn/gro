@@ -1,60 +1,50 @@
-import {join, isAbsolute, basename} from 'node:path';
-import {strip_end, strip_start} from '@ryanatkn/belt/string.js';
+import {isAbsolute, join, resolve} from 'node:path';
+import {strip_start} from '@ryanatkn/belt/string.js';
 import {stat} from 'node:fs/promises';
+import {z} from 'zod';
+import type {Flavored} from '@ryanatkn/belt/types.js';
 
-import {
-	lib_path_to_import_id,
-	replace_root_dir,
-	gro_dir_basename,
-	gro_paths,
-	LIB_DIR,
-	LIB_PATH,
-	is_this_project_gro,
-	gro_sveltekit_dist_dir,
-	paths,
-} from './paths.js';
+import {GRO_PACKAGE_DIR, GRO_DIST_DIR, paths, Source_Id} from './paths.js';
 import {to_path_data, type Path_Data} from './path.js';
 import {exists} from './fs.js';
 import {search_fs} from './search_fs.js';
+import {TASK_FILE_SUFFIX_JS} from './task.js';
+
+// TODO Flavored doesn't work when used in schemas, use Zod brand instead? problem is ergonomics
+export const Input_Path = z.string();
+export type Input_Path = Flavored<z.infer<typeof Input_Path>, 'Input_Path'>;
+
+export const Raw_Input_Path = z.string();
+export type Raw_Input_Path = Flavored<z.infer<typeof Raw_Input_Path>, 'Raw_Input_Path'>;
 
 /**
- * Raw input paths are paths that users provide to Gro to reference files
- * enhanced with Gro's conventions like `.test.`, `.task.`, and `.gen.`.
+ * Raw input paths are paths that users provide to Gro to reference files for tasks and gen.
  *
- * A raw input path can be:
+ * A raw input path can be to a file or directory in the following forms:
  *
- * - a relative path to a file, e.g. `src/foo/bar.test.ts`
- * - a file without an extension, e.g. `src/foo/bar` if `extensions` is `.test.ts`
- * - a directory containing any number of files, e.g. `src/foo`
- * - any of the above without the leading `src/` or with a leading `./`
- * - any of the above but leading with `gro/` to ignore the local directory
- * - an absolute path to a file or directory in the current directory or Gro's
+ * - an absolute path, preserved
+ * - an explicit relative path, e.g. `./src/foo`, resolved to `root_path` which defaults to the cwd
+ * - an implicit relative path, e.g. `src/foo`, preserved
+ * - an implicit relative path prefixed with `gro/`, transformed to absolute in the Gro directory
  *
- * The input path API lets the caller customize the allowable extensions.
- * That means that the caller can look for `.test.` files but not `.gen.`,
- * or both, or neither, depending on its needs.
- *
- * In the future we may want to support globbing or regexps.
+ * Thus, input paths are either absolute or implicitly relative.
  */
-export const resolve_input_path = (raw_input_path: string): string => {
-	if (isAbsolute(raw_input_path)) return strip_end(raw_input_path, '/');
-	// Allow prefix `./` and just remove it if it's there.
-	let base_path = strip_end(strip_start(raw_input_path, './'), '/');
-	let paths;
-	// If it's prefixed with `gro/` or exactly `gro`, use the Gro paths.
-	if (is_this_project_gro || (base_path + '/').startsWith(gro_dir_basename)) {
-		paths = gro_paths;
-		base_path = strip_end(strip_start(base_path + '/', gro_dir_basename), '/');
+export const to_input_path = (
+	raw_input_path: Raw_Input_Path,
+	root_path = process.cwd(),
+): Input_Path => {
+	if (raw_input_path.startsWith(GRO_PACKAGE_DIR)) {
+		return GRO_DIST_DIR + strip_start(raw_input_path, GRO_PACKAGE_DIR);
+	} else if (raw_input_path[0] === '.') {
+		return resolve(root_path, raw_input_path);
 	}
-	// Handle `src/lib` by itself without conflicting with `src/libFoo` names.
-	if (base_path === LIB_PATH) base_path = ''; // TODO @multiple get from the sveltekit config
-	// Allow prefix `src/lib/` and just remove it if it's there.
-	base_path = strip_start(base_path, LIB_DIR);
-	return lib_path_to_import_id(base_path, paths);
+	return raw_input_path as Input_Path;
 };
 
-export const resolve_input_paths = (raw_input_paths?: string[]): string[] =>
-	raw_input_paths?.length ? raw_input_paths.map((p) => resolve_input_path(p)) : [paths.source];
+export const to_input_paths = (
+	raw_input_paths: Raw_Input_Path[],
+	root_path?: string,
+): Input_Path[] => raw_input_paths.map((p) => to_input_path(p, root_path));
 
 /**
  * Gets a list of possible source ids for each input path with `extensions`,
@@ -63,74 +53,75 @@ export const resolve_input_paths = (raw_input_paths?: string[]): string[] =>
  * It's the helper used in implementations of `get_possible_source_ids_for_input_path` below.
  */
 export const get_possible_source_ids = (
-	input_path: string,
+	input_path: Input_Path,
 	extensions: string[],
 	root_dirs?: string[],
-): string[] => {
-	const possible_source_ids = [input_path];
-	if (!input_path.endsWith('/')) {
-		for (const extension of extensions) {
-			if (!input_path.endsWith(extension)) {
-				possible_source_ids.push(input_path + extension);
-				// Support task directories, so `src/lib/a/a.task.ts` works like `src/a.task.ts`.
-				possible_source_ids.push(join(input_path, basename(input_path) + extension));
+): Source_Id[] => {
+	const possible_source_ids: Source_Id[] = [];
+
+	const add_possible_source_ids = (path: string) => {
+		// Specifically for paths to the Gro package dist, optimize by only looking for `.task.js`.
+		if (path.startsWith(GRO_DIST_DIR)) {
+			possible_source_ids.push(
+				(path.endsWith('/') || path.endsWith(TASK_FILE_SUFFIX_JS)
+					? path
+					: path + TASK_FILE_SUFFIX_JS) as Source_Id,
+			);
+		} else {
+			possible_source_ids.push(path as Source_Id);
+			if (!path.endsWith('/') && !extensions.some((e) => path.endsWith(e))) {
+				for (const extension of extensions) {
+					possible_source_ids.push(path + extension);
+				}
 			}
 		}
-	}
-	if (root_dirs?.length) {
-		const ids = possible_source_ids.slice(); // make a copy or infinitely loop!
+	};
+
+	if (isAbsolute(input_path)) {
+		add_possible_source_ids(input_path);
+	} else if (root_dirs?.length) {
 		for (const root_dir of root_dirs) {
-			if (input_path.startsWith(root_dir)) continue; // avoid duplicates
-			const is_gro_dist = root_dir === gro_sveltekit_dist_dir; // TODO hacky to handle Gro importing its JS tasks from dist/
-			for (const possible_source_id of ids) {
-				if (is_gro_dist && !possible_source_id.endsWith('.js')) continue;
-				// TODO hacky to handle Gro importing its JS tasks from dist/
-				possible_source_ids.push(
-					is_gro_dist
-						? gro_sveltekit_dist_dir + strip_start(possible_source_id, paths.lib)
-						: replace_root_dir(possible_source_id, root_dir, paths),
-				);
-			}
+			add_possible_source_ids(join(root_dir, input_path));
 		}
 	}
 	return possible_source_ids;
 };
 
 /**
- * Gets the path data for each input path,
- * searching for the possibilities based on `extensions`
- * and stopping at the first match.
- * Parameterized by `exists` and `stat` so it's fs-agnostic.
+ * Gets the path data for each input path, checking the filesystem for the possibilities
+ * and stopping at the first existing file or falling back to the first existing directory.
+ * If none is found for an input path, it's added to `unmapped_input_paths`.
  */
 export const load_source_path_data_by_input_path = async (
-	input_paths: string[],
-	get_possible_source_ids_for_input_path?: (input_path: string) => string[],
+	input_paths: Input_Path[],
+	get_possible_source_ids_for_input_path?: (input_path: Input_Path) => Source_Id[],
 ): Promise<{
-	source_id_path_data_by_input_path: Map<string, Path_Data>;
-	unmapped_input_paths: string[];
+	source_id_path_data_by_input_path: Map<Input_Path, Path_Data>;
+	unmapped_input_paths: Input_Path[];
 }> => {
-	const source_id_path_data_by_input_path = new Map<string, Path_Data>();
-	const unmapped_input_paths: string[] = [];
+	const source_id_path_data_by_input_path = new Map<Input_Path, Path_Data>();
+	const unmapped_input_paths: Input_Path[] = [];
 	for (const input_path of input_paths) {
 		let file_path_data: Path_Data | null = null;
 		let dir_path_data: Path_Data | null = null;
 		const possible_source_ids = get_possible_source_ids_for_input_path
 			? get_possible_source_ids_for_input_path(input_path)
 			: [input_path];
+		// Find the first existing file path or fallback to the first directory path.
 		for (const possible_source_id of possible_source_ids) {
 			if (!(await exists(possible_source_id))) continue; // eslint-disable-line no-await-in-loop
 			const stats = await stat(possible_source_id); // eslint-disable-line no-await-in-loop
 			if (stats.isDirectory()) {
-				if (!dir_path_data) {
-					dir_path_data = to_path_data(possible_source_id, stats);
-				}
+				if (dir_path_data) continue;
+				dir_path_data = to_path_data(possible_source_id, stats);
 			} else {
 				file_path_data = to_path_data(possible_source_id, stats);
 				break;
 			}
 		}
-		if (file_path_data || dir_path_data) {
-			source_id_path_data_by_input_path.set(input_path, file_path_data || dir_path_data!); // the ! is needed because TypeScript inference fails
+		const path_data = file_path_data || dir_path_data;
+		if (path_data) {
+			source_id_path_data_by_input_path.set(input_path, path_data);
 		} else {
 			unmapped_input_paths.push(input_path);
 		}
@@ -140,27 +131,27 @@ export const load_source_path_data_by_input_path = async (
 
 /**
  * Finds all of the matching files for the given input paths.
- * Parameterized by `find_files` so it's fs-agnostic.
  * De-dupes source ids.
  */
 export const load_source_ids_by_input_path = async (
-	source_id_path_data_by_input_path: Map<string, Path_Data>,
+	source_id_path_data_by_input_path: Map<Input_Path, Path_Data>,
 	custom_search_fs = search_fs,
 ): Promise<{
-	source_ids_by_input_path: Map<string, string[]>;
-	input_directories_with_no_files: string[];
+	source_ids_by_input_path: Map<Input_Path, Source_Id[]>;
+	input_directories_with_no_files: Input_Path[];
 }> => {
-	const source_ids_by_input_path = new Map<string, string[]>();
-	const input_directories_with_no_files: string[] = [];
-	const existing_source_ids = new Set<string>();
+	const source_ids_by_input_path = new Map<Input_Path, Source_Id[]>();
+	const input_directories_with_no_files: Input_Path[] = [];
+	const existing_source_ids = new Set<Source_Id>();
 	for (const [input_path, path_data] of source_id_path_data_by_input_path) {
 		const {id} = path_data;
 		if (path_data.isDirectory) {
 			const files = await custom_search_fs(id, {files_only: false}); // eslint-disable-line no-await-in-loop
 			if (files.size) {
-				const source_ids: string[] = [];
+				const source_ids: Source_Id[] = [];
 				let has_files = false;
-				for (const path of files.keys()) {
+				for (const [path, stats] of files) {
+					if (stats.isDirectory()) continue;
 					has_files = true;
 					const source_id = join(id, path);
 					if (!existing_source_ids.has(source_id)) {
@@ -174,7 +165,7 @@ export const load_source_ids_by_input_path = async (
 				if (!has_files) {
 					input_directories_with_no_files.push(input_path);
 				}
-				// do callers ever need `inputDirectoriesWithDuplicateFiles`?
+				// do callers ever need `input_directories_with_duplicate_files`?
 			} else {
 				input_directories_with_no_files.push(input_path);
 			}
@@ -184,4 +175,11 @@ export const load_source_ids_by_input_path = async (
 		}
 	}
 	return {source_ids_by_input_path, input_directories_with_no_files};
+};
+
+// TODO I don't think this is valid any more, we shouldn't transform absolute paths like this,
+// the searching should happen with the input paths
+export const to_gro_input_path = (input_path: Input_Path): Input_Path => {
+	const base_path = input_path === paths.lib.slice(0, -1) ? '' : strip_start(input_path, paths.lib);
+	return GRO_DIST_DIR + base_path;
 };

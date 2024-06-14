@@ -1,89 +1,61 @@
-import {suite} from 'uvu';
+import {test} from 'uvu';
 import * as assert from 'uvu/assert';
 import {resolve} from 'node:path';
 
 import {
-	resolve_input_path,
-	resolve_input_paths,
+	to_input_path,
+	to_input_paths,
 	load_source_ids_by_input_path,
 	get_possible_source_ids,
 } from './input_path.js';
 import type {Path_Stats} from './path.js';
-import {paths} from './paths.js';
+import {GRO_DIST_DIR, paths} from './paths.js';
 
-/* test__resolve_input_path */
-const test__resolve_input_path = suite('resolve_input_path');
-
-test__resolve_input_path('basic behavior', () => {
-	const target = resolve('dist/foo/bar.ts');
-	assert.is(resolve_input_path('foo/bar.ts'), target);
-	assert.is(resolve_input_path('src/lib/foo/bar.ts'), target);
-	assert.is(resolve_input_path('./src/lib/foo/bar.ts'), target);
-	assert.is(resolve_input_path('./foo/bar.ts'), target); // questionable
-	assert.is(resolve_input_path(target), target);
-	assert.is.not(resolve_input_path('bar.ts'), target);
+test('to_input_path', () => {
+	assert.is(to_input_path(resolve('foo.ts')), resolve('foo.ts'));
+	assert.is(to_input_path('./foo.ts'), resolve('foo.ts'));
+	assert.is(to_input_path('foo.ts'), 'foo.ts');
+	assert.is(to_input_path('gro/foo'), GRO_DIST_DIR + 'foo');
+	// trailing slashes are preserved:
+	assert.is(to_input_path(resolve('foo/bar/')), resolve('foo/bar/'));
+	assert.is(to_input_path('./foo/bar/'), resolve('foo/bar/'));
+	assert.is(to_input_path('foo/bar/'), 'foo/bar/');
 });
 
-test__resolve_input_path('directories', () => {
-	const target_dir = resolve('dist/foo/bar');
-	assert.is(resolve_input_path('foo/bar'), target_dir);
-	assert.is(resolve_input_path('foo/bar/'), target_dir);
-	assert.is(resolve_input_path('./foo/bar'), target_dir);
-	assert.is(resolve_input_path('./foo/bar/'), target_dir);
-	assert.is.not(resolve_input_path('bar'), target_dir);
-});
-
-test__resolve_input_path.run();
-/* test__resolve_input_path */
-
-/* test__resolve_input_paths */
-const test__resolve_input_paths = suite('resolve_input_paths');
-
-test__resolve_input_paths('resolves multiple input path forms', () => {
-	assert.equal(resolve_input_paths(['foo/bar.ts', 'baz', './']), [
-		resolve('dist/foo/bar.ts'),
-		resolve('dist/baz'),
-		resolve('dist') + '/',
+test('to_input_paths', () => {
+	assert.equal(to_input_paths([resolve('foo/bar.ts'), './baz', 'foo']), [
+		resolve('foo/bar.ts'),
+		resolve('baz'),
+		'foo',
 	]);
 });
 
-test__resolve_input_paths.run();
-/* test__resolve_input_paths */
-
-/* test__get_possible_source_ids */
-const test__get_possible_source_ids = suite('get_possible_source_ids');
-
-test__get_possible_source_ids('in the gro directory', () => {
+test('get_possible_source_ids in the gro directory', () => {
 	const input_path = resolve('src/foo/bar');
 	assert.equal(get_possible_source_ids(input_path, ['.baz.ts']), [
 		input_path,
 		input_path + '.baz.ts',
-		input_path + '/bar.baz.ts',
 	]);
 });
 
-test__get_possible_source_ids('does not repeat the extension', () => {
+test('get_possible_source_ids does not repeat the extension', () => {
 	const input_path = resolve('src/foo/bar.baz.ts');
 	assert.equal(get_possible_source_ids(input_path, ['.baz.ts']), [input_path]);
 });
 
-test__get_possible_source_ids('does not repeat with the same root directory', () => {
+test('get_possible_source_ids does not repeat with the same root directory', () => {
 	const input_path = resolve('src/foo/bar.baz.ts');
 	assert.equal(get_possible_source_ids(input_path, ['.baz.ts'], [paths.root, paths.root]), [
 		input_path,
 	]);
 });
 
-test__get_possible_source_ids('implied to be a directory by trailing slash', () => {
+test('get_possible_source_ids implied to be a directory by trailing slash', () => {
 	const input_path = resolve('src/foo/bar') + '/';
 	assert.equal(get_possible_source_ids(input_path, ['.baz.ts']), [input_path]);
 });
 
-test__get_possible_source_ids.run();
-/* test__get_possible_source_ids */
-
-/* test__load_source_ids_by_input_path */
-const test__load_source_ids_by_input_path = suite('load_source_ids_by_input_path', async () => {
+test('load_source_ids_by_input_path', async () => {
 	const test_files: Record<string, Map<string, Path_Stats>> = {
 		'fake/test1.bar.ts': new Map([['fake/test1.bar.ts', {isDirectory: () => false}]]),
 		'fake/test2.bar.ts': new Map([['fake/test2.bar.ts', {isDirectory: () => false}]]),
@@ -127,5 +99,4 @@ const test__load_source_ids_by_input_path = suite('load_source_ids_by_input_path
 	});
 });
 
-test__load_source_ids_by_input_path.run();
-/* test__load_source_ids_by_input_path */
+test.run();

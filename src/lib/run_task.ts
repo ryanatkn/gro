@@ -5,7 +5,7 @@ import type {Timings} from '@ryanatkn/belt/timings.js';
 import type {Task_Module_Meta} from './task_module.js';
 import {parse_args, type Args} from './args.js';
 import type {invoke_task as base_invoke_task} from './invoke_task.js';
-import {print_task_help} from './print_task.js';
+import {log_task_help} from './task_logging.js';
 import type {Gro_Config} from './config.js';
 import {Task_Error} from './task.js';
 
@@ -31,7 +31,7 @@ export const run_task = async (
 	const log = new System_Logger(print_log_label(task_meta.name));
 
 	if (unparsed_args.help) {
-		print_task_help(log, task_meta);
+		log_task_help(log, task_meta);
 		return {ok: true, output: null};
 	}
 

@@ -1,4 +1,3 @@
-import {paths} from './paths.js';
 import {
 	load_module,
 	load_modules,
@@ -14,7 +13,7 @@ import {
 	type Task,
 	TASK_FILE_SUFFIX_JS,
 } from './task.js';
-import {get_possible_source_ids} from './input_path.js';
+import {Input_Path, get_possible_source_ids} from './input_path.js';
 import {search_fs} from './search_fs.js';
 
 export interface Task_Module {
@@ -33,29 +32,28 @@ export const load_task_module = async (
 ): Promise<Load_Module_Result<Task_Module_Meta>> => {
 	const result = await load_module(id, validate_task_module);
 	if (!result.ok) return result;
-	return {...result, mod: {...result.mod, name: to_task_name(id)}};
+	return {...result, mod: {...result.mod, name: to_task_name(id)}}; // TODO this task name needs to use task root paths or cwd
 };
 
 export const find_task_modules = async (
-	input_paths: string[] = [paths.lib],
-	extensions: string[] = [TASK_FILE_SUFFIX_TS, TASK_FILE_SUFFIX_JS],
+	input_paths: Input_Path[],
 	root_dirs?: string[],
 ): Promise<ReturnType<typeof find_modules>> =>
 	find_modules(
 		input_paths,
 		(id) => search_fs(id, {filter: (path) => is_task_path(path)}),
-		(input_path) => get_possible_source_ids(input_path, extensions, root_dirs),
+		(input_path) =>
+			get_possible_source_ids(input_path, [TASK_FILE_SUFFIX_TS, TASK_FILE_SUFFIX_JS], root_dirs),
 	);
 
 export const load_task_modules = async (
-	input_paths?: string[],
-	extensions?: string[],
+	input_paths: Input_Path[],
 	root_dirs?: string[],
 ): Promise<
 	| ReturnType<typeof load_modules<Task_Module, Task_Module_Meta>>
 	| ({ok: false} & Find_Modules_Failure)
 > => {
-	const find_modules_result = await find_task_modules(input_paths, extensions, root_dirs);
+	const find_modules_result = await find_task_modules(input_paths, root_dirs);
 	if (!find_modules_result.ok) return find_modules_result;
 	return load_modules(find_modules_result.source_ids_by_input_path, load_task_module);
 };

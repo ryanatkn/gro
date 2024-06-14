@@ -1,4 +1,4 @@
-import {join, basename, extname, relative} from 'node:path';
+import {join, extname, relative} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {strip_end, strip_start} from '@ryanatkn/belt/string.js';
 import {gray} from 'kleur/colors';
@@ -8,15 +8,7 @@ import {z} from 'zod';
 /*
 
 A path `id` is an absolute path to the source/.gro/dist directory.
-It's the same nomenclature that Rollup uses.
-
-A `base_path` is the format used by `CheapWatch`.
-It's a bare relative path without a source or .gro directory,
-e.g. 'foo/bar.ts'.
-
-`CheapWatch` also uses an array of `path_parts`.
-For path './foo/bar/baz.ts',
-the `path_parts` are `['foo', 'foo/bar', 'foo/bar/baz.ts']`.
+It's the same name that Rollup uses.
 
 */
 
@@ -58,18 +50,17 @@ export interface Paths {
 	config: string;
 }
 
-// TODO upstream to util, and probably add `Path`/`FilePath` and `FileUrl`
-export const Url = z.string();
-export type Url = Flavored<z.infer<typeof Url>, 'Url'>;
-
-export const Email = z.string();
-export type Email = Flavored<z.infer<typeof Email>, 'Email'>;
-
+// TODO Flavored doesn't work when used in schemas, use Zod brand instead? problem is ergonomics
 export const Source_Id = z.string();
 export type Source_Id = Flavored<z.infer<typeof Source_Id>, 'Source_Id'>;
 
-export const Build_Id = z.string();
-export type Build_Id = Flavored<z.infer<typeof Build_Id>, 'Build_Id'>;
+// TODO @multiple belongs elsewhere
+export const Url = z.string();
+export type Url = Flavored<z.infer<typeof Url>, 'Url'>;
+
+// TODO @multiple belongs elsewhere
+export const Email = z.string();
+export type Email = Flavored<z.infer<typeof Email>, 'Email'>;
 
 export const create_paths = (root_dir: string): Paths => {
 	// TODO remove reliance on trailing slash towards windows support
@@ -101,41 +92,21 @@ export const source_id_to_base_path = (source_id: Source_Id, p = paths): string 
 export const base_path_to_source_id = (base_path: string, p = paths): Source_Id =>
 	join(p.source, base_path);
 
-// To run Gro's tasks from its own project, we resolve from dist/ instead of src/.
-// 'foo/bar/baz.ts' → '/home/me/app/src/lib/foo/bar/baz.ts'
-// 'foo/bar/baz.ts' → '/home/me/app/dist/foo/bar/baz.ts'
-export const lib_path_to_import_id = (base_path: string, p = paths): Source_Id => {
-	if (p.root === gro_paths.root) {
-		return p.root + 'dist/' + base_path;
-	} else {
-		return base_path_to_source_id(LIB_DIRNAME + '/' + base_path, p);
-	}
-};
-
 // An `import_id` can be a source_id in a project,
 // or a Gro source_id when running inside Gro,
 // or a `gro/dist/` file id in node_modules when inside another project.
 export const import_id_to_lib_path = (import_id: string, p = paths_from_id(import_id)): string => {
 	if (p.root === gro_paths.root) {
-		const stripped = strip_start(strip_start(import_id, p.lib), gro_sveltekit_dist_dir); // TODO hacky, needs more work to clarify related things
-		const lib_path = is_this_project_gro ? stripped : replace_extension(stripped, '.ts');
+		const stripped = strip_start(strip_start(import_id, p.lib), GRO_DIST_DIR); // TODO hacky, needs more work to clarify related things
+		const lib_path = IS_THIS_GRO ? stripped : replace_extension(stripped, '.ts');
 		return lib_path;
 	} else {
 		return strip_start(import_id, p.lib);
 	}
 };
 
-export const to_gro_input_path = (input_path: string): string => {
-	const base_path = input_path === paths.lib.slice(0, -1) ? '' : strip_start(input_path, paths.lib);
-	return gro_sveltekit_dist_dir + base_path;
-};
-
-// Can be used to map a source id from e.g. the cwd to gro's.
-export const replace_root_dir = (id: string, root_dir: string, p = paths): string =>
-	join(root_dir, to_root_path(id, p));
-
 export const print_path = (path: string, p = paths, prefix = './'): string => {
-	const root_path = path === gro_sveltekit_dist_dir ? 'gro' : to_root_path(path, p);
+	const root_path = path === GRO_DIST_DIR ? 'gro' : to_root_path(path, p);
 	return gray(`${prefix}${root_path}`);
 };
 
@@ -152,8 +123,16 @@ export const replace_extension = (path: string, new_extension: string): string =
 	return (length === 0 ? path : path.substring(0, path.length - length)) + new_extension;
 };
 
+/**
+ * Paths for the user repo.
+ */
+export const paths = create_paths(process.cwd() + '/');
+
+export const GRO_PACKAGE_DIR = 'gro/';
+// TODO document these conditions with comments
+// TODO there's probably a more robust way to do this
 const filename = fileURLToPath(import.meta.url);
-const gro_dir = join(
+const gro_package_dir_path = join(
 	filename,
 	filename.includes('/gro/src/lib/')
 		? '../../../'
@@ -161,8 +140,9 @@ const gro_dir = join(
 			? '../../'
 			: '../',
 );
-export const gro_dir_basename = basename(gro_dir) + '/';
-export const paths = create_paths(process.cwd() + '/');
-export const is_this_project_gro = gro_dir === paths.root;
-export const gro_paths = is_this_project_gro ? paths : create_paths(gro_dir);
-export const gro_sveltekit_dist_dir = gro_paths.root + SVELTEKIT_DIST_DIRNAME + '/';
+export const IS_THIS_GRO = gro_package_dir_path === paths.root;
+/**
+ * Paths for the Gro package being used by the user repo.
+ */
+export const gro_paths = IS_THIS_GRO ? paths : create_paths(gro_package_dir_path);
+export const GRO_DIST_DIR = gro_paths.root + SVELTEKIT_DIST_DIRNAME + '/';
