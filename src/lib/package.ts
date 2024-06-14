@@ -694,7 +694,6 @@ export const src_json = {
 				{name: 'source_id_to_base_path', kind: 'function'},
 				{name: 'base_path_to_source_id', kind: 'function'},
 				{name: 'import_id_to_lib_path', kind: 'function'},
-				{name: 'replace_root_dir', kind: 'function'},
 				{name: 'print_path', kind: 'function'},
 				{name: 'print_path_or_gro_path', kind: 'function'},
 				{name: 'replace_extension', kind: 'function'},
@@ -718,8 +717,8 @@ export const src_json = {
 		'./print_task.js': {
 			path: 'print_task.ts',
 			declarations: [
-				{name: 'log_available_tasks', kind: 'function'},
-				{name: 'log_error_reasons', kind: 'function'},
+				{name: 'print_tasks', kind: 'function'},
+				{name: 'print_error_reasons', kind: 'function'},
 				{name: 'print_task_help', kind: 'function'},
 			],
 		},

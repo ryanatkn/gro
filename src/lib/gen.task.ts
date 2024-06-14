@@ -12,7 +12,7 @@ import {Raw_Input_Path, to_input_paths} from './input_path.js';
 import {load_modules} from './modules.js';
 import {format_file} from './format_file.js';
 import {paths, print_path} from './paths.js';
-import {log_error_reasons} from './print_task.js';
+import {print_error_reasons} from './print_task.js';
 
 export const Args = z
 	.object({
@@ -41,7 +41,7 @@ export const task: Task<Args> = {
 				log.info('no gen modules found');
 				return;
 			} else {
-				log_error_reasons(log, find_modules_result.reasons);
+				print_error_reasons(log, find_modules_result.reasons);
 				throw new Task_Error('Failed to find gen modules.');
 			}
 		}
@@ -51,7 +51,7 @@ export const task: Task<Args> = {
 			load_gen_module,
 		);
 		if (!load_modules_result.ok) {
-			log_error_reasons(log, load_modules_result.reasons);
+			print_error_reasons(log, load_modules_result.reasons);
 			throw new Task_Error('Failed to load gen modules.');
 		}
 

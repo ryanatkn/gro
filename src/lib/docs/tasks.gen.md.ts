@@ -5,7 +5,7 @@ import {strip_start} from '@ryanatkn/belt/string.js';
 import {type Gen, to_output_file_name} from '../gen.js';
 import {paths, base_path_to_source_id} from '../paths.js';
 import {load_task_modules} from '../task_module.js';
-import {log_error_reasons} from '../print_task.js';
+import {print_error_reasons} from '../print_task.js';
 
 // This is the first simple implementation of Gro's automated docs.
 // It combines Gro's gen and task systems
@@ -21,7 +21,7 @@ import {log_error_reasons} from '../print_task.js';
 export const gen: Gen = async ({origin_id, log}) => {
 	const result = await load_task_modules([paths.lib]);
 	if (!result.ok) {
-		log_error_reasons(log, result.reasons);
+		print_error_reasons(log, result.reasons);
 		throw new Error(result.type);
 	}
 	const tasks = result.modules;

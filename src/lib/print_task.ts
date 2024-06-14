@@ -10,7 +10,7 @@ import {load_task_module, type Task_Module_Meta} from './task_module.js';
 import type {Input_Path} from './input_path.js';
 import type {Source_Id} from './paths.js';
 
-export const log_available_tasks = async (
+export const print_tasks = async (
 	log: Logger,
 	dir_label: string,
 	source_ids_by_input_path: Map<Input_Path, Source_Id[]>,
@@ -21,7 +21,7 @@ export const log_available_tasks = async (
 		// Load all of the tasks so we can print their summary, and args for the `--help` flag.
 		const load_modules_result = await load_modules(source_ids_by_input_path, load_task_module);
 		if (!load_modules_result.ok) {
-			log_error_reasons(log, load_modules_result.reasons);
+			print_error_reasons(log, load_modules_result.reasons);
 			process.exit(1);
 		}
 		const printed: string[] = [
@@ -49,7 +49,7 @@ export const log_available_tasks = async (
 	}
 };
 
-export const log_error_reasons = (log: Logger, reasons: string[]): void => {
+export const print_error_reasons = (log: Logger, reasons: string[]): void => {
 	for (const reason of reasons) {
 		log.error(red(reason));
 	}
