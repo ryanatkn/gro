@@ -19,6 +19,7 @@ export interface Gro_Config {
 	 * Defaults to `./src/lib`, then the cwd, then the Gro package dist.
 	 */
 	task_root_paths: string[];
+	// TODO `task_discovery_paths`
 }
 
 export interface Create_Gro_Config {
