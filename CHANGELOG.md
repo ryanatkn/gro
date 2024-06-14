@@ -1,5 +1,15 @@
 # @ryanatkn/gro
 
+## 0.117.0
+
+### Minor Changes
+
+- enable running tasks from outside src/lib ([c46f859](https://github.com/ryanatkn/gro/commit/c46f859))
+
+  - add the config option `task_root_paths`
+  - input paths for tasks/gen now resolve explicitly relative paths `./foo` relative to the cwd
+  - package.json is now optional
+
 ## 0.116.2
 
 ### Patch Changes
