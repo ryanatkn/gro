@@ -69,7 +69,6 @@ export const log_gro_package_tasks = async (
 			gro_dir_find_modules_result.source_ids_by_input_path,
 		);
 	}
-	console.log(cyan(`[invoke_task] gro_dir_find_modules_result`), gro_dir_find_modules_result);
 	return gro_dir_find_modules_result;
 };
 

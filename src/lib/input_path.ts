@@ -8,7 +8,6 @@ import {GRO_PACKAGE_DIR, GRO_DIST_DIR, paths, Source_Id} from './paths.js';
 import {to_path_data, type Path_Data} from './path.js';
 import {exists} from './fs.js';
 import {search_fs} from './search_fs.js';
-import {blue, red} from 'kleur/colors';
 import {TASK_FILE_SUFFIX_JS} from './task.js';
 
 // TODO Flavored doesn't work when used in schemas, use Zod brand instead? problem is ergonomics
@@ -58,9 +57,6 @@ export const get_possible_source_ids = (
 	extensions: string[],
 	root_dirs?: string[],
 ): Source_Id[] => {
-	console.log(red(`[get_possible_source_ids]`), `input_path`, input_path);
-	console.log(red(`[get_possible_source_ids]`), `extensions`, extensions);
-	console.log(red(`[get_possible_source_ids]`), `root_dirs`, root_dirs);
 	const possible_source_ids: Source_Id[] = [];
 
 	const add_possible_source_ids = (path: string) => {
@@ -88,7 +84,6 @@ export const get_possible_source_ids = (
 			add_possible_source_ids(join(root_dir, input_path));
 		}
 	}
-	console.log(red(`[get_possible_source_ids]`), `possible_source_ids`, possible_source_ids);
 	return possible_source_ids;
 };
 
@@ -107,17 +102,11 @@ export const load_source_path_data_by_input_path = async (
 	const source_id_path_data_by_input_path = new Map<Input_Path, Path_Data>();
 	const unmapped_input_paths: Input_Path[] = [];
 	for (const input_path of input_paths) {
-		console.log(blue(`[load_source_path_data_by_input_path]`), `input_path`, input_path);
 		let file_path_data: Path_Data | null = null;
 		let dir_path_data: Path_Data | null = null;
 		const possible_source_ids = get_possible_source_ids_for_input_path
 			? get_possible_source_ids_for_input_path(input_path)
 			: [input_path];
-		console.log(
-			blue(`[load_source_path_data_by_input_path]`),
-			` possible_source_ids`,
-			possible_source_ids,
-		);
 		// Find the first existing file path or fallback to the first directory path.
 		for (const possible_source_id of possible_source_ids) {
 			if (!(await exists(possible_source_id))) continue; // eslint-disable-line no-await-in-loop
@@ -137,16 +126,6 @@ export const load_source_path_data_by_input_path = async (
 			unmapped_input_paths.push(input_path);
 		}
 	}
-	console.log(
-		blue(`[load_source_path_data_by_input_path]`),
-		` source_id_path_data_by_input_path`,
-		source_id_path_data_by_input_path,
-	);
-	console.log(
-		blue(`[load_source_path_data_by_input_path]`),
-		` unmapped_input_paths`,
-		unmapped_input_paths,
-	);
 	return {source_id_path_data_by_input_path, unmapped_input_paths};
 };
 
@@ -161,10 +140,6 @@ export const load_source_ids_by_input_path = async (
 	source_ids_by_input_path: Map<Input_Path, Source_Id[]>;
 	input_directories_with_no_files: Input_Path[];
 }> => {
-	console.log(
-		`[load_source_ids_by_input_path] source_id_path_data_by_input_path`,
-		source_id_path_data_by_input_path,
-	);
 	const source_ids_by_input_path = new Map<Input_Path, Source_Id[]>();
 	const input_directories_with_no_files: Input_Path[] = [];
 	const existing_source_ids = new Set<Source_Id>();
