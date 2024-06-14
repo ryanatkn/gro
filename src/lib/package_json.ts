@@ -139,7 +139,7 @@ export const load_package_json = async (
 	try {
 		package_json = JSON.parse(await load_package_json_contents(dir));
 	} catch (err) {
-		throw Error('failed to load package.json at ' + dir);
+		return EMPTY_PACKAGE_JSON;
 	}
 	if (cache) cache[dir] = package_json;
 	return package_json;
