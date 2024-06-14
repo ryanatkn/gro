@@ -21,10 +21,14 @@ and defers composition to the user in regular TypeScript modules.
 > use the `gro run` task, which works like the normal `node` CLI
 > but uses the Gro loader to support `.ts`.
 
+- tasks are defined by naming files with the `.task.ts` and `.task.js` suffixes
+- tasks can be run from the CLI via a name (`gro foo`),
+  which uses Gro's task resolution (more below),
+  or via paths that are absolute (`gro /path/to/foo`) or explicitly relative (`gro ./foo`)
 - Gro automatically discovers [all `*.task.ts` files](../docs/tasks.md)
-  in your source directory, so creating a new task
-  is as simple as [creating a new file](#define-a-task), no config needed,
-  but part of the convention is that Gro expects all source code to be in `src/`
+  in its configurable directory, so creating a new task
+  is as simple as [creating a new file](#define-a-task), no config needed
+  (defaults to `src/lib`, see the config option [`task_root_paths`](./config.md#task_root_paths))
 - task definitions are just objects with an async `run` function and some optional properties,
   so composing tasks is explicit in your code, just like any other module
   (but there's also the helper `invoke_task`: see more below)
@@ -55,13 +59,19 @@ As a developer, it's nice to be able to reuse TypeScript modules in every contex
 ### show all available tasks
 
 ```bash
-# This looks through `src/` in both the current working directory
+# This looks through `src/lib` in both the current working directory
 # and Gro's source for all files matching `*.task.ts` and logs them out.
 $ gro
 ```
 
-> notice that Gro is hardcoded to expect all tasks to be in `src/` --
-> it would be nice to loosen this up, but the API isn't obvious to me right now
+The [config](./config.md) option [task_root_paths](./config.md#task_root_paths)
+tells Gro where to search for tasks.
+
+> Currently, only the first directory specified in `task_root_paths` that's found on the filesystem
+> will be used to automatically discover tasks, like when running `gro` without args.
+> Please open an issue if you would like to see Gro be able to discover
+> tasks in more than one directory - it will take some reworking of internals
+> but it seems like the right design.
 
 ### show tasks in a directory
 
