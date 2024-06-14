@@ -44,7 +44,7 @@ export interface Create_Gro_Config {
 export interface Gro_Config {
 	plugins: Create_Config_Plugins;
 	map_package_json: Map_Package_Json | null;
-	task_paths: string[];
+	task_root_paths: string[];
 }
 ```
 
@@ -90,7 +90,7 @@ const config = create_empty_config();
 
 // config.plugins = ...;
 // config.map_package_json = ...;
-// config.task_paths = ...;
+// config.task_root_paths = ...;
 
 export default config;
 ```
@@ -176,12 +176,12 @@ export interface Map_Package_Json {
 }
 ```
 
-## `task_paths`
+## `task_root_paths`
 
-The Gro config option `task_paths` allows customizing Gro's task resolution.
+The Gro config option `task_root_paths` allows customizing Gro's task resolution.
 When calling `gro [input_path]`, absolute and explicitly relative paths starting with `.`
 are resolved according to normal filesystem rules,
 but non-explicit input paths, like `foo`, are resolved by searching
-through `task_paths` in order until a matching file or directory is found on the filesystem.
+through `task_root_paths` in order until a matching file or directory is found on the filesystem.
 
 The default task paths are `./src/lib`, then `.`, and then Gro's dist directory.
