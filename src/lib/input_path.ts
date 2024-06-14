@@ -67,7 +67,9 @@ export const get_possible_source_ids = (
 		// Specifically for paths to the Gro package dist, optimize by only looking for `.task.js`.
 		if (path.startsWith(GRO_DIST_DIR)) {
 			possible_source_ids.push(
-				(path.endsWith(TASK_FILE_SUFFIX_JS) ? path : path + TASK_FILE_SUFFIX_JS) as Source_Id,
+				(path.endsWith('/') || path.endsWith(TASK_FILE_SUFFIX_JS)
+					? path
+					: path + TASK_FILE_SUFFIX_JS) as Source_Id,
 			);
 		} else {
 			possible_source_ids.push(path as Source_Id);
