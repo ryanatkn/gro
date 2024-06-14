@@ -1,5 +1,5 @@
 ---
-'@ryanatkn/gro': patch
+'@ryanatkn/gro': minor
 ---
 
 enable running tasks from outside src/lib
