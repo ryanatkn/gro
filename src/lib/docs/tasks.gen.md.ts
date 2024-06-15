@@ -18,15 +18,14 @@ import {log_error_reasons} from '../task_logging.js';
 // TODO needs some cleanup and better APIs - paths are confusing and verbose!
 // TODO add backlinks to every document that links to this one
 
-export const gen: Gen = async ({origin_id, log}) => {
-	const result = await load_task_modules([paths.lib]);
+export const gen: Gen = async ({config, origin_id, log}) => {
+	const result = await load_task_modules([paths.lib], config.task_root_paths);
 	if (!result.ok) {
 		log_error_reasons(log, result.reasons);
 		throw new Error(result.type);
 	}
 	const tasks = result.modules;
 
-	// TODO need to get this from project config or something
 	const root_path = parse_path_segments(paths.root).at(-1);
 
 	const origin_dir = dirname(origin_id);

@@ -13,9 +13,10 @@ import {
 	sveltekit_shim_app_paths_matcher,
 	sveltekit_shim_app_specifiers,
 } from './sveltekit_shim_app.js';
-import {init_sveltekit_config} from './sveltekit_config.js';
+import {sveltekit_config_global} from './sveltekit_config_global.js';
 import {SVELTE_MATCHER, SVELTE_RUNES_MATCHER} from './svelte_helpers.js';
-import {paths, NODE_MODULES_DIRNAME} from './paths.js';
+import {paths} from './paths.js';
+import {NODE_MODULES_DIRNAME} from './path_constants.js';
 import {to_define_import_meta_env, ts_transform_options} from './esbuild_helpers.js';
 import {resolve_specifier} from './resolve_specifier.js';
 import {resolve_node_specifier} from './resolve_node_specifier.js';
@@ -23,13 +24,19 @@ import type {Package_Json} from './package_json.js';
 
 /*
 
+Usage via `$lib/register.ts`:
+
+```bash
+node --import @ryanatkn/gro/register.js foo.ts
+```
+
 Usage via `$lib/run.task.ts`:
 
 ```bash
 gro run foo.ts
 ```
 
-Direct usage (see also `$lib/gro.ts`):
+Direct usage without register (see also `$lib/gro.ts`):
 
 ```bash
 node --import 'data:text/javascript,import {register} from "node:module"; import {pathToFileURL} from "node:url"; register("@ryanatkn/gro/loader.js", pathToFileURL("./"));' --enable-source-maps' foo.ts
@@ -58,7 +65,7 @@ const {
 	svelte_compile_options,
 	svelte_compile_module_options,
 	svelte_preprocessors,
-} = await init_sveltekit_config(dir); // always load it to keep things simple ahead
+} = sveltekit_config_global;
 
 const final_ts_transform_options: esbuild.TransformOptions = {
 	...ts_transform_options,

@@ -9,7 +9,6 @@ import {
 } from 'svelte/compiler';
 import {readFile} from 'node:fs/promises';
 import {relative} from 'node:path';
-import {cwd} from 'node:process';
 
 import {SVELTE_MATCHER, SVELTE_RUNES_MATCHER} from './svelte_helpers.js';
 
@@ -22,7 +21,7 @@ export interface Options {
 
 export const esbuild_plugin_svelte = (options: Options = {}): esbuild.Plugin => {
 	const {
-		dir = cwd(),
+		dir = process.cwd(),
 		svelte_compile_options = {},
 		svelte_compile_module_options = {},
 		svelte_preprocessors,

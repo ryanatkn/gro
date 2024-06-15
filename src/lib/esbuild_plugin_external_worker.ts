@@ -1,7 +1,6 @@
 import * as esbuild from 'esbuild';
 import type {Logger} from '@ryanatkn/belt/log.js';
 import {basename} from 'node:path';
-import {cwd} from 'node:process';
 import type {CompileOptions, PreprocessorGroup, ModuleCompileOptions} from 'svelte/compiler';
 
 import {print_build_result, to_define_import_meta_env} from './esbuild_helpers.js';
@@ -34,7 +33,7 @@ export interface Options {
 export const esbuild_plugin_external_worker = ({
 	dev,
 	build_options,
-	dir = cwd(),
+	dir = process.cwd(),
 	svelte_compile_options,
 	svelte_preprocessors,
 	svelte_compile_module_options,

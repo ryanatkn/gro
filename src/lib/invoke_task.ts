@@ -49,16 +49,18 @@ export const invoke_task = async (
 	if (!task_name && (args.version || args.v)) {
 		const gro_package_json = await load_gro_package_json();
 		log.info(`${gray('v')}${cyan(gro_package_json.version)}`);
-		log.info(`🕒 ${print_ms(total_timing())}`);
+		finish();
 		return;
 	}
 
 	// Resolve the input path for the provided task name.
 	const input_path = to_input_path(task_name);
 
+	const {task_root_paths} = config;
+
 	// Find the task or directory specified by the `input_path`.
 	// Fall back to searching the Gro directory as well.
-	const find_modules_result = await find_task_modules([input_path], config.task_root_paths);
+	const find_modules_result = await find_task_modules([input_path], task_root_paths);
 	if (!find_modules_result.ok) {
 		if (find_modules_result.type === 'input_directories_with_no_files') {
 			// The input path matched a directory, but it contains no matching files.
@@ -73,8 +75,11 @@ export const invoke_task = async (
 			} else {
 				// If there's a matching directory in the current working directory,
 				// but it has no matching files, we still want to search Gro's directory.
-				const gro_dir_find_modules_result = await log_gro_package_tasks(input_path, log);
-				// TODO this doesn't seem to be working as commented, test this condition in another repo (maybe like "gro sync" when there's a "src/lib/sync" folder)
+				const gro_dir_find_modules_result = await log_gro_package_tasks(
+					input_path,
+					task_root_paths,
+					log,
+				);
 				if (!gro_dir_find_modules_result.ok) {
 					// Log the original errors, not the Gro-specific ones.
 					log_error_reasons(log, find_modules_result.reasons);
@@ -100,7 +105,7 @@ export const invoke_task = async (
 		// Try to load the task module.
 		const load_modules_result = await load_modules(
 			find_modules_result.source_ids_by_input_path,
-			load_task_module,
+			(id) => load_task_module(id, task_root_paths),
 		);
 		if (load_modules_result.ok) {
 			// We found a task module. Run it!
@@ -134,26 +139,36 @@ export const invoke_task = async (
 		// The input path matches a directory. Log the tasks but don't run them.
 		if (IS_THIS_GRO) {
 			// Is the Gro directory the same as the cwd? Log the matching files.
-			await log_tasks(log, print_path(path_data.id), find_modules_result.source_ids_by_input_path);
+			await log_tasks(
+				log,
+				print_path(path_data.id),
+				find_modules_result.source_ids_by_input_path,
+				task_root_paths,
+			);
 		} else if (is_gro_id(path_data.id)) {
-			// TODO delete this? merge behavior with the block above/below?
 			// Does the Gro directory contain the matching files? Log them.
 			await log_tasks(
 				log,
 				print_path_or_gro_path(path_data.id),
 				find_modules_result.source_ids_by_input_path,
+				task_root_paths,
 			);
 		} else {
 			// The Gro directory is not the same as the cwd and it doesn't contain the matching files.
 			// Find all of the possible matches in both the current project and the Gro directory,
 			// and log everything out.
 			// Ignore any errors - the directory may not exist or have any files!
-			const gro_dir_find_modules_result = await log_gro_package_tasks(input_path, log);
+			const gro_dir_find_modules_result = await log_gro_package_tasks(
+				input_path,
+				task_root_paths,
+				log,
+			);
 			// Then log the current working directory matches.
 			await log_tasks(
 				log,
 				print_path(path_data.id),
 				find_modules_result.source_ids_by_input_path,
+				task_root_paths,
 				!gro_dir_find_modules_result.ok,
 			);
 		}

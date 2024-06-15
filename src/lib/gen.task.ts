@@ -29,7 +29,7 @@ export type Args = z.infer<typeof Args>;
 export const task: Task<Args> = {
 	summary: 'run code generation scripts',
 	Args,
-	run: async ({args, log, timings}): Promise<void> => {
+	run: async ({args, log, timings, config}): Promise<void> => {
 		const {_: raw_input_paths, check} = args;
 
 		const input_paths = raw_input_paths.length ? to_input_paths(raw_input_paths) : [paths.source];
@@ -57,7 +57,13 @@ export const task: Task<Args> = {
 
 		// run `gen` on each of the modules
 		const timing_to_generate_code = timings.start('generate code'); // TODO this ignores `gen_results.elapsed` - should it return `Timings` instead?
-		const gen_results = await run_gen(load_modules_result.modules, log, timings, format_file);
+		const gen_results = await run_gen(
+			load_modules_result.modules,
+			config,
+			log,
+			timings,
+			format_file,
+		);
 		timing_to_generate_code();
 
 		const fail_count = gen_results.failures.length;

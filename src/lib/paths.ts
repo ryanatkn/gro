@@ -1,9 +1,18 @@
-import {join, extname, relative} from 'node:path';
+import {join, extname, relative, basename} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {strip_end, strip_start} from '@ryanatkn/belt/string.js';
 import {gray} from 'kleur/colors';
 import type {Flavored} from '@ryanatkn/belt/types.js';
 import {z} from 'zod';
+
+import {
+	GRO_CONFIG_PATH,
+	GRO_DEV_DIR,
+	GRO_DIR,
+	SOURCE_DIR,
+	SVELTEKIT_DIST_DIRNAME,
+} from './path_constants.js';
+import {sveltekit_config_global} from './sveltekit_config_global.js';
 
 /*
 
@@ -12,34 +21,10 @@ It's the same name that Rollup uses.
 
 */
 
-// TODO pass these to `create_paths` and override from gro config
-// TODO this is kinda gross - do we want to maintain the convention to have the trailing slash in most usage?
-export const SOURCE_DIRNAME = 'src';
-export const GRO_DIRNAME = '.gro';
-export const GRO_DIST_PREFIX = 'dist_'; //
-export const SERVER_DIST_PATH = 'dist_server'; // TODO should all of these be `_PATH` or should this be `DIRNAME`?
-export const LIB_DIRNAME = 'lib'; // TODO use Svelte config `files.lib`
-export const ROUTES_DIRNAME = 'routes'; // TODO use Svelte config `files.lib`
-export const GRO_DEV_DIRNAME = GRO_DIRNAME + '/dev';
-export const SOURCE_DIR = SOURCE_DIRNAME + '/';
-export const GRO_DIR = GRO_DIRNAME + '/';
-export const GRO_DEV_DIR = GRO_DEV_DIRNAME + '/';
+export const LIB_DIRNAME = basename(sveltekit_config_global.lib_path);
 export const LIB_PATH = SOURCE_DIR + LIB_DIRNAME;
-export const LIB_DIR = LIB_PATH + '/'; // TODO @multiple get from the sveltekit config
-
-export const CONFIG_PATH = 'gro.config.ts';
-
-export const README_FILENAME = 'README.md';
-export const SVELTEKIT_CONFIG_FILENAME = 'svelte.config.js';
-export const VITE_CONFIG_FILENAME = 'vite.config.ts';
-export const SVELTEKIT_DEV_DIRNAME = '.svelte-kit'; // TODO use Svelte config value `outDir`
-export const SVELTEKIT_BUILD_DIRNAME = 'build';
-export const SVELTEKIT_DIST_DIRNAME = 'dist';
-export const NODE_MODULES_DIRNAME = 'node_modules';
-export const SVELTEKIT_VITE_CACHE_PATH = NODE_MODULES_DIRNAME + '/.vite';
-export const GITHUB_DIRNAME = '.github';
-export const GIT_DIRNAME = '.git';
-export const TSCONFIG_FILENAME = 'tsconfig.json';
+export const LIB_DIR = LIB_PATH + '/';
+export const ROUTES_DIRNAME = basename(sveltekit_config_global.routes_path);
 
 export interface Paths {
 	root: string;
@@ -50,17 +35,10 @@ export interface Paths {
 	config: string;
 }
 
+// TODO probably rename to `Path_Id` from `Source_Id`?
 // TODO Flavored doesn't work when used in schemas, use Zod brand instead? problem is ergonomics
 export const Source_Id = z.string();
 export type Source_Id = Flavored<z.infer<typeof Source_Id>, 'Source_Id'>;
-
-// TODO @multiple belongs elsewhere
-export const Url = z.string();
-export type Url = Flavored<z.infer<typeof Url>, 'Url'>;
-
-// TODO @multiple belongs elsewhere
-export const Email = z.string();
-export type Email = Flavored<z.infer<typeof Email>, 'Email'>;
 
 export const create_paths = (root_dir: string): Paths => {
 	// TODO remove reliance on trailing slash towards windows support
@@ -68,10 +46,10 @@ export const create_paths = (root_dir: string): Paths => {
 	return {
 		root,
 		source: root + SOURCE_DIR,
-		lib: root + LIB_DIR, // TODO @multiple get from the sveltekit config
+		lib: root + LIB_DIR,
 		build: root + GRO_DIR,
 		build_dev: root + GRO_DEV_DIR,
-		config: root + CONFIG_PATH,
+		config: root + GRO_CONFIG_PATH,
 	};
 };
 
@@ -126,7 +104,7 @@ export const replace_extension = (path: string, new_extension: string): string =
 /**
  * Paths for the user repo.
  */
-export const paths = create_paths(process.cwd() + '/');
+export const paths = create_paths(process.cwd());
 
 export const GRO_PACKAGE_DIR = 'gro/';
 // TODO document these conditions with comments

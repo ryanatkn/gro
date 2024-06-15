@@ -16,12 +16,15 @@ export const log_tasks = async (
 	log: Logger,
 	dir_label: string,
 	source_ids_by_input_path: Map<Input_Path, Source_Id[]>,
+	task_root_paths: string[],
 	log_intro = true,
 ): Promise<void> => {
 	const source_ids = Array.from(source_ids_by_input_path.values()).flat();
 	if (source_ids.length) {
 		// Load all of the tasks so we can log their summary, and args for the `--help` flag.
-		const load_modules_result = await load_modules(source_ids_by_input_path, load_task_module);
+		const load_modules_result = await load_modules(source_ids_by_input_path, (id) =>
+			load_task_module(id, task_root_paths),
+		);
 		if (!load_modules_result.ok) {
 			log_error_reasons(log, load_modules_result.reasons);
 			process.exit(1);
@@ -53,6 +56,7 @@ export const log_tasks = async (
 
 export const log_gro_package_tasks = async (
 	input_path: Input_Path,
+	task_root_paths: string[],
 	log: Logger,
 ): Promise<Find_Modules_Result> => {
 	const gro_dir_input_path = to_gro_input_path(input_path);
@@ -67,6 +71,7 @@ export const log_gro_package_tasks = async (
 			log,
 			print_path_or_gro_path(gro_path_data.id),
 			gro_dir_find_modules_result.source_ids_by_input_path,
+			task_root_paths,
 		);
 	}
 	return gro_dir_find_modules_result;

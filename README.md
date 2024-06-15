@@ -35,8 +35,7 @@ It includes:
     [`@sveltejs/package`](https://kit.svelte.dev/docs/packaging) for the library
   - exposes all of its internals in `$lib`
   - uses [Changesets](https://github.com/changesets/changesets) for versioning and changelogs
-  - provides a [Node loader](/src/lib/loader.ts) and
-    [esbuild plugins for the server](/src/lib/gro_plugin_server.ts)
+  - provides a [Node loader](/src/lib/loader.ts) with a [register hook](/src/lib/register.ts)
     - supports importing TypeScript, JSON, and SSR'd Svelte files in tests and tasks
     - supports [SvelteKit module imports](https://kit.svelte.dev/docs/modules) for
       `$lib`, `$env`, and `$app` in tasks, tests, Node servers,
@@ -44,8 +43,10 @@ It includes:
       so you can use SvelteKit patterns everywhere
       (these are best-effort shims, not perfect)
     - supports running TypeScript files directly without a task via `gro run a.ts`
-  - [configurable plugins](/src/lib/docs/plugin.md)
-    to support SvelteKit, auto-restarting Node servers, and other external build processes
+      or `node --import @ryanatkn/gro/register.js a.ts`
+  - [configurable plugins](/src/lib/docs/plugin.md) to support SvelteKit,
+    [auto-restarting Node servers](/src/lib/gro_plugin_server.ts),
+    and other external build processes
     - see the [Gro config docs](/src/lib/docs/config.md) and
       [the default config](https://github.com/ryanatkn/gro/blob/main/src/lib/gro.config.default.ts)
     - see [`fuz_template`](https://github.com/fuz-dev/fuz_template)
@@ -126,17 +127,34 @@ typecheck  run tsc on the project without emitting any files
 upgrade    upgrade deps
 ```
 
-Gro matches your CLI input against its filesystem conventions.
+To run tasks, Gro matches your CLI input against its filesystem conventions.
 It tries to do the right thing, where right is helpful but not surprising,
 with some magic but not too much:
 
 ```bash
-gro # print all available tasks, those matching `src/lib/**/*.task.ts` and Gro's builtins
-gro some/dir # list all tasks inside `src/lib/some/dir`
-gro some/file # run `src/lib/some/file.task.ts`
+gro # displays all available tasks matching `src/lib/**/*.task.ts` and Gro's builtins
+gro a # tries to run `src/lib/a.task.ts`, then `./a.task.ts`, then Gro's builtin if one exists
+gro a --help # displays docs for the "a" task and its args, works for every task
+gro some/dir # lists all tasks inside `src/lib/some/dir`
+gro some/file # runs `src/lib/some/file.task.ts`
 gro some/file.task.ts # same as above
-gro a # run `src/lib/a.task.ts` if it exists, falling back to Gro's builtin
-gro a --help # print info about the "a" task; works for every task
+```
+
+Gro can also run non-task TypeScript files directly
+with [the `gro run` task](/src/lib/run.task.ts) or [register hook](/src/lib/register.ts):
+
+```bash
+gro run foo.ts
+node --import @ryanatkn/gro/register.js foo.ts
+```
+
+Or programmatically:
+
+```js
+// myfile.js
+import {register} from 'node:module';
+register('@ryanatkn/gro/loader.js', import.meta.url);
+await import('./foo.ts');
 ```
 
 Gro has a number of builtin tasks that you can run with the CLI.
@@ -200,19 +218,17 @@ To publish: (also see [`src/lib/docs/publish.md`](/src/lib/docs/publish.md))
 gro publish # flush changeset to changelog, bump version, publish to npm, and git push
 ```
 
-Etc:
+More:
 
 ```bash
 gro clean # delete all build artifacts from the filesystem
 gro clean --sveltekit --nodemodules --git # also deletes dirs and prunes git branches
 gro upgrade excluded-dep-1 excluded-dep-2 # npm updates to the latest everything
-```
-
-```bash
 gro --version # print the Gro version
 ```
 
-For more see [`src/lib/docs/task.md`](/src/lib/docs/task.md) and [`src/lib/docs`](/src/lib/docs).
+For more see [the tasks index](/src/lib/docs/tasks.md),
+[the task feature docs](/src/lib/docs/task.md), and [the docs index](/src/lib/docs/README.md).
 
 ## develop
 

@@ -1,15 +1,15 @@
 import {rm, readdir} from 'node:fs/promises';
 import type {RmOptions} from 'node:fs';
 
+import {paths} from './paths.js';
 import {
 	NODE_MODULES_DIRNAME,
-	paths,
+	GRO_DIST_PREFIX,
 	SVELTEKIT_DEV_DIRNAME,
 	SVELTEKIT_BUILD_DIRNAME,
 	SVELTEKIT_VITE_CACHE_PATH,
-	GRO_DIST_PREFIX,
 	SVELTEKIT_DIST_DIRNAME,
-} from './paths.js';
+} from './path_constants.js';
 
 export const clean_fs = async (
 	{

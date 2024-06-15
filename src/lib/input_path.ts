@@ -55,7 +55,7 @@ export const to_input_paths = (
 export const get_possible_source_ids = (
 	input_path: Input_Path,
 	extensions: string[],
-	root_dirs?: string[],
+	root_dirs: string[],
 ): Source_Id[] => {
 	const possible_source_ids: Source_Id[] = [];
 
@@ -79,7 +79,7 @@ export const get_possible_source_ids = (
 
 	if (isAbsolute(input_path)) {
 		add_possible_source_ids(input_path);
-	} else if (root_dirs?.length) {
+	} else {
 		for (const root_dir of root_dirs) {
 			add_possible_source_ids(join(root_dir, input_path));
 		}

@@ -1,20 +1,13 @@
 import {spawn_restartable_process, type Restartable_Process} from '@ryanatkn/belt/process.js';
 import * as esbuild from 'esbuild';
-import {cwd} from 'node:process';
 import type {Config as SvelteKitConfig} from '@sveltejs/kit';
 import {join, resolve} from 'node:path';
 import {identity} from '@ryanatkn/belt/function.js';
-import {strip_before} from '@ryanatkn/belt/string.js';
+import {strip_before, strip_end} from '@ryanatkn/belt/string.js';
 
 import type {Plugin, Plugin_Context} from './plugin.js';
-import {
-	base_path_to_source_id,
-	GRO_DEV_DIRNAME,
-	SERVER_DIST_PATH,
-	LIB_DIRNAME,
-	paths,
-	type Source_Id,
-} from './paths.js';
+import {base_path_to_source_id, LIB_DIRNAME, paths, type Source_Id} from './paths.js';
+import {GRO_DEV_DIRNAME, SERVER_DIST_PATH} from './path_constants.js';
 import {watch_dir, type Watch_Node_Fs} from './watch_dir.js';
 import {init_sveltekit_config} from './sveltekit_config.js';
 import {esbuild_plugin_sveltekit_shim_app} from './esbuild_plugin_sveltekit_shim_app.js';
@@ -26,6 +19,7 @@ import {esbuild_plugin_sveltekit_local_imports} from './esbuild_plugin_sveltekit
 import {exists} from './fs.js';
 import {esbuild_plugin_svelte} from './esbuild_plugin_svelte.js';
 import {throttle} from './throttle.js';
+import {sveltekit_config_global} from './sveltekit_config_global.js';
 
 // TODO sourcemap as a hoisted option? disable for production by default - or like `outpaths`, passed a `dev` param
 
@@ -109,7 +103,7 @@ export interface Create_Outpaths {
 
 export const gro_plugin_server = ({
 	entry_points = [SERVER_SOURCE_ID],
-	dir = cwd(),
+	dir = process.cwd(),
 	outpaths = (dev) => ({
 		outdir: join(dir, dev ? GRO_DEV_DIRNAME : SERVER_DIST_PATH),
 		outbase: paths.lib,
@@ -132,6 +126,10 @@ export const gro_plugin_server = ({
 	return {
 		name: 'gro_plugin_server',
 		setup: async ({dev, watch, timings, log}) => {
+			const parsed_sveltekit_config =
+				!sveltekit_config && strip_end(dir, '/') === process.cwd()
+					? sveltekit_config_global
+					: await init_sveltekit_config(sveltekit_config ?? dir);
 			const {
 				alias,
 				base_url,
@@ -142,7 +140,7 @@ export const gro_plugin_server = ({
 				svelte_compile_options,
 				svelte_compile_module_options,
 				svelte_preprocessors,
-			} = await init_sveltekit_config(sveltekit_config ?? dir);
+			} = parsed_sveltekit_config;
 
 			// TODO hacky
 			if (svelte_compile_options.generate === undefined) {

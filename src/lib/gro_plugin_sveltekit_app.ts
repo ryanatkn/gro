@@ -6,14 +6,11 @@ import type {Plugin, Plugin_Context} from './plugin.js';
 import {print_command_args, serialize_args, to_forwarded_args} from './args.js';
 import {exists} from './fs.js';
 import {serialize_package_json, type Map_Package_Json, load_package_json} from './package_json.js';
-import {init_sveltekit_config} from './sveltekit_config.js';
 import {Task_Error} from './task.js';
 import {spawn_cli} from './cli.js';
 import {type Map_Src_Json, serialize_src_json, create_src_json} from './src_json.js';
 import {DEFAULT_EXPORTS_EXCLUDER} from './config.js';
-import {SVELTEKIT_CONFIG_FILENAME} from './paths.js';
-
-export const has_sveltekit_app = (): Promise<boolean> => exists(SVELTEKIT_CONFIG_FILENAME);
+import {sveltekit_config_global} from './sveltekit_config_global.js';
 
 export interface Options {
 	/**
@@ -103,7 +100,7 @@ export const gro_plugin_sveltekit_app = ({
 
 				// copy files to `static` before building, in such a way
 				// that's non-destructive to existing files and dirs and easy to clean up
-				const {assets_path} = await init_sveltekit_config(); // TODO probably put in plugin context
+				const {assets_path} = sveltekit_config_global;
 				const cleanups: Cleanup[] = [
 					serialized_package_json
 						? await create_temporarily(

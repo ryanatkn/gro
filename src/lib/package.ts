@@ -59,7 +59,7 @@ export const package_json = {
 		'@ryanatkn/fuz': '^0.102.1',
 		'@ryanatkn/moss': '^0.4.0',
 		'@sveltejs/adapter-static': '^3.0.2',
-		'@sveltejs/kit': '^2.5.13',
+		'@sveltejs/kit': '^2.5.15',
 		'@sveltejs/package': '^2.3.2',
 		'@sveltejs/vite-plugin-svelte': '^3.1.1',
 		'@types/fs-extra': '^11.0.4',
@@ -176,10 +176,15 @@ export const package_json = {
 		'./package_meta.js': {default: './dist/package_meta.js', types: './dist/package_meta.d.ts'},
 		'./package.gen.js': {default: './dist/package.gen.js', types: './dist/package.gen.d.ts'},
 		'./package.js': {default: './dist/package.js', types: './dist/package.d.ts'},
+		'./path_constants.js': {
+			default: './dist/path_constants.js',
+			types: './dist/path_constants.d.ts',
+		},
 		'./path.js': {default: './dist/path.js', types: './dist/path.d.ts'},
 		'./paths.js': {default: './dist/paths.js', types: './dist/paths.d.ts'},
 		'./plugin.js': {default: './dist/plugin.js', types: './dist/plugin.d.ts'},
 		'./publish.task.js': {default: './dist/publish.task.js', types: './dist/publish.task.d.ts'},
+		'./register.js': {default: './dist/register.js', types: './dist/register.d.ts'},
 		'./release.task.js': {default: './dist/release.task.js', types: './dist/release.task.d.ts'},
 		'./resolve_node_specifier.js': {
 			default: './dist/resolve_node_specifier.js',
@@ -198,9 +203,17 @@ export const package_json = {
 			default: './dist/svelte_helpers.js',
 			types: './dist/svelte_helpers.d.ts',
 		},
+		'./sveltekit_config_global.js': {
+			default: './dist/sveltekit_config_global.js',
+			types: './dist/sveltekit_config_global.d.ts',
+		},
 		'./sveltekit_config.js': {
 			default: './dist/sveltekit_config.js',
 			types: './dist/sveltekit_config.d.ts',
+		},
+		'./sveltekit_helpers.js': {
+			default: './dist/sveltekit_helpers.js',
+			types: './dist/sveltekit_helpers.d.ts',
 		},
 		'./sveltekit_shim_app_environment.js': {
 			default: './dist/sveltekit_shim_app_environment.js',
@@ -536,7 +549,6 @@ export const src_json = {
 		'./gro_plugin_sveltekit_app.js': {
 			path: 'gro_plugin_sveltekit_app.ts',
 			declarations: [
-				{name: 'has_sveltekit_app', kind: 'function'},
 				{name: 'Options', kind: 'type'},
 				{name: 'Host_Target', kind: 'type'},
 				{name: 'Copy_File_Filter', kind: 'type'},
@@ -545,10 +557,7 @@ export const src_json = {
 		},
 		'./gro_plugin_sveltekit_library.js': {
 			path: 'gro_plugin_sveltekit_library.ts',
-			declarations: [
-				{name: 'has_sveltekit_library', kind: 'function'},
-				{name: 'gro_plugin_sveltekit_library', kind: 'function'},
-			],
+			declarations: [{name: 'gro_plugin_sveltekit_library', kind: 'function'}],
 		},
 		'./gro.config.default.js': {
 			path: 'gro.config.default.ts',
@@ -606,6 +615,8 @@ export const src_json = {
 		'./package_json.js': {
 			path: 'package_json.ts',
 			declarations: [
+				{name: 'Url', kind: 'variable'},
+				{name: 'Email', kind: 'variable'},
 				{name: 'transform_empty_object_to_undefined', kind: 'function'},
 				{name: 'Package_Json_Repository', kind: 'variable'},
 				{name: 'Package_Json_Author', kind: 'variable'},
@@ -641,6 +652,31 @@ export const src_json = {
 				{name: 'src_json', kind: 'variable'},
 			],
 		},
+		'./path_constants.js': {
+			path: 'path_constants.ts',
+			declarations: [
+				{name: 'SOURCE_DIRNAME', kind: 'variable'},
+				{name: 'GRO_DIRNAME', kind: 'variable'},
+				{name: 'GRO_DIST_PREFIX', kind: 'variable'},
+				{name: 'SERVER_DIST_PATH', kind: 'variable'},
+				{name: 'GRO_DEV_DIRNAME', kind: 'variable'},
+				{name: 'SOURCE_DIR', kind: 'variable'},
+				{name: 'GRO_DIR', kind: 'variable'},
+				{name: 'GRO_DEV_DIR', kind: 'variable'},
+				{name: 'GRO_CONFIG_PATH', kind: 'variable'},
+				{name: 'README_FILENAME', kind: 'variable'},
+				{name: 'SVELTEKIT_CONFIG_FILENAME', kind: 'variable'},
+				{name: 'VITE_CONFIG_FILENAME', kind: 'variable'},
+				{name: 'NODE_MODULES_DIRNAME', kind: 'variable'},
+				{name: 'SVELTEKIT_DEV_DIRNAME', kind: 'variable'},
+				{name: 'SVELTEKIT_BUILD_DIRNAME', kind: 'variable'},
+				{name: 'SVELTEKIT_DIST_DIRNAME', kind: 'variable'},
+				{name: 'SVELTEKIT_VITE_CACHE_PATH', kind: 'variable'},
+				{name: 'GITHUB_DIRNAME', kind: 'variable'},
+				{name: 'GIT_DIRNAME', kind: 'variable'},
+				{name: 'TSCONFIG_FILENAME', kind: 'variable'},
+			],
+		},
 		'./path.js': {
 			path: 'path.ts',
 			declarations: [
@@ -657,34 +693,12 @@ export const src_json = {
 		'./paths.js': {
 			path: 'paths.ts',
 			declarations: [
-				{name: 'SOURCE_DIRNAME', kind: 'variable'},
-				{name: 'GRO_DIRNAME', kind: 'variable'},
-				{name: 'GRO_DIST_PREFIX', kind: 'variable'},
-				{name: 'SERVER_DIST_PATH', kind: 'variable'},
 				{name: 'LIB_DIRNAME', kind: 'variable'},
-				{name: 'ROUTES_DIRNAME', kind: 'variable'},
-				{name: 'GRO_DEV_DIRNAME', kind: 'variable'},
-				{name: 'SOURCE_DIR', kind: 'variable'},
-				{name: 'GRO_DIR', kind: 'variable'},
-				{name: 'GRO_DEV_DIR', kind: 'variable'},
 				{name: 'LIB_PATH', kind: 'variable'},
 				{name: 'LIB_DIR', kind: 'variable'},
-				{name: 'CONFIG_PATH', kind: 'variable'},
-				{name: 'README_FILENAME', kind: 'variable'},
-				{name: 'SVELTEKIT_CONFIG_FILENAME', kind: 'variable'},
-				{name: 'VITE_CONFIG_FILENAME', kind: 'variable'},
-				{name: 'SVELTEKIT_DEV_DIRNAME', kind: 'variable'},
-				{name: 'SVELTEKIT_BUILD_DIRNAME', kind: 'variable'},
-				{name: 'SVELTEKIT_DIST_DIRNAME', kind: 'variable'},
-				{name: 'NODE_MODULES_DIRNAME', kind: 'variable'},
-				{name: 'SVELTEKIT_VITE_CACHE_PATH', kind: 'variable'},
-				{name: 'GITHUB_DIRNAME', kind: 'variable'},
-				{name: 'GIT_DIRNAME', kind: 'variable'},
-				{name: 'TSCONFIG_FILENAME', kind: 'variable'},
+				{name: 'ROUTES_DIRNAME', kind: 'variable'},
 				{name: 'Paths', kind: 'type'},
 				{name: 'Source_Id', kind: 'variable'},
-				{name: 'Url', kind: 'variable'},
-				{name: 'Email', kind: 'variable'},
 				{name: 'create_paths', kind: 'function'},
 				{name: 'paths_from_id', kind: 'function'},
 				{name: 'is_gro_id', kind: 'function'},
@@ -719,6 +733,7 @@ export const src_json = {
 				{name: 'task', kind: 'variable'},
 			],
 		},
+		'./register.js': {path: 'register.ts', declarations: []},
 		'./release.task.js': {
 			path: 'release.task.ts',
 			declarations: [
@@ -790,12 +805,23 @@ export const src_json = {
 				{name: 'SVELTE_RUNES_MATCHER', kind: 'variable'},
 			],
 		},
+		'./sveltekit_config_global.js': {
+			path: 'sveltekit_config_global.ts',
+			declarations: [{name: 'sveltekit_config_global', kind: 'variable'}],
+		},
 		'./sveltekit_config.js': {
 			path: 'sveltekit_config.ts',
 			declarations: [
 				{name: 'load_sveltekit_config', kind: 'function'},
 				{name: 'Parsed_Sveltekit_Config', kind: 'type'},
 				{name: 'init_sveltekit_config', kind: 'function'},
+			],
+		},
+		'./sveltekit_helpers.js': {
+			path: 'sveltekit_helpers.ts',
+			declarations: [
+				{name: 'has_sveltekit_app', kind: 'function'},
+				{name: 'has_sveltekit_library', kind: 'function'},
 			],
 		},
 		'./sveltekit_shim_app_environment.js': {

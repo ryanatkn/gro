@@ -6,6 +6,7 @@ import {Timings} from '@ryanatkn/belt/timings.js';
 
 import type {Gen_Module_Meta} from './gen_module.js';
 import {run_gen} from './run_gen.js';
+import {load_config} from './config.js';
 
 const log = new Logger('test__gen'); // TODO test logger?
 
@@ -72,6 +73,7 @@ test__gen('basic behavior', async () => {
 	const gen_modules_by_input_path = [mod_a, mod_b, mod_c];
 	const gen_results = await run_gen(
 		gen_modules_by_input_path,
+		await load_config(),
 		log,
 		new Timings(),
 		async (content, opts) =>
@@ -162,7 +164,12 @@ test__gen('failing gen function', async () => {
 		},
 	};
 	const gen_modules_by_input_path: Gen_Module_Meta[] = [mod_a, mod_b];
-	const gen_results = await run_gen(gen_modules_by_input_path, log, new Timings());
+	const gen_results = await run_gen(
+		gen_modules_by_input_path,
+		await load_config(),
+		log,
+		new Timings(),
+	);
 	assert.is(gen_results.input_count, 2);
 	assert.is(gen_results.output_count, 1);
 	assert.is(gen_results.successes.length, 1);

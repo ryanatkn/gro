@@ -1,21 +1,21 @@
 import {spawn, type Spawn_Result} from '@ryanatkn/belt/process.js';
 import type {Logger} from '@ryanatkn/belt/log.js';
 
+import {paths} from './paths.js';
 import {
 	GITHUB_DIRNAME,
-	paths,
 	README_FILENAME,
 	SVELTEKIT_CONFIG_FILENAME,
 	VITE_CONFIG_FILENAME,
 	TSCONFIG_FILENAME,
-	CONFIG_PATH,
-} from './paths.js';
+	GRO_CONFIG_PATH,
+} from './path_constants.js';
 import {print_command_args, serialize_args, to_forwarded_args} from './args.js';
 
 const DEFAULT_EXTENSIONS = 'ts,js,json,svelte,html,css,md,yml';
 const DEFAULT_ROOT_PATHS = `${[
 	README_FILENAME,
-	CONFIG_PATH,
+	GRO_CONFIG_PATH,
 	SVELTEKIT_CONFIG_FILENAME,
 	VITE_CONFIG_FILENAME,
 	TSCONFIG_FILENAME,

@@ -25,7 +25,10 @@ export const task: Task<Args> = {
 		const {sveltekit, package_json, gen, install} = args;
 
 		if (install) {
-			await spawn('npm', ['i']);
+			const result = await spawn('npm', ['i']);
+			if (!result.ok) {
+				throw new Task_Error('failed npm install');
+			}
 		}
 
 		if (sveltekit) {

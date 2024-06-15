@@ -1,6 +1,5 @@
 import type * as esbuild from 'esbuild';
 import {escape_regexp} from '@ryanatkn/belt/regexp.js';
-import {cwd} from 'node:process';
 import {join} from 'node:path';
 
 export interface Options {
@@ -9,7 +8,7 @@ export interface Options {
 }
 
 export const esbuild_plugin_sveltekit_shim_alias = ({
-	dir = cwd(),
+	dir = process.cwd(),
 	alias,
 }: Options): esbuild.Plugin => ({
 	name: 'sveltekit_shim_alias',

@@ -4,18 +4,20 @@ import {readFile, writeFile} from 'node:fs/promises';
 import {plural} from '@ryanatkn/belt/string.js';
 import type {Logger} from '@ryanatkn/belt/log.js';
 import {strip_end} from '@ryanatkn/belt/string.js';
+import type {Flavored} from '@ryanatkn/belt/types.js';
 
-import {
-	paths,
-	gro_paths,
-	IS_THIS_GRO,
-	replace_extension,
-	SVELTEKIT_DIST_DIRNAME,
-	Url,
-	Email,
-} from './paths.js';
+import {paths, gro_paths, IS_THIS_GRO, replace_extension} from './paths.js';
+import {SVELTEKIT_DIST_DIRNAME} from './path_constants.js';
 import {search_fs} from './search_fs.js';
-import {has_sveltekit_library} from './gro_plugin_sveltekit_library.js';
+import {has_sveltekit_library} from './sveltekit_helpers.js';
+
+// TODO @multiple belongs elsewhere
+export const Url = z.string();
+export type Url = Flavored<z.infer<typeof Url>, 'Url'>;
+
+// TODO @multiple belongs elsewhere
+export const Email = z.string();
+export type Email = Flavored<z.infer<typeof Email>, 'Email'>;
 
 // TODO move this where?
 export const transform_empty_object_to_undefined = (val: any): any => {

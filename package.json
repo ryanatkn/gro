@@ -69,7 +69,7 @@
     "@ryanatkn/fuz": "^0.102.1",
     "@ryanatkn/moss": "^0.4.0",
     "@sveltejs/adapter-static": "^3.0.2",
-    "@sveltejs/kit": "^2.5.13",
+    "@sveltejs/kit": "^2.5.15",
     "@sveltejs/package": "^2.3.2",
     "@sveltejs/vite-plugin-svelte": "^3.1.1",
     "@types/fs-extra": "^11.0.4",
@@ -306,6 +306,10 @@
       "default": "./dist/package.js",
       "types": "./dist/package.d.ts"
     },
+    "./path_constants.js": {
+      "default": "./dist/path_constants.js",
+      "types": "./dist/path_constants.d.ts"
+    },
     "./path.js": {
       "default": "./dist/path.js",
       "types": "./dist/path.d.ts"
@@ -321,6 +325,10 @@
     "./publish.task.js": {
       "default": "./dist/publish.task.js",
       "types": "./dist/publish.task.d.ts"
+    },
+    "./register.js": {
+      "default": "./dist/register.js",
+      "types": "./dist/register.d.ts"
     },
     "./release.task.js": {
       "default": "./dist/release.task.js",
@@ -358,9 +366,17 @@
       "default": "./dist/svelte_helpers.js",
       "types": "./dist/svelte_helpers.d.ts"
     },
+    "./sveltekit_config_global.js": {
+      "default": "./dist/sveltekit_config_global.js",
+      "types": "./dist/sveltekit_config_global.d.ts"
+    },
     "./sveltekit_config.js": {
       "default": "./dist/sveltekit_config.js",
       "types": "./dist/sveltekit_config.d.ts"
+    },
+    "./sveltekit_helpers.js": {
+      "default": "./dist/sveltekit_helpers.js",
+      "types": "./dist/sveltekit_helpers.d.ts"
     },
     "./sveltekit_shim_app_environment.js": {
       "default": "./dist/sveltekit_shim_app_environment.js",

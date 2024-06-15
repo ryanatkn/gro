@@ -1,10 +1,10 @@
 import type {Logger} from '@ryanatkn/belt/log.js';
-import {strip_end} from '@ryanatkn/belt/string.js';
+import {strip_end, strip_start} from '@ryanatkn/belt/string.js';
 import type {z} from 'zod';
 import type {Timings} from '@ryanatkn/belt/timings.js';
 
 import type {Args} from './args.js';
-import {import_id_to_lib_path, type Source_Id} from './paths.js';
+import type {Source_Id} from './paths.js';
 import type {Gro_Config} from './config.js';
 
 export interface Task<
@@ -33,11 +33,16 @@ export const TASK_FILE_SUFFIX_JS = '.task.js';
 export const is_task_path = (path: string): boolean =>
 	path.endsWith(TASK_FILE_SUFFIX_TS) || path.endsWith(TASK_FILE_SUFFIX_JS);
 
-// TODO use task root paths? what's the right behavior?
-export const to_task_name = (id: Source_Id): string => {
-	const lib_path = import_id_to_lib_path(id);
-	const name = strip_end(strip_end(lib_path, TASK_FILE_SUFFIX_TS), TASK_FILE_SUFFIX_JS);
-	return name;
+export const to_task_name = (id: Source_Id, task_root_paths: string[]): string => {
+	let base_path = id;
+	// If the id is in any of the task root paths, use the first match and strip it.
+	for (const task_root_path of task_root_paths) {
+		if (id.startsWith(task_root_path)) {
+			base_path = strip_start(strip_start(id, task_root_path), '/');
+			break;
+		}
+	}
+	return strip_end(strip_end(base_path, TASK_FILE_SUFFIX_TS), TASK_FILE_SUFFIX_JS);
 };
 
 /**
