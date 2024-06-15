@@ -33,13 +33,19 @@ console.log(
 
 /*
 
+Usage via `$lib/register.ts`:
+
+```bash
+node --import @ryanatkn/gro/register.js foo.ts
+```
+
 Usage via `$lib/run.task.ts`:
 
 ```bash
 gro run foo.ts
 ```
 
-Direct usage (see also `$lib/gro.ts`):
+Direct usage without register (see also `$lib/gro.ts`):
 
 ```bash
 node --import 'data:text/javascript,import {register} from "node:module"; import {pathToFileURL} from "node:url"; register("@ryanatkn/gro/loader.js", pathToFileURL("./"));' --enable-source-maps' foo.ts
