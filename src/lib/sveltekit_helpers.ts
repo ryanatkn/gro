@@ -10,9 +10,9 @@ export const has_sveltekit_library = async (
 	package_json?: Package_Json,
 	sveltekit_config: Parsed_Sveltekit_Config = sveltekit_config_global,
 ): Promise<boolean> => {
+	if (!(await has_sveltekit_app()) || !(await exists(sveltekit_config.lib_path))) {
+		return false;
+	}
 	const p = package_json ?? (await load_package_json());
-	return (
-		(!!p.devDependencies?.['@sveltejs/package'] || !!p.dependencies?.['@sveltejs/package']) &&
-		(await exists(sveltekit_config.lib_path))
-	);
+	return !!p.devDependencies?.['@sveltejs/package'] || !!p.dependencies?.['@sveltejs/package'];
 };
