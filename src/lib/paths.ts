@@ -5,7 +5,13 @@ import {gray} from 'kleur/colors';
 import type {Flavored} from '@ryanatkn/belt/types.js';
 import {z} from 'zod';
 
-import {GRO_CONFIG_PATH, SVELTEKIT_DIST_DIRNAME} from './path_constants.js';
+import {
+	GRO_CONFIG_PATH,
+	GRO_DEV_DIR,
+	GRO_DIR,
+	SOURCE_DIR,
+	SVELTEKIT_DIST_DIRNAME,
+} from './path_constants.js';
 
 /*
 
@@ -17,18 +23,11 @@ It's the same name that Rollup uses.
 // TODO BLOCK move all/some of these to path_constants?
 // TODO pass these to `create_paths` and override from gro config
 // TODO this is kinda gross - do we want to maintain the convention to have the trailing slash in most usage?
-export const SOURCE_DIRNAME = 'src';
-export const GRO_DIRNAME = '.gro';
-export const GRO_DIST_PREFIX = 'dist_'; //
-export const SERVER_DIST_PATH = 'dist_server'; // TODO should all of these be `_PATH` or should this be `DIRNAME`?
+
 export const LIB_DIRNAME = 'lib'; // TODO use Svelte config `files.lib`
-export const ROUTES_DIRNAME = 'routes'; // TODO use Svelte config `files.lib`
-export const GRO_DEV_DIRNAME = GRO_DIRNAME + '/dev';
-export const SOURCE_DIR = SOURCE_DIRNAME + '/';
-export const GRO_DIR = GRO_DIRNAME + '/';
-export const GRO_DEV_DIR = GRO_DEV_DIRNAME + '/';
 export const LIB_PATH = SOURCE_DIR + LIB_DIRNAME;
 export const LIB_DIR = LIB_PATH + '/'; // TODO @multiple get from the sveltekit config
+export const ROUTES_DIRNAME = 'routes'; // TODO use Svelte config `files.lib`
 
 export interface Paths {
 	root: string;

@@ -1,9 +1,18 @@
 /*
 
 This module is intended to have no dependencies to avoid over-imports in the CLI and loader.
+If any of these become customizable from SvelteKit or Gro's configs, move them to `./paths.ts`.
 
 */
 
+export const SOURCE_DIRNAME = 'src';
+export const GRO_DIRNAME = '.gro';
+export const GRO_DIST_PREFIX = 'dist_'; //
+export const SERVER_DIST_PATH = 'dist_server'; // TODO should all of these be `_PATH` or should this be `DIRNAME`?
+export const GRO_DEV_DIRNAME = GRO_DIRNAME + '/dev';
+export const SOURCE_DIR = SOURCE_DIRNAME + '/';
+export const GRO_DIR = GRO_DIRNAME + '/';
+export const GRO_DEV_DIR = GRO_DEV_DIRNAME + '/';
 export const GRO_CONFIG_PATH = 'gro.config.ts';
 export const README_FILENAME = 'README.md';
 export const SVELTEKIT_CONFIG_FILENAME = 'svelte.config.js';

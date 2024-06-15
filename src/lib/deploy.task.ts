@@ -6,8 +6,8 @@ import {cp, mkdir, readdir, rm} from 'node:fs/promises';
 import {join, resolve} from 'node:path';
 
 import {Task_Error, type Task} from './task.js';
-import {GRO_DIRNAME, print_path} from './paths.js';
-import {GIT_DIRNAME, SVELTEKIT_BUILD_DIRNAME} from './path_constants.js';
+import {print_path} from './paths.js';
+import {GRO_DIRNAME, GIT_DIRNAME, SVELTEKIT_BUILD_DIRNAME} from './path_constants.js';
 import {empty_dir, exists} from './fs.js';
 import {
 	git_check_clean_workspace,

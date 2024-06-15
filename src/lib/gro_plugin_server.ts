@@ -7,14 +7,8 @@ import {identity} from '@ryanatkn/belt/function.js';
 import {strip_before} from '@ryanatkn/belt/string.js';
 
 import type {Plugin, Plugin_Context} from './plugin.js';
-import {
-	base_path_to_source_id,
-	GRO_DEV_DIRNAME,
-	SERVER_DIST_PATH,
-	LIB_DIRNAME,
-	paths,
-	type Source_Id,
-} from './paths.js';
+import {base_path_to_source_id, LIB_DIRNAME, paths, type Source_Id} from './paths.js';
+import {GRO_DEV_DIRNAME, SERVER_DIST_PATH} from './path_constants.js';
 import {watch_dir, type Watch_Node_Fs} from './watch_dir.js';
 import {init_sveltekit_config} from './sveltekit_config.js';
 import {esbuild_plugin_sveltekit_shim_app} from './esbuild_plugin_sveltekit_shim_app.js';

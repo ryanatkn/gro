@@ -1,9 +1,10 @@
 import {rm, readdir} from 'node:fs/promises';
 import type {RmOptions} from 'node:fs';
 
-import {paths, GRO_DIST_PREFIX} from './paths.js';
+import {paths} from './paths.js';
 import {
 	NODE_MODULES_DIRNAME,
+	GRO_DIST_PREFIX,
 	SVELTEKIT_DEV_DIRNAME,
 	SVELTEKIT_BUILD_DIRNAME,
 	SVELTEKIT_VITE_CACHE_PATH,
