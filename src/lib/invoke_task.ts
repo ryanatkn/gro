@@ -12,6 +12,7 @@ import {find_task_modules, load_task_module} from './task_module.js';
 import {load_gro_package_json} from './package_json.js';
 import {log_tasks, log_error_reasons, log_gro_package_tasks} from './task_logging.js';
 import type {Gro_Config} from './config.js';
+import {CHECKING_IF_LOADER_IS_IN_TASK_CONTEXT} from './loader.js';
 
 /**
  * Invokes Gro tasks by name using the filesystem as the source.
@@ -38,6 +39,11 @@ export const invoke_task = async (
 ): Promise<void> => {
 	const log = new System_Logger(print_log_label(task_name || 'gro'));
 	log.info('invoking', task_name ? cyan(task_name) : 'gro');
+
+	console.log(
+		`[invoke_task] CHECKING_IF_LOADER_IS_IN_TASK_CONTEXT`,
+		CHECKING_IF_LOADER_IS_IN_TASK_CONTEXT,
+	);
 
 	const total_timing = create_stopwatch();
 	const finish = () => {

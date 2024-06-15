@@ -29,7 +29,9 @@ export const load_module = async <T extends Record<string, any>>(
 ): Promise<Load_Module_Result<Module_Meta<T>>> => {
 	let mod;
 	try {
+		console.log(`>loading module id`, id);
 		mod = await import(id);
+		console.log(`<loaded module id`, id);
 	} catch (err) {
 		return {ok: false, type: 'importFailed', id, error: err};
 	}

@@ -358,6 +358,10 @@
       "default": "./dist/svelte_helpers.js",
       "types": "./dist/svelte_helpers.d.ts"
     },
+    "./sveltekit_config_global.js": {
+      "default": "./dist/sveltekit_config_global.js",
+      "types": "./dist/sveltekit_config_global.d.ts"
+    },
     "./sveltekit_config.js": {
       "default": "./dist/sveltekit_config.js",
       "types": "./dist/sveltekit_config.d.ts"

@@ -198,6 +198,10 @@ export const package_json = {
 			default: './dist/svelte_helpers.js',
 			types: './dist/svelte_helpers.d.ts',
 		},
+		'./sveltekit_config_global.js': {
+			default: './dist/sveltekit_config_global.js',
+			types: './dist/sveltekit_config_global.d.ts',
+		},
 		'./sveltekit_config.js': {
 			default: './dist/sveltekit_config.js',
 			types: './dist/sveltekit_config.d.ts',
@@ -584,6 +588,7 @@ export const src_json = {
 		'./loader.js': {
 			path: 'loader.ts',
 			declarations: [
+				{name: 'CHECKING_IF_LOADER_IS_IN_TASK_CONTEXT', kind: 'variable'},
 				{name: 'load', kind: 'function'},
 				{name: 'resolve', kind: 'function'},
 			],
@@ -790,9 +795,14 @@ export const src_json = {
 				{name: 'SVELTE_RUNES_MATCHER', kind: 'variable'},
 			],
 		},
+		'./sveltekit_config_global.js': {
+			path: 'sveltekit_config_global.ts',
+			declarations: [{name: 'sveltekit_config_global', kind: 'variable'}],
+		},
 		'./sveltekit_config.js': {
 			path: 'sveltekit_config.ts',
 			declarations: [
+				{name: 'SVELTEKIT_CONFIG_FILENAME', kind: 'variable'},
 				{name: 'load_sveltekit_config', kind: 'function'},
 				{name: 'Parsed_Sveltekit_Config', kind: 'type'},
 				{name: 'init_sveltekit_config', kind: 'function'},

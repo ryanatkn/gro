@@ -13,13 +13,21 @@ import {
 	sveltekit_shim_app_paths_matcher,
 	sveltekit_shim_app_specifiers,
 } from './sveltekit_shim_app.js';
-import {init_sveltekit_config} from './sveltekit_config.js';
+import {sveltekit_config_global} from './sveltekit_config_global.js';
 import {SVELTE_MATCHER, SVELTE_RUNES_MATCHER} from './svelte_helpers.js';
 import {paths, NODE_MODULES_DIRNAME} from './paths.js';
 import {to_define_import_meta_env, ts_transform_options} from './esbuild_helpers.js';
 import {resolve_specifier} from './resolve_specifier.js';
 import {resolve_node_specifier} from './resolve_node_specifier.js';
 import type {Package_Json} from './package_json.js';
+import {red} from 'kleur/colors';
+
+// TODO BLOCK deleteme - do this without importing into the loader because it might be causing issues and confusing me
+export const CHECKING_IF_LOADER_IS_IN_TASK_CONTEXT = Math.random();
+console.log(
+	red(`loader CHECKING_IF_LOADER_IS_IN_TASK_CONTEXT`),
+	CHECKING_IF_LOADER_IS_IN_TASK_CONTEXT,
+);
 
 /*
 
@@ -58,7 +66,7 @@ const {
 	svelte_compile_options,
 	svelte_compile_module_options,
 	svelte_preprocessors,
-} = await init_sveltekit_config(dir); // always load it to keep things simple ahead
+} = sveltekit_config_global;
 
 const final_ts_transform_options: esbuild.TransformOptions = {
 	...ts_transform_options,

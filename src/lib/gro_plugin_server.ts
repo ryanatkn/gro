@@ -142,7 +142,7 @@ export const gro_plugin_server = ({
 				svelte_compile_options,
 				svelte_compile_module_options,
 				svelte_preprocessors,
-			} = await init_sveltekit_config(sveltekit_config ?? dir);
+			} = await init_sveltekit_config(sveltekit_config ?? dir); // TODO BLOCK use sveltekit_config_global unless there's an option or dir !== cwd (strip trailing slash, `paths_equal`?)
 
 			// TODO hacky
 			if (svelte_compile_options.generate === undefined) {

@@ -126,7 +126,7 @@ export const replace_extension = (path: string, new_extension: string): string =
 /**
  * Paths for the user repo.
  */
-export const paths = create_paths(process.cwd() + '/');
+export const paths = create_paths(process.cwd());
 
 export const GRO_PACKAGE_DIR = 'gro/';
 // TODO document these conditions with comments

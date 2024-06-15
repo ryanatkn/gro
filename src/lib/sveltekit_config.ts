@@ -3,7 +3,8 @@ import type {CompileOptions, PreprocessorGroup, ModuleCompileOptions} from 'svel
 import {join} from 'node:path';
 import {cwd} from 'node:process';
 
-import {SVELTEKIT_CONFIG_FILENAME} from './paths.js';
+// TODO BLOCK duplicated in paths, but this module needs to NOT import from paths because it'd be a circular dep - maybe move a lot of things to `path_constants.js`?
+export const SVELTEKIT_CONFIG_FILENAME = 'svelte.config.js';
 
 /**
  * Loads a SvelteKit config at `dir`.
