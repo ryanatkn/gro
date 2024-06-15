@@ -210,6 +210,10 @@ export const package_json = {
 			default: './dist/sveltekit_config.js',
 			types: './dist/sveltekit_config.d.ts',
 		},
+		'./sveltekit_helpers.js': {
+			default: './dist/sveltekit_helpers.js',
+			types: './dist/sveltekit_helpers.d.ts',
+		},
 		'./sveltekit_shim_app_environment.js': {
 			default: './dist/sveltekit_shim_app_environment.js',
 			types: './dist/sveltekit_shim_app_environment.d.ts',
@@ -544,7 +548,6 @@ export const src_json = {
 		'./gro_plugin_sveltekit_app.js': {
 			path: 'gro_plugin_sveltekit_app.ts',
 			declarations: [
-				{name: 'has_sveltekit_app', kind: 'function'},
 				{name: 'Options', kind: 'type'},
 				{name: 'Host_Target', kind: 'type'},
 				{name: 'Copy_File_Filter', kind: 'type'},
@@ -553,10 +556,7 @@ export const src_json = {
 		},
 		'./gro_plugin_sveltekit_library.js': {
 			path: 'gro_plugin_sveltekit_library.ts',
-			declarations: [
-				{name: 'has_sveltekit_library', kind: 'function'},
-				{name: 'gro_plugin_sveltekit_library', kind: 'function'},
-			],
+			declarations: [{name: 'gro_plugin_sveltekit_library', kind: 'function'}],
 		},
 		'./gro.config.default.js': {
 			path: 'gro.config.default.ts',
@@ -816,6 +816,13 @@ export const src_json = {
 				{name: 'load_sveltekit_config', kind: 'function'},
 				{name: 'Parsed_Sveltekit_Config', kind: 'type'},
 				{name: 'init_sveltekit_config', kind: 'function'},
+			],
+		},
+		'./sveltekit_helpers.js': {
+			path: 'sveltekit_helpers.ts',
+			declarations: [
+				{name: 'has_sveltekit_library', kind: 'function'},
+				{name: 'has_sveltekit_app', kind: 'function'},
 			],
 		},
 		'./sveltekit_shim_app_environment.js': {

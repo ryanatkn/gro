@@ -370,6 +370,10 @@
       "default": "./dist/sveltekit_config.js",
       "types": "./dist/sveltekit_config.d.ts"
     },
+    "./sveltekit_helpers.js": {
+      "default": "./dist/sveltekit_helpers.js",
+      "types": "./dist/sveltekit_helpers.d.ts"
+    },
     "./sveltekit_shim_app_environment.js": {
       "default": "./dist/sveltekit_shim_app_environment.js",
       "types": "./dist/sveltekit_shim_app_environment.d.ts"
