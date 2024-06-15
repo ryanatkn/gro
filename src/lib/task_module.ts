@@ -38,7 +38,7 @@ export const load_task_module = async (
 
 export const find_task_modules = async (
 	input_paths: Input_Path[],
-	task_root_paths?: string[],
+	task_root_paths: string[],
 ): Promise<ReturnType<typeof find_modules>> =>
 	find_modules(
 		input_paths,

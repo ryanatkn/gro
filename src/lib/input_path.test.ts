@@ -32,7 +32,7 @@ test('to_input_paths', () => {
 
 test('get_possible_source_ids in the gro directory', () => {
 	const input_path = resolve('src/foo/bar');
-	assert.equal(get_possible_source_ids(input_path, ['.baz.ts']), [
+	assert.equal(get_possible_source_ids(input_path, ['.baz.ts'], []), [
 		input_path,
 		input_path + '.baz.ts',
 	]);
@@ -40,7 +40,7 @@ test('get_possible_source_ids in the gro directory', () => {
 
 test('get_possible_source_ids does not repeat the extension', () => {
 	const input_path = resolve('src/foo/bar.baz.ts');
-	assert.equal(get_possible_source_ids(input_path, ['.baz.ts']), [input_path]);
+	assert.equal(get_possible_source_ids(input_path, ['.baz.ts'], []), [input_path]);
 });
 
 test('get_possible_source_ids does not repeat with the same root directory', () => {
@@ -52,7 +52,7 @@ test('get_possible_source_ids does not repeat with the same root directory', () 
 
 test('get_possible_source_ids implied to be a directory by trailing slash', () => {
 	const input_path = resolve('src/foo/bar') + '/';
-	assert.equal(get_possible_source_ids(input_path, ['.baz.ts']), [input_path]);
+	assert.equal(get_possible_source_ids(input_path, ['.baz.ts'], []), [input_path]);
 });
 
 test('load_source_ids_by_input_path', async () => {
