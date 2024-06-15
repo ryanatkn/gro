@@ -821,8 +821,8 @@ export const src_json = {
 		'./sveltekit_helpers.js': {
 			path: 'sveltekit_helpers.ts',
 			declarations: [
-				{name: 'has_sveltekit_library', kind: 'function'},
 				{name: 'has_sveltekit_app', kind: 'function'},
+				{name: 'has_sveltekit_library', kind: 'function'},
 			],
 		},
 		'./sveltekit_shim_app_environment.js': {
