@@ -80,7 +80,6 @@ export const invoke_task = async (
 					task_root_paths,
 					log,
 				);
-				// TODO this doesn't seem to be working as commented, test this condition in another repo (maybe like "gro sync" when there's a "src/lib/sync" folder)
 				if (!gro_dir_find_modules_result.ok) {
 					// Log the original errors, not the Gro-specific ones.
 					log_error_reasons(log, find_modules_result.reasons);
