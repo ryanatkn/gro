@@ -4,6 +4,7 @@ import {z} from 'zod';
 
 import {gen_module_meta, to_gen_module_type} from './gen_module.js';
 import type {Source_Id} from './paths.js';
+import type {Gro_Config} from './config.js';
 
 export type Gen_Result = {
 	origin_id: string;
@@ -20,6 +21,10 @@ export interface Gen {
 	(ctx: Gen_Context): Raw_Gen_Result | Promise<Raw_Gen_Result>;
 }
 export interface Gen_Context {
+	config: Gro_Config;
+	/**
+	 * Same as `import.meta.url` but in path form.
+	 */
 	origin_id: string;
 	log: Logger;
 }

@@ -28,7 +28,7 @@ const test__load_task_module = suite('load_task_module');
 test__load_task_module('basic behavior', async () => {
 	const name = 'fixtures/test_task_module.task_fixture.js';
 	const id = resolve('src/' + name);
-	const result = await load_task_module(id);
+	const result = await load_task_module(id, []);
 	assert.ok(result.ok);
 	assert.is(result.mod.id, id);
 	assert.is(result.mod.id, id);
@@ -38,7 +38,7 @@ test__load_task_module('basic behavior', async () => {
 
 test__load_task_module('invalid module', async () => {
 	const id = resolve('src/fixtures/test_invalid_task_module.js');
-	const result = await load_task_module(id);
+	const result = await load_task_module(id, []);
 	assert.ok(!result.ok);
 	if (result.type === 'invalid') {
 		assert.is(result.id, id);
@@ -51,7 +51,7 @@ test__load_task_module('invalid module', async () => {
 
 test__load_task_module('failing module', async () => {
 	const id = resolve('src/fixtures/test_failing_task_module.js');
-	const result = await load_task_module(id);
+	const result = await load_task_module(id, []);
 	assert.ok(!result.ok);
 	if (result.type === 'importFailed') {
 		assert.is(result.id, id);
@@ -68,10 +68,10 @@ test__load_task_module.run();
 const test__load_task_modules = suite('load_task_modules');
 
 test__load_task_modules('basic behavior', async () => {
-	const result = await load_task_modules([
-		resolve('src/lib/test'),
-		resolve('src/lib/test.task.ts'),
-	]);
+	const result = await load_task_modules(
+		[resolve('src/lib/test'), resolve('src/lib/test.task.ts')],
+		[resolve('src/lib')],
+	);
 	assert.ok(result.ok);
 	assert.is(result.modules.length, 1);
 	assert.is(result.modules[0].mod, actual_test_task_module);

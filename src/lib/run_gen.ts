@@ -17,11 +17,13 @@ import {
 } from './gen.js';
 import {print_path, source_id_to_base_path} from './paths.js';
 import type {format_file as base_format_file} from './format_file.js';
+import type {Gro_Config} from './config.js';
 
 export const GEN_NO_PROD_MESSAGE = 'gen runs only during development';
 
 export const run_gen = async (
 	gen_modules: Gen_Module_Meta[],
+	config: Gro_Config,
 	log: Logger,
 	timings: Timings,
 	format_file?: typeof base_format_file,
@@ -36,7 +38,7 @@ export const run_gen = async (
 			const timing_for_module = timings.start(id);
 
 			// Perform code generation by calling `gen` on the module.
-			const gen_ctx: Gen_Context = {origin_id: id, log};
+			const gen_ctx: Gen_Context = {origin_id: id, config, log};
 			let raw_gen_result: Raw_Gen_Result;
 			try {
 				switch (module_meta.type) {
