@@ -326,6 +326,10 @@
       "default": "./dist/publish.task.js",
       "types": "./dist/publish.task.d.ts"
     },
+    "./register.js": {
+      "default": "./dist/register.js",
+      "types": "./dist/register.d.ts"
+    },
     "./release.task.js": {
       "default": "./dist/release.task.js",
       "types": "./dist/release.task.d.ts"

@@ -184,6 +184,7 @@ export const package_json = {
 		'./paths.js': {default: './dist/paths.js', types: './dist/paths.d.ts'},
 		'./plugin.js': {default: './dist/plugin.js', types: './dist/plugin.d.ts'},
 		'./publish.task.js': {default: './dist/publish.task.js', types: './dist/publish.task.d.ts'},
+		'./register.js': {default: './dist/register.js', types: './dist/register.d.ts'},
 		'./release.task.js': {default: './dist/release.task.js', types: './dist/release.task.d.ts'},
 		'./resolve_node_specifier.js': {
 			default: './dist/resolve_node_specifier.js',
@@ -732,6 +733,7 @@ export const src_json = {
 				{name: 'task', kind: 'variable'},
 			],
 		},
+		'./register.js': {path: 'register.ts', declarations: []},
 		'./release.task.js': {
 			path: 'release.task.ts',
 			declarations: [

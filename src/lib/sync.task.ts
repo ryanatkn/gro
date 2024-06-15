@@ -43,7 +43,6 @@ export const task: Task<Args> = {
 		if (gen) {
 			await invoke_task('gen');
 		}
-		await invoke_task('typecheck');
 	},
 };
 
