@@ -146,7 +146,6 @@ export const invoke_task = async (
 				task_root_paths,
 			);
 		} else if (is_gro_id(path_data.id)) {
-			// TODO delete this? merge behavior with the block above/below?
 			// Does the Gro directory contain the matching files? Log them.
 			await log_tasks(
 				log,
