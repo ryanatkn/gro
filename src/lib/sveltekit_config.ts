@@ -7,7 +7,7 @@ import {SVELTEKIT_CONFIG_FILENAME} from './paths.js';
 
 /**
  * Loads a SvelteKit config at `dir`.
- * @returns
+ * @returns `null` if no config is found
  */
 export const load_sveltekit_config = async (
 	dir: string = cwd(),
