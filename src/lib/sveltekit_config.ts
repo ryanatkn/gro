@@ -1,7 +1,6 @@
 import type {Config as SveltekitConfig} from '@sveltejs/kit';
 import type {CompileOptions, PreprocessorGroup, ModuleCompileOptions} from 'svelte/compiler';
 import {join} from 'node:path';
-import {cwd} from 'node:process';
 
 import {SVELTEKIT_CONFIG_FILENAME} from './path_constants.js';
 
@@ -18,7 +17,7 @@ This module is intended to have minimal dependencies to avoid over-imports in th
  * @returns `null` if no config is found
  */
 export const load_sveltekit_config = async (
-	dir: string = cwd(),
+	dir: string = process.cwd(),
 ): Promise<SveltekitConfig | null> => {
 	try {
 		return (await import(join(dir, SVELTEKIT_CONFIG_FILENAME))).default;
@@ -62,7 +61,7 @@ export interface Parsed_Sveltekit_Config {
  * Needed because SvelteKit doesn't expose its config resolver.
  */
 export const init_sveltekit_config = async (
-	dir_or_config: string | SveltekitConfig = cwd(),
+	dir_or_config: string | SveltekitConfig = process.cwd(),
 ): Promise<Parsed_Sveltekit_Config> => {
 	const sveltekit_config =
 		typeof dir_or_config === 'string' ? await load_sveltekit_config(dir_or_config) : dir_or_config;

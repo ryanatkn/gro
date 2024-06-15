@@ -1,6 +1,5 @@
 import {spawn_restartable_process, type Restartable_Process} from '@ryanatkn/belt/process.js';
 import * as esbuild from 'esbuild';
-import {cwd} from 'node:process';
 import type {Config as SvelteKitConfig} from '@sveltejs/kit';
 import {join, resolve} from 'node:path';
 import {identity} from '@ryanatkn/belt/function.js';
@@ -104,7 +103,7 @@ export interface Create_Outpaths {
 
 export const gro_plugin_server = ({
 	entry_points = [SERVER_SOURCE_ID],
-	dir = cwd(),
+	dir = process.cwd(),
 	outpaths = (dev) => ({
 		outdir: join(dir, dev ? GRO_DEV_DIRNAME : SERVER_DIST_PATH),
 		outbase: paths.lib,
@@ -128,7 +127,7 @@ export const gro_plugin_server = ({
 		name: 'gro_plugin_server',
 		setup: async ({dev, watch, timings, log}) => {
 			const parsed_sveltekit_config =
-				!sveltekit_config && strip_end(dir, '/') === cwd()
+				!sveltekit_config && strip_end(dir, '/') === process.cwd()
 					? sveltekit_config_global
 					: await init_sveltekit_config(sveltekit_config ?? dir);
 			const {

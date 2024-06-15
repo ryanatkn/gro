@@ -4,7 +4,6 @@ import {green, red} from 'kleur/colors';
 import {z} from 'zod';
 import {cp, mkdir, readdir, rm} from 'node:fs/promises';
 import {join, resolve} from 'node:path';
-import {cwd} from 'node:process';
 
 import {Task_Error, type Task} from './task.js';
 import {print_path} from './paths.js';
@@ -35,7 +34,7 @@ import {
 // npm run build && rm -rf .gro && clear && gro deploy --source no-git-workspace --no-build --dry
 
 // TODO customize
-const dir = cwd();
+const dir = process.cwd();
 const INITIAL_FILE_PATH = '.gitkeep';
 const INITIAL_FILE_CONTENTS = '';
 const DEPLOY_DIR = GRO_DIRNAME + '/deploy';
