@@ -132,12 +132,12 @@ It tries to do the right thing, where right is helpful but not surprising,
 with some magic but not too much:
 
 ```bash
-gro # print all available tasks, those matching `src/lib/**/*.task.ts` and Gro's builtins
-gro some/dir # list all tasks inside `src/lib/some/dir`
-gro some/file # run `src/lib/some/file.task.ts`
+gro # displays all available tasks matching `src/lib/**/*.task.ts` and Gro's builtins
+gro a # tries to run `src/lib/a.task.ts`, then `./a.task.ts`, then Gro's builtin if one exists
+gro a --help # displays docs for the "a" task and its args, works for every task
+gro some/dir # lists all tasks inside `src/lib/some/dir`
+gro some/file # runs `src/lib/some/file.task.ts`
 gro some/file.task.ts # same as above
-gro a # run `src/lib/a.task.ts` if it exists, falling back to Gro's builtin
-gro a --help # print info about the "a" task; works for every task
 ```
 
 Gro can also run non-task TypeScript files directly
@@ -146,6 +146,15 @@ with [the `gro run` task](/src/lib/run.task.ts) or [register hook](/src/lib/regi
 ```bash
 gro run foo.ts
 node --import @ryanatkn/gro/register.js foo.ts
+```
+
+Or programmatically:
+
+```js
+// myfile.js
+import {register} from 'node:module';
+register('@ryanatkn/gro/loader.js', import.meta.url);
+await import('./foo.ts');
 ```
 
 Gro has a number of builtin tasks that you can run with the CLI.
