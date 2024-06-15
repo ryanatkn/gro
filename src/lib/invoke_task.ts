@@ -49,7 +49,7 @@ export const invoke_task = async (
 	if (!task_name && (args.version || args.v)) {
 		const gro_package_json = await load_gro_package_json();
 		log.info(`${gray('v')}${cyan(gro_package_json.version)}`);
-		log.info(`🕒 ${print_ms(total_timing())}`);
+		finish();
 		return;
 	}
 
