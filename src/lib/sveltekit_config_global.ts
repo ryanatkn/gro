@@ -12,4 +12,7 @@ console.log(
 	GLOBAL_SVELTEKIT_ID,
 );
 
+/**
+ * The parsed SvelteKit config for the cwd, cached globally at the module level.
+ */
 export const sveltekit_config_global = await init_sveltekit_config(); // always load it to keep things simple ahead
