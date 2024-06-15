@@ -35,6 +35,7 @@ export interface Paths {
 	config: string;
 }
 
+// TODO probably rename to `Path_Id` from `Source_Id`?
 // TODO Flavored doesn't work when used in schemas, use Zod brand instead? problem is ergonomics
 export const Source_Id = z.string();
 export type Source_Id = Flavored<z.infer<typeof Source_Id>, 'Source_Id'>;
