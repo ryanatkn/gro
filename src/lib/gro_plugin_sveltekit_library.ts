@@ -9,7 +9,7 @@ import {find_cli, spawn_cli} from './cli.js';
 export const has_sveltekit_library = async (package_json?: Package_Json): Promise<boolean> => {
 	const p = package_json ?? (await load_package_json()); // TODO from param, on config?
 	return !!p.devDependencies?.['@sveltejs/package'] || !!p.dependencies?.['@sveltejs/package'];
-	// TODO @multiple get from the sveltekit config
+	// TODO BLOCK get from the sveltekit config
 	// && exists(sveltekit_config.lib_path);
 };
 

@@ -5,6 +5,8 @@ If any of these become customizable from SvelteKit or Gro's configs, move them t
 
 */
 
+// TODO the slashes here are kinda gross - do we want to maintain the convention to have the trailing slash in most usage?
+
 export const SOURCE_DIRNAME = 'src';
 export const GRO_DIRNAME = '.gro';
 export const GRO_DIST_PREFIX = 'dist_'; //

@@ -1,4 +1,4 @@
-import {join, extname, relative} from 'node:path';
+import {join, extname, relative, basename} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {strip_end, strip_start} from '@ryanatkn/belt/string.js';
 import {gray} from 'kleur/colors';
@@ -21,15 +21,10 @@ It's the same name that Rollup uses.
 
 */
 
-// TODO BLOCK move all/some of these to path_constants?
-// TODO pass these to `create_paths` and override from gro config
-// TODO this is kinda gross - do we want to maintain the convention to have the trailing slash in most usage?
-
-console.log(`sveltekit_config_global`, sveltekit_config_global);
-export const LIB_DIRNAME = 'lib'; // TODO use Svelte config `files.lib`
+export const LIB_DIRNAME = basename(sveltekit_config_global.lib_path);
 export const LIB_PATH = SOURCE_DIR + LIB_DIRNAME;
-export const LIB_DIR = LIB_PATH + '/'; // TODO @multiple get from the sveltekit config
-export const ROUTES_DIRNAME = 'routes'; // TODO use Svelte config `files.lib`
+export const LIB_DIR = LIB_PATH + '/';
+export const ROUTES_DIRNAME = basename(sveltekit_config_global.routes_path);
 
 export interface Paths {
 	root: string;
@@ -58,7 +53,7 @@ export const create_paths = (root_dir: string): Paths => {
 	return {
 		root,
 		source: root + SOURCE_DIR,
-		lib: root + LIB_DIR, // TODO @multiple get from the sveltekit config
+		lib: root + LIB_DIR,
 		build: root + GRO_DIR,
 		build_dev: root + GRO_DEV_DIR,
 		config: root + GRO_CONFIG_PATH,
