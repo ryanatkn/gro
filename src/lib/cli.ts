@@ -3,7 +3,7 @@ import {spawn, spawn_out, type Spawn_Result} from '@ryanatkn/belt/process.js';
 import {join} from 'node:path';
 
 import {exists} from './fs.js';
-import {NODE_MODULES_DIRNAME} from './paths.js';
+import {NODE_MODULES_DIRNAME} from './path_constants.js';
 
 /**
  * Looks for the CLI `name`, first local to the cwd and then globally.

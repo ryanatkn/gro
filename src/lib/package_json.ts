@@ -5,15 +5,8 @@ import {plural} from '@ryanatkn/belt/string.js';
 import type {Logger} from '@ryanatkn/belt/log.js';
 import {strip_end} from '@ryanatkn/belt/string.js';
 
-import {
-	paths,
-	gro_paths,
-	IS_THIS_GRO,
-	replace_extension,
-	SVELTEKIT_DIST_DIRNAME,
-	Url,
-	Email,
-} from './paths.js';
+import {paths, gro_paths, IS_THIS_GRO, replace_extension, Url, Email} from './paths.js';
+import {SVELTEKIT_DIST_DIRNAME} from './path_constants.js';
 import {search_fs} from './search_fs.js';
 import {has_sveltekit_library} from './gro_plugin_sveltekit_library.js';
 

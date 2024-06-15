@@ -4,7 +4,13 @@ import {fileURLToPath} from 'node:url';
 import {spawn, type Spawn_Result} from '@ryanatkn/belt/process.js';
 
 import {exists} from './fs.js';
-import {NODE_MODULES_DIRNAME} from './paths.js';
+import {NODE_MODULES_DIRNAME} from './path_constants.js';
+
+/*
+
+This module is intended to have minimal dependencies to avoid over-imports in the CLI.
+
+*/
 
 /**
  * Resolves a path to an internal Gro file.

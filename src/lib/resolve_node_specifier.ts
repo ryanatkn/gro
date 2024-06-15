@@ -1,7 +1,8 @@
 import {join} from 'node:path';
 
 import {Package_Json, load_package_json} from './package_json.js';
-import {NODE_MODULES_DIRNAME, Source_Id, paths} from './paths.js';
+import {Source_Id, paths} from './paths.js';
+import {NODE_MODULES_DIRNAME} from './path_constants.js';
 
 export const resolve_node_specifier = async (
 	specifier: string,

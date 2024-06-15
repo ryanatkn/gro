@@ -588,7 +588,6 @@ export const src_json = {
 		'./loader.js': {
 			path: 'loader.ts',
 			declarations: [
-				{name: 'CHECKING_IF_LOADER_IS_IN_TASK_CONTEXT', kind: 'variable'},
 				{name: 'load', kind: 'function'},
 				{name: 'resolve', kind: 'function'},
 			],
@@ -674,7 +673,7 @@ export const src_json = {
 				{name: 'GRO_DEV_DIR', kind: 'variable'},
 				{name: 'LIB_PATH', kind: 'variable'},
 				{name: 'LIB_DIR', kind: 'variable'},
-				{name: 'CONFIG_PATH', kind: 'variable'},
+				{name: 'GRO_CONFIG_PATH', kind: 'variable'},
 				{name: 'README_FILENAME', kind: 'variable'},
 				{name: 'SVELTEKIT_CONFIG_FILENAME', kind: 'variable'},
 				{name: 'VITE_CONFIG_FILENAME', kind: 'variable'},
@@ -797,7 +796,10 @@ export const src_json = {
 		},
 		'./sveltekit_config_global.js': {
 			path: 'sveltekit_config_global.ts',
-			declarations: [{name: 'sveltekit_config_global', kind: 'variable'}],
+			declarations: [
+				{name: 'GLOBAL_SVELTEKIT_ID', kind: 'variable'},
+				{name: 'sveltekit_config_global', kind: 'variable'},
+			],
 		},
 		'./sveltekit_config.js': {
 			path: 'sveltekit_config.ts',
