@@ -9,7 +9,7 @@ import type {Flavored} from '@ryanatkn/belt/types.js';
 import {paths, gro_paths, IS_THIS_GRO, replace_extension} from './paths.js';
 import {SVELTEKIT_DIST_DIRNAME} from './path_constants.js';
 import {search_fs} from './search_fs.js';
-import {has_sveltekit_library} from './gro_plugin_sveltekit_library.js';
+import {has_sveltekit_library} from './sveltekit_helpers.js';
 
 // TODO @multiple belongs elsewhere
 export const Url = z.string();

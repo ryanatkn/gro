@@ -5,6 +5,12 @@ import {cwd} from 'node:process';
 
 import {SVELTEKIT_CONFIG_FILENAME} from './path_constants.js';
 
+/*
+
+This module is intended to have minimal dependencies to avoid over-imports in the CLI.
+
+*/
+
 // TODO BLOCK duplicated in paths, but this module needs to NOT import from paths because it'd be a circular dep - maybe move a lot of things to `path_constants.js`?
 
 /**

@@ -11,7 +11,7 @@ import {exists} from './fs.js';
 import {load_package_json} from './package_json.js';
 import {find_cli, spawn_cli} from './cli.js';
 import {Git_Origin, git_push_to_create} from './git.js';
-import {has_sveltekit_library} from './gro_plugin_sveltekit_library.js';
+import {has_sveltekit_library} from './sveltekit_helpers.js';
 
 const RESTRICTED_ACCESS = 'restricted';
 const PUBLIC_ACCESS = 'public';
