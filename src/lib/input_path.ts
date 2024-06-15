@@ -3,6 +3,7 @@ import {strip_start} from '@ryanatkn/belt/string.js';
 import {stat} from 'node:fs/promises';
 import {z} from 'zod';
 import type {Flavored} from '@ryanatkn/belt/types.js';
+import {cwd} from 'node:process';
 
 import {GRO_PACKAGE_DIR, GRO_DIST_DIR, paths, Source_Id} from './paths.js';
 import {to_path_data, type Path_Data} from './path.js';
@@ -29,10 +30,7 @@ export type Raw_Input_Path = Flavored<z.infer<typeof Raw_Input_Path>, 'Raw_Input
  *
  * Thus, input paths are either absolute or implicitly relative.
  */
-export const to_input_path = (
-	raw_input_path: Raw_Input_Path,
-	root_path = process.cwd(),
-): Input_Path => {
+export const to_input_path = (raw_input_path: Raw_Input_Path, root_path = cwd()): Input_Path => {
 	if (raw_input_path.startsWith(GRO_PACKAGE_DIR)) {
 		return GRO_DIST_DIR + strip_start(raw_input_path, GRO_PACKAGE_DIR);
 	} else if (raw_input_path[0] === '.') {

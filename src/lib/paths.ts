@@ -4,6 +4,7 @@ import {strip_end, strip_start} from '@ryanatkn/belt/string.js';
 import {gray} from 'kleur/colors';
 import type {Flavored} from '@ryanatkn/belt/types.js';
 import {z} from 'zod';
+import {cwd} from 'node:process';
 
 import {
 	GRO_CONFIG_PATH,
@@ -104,7 +105,7 @@ export const replace_extension = (path: string, new_extension: string): string =
 /**
  * Paths for the user repo.
  */
-export const paths = create_paths(process.cwd());
+export const paths = create_paths(cwd());
 
 export const GRO_PACKAGE_DIR = 'gro/';
 // TODO document these conditions with comments

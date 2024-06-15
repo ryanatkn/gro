@@ -4,6 +4,7 @@ import {green, red} from 'kleur/colors';
 import {z} from 'zod';
 import {cp, mkdir, readdir, rm} from 'node:fs/promises';
 import {join, resolve} from 'node:path';
+import {cwd} from 'node:process';
 
 import {Task_Error, type Task} from './task.js';
 import {print_path} from './paths.js';
@@ -34,7 +35,7 @@ import {
 // npm run build && rm -rf .gro && clear && gro deploy --source no-git-workspace --no-build --dry
 
 // TODO customize
-const cwd = process.cwd();
+const dir = cwd();
 const INITIAL_FILE_PATH = '.gitkeep';
 const INITIAL_FILE_CONTENTS = '';
 const DEPLOY_DIR = GRO_DIRNAME + '/deploy';
@@ -174,7 +175,7 @@ export const task: Task<Args> = {
 			if (!(await exists(resolved_deploy_dir))) {
 				const local_deploy_branch_exists = await git_local_branch_exists(target);
 				await git_fetch(origin, ('+' + target + ':' + target) as Git_Branch); // fetch+merge and allow non-fastforward updates with the +
-				await git_clone_locally(origin, target, cwd, resolved_deploy_dir);
+				await git_clone_locally(origin, target, dir, resolved_deploy_dir);
 				// Clean up if we created the target branch in the cwd
 				if (!local_deploy_branch_exists) {
 					await git_delete_local_branch(target);
@@ -201,7 +202,7 @@ export const task: Task<Args> = {
 
 			// Create the target branch locally and remotely.
 			// This is more complex to avoid churning the cwd.
-			await git_clone_locally(origin, source, cwd, resolved_deploy_dir);
+			await git_clone_locally(origin, source, dir, resolved_deploy_dir);
 			await spawn(
 				`git checkout --orphan ${target} && ` +
 					// TODO there's definitely a better way to do this
