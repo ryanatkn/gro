@@ -1,5 +1,17 @@
 # @ryanatkn/gro
 
+## 0.118.0
+
+### Minor Changes
+
+- - cleanup task internals, renaming some modules and moving some helpers ([14072ae](https://github.com/ryanatkn/gro/commit/14072ae))
+  - use SvelteKit config for lib and routes paths
+  - print task names relative to the first match in `task_root_paths`
+
+### Patch Changes
+
+- add the register hook `@ryanatkn/gro/register.js` and document it in the readme ([14072ae](https://github.com/ryanatkn/gro/commit/14072ae))
+
 ## 0.117.0
 
 ### Minor Changes
