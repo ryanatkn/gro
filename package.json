@@ -306,6 +306,10 @@
       "default": "./dist/package.js",
       "types": "./dist/package.d.ts"
     },
+    "./path_constants.js": {
+      "default": "./dist/path_constants.js",
+      "types": "./dist/path_constants.d.ts"
+    },
     "./path.js": {
       "default": "./dist/path.js",
       "types": "./dist/path.d.ts"

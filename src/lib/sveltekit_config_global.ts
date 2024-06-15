@@ -1,13 +1,13 @@
 import {green} from 'kleur/colors';
 import {init_sveltekit_config} from './sveltekit_config.js';
 
-// TODO why is this running twice?
+// TODO BLOCK it appears we are running from the .js and then the local dir, but that only happens in Gro, which is fine, but can it easily be fixed?
 console.log(green('sveltekit_config_global loaded'));
 
 export const GLOBAL_SVELTEKIT_ID = Math.random();
 console.log(
 	green(
-		`GLOBAL_SVELTEKIT_ID;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;`,
+		`GLOBAL_SVELTEKIT_ID**************************************************************************************************************`,
 	),
 	GLOBAL_SVELTEKIT_ID,
 );
