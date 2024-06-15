@@ -12,7 +12,7 @@
 
 	const pkg = parse_package_meta(package_json.homepage, package_json, src_json);
 
-	let show_detail = false;
+	let show_detail = $state(false);
 </script>
 
 <main class="box w_100">
