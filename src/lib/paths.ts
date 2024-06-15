@@ -12,6 +12,7 @@ import {
 	SOURCE_DIR,
 	SVELTEKIT_DIST_DIRNAME,
 } from './path_constants.js';
+import {sveltekit_config_global} from './sveltekit_config_global.js';
 
 /*
 
@@ -24,6 +25,7 @@ It's the same name that Rollup uses.
 // TODO pass these to `create_paths` and override from gro config
 // TODO this is kinda gross - do we want to maintain the convention to have the trailing slash in most usage?
 
+console.log(`sveltekit_config_global`, sveltekit_config_global);
 export const LIB_DIRNAME = 'lib'; // TODO use Svelte config `files.lib`
 export const LIB_PATH = SOURCE_DIR + LIB_DIRNAME;
 export const LIB_DIR = LIB_PATH + '/'; // TODO @multiple get from the sveltekit config
