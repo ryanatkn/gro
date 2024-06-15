@@ -614,6 +614,8 @@ export const src_json = {
 		'./package_json.js': {
 			path: 'package_json.ts',
 			declarations: [
+				{name: 'Url', kind: 'variable'},
+				{name: 'Email', kind: 'variable'},
 				{name: 'transform_empty_object_to_undefined', kind: 'function'},
 				{name: 'Package_Json_Repository', kind: 'variable'},
 				{name: 'Package_Json_Author', kind: 'variable'},
@@ -696,8 +698,6 @@ export const src_json = {
 				{name: 'ROUTES_DIRNAME', kind: 'variable'},
 				{name: 'Paths', kind: 'type'},
 				{name: 'Source_Id', kind: 'variable'},
-				{name: 'Url', kind: 'variable'},
-				{name: 'Email', kind: 'variable'},
 				{name: 'create_paths', kind: 'function'},
 				{name: 'paths_from_id', kind: 'function'},
 				{name: 'is_gro_id', kind: 'function'},
