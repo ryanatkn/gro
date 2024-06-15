@@ -807,10 +807,7 @@ export const src_json = {
 		},
 		'./sveltekit_config_global.js': {
 			path: 'sveltekit_config_global.ts',
-			declarations: [
-				{name: 'GLOBAL_SVELTEKIT_ID', kind: 'variable'},
-				{name: 'sveltekit_config_global', kind: 'variable'},
-			],
+			declarations: [{name: 'sveltekit_config_global', kind: 'variable'}],
 		},
 		'./sveltekit_config.js': {
 			path: 'sveltekit_config.ts',
