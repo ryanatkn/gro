@@ -8,7 +8,9 @@
 
 [`npm i -D @ryanatkn/gro`](https://www.npmjs.com/package/@ryanatkn/gro)
 
-[Windows won't be supported](https://github.com/ryanatkn/gro/issues/319), I chose Bash instead
+[Windows won't be supported](https://github.com/ryanatkn/gro/issues/319), I chose Bash instead.
+
+I run [a Discord community](https://discord.gg/YU5tyeK72X) that includes channels for Gro.
 
 ## about
 

@@ -52,6 +52,17 @@ There's no support for sourcemaps yet, and I have no plans for them.
 (I would accept contributions, but I think it's a hard problem to do well,
 and I don't know what the payoffs would be)
 
+> ⚠️ Generated files should never be edited directly,
+> because the next time `gro gen` or `gro sync` runs,
+> any uncommitted changes will be lost!
+> I considered making `gen` only write to files that have no uncommitted changes,
+> but that would impede many workflows,
+> and I don't want to nudge users towards a habit of always adding an override flag.
+> I can see one possible improvement that lets the user
+> opt into making gen write only to unchanged files for those workflows that don't mind it,
+> so if you would like to see that or something similar,
+> please open an issue or [share your thoughts on Discord](https://discord.gg/YU5tyeK72X).
+
 Inspirations include Lisp macros, the
 [Svelte](https://github.com/sveltejs/svelte) compiler,
 and [Zig](https://github.com/ziglang/zig)'s comptime.
