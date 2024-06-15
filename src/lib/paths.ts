@@ -40,14 +40,6 @@ export interface Paths {
 export const Source_Id = z.string();
 export type Source_Id = Flavored<z.infer<typeof Source_Id>, 'Source_Id'>;
 
-// TODO @multiple belongs elsewhere
-export const Url = z.string();
-export type Url = Flavored<z.infer<typeof Url>, 'Url'>;
-
-// TODO @multiple belongs elsewhere
-export const Email = z.string();
-export type Email = Flavored<z.infer<typeof Email>, 'Email'>;
-
 export const create_paths = (root_dir: string): Paths => {
 	// TODO remove reliance on trailing slash towards windows support
 	const root = strip_end(root_dir, '/') + '/';
