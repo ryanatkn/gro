@@ -28,7 +28,10 @@ export const task: Task<Args> = {
 		console.log(`sync GLOBAL_SVELTEKIT_ID`, GLOBAL_SVELTEKIT_ID);
 
 		if (install) {
-			await spawn('npm', ['i']);
+			const result = await spawn('npm', ['i']);
+			if (!result.ok) {
+				throw new Task_Error('failed npm install');
+			}
 		}
 
 		if (sveltekit) {
