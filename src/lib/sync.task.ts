@@ -4,7 +4,6 @@ import {spawn} from '@ryanatkn/belt/process.js';
 import {Task_Error, type Task} from './task.js';
 import {sync_package_json} from './package_json.js';
 import {find_cli, spawn_cli} from './cli.js';
-import {GLOBAL_SVELTEKIT_ID} from './sveltekit_config_global.js';
 
 export const Args = z
 	.object({
@@ -24,8 +23,6 @@ export const task: Task<Args> = {
 	Args,
 	run: async ({args, invoke_task, config, log}): Promise<void> => {
 		const {sveltekit, package_json, gen, install} = args;
-
-		console.log(`sync GLOBAL_SVELTEKIT_ID`, GLOBAL_SVELTEKIT_ID);
 
 		if (install) {
 			const result = await spawn('npm', ['i']);

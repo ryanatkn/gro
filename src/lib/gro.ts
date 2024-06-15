@@ -15,8 +15,6 @@ where we're running Gro inside Gro's own repo for development.
 
 */
 
-console.log('GRO CLI ENTRY=================================================================');
-
 const invoke_path = await resolve_gro_module_path('invoke.js');
 
 const loader_path = join(invoke_path, '../loader.js');

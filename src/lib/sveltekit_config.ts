@@ -10,8 +10,6 @@ This module is intended to have minimal dependencies to avoid over-imports in th
 
 */
 
-// TODO BLOCK duplicated in paths, but this module needs to NOT import from paths because it'd be a circular dep - maybe move a lot of things to `path_constants.js`?
-
 /**
  * Loads a SvelteKit config at `dir`.
  * @returns `null` if no config is found
