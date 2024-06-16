@@ -52,14 +52,7 @@ a changeset to an already-inited repo, use `gro changeset`:
 
 ```bash
 gro changeset # inits or adds a changeset
-gro changeset --help # prints:
-gro changeset: call changeset with gro patterns
-
-[...args]   string[]                 []                           the commands to pass to changeset
-path        string                   './.changeset/config.json'   changeset config file path
-access      'restricted' | 'public'  undefined                    changeset 'access' config value, the default depends on package.json#private
-changelog   string                   '@changesets/changelog-git'  changeset "changelog" config value
-no-install  boolean                  false                        opt out of npm installing the changelog package
+gro changeset --help # view the args docs
 
 # `gro changeset` is equivalent to:
 changeset init # if needed -- prefix with `npx ` if installed only locally

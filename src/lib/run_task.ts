@@ -54,7 +54,7 @@ export const run_task = async (
 			config,
 			log,
 			timings,
-			invoke_task: (invoked_task_name, invoked_args = {}, invoked_config) =>
+			invoke_task: (invoked_task_name, invoked_args, invoked_config) =>
 				invoke_task(invoked_task_name, invoked_args, invoked_config || config, timings),
 		});
 	} catch (err) {

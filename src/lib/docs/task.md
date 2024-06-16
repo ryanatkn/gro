@@ -310,6 +310,11 @@ then `--a` and `--b` will be forwarded to `taskname2`.
 Forwarded args to Gro tasks override direct args, including args to `invoke_task`,
 so `gro taskname --a 1 -- gro taskname --a 2` will invoke `taskname` with `{a: 2}`.
 
+The `invoke_task` helper in the task context forwards the CLI args for the specified task.
+CLI args take precedence over args passed directly to `invoke_task`.
+This may not always be the desired behavior, but it gives the user more control,
+because you can't change args in code you don't control.
+
 ### throwing errors
 
 If a task encounters an error, normally it should throw rather than exiting the process.
@@ -355,6 +360,8 @@ What makes Gro different?
   and improved DX with new capabilities.
 - Tasks support CLI args that are validated and typesafe
   via colocated Zod schemas with minimal boilerplate.
+- Tasks are forwarded CLI args when called via `invoke_task` in other tasks,
+  so running `gro foo -- gro bar --a b` passes `{a: 'b'}` automatically to the `bar` task.
 - Module resolution differs and leverages discoverability:
   - When a task name is given to Gro,
     it first searches `src/lib/` in the current working directory and

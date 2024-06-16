@@ -46,10 +46,6 @@ export const Args = z
 		'no-check': z
 			.boolean({description: 'opt out of npm checking before publishing'})
 			.default(false),
-		install: z.boolean({description: 'dual of no-install'}).default(true),
-		'no-install': z
-			.boolean({description: 'opt out of npm installing before building'})
-			.default(false),
 		build: z.boolean({description: 'dual of no-build'}).default(true),
 		'no-build': z.boolean({description: 'opt out of building'}).default(false),
 		pull: z.boolean({description: 'dual of no-pull'}).default(true),
@@ -62,7 +58,7 @@ export const task: Task<Args> = {
 	summary: 'bump version, publish to npm, and git push',
 	Args,
 	run: async ({args, log, invoke_task}): Promise<void> => {
-		const {branch, origin, changelog, preserve_changelog, dry, check, install, build, pull} = args;
+		const {branch, origin, changelog, preserve_changelog, dry, check, build, pull} = args;
 		if (dry) {
 			log.info(green('dry run!'));
 		}
@@ -150,7 +146,7 @@ export const task: Task<Args> = {
 		}
 
 		if (build) {
-			await invoke_task('build', {install});
+			await invoke_task('build');
 		}
 
 		if (dry) {
