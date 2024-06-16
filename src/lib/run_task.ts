@@ -3,7 +3,7 @@ import {print_log_label, System_Logger} from '@ryanatkn/belt/log.js';
 import type {Timings} from '@ryanatkn/belt/timings.js';
 
 import type {Task_Module_Meta} from './task_module.js';
-import {parse_args, to_forwarded_args, type Args} from './args.js';
+import {parse_args, type Args} from './args.js';
 import type {invoke_task as base_invoke_task} from './invoke_task.js';
 import {log_task_help} from './task_logging.js';
 import type {Gro_Config} from './config.js';
@@ -54,11 +54,8 @@ export const run_task = async (
 			config,
 			log,
 			timings,
-			invoke_task: (
-				invoked_task_name,
-				invoked_args = to_forwarded_args(`gro ${invoked_task_name}`),
-				invoked_config,
-			) => invoke_task(invoked_task_name, invoked_args, invoked_config || config, timings),
+			invoke_task: (invoked_task_name, invoked_args, invoked_config) =>
+				invoke_task(invoked_task_name, invoked_args, invoked_config || config, timings),
 		});
 	} catch (err) {
 		return {

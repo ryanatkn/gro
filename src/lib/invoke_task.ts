@@ -32,7 +32,7 @@ import type {Gro_Config} from './config.js';
  */
 export const invoke_task = async (
 	task_name: Raw_Input_Path,
-	args: Args,
+	args: Args | undefined,
 	config: Gro_Config,
 	timings = new Timings(),
 ): Promise<void> => {
@@ -46,7 +46,7 @@ export const invoke_task = async (
 	};
 
 	// Check if the caller just wants to see the version.
-	if (!task_name && (args.version || args.v)) {
+	if (!task_name && (args?.version || args?.v)) {
 		const gro_package_json = await load_gro_package_json();
 		log.info(`${gray('v')}${cyan(gro_package_json.version)}`);
 		finish();

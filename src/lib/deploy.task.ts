@@ -81,6 +81,9 @@ export const task: Task<Args> = {
 		const {source, target, origin, build_dir, deploy_dir, dry, force, dangerous, reset, build} =
 			args;
 
+		console.log(`args`, args);
+		return;
+
 		// Checks
 		if (!force && target !== TARGET_BRANCH) {
 			throw new Task_Error(
@@ -207,7 +210,7 @@ export const task: Task<Args> = {
 		// Build
 		try {
 			if (build) {
-				await invoke_task('build', to_forwarded_args('gro build'));
+				await invoke_task('build');
 			}
 			if (!(await exists(build_dir))) {
 				log.error(red('directory to deploy does not exist after building:'), build_dir);
