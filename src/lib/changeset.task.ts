@@ -81,8 +81,11 @@ export const task: Task<Args> = {
 
 		const package_json = await load_package_json();
 
-		if (!(await has_sveltekit_library(package_json))) {
-			throw new Task_Error('no SvelteKit library detected');
+		const has_sveltekit_library_result = await has_sveltekit_library(package_json);
+		if (!has_sveltekit_library_result.ok) {
+			throw new Task_Error(
+				'Failed to find SvelteKit library: ' + has_sveltekit_library_result.message,
+			);
 		}
 
 		const path = join(dir, 'config.json');

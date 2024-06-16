@@ -58,9 +58,10 @@ export const task: Task<Args> = {
 			log.info(green('dry run!'));
 		}
 
-		if (!(await has_sveltekit_library())) {
+		const has_sveltekit_library_result = await has_sveltekit_library();
+		if (!has_sveltekit_library_result.ok) {
 			throw new Task_Error(
-				'gro publish failed to detect a library, run `npm i -D @sveltejs/package` to enable it',
+				'Failed to find SvelteKit library: ' + has_sveltekit_library_result.message,
 			);
 		}
 

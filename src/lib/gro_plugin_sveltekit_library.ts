@@ -5,17 +5,24 @@ import {Task_Error} from './task.js';
 import {load_package_json} from './package_json.js';
 import {print_command_args, serialize_args, to_forwarded_args} from './args.js';
 import {find_cli, spawn_cli} from './cli.js';
+import {SVELTE_PACKAGE_CLI, has_sveltekit_library} from './sveltekit_helpers.js';
 
 export const gro_plugin_sveltekit_library = (): Plugin<Plugin_Context> => {
 	return {
 		name: 'gro_plugin_sveltekit_library',
 		setup: async ({log}) => {
-			if ((await find_cli('svelte-package')) !== 'local') {
-				throw new Task_Error('Failed to find svelte-package, run `npm i -D @sveltejs/package`');
+			const has_sveltekit_library_result = await has_sveltekit_library();
+			if (!has_sveltekit_library_result.ok) {
+				throw new Task_Error(
+					'Failed to find SvelteKit library: ' + has_sveltekit_library_result.message,
+				);
 			}
-			const serialized_args = serialize_args(to_forwarded_args('svelte-package'));
+			if ((await find_cli(SVELTE_PACKAGE_CLI)) !== 'local') {
+				throw new Task_Error(`Failed to find ${SVELTE_PACKAGE_CLI}, run \`npm i\``);
+			}
+			const serialized_args = serialize_args(to_forwarded_args(SVELTE_PACKAGE_CLI));
 			log.info(print_command_args(serialized_args));
-			await spawn_cli('svelte-package', serialized_args);
+			await spawn_cli(SVELTE_PACKAGE_CLI, serialized_args);
 		},
 		adapt: async ({log, timings}) => {
 			const package_json = await load_package_json();
