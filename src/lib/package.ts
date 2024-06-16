@@ -185,6 +185,10 @@ export const package_json = {
 		'./plugin.js': {default: './dist/plugin.js', types: './dist/plugin.d.ts'},
 		'./publish.task.js': {default: './dist/publish.task.js', types: './dist/publish.task.d.ts'},
 		'./register.js': {default: './dist/register.js', types: './dist/register.d.ts'},
+		'./reinstall.task.js': {
+			default: './dist/reinstall.task.js',
+			types: './dist/reinstall.task.d.ts',
+		},
 		'./release.task.js': {default: './dist/release.task.js', types: './dist/release.task.d.ts'},
 		'./resolve_node_specifier.js': {
 			default: './dist/resolve_node_specifier.js',
@@ -668,6 +672,7 @@ export const src_json = {
 				{name: 'SVELTEKIT_CONFIG_FILENAME', kind: 'variable'},
 				{name: 'VITE_CONFIG_FILENAME', kind: 'variable'},
 				{name: 'NODE_MODULES_DIRNAME', kind: 'variable'},
+				{name: 'LOCKFILE_FILENAME', kind: 'variable'},
 				{name: 'SVELTEKIT_DEV_DIRNAME', kind: 'variable'},
 				{name: 'SVELTEKIT_BUILD_DIRNAME', kind: 'variable'},
 				{name: 'SVELTEKIT_DIST_DIRNAME', kind: 'variable'},
@@ -734,6 +739,13 @@ export const src_json = {
 			],
 		},
 		'./register.js': {path: 'register.ts', declarations: []},
+		'./reinstall.task.js': {
+			path: 'reinstall.task.ts',
+			declarations: [
+				{name: 'Args', kind: 'variable'},
+				{name: 'task', kind: 'variable'},
+			],
+		},
 		'./release.task.js': {
 			path: 'release.task.ts',
 			declarations: [
