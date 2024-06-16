@@ -4,6 +4,7 @@ import {z} from 'zod';
 import type {Task} from './task.js';
 import {load_package_json, type Package_Json} from './package_json.js';
 import {Git_Origin, git_pull} from './git.js';
+import {spawn_cli} from './cli.js';
 
 export const Args = z
 	.object({
@@ -20,7 +21,7 @@ export type Args = z.infer<typeof Args>;
 export const task: Task<Args> = {
 	summary: 'upgrade deps',
 	Args,
-	run: async ({args, log, invoke_task}): Promise<void> => {
+	run: async ({args, log}): Promise<void> => {
 		const {_, origin, force, pull, dry} = args;
 
 		// TODO maybe a different task that pulls and does other things, like `gro ready`
@@ -49,7 +50,8 @@ export const task: Task<Args> = {
 
 		await spawn('npm', install_args);
 
-		await invoke_task('sync');
+		// Sync in a new process to pick up any changes after installing, avoiding some errors.
+		await spawn_cli('gro', ['sync']);
 	},
 };
 
