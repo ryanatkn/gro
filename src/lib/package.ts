@@ -504,6 +504,7 @@ export const src_json = {
 				{name: 'git_remote_branch_exists', kind: 'function'},
 				{name: 'git_local_branch_exists', kind: 'function'},
 				{name: 'git_check_clean_workspace', kind: 'function'},
+				{name: 'git_check_fully_staged_workspace', kind: 'function'},
 				{name: 'git_fetch', kind: 'function'},
 				{name: 'git_checkout', kind: 'function'},
 				{name: 'git_pull', kind: 'function'},

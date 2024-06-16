@@ -10,7 +10,7 @@ import {Task_Error, type Task} from './task.js';
 import {exists} from './fs.js';
 import {load_package_json} from './package_json.js';
 import {find_cli, spawn_cli} from './cli.js';
-import {Git_Origin, git_push_to_create} from './git.js';
+import {Git_Origin, git_check_fully_staged_workspace, git_push_to_create} from './git.js';
 import {has_sveltekit_library} from './sveltekit_helpers.js';
 
 const RESTRICTED_ACCESS = 'restricted';
@@ -123,8 +123,10 @@ export const task: Task<Args> = {
 			const changeset_adder = await create_changeset_adder(package_json.name, dir, message, bump);
 			await spawn_cli('changeset', ['add', '--empty']);
 			await changeset_adder();
-			await spawn('git', ['commit', '-m', message]);
-			await git_push_to_create(origin);
+			if (!(await git_check_fully_staged_workspace())) {
+				await spawn('git', ['commit', '-m', message]);
+				await git_push_to_create(origin);
+			}
 		} else {
 			await spawn_cli('changeset');
 			await spawn('git', ['add', dir]);

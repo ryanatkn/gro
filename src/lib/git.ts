@@ -86,6 +86,24 @@ export const git_check_clean_workspace = async (options?: SpawnOptions): Promise
 };
 
 /**
+ * TODO make this return an enum and separate the text into a different function
+ * @returns an error message if the git workspace has any unstaged stages, or `null` if it's clean
+ */
+export const git_check_fully_staged_workspace = async (
+	options?: SpawnOptions,
+): Promise<string | null> => {
+	const unstaged_result = await spawn('git', ['diff', '--exit-code', '--quiet'], options);
+	if (!unstaged_result.ok) {
+		return 'git has unstaged changes';
+	}
+	const status_result = await spawn_out('git', ['status', '--porcelain'], options);
+	if (status_result.stdout?.includes('??')) {
+		return 'git has untracked files';
+	}
+	return null;
+};
+
+/**
  * Calls `git fetch` and throws if anything goes wrong.
  */
 export const git_fetch = async (

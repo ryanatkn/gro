@@ -3,6 +3,7 @@ import * as assert from 'uvu/assert';
 
 import {
 	git_check_clean_workspace,
+	git_check_fully_staged_workspace,
 	git_current_branch_first_commit_hash,
 	git_current_branch_name,
 	git_current_commit_hash,
@@ -15,6 +16,10 @@ test('git_current_branch_name', async () => {
 
 test('git_check_clean_workspace', async () => {
 	await git_check_clean_workspace();
+});
+
+test('git_check_fully_staged_workspace', async () => {
+	await git_check_fully_staged_workspace();
 });
 
 test('git_current_commit_hash', async () => {
