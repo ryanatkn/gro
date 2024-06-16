@@ -81,9 +81,6 @@ export const task: Task<Args> = {
 		const {source, target, origin, build_dir, deploy_dir, dry, force, dangerous, reset, build} =
 			args;
 
-		console.log(`args`, args);
-		return;
-
 		// Checks
 		if (!force && target !== TARGET_BRANCH) {
 			throw new Task_Error(
