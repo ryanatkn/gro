@@ -59,7 +59,7 @@ export const package_json = {
 		'@ryanatkn/fuz': '^0.102.1',
 		'@ryanatkn/moss': '^0.4.0',
 		'@sveltejs/adapter-static': '^3.0.2',
-		'@sveltejs/kit': '^2.5.15',
+		'@sveltejs/kit': '^2.5.16',
 		'@sveltejs/package': '^2.3.2',
 		'@sveltejs/vite-plugin-svelte': '^3.1.1',
 		'@types/fs-extra': '^11.0.4',
@@ -68,7 +68,7 @@ export const package_json = {
 		'@typescript-eslint/parser': '^7.13.0',
 		esbuild: '^0.20.2',
 		eslint: '^8.57.0',
-		'eslint-plugin-svelte': '^2.39.3',
+		'eslint-plugin-svelte': '^2.39.4',
 		svelte: '^5.0.0-next.155',
 		'svelte-check': '^3.8.0',
 		typescript: '^5.4.5',
@@ -832,8 +832,11 @@ export const src_json = {
 		'./sveltekit_helpers.js': {
 			path: 'sveltekit_helpers.ts',
 			declarations: [
+				{name: 'SVELTEKIT_CLI', kind: 'variable'},
 				{name: 'has_sveltekit_app', kind: 'function'},
 				{name: 'has_sveltekit_library', kind: 'function'},
+				{name: 'sveltekit_sync', kind: 'function'},
+				{name: 'sveltekit_sync_if_obviously_needed', kind: 'function'},
 			],
 		},
 		'./sveltekit_shim_app_environment.js': {
@@ -902,7 +905,6 @@ export const src_json = {
 			declarations: [
 				{name: 'Args', kind: 'variable'},
 				{name: 'task', kind: 'variable'},
-				{name: 'sveltekit_sync', kind: 'function'},
 			],
 		},
 		'./task_logging.js': {

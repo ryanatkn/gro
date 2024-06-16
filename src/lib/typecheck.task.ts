@@ -4,7 +4,7 @@ import {z} from 'zod';
 import {Task_Error, type Task} from './task.js';
 import {print_command_args, serialize_args, to_forwarded_args} from './args.js';
 import {find_cli, spawn_cli} from './cli.js';
-import {sveltekit_sync} from './sync.task.js';
+import {sveltekit_sync} from './sveltekit_helpers.js';
 
 export const Args = z.object({}).strict();
 export type Args = z.infer<typeof Args>;

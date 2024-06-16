@@ -3,6 +3,7 @@ import {attach_process_error_handlers} from '@ryanatkn/belt/process.js';
 import {invoke_task} from './invoke_task.js';
 import {to_task_args} from './args.js';
 import {load_config} from './config.js';
+import {sveltekit_sync_if_obviously_needed} from './sveltekit_helpers.js';
 
 /*
 
@@ -19,6 +20,8 @@ and the rest of the args are forwarded to the task's `run` function.
 attach_process_error_handlers((err) =>
 	err?.constructor?.name === 'Task_Error' ? 'Task_Error' : null,
 );
+
+await sveltekit_sync_if_obviously_needed();
 
 const {task_name, args} = to_task_args();
 await invoke_task(task_name, args, await load_config());

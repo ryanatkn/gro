@@ -42,7 +42,7 @@ export const plugin = (): Plugin<Plugin_Context<Task_Args>> => {
 			void flush_gen_queue();
 		}
 	}, FLUSH_DEBOUNCE_DELAY);
-	const gen = (files: string[] = []) => spawn('npx', ['gro', 'gen', ...files]);
+	const gen = (files: string[] = []) => spawn_cli('gro', ['gen', ...files]);
 
 	return {
 		name: 'gro_plugin_gen',

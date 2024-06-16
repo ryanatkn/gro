@@ -1,4 +1,4 @@
-import {spawn, type Spawn_Result} from '@ryanatkn/belt/process.js';
+import type {Spawn_Result} from '@ryanatkn/belt/process.js';
 import type {Logger} from '@ryanatkn/belt/log.js';
 
 import {paths} from './paths.js';
@@ -11,6 +11,7 @@ import {
 	GRO_CONFIG_PATH,
 } from './path_constants.js';
 import {print_command_args, serialize_args, to_forwarded_args} from './args.js';
+import {spawn_cli} from './cli.js';
 
 const DEFAULT_EXTENSIONS = 'ts,js,json,svelte,html,css,md,yml';
 const DEFAULT_ROOT_PATHS = `${[
@@ -22,24 +23,31 @@ const DEFAULT_ROOT_PATHS = `${[
 	GITHUB_DIRNAME,
 ].join(',')}/**/*`;
 
-// This formats a directory on the filesystem.
-// If the source directory is given, it also formats all of the root directory files.
-// This is separated from `./format_file` to avoid importing all of the `prettier` code
-// inside modules that import this one. (which has a nontrivial cost)
-export const format_directory = (
+/**
+ * Formats a directory on the filesystem.
+ * If the source directory is given, it also formats all of the root directory files.
+ * This is separated from `./format_file` to avoid importing all of the `prettier` code
+ * inside modules that import this one. (which has a nontrivial cost)
+ */
+export const format_directory = async (
 	log: Logger,
-	directory: string,
+	dir: string,
 	check = false,
 	extensions = DEFAULT_EXTENSIONS,
 	root_paths = DEFAULT_ROOT_PATHS,
 ): Promise<Spawn_Result> => {
 	const forwarded_args = to_forwarded_args('prettier');
 	forwarded_args[check ? 'check' : 'write'] = true;
-	const serialized_args = ['prettier', ...serialize_args(forwarded_args)];
-	serialized_args.push(`${directory}**/*.{${extensions}}`);
-	if (directory === paths.source) {
+	const serialized_args = serialize_args(forwarded_args);
+	serialized_args.push(`${dir}**/*.{${extensions}}`);
+	if (dir === paths.source) {
 		serialized_args.push(`${paths.root}{${root_paths}}`);
 	}
 	log.info(print_command_args(serialized_args));
-	return spawn('npx', serialized_args);
+	const spawned = await spawn_cli('prettier', serialized_args);
+	if (!spawned)
+		throw new Error(
+			'failed to find `prettier` CLI locally or globally, do you need to run `npm i`?',
+		);
+	return spawned;
 };

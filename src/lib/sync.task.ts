@@ -3,7 +3,7 @@ import {spawn} from '@ryanatkn/belt/process.js';
 
 import {Task_Error, type Task} from './task.js';
 import {sync_package_json} from './package_json.js';
-import {find_cli, spawn_cli} from './cli.js';
+import {sveltekit_sync} from './sveltekit_helpers.js';
 
 export const Args = z
 	.object({
@@ -44,14 +44,4 @@ export const task: Task<Args> = {
 			await invoke_task('gen');
 		}
 	},
-};
-
-export const sveltekit_sync = async (): Promise<void> => {
-	if (!(await find_cli('svelte-kit'))) {
-		throw new Task_Error('failed to find svelte-kit CLI - do you need to run `npm i`?');
-	}
-	const result = await spawn_cli('svelte-kit', ['sync']);
-	if (!result?.ok) {
-		throw new Task_Error(`failed svelte-kit sync`);
-	}
 };
