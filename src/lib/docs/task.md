@@ -357,7 +357,7 @@ What makes Gro different?
   and improved DX with new capabilities.
 - Tasks support CLI args that are validated and typesafe
   via colocated Zod schemas with minimal boilerplate.
-- Tasks are forwarded CLI args when called via `invoke_task` in other tasks by default,
+- Tasks are forwarded CLI args when called via `invoke_task` in other tasks,
   so running `gro foo -- gro bar --a b` passes `{a: 'b'}` automatically to the `bar` task.
 - Module resolution differs and leverages discoverability:
   - When a task name is given to Gro,
