@@ -80,7 +80,7 @@ export const task: Task<Args> = {
 				log.error(red('git status'));
 				await spawn('git', ['status']);
 				throw new Task_Error(
-					'failed check for git_check_clean_workspace:' +
+					'Failed check for git_check_clean_workspace:' +
 						error_message +
 						' - do you need to run `gro sync` or commit some files?',
 				);

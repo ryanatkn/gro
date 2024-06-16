@@ -27,7 +27,7 @@ export const task: Task<Args> = {
 		if (install) {
 			const result = await spawn('npm', ['i']);
 			if (!result.ok) {
-				throw new Task_Error('failed npm install');
+				throw new Task_Error('Failed npm install');
 			}
 		}
 

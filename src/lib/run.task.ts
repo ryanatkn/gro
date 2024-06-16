@@ -28,7 +28,7 @@ export const task: Task<Args> = {
 		}
 
 		if (!(await exists(path))) {
-			throw new Task_Error('cannot find file to run at path: ' + path);
+			throw new Task_Error('Cannot find file to run at path: ' + path);
 		}
 
 		const loader_path = await resolve_gro_module_path('loader.js');

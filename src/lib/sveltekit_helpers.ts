@@ -49,11 +49,11 @@ export const has_sveltekit_library = async (
 
 export const sveltekit_sync = async (): Promise<void> => {
 	if (!(await find_cli(SVELTEKIT_CLI))) {
-		throw new Task_Error(`failed to find ${SVELTEKIT_CLI} CLI - do you need to run \`npm i\`?`);
+		throw new Task_Error(`Failed to find ${SVELTEKIT_CLI} CLI - do you need to run \`npm i\`?`);
 	}
 	const result = await spawn_cli(SVELTEKIT_CLI, ['sync']);
 	if (!result?.ok) {
-		throw new Task_Error(`failed ${SVELTEKIT_CLI} sync`);
+		throw new Task_Error(`Failed ${SVELTEKIT_CLI} sync`);
 	}
 };
 

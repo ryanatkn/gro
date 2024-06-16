@@ -15,7 +15,7 @@ export const task: Task<Args> = {
 		log.info('running the initial npm install');
 		const initial_install_result = await spawn('npm', ['i']);
 		if (!initial_install_result.ok) {
-			throw new Task_Error('failed initial npm install');
+			throw new Task_Error('Failed initial npm install');
 		}
 
 		// Deleting both the lockfile and node_modules upgrades to the latest minor/patch versions.
@@ -26,7 +26,7 @@ export const task: Task<Args> = {
 		const second_install_result = await spawn('npm', ['i']);
 		if (!second_install_result.ok) {
 			throw new Task_Error(
-				`failed npm install after deleting ${LOCKFILE_FILENAME} and ${NODE_MODULES_DIRNAME}`,
+				`Failed npm install after deleting ${LOCKFILE_FILENAME} and ${NODE_MODULES_DIRNAME}`,
 			);
 		}
 
@@ -36,7 +36,7 @@ export const task: Task<Args> = {
 		log.info(`running npm install one last time to clean ${LOCKFILE_FILENAME}`);
 		const final_install_result = await spawn('npm', ['i']);
 		if (!final_install_result.ok) {
-			throw new Task_Error('failed npm install');
+			throw new Task_Error('Failed npm install');
 		}
 	},
 };

@@ -10,7 +10,14 @@ import {IS_THIS_GRO} from './paths.js';
 import {has_sveltekit_library} from './sveltekit_helpers.js';
 import {update_changelog} from './changelog.js';
 import {load_from_env} from './env.js';
-import {Git_Branch, Git_Origin, git_checkout, git_fetch, git_pull} from './git.js';
+import {
+	Git_Branch,
+	Git_Origin,
+	git_check_clean_workspace,
+	git_checkout,
+	git_fetch,
+	git_pull,
+} from './git.js';
 
 // publish.task.ts
 // - usage: `gro publish patch`
@@ -45,6 +52,8 @@ export const Args = z
 			.default(false),
 		build: z.boolean({description: 'dual of no-build'}).default(true),
 		'no-build': z.boolean({description: 'opt out of building'}).default(false),
+		pull: z.boolean({description: 'dual of no-pull'}).default(true),
+		'no-pull': z.boolean({description: 'opt out of git pull'}).default(false),
 	})
 	.strict();
 export type Args = z.infer<typeof Args>;
@@ -53,7 +62,7 @@ export const task: Task<Args> = {
 	summary: 'bump version, publish to npm, and git push',
 	Args,
 	run: async ({args, log, invoke_task}): Promise<void> => {
-		const {branch, origin, changelog, preserve_changelog, dry, check, install, build} = args;
+		const {branch, origin, changelog, preserve_changelog, dry, check, install, build, pull} = args;
 		if (dry) {
 			log.info(green('dry run!'));
 		}
@@ -74,14 +83,19 @@ export const task: Task<Args> = {
 
 		if (!(await find_cli('changeset'))) {
 			throw new Task_Error(
-				'changeset command not found: install @changesets/cli locally or globally',
+				'changeset command not found, install @changesets/cli locally or globally',
 			);
 		}
 
 		// Make sure we're on the right branch:
 		await git_fetch(origin, branch);
 		await git_checkout(branch);
-		await git_pull(origin, branch);
+		if (pull) {
+			if (await git_check_clean_workspace()) {
+				throw new Task_Error('The git workspace is not clean, pass --no-pull to bypass git pull');
+			}
+			await git_pull(origin, branch);
+		}
 
 		// Check before proceeding.
 		if (check) {
@@ -100,7 +114,7 @@ export const task: Task<Args> = {
 		} else {
 			const package_json_before = await load_package_json();
 			if (typeof package_json_before.version !== 'string') {
-				throw new Task_Error('failed to find package.json version');
+				throw new Task_Error('Failed to find package.json version');
 			}
 			const parsed_repo_url = parse_repo_url(package_json_before);
 			if (!parsed_repo_url) {
