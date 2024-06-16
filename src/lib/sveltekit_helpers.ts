@@ -36,7 +36,7 @@ export const has_sveltekit_library = async (
 
 	const pkg = package_json ?? (await load_package_json());
 	const found_sveltekit_package =
-		!pkg.devDependencies?.[SVELTE_PACKAGE_DEP_NAME] && !pkg.dependencies?.[SVELTE_PACKAGE_DEP_NAME];
+		pkg.devDependencies?.[SVELTE_PACKAGE_DEP_NAME] || pkg.dependencies?.[SVELTE_PACKAGE_DEP_NAME];
 	if (!found_sveltekit_package) {
 		return {
 			ok: false,
