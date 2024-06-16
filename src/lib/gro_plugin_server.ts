@@ -4,6 +4,7 @@ import type {Config as SvelteKitConfig} from '@sveltejs/kit';
 import {join, resolve} from 'node:path';
 import {identity} from '@ryanatkn/belt/function.js';
 import {strip_before, strip_end} from '@ryanatkn/belt/string.js';
+import type {Result} from '@ryanatkn/belt/result.js';
 
 import type {Plugin, Plugin_Context} from './plugin.js';
 import {base_path_to_source_id, LIB_DIRNAME, paths, type Source_Id} from './paths.js';
@@ -25,7 +26,14 @@ import {sveltekit_config_global} from './sveltekit_config_global.js';
 
 export const SERVER_SOURCE_ID = base_path_to_source_id(LIB_DIRNAME + '/server/server.ts');
 
-export const has_server = (path = SERVER_SOURCE_ID): Promise<boolean> => exists(path);
+export const has_server = async (
+	path = SERVER_SOURCE_ID,
+): Promise<Result<object, {message: string}>> => {
+	if (!(await exists(path))) {
+		return {ok: false, message: `no server file found at ${path}`};
+	}
+	return {ok: true};
+};
 
 export interface Options {
 	/**

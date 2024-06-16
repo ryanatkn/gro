@@ -1,3 +1,5 @@
+import type {Result} from '@ryanatkn/belt/result.js';
+
 import {Package_Json, load_package_json} from './package_json.js';
 import {exists} from './fs.js';
 import {sveltekit_config_global} from './sveltekit_config_global.js';
@@ -8,17 +10,41 @@ import {Task_Error} from './task.js';
 
 export const SVELTEKIT_CLI = 'svelte-kit';
 
-export const has_sveltekit_app = (): Promise<boolean> => exists(SVELTEKIT_CONFIG_FILENAME);
+export const SVELTE_PACKAGE_CLI = 'svelte-package';
+export const SVELTE_PACKAGE_DEP_NAME = '@sveltejs/package';
+
+export const has_sveltekit_app = async (): Promise<Result<object, {message: string}>> => {
+	if (!(await exists(SVELTEKIT_CONFIG_FILENAME))) {
+		return {ok: false, message: `no SvelteKit config found at ${SVELTEKIT_CONFIG_FILENAME}`};
+	}
+	// TODO check for routes?
+	return {ok: true};
+};
 
 export const has_sveltekit_library = async (
 	package_json?: Package_Json,
 	sveltekit_config: Parsed_Sveltekit_Config = sveltekit_config_global,
-): Promise<boolean> => {
-	if (!(await has_sveltekit_app()) || !(await exists(sveltekit_config.lib_path))) {
-		return false;
+): Promise<Result<object, {message: string}>> => {
+	const has_sveltekit_app_result = await has_sveltekit_app();
+	if (!has_sveltekit_app_result.ok) {
+		return has_sveltekit_app_result;
 	}
-	const p = package_json ?? (await load_package_json());
-	return !!p.devDependencies?.['@sveltejs/package'] || !!p.dependencies?.['@sveltejs/package'];
+
+	if (!(await exists(sveltekit_config.lib_path))) {
+		return {ok: false, message: `no SvelteKit lib directory found at ${sveltekit_config.lib_path}`};
+	}
+
+	const pkg = package_json ?? (await load_package_json());
+	if (
+		!(pkg.devDependencies?.[SVELTE_PACKAGE_DEP_NAME] || pkg.dependencies?.[SVELTE_PACKAGE_DEP_NAME])
+	) {
+		return {
+			ok: false,
+			message: `no dependency found in package.json for ${SVELTE_PACKAGE_DEP_NAME}, install it with \`npm i -D ${SVELTE_PACKAGE_DEP_NAME}\``,
+		};
+	}
+
+	return {ok: true};
 };
 
 export const sveltekit_sync = async (): Promise<void> => {

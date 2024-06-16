@@ -14,17 +14,14 @@ import {has_sveltekit_app, has_sveltekit_library} from './sveltekit_helpers.js';
  * - if `src/lib/server/server.ts`, assumes a Node server
  */
 const config: Create_Gro_Config = async (cfg) => {
-	const [enable_sveltekit_library, enable_server, enable_sveltekit_app] = await Promise.all([
-		has_sveltekit_library(),
-		has_server(),
-		has_sveltekit_app(),
-	]);
+	const [has_sveltekit_library_result, has_server_result, has_sveltekit_app_result] =
+		await Promise.all([has_sveltekit_library(), has_server(), has_sveltekit_app()]);
 
 	cfg.plugins = async () => [
-		enable_sveltekit_library ? gro_plugin_sveltekit_library() : null,
-		enable_server ? gro_plugin_server() : null,
-		enable_sveltekit_app
-			? gro_plugin_sveltekit_app({host_target: enable_server ? 'node' : 'github_pages'})
+		has_sveltekit_library_result.ok ? gro_plugin_sveltekit_library() : null,
+		has_server_result.ok ? gro_plugin_server() : null,
+		has_sveltekit_app_result.ok
+			? gro_plugin_sveltekit_app({host_target: has_server_result.ok ? 'node' : 'github_pages'})
 			: null,
 		// TODO replace with an esbuild plugin, see the module for more
 		// import {gro_plugin_gen} from './gro_plugin_gen.js';

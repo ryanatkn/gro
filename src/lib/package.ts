@@ -833,6 +833,8 @@ export const src_json = {
 			path: 'sveltekit_helpers.ts',
 			declarations: [
 				{name: 'SVELTEKIT_CLI', kind: 'variable'},
+				{name: 'SVELTE_PACKAGE_CLI', kind: 'variable'},
+				{name: 'SVELTE_PACKAGE_DEP_NAME', kind: 'variable'},
 				{name: 'has_sveltekit_app', kind: 'function'},
 				{name: 'has_sveltekit_library', kind: 'function'},
 				{name: 'sveltekit_sync', kind: 'function'},
