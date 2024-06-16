@@ -35,9 +35,9 @@ export const has_sveltekit_library = async (
 	}
 
 	const pkg = package_json ?? (await load_package_json());
-	const found_sveltekit_package =
-		pkg.devDependencies?.[SVELTE_PACKAGE_DEP_NAME] || pkg.dependencies?.[SVELTE_PACKAGE_DEP_NAME];
-	if (!found_sveltekit_package) {
+	if (
+		!(pkg.devDependencies?.[SVELTE_PACKAGE_DEP_NAME] || pkg.dependencies?.[SVELTE_PACKAGE_DEP_NAME])
+	) {
 		return {
 			ok: false,
 			message: `no dependency found in package.json for ${SVELTE_PACKAGE_DEP_NAME}, install it with \`npm i -D ${SVELTE_PACKAGE_DEP_NAME}\``,
