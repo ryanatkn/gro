@@ -18,10 +18,8 @@ export const task: Task<Args> = {
 	summary: 'build the project',
 	Args,
 	run: async (ctx): Promise<void> => {
-		const {
-			invoke_task,
-			args: {install},
-		} = ctx;
+		const {invoke_task, args} = ctx;
+		const {install} = args;
 
 		// By default `gro build` installs, opposite of `gro sync`, so that arg needs special handling.
 		await invoke_task('sync', {install});
