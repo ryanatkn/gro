@@ -312,7 +312,8 @@ so `gro taskname --a 1 -- gro taskname --a 2` will invoke `taskname` with `{a: 2
 
 The `invoke_task` helper in the task context forwards the CLI args for the specified task.
 CLI args take precedence over args passed directly to `invoke_task`.
-This may not always be the desired behavior, but it gives the user more control.
+This may not always be the desired behavior, but it gives the user more control,
+because you can't change args in code you don't control.
 
 ### throwing errors
 
