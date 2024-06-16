@@ -39,6 +39,7 @@ export const Args = z
 					'opt out of linkifying and formatting the changelog from @changesets/changelog-git',
 			})
 			.default(false),
+		optional: z.boolean({description: 'exit gracefully if there are no changesets'}).default(false),
 		dry: z
 			.boolean({description: 'build and prepare to publish without actually publishing'})
 			.default(false),
@@ -58,7 +59,7 @@ export const task: Task<Args> = {
 	summary: 'bump version, publish to npm, and git push',
 	Args,
 	run: async ({args, log, invoke_task}): Promise<void> => {
-		const {branch, origin, changelog, preserve_changelog, dry, check, build, pull} = args;
+		const {branch, origin, changelog, preserve_changelog, dry, check, build, pull, optional} = args;
 		if (dry) {
 			log.info(green('dry run!'));
 		}
@@ -141,7 +142,13 @@ export const task: Task<Args> = {
 			const package_json_after = await load_package_json();
 			version = package_json_after.version!;
 			if (package_json_before.version === version) {
-				throw new Task_Error('changeset version failed: are there any changes?');
+				// The version didn't change.
+				// For now this is the best detection we have for a no-op `changeset version`.
+				if (optional) {
+					return; // exit gracefully
+				} else {
+					throw new Task_Error('changeset version failed: are there any changes?');
+				}
 			}
 		}
 
