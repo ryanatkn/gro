@@ -3,7 +3,6 @@ import {z} from 'zod';
 import type {Task} from './task.js';
 import {Plugins} from './plugin.js';
 import {clean_fs} from './clean_fs.js';
-import {to_forwarded_args} from './args.js';
 
 export const Args = z
 	.object({
@@ -25,7 +24,7 @@ export const task: Task<Args> = {
 		} = ctx;
 
 		// By default `gro build` installs, opposite of `gro sync`, so that arg needs special handling.
-		await invoke_task('sync', {...to_forwarded_args('gro sync'), install});
+		await invoke_task('sync', {install});
 
 		// TODO possibly detect if the git workspace is clean, and ask for confirmation if not,
 		// because we're not doing things like `gro gen` here because that's a dev/CI concern
