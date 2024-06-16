@@ -172,10 +172,9 @@ const to_args_schema_type = ({_def}: ZodTypeAny): Arg_Schema['type'] => {
 		case ZodFirstPartyTypeKind.ZodUnion:
 			return 'string | string[]'; // TODO support unions of arbitrary types, or more hardcoded ones as needed
 		default: {
-			if ('type' in _def) {
-				return to_args_schema_type(_def.type);
-			} else if ('innerType' in _def) {
-				return to_args_schema_type(_def.innerType);
+			const subschema = to_subschema(_def);
+			if (subschema) {
+				return to_args_schema_type(subschema);
 			} else {
 				throw Error('Unknown zod type ' + t);
 			}
@@ -183,16 +182,33 @@ const to_args_schema_type = ({_def}: ZodTypeAny): Arg_Schema['type'] => {
 	}
 };
 const to_args_schema_description = ({_def}: ZodTypeAny): string => {
-	if (_def.description) return _def.description;
-	if ('innerType' in _def) {
-		return to_args_schema_description(_def.innerType);
+	if (_def.description) {
+		return _def.description;
+	}
+	const subschema = to_subschema(_def);
+	if (subschema) {
+		return to_args_schema_description(subschema);
 	}
 	return '';
 };
 const to_args_schema_default = ({_def}: ZodTypeAny): any => {
-	if (_def.defaultValue) return _def.defaultValue();
-	if ('innerType' in _def) {
-		return to_args_schema_default(_def.innerType);
+	if (_def.defaultValue) {
+		return _def.defaultValue();
+	}
+	const subschema = to_subschema(_def);
+	if (subschema) {
+		return to_args_schema_default(subschema);
+	}
+	return undefined;
+};
+
+const to_subschema = (_def: any): ZodTypeAny | undefined => {
+	if ('type' in _def) {
+		return _def.type;
+	} else if ('innerType' in _def) {
+		return _def.innerType;
+	} else if ('schema' in _def) {
+		return _def.schema;
 	}
 	return undefined;
 };

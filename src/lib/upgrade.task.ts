@@ -1,7 +1,7 @@
 import {spawn} from '@ryanatkn/belt/process.js';
 import {z} from 'zod';
 
-import type {Task} from './task.js';
+import {Task_Error, type Task} from './task.js';
 import {load_package_json, type Package_Json} from './package_json.js';
 import {Git_Origin, git_pull} from './git.js';
 import {spawn_cli} from './cli.js';
@@ -9,6 +9,12 @@ import {spawn_cli} from './cli.js';
 export const Args = z
 	.object({
 		_: z.array(z.string(), {description: 'names of deps to exclude from the upgrade'}).default([]),
+		only: z
+			.union([z.string(), z.array(z.string())], {
+				description: 'names of deps to include in the upgrade',
+			})
+			.default([])
+			.transform((v) => (Array.isArray(v) ? v : [v])),
 		origin: Git_Origin.describe('git origin to deploy to').default('origin'),
 		force: z.boolean({description: 'if true, print out the planned upgrades'}).default(false),
 		pull: z.boolean({description: 'dual of no-pull'}).default(true),
@@ -22,7 +28,11 @@ export const task: Task<Args> = {
 	summary: 'upgrade deps',
 	Args,
 	run: async ({args, log}): Promise<void> => {
-		const {_, origin, force, pull, dry} = args;
+		const {_, only, origin, force, pull, dry} = args;
+
+		if (_.length && only.length) {
+			throw new Task_Error('Cannot call `gro upgrade` with both rest args and --only.');
+		}
 
 		// TODO maybe a different task that pulls and does other things, like `gro ready`
 		if (pull) {
@@ -31,7 +41,17 @@ export const task: Task<Args> = {
 
 		const package_json = await load_package_json();
 
-		const deps = to_deps(package_json).filter((d) => !_.includes(d.key));
+		const all_deps = to_deps(package_json);
+
+		const deps = only.length
+			? all_deps.filter((d) => only.includes(d.key))
+			: all_deps.filter((d) => !_.includes(d.key));
+
+		if (only.length && only.length !== deps.length) {
+			throw new Task_Error(
+				`Some deps to upgrade were not found: ${only.filter((o) => !deps.find((d) => d.key === o)).join(', ')}`,
+			);
+		}
 
 		const upgrade_items = to_upgrade_items(deps);
 
@@ -70,5 +90,12 @@ const to_deps = (package_json: Package_Json): Dep[] => {
 	return prod_deps.concat(dev_deps);
 };
 
+// TODO hacky and limited
+// TODO probably want to pass through exact deps as well, e.g. @foo/bar@1
 const to_upgrade_items = (deps: Dep[]): string[] =>
-	deps.map((dep) => dep.key + (dep.value.includes('-next.') ? '@next' : '@latest'));
+	deps.map((dep) => {
+		if (dep.key.endsWith('@next') || dep.key.endsWith('@latest')) {
+			return dep.key;
+		}
+		return dep.key + (dep.value.includes('-next.') ? '@next' : '@latest');
+	});
