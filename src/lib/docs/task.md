@@ -310,6 +310,8 @@ then `--a` and `--b` will be forwarded to `taskname2`.
 Forwarded args to Gro tasks override direct args, including args to `invoke_task`,
 so `gro taskname --a 1 -- gro taskname --a 2` will invoke `taskname` with `{a: 2}`.
 
+The `invoke_task` helper in the task context always forwards CLI args.
+
 ### throwing errors
 
 If a task encounters an error, normally it should throw rather than exiting the process.
