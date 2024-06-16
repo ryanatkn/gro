@@ -834,6 +834,7 @@ export const src_json = {
 			declarations: [
 				{name: 'has_sveltekit_app', kind: 'function'},
 				{name: 'has_sveltekit_library', kind: 'function'},
+				{name: 'sveltekit_sync', kind: 'function'},
 			],
 		},
 		'./sveltekit_shim_app_environment.js': {
@@ -902,7 +903,6 @@ export const src_json = {
 			declarations: [
 				{name: 'Args', kind: 'variable'},
 				{name: 'task', kind: 'variable'},
-				{name: 'sveltekit_sync', kind: 'function'},
 			],
 		},
 		'./task_logging.js': {
