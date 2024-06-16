@@ -115,6 +115,7 @@ export const task: Task<Args> = {
 			}
 		}
 
+		// TODO small problem here where generated files don't get committed
 		await invoke_task('sync'); // after the `npm i` above, and in all cases
 
 		if (message) {
