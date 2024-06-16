@@ -25,10 +25,9 @@ import {
 	git_clone_locally,
 	git_current_branch_name,
 } from './git.js';
+import {to_forwarded_args} from './args.js';
 
 // docs at ./docs/deploy.md
-
-// TODO use `to_forwarded_args` and the `gro deploy -- gro build --no-install` pattern to remove the `install`/`no-install` args (also needs testing, maybe a custom override for `gro ` prefixes)
 
 // terminal command for testing:
 // npm run build && rm -rf .gro && clear && gro deploy --source no-git-workspace --no-build --dry
@@ -69,10 +68,6 @@ export const Args = z
 				description: 'if true, resets the target branch back to the first commit before deploying',
 			})
 			.default(false),
-		install: z.boolean({description: 'dual of no-install'}).default(true),
-		'no-install': z
-			.boolean({description: 'opt out of npm installing before building'})
-			.default(false),
 		build: z.boolean({description: 'dual of no-build'}).default(true),
 		'no-build': z.boolean({description: 'opt out of building'}).default(false),
 	})
@@ -83,19 +78,8 @@ export const task: Task<Args> = {
 	summary: 'deploy to a branch',
 	Args,
 	run: async ({args, log, invoke_task}): Promise<void> => {
-		const {
-			source,
-			target,
-			origin,
-			build_dir,
-			deploy_dir,
-			dry,
-			force,
-			dangerous,
-			reset,
-			install,
-			build,
-		} = args;
+		const {source, target, origin, build_dir, deploy_dir, dry, force, dangerous, reset, build} =
+			args;
 
 		// Checks
 		if (!force && target !== TARGET_BRANCH) {
@@ -223,7 +207,7 @@ export const task: Task<Args> = {
 		// Build
 		try {
 			if (build) {
-				await invoke_task('build', {install});
+				await invoke_task('build', to_forwarded_args('gro build'));
 			}
 			if (!(await exists(build_dir))) {
 				log.error(red('directory to deploy does not exist after building:'), build_dir);
