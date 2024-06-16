@@ -20,6 +20,7 @@ export const README_FILENAME = 'README.md';
 export const SVELTEKIT_CONFIG_FILENAME = 'svelte.config.js';
 export const VITE_CONFIG_FILENAME = 'vite.config.ts';
 export const NODE_MODULES_DIRNAME = 'node_modules';
+export const LOCKFILE_FILENAME = 'package-lock.json';
 export const SVELTEKIT_DEV_DIRNAME = '.svelte-kit'; // TODO use Svelte config value `outDir`
 export const SVELTEKIT_BUILD_DIRNAME = 'build';
 export const SVELTEKIT_DIST_DIRNAME = 'dist';

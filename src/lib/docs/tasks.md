@@ -17,6 +17,7 @@ What is a `Task`? See [`task.md`](./task.md).
 - [gen](../gen.task.ts) - run code generation scripts
 - [lint](../lint.task.ts) - run eslint
 - [publish](../publish.task.ts) - bump version, publish to npm, and git push
+- [reinstall](../reinstall.task.ts) - refreshes package-lock.json with the latest and cleanest deps
 - [release](../release.task.ts) - publish and deploy
 - [run](../run.task.ts) - execute a file with the loader, like `node` but works for TypeScript
 - [sync](../sync.task.ts) - run `gro gen`, update `package.json`, and optionally `npm i` to sync up
