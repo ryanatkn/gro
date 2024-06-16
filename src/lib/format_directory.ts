@@ -45,6 +45,9 @@ export const format_directory = async (
 	}
 	log.info(print_command_args(serialized_args));
 	const spawned = await spawn_cli('prettier', serialized_args);
-	if (!spawned) throw new Error('failed to find `prettier` CLI');
+	if (!spawned)
+		throw new Error(
+			'failed to find `prettier` CLI locally or globally, do you need to run `npm i`?',
+		);
 	return spawned;
 };
