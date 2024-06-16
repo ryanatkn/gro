@@ -32,13 +32,13 @@ export const sveltekit_sync = async (): Promise<void> => {
 };
 
 /**
- * If the SvelteKit CLI is found and its directory is not, run `svelte-kit sync`.
+ * If the SvelteKit CLI is found and its `.svelte-kit` directory is not, run `svelte-kit sync`.
  */
 export const sveltekit_sync_if_obviously_needed = async (): Promise<void> => {
-	if (!(await find_cli(SVELTEKIT_CLI))) {
-		return; // do nothing if SvelteKit isn't found
-	}
 	if (await exists(SVELTEKIT_DEV_DIRNAME)) {
+		return;
+	}
+	if (!(await find_cli(SVELTEKIT_CLI))) {
 		return;
 	}
 	return sveltekit_sync();
