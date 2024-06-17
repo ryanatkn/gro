@@ -1,10 +1,12 @@
 import type {Logger} from '@ryanatkn/belt/log.js';
 import {join, basename, dirname, isAbsolute} from 'node:path';
+import {mkdir, readFile, writeFile} from 'node:fs/promises';
 import {z} from 'zod';
 
 import {gen_module_meta, to_gen_module_type} from './gen_module.js';
-import type {Source_Id} from './paths.js';
+import {print_path, type Source_Id} from './paths.js';
 import type {Gro_Config} from './config.js';
+import {exists} from './fs.js';
 
 export type Gen_Result = {
 	origin_id: string;
@@ -142,4 +144,57 @@ const validate_gen_files = (files: Gen_File[]) => {
 		}
 		ids.add(file.id);
 	}
+};
+
+export type Analyzed_Gen_Result =
+	| {
+			file: Gen_File;
+			existing_content: string;
+			is_new: false;
+			has_changed: boolean;
+	  }
+	| {
+			file: Gen_File;
+			existing_content: null;
+			is_new: true;
+			has_changed: true;
+	  };
+
+export const analyze_gen_results = (gen_results: Gen_Results): Promise<Analyzed_Gen_Result[]> =>
+	Promise.all(
+		gen_results.successes
+			.map((result) => result.files.map((file) => analyze_gen_result(file)))
+			.flat(),
+	);
+
+export const analyze_gen_result = async (file: Gen_File): Promise<Analyzed_Gen_Result> => {
+	if (!(await exists(file.id))) {
+		return {
+			file,
+			existing_content: null,
+			is_new: true,
+			has_changed: true,
+		};
+	}
+	const existing_content = await readFile(file.id, 'utf8');
+	return {
+		file,
+		existing_content,
+		is_new: false,
+		has_changed: file.content !== existing_content,
+	};
+};
+
+export const write_gen_results = async (gen_results: Gen_Results, log: Logger): Promise<void> => {
+	await Promise.all(
+		gen_results.successes
+			.map((result) =>
+				result.files.map(async (file) => {
+					log.info('writing', print_path(file.id), 'generated from', print_path(file.origin_id));
+					await mkdir(dirname(file.id), {recursive: true});
+					await writeFile(file.id, file.content);
+				}),
+			)
+			.flat(),
+	);
 };

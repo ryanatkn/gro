@@ -2,17 +2,16 @@ import {red, green, gray} from 'kleur/colors';
 import {print_ms, print_error} from '@ryanatkn/belt/print.js';
 import {plural} from '@ryanatkn/belt/string.js';
 import {z} from 'zod';
-import {dirname} from 'node:path';
-import {mkdir, writeFile} from 'node:fs/promises';
 
 import {Task_Error, type Task} from './task.js';
 import {run_gen} from './run_gen.js';
-import {load_gen_module, check_gen_modules, find_gen_modules} from './gen_module.js';
+import {load_gen_module, find_gen_modules} from './gen_module.js';
 import {Raw_Input_Path, to_input_paths} from './input_path.js';
 import {load_modules} from './modules.js';
 import {format_file} from './format_file.js';
 import {paths, print_path} from './paths.js';
 import {log_error_reasons} from './task_logging.js';
+import {write_gen_results, analyze_gen_results} from './gen.js';
 
 export const Args = z
 	.object({
@@ -67,17 +66,17 @@ export const task: Task<Args> = {
 		timing_to_generate_code();
 
 		const fail_count = gen_results.failures.length;
+		const analyzed_gen_results = await analyze_gen_results(gen_results);
 		if (check) {
 			// check if any files changed, and if so, throw errors,
 			// but if there are gen failures, skip the check and defer to their errors
 			if (!fail_count) {
 				log.info('checking generated files for changes');
 				const timing_to_check_results = timings.start('check results for changes');
-				const check_gen_modules_results = await check_gen_modules(gen_results);
 				timing_to_check_results();
 
 				let has_unexpected_changes = false;
-				for (const result of check_gen_modules_results) {
+				for (const result of analyzed_gen_results) {
 					if (!result.has_changed) continue;
 					has_unexpected_changes = true;
 					log.error(
@@ -100,22 +99,7 @@ export const task: Task<Args> = {
 			// write generated files to disk
 			log.info('writing generated files to disk');
 			const timing_to_output_results = timings.start('output results');
-			await Promise.all(
-				gen_results.successes
-					.map((result) =>
-						result.files.map(async (file) => {
-							log.info(
-								'writing',
-								print_path(file.id),
-								'generated from',
-								print_path(file.origin_id),
-							);
-							await mkdir(dirname(file.id), {recursive: true});
-							await writeFile(file.id, file.content);
-						}),
-					)
-					.flat(),
-			);
+			await write_gen_results(gen_results, log);
 			timing_to_output_results();
 		}
 
