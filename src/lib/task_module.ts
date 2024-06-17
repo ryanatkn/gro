@@ -56,7 +56,6 @@ export const find_task_modules = async (
 				task_root_paths,
 			),
 	);
-	console.log(`find_modules_result`, find_modules_result);
 	const task_infos: Task_Info[] = []; // TODO BLOCK maybe separate this into `resolve_task_info`? given a `Find_Modules_Result`?
 	return {find_modules_result, task_infos};
 };

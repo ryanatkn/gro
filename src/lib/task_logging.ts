@@ -63,7 +63,7 @@ export const log_gro_package_tasks = async (
 	const gro_dir_find_modules_result = await find_modules([gro_dir_input_path], (id) =>
 		search_fs(id, {filter: (path) => is_task_path(path)}),
 	);
-	console.log(`gro_dir_find_modules_result`, gro_dir_find_modules_result);
+	console.log(`[log_gro_package_tasks] gro_dir_find_modules_result`, gro_dir_find_modules_result);
 	if (gro_dir_find_modules_result.ok) {
 		const gro_path_data =
 			gro_dir_find_modules_result.source_id_path_data_by_input_path.get(gro_dir_input_path)!;
