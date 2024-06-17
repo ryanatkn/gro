@@ -87,6 +87,7 @@ export const find_modules = async (
 	const timing_to_map_input_paths = timings?.start('map input paths');
 	const {source_id_path_data_by_input_path, unmapped_input_paths} =
 		await load_source_path_data_by_input_path(input_paths, get_possible_source_ids);
+	console.log('[find_modules]', source_id_path_data_by_input_path);
 	timing_to_map_input_paths?.();
 
 	// Error if any input path could not be mapped.
@@ -114,23 +115,25 @@ export const find_modules = async (
 	timing_to_search_fs?.();
 
 	// Error if any input path has no files. (means we have an empty directory)
-	return input_directories_with_no_files.length
-		? {
-				ok: false,
-				type: 'input_directories_with_no_files',
-				source_id_path_data_by_input_path,
-				source_ids_by_input_path,
-				input_directories_with_no_files,
-				reasons: input_directories_with_no_files.map((input_path) =>
-					red(
-						`Input directory ${print_path_or_gro_path(
-							source_id_path_data_by_input_path.get(input_path)!.id,
-							paths_from_id(input_path),
-						)} contains no matching files.`,
-					),
+	if (input_directories_with_no_files.length) {
+		return {
+			ok: false,
+			type: 'input_directories_with_no_files',
+			source_id_path_data_by_input_path,
+			source_ids_by_input_path,
+			input_directories_with_no_files,
+			reasons: input_directories_with_no_files.map((input_path) =>
+				red(
+					`Input directory ${print_path_or_gro_path(
+						source_id_path_data_by_input_path.get(input_path)!.id,
+						paths_from_id(input_path),
+					)} contains no matching files.`,
 				),
-			}
-		: {ok: true, source_ids_by_input_path, source_id_path_data_by_input_path};
+			),
+		};
+	}
+
+	return {ok: true, source_ids_by_input_path, source_id_path_data_by_input_path};
 };
 
 // TODO parallelize, originally it needed to be serial for a specific usecase we no longer have
