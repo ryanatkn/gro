@@ -99,7 +99,7 @@ export const task: Task<Args> = {
 			// write generated files to disk
 			log.info('writing generated files to disk');
 			const timing_to_output_results = timings.start('output results');
-			await write_gen_results(gen_results, log);
+			await write_gen_results(gen_results, analyzed_gen_results, log);
 			timing_to_output_results();
 		}
 

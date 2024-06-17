@@ -185,14 +185,28 @@ export const analyze_gen_result = async (file: Gen_File): Promise<Analyzed_Gen_R
 	};
 };
 
-export const write_gen_results = async (gen_results: Gen_Results, log: Logger): Promise<void> => {
+export const write_gen_results = async (
+	gen_results: Gen_Results,
+	analyzed_gen_results: Analyzed_Gen_Result[],
+	log: Logger,
+): Promise<void> => {
 	await Promise.all(
 		gen_results.successes
 			.map((result) =>
 				result.files.map(async (file) => {
-					log.info('writing', print_path(file.id), 'generated from', print_path(file.origin_id));
-					await mkdir(dirname(file.id), {recursive: true});
-					await writeFile(file.id, file.content);
+					const analyzed = analyzed_gen_results.find((a) => a.file.id === file.id);
+					if (!analyzed) throw Error('Expected to find analyzed result: ' + file.id);
+					const log_args = [print_path(file.id), 'generated from', print_path(file.origin_id)];
+					if (analyzed.is_new) {
+						log.info('writing new', ...log_args);
+						await mkdir(dirname(file.id), {recursive: true});
+						await writeFile(file.id, file.content);
+					} else if (analyzed.has_changed) {
+						log.info('writing changed', ...log_args);
+						await writeFile(file.id, file.content);
+					} else {
+						log.info('skipping unchanged', ...log_args);
+					}
 				}),
 			)
 			.flat(),
