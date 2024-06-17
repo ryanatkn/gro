@@ -34,15 +34,19 @@ export const is_task_path = (path: string): boolean =>
 	path.endsWith(TASK_FILE_SUFFIX_TS) || path.endsWith(TASK_FILE_SUFFIX_JS);
 
 export const to_task_name = (id: Source_Id, task_root_paths: string[]): string => {
-	let base_path = id;
-	// If the id is in any of the task root paths, use the first match and strip it.
-	for (const task_root_path of task_root_paths) {
-		if (id.startsWith(task_root_path)) {
-			base_path = strip_start(strip_start(id, task_root_path), '/');
-			break;
+	// If the id is in any of the task root paths, use the longest available match and strip it.
+	// This is convoluted because we're not tracking which root path was resolved against the id.
+	// TODO improve the data flow of id from task root path so this is unnecessary
+	let longest_matching_path = '';
+	for (const path of task_root_paths) {
+		if (id.startsWith(path) && path.length > longest_matching_path.length) {
+			longest_matching_path = path;
 		}
 	}
-	return strip_end(strip_end(base_path, TASK_FILE_SUFFIX_TS), TASK_FILE_SUFFIX_JS);
+	const task_name = longest_matching_path
+		? strip_start(strip_start(id, longest_matching_path), '/')
+		: id;
+	return strip_end(strip_end(task_name, TASK_FILE_SUFFIX_TS), TASK_FILE_SUFFIX_JS);
 };
 
 /**

@@ -26,6 +26,11 @@ test('to_task_name basic behavior', () => {
 		'foo',
 		'resolves to node_modules before the cwd',
 	);
+	assert.is(
+		to_task_name(resolve('node_modules/@ryanatkn/gro/dist/foo'), [resolve('src')]),
+		resolve('node_modules/@ryanatkn/gro/dist/foo'),
+		'falls back to the id when unresolved',
+	);
 });
 
 test.run();
