@@ -100,6 +100,7 @@ export const load_source_path_data_by_input_path = async (
 	unmapped_input_paths: Input_Path[];
 	possible_source_ids_by_input_path: Map<Input_Path, Source_Id[]>;
 }> => {
+	console.log(`[load_source_path_data_by_input_path]`, input_paths);
 	const source_id_path_data_by_input_path = new Map<Input_Path, Path_Data>();
 	const unmapped_input_paths: Input_Path[] = [];
 	const possible_source_ids_by_input_path = new Map<Input_Path, Source_Id[]>();
@@ -108,7 +109,7 @@ export const load_source_path_data_by_input_path = async (
 		let dir_path_data: Path_Data | null = null;
 		const possible_source_ids = get_possible_source_ids_for_input_path
 			? get_possible_source_ids_for_input_path(input_path)
-			: [input_path as Source_Id]; // TODO BLOCK does this need to be resolved?
+			: [resolve(input_path) as Source_Id];
 		possible_source_ids_by_input_path.set(input_path, possible_source_ids);
 
 		// Find the first existing file path or fallback to the first directory path.
