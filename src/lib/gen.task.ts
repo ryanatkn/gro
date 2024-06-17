@@ -76,14 +76,14 @@ export const task: Task<Args> = {
 				timing_to_check_results();
 
 				let has_unexpected_changes = false;
-				for (const result of analyzed_gen_results) {
-					if (!result.has_changed) continue;
+				for (const analyzed of analyzed_gen_results) {
+					if (!analyzed.has_changed) continue;
 					has_unexpected_changes = true;
 					log.error(
 						red(
-							`Generated file ${print_path(result.file.id)} via ${print_path(
-								result.file.origin_id,
-							)} ${result.is_new ? 'is new' : 'has changed'}.`,
+							`Generated file ${print_path(analyzed.file.id)} via ${print_path(
+								analyzed.file.origin_id,
+							)} ${analyzed.is_new ? 'is new' : 'has changed'}.`,
 						),
 					);
 				}
