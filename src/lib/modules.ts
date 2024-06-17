@@ -41,8 +41,10 @@ export const load_module = async <T extends Record<string, any>>(
 
 export type Find_Modules_Result = Result<
 	{
+		// TODO BLOCK should these be bundled into a single data structure?
 		source_ids_by_input_path: Map<Input_Path, Source_Id[]>;
 		source_id_path_data_by_input_path: Map<Input_Path, Path_Data>;
+		possible_source_ids_by_input_path: Map<Input_Path, Source_Id[]>;
 	},
 	Find_Modules_Failure
 >;
@@ -85,8 +87,11 @@ export const find_modules = async (
 ): Promise<Find_Modules_Result> => {
 	// Check which extension variation works - if it's a directory, prefer others first!
 	const timing_to_map_input_paths = timings?.start('map input paths');
-	const {source_id_path_data_by_input_path, unmapped_input_paths} =
-		await load_source_path_data_by_input_path(input_paths, get_possible_source_ids);
+	const {
+		source_id_path_data_by_input_path,
+		unmapped_input_paths,
+		possible_source_ids_by_input_path,
+	} = await load_source_path_data_by_input_path(input_paths, get_possible_source_ids);
 	console.log('[find_modules]', source_id_path_data_by_input_path);
 	timing_to_map_input_paths?.();
 
@@ -133,7 +138,12 @@ export const find_modules = async (
 		};
 	}
 
-	return {ok: true, source_ids_by_input_path, source_id_path_data_by_input_path};
+	return {
+		ok: true,
+		source_ids_by_input_path,
+		source_id_path_data_by_input_path,
+		possible_source_ids_by_input_path,
+	};
 };
 
 // TODO parallelize, originally it needed to be serial for a specific usecase we no longer have

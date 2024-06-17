@@ -98,15 +98,19 @@ export const load_source_path_data_by_input_path = async (
 ): Promise<{
 	source_id_path_data_by_input_path: Map<Input_Path, Path_Data>;
 	unmapped_input_paths: Input_Path[];
+	possible_source_ids_by_input_path: Map<Input_Path, Source_Id[]>;
 }> => {
 	const source_id_path_data_by_input_path = new Map<Input_Path, Path_Data>();
 	const unmapped_input_paths: Input_Path[] = [];
+	const possible_source_ids_by_input_path = new Map<Input_Path, Source_Id[]>();
 	for (const input_path of input_paths) {
 		let file_path_data: Path_Data | null = null;
 		let dir_path_data: Path_Data | null = null;
 		const possible_source_ids = get_possible_source_ids_for_input_path
 			? get_possible_source_ids_for_input_path(input_path)
-			: [input_path];
+			: [input_path as Source_Id]; // TODO BLOCK does this need to be resolved?
+		possible_source_ids_by_input_path.set(input_path, possible_source_ids);
+
 		// Find the first existing file path or fallback to the first directory path.
 		for (const possible_source_id of possible_source_ids) {
 			if (!(await exists(possible_source_id))) continue; // eslint-disable-line no-await-in-loop
@@ -126,7 +130,11 @@ export const load_source_path_data_by_input_path = async (
 			unmapped_input_paths.push(input_path);
 		}
 	}
-	return {source_id_path_data_by_input_path, unmapped_input_paths};
+	return {
+		source_id_path_data_by_input_path,
+		unmapped_input_paths,
+		possible_source_ids_by_input_path,
+	};
 };
 
 /**
