@@ -1,5 +1,11 @@
 # @ryanatkn/gro
 
+## 0.119.1
+
+### Patch Changes
+
+- fix task name inference to node_modules ([#467](https://github.com/ryanatkn/gro/pull/467))
+
 ## 0.119.0
 
 ### Minor Changes
