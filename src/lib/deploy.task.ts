@@ -113,10 +113,12 @@ export const task: Task<Args> = {
 
 		// Fetch the source branch in the cwd if it's not there
 		if (!(await git_local_branch_exists(source))) {
+			console.log(`Fetch source branch`);
 			await git_fetch(origin, source);
 		}
 
 		// Prepare the source branch in the cwd
+		console.log(`Prepare the source branch in the cwd`);
 		await git_checkout(source);
 		await git_pull(origin, source);
 		if (await git_check_clean_workspace()) {
@@ -127,11 +129,13 @@ export const task: Task<Args> = {
 		}
 
 		// Prepare the target branch remotely and locally
+		console.log('Prepare the target branch remotely and locally');
 		const resolved_deploy_dir = resolve(deploy_dir);
 		const target_spawn_options = {cwd: resolved_deploy_dir};
 		const remote_target_exists = await git_remote_branch_exists(origin, target);
 		if (remote_target_exists) {
 			// Remote target branch already exists, so sync up efficiently
+			console.log('Remote target branch already exists, so sync up efficiently');
 
 			// First, check if the deploy dir exists, and if so, attempt to sync it.
 			// If anything goes wrong, delete the directory and we'll initialize it
@@ -140,8 +144,10 @@ export const task: Task<Args> = {
 				if (target !== (await git_current_branch_name(target_spawn_options))) {
 					// We're in a bad state because the target branch has changed,
 					// so delete the directory and continue as if it wasn't there.
+					console.log(`We're in a bad state because the target branch has changed,`);
 					await rm(resolved_deploy_dir, {recursive: true});
 				} else {
+					console.log(`Good state`);
 					await spawn('git', ['reset', '--hard'], target_spawn_options); // in case it's dirty
 					await git_pull(origin, target, target_spawn_options);
 					if (await git_check_clean_workspace(target_spawn_options)) {
@@ -154,6 +160,7 @@ export const task: Task<Args> = {
 
 			// Second, initialize the deploy dir if needed.
 			// It may not exist, or it may have been deleted after failing to sync above.
+			console.log(`// Second, initialize the deploy dir if needed.`);
 			if (!(await exists(resolved_deploy_dir))) {
 				const local_deploy_branch_exists = await git_local_branch_exists(target);
 				await git_fetch(origin, ('+' + target + ':' + target) as Git_Branch); // fetch+merge and allow non-fastforward updates with the +
@@ -165,6 +172,7 @@ export const task: Task<Args> = {
 			}
 
 			// Local target branch is now synced with remote, but do we need to reset?
+			console.log(`// Local target branch is now synced with remote, but do we need to reset?`);
 			if (reset) {
 				await git_reset_branch_to_first_commit(origin, target, target_spawn_options);
 			}
