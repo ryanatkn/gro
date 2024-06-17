@@ -4,39 +4,38 @@
 
 ### Minor Changes
 
-- remove the `--install`/`--no-install` args to `gro deploy` and `gro publish`, use `gro deploy -- gro build --no-install` instead ([5c36e89](https://github.com/ryanatkn/gro/commit/5c36e89))
-- improve errors detecting project features ([d9d32d8](https://github.com/ryanatkn/gro/commit/d9d32d8))
-- change `gro build` default `install` to `true`, disable with `--no-install` ([5c36e89](https://github.com/ryanatkn/gro/commit/5c36e89))
-- move `sveltekit_sync` to `$lib/sveltekit_helpers.ts` ([c3a537a](https://github.com/ryanatkn/gro/commit/c3a537a))
-- write gen files only when changed ([da9d4e3](https://github.com/ryanatkn/gro/commit/da9d4e3))
+- remove the `--install`/`--no-install` args to `gro deploy` and `gro publish`, use `gro deploy -- gro build --no-install` instead ([#464](https://github.com/ryanatkn/gro/pull/464))
+- improve errors detecting project features ([#463](https://github.com/ryanatkn/gro/pull/463))
+- change `gro build` default `install` to `true`, disable with `--no-install` ([#464](https://github.com/ryanatkn/gro/pull/464))
+- move `sveltekit_sync` to `$lib/sveltekit_helpers.ts` ([#462](https://github.com/ryanatkn/gro/pull/462))
+- write gen files only when changed ([#466](https://github.com/ryanatkn/gro/pull/466))
 
 ### Patch Changes
 
 - change `gro changeset` to commit and push only if all changes are staged ([bb1d25a](https://github.com/ryanatkn/gro/commit/bb1d25a))
 - add `--optional` arg to `gro publish` and use it from `gro release` ([dd02f27](https://github.com/ryanatkn/gro/commit/dd02f27))
-- add reinstall task ([b50d247](https://github.com/ryanatkn/gro/commit/b50d247))
+- add reinstall task ([#461](https://github.com/ryanatkn/gro/pull/461))
 - add `--only` option to `gro upgrade` ([99b0fb5](https://github.com/ryanatkn/gro/commit/99b0fb5))
-- run `svelte-kit sync` on startup if needed ([c3a537a](https://github.com/ryanatkn/gro/commit/c3a537a))
+- run `svelte-kit sync` on startup if needed ([#462](https://github.com/ryanatkn/gro/pull/462))
 - add `--no-pull` option to `gro publish` ([f1b8fa7](https://github.com/ryanatkn/gro/commit/f1b8fa7))
 
 ## 0.118.0
 
 ### Minor Changes
 
-- - cleanup task internals, renaming some modules and moving some helpers ([14072ae](https://github.com/ryanatkn/gro/commit/14072ae))
+- cleanup task internals, renaming some modules and moving some helpers ([#460](https://github.com/ryanatkn/gro/pull/460))
   - use SvelteKit config for lib and routes paths
   - print task names relative to the first match in `task_root_paths`
 
 ### Patch Changes
 
-- add the register hook `@ryanatkn/gro/register.js` and document it in the readme ([14072ae](https://github.com/ryanatkn/gro/commit/14072ae))
+- add the register hook `@ryanatkn/gro/register.js` and document it in the readme ([#460](https://github.com/ryanatkn/gro/pull/460))
 
 ## 0.117.0
 
 ### Minor Changes
 
-- enable running tasks from outside src/lib ([c46f859](https://github.com/ryanatkn/gro/commit/c46f859))
-
+- enable running tasks from outside src/lib ([#452](https://github.com/ryanatkn/gro/pull/452))
   - add the config option `task_root_paths`
   - input paths for tasks/gen now resolve explicitly relative paths `./foo` relative to the cwd
   - package.json is now optional
@@ -87,7 +86,7 @@
 
 ### Minor Changes
 
-- - don't copy `src/` to `static/.well-known/` by default ([#456](https://github.com/ryanatkn/gro/pull/456))
+- don't copy `src/` to `static/.well-known/` by default ([#456](https://github.com/ryanatkn/gro/pull/456))
   - rename `filter_well_known_src` to `well_known_src_files`
   - change `well_known_src_files` to accept a boolean that defaults to `false`
 
@@ -371,7 +370,7 @@
 
 ### Minor Changes
 
-- - add `$lib/src_json.ts` ([#434](https://github.com/ryanatkn/gro/pull/434))
+- add `$lib/src_json.ts` ([#434](https://github.com/ryanatkn/gro/pull/434))
   - add `.well-known/src.json` and `.well-known/src/`
   - remove `modules` from `.well-known/package.json`
 
