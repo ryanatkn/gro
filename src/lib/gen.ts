@@ -194,7 +194,7 @@ export const write_gen_results = async (
 		gen_results.successes
 			.map((result) =>
 				result.files.map(async (file) => {
-					const analyzed = analyzed_gen_results.find((a) => a.file.id === file.id);
+					const analyzed = analyzed_gen_results.find((r) => r.file.id === file.id);
 					if (!analyzed) throw Error('Expected to find analyzed result: ' + file.id);
 					const log_args = [print_path(file.id), 'generated from', print_path(file.origin_id)];
 					if (analyzed.is_new) {
