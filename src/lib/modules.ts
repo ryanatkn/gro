@@ -183,13 +183,15 @@ export const load_modules = async <
 	}
 	timing_to_load_modules?.();
 
-	return load_module_failures.length
-		? {
-				ok: false,
-				type: 'load_module_failures',
-				load_module_failures,
-				reasons,
-				modules,
-			}
-		: {ok: true, modules};
+	if (load_module_failures.length) {
+		return {
+			ok: false,
+			type: 'load_module_failures',
+			load_module_failures,
+			reasons,
+			modules,
+		};
+	}
+
+	return {ok: true, modules};
 };
