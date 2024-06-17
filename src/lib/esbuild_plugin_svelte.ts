@@ -12,6 +12,9 @@ import {relative} from 'node:path';
 
 import {SVELTE_MATCHER, SVELTE_RUNES_MATCHER} from './svelte_helpers.js';
 
+// TODO ideally this takes a SvelteKit config,
+// but it's tricky because of usage by the server plugin,
+// for now this forces the user to handle `Parsed_Sveltekit_Config`
 export interface Options {
 	dir?: string;
 	svelte_compile_options?: CompileOptions;
