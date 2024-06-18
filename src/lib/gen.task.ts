@@ -5,7 +5,7 @@ import {z} from 'zod';
 
 import {Task_Error, type Task} from './task.js';
 import {run_gen} from './run_gen.js';
-import {load_gen_module, find_gen_modules} from './gen_module.js';
+import {load_gen_module, find_genfiles} from './gen_module.js';
 import {Raw_Input_Path, to_input_paths} from './input_path.js';
 import {load_modules} from './modules.js';
 import {format_file} from './format_file.js';
@@ -34,7 +34,7 @@ export const task: Task<Args> = {
 		const input_paths = raw_input_paths.length ? to_input_paths(raw_input_paths) : [paths.source];
 
 		// load all of the gen modules
-		const find_modules_result = await find_gen_modules(input_paths);
+		const find_modules_result = await find_genfiles(input_paths);
 		if (!find_modules_result.ok) {
 			if (find_modules_result.type === 'input_directories_with_no_files') {
 				log.info('no gen modules found');

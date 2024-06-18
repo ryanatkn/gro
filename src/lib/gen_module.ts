@@ -1,14 +1,18 @@
-import {
-	type Module_Meta,
-	load_module,
-	type Load_Module_Result,
-	find_modules,
-	type Find_Modules_Result,
-} from './modules.js';
+import type {Timings} from '@ryanatkn/belt/timings.js';
+import type {Result} from '@ryanatkn/belt/result.js';
+import {red} from 'kleur/colors';
+
+import {type Module_Meta, load_module, type Load_Module_Result} from './modules.js';
 import type {Gen} from './gen.js';
-import {Input_Path, get_possible_source_ids} from './input_path.js';
-import {paths} from './paths.js';
+import {
+	Input_Path,
+	get_possible_source_ids,
+	load_source_ids_by_input_path,
+	load_source_path_data_by_input_path,
+} from './input_path.js';
+import {Source_Id, paths, paths_from_id, print_path_or_gro_path} from './paths.js';
 import {search_fs} from './search_fs.js';
+import type {Path_Data} from './path.js';
 
 export const GEN_FILE_PATTERN_TEXT = 'gen';
 export const GEN_FILE_PATTERN = '.' + GEN_FILE_PATTERN_TEXT + '.';
@@ -56,15 +60,103 @@ export const load_gen_module = async (id: string): Promise<Load_Module_Result<Ge
 	return result as Load_Module_Result<Gen_Module_Meta>;
 };
 
-export const find_gen_modules = (
+export type Find_Genfiles_Result = Result<
+	{
+		// TODO BLOCK should these be bundled into a single data structure?
+		source_ids_by_input_path: Map<Input_Path, Source_Id[]>;
+		source_id_path_data_by_input_path: Map<Input_Path, Path_Data>;
+		possible_source_ids_by_input_path: Map<Input_Path, Source_Id[]>;
+	},
+	Find_Genfiles_Failure
+>;
+export type Find_Genfiles_Failure =
+	| {
+			type: 'unmapped_input_paths';
+			source_id_path_data_by_input_path: Map<Input_Path, Path_Data>;
+			unmapped_input_paths: Input_Path[];
+			reasons: string[];
+	  }
+	| {
+			type: 'input_directories_with_no_files';
+			source_ids_by_input_path: Map<Input_Path, Source_Id[]>;
+			source_id_path_data_by_input_path: Map<Input_Path, Path_Data>;
+			input_directories_with_no_files: Input_Path[];
+			reasons: string[];
+	  };
+
+/**
+ * Finds modules from input paths. (see `src/lib/input_path.ts` for more)
+ */
+export const find_genfiles = async (
 	input_paths: Input_Path[] = [paths.source],
+	timings?: Timings,
+): Promise<Find_Genfiles_Result> => {
 	// TODO improve this API to allow config, maybe just a simple `gen` filter function, so the user could return a Rollup pluginutils filter,
 	// gets a little tricky with the `get_possible_source_ids` API usage, which would probably need to change
-	extensions: string[] = [GEN_FILE_PATTERN, GEN_SCHEMA_FILE_PATTERN],
-	root_dirs: string[] = [],
-): Promise<Find_Modules_Result> =>
-	find_modules(
-		input_paths,
-		(id) => search_fs(id, {filter: (path) => extensions.some((e) => path.includes(e))}),
-		(input_path) => get_possible_source_ids(input_path, extensions, root_dirs),
+	const extensions: string[] = [GEN_FILE_PATTERN, GEN_SCHEMA_FILE_PATTERN];
+	const root_dirs: string[] = [];
+
+	// Check which extension variation works - if it's a directory, prefer others first!
+	const timing_to_map_input_paths = timings?.start('map input paths');
+	const {
+		source_id_path_data_by_input_path,
+		unmapped_input_paths,
+		possible_source_ids_by_input_path,
+	} = await load_source_path_data_by_input_path(input_paths, (input_path) =>
+		get_possible_source_ids(input_path, extensions, root_dirs),
 	);
+	console.log('[find_modules]', source_id_path_data_by_input_path);
+	timing_to_map_input_paths?.();
+
+	// Error if any input path could not be mapped.
+	if (unmapped_input_paths.length) {
+		return {
+			ok: false,
+			type: 'unmapped_input_paths',
+			source_id_path_data_by_input_path,
+			unmapped_input_paths,
+			reasons: unmapped_input_paths.map((input_path) =>
+				red(
+					`Input path ${print_path_or_gro_path(
+						input_path,
+						paths_from_id(input_path),
+					)} cannot be mapped to a file or directory.`,
+				),
+			),
+		};
+	}
+
+	// Find all of the files for any directories.
+	const timing_to_search_fs = timings?.start('find files');
+	const {source_ids_by_input_path, input_directories_with_no_files} =
+		await load_source_ids_by_input_path(source_id_path_data_by_input_path, (id) =>
+			search_fs(id, {filter: (path) => extensions.some((e) => path.includes(e))}),
+		);
+	timing_to_search_fs?.();
+
+	// Error if any input path has no files. (means we have an empty directory)
+	if (input_directories_with_no_files.length) {
+		return {
+			ok: false,
+			type: 'input_directories_with_no_files',
+			source_id_path_data_by_input_path,
+			source_ids_by_input_path,
+			input_directories_with_no_files,
+			reasons: input_directories_with_no_files.map((input_path) =>
+				red(
+					`Input directory ${print_path_or_gro_path(
+						source_id_path_data_by_input_path.get(input_path)!.id,
+						paths_from_id(input_path),
+					)} contains no matching files.`,
+				),
+			),
+		};
+	}
+
+	return {
+		ok: true,
+		source_ids_by_input_path,
+		source_id_path_data_by_input_path,
+		possible_source_ids_by_input_path,
+	};
+};

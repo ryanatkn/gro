@@ -5,12 +5,15 @@ import {print_value} from '@ryanatkn/belt/print.js';
 import {ZodFirstPartyTypeKind, type ZodObjectDef, type ZodTypeAny, type ZodTypeDef} from 'zod';
 
 import type {Arg_Schema} from './args.js';
-import {find_modules, load_modules, type Find_Modules_Result} from './modules.js';
-import {load_task_module, type Task_Module_Meta} from './task_module.js';
+import {load_modules} from './modules.js';
+import {
+	find_tasks,
+	load_task_module,
+	type Find_Tasks_Result,
+	type Task_Module_Meta,
+} from './task_module.js';
 import {to_gro_input_path, type Input_Path} from './input_path.js';
 import {print_path_or_gro_path, type Source_Id} from './paths.js';
-import {is_task_path} from './task.js';
-import {search_fs} from './search_fs.js';
 
 export const log_tasks = async (
 	log: Logger,
@@ -58,11 +61,9 @@ export const log_gro_package_tasks = async (
 	input_path: Input_Path,
 	task_root_paths: string[],
 	log: Logger,
-): Promise<Find_Modules_Result> => {
+): Promise<Find_Tasks_Result> => {
 	const gro_dir_input_path = to_gro_input_path(input_path);
-	const gro_dir_find_modules_result = await find_modules([gro_dir_input_path], (id) =>
-		search_fs(id, {filter: (path) => is_task_path(path)}),
-	);
+	const gro_dir_find_modules_result = await find_tasks([gro_dir_input_path], task_root_paths);
 	console.log(`[log_gro_package_tasks] gro_dir_find_modules_result`, gro_dir_find_modules_result);
 	if (gro_dir_find_modules_result.ok) {
 		const gro_path_data =

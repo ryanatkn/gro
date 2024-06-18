@@ -8,7 +8,7 @@ import {run_task} from './run_task.js';
 import {to_input_path, Raw_Input_Path} from './input_path.js';
 import {is_gro_id, IS_THIS_GRO, print_path, print_path_or_gro_path} from './paths.js';
 import {load_modules} from './modules.js';
-import {find_task_modules, load_task_module} from './task_module.js';
+import {find_tasks, load_task_module} from './task_module.js';
 import {load_gro_package_json} from './package_json.js';
 import {log_tasks, log_error_reasons, log_gro_package_tasks} from './task_logging.js';
 import type {Gro_Config} from './config.js';
@@ -60,19 +60,18 @@ export const invoke_task = async (
 
 	// Find the task or directory specified by the `input_path`.
 	// Fall back to searching the Gro directory as well.
-	const {find_modules_result, task_infos} = await find_task_modules([input_path], task_root_paths);
-	console.log(`[invoke_task] find_modules_result`, find_modules_result);
-	console.log(`[invoke_task] task_infos`, task_infos);
-	if (!find_modules_result.ok) {
-		if (find_modules_result.type === 'input_directories_with_no_files') {
+	const find_tasks_result = await find_tasks([input_path], task_root_paths);
+	console.log(`[invoke_task] find_modules_result`, find_tasks_result);
+	if (!find_tasks_result.ok) {
+		if (find_tasks_result.type === 'input_directories_with_no_files') {
 			// The input path matched a directory, but it contains no matching files.
 			if (
 				IS_THIS_GRO ||
 				// this is null safe because of the failure type
-				is_gro_id(find_modules_result.source_id_path_data_by_input_path.get(input_path)!.id)
+				is_gro_id(find_tasks_result.source_id_path_data_by_input_path.get(input_path)!.id)
 			) {
 				// If the directory is inside Gro, just log the errors.
-				log_error_reasons(log, find_modules_result.reasons);
+				log_error_reasons(log, find_tasks_result.reasons);
 				process.exit(1);
 			} else {
 				// If there's a matching directory in the current working directory,
@@ -84,7 +83,7 @@ export const invoke_task = async (
 				);
 				if (!gro_dir_find_modules_result.ok) {
 					// Log the original errors, not the Gro-specific ones.
-					log_error_reasons(log, find_modules_result.reasons);
+					log_error_reasons(log, find_tasks_result.reasons);
 					process.exit(1);
 				}
 				finish();
@@ -93,20 +92,20 @@ export const invoke_task = async (
 		} else {
 			// Some unknown find modules result failure happened, so log it out.
 			// (currently, just "unmapped_input_paths")
-			log_error_reasons(log, find_modules_result.reasons);
+			log_error_reasons(log, find_tasks_result.reasons);
 			process.exit(1);
 		}
 	}
 
 	// Found a match either in the current working directory or Gro's directory.
-	const path_data = find_modules_result.source_id_path_data_by_input_path.get(input_path)!; // this is null safe because result is ok
+	const path_data = find_tasks_result.source_id_path_data_by_input_path.get(input_path)!; // this is null safe because result is ok
 
 	if (!path_data.isDirectory) {
 		// The input path matches a file, so load and run it.
 
 		// Try to load the task module.
 		const load_modules_result = await load_modules(
-			find_modules_result.source_ids_by_input_path,
+			find_tasks_result.source_ids_by_input_path,
 			(id) => load_task_module(id, task_root_paths),
 		);
 		if (load_modules_result.ok) {
@@ -144,7 +143,7 @@ export const invoke_task = async (
 			await log_tasks(
 				log,
 				print_path(path_data.id),
-				find_modules_result.source_ids_by_input_path,
+				find_tasks_result.source_ids_by_input_path,
 				task_root_paths,
 			);
 		} else if (is_gro_id(path_data.id)) {
@@ -152,7 +151,7 @@ export const invoke_task = async (
 			await log_tasks(
 				log,
 				print_path_or_gro_path(path_data.id),
-				find_modules_result.source_ids_by_input_path,
+				find_tasks_result.source_ids_by_input_path,
 				task_root_paths,
 			);
 		} else {
@@ -169,7 +168,7 @@ export const invoke_task = async (
 			await log_tasks(
 				log,
 				print_path(path_data.id),
-				find_modules_result.source_ids_by_input_path,
+				find_tasks_result.source_ids_by_input_path,
 				task_root_paths,
 				!gro_dir_find_modules_result.ok,
 			);

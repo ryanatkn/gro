@@ -1,12 +1,6 @@
-import {
-	load_module,
-	load_modules,
-	find_modules,
-	type Module_Meta,
-	type Load_Module_Result,
-	type Find_Modules_Failure,
-	type Find_Modules_Result,
-} from './modules.js';
+import type {Timings} from '@ryanatkn/belt/timings.js';
+
+import {load_module, load_modules, type Module_Meta, type Load_Module_Result} from './modules.js';
 import {
 	to_task_name,
 	is_task_path,
@@ -14,8 +8,17 @@ import {
 	type Task,
 	TASK_FILE_SUFFIX_JS,
 } from './task.js';
-import {Input_Path, get_possible_source_ids} from './input_path.js';
+import {
+	Input_Path,
+	get_possible_source_ids,
+	load_source_ids_by_input_path,
+	load_source_path_data_by_input_path,
+} from './input_path.js';
 import {search_fs} from './search_fs.js';
+import type {Result} from '@ryanatkn/belt/result.js';
+import {paths_from_id, print_path_or_gro_path, type Source_Id} from './paths.js';
+import type {Path_Data} from './path.js';
+import {red} from 'kleur/colors';
 
 export interface Task_Module {
 	task: Task;
@@ -42,24 +45,6 @@ export const load_task_module = async (
 	return {...result, mod: {...result.mod, name: to_task_name(id, task_root_paths)}}; // TODO this task name needs to use task root paths or cwd
 };
 
-export const find_task_modules = async (
-	input_paths: Input_Path[],
-	task_root_paths: string[],
-): Promise<{find_modules_result: Find_Modules_Result; task_infos: Task_Info[]}> => {
-	const find_modules_result = await find_modules(
-		input_paths,
-		(id) => search_fs(id, {filter: (path) => is_task_path(path)}),
-		(input_path) =>
-			get_possible_source_ids(
-				input_path,
-				[TASK_FILE_SUFFIX_TS, TASK_FILE_SUFFIX_JS],
-				task_root_paths,
-			),
-	);
-	const task_infos: Task_Info[] = []; // TODO BLOCK maybe separate this into `resolve_task_info`? given a `Find_Modules_Result`?
-	return {find_modules_result, task_infos};
-};
-
 export const load_task_modules = async (
 	input_paths: Input_Path[],
 	task_root_paths: string[],
@@ -67,9 +52,113 @@ export const load_task_modules = async (
 	| ReturnType<typeof load_modules<Task_Module, Task_Module_Meta>>
 	| ({ok: false} & Find_Modules_Failure)
 > => {
-	const {find_modules_result} = await find_task_modules(input_paths, task_root_paths);
+	const find_modules_result = await find_tasks(input_paths, task_root_paths);
 	if (!find_modules_result.ok) return find_modules_result;
 	return load_modules(find_modules_result.source_ids_by_input_path, (id) =>
 		load_task_module(id, task_root_paths),
 	);
+};
+
+export type Find_Tasks_Result = Result<
+	{
+		// TODO BLOCK should these be bundled into a single data structure?
+		source_ids_by_input_path: Map<Input_Path, Source_Id[]>;
+		source_id_path_data_by_input_path: Map<Input_Path, Path_Data>;
+		possible_source_ids_by_input_path: Map<Input_Path, Source_Id[]>;
+	},
+	Find_Modules_Failure
+>;
+export type Find_Modules_Failure =
+	| {
+			type: 'unmapped_input_paths';
+			source_id_path_data_by_input_path: Map<Input_Path, Path_Data>;
+			unmapped_input_paths: Input_Path[];
+			reasons: string[];
+	  }
+	| {
+			type: 'input_directories_with_no_files';
+			source_ids_by_input_path: Map<Input_Path, Source_Id[]>;
+			source_id_path_data_by_input_path: Map<Input_Path, Path_Data>;
+			input_directories_with_no_files: Input_Path[];
+			reasons: string[];
+	  };
+
+/**
+ * Finds modules from input paths. (see `src/lib/input_path.ts` for more)
+ */
+export const find_tasks = async (
+	input_paths: Input_Path[],
+	task_root_paths: string[],
+	timings?: Timings,
+): Promise<Find_Tasks_Result> => {
+	//
+	// const task_infos: Task_Info[] = []; // TODO BLOCK maybe separate this into `resolve_task_info`? given a `Find_Modules_Result`?
+
+	// Check which extension variation works - if it's a directory, prefer others first!
+	const timing_to_map_input_paths = timings?.start('map input paths');
+	const {
+		source_id_path_data_by_input_path,
+		unmapped_input_paths,
+		possible_source_ids_by_input_path,
+	} = await load_source_path_data_by_input_path(input_paths, (input_path) =>
+		get_possible_source_ids(
+			input_path,
+			[TASK_FILE_SUFFIX_TS, TASK_FILE_SUFFIX_JS],
+			task_root_paths,
+		),
+	);
+	console.log('[find_modules]', source_id_path_data_by_input_path);
+	timing_to_map_input_paths?.();
+
+	// Error if any input path could not be mapped.
+	if (unmapped_input_paths.length) {
+		return {
+			ok: false,
+			type: 'unmapped_input_paths',
+			source_id_path_data_by_input_path,
+			unmapped_input_paths,
+			reasons: unmapped_input_paths.map((input_path) =>
+				red(
+					`Input path ${print_path_or_gro_path(
+						input_path,
+						paths_from_id(input_path),
+					)} cannot be mapped to a file or directory.`,
+				),
+			),
+		};
+	}
+
+	// Find all of the files for any directories.
+	const timing_to_search_fs = timings?.start('find files');
+	const {source_ids_by_input_path, input_directories_with_no_files} =
+		await load_source_ids_by_input_path(source_id_path_data_by_input_path, (id) =>
+			search_fs(id, {filter: (path) => is_task_path(path)}),
+		);
+	timing_to_search_fs?.();
+
+	// Error if any input path has no files. (means we have an empty directory)
+	if (input_directories_with_no_files.length) {
+		return {
+			ok: false,
+			type: 'input_directories_with_no_files',
+			source_id_path_data_by_input_path,
+			source_ids_by_input_path,
+			input_directories_with_no_files,
+			reasons: input_directories_with_no_files.map((input_path) =>
+				red(
+					`Input directory ${print_path_or_gro_path(
+						source_id_path_data_by_input_path.get(input_path)!.id,
+						paths_from_id(input_path),
+					)} contains no matching files.`,
+				),
+			),
+		};
+	}
+
+	return {
+		ok: true,
+		source_ids_by_input_path,
+		source_id_path_data_by_input_path,
+		possible_source_ids_by_input_path,
+	};
 };

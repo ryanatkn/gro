@@ -7,7 +7,7 @@ import {spawn} from '@ryanatkn/belt/process.js';
 import type {Plugin, Plugin_Context} from './plugin.js';
 import type {Args} from './args.js';
 import {source_id_to_base_path} from './paths.js';
-import {find_gen_modules, is_gen_path} from './gen_module.js';
+import {find_genfiles, is_gen_path} from './gen_module.js';
 import {filter_dependents} from './build/source_file.js';
 import {throttle} from './throttle.js';
 
@@ -55,7 +55,7 @@ export const plugin = (): Plugin<Plugin_Context<Task_Args>> => {
 			// Some parts of the build may have already happened,
 			// making us miss `build` events for gen dependencies,
 			// so we run `gen` here even if it's usually wasteful.
-			const found = await find_gen_modules();
+			const found = await find_genfiles();
 			if (found.ok && found.source_ids_by_input_path.size > 0) {
 				await gen();
 			}

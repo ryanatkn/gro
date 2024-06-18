@@ -2,9 +2,7 @@ import {suite} from 'uvu';
 import * as assert from 'uvu/assert';
 import {resolve, join} from 'node:path';
 
-import {find_modules, load_modules, load_module} from './modules.js';
-import {get_possible_source_ids} from './input_path.js';
-import {search_fs} from './search_fs.js';
+import {load_modules, load_module} from './modules.js';
 
 // TODO if we import directly, svelte-package generates types in `src/fixtures`
 /* eslint-disable no-useless-concat */
@@ -70,94 +68,95 @@ test__load_module('fails to import', async () => {
 test__load_module.run();
 /* test__load_module */
 
+// TODO BLOCK delete, but add similar tests to task_module/gen_module
 /* test__find_modules */
-const test__find_modules = suite('find_modules');
+// const test__find_modules = suite('find_modules');
 
-test__find_modules('with and without extension', async () => {
-	const path1 = resolve('src/fixtures/test1');
-	const id1 = resolve('src/fixtures/test1.foo.ts');
-	const id2 = resolve('src/fixtures/test2.foo.ts');
-	const result = await find_modules(
-		[path1, id2],
-		(id) => search_fs(id, {files_only: false}),
-		(input_path) => get_possible_source_ids(input_path, ['.foo.ts'], []),
-	);
-	assert.ok(result.ok);
-	assert.equal(
-		result.source_ids_by_input_path,
-		new Map([
-			[path1, [id1]],
-			[id2, [id2]],
-		]),
-	);
-	assert.equal(
-		result.source_id_path_data_by_input_path,
-		new Map([
-			[path1, {id: id1, isDirectory: false}],
-			[id2, {id: id2, isDirectory: false}],
-		]),
-	);
-});
+// test__find_modules('with and without extension', async () => {
+// 	const path1 = resolve('src/fixtures/test1');
+// 	const id1 = resolve('src/fixtures/test1.foo.ts');
+// 	const id2 = resolve('src/fixtures/test2.foo.ts');
+// 	const result = await find_modules(
+// 		[path1, id2],
+// 		(id) => search_fs(id, {files_only: false}),
+// 		(input_path) => get_possible_source_ids(input_path, ['.foo.ts'], []),
+// 	);
+// 	assert.ok(result.ok);
+// 	assert.equal(
+// 		result.source_ids_by_input_path,
+// 		new Map([
+// 			[path1, [id1]],
+// 			[id2, [id2]],
+// 		]),
+// 	);
+// 	assert.equal(
+// 		result.source_id_path_data_by_input_path,
+// 		new Map([
+// 			[path1, {id: id1, isDirectory: false}],
+// 			[id2, {id: id2, isDirectory: false}],
+// 		]),
+// 	);
+// });
 
-test__find_modules('directory', async () => {
-	const id = resolve('src/fixtures/');
-	const result = await find_modules([id], (id) =>
-		search_fs(id, {filter: (path) => path.includes('.foo.')}),
-	);
-	assert.ok(result.ok);
-	assert.equal(
-		result.source_ids_by_input_path,
-		new Map([[id, [join(id, 'test1.foo.ts'), join(id, 'test2.foo.ts')]]]),
-	);
-	assert.equal(result.source_id_path_data_by_input_path, new Map([[id, {id, isDirectory: true}]]));
-});
+// test__find_modules('directory', async () => {
+// 	const id = resolve('src/fixtures/');
+// 	const result = await find_modules([id], (id) =>
+// 		search_fs(id, {filter: (path) => path.includes('.foo.')}),
+// 	);
+// 	assert.ok(result.ok);
+// 	assert.equal(
+// 		result.source_ids_by_input_path,
+// 		new Map([[id, [join(id, 'test1.foo.ts'), join(id, 'test2.foo.ts')]]]),
+// 	);
+// 	assert.equal(result.source_id_path_data_by_input_path, new Map([[id, {id, isDirectory: true}]]));
+// });
 
-test__find_modules('fail with unmapped_input_paths', async () => {
-	const result = await find_modules(
-		[
-			resolve('src/fixtures/bar1'),
-			resolve('src/fixtures/failme1'),
-			resolve('src/fixtures/bar2'),
-			resolve('src/fixtures/failme2'),
-		],
-		(id) => search_fs(id, {files_only: false}),
-		(input_path) => get_possible_source_ids(input_path, ['.foo.ts'], []),
-	);
-	assert.ok(!result.ok);
-	assert.ok(result.reasons.length);
-	if (result.type === 'unmapped_input_paths') {
-		assert.equal(result.unmapped_input_paths, [
-			resolve('src/fixtures/failme1'),
-			resolve('src/fixtures/failme2'),
-		]);
-	} else {
-		throw Error('Expected to fail with unmapped_input_paths');
-	}
-});
+// test__find_modules('fail with unmapped_input_paths', async () => {
+// 	const result = await find_modules(
+// 		[
+// 			resolve('src/fixtures/bar1'),
+// 			resolve('src/fixtures/failme1'),
+// 			resolve('src/fixtures/bar2'),
+// 			resolve('src/fixtures/failme2'),
+// 		],
+// 		(id) => search_fs(id, {files_only: false}),
+// 		(input_path) => get_possible_source_ids(input_path, ['.foo.ts'], []),
+// 	);
+// 	assert.ok(!result.ok);
+// 	assert.ok(result.reasons.length);
+// 	if (result.type === 'unmapped_input_paths') {
+// 		assert.equal(result.unmapped_input_paths, [
+// 			resolve('src/fixtures/failme1'),
+// 			resolve('src/fixtures/failme2'),
+// 		]);
+// 	} else {
+// 		throw Error('Expected to fail with unmapped_input_paths');
+// 	}
+// });
 
-test__find_modules('fail with input_directories_with_no_files', async () => {
-	const result = await find_modules(
-		[
-			resolve('src/fixtures/baz1'),
-			resolve('src/fixtures/bar1'),
-			resolve('src/fixtures/bar2'),
-			resolve('src/fixtures/baz2'),
-		],
-		(id) => search_fs(id, {filter: (path) => !path.includes('.bar.'), files_only: false}),
-	);
-	assert.ok(!result.ok);
-	assert.ok(result.reasons.length);
-	if (result.type === 'input_directories_with_no_files') {
-		assert.equal(result.input_directories_with_no_files, [
-			resolve('src/fixtures/bar1'),
-			resolve('src/fixtures/bar2'),
-		]);
-	} else {
-		throw Error('Expected to fail with input_directories_with_no_files');
-	}
-});
+// test__find_modules('fail with input_directories_with_no_files', async () => {
+// 	const result = await find_modules(
+// 		[
+// 			resolve('src/fixtures/baz1'),
+// 			resolve('src/fixtures/bar1'),
+// 			resolve('src/fixtures/bar2'),
+// 			resolve('src/fixtures/baz2'),
+// 		],
+// 		(id) => search_fs(id, {filter: (path) => !path.includes('.bar.'), files_only: false}),
+// 	);
+// 	assert.ok(!result.ok);
+// 	assert.ok(result.reasons.length);
+// 	if (result.type === 'input_directories_with_no_files') {
+// 		assert.equal(result.input_directories_with_no_files, [
+// 			resolve('src/fixtures/bar1'),
+// 			resolve('src/fixtures/bar2'),
+// 		]);
+// 	} else {
+// 		throw Error('Expected to fail with input_directories_with_no_files');
+// 	}
+// });
 
-test__find_modules.run();
+// test__find_modules.run();
 /* test__find_modules */
 
 /* test__load_modules */

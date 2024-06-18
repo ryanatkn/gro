@@ -1,17 +1,10 @@
-import {red} from 'kleur/colors';
 import type {Timings} from '@ryanatkn/belt/timings.js';
 import {Unreachable_Error} from '@ryanatkn/belt/error.js';
 import type {Result} from '@ryanatkn/belt/result.js';
 import {print_error} from '@ryanatkn/belt/print.js';
 
-import {
-	load_source_path_data_by_input_path,
-	load_source_ids_by_input_path,
-	Input_Path,
-} from './input_path.js';
-import type {Path_Data} from './path.js';
-import {paths_from_id, print_path, print_path_or_gro_path, type Source_Id} from './paths.js';
-import {search_fs} from './search_fs.js';
+import {Input_Path} from './input_path.js';
+import {paths_from_id, print_path, type Source_Id} from './paths.js';
 
 export interface Module_Meta<T_Module extends Record<string, any> = Record<string, any>> {
 	id: string;
@@ -39,30 +32,6 @@ export const load_module = async <T extends Record<string, any>>(
 	return {ok: true, mod: {id, mod}};
 };
 
-export type Find_Modules_Result = Result<
-	{
-		// TODO BLOCK should these be bundled into a single data structure?
-		source_ids_by_input_path: Map<Input_Path, Source_Id[]>;
-		source_id_path_data_by_input_path: Map<Input_Path, Path_Data>;
-		possible_source_ids_by_input_path: Map<Input_Path, Source_Id[]>;
-	},
-	Find_Modules_Failure
->;
-export type Find_Modules_Failure =
-	| {
-			type: 'unmapped_input_paths';
-			source_id_path_data_by_input_path: Map<Input_Path, Path_Data>;
-			unmapped_input_paths: Input_Path[];
-			reasons: string[];
-	  }
-	| {
-			type: 'input_directories_with_no_files';
-			source_ids_by_input_path: Map<Input_Path, Source_Id[]>;
-			source_id_path_data_by_input_path: Map<Input_Path, Path_Data>;
-			input_directories_with_no_files: Input_Path[];
-			reasons: string[];
-	  };
-
 export type Load_Modules_Result<T_Module_Meta extends Module_Meta> = Result<
 	{
 		modules: T_Module_Meta[];
@@ -75,76 +44,6 @@ export type Load_Modules_Result<T_Module_Meta extends Module_Meta> = Result<
 		modules: T_Module_Meta[];
 	}
 >;
-
-/**
- * Finds modules from input paths. (see `src/lib/input_path.ts` for more)
- */
-export const find_modules = async (
-	input_paths: Input_Path[],
-	custom_search_fs = search_fs,
-	get_possible_source_ids?: (input_path: Input_Path) => Source_Id[],
-	timings?: Timings,
-): Promise<Find_Modules_Result> => {
-	// Check which extension variation works - if it's a directory, prefer others first!
-	const timing_to_map_input_paths = timings?.start('map input paths');
-	const {
-		source_id_path_data_by_input_path,
-		unmapped_input_paths,
-		possible_source_ids_by_input_path,
-	} = await load_source_path_data_by_input_path(input_paths, get_possible_source_ids);
-	console.log('[find_modules]', source_id_path_data_by_input_path);
-	timing_to_map_input_paths?.();
-
-	// Error if any input path could not be mapped.
-	if (unmapped_input_paths.length) {
-		return {
-			ok: false,
-			type: 'unmapped_input_paths',
-			source_id_path_data_by_input_path,
-			unmapped_input_paths,
-			reasons: unmapped_input_paths.map((input_path) =>
-				red(
-					`Input path ${print_path_or_gro_path(
-						input_path,
-						paths_from_id(input_path),
-					)} cannot be mapped to a file or directory.`,
-				),
-			),
-		};
-	}
-
-	// Find all of the files for any directories.
-	const timing_to_search_fs = timings?.start('find files');
-	const {source_ids_by_input_path, input_directories_with_no_files} =
-		await load_source_ids_by_input_path(source_id_path_data_by_input_path, custom_search_fs);
-	timing_to_search_fs?.();
-
-	// Error if any input path has no files. (means we have an empty directory)
-	if (input_directories_with_no_files.length) {
-		return {
-			ok: false,
-			type: 'input_directories_with_no_files',
-			source_id_path_data_by_input_path,
-			source_ids_by_input_path,
-			input_directories_with_no_files,
-			reasons: input_directories_with_no_files.map((input_path) =>
-				red(
-					`Input directory ${print_path_or_gro_path(
-						source_id_path_data_by_input_path.get(input_path)!.id,
-						paths_from_id(input_path),
-					)} contains no matching files.`,
-				),
-			),
-		};
-	}
-
-	return {
-		ok: true,
-		source_ids_by_input_path,
-		source_id_path_data_by_input_path,
-		possible_source_ids_by_input_path,
-	};
-};
 
 // TODO parallelize, originally it needed to be serial for a specific usecase we no longer have
 export const load_modules = async <

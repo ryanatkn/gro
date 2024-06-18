@@ -2,7 +2,7 @@ import {test} from 'uvu';
 import * as assert from 'uvu/assert';
 import {join} from 'node:path';
 
-import {validate_gen_module, find_gen_modules} from './gen_module.js';
+import {validate_gen_module, find_genfiles} from './gen_module.js';
 import {paths} from './paths.js';
 
 test('basic minimal interface', () => {
@@ -29,9 +29,9 @@ test('schema invalid module', () => {
 });
 
 test('finds gen modules in a directory', async () => {
-	const find_gen_modules_result = await find_gen_modules([join(paths.lib, 'docs/')]);
-	assert.ok(find_gen_modules_result.ok);
-	assert.ok(find_gen_modules_result.source_id_path_data_by_input_path.size);
+	const find_genfiles_result = await find_genfiles([join(paths.lib, 'docs/')]);
+	assert.ok(find_genfiles_result.ok);
+	assert.ok(find_genfiles_result.source_id_path_data_by_input_path.size);
 });
 
 test.run();
