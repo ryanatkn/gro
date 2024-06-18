@@ -46,6 +46,11 @@ export const to_input_paths = (
 	root_path?: string,
 ): Input_Path[] => raw_input_paths.map((p) => to_input_path(p, root_path));
 
+export interface Possible_Path_Id {
+	id: Path_Id;
+	root_dir: Path_Id | null;
+}
+
 /**
  * Gets a list of possible source ids for each input path with `extensions`,
  * duplicating each under `root_dirs`.
@@ -56,33 +61,33 @@ export const get_possible_path_ids = (
 	input_path: Input_Path,
 	root_dirs: Path_Id[],
 	extensions: string[],
-): Path_Id[] => {
-	const possible_path_ids: Set<Path_Id> = new Set();
+): Possible_Path_Id[] => {
+	const possible_path_ids: Set<Possible_Path_Id> = new Set();
 
-	const add_possible_path_ids = (path: string) => {
+	const add_possible_path_ids = (path: string, root_dir: Path_Id | null) => {
 		// Specifically for paths to the Gro package dist, optimize by only looking for `.task.js`.
 		if (path.startsWith(GRO_DIST_DIR)) {
-			possible_path_ids.add(
-				(path.endsWith('/') || path.endsWith(TASK_FILE_SUFFIX_JS)
+			possible_path_ids.add({
+				id: (path.endsWith('/') || path.endsWith(TASK_FILE_SUFFIX_JS)
 					? path
 					: path + TASK_FILE_SUFFIX_JS) as Path_Id,
-			);
+				root_dir,
+			});
 		} else {
-			possible_path_ids.add(path as Path_Id);
+			possible_path_ids.add({id: path as Path_Id, root_dir});
 			if (!path.endsWith('/') && !extensions.some((e) => path.endsWith(e))) {
 				for (const extension of extensions) {
-					possible_path_ids.add(path + extension);
+					possible_path_ids.add({id: path + extension, root_dir});
 				}
 			}
 		}
 	};
 
 	if (isAbsolute(input_path)) {
-		add_possible_path_ids(input_path);
+		add_possible_path_ids(input_path, null);
 	} else {
 		for (const root_dir of root_dirs) {
-			// TODO BLOCK I wanted to associate the possible source ids with the root dir, but the problem is absolute paths have none, is that a problem?
-			add_possible_path_ids(join(root_dir, input_path));
+			add_possible_path_ids(join(root_dir, input_path), root_dir);
 		}
 	}
 	return Array.from(possible_path_ids);
@@ -100,12 +105,12 @@ export const resolve_input_paths = async (
 ): Promise<{
 	path_data_by_input_path: Map<Input_Path, Path_Data>;
 	unmapped_input_paths: Input_Path[];
-	possible_path_ids_by_input_path: Map<Input_Path, Path_Id[]>;
+	possible_path_ids_by_input_path: Map<Input_Path, Possible_Path_Id[]>;
 }> => {
 	console.log(`[resolve_input_paths]`, input_paths);
 	const path_data_by_input_path = new Map<Input_Path, Path_Data>();
 	const unmapped_input_paths: Input_Path[] = [];
-	const possible_path_ids_by_input_path = new Map<Input_Path, Path_Id[]>();
+	const possible_path_ids_by_input_path = new Map<Input_Path, Possible_Path_Id[]>();
 	// TODO BLOCK parallel?
 	for (const input_path of input_paths) {
 		let file_path_data: Path_Data | null = null;
@@ -115,13 +120,13 @@ export const resolve_input_paths = async (
 
 		// Find the first existing file path or fallback to the first directory path.
 		for (const possible_path_id of possible_path_ids) {
-			if (!(await exists(possible_path_id))) continue; // eslint-disable-line no-await-in-loop
-			const stats = await stat(possible_path_id); // eslint-disable-line no-await-in-loop
+			if (!(await exists(possible_path_id.id))) continue; // eslint-disable-line no-await-in-loop
+			const stats = await stat(possible_path_id.id); // eslint-disable-line no-await-in-loop
 			if (stats.isDirectory()) {
 				if (dir_path_data) continue;
-				dir_path_data = to_path_data(possible_path_id, stats);
+				dir_path_data = to_path_data(possible_path_id.id, stats);
 			} else {
-				file_path_data = to_path_data(possible_path_id, stats);
+				file_path_data = to_path_data(possible_path_id.id, stats);
 				break;
 			}
 		}

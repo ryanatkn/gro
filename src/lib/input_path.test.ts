@@ -30,35 +30,60 @@ test('to_input_paths', () => {
 	]);
 });
 
+test('get_possible_path_ids with an implicit relative path', () => {
+	const input_path = 'src/foo/bar';
+	assert.equal(
+		get_possible_path_ids(
+			input_path,
+			[resolve('src/foo'), resolve('src/baz'), resolve('src'), resolve('.')],
+			['.ext.ts'],
+		),
+		[
+			{id: resolve('src/foo/src/foo/bar'), root_dir: resolve('src/foo')},
+			{id: resolve('src/foo/src/foo/bar.ext.ts'), root_dir: resolve('src/foo')},
+			{id: resolve('src/baz/src/foo/bar'), root_dir: resolve('src/baz')},
+			{id: resolve('src/baz/src/foo/bar.ext.ts'), root_dir: resolve('src/baz')},
+			{id: resolve('src/src/foo/bar'), root_dir: resolve('src')},
+			{id: resolve('src/src/foo/bar.ext.ts'), root_dir: resolve('src')},
+			{id: resolve('src/foo/bar'), root_dir: resolve('.')},
+			{id: resolve('src/foo/bar.ext.ts'), root_dir: resolve('.')},
+		],
+	);
+});
+
 test('get_possible_path_ids in the gro directory', () => {
 	const input_path = resolve('src/foo/bar');
-	assert.equal(get_possible_path_ids(input_path, [], ['.baz.ts']), [
-		input_path,
-		input_path + '.baz.ts',
+	assert.equal(get_possible_path_ids(input_path, [], ['.ext.ts']), [
+		{id: input_path, root_dir: null},
+		{id: input_path + '.ext.ts', root_dir: null},
 	]);
 });
 
 test('get_possible_path_ids does not repeat the extension', () => {
-	const input_path = resolve('src/foo/bar.baz.ts');
-	assert.equal(get_possible_path_ids(input_path, [], ['.baz.ts']), [input_path]);
+	const input_path = resolve('src/foo/bar.ext.ts');
+	assert.equal(get_possible_path_ids(input_path, [], ['.ext.ts']), [
+		{id: input_path, root_dir: null},
+	]);
 });
 
 test('get_possible_path_ids does not repeat with the same root directory', () => {
-	const input_path = resolve('src/foo/bar.baz.ts');
-	assert.equal(get_possible_path_ids(input_path, [paths.root, paths.root], ['.baz.ts']), [
-		input_path,
+	const input_path = resolve('src/foo/bar.ext.ts');
+	assert.equal(get_possible_path_ids(input_path, [paths.root, paths.root], ['.ext.ts']), [
+		{id: input_path, root_dir: null},
 	]);
 });
 
 test('get_possible_path_ids implied to be a directory by trailing slash', () => {
 	const input_path = resolve('src/foo/bar') + '/';
-	assert.equal(get_possible_path_ids(input_path, [], ['.baz.ts']), [input_path]);
+	assert.equal(get_possible_path_ids(input_path, [], ['.ext.ts']), [
+		{id: input_path, root_dir: null},
+	]);
 });
 
 test('load_path_ids_by_input_path', async () => {
 	const test_files: Record<string, Map<string, Path_Stats>> = {
-		'fake/test1.bar.ts': new Map([['fake/test1.bar.ts', {isDirectory: () => false}]]),
-		'fake/test2.bar.ts': new Map([['fake/test2.bar.ts', {isDirectory: () => false}]]),
+		'fake/test1.ext.ts': new Map([['fake/test1.ext.ts', {isDirectory: () => false}]]),
+		'fake/test2.ext.ts': new Map([['fake/test2.ext.ts', {isDirectory: () => false}]]),
 		'fake/test3': new Map([
 			['fake/test3', {isDirectory: () => true}],
 			['a.ts', {isDirectory: () => false}],
@@ -79,8 +104,8 @@ test('load_path_ids_by_input_path', async () => {
 	};
 	const result = await load_path_ids_by_input_path(
 		new Map([
-			['fake/test1.bar.ts', {id: 'fake/test1.bar.ts', is_directory: false}],
-			['fake/test2', {id: 'fake/test2.bar.ts', is_directory: false}],
+			['fake/test1.ext.ts', {id: 'fake/test1.ext.ts', is_directory: false}],
+			['fake/test2', {id: 'fake/test2.ext.ts', is_directory: false}],
 			['fake/test3', {id: 'fake/test3', is_directory: true}],
 			['fake/', {id: 'fake/', is_directory: true}],
 			['fake', {id: 'fake', is_directory: true}],
@@ -90,8 +115,8 @@ test('load_path_ids_by_input_path', async () => {
 	);
 	assert.equal(result, {
 		path_ids_by_input_path: new Map([
-			['fake/test1.bar.ts', ['fake/test1.bar.ts']],
-			['fake/test2', ['fake/test2.bar.ts']],
+			['fake/test1.ext.ts', ['fake/test1.ext.ts']],
+			['fake/test2', ['fake/test2.ext.ts']],
 			['fake/test3', ['fake/test3/a.ts', 'fake/test3/b.ts']],
 			['fake', ['fake/test3/c.ts']],
 		]),

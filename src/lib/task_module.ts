@@ -2,7 +2,12 @@ import type {Timings} from '@ryanatkn/belt/timings.js';
 
 import {load_module, load_modules, type Module_Meta, type Load_Module_Result} from './modules.js';
 import {to_task_name, is_task_path, type Task, TASK_FILE_SUFFIXES} from './task.js';
-import {Input_Path, load_path_ids_by_input_path, resolve_input_paths} from './input_path.js';
+import {
+	Input_Path,
+	load_path_ids_by_input_path,
+	resolve_input_paths,
+	type Possible_Path_Id,
+} from './input_path.js';
 import {search_fs} from './search_fs.js';
 import type {Result} from '@ryanatkn/belt/result.js';
 import {paths_from_id, print_path_or_gro_path} from './paths.js';
@@ -55,7 +60,7 @@ export type Find_Tasks_Result = Result<
 		// TODO BLOCK should these be bundled into a single data structure?
 		path_ids_by_input_path: Map<Input_Path, Path_Id[]>;
 		path_data_by_input_path: Map<Input_Path, Path_Data>;
-		possible_path_ids_by_input_path: Map<Input_Path, Path_Id[]>;
+		possible_path_ids_by_input_path: Map<Input_Path, Possible_Path_Id[]>;
 	},
 	Find_Modules_Failure
 >;
