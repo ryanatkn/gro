@@ -6,12 +6,13 @@ import {
 	Input_Path,
 	load_path_ids_by_input_path,
 	resolve_input_paths,
+	type Input_Path_Data,
 	type Possible_Path,
 } from './input_path.js';
 import {search_fs} from './search_fs.js';
 import type {Result} from '@ryanatkn/belt/result.js';
 import {paths_from_id, print_path_or_gro_path} from './paths.js';
-import type {Path_Data, Path_Id} from './path.js';
+import type {Path_Id} from './path.js';
 import {red} from 'kleur/colors';
 
 export interface Task_Module {
@@ -31,6 +32,7 @@ export const load_task_module = async (
 ): Promise<Load_Module_Result<Task_Module_Meta>> => {
 	const result = await load_module(id, validate_task_module);
 	if (!result.ok) return result;
+	// TODO BLOCK this is weird with the splatting
 	return {...result, mod: {...result.mod, name: to_task_name(id, task_root_paths)}}; // TODO this task name needs to use task root paths or cwd
 };
 
@@ -59,7 +61,7 @@ export type Find_Tasks_Result = Result<
 	{
 		// TODO BLOCK should these be bundled into a single data structure?
 		path_ids_by_input_path: Map<Input_Path, Path_Id[]>;
-		input_path_data_by_input_path: Map<Input_Path, Path_Data>;
+		input_path_data_by_input_path: Map<Input_Path, Input_Path_Data>;
 		possible_paths_by_input_path: Map<Input_Path, Possible_Path[]>;
 	},
 	Find_Modules_Failure
@@ -67,15 +69,17 @@ export type Find_Tasks_Result = Result<
 export type Find_Modules_Failure =
 	| {
 			type: 'unmapped_input_paths';
-			input_path_data_by_input_path: Map<Input_Path, Path_Data>;
 			unmapped_input_paths: Input_Path[];
+			input_path_data_by_input_path: Map<Input_Path, Input_Path_Data>;
+			possible_paths_by_input_path: Map<Input_Path, Possible_Path[]>;
 			reasons: string[];
 	  }
 	| {
 			type: 'input_directories_with_no_files';
-			path_ids_by_input_path: Map<Input_Path, Path_Id[]>;
-			input_path_data_by_input_path: Map<Input_Path, Path_Data>;
 			input_directories_with_no_files: Input_Path[];
+			path_ids_by_input_path: Map<Input_Path, Path_Id[]>;
+			input_path_data_by_input_path: Map<Input_Path, Input_Path_Data>;
+			possible_paths_by_input_path: Map<Input_Path, Possible_Path[]>;
 			reasons: string[];
 	  };
 
@@ -99,7 +103,7 @@ export const find_tasks = async (
 		TASK_FILE_SUFFIXES,
 	);
 	console.log('[find_modules] resolved_input_paths', resolved_input_paths);
-	const {input_path_data_by_input_path, unmapped_input_paths, possible_paths_by_input_path} =
+	const {input_path_data_by_input_path, possible_paths_by_input_path, unmapped_input_paths} =
 		resolved_input_paths;
 	timing_to_resolve_input_paths?.();
 
@@ -108,8 +112,9 @@ export const find_tasks = async (
 		return {
 			ok: false,
 			type: 'unmapped_input_paths',
-			input_path_data_by_input_path,
 			unmapped_input_paths,
+			input_path_data_by_input_path,
+			possible_paths_by_input_path,
 			reasons: unmapped_input_paths.map((input_path) =>
 				red(
 					`Input path ${print_path_or_gro_path(
@@ -134,9 +139,10 @@ export const find_tasks = async (
 		return {
 			ok: false,
 			type: 'input_directories_with_no_files',
-			input_path_data_by_input_path,
-			path_ids_by_input_path,
 			input_directories_with_no_files,
+			path_ids_by_input_path,
+			input_path_data_by_input_path,
+			possible_paths_by_input_path,
 			reasons: input_directories_with_no_files.map((input_path) =>
 				red(
 					`Input directory ${print_path_or_gro_path(

@@ -109,8 +109,8 @@ export const resolve_input_paths = async (
 	extensions: string[],
 ): Promise<{
 	input_path_data_by_input_path: Map<Input_Path, Input_Path_Data>;
-	unmapped_input_paths: Input_Path[];
 	possible_paths_by_input_path: Map<Input_Path, Possible_Path[]>;
+	unmapped_input_paths: Input_Path[];
 }> => {
 	console.log(`[resolve_input_paths]`, input_paths);
 	const input_path_data_by_input_path = new Map<Input_Path, Input_Path_Data>();
@@ -149,8 +149,8 @@ export const resolve_input_paths = async (
 	}
 	return {
 		input_path_data_by_input_path,
-		unmapped_input_paths,
 		possible_paths_by_input_path,
+		unmapped_input_paths,
 	};
 };
 
@@ -160,7 +160,7 @@ export const resolve_input_paths = async (
  * De-dupes source ids.
  */
 export const load_path_ids_by_input_path = async (
-	input_path_data_by_input_path: Map<Input_Path, Path_Data>,
+	input_path_data_by_input_path: Map<Input_Path, Input_Path_Data>,
 	custom_search_fs = search_fs,
 ): Promise<{
 	path_ids_by_input_path: Map<Input_Path, Path_Id[]>;
@@ -169,7 +169,7 @@ export const load_path_ids_by_input_path = async (
 	const path_ids_by_input_path = new Map<Input_Path, Path_Id[]>();
 	const input_directories_with_no_files: Input_Path[] = [];
 	const existing_path_ids = new Set<Path_Id>();
-	// can't parallelize because of de-duping
+	// TODO parallelize but would need to de-dupe and retain order
 	for (const [input_path, path_data] of input_path_data_by_input_path) {
 		const {id} = path_data;
 		if (path_data.is_directory) {

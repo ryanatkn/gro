@@ -4,10 +4,16 @@ import {red} from 'kleur/colors';
 
 import {type Module_Meta, load_module, type Load_Module_Result} from './modules.js';
 import type {Gen} from './gen.js';
-import {Input_Path, load_path_ids_by_input_path, resolve_input_paths} from './input_path.js';
+import {
+	Input_Path,
+	load_path_ids_by_input_path,
+	resolve_input_paths,
+	type Input_Path_Data,
+	type Possible_Path,
+} from './input_path.js';
 import {paths, paths_from_id, print_path_or_gro_path} from './paths.js';
 import {search_fs} from './search_fs.js';
-import type {Path_Data, Path_Id} from './path.js';
+import type {Path_Id} from './path.js';
 
 export const GEN_FILE_PATTERN_TEXT = 'gen';
 export const GEN_FILE_PATTERN = '.' + GEN_FILE_PATTERN_TEXT + '.';
@@ -59,23 +65,25 @@ export type Find_Genfiles_Result = Result<
 	{
 		// TODO BLOCK should these be bundled into a single data structure?
 		path_ids_by_input_path: Map<Input_Path, Path_Id[]>;
-		input_path_data_by_input_path: Map<Input_Path, Path_Data>;
-		possible_paths_by_input_path: Map<Input_Path, Path_Id[]>;
+		input_path_data_by_input_path: Map<Input_Path, Input_Path_Data>;
+		possible_paths_by_input_path: Map<Input_Path, Possible_Path[]>;
 	},
 	Find_Genfiles_Failure
 >;
 export type Find_Genfiles_Failure =
 	| {
 			type: 'unmapped_input_paths';
-			input_path_data_by_input_path: Map<Input_Path, Path_Data>;
 			unmapped_input_paths: Input_Path[];
+			input_path_data_by_input_path: Map<Input_Path, Input_Path_Data>;
+			possible_paths_by_input_path: Map<Input_Path, Possible_Path[]>;
 			reasons: string[];
 	  }
 	| {
 			type: 'input_directories_with_no_files';
-			path_ids_by_input_path: Map<Input_Path, Path_Id[]>;
-			input_path_data_by_input_path: Map<Input_Path, Path_Data>;
 			input_directories_with_no_files: Input_Path[];
+			path_ids_by_input_path: Map<Input_Path, Path_Id[]>;
+			input_path_data_by_input_path: Map<Input_Path, Input_Path_Data>;
+			possible_paths_by_input_path: Map<Input_Path, Possible_Path[]>;
 			reasons: string[];
 	  };
 
@@ -93,7 +101,7 @@ export const find_genfiles = async (
 
 	// Check which extension variation works - if it's a directory, prefer others first!
 	const timing_to_resolve_input_paths = timings?.start('resolve input paths');
-	const {input_path_data_by_input_path, unmapped_input_paths, possible_paths_by_input_path} =
+	const {input_path_data_by_input_path, possible_paths_by_input_path, unmapped_input_paths} =
 		await resolve_input_paths(input_paths, root_dirs, extensions);
 	console.log('[find_modules]', input_path_data_by_input_path);
 	timing_to_resolve_input_paths?.();
@@ -103,8 +111,9 @@ export const find_genfiles = async (
 		return {
 			ok: false,
 			type: 'unmapped_input_paths',
-			input_path_data_by_input_path,
 			unmapped_input_paths,
+			input_path_data_by_input_path,
+			possible_paths_by_input_path,
 			reasons: unmapped_input_paths.map((input_path) =>
 				red(
 					`Input path ${print_path_or_gro_path(
@@ -129,9 +138,10 @@ export const find_genfiles = async (
 		return {
 			ok: false,
 			type: 'input_directories_with_no_files',
-			input_path_data_by_input_path,
-			path_ids_by_input_path,
 			input_directories_with_no_files,
+			path_ids_by_input_path,
+			input_path_data_by_input_path,
+			possible_paths_by_input_path,
 			reasons: input_directories_with_no_files.map((input_path) =>
 				red(
 					`Input directory ${print_path_or_gro_path(
