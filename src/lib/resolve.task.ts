@@ -25,7 +25,7 @@ export const task: Task<Args> = {
 		const {task_root_paths} = config;
 		log.info('task root paths:', task_root_paths);
 
-		const resolved = await resolve_input_paths(input_paths, (input_path) =>
+		const resolved_input_paths = await resolve_input_paths(input_paths, (input_path) =>
 			// TODO BLOCK this is messy, either extract a helper or refactor, need to pair to task root paths, so a new helper?
 			get_possible_path_ids(
 				input_path,
@@ -33,6 +33,6 @@ export const task: Task<Args> = {
 				task_root_paths,
 			),
 		);
-		console.log(`resolved input paths`, resolved);
+		console.log(`resolved input paths`, resolved_input_paths);
 	},
 };
