@@ -94,19 +94,17 @@ export const find_tasks = async (
 	timings?: Timings,
 ): Promise<Find_Tasks_Result> => {
 	// TODO BLOCK so each input path gets associated with one `task_root_path`, right? cache in a data structure?
+	// TODO BLOCK if we resolve to path data that's a directory, it shouldn't add the task suffixes to possible source ids
 	const found_tasks: Found_Task[] = []; // TODO BLOCK maybe separate this into `resolve_task_info`? given a `Find_Modules_Result`?
 
 	// Check which extension variation works - if it's a directory, prefer others first!
 	const timing_to_resolve_input_paths = timings?.start('resolve input paths');
+	const resolved_input_paths = await resolve_input_paths(input_paths, (input_path) =>
+		get_possible_path_ids(input_path, [TASK_FILE_SUFFIX_TS, TASK_FILE_SUFFIX_JS], task_root_paths),
+	);
+	console.log('[find_modules] resolved_input_paths', resolved_input_paths);
 	const {path_data_by_input_path, unmapped_input_paths, possible_path_ids_by_input_path} =
-		await resolve_input_paths(input_paths, (input_path) =>
-			get_possible_path_ids(
-				input_path,
-				[TASK_FILE_SUFFIX_TS, TASK_FILE_SUFFIX_JS],
-				task_root_paths,
-			),
-		);
-	console.log('[find_modules] path_data_by_input_path', path_data_by_input_path);
+		resolved_input_paths;
 	timing_to_resolve_input_paths?.();
 
 	// Error if any input path could not be mapped.
