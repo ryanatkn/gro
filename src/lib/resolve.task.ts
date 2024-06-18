@@ -26,16 +26,12 @@ export const task: Task<Args> = {
 		log.info('task root paths:', task_root_paths);
 
 		// TODO BLOCK this is messy, either extract a helper or refactor, need to pair to task root paths, so a new helper?
-		const resolved_input_paths = await resolve_input_paths(
-			input_paths,
-			task_root_paths,
-			TASK_FILE_SUFFIXES,
-		);
-		console.log(`resolved_input_paths`, resolved_input_paths);
+		const resolved = await resolve_input_paths(input_paths, task_root_paths, TASK_FILE_SUFFIXES);
+		console.log(`resolved`, resolved);
 		// console.log(
 		// 	`possible_paths_by_input_path`,
 		// 	JSON.stringify(
-		// 		Array.from(resolved_input_paths.possible_paths_by_input_path.entries()),
+		// 		Array.from(resolved.possible_paths_by_input_path.entries()),
 		// 		null,
 		// 		2,
 		// 	),

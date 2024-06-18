@@ -95,8 +95,10 @@ export const get_possible_paths = (
 	return Array.from(possible_paths);
 };
 
-export interface Input_Path_Data extends Path_Data {
+export interface Resolved_Input_Path extends Path_Data {
 	input_path: Input_Path;
+	id: Path_Id;
+	is_directory: boolean;
 	root_dir: Path_Id | null;
 	possible_paths: Possible_Path[];
 }
@@ -111,11 +113,11 @@ export const resolve_input_paths = async (
 	root_dirs: Path_Id[],
 	extensions: string[],
 ): Promise<{
-	input_path_data_by_input_path: Map<Input_Path, Input_Path_Data>;
+	input_path_data_by_input_path: Map<Input_Path, Resolved_Input_Path>;
 	unmapped_input_paths: Input_Path[];
 }> => {
 	console.log(`[resolve_input_paths]`, input_paths);
-	const input_path_data_by_input_path = new Map<Input_Path, Input_Path_Data>();
+	const input_path_data_by_input_path = new Map<Input_Path, Resolved_Input_Path>();
 	const unmapped_input_paths: Input_Path[] = [];
 	const possible_paths_by_input_path = new Map<Input_Path, Possible_Path[]>();
 	for (const input_path of input_paths) {
@@ -140,9 +142,9 @@ export const resolve_input_paths = async (
 		console.log(`found`, found);
 		if (found) {
 			input_path_data_by_input_path.set(input_path, {
+				input_path,
 				id: found[0].id,
 				is_directory: found[0].is_directory,
-				input_path,
 				root_dir: found[1].root_dir,
 				possible_paths,
 			});
@@ -156,13 +158,13 @@ export const resolve_input_paths = async (
 	};
 };
 
-// TODO BLOCK maybe rename to `load_input_path_data`/`Loaded_Input_Path_Data`?
+// TODO BLOCK maybe rename to `load_input_path_data`/`Loaded_Resolved_Input_Path`?
 /**
  * Finds all of the matching files for the given input paths.
  * De-dupes source ids.
  */
 export const load_path_ids_by_input_path = async (
-	input_path_data_by_input_path: Map<Input_Path, Input_Path_Data>,
+	input_path_data_by_input_path: Map<Input_Path, Resolved_Input_Path>,
 	custom_search_fs = search_fs,
 ): Promise<{
 	path_ids_by_input_path: Map<Input_Path, Path_Id[]>;

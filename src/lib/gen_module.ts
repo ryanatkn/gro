@@ -8,7 +8,7 @@ import {
 	Input_Path,
 	load_path_ids_by_input_path,
 	resolve_input_paths,
-	type Input_Path_Data,
+	type Resolved_Input_Path,
 } from './input_path.js';
 import {paths, print_path} from './paths.js';
 import {search_fs} from './search_fs.js';
@@ -64,7 +64,7 @@ export type Find_Genfiles_Result = Result<
 	{
 		// TODO BLOCK should these be bundled into a single data structure?
 		path_ids_by_input_path: Map<Input_Path, Path_Id[]>;
-		input_path_data_by_input_path: Map<Input_Path, Input_Path_Data>;
+		input_path_data_by_input_path: Map<Input_Path, Resolved_Input_Path>;
 	},
 	Find_Genfiles_Failure
 >;
@@ -72,14 +72,14 @@ export type Find_Genfiles_Failure =
 	| {
 			type: 'unmapped_input_paths';
 			unmapped_input_paths: Input_Path[];
-			input_path_data_by_input_path: Map<Input_Path, Input_Path_Data>;
+			input_path_data_by_input_path: Map<Input_Path, Resolved_Input_Path>;
 			reasons: string[];
 	  }
 	| {
 			type: 'input_directories_with_no_files';
 			input_directories_with_no_files: Input_Path[];
 			path_ids_by_input_path: Map<Input_Path, Path_Id[]>;
-			input_path_data_by_input_path: Map<Input_Path, Input_Path_Data>;
+			input_path_data_by_input_path: Map<Input_Path, Resolved_Input_Path>;
 			reasons: string[];
 	  };
 

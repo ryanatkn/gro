@@ -12,13 +12,13 @@ import {
 	type Find_Tasks_Result,
 	type Task_Module_Meta,
 } from './task_module.js';
-import {to_gro_input_path, type Input_Path, type Input_Path_Data} from './input_path.js';
+import {to_gro_input_path, type Input_Path, type Resolved_Input_Path} from './input_path.js';
 import {print_path} from './paths.js';
 
 export const log_tasks = async (
 	log: Logger,
 	dir_label: string,
-	input_path_data_by_input_path: Map<Input_Path, Input_Path_Data>,
+	input_path_data_by_input_path: Map<Input_Path, Resolved_Input_Path>,
 	task_root_paths: string[],
 	log_intro = true,
 ): Promise<void> => {

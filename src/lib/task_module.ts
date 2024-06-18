@@ -6,7 +6,7 @@ import {
 	Input_Path,
 	load_path_ids_by_input_path,
 	resolve_input_paths,
-	type Input_Path_Data,
+	type Resolved_Input_Path,
 } from './input_path.js';
 import {search_fs} from './search_fs.js';
 import type {Result} from '@ryanatkn/belt/result.js';
@@ -27,7 +27,7 @@ export type Find_Tasks_Result = Result<
 	{
 		// TODO BLOCK should these be bundled into a single data structure?
 		path_ids_by_input_path: Map<Input_Path, Path_Id[]>;
-		input_path_data_by_input_path: Map<Input_Path, Input_Path_Data>; // TODO BLOCK probably add `input_path_datas` and just use it
+		input_path_data_by_input_path: Map<Input_Path, Resolved_Input_Path>; // TODO BLOCK probably add `input_path_datas` and just use it
 	},
 	Find_Modules_Failure
 >;
@@ -35,14 +35,14 @@ export type Find_Modules_Failure =
 	| {
 			type: 'unmapped_input_paths';
 			unmapped_input_paths: Input_Path[];
-			input_path_data_by_input_path: Map<Input_Path, Input_Path_Data>;
+			input_path_data_by_input_path: Map<Input_Path, Resolved_Input_Path>;
 			reasons: string[];
 	  }
 	| {
 			type: 'input_directories_with_no_files';
 			input_directories_with_no_files: Input_Path[];
 			path_ids_by_input_path: Map<Input_Path, Path_Id[]>;
-			input_path_data_by_input_path: Map<Input_Path, Input_Path_Data>;
+			input_path_data_by_input_path: Map<Input_Path, Resolved_Input_Path>;
 			reasons: string[];
 	  };
 
@@ -60,13 +60,9 @@ export const find_tasks = async (
 
 	// Check which extension variation works - if it's a directory, prefer others first!
 	const timing_to_resolve_input_paths = timings?.start('resolve input paths');
-	const resolved_input_paths = await resolve_input_paths(
-		input_paths,
-		task_root_paths,
-		TASK_FILE_SUFFIXES,
-	);
-	console.log('[find_modules] resolved_input_paths', resolved_input_paths);
-	const {input_path_data_by_input_path, unmapped_input_paths} = resolved_input_paths;
+	const resolved = await resolve_input_paths(input_paths, task_root_paths, TASK_FILE_SUFFIXES);
+	console.log('[find_modules] resolved', resolved);
+	const {input_path_data_by_input_path, unmapped_input_paths} = resolved;
 	timing_to_resolve_input_paths?.();
 
 	// Error if any input path could not be mapped.
