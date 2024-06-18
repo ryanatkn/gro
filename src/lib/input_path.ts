@@ -111,28 +111,33 @@ export const resolve_input_paths = async (
 	const path_data_by_input_path = new Map<Input_Path, Path_Data>();
 	const unmapped_input_paths: Input_Path[] = [];
 	const possible_paths_by_input_path = new Map<Input_Path, Possible_Path[]>();
-	// TODO BLOCK parallel?
 	for (const input_path of input_paths) {
-		let file_path_data: Path_Data | null = null;
-		let dir_path_data: Path_Data | null = null;
+		let found_file_data: [Path_Data, Possible_Path] | null = null;
+		let found_dir_data: [Path_Data, Possible_Path] | null = null;
 		const possible_paths = get_possible_paths(input_path, root_dirs, extensions);
 		possible_paths_by_input_path.set(input_path, possible_paths);
 
 		// Find the first existing file path or fallback to the first directory path.
-		for (const possible_path_id of possible_paths) {
-			if (!(await exists(possible_path_id.id))) continue; // eslint-disable-line no-await-in-loop
-			const stats = await stat(possible_path_id.id); // eslint-disable-line no-await-in-loop
+		for (const possible_path of possible_paths) {
+			if (!(await exists(possible_path.id))) continue; // eslint-disable-line no-await-in-loop
+			const stats = await stat(possible_path.id); // eslint-disable-line no-await-in-loop
 			if (stats.isDirectory()) {
-				if (dir_path_data) continue;
-				dir_path_data = to_path_data(possible_path_id.id, stats);
+				if (found_dir_data) continue;
+				found_dir_data = [to_path_data(possible_path.id, stats), possible_path];
 			} else {
-				file_path_data = to_path_data(possible_path_id.id, stats);
+				found_file_data = [to_path_data(possible_path.id, stats), possible_path];
 				break;
 			}
 		}
-		const path_data = file_path_data || dir_path_data;
-		if (path_data) {
-			path_data_by_input_path.set(input_path, path_data);
+		const found = found_file_data || found_dir_data;
+		if (found) {
+			// TODO BLOCK what data structure?
+			path_data_by_input_path.set(input_path, {
+				id: found[0].id,
+				is_directory: found[0].is_directory,
+				input_path,
+				root_dir: found[1].root_dir,
+			});
 		} else {
 			unmapped_input_paths.push(input_path);
 		}
