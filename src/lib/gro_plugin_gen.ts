@@ -6,7 +6,7 @@ import {spawn} from '@ryanatkn/belt/process.js';
 
 import type {Plugin, Plugin_Context} from './plugin.js';
 import type {Args} from './args.js';
-import {source_id_to_base_path} from './paths.js';
+import {path_id_to_base_path} from './paths.js';
 import {find_genfiles, is_gen_path} from './gen_module.js';
 import {filter_dependents} from './build/source_file.js';
 import {throttle} from './throttle.js';
@@ -56,7 +56,7 @@ export const plugin = (): Plugin<Plugin_Context<Task_Args>> => {
 			// making us miss `build` events for gen dependencies,
 			// so we run `gen` here even if it's usually wasteful.
 			const found = await find_genfiles();
-			if (found.ok && found.source_ids_by_input_path.size > 0) {
+			if (found.ok && found.path_ids_by_input_path.size > 0) {
 				await gen();
 			}
 
@@ -74,7 +74,7 @@ export const plugin = (): Plugin<Plugin_Context<Task_Args>> => {
 				// but we probably want to make this an esbuild plugin instead
 				// if (build_config.name !== 'system') return;
 				if (is_gen_path(source_file.id)) {
-					queue_gen(source_id_to_base_path(source_file.id));
+					queue_gen(path_id_to_base_path(source_file.id));
 				}
 				const dependent_gen_file_ids = filter_dependents(
 					source_file,
@@ -83,7 +83,7 @@ export const plugin = (): Plugin<Plugin_Context<Task_Args>> => {
 					is_gen_path,
 				);
 				for (const dependent_gen_file_id of dependent_gen_file_ids) {
-					queue_gen(source_id_to_base_path(dependent_gen_file_id));
+					queue_gen(path_id_to_base_path(dependent_gen_file_id));
 				}
 			};
 			filer.on('build', on_filer_build);

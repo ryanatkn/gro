@@ -2,8 +2,6 @@ import {join, extname, relative, basename} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {strip_end, strip_start} from '@ryanatkn/belt/string.js';
 import {gray} from 'kleur/colors';
-import type {Flavored} from '@ryanatkn/belt/types.js';
-import {z} from 'zod';
 
 import {
 	GRO_CONFIG_PATH,
@@ -13,6 +11,7 @@ import {
 	SVELTEKIT_DIST_DIRNAME,
 } from './path_constants.js';
 import {sveltekit_config_global} from './sveltekit_config_global.js';
+import type {Path_Id} from './path.js';
 
 /*
 
@@ -34,11 +33,6 @@ export interface Paths {
 	build_dev: string;
 	config: string;
 }
-
-// TODO probably rename to `Path_Id` from `Source_Id`?
-// TODO Flavored doesn't work when used in schemas, use Zod brand instead? problem is ergonomics
-export const Source_Id = z.string();
-export type Source_Id = Flavored<z.infer<typeof Source_Id>, 'Source_Id'>;
 
 export const create_paths = (root_dir: string): Paths => {
 	// TODO remove reliance on trailing slash towards windows support
@@ -62,16 +56,16 @@ export const is_gro_id = (id: string): boolean => id.startsWith(gro_paths.root);
 export const to_root_path = (id: string, p = paths): string => strip_start(id, p.root);
 
 // '/home/me/app/src/foo/bar/baz.ts' → 'foo/bar/baz.ts'
-export const source_id_to_base_path = (source_id: Source_Id, p = paths): string =>
-	relative(p.source, source_id);
+export const path_id_to_base_path = (path_id: Path_Id, p = paths): string =>
+	relative(p.source, path_id);
 
 // TODO base_path is an obsolete concept, it was a remnant from forcing `src/`
 // 'foo/bar/baz.ts' → '/home/me/app/src/foo/bar/baz.ts'
-export const base_path_to_source_id = (base_path: string, p = paths): Source_Id =>
+export const base_path_to_path_id = (base_path: string, p = paths): Path_Id =>
 	join(p.source, base_path);
 
-// An `import_id` can be a source_id in a project,
-// or a Gro source_id when running inside Gro,
+// An `import_id` can be a path_id in a project,
+// or a Gro path_id when running inside Gro,
 // or a `gro/dist/` file id in node_modules when inside another project.
 export const import_id_to_lib_path = (import_id: string, p = paths_from_id(import_id)): string => {
 	if (p.root === gro_paths.root) {

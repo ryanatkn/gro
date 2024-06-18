@@ -8,8 +8,8 @@ import {
 	gro_paths,
 	is_gro_id,
 	to_root_path,
-	source_id_to_base_path,
-	base_path_to_source_id,
+	path_id_to_base_path,
+	base_path_to_path_id,
 } from './paths.js';
 
 /* test__create_paths */
@@ -50,26 +50,26 @@ test__to_root_path('basic behavior', () => {
 test__to_root_path.run();
 /* test__to_root_path */
 
-/* test__source_id_to_base_path */
-const test__source_id_to_base_path = suite('source_id_to_base_path');
+/* test__path_id_to_base_path */
+const test__path_id_to_base_path = suite('path_id_to_base_path');
 
-test__source_id_to_base_path('basic behavior', () => {
-	assert.is(source_id_to_base_path(resolve('src/foo/bar/baz.ts')), 'foo/bar/baz.ts');
+test__path_id_to_base_path('basic behavior', () => {
+	assert.is(path_id_to_base_path(resolve('src/foo/bar/baz.ts')), 'foo/bar/baz.ts');
 });
 
-test__source_id_to_base_path.run();
-/* test__source_id_to_base_path */
+test__path_id_to_base_path.run();
+/* test__path_id_to_base_path */
 
-/* test__base_path_to_source_id */
-const test__base_path_to_source_id = suite('base_path_to_source_id');
+/* test__base_path_to_path_id */
+const test__base_path_to_path_id = suite('base_path_to_path_id');
 
-test__base_path_to_source_id('basic behavior', () => {
-	assert.is(base_path_to_source_id('foo/bar/baz.ts'), resolve('src/foo/bar/baz.ts'));
+test__base_path_to_path_id('basic behavior', () => {
+	assert.is(base_path_to_path_id('foo/bar/baz.ts'), resolve('src/foo/bar/baz.ts'));
 });
 
-test__base_path_to_source_id('does not change extension', () => {
-	assert.is(base_path_to_source_id('foo/bar/baz.js'), resolve('src/foo/bar/baz.js'));
+test__base_path_to_path_id('does not change extension', () => {
+	assert.is(base_path_to_path_id('foo/bar/baz.js'), resolve('src/foo/bar/baz.js'));
 });
 
-test__base_path_to_source_id.run();
-/* test__base_path_to_source_id */
+test__base_path_to_path_id.run();
+/* test__base_path_to_path_id */

@@ -79,11 +79,11 @@ test__load_module.run();
 // 	const result = await find_modules(
 // 		[path1, id2],
 // 		(id) => search_fs(id, {files_only: false}),
-// 		(input_path) => get_possible_source_ids(input_path, ['.foo.ts'], []),
+// 		(input_path) => get_possible_path_ids(input_path, ['.foo.ts'], []),
 // 	);
 // 	assert.ok(result.ok);
 // 	assert.equal(
-// 		result.source_ids_by_input_path,
+// 		result.path_ids_by_input_path,
 // 		new Map([
 // 			[path1, [id1]],
 // 			[id2, [id2]],
@@ -105,7 +105,7 @@ test__load_module.run();
 // 	);
 // 	assert.ok(result.ok);
 // 	assert.equal(
-// 		result.source_ids_by_input_path,
+// 		result.path_ids_by_input_path,
 // 		new Map([[id, [join(id, 'test1.foo.ts'), join(id, 'test2.foo.ts')]]]),
 // 	);
 // 	assert.equal(result.path_data_by_input_path, new Map([[id, {id, is_directory: true}]]));
@@ -120,7 +120,7 @@ test__load_module.run();
 // 			resolve('src/fixtures/failme2'),
 // 		],
 // 		(id) => search_fs(id, {files_only: false}),
-// 		(input_path) => get_possible_source_ids(input_path, ['.foo.ts'], []),
+// 		(input_path) => get_possible_path_ids(input_path, ['.foo.ts'], []),
 // 	);
 // 	assert.ok(!result.ok);
 // 	assert.ok(result.reasons.length);

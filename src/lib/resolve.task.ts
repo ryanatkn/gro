@@ -1,7 +1,7 @@
 import {z} from 'zod';
 
 import {TASK_FILE_SUFFIX_JS, TASK_FILE_SUFFIX_TS, type Task} from './task.js';
-import {get_possible_source_ids, resolve_input_paths, to_input_paths} from './input_path.js';
+import {get_possible_path_ids, resolve_input_paths, to_input_paths} from './input_path.js';
 
 export const Args = z
 	.object({
@@ -27,7 +27,7 @@ export const task: Task<Args> = {
 
 		const resolved = await resolve_input_paths(input_paths, (input_path) =>
 			// TODO BLOCK this is messy, either extract a helper or refactor, need to pair to task root paths, so a new helper?
-			get_possible_source_ids(
+			get_possible_path_ids(
 				input_path,
 				[TASK_FILE_SUFFIX_TS, TASK_FILE_SUFFIX_JS],
 				task_root_paths,

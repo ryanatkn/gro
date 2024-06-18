@@ -15,7 +15,7 @@ import {
 	to_gen_result,
 	type Raw_Gen_Result,
 } from './gen.js';
-import {print_path, source_id_to_base_path} from './paths.js';
+import {print_path, path_id_to_base_path} from './paths.js';
 import type {format_file as base_format_file} from './format_file.js';
 import type {Gro_Config} from './config.js';
 import {sveltekit_config_global} from './sveltekit_config_global.js';
@@ -108,4 +108,4 @@ export const run_gen = async (
 
 // TODO configurable
 export const to_gen_import_path = (id: string): string =>
-	'$' + strip_end(source_id_to_base_path(id), GEN_SCHEMA_PATH_SUFFIX);
+	'$' + strip_end(path_id_to_base_path(id), GEN_SCHEMA_PATH_SUFFIX);

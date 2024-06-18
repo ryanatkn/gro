@@ -3,7 +3,7 @@ import {parse_path_parts, parse_path_segments} from '@ryanatkn/belt/path.js';
 import {strip_start} from '@ryanatkn/belt/string.js';
 
 import {type Gen, to_output_file_name} from '../gen.js';
-import {paths, base_path_to_source_id} from '../paths.js';
+import {paths, base_path_to_path_id} from '../paths.js';
 import {load_task_modules} from '../task_module.js';
 import {log_error_reasons} from '../task_logging.js';
 
@@ -46,7 +46,7 @@ export const gen: Gen = async ({config, origin_id, log}) => {
 	const path_parts = parse_path_parts(relative_dir).map(
 		(relative_path_part) =>
 			`[${parse_path_segments(relative_path_part).at(-1)}](${
-				relative(origin_dir, base_path_to_source_id(relative_path_part)) || './'
+				relative(origin_dir, base_path_to_path_id(relative_path_part)) || './'
 			})`,
 	);
 	const breadcrumbs =

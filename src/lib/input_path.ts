@@ -4,8 +4,8 @@ import {stat} from 'node:fs/promises';
 import {z} from 'zod';
 import type {Flavored} from '@ryanatkn/belt/types.js';
 
-import {GRO_PACKAGE_DIR, GRO_DIST_DIR, paths, Source_Id} from './paths.js';
-import {to_path_data, type Path_Data} from './path.js';
+import {GRO_PACKAGE_DIR, GRO_DIST_DIR, paths} from './paths.js';
+import {to_path_data, type Path_Data, type Path_Id} from './path.js';
 import {exists} from './fs.js';
 import {search_fs} from './search_fs.js';
 import {TASK_FILE_SUFFIX_JS} from './task.js';
@@ -50,42 +50,42 @@ export const to_input_paths = (
  * Gets a list of possible source ids for each input path with `extensions`,
  * duplicating each under `root_dirs`.
  * This is first used to fall back to the Gro dir to search for tasks.
- * It's the helper used in implementations of `get_possible_source_ids_for_input_path` below.
+ * It's the helper used in implementations of `get_possible_path_ids_for_input_path` below.
  */
-export const get_possible_source_ids = (
+export const get_possible_path_ids = (
 	input_path: Input_Path,
 	extensions: string[],
 	root_dirs: string[],
-): Source_Id[] => {
-	const possible_source_ids: Set<Source_Id> = new Set();
+): Path_Id[] => {
+	const possible_path_ids: Set<Path_Id> = new Set();
 
-	const add_possible_source_ids = (path: string) => {
+	const add_possible_path_ids = (path: string) => {
 		// Specifically for paths to the Gro package dist, optimize by only looking for `.task.js`.
 		if (path.startsWith(GRO_DIST_DIR)) {
-			possible_source_ids.add(
+			possible_path_ids.add(
 				(path.endsWith('/') || path.endsWith(TASK_FILE_SUFFIX_JS)
 					? path
-					: path + TASK_FILE_SUFFIX_JS) as Source_Id,
+					: path + TASK_FILE_SUFFIX_JS) as Path_Id,
 			);
 		} else {
-			possible_source_ids.add(path as Source_Id);
+			possible_path_ids.add(path as Path_Id);
 			if (!path.endsWith('/') && !extensions.some((e) => path.endsWith(e))) {
 				for (const extension of extensions) {
-					possible_source_ids.add(path + extension);
+					possible_path_ids.add(path + extension);
 				}
 			}
 		}
 	};
 
 	if (isAbsolute(input_path)) {
-		add_possible_source_ids(input_path);
+		add_possible_path_ids(input_path);
 	} else {
 		for (const root_dir of root_dirs) {
 			// TODO BLOCK I wanted to associate the possible source ids with the root dir, but the problem is absolute paths have none, is that a problem?
-			add_possible_source_ids(join(root_dir, input_path));
+			add_possible_path_ids(join(root_dir, input_path));
 		}
 	}
-	return Array.from(possible_source_ids);
+	return Array.from(possible_path_ids);
 };
 
 /**
@@ -95,32 +95,32 @@ export const get_possible_source_ids = (
  */
 export const resolve_input_paths = async (
 	input_paths: Input_Path[],
-	get_possible_source_ids_for_input_path: (input_path: Input_Path) => Source_Id[],
+	get_possible_path_ids_for_input_path: (input_path: Input_Path) => Path_Id[],
 ): Promise<{
 	path_data_by_input_path: Map<Input_Path, Path_Data>;
 	unmapped_input_paths: Input_Path[];
-	possible_source_ids_by_input_path: Map<Input_Path, Source_Id[]>;
+	possible_path_ids_by_input_path: Map<Input_Path, Path_Id[]>;
 }> => {
 	console.log(`[resolve_input_paths]`, input_paths);
 	const path_data_by_input_path = new Map<Input_Path, Path_Data>();
 	const unmapped_input_paths: Input_Path[] = [];
-	const possible_source_ids_by_input_path = new Map<Input_Path, Source_Id[]>();
+	const possible_path_ids_by_input_path = new Map<Input_Path, Path_Id[]>();
 	// TODO BLOCK parallel?
 	for (const input_path of input_paths) {
 		let file_path_data: Path_Data | null = null;
 		let dir_path_data: Path_Data | null = null;
-		const possible_source_ids = get_possible_source_ids_for_input_path(input_path);
-		possible_source_ids_by_input_path.set(input_path, possible_source_ids);
+		const possible_path_ids = get_possible_path_ids_for_input_path(input_path);
+		possible_path_ids_by_input_path.set(input_path, possible_path_ids);
 
 		// Find the first existing file path or fallback to the first directory path.
-		for (const possible_source_id of possible_source_ids) {
-			if (!(await exists(possible_source_id))) continue; // eslint-disable-line no-await-in-loop
-			const stats = await stat(possible_source_id); // eslint-disable-line no-await-in-loop
+		for (const possible_path_id of possible_path_ids) {
+			if (!(await exists(possible_path_id))) continue; // eslint-disable-line no-await-in-loop
+			const stats = await stat(possible_path_id); // eslint-disable-line no-await-in-loop
 			if (stats.isDirectory()) {
 				if (dir_path_data) continue;
-				dir_path_data = to_path_data(possible_source_id, stats);
+				dir_path_data = to_path_data(possible_path_id, stats);
 			} else {
-				file_path_data = to_path_data(possible_source_id, stats);
+				file_path_data = to_path_data(possible_path_id, stats);
 				break;
 			}
 		}
@@ -134,7 +134,7 @@ export const resolve_input_paths = async (
 	return {
 		path_data_by_input_path,
 		unmapped_input_paths,
-		possible_source_ids_by_input_path,
+		possible_path_ids_by_input_path,
 	};
 };
 
@@ -142,35 +142,35 @@ export const resolve_input_paths = async (
  * Finds all of the matching files for the given input paths.
  * De-dupes source ids.
  */
-export const load_source_ids_by_input_path = async (
+export const load_path_ids_by_input_path = async (
 	path_data_by_input_path: Map<Input_Path, Path_Data>,
 	custom_search_fs = search_fs,
 ): Promise<{
-	source_ids_by_input_path: Map<Input_Path, Source_Id[]>;
+	path_ids_by_input_path: Map<Input_Path, Path_Id[]>;
 	input_directories_with_no_files: Input_Path[];
 }> => {
-	const source_ids_by_input_path = new Map<Input_Path, Source_Id[]>();
+	const path_ids_by_input_path = new Map<Input_Path, Path_Id[]>();
 	const input_directories_with_no_files: Input_Path[] = [];
-	const existing_source_ids = new Set<Source_Id>();
+	const existing_path_ids = new Set<Path_Id>();
 	// can't parallelize because of de-duping
 	for (const [input_path, path_data] of path_data_by_input_path) {
 		const {id} = path_data;
 		if (path_data.is_directory) {
 			const files = await custom_search_fs(id, {files_only: false}); // eslint-disable-line no-await-in-loop
 			if (files.size) {
-				const source_ids: Source_Id[] = [];
+				const path_ids: Path_Id[] = [];
 				let has_files = false;
 				for (const [path, stats] of files) {
 					if (stats.isDirectory()) continue;
 					has_files = true;
-					const source_id = join(id, path);
-					if (!existing_source_ids.has(source_id)) {
-						existing_source_ids.add(source_id);
-						source_ids.push(source_id);
+					const path_id = join(id, path);
+					if (!existing_path_ids.has(path_id)) {
+						existing_path_ids.add(path_id);
+						path_ids.push(path_id);
 					}
 				}
-				if (source_ids.length) {
-					source_ids_by_input_path.set(input_path, source_ids);
+				if (path_ids.length) {
+					path_ids_by_input_path.set(input_path, path_ids);
 				}
 				if (!has_files) {
 					input_directories_with_no_files.push(input_path);
@@ -179,12 +179,12 @@ export const load_source_ids_by_input_path = async (
 			} else {
 				input_directories_with_no_files.push(input_path);
 			}
-		} else if (!existing_source_ids.has(id)) {
-			existing_source_ids.add(id);
-			source_ids_by_input_path.set(input_path, [id]);
+		} else if (!existing_path_ids.has(id)) {
+			existing_path_ids.add(id);
+			path_ids_by_input_path.set(input_path, [id]);
 		}
 	}
-	return {source_ids_by_input_path, input_directories_with_no_files};
+	return {path_ids_by_input_path, input_directories_with_no_files};
 };
 
 // TODO I don't think this is valid any more, we shouldn't transform absolute paths like this,

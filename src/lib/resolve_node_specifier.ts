@@ -1,7 +1,8 @@
 import {join} from 'node:path';
 
 import {Package_Json, load_package_json} from './package_json.js';
-import {Source_Id, paths} from './paths.js';
+import type {Path_Id} from './path.js';
+import {paths} from './paths.js';
 import {NODE_MODULES_DIRNAME} from './path_constants.js';
 
 export const resolve_node_specifier = async (
@@ -10,7 +11,7 @@ export const resolve_node_specifier = async (
 	parent_url?: string,
 	cache?: Record<string, Package_Json>,
 	exports_key = specifier.endsWith('.svelte') ? 'svelte' : 'default',
-): Promise<Source_Id> => {
+): Promise<Path_Id> => {
 	const parsed = parse_node_specifier(specifier);
 	const subpath = './' + parsed.path;
 	const package_dir = join(dir, NODE_MODULES_DIRNAME, parsed.name);
@@ -23,8 +24,8 @@ export const resolve_node_specifier = async (
 				(parent_url ? ` imported from ${parent_url}` : ''),
 		);
 	}
-	const source_id = join(package_dir, exported[exports_key]);
-	return source_id;
+	const path_id = join(package_dir, exported[exports_key]);
+	return path_id;
 };
 
 export interface Parsed_Node_Specifier {

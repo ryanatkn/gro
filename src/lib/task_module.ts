@@ -10,14 +10,14 @@ import {
 } from './task.js';
 import {
 	Input_Path,
-	get_possible_source_ids,
-	load_source_ids_by_input_path,
+	get_possible_path_ids,
+	load_path_ids_by_input_path,
 	resolve_input_paths,
 } from './input_path.js';
 import {search_fs} from './search_fs.js';
 import type {Result} from '@ryanatkn/belt/result.js';
-import {paths_from_id, print_path_or_gro_path, type Source_Id} from './paths.js';
-import type {Path_Data} from './path.js';
+import {paths_from_id, print_path_or_gro_path} from './paths.js';
+import type {Path_Data, Path_Id} from './path.js';
 import {red} from 'kleur/colors';
 
 export interface Task_Module {
@@ -49,7 +49,7 @@ export const load_task_modules = async (
 > => {
 	const find_modules_result = await find_tasks(input_paths, task_root_paths);
 	if (!find_modules_result.ok) return find_modules_result;
-	return load_modules(find_modules_result.source_ids_by_input_path, (id) =>
+	return load_modules(find_modules_result.path_ids_by_input_path, (id) =>
 		load_task_module(id, task_root_paths),
 	);
 };
@@ -57,16 +57,16 @@ export const load_task_modules = async (
 // TODO BLOCK
 export interface Found_Task {
 	input_path: Input_Path;
-	id: Source_Id;
-	task_root_path: string; // TODO BLOCK type `Path_Id`?
+	id: Path_Id;
+	task_root_path: Path_Id;
 }
 
 export type Find_Tasks_Result = Result<
 	{
 		// TODO BLOCK should these be bundled into a single data structure?
-		source_ids_by_input_path: Map<Input_Path, Source_Id[]>;
+		path_ids_by_input_path: Map<Input_Path, Path_Id[]>;
 		path_data_by_input_path: Map<Input_Path, Path_Data>;
-		possible_source_ids_by_input_path: Map<Input_Path, Source_Id[]>;
+		possible_path_ids_by_input_path: Map<Input_Path, Path_Id[]>;
 	},
 	Find_Modules_Failure
 >;
@@ -79,7 +79,7 @@ export type Find_Modules_Failure =
 	  }
 	| {
 			type: 'input_directories_with_no_files';
-			source_ids_by_input_path: Map<Input_Path, Source_Id[]>;
+			path_ids_by_input_path: Map<Input_Path, Path_Id[]>;
 			path_data_by_input_path: Map<Input_Path, Path_Data>;
 			input_directories_with_no_files: Input_Path[];
 			reasons: string[];
@@ -98,9 +98,9 @@ export const find_tasks = async (
 
 	// Check which extension variation works - if it's a directory, prefer others first!
 	const timing_to_resolve_input_paths = timings?.start('resolve input paths');
-	const {path_data_by_input_path, unmapped_input_paths, possible_source_ids_by_input_path} =
+	const {path_data_by_input_path, unmapped_input_paths, possible_path_ids_by_input_path} =
 		await resolve_input_paths(input_paths, (input_path) =>
-			get_possible_source_ids(
+			get_possible_path_ids(
 				input_path,
 				[TASK_FILE_SUFFIX_TS, TASK_FILE_SUFFIX_JS],
 				task_root_paths,
@@ -129,8 +129,8 @@ export const find_tasks = async (
 
 	// Find all of the files for any directories.
 	const timing_to_search_fs = timings?.start('find files');
-	const {source_ids_by_input_path, input_directories_with_no_files} =
-		await load_source_ids_by_input_path(path_data_by_input_path, (id) =>
+	const {path_ids_by_input_path, input_directories_with_no_files} =
+		await load_path_ids_by_input_path(path_data_by_input_path, (id) =>
 			search_fs(id, {filter: (path) => is_task_path(path)}),
 		);
 	timing_to_search_fs?.();
@@ -141,7 +141,7 @@ export const find_tasks = async (
 			ok: false,
 			type: 'input_directories_with_no_files',
 			path_data_by_input_path,
-			source_ids_by_input_path,
+			path_ids_by_input_path,
 			input_directories_with_no_files,
 			reasons: input_directories_with_no_files.map((input_path) =>
 				red(
@@ -156,8 +156,8 @@ export const find_tasks = async (
 
 	return {
 		ok: true,
-		source_ids_by_input_path,
+		path_ids_by_input_path,
 		path_data_by_input_path,
-		possible_source_ids_by_input_path,
+		possible_path_ids_by_input_path,
 	};
 };

@@ -104,9 +104,8 @@ export const invoke_task = async (
 		// The input path matches a file, so load and run it.
 
 		// Try to load the task module.
-		const load_modules_result = await load_modules(
-			find_tasks_result.source_ids_by_input_path,
-			(id) => load_task_module(id, task_root_paths),
+		const load_modules_result = await load_modules(find_tasks_result.path_ids_by_input_path, (id) =>
+			load_task_module(id, task_root_paths),
 		);
 		if (load_modules_result.ok) {
 			// We found a task module. Run it!
@@ -143,7 +142,7 @@ export const invoke_task = async (
 			await log_tasks(
 				log,
 				print_path(path_data.id),
-				find_tasks_result.source_ids_by_input_path,
+				find_tasks_result.path_ids_by_input_path,
 				task_root_paths,
 			);
 		} else if (is_gro_id(path_data.id)) {
@@ -151,7 +150,7 @@ export const invoke_task = async (
 			await log_tasks(
 				log,
 				print_path_or_gro_path(path_data.id),
-				find_tasks_result.source_ids_by_input_path,
+				find_tasks_result.path_ids_by_input_path,
 				task_root_paths,
 			);
 		} else {
@@ -168,7 +167,7 @@ export const invoke_task = async (
 			await log_tasks(
 				log,
 				print_path(path_data.id),
-				find_tasks_result.source_ids_by_input_path,
+				find_tasks_result.path_ids_by_input_path,
 				task_root_paths,
 				!gro_dir_find_modules_result.ok,
 			);

@@ -4,7 +4,8 @@ import type {Result} from '@ryanatkn/belt/result.js';
 import {print_error} from '@ryanatkn/belt/print.js';
 
 import {Input_Path} from './input_path.js';
-import {paths_from_id, print_path, type Source_Id} from './paths.js';
+import {paths_from_id, print_path} from './paths.js';
+import type {Path_Id} from './path.js';
 
 export interface Module_Meta<T_Module extends Record<string, any> = Record<string, any>> {
 	id: string;
@@ -50,16 +51,16 @@ export const load_modules = async <
 	Module_Type extends Record<string, any>,
 	T_Module_Meta extends Module_Meta<Module_Type>,
 >(
-	source_ids_by_input_path: Map<Input_Path, Source_Id[]>, // TODO maybe make this a flat array and remove `input_path`?
-	load_module_by_id: (source_id: Source_Id) => Promise<Load_Module_Result<T_Module_Meta>>,
+	path_ids_by_input_path: Map<Input_Path, Path_Id[]>, // TODO maybe make this a flat array and remove `input_path`?
+	load_module_by_id: (path_id: Path_Id) => Promise<Load_Module_Result<T_Module_Meta>>,
 	timings?: Timings,
 ): Promise<Load_Modules_Result<T_Module_Meta>> => {
 	const timing_to_load_modules = timings?.start('load modules');
 	const modules: T_Module_Meta[] = [];
 	const load_module_failures: Load_Module_Failure[] = [];
 	const reasons: string[] = [];
-	for (const [input_path, source_ids] of source_ids_by_input_path) {
-		for (const id of source_ids) {
+	for (const [input_path, path_ids] of path_ids_by_input_path) {
+		for (const id of path_ids) {
 			const result = await load_module_by_id(id); // eslint-disable-line no-await-in-loop
 			if (result.ok) {
 				modules.push(result.mod);

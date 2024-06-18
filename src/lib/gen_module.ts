@@ -6,13 +6,13 @@ import {type Module_Meta, load_module, type Load_Module_Result} from './modules.
 import type {Gen} from './gen.js';
 import {
 	Input_Path,
-	get_possible_source_ids,
-	load_source_ids_by_input_path,
+	get_possible_path_ids,
+	load_path_ids_by_input_path,
 	resolve_input_paths,
 } from './input_path.js';
-import {Source_Id, paths, paths_from_id, print_path_or_gro_path} from './paths.js';
+import {paths, paths_from_id, print_path_or_gro_path} from './paths.js';
 import {search_fs} from './search_fs.js';
-import type {Path_Data} from './path.js';
+import type {Path_Data, Path_Id} from './path.js';
 
 export const GEN_FILE_PATTERN_TEXT = 'gen';
 export const GEN_FILE_PATTERN = '.' + GEN_FILE_PATTERN_TEXT + '.';
@@ -63,9 +63,9 @@ export const load_gen_module = async (id: string): Promise<Load_Module_Result<Ge
 export type Find_Genfiles_Result = Result<
 	{
 		// TODO BLOCK should these be bundled into a single data structure?
-		source_ids_by_input_path: Map<Input_Path, Source_Id[]>;
+		path_ids_by_input_path: Map<Input_Path, Path_Id[]>;
 		path_data_by_input_path: Map<Input_Path, Path_Data>;
-		possible_source_ids_by_input_path: Map<Input_Path, Source_Id[]>;
+		possible_path_ids_by_input_path: Map<Input_Path, Path_Id[]>;
 	},
 	Find_Genfiles_Failure
 >;
@@ -78,7 +78,7 @@ export type Find_Genfiles_Failure =
 	  }
 	| {
 			type: 'input_directories_with_no_files';
-			source_ids_by_input_path: Map<Input_Path, Source_Id[]>;
+			path_ids_by_input_path: Map<Input_Path, Path_Id[]>;
 			path_data_by_input_path: Map<Input_Path, Path_Data>;
 			input_directories_with_no_files: Input_Path[];
 			reasons: string[];
@@ -92,15 +92,15 @@ export const find_genfiles = async (
 	timings?: Timings,
 ): Promise<Find_Genfiles_Result> => {
 	// TODO improve this API to allow config, maybe just a simple `gen` filter function, so the user could return a Rollup pluginutils filter,
-	// gets a little tricky with the `get_possible_source_ids` API usage, which would probably need to change
+	// gets a little tricky with the `get_possible_path_ids` API usage, which would probably need to change
 	const extensions: string[] = [GEN_FILE_PATTERN, GEN_SCHEMA_FILE_PATTERN];
 	const root_dirs: string[] = [];
 
 	// Check which extension variation works - if it's a directory, prefer others first!
 	const timing_to_resolve_input_paths = timings?.start('resolve input paths');
-	const {path_data_by_input_path, unmapped_input_paths, possible_source_ids_by_input_path} =
+	const {path_data_by_input_path, unmapped_input_paths, possible_path_ids_by_input_path} =
 		await resolve_input_paths(input_paths, (input_path) =>
-			get_possible_source_ids(input_path, extensions, root_dirs),
+			get_possible_path_ids(input_path, extensions, root_dirs),
 		);
 	console.log('[find_modules]', path_data_by_input_path);
 	timing_to_resolve_input_paths?.();
@@ -125,8 +125,8 @@ export const find_genfiles = async (
 
 	// Find all of the files for any directories.
 	const timing_to_search_fs = timings?.start('find files');
-	const {source_ids_by_input_path, input_directories_with_no_files} =
-		await load_source_ids_by_input_path(path_data_by_input_path, (id) =>
+	const {path_ids_by_input_path, input_directories_with_no_files} =
+		await load_path_ids_by_input_path(path_data_by_input_path, (id) =>
 			search_fs(id, {filter: (path) => extensions.some((e) => path.includes(e))}),
 		);
 	timing_to_search_fs?.();
@@ -137,7 +137,7 @@ export const find_genfiles = async (
 			ok: false,
 			type: 'input_directories_with_no_files',
 			path_data_by_input_path,
-			source_ids_by_input_path,
+			path_ids_by_input_path,
 			input_directories_with_no_files,
 			reasons: input_directories_with_no_files.map((input_path) =>
 				red(
@@ -152,8 +152,8 @@ export const find_genfiles = async (
 
 	return {
 		ok: true,
-		source_ids_by_input_path,
+		path_ids_by_input_path,
 		path_data_by_input_path,
-		possible_source_ids_by_input_path,
+		possible_path_ids_by_input_path,
 	};
 };

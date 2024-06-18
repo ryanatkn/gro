@@ -15,8 +15,8 @@ export const esbuild_plugin_sveltekit_local_imports = (): esbuild.Plugin => ({
 		build.onResolve({filter: /^(\/|\.)/u}, async (args) => {
 			const {path, importer} = args;
 			if (!importer) return {path};
-			const {source_id, namespace} = await resolve_specifier(path, dirname(importer));
-			return {path: source_id, namespace}; // `namespace` may be `undefined`, but esbuild needs the absolute path for json etc
+			const {path_id, namespace} = await resolve_specifier(path, dirname(importer));
+			return {path: path_id, namespace}; // `namespace` may be `undefined`, but esbuild needs the absolute path for json etc
 		});
 		build.onLoad({filter: /.*/u, namespace: 'sveltekit_local_imports_ts'}, async ({path}) => ({
 			contents: await readFile(path),

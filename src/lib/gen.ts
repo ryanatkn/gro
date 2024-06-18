@@ -4,7 +4,8 @@ import {mkdir, readFile, writeFile} from 'node:fs/promises';
 import {z} from 'zod';
 
 import {gen_module_meta, to_gen_module_type} from './gen_module.js';
-import {print_path, type Source_Id} from './paths.js';
+import {print_path} from './paths.js';
+import type {Path_Id} from './path.js';
 import type {Gro_Config} from './config.js';
 import {exists} from './fs.js';
 import type {Parsed_Sveltekit_Config} from './sveltekit_config.js';
@@ -70,14 +71,14 @@ export type Gen_Module_Result_Failure = {
 	elapsed: number;
 };
 
-export const to_gen_result = (origin_id: Source_Id, raw_result: Raw_Gen_Result): Gen_Result => {
+export const to_gen_result = (origin_id: Path_Id, raw_result: Raw_Gen_Result): Gen_Result => {
 	return {
 		origin_id,
 		files: to_gen_files(origin_id, raw_result),
 	};
 };
 
-const to_gen_files = (origin_id: Source_Id, raw_result: Raw_Gen_Result): Gen_File[] => {
+const to_gen_files = (origin_id: Path_Id, raw_result: Raw_Gen_Result): Gen_File[] => {
 	if (raw_result === null) {
 		return [];
 	} else if (typeof raw_result === 'string') {
@@ -90,13 +91,13 @@ const to_gen_files = (origin_id: Source_Id, raw_result: Raw_Gen_Result): Gen_Fil
 	return [to_gen_file(origin_id, raw_result)];
 };
 
-const to_gen_file = (origin_id: Source_Id, raw_gen_file: Raw_Gen_File): Gen_File => {
+const to_gen_file = (origin_id: Path_Id, raw_gen_file: Raw_Gen_File): Gen_File => {
 	const {content, filename, format = true} = raw_gen_file;
 	const id = to_output_file_id(origin_id, filename);
 	return {id, content, origin_id, format};
 };
 
-const to_output_file_id = (origin_id: Source_Id, raw_file_name: string | undefined): string => {
+const to_output_file_id = (origin_id: Path_Id, raw_file_name: string | undefined): string => {
 	if (raw_file_name === '') {
 		throw Error(`Output file name cannot be an empty string`);
 	}
