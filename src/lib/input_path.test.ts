@@ -135,56 +135,38 @@ test('load_path_ids_by_input_path', async () => {
 		'fake/nomatches': new Map([['fake/nomatches', {isDirectory: () => true}]]),
 	};
 	const result = await load_path_ids_by_input_path(
-		new Map([
-			[
-				'fake/test1.ext.ts',
-				{
-					id: 'fake/test1.ext.ts',
-					is_directory: false,
-					input_path: 'fake/test1.ext.ts',
-					root_dir: null,
-					possible_paths: [],
-				},
-			],
-			[
-				'fake/test2',
-				{
-					id: 'fake/test2.ext.ts',
-					is_directory: false,
-					input_path: 'fake/test2',
-					root_dir: null,
-					possible_paths: [],
-				},
-			],
-			[
-				'fake/test3',
-				{
-					id: 'fake/test3',
-					is_directory: true,
-					input_path: 'fake/test3',
-					root_dir: null,
-					possible_paths: [],
-				},
-			],
-			[
-				'fake/',
-				{id: 'fake/', is_directory: true, input_path: 'fake/', root_dir: null, possible_paths: []},
-			],
-			[
-				'fake',
-				{id: 'fake', is_directory: true, input_path: 'fake', root_dir: null, possible_paths: []},
-			],
-			[
-				'fake/nomatches',
-				{
-					id: 'fake/nomatches',
-					is_directory: true,
-					input_path: 'fake/nomatches',
-					root_dir: null,
-					possible_paths: [],
-				},
-			],
-		]),
+		[
+			{
+				id: 'fake/test1.ext.ts',
+				is_directory: false,
+				input_path: 'fake/test1.ext.ts',
+				root_dir: null,
+				possible_paths: [],
+			},
+			{
+				id: 'fake/test2.ext.ts',
+				is_directory: false,
+				input_path: 'fake/test2',
+				root_dir: null,
+				possible_paths: [],
+			},
+			{
+				id: 'fake/test3',
+				is_directory: true,
+				input_path: 'fake/test3',
+				root_dir: null,
+				possible_paths: [],
+			},
+			{id: 'fake/', is_directory: true, input_path: 'fake/', root_dir: null, possible_paths: []},
+			{id: 'fake', is_directory: true, input_path: 'fake', root_dir: null, possible_paths: []},
+			{
+				id: 'fake/nomatches',
+				is_directory: true,
+				input_path: 'fake/nomatches',
+				root_dir: null,
+				possible_paths: [],
+			},
+		],
 		async (id) => test_files[id],
 	);
 	assert.equal(result, {

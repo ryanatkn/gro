@@ -18,14 +18,14 @@ import {print_path} from './paths.js';
 export const log_tasks = async (
 	log: Logger,
 	dir_label: string,
-	input_path_data_by_input_path: Map<Input_Path, Resolved_Input_Path>,
+	resolved_input_paths: Resolved_Input_Path[],
 	task_root_paths: string[],
 	log_intro = true,
 ): Promise<void> => {
-	const input_path_datas = Array.from(input_path_data_by_input_path.values());
+	const input_path_datas = Array.from(resolved_input_paths.values());
 	if (input_path_datas.length) {
 		// Load all of the tasks so we can log their summary, and args for the `--help` flag.
-		const load_modules_result = await load_modules(input_path_data_by_input_path, (id) =>
+		const load_modules_result = await load_modules(resolved_input_paths, (id) =>
 			load_task_module(id, task_root_paths),
 		);
 		if (!load_modules_result.ok) {
@@ -57,6 +57,7 @@ export const log_tasks = async (
 	}
 };
 
+// TODO BLOCK probably rewrite this
 export const log_gro_package_tasks = async (
 	input_path: Input_Path,
 	task_root_paths: string[],
@@ -66,13 +67,12 @@ export const log_gro_package_tasks = async (
 	const gro_dir_find_tasks_result = await find_tasks([gro_dir_input_path], task_root_paths);
 	console.log(`[log_gro_package_tasks] gro_dir_find_tasks_result`, gro_dir_find_tasks_result);
 	if (gro_dir_find_tasks_result.ok) {
-		const gro_path_data =
-			gro_dir_find_tasks_result.input_path_data_by_input_path.get(gro_dir_input_path)!;
+		const gro_path_data = gro_dir_find_tasks_result.by_input_path.get(gro_dir_input_path)!;
 		// Log the Gro matches.
 		await log_tasks(
 			log,
 			print_path(gro_path_data.id),
-			gro_dir_find_tasks_result.input_path_data_by_input_path,
+			gro_dir_find_tasks_result.resolved_input_paths,
 			task_root_paths,
 		);
 	}

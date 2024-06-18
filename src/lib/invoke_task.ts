@@ -68,7 +68,7 @@ export const invoke_task = async (
 			if (
 				IS_THIS_GRO ||
 				// this is null safe because of the failure type
-				is_gro_id(find_tasks_result.input_path_data_by_input_path.get(input_path)!.id)
+				is_gro_id(find_tasks_result.by_input_path.get(input_path)!.id)
 			) {
 				// If the directory is inside Gro, just log the errors.
 				log_error_reasons(log, find_tasks_result.reasons);
@@ -98,15 +98,15 @@ export const invoke_task = async (
 	}
 
 	// Found a match either in the current working directory or Gro's directory.
-	const input_path_data = find_tasks_result.input_path_data_by_input_path.get(input_path)!; // this is null safe because result is ok
+	if (find_tasks_result.resolved_input_paths.length !== 1) throw Error('expected one input path'); // we run only one task at a time
+	const resolved_input_path = find_tasks_result.resolved_input_paths[0];
 
-	if (!input_path_data.is_directory) {
+	if (!resolved_input_path.is_directory) {
 		// The input path matches a file, so load and run it.
 
 		// Try to load the task module.
-		const load_modules_result = await load_modules(
-			find_tasks_result.input_path_data_by_input_path,
-			(id) => load_task_module(id, task_root_paths),
+		const load_modules_result = await load_modules(find_tasks_result.resolved_input_paths, (id) =>
+			load_task_module(id, task_root_paths),
 		);
 		if (load_modules_result.ok) {
 			// We found a task module. Run it!
@@ -142,16 +142,16 @@ export const invoke_task = async (
 			// Is the Gro directory the same as the cwd? Log the matching files.
 			await log_tasks(
 				log,
-				print_path(input_path_data.id),
-				find_tasks_result.input_path_data_by_input_path,
+				print_path(resolved_input_path.id),
+				find_tasks_result.resolved_input_paths,
 				task_root_paths,
 			);
-		} else if (is_gro_id(input_path_data.id)) {
+		} else if (is_gro_id(resolved_input_path.id)) {
 			// Does the Gro directory contain the matching files? Log them.
 			await log_tasks(
 				log,
-				print_path(input_path_data.id),
-				find_tasks_result.input_path_data_by_input_path,
+				print_path(resolved_input_path.id),
+				find_tasks_result.resolved_input_paths,
 				task_root_paths,
 			);
 		} else {
@@ -167,8 +167,8 @@ export const invoke_task = async (
 			// Then log the current working directory matches.
 			await log_tasks(
 				log,
-				print_path(input_path_data.id),
-				find_tasks_result.input_path_data_by_input_path,
+				print_path(resolved_input_path.id),
+				find_tasks_result.resolved_input_paths,
 				task_root_paths,
 				!gro_dir_find_modules_result.ok,
 			);

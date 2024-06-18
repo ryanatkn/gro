@@ -113,11 +113,11 @@ export const resolve_input_paths = async (
 	root_dirs: Path_Id[],
 	extensions: string[],
 ): Promise<{
-	input_path_data_by_input_path: Map<Input_Path, Resolved_Input_Path>;
+	resolved_input_paths: Resolved_Input_Path[];
 	unmapped_input_paths: Input_Path[];
 }> => {
 	console.log(`[resolve_input_paths]`, input_paths);
-	const input_path_data_by_input_path = new Map<Input_Path, Resolved_Input_Path>();
+	const resolved_input_paths: Resolved_Input_Path[] = [];
 	const unmapped_input_paths: Input_Path[] = [];
 	const possible_paths_by_input_path = new Map<Input_Path, Possible_Path[]>();
 	for (const input_path of input_paths) {
@@ -141,7 +141,7 @@ export const resolve_input_paths = async (
 		const found = found_file_data || found_dir_data;
 		console.log(`found`, found);
 		if (found) {
-			input_path_data_by_input_path.set(input_path, {
+			resolved_input_paths.push({
 				input_path,
 				id: found[0].id,
 				is_directory: found[0].is_directory,
@@ -153,7 +153,7 @@ export const resolve_input_paths = async (
 		}
 	}
 	return {
-		input_path_data_by_input_path,
+		resolved_input_paths,
 		unmapped_input_paths,
 	};
 };
@@ -164,7 +164,7 @@ export const resolve_input_paths = async (
  * De-dupes source ids.
  */
 export const load_path_ids_by_input_path = async (
-	input_path_data_by_input_path: Map<Input_Path, Resolved_Input_Path>,
+	resolved_input_paths: Resolved_Input_Path[],
 	custom_search_fs = search_fs,
 ): Promise<{
 	path_ids_by_input_path: Map<Input_Path, Path_Id[]>;
@@ -174,9 +174,9 @@ export const load_path_ids_by_input_path = async (
 	const input_directories_with_no_files: Input_Path[] = [];
 	const existing_path_ids = new Set<Path_Id>();
 	// TODO parallelize but would need to de-dupe and retain order
-	for (const [input_path, path_data] of input_path_data_by_input_path) {
-		const {id} = path_data;
-		if (path_data.is_directory) {
+	for (const resolved_input_path of resolved_input_paths) {
+		const {input_path, id, is_directory} = resolved_input_path;
+		if (is_directory) {
 			const files = await custom_search_fs(id, {files_only: false}); // eslint-disable-line no-await-in-loop
 			if (files.size) {
 				const path_ids: Path_Id[] = [];

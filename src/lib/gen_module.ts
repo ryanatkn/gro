@@ -64,7 +64,8 @@ export type Find_Genfiles_Result = Result<
 	{
 		// TODO BLOCK should these be bundled into a single data structure?
 		path_ids_by_input_path: Map<Input_Path, Path_Id[]>;
-		input_path_data_by_input_path: Map<Input_Path, Resolved_Input_Path>;
+		resolved_input_paths: Resolved_Input_Path[];
+		by_input_path: Map<Input_Path, Resolved_Input_Path>;
 	},
 	Find_Genfiles_Failure
 >;
@@ -72,14 +73,16 @@ export type Find_Genfiles_Failure =
 	| {
 			type: 'unmapped_input_paths';
 			unmapped_input_paths: Input_Path[];
-			input_path_data_by_input_path: Map<Input_Path, Resolved_Input_Path>;
+			resolved_input_paths: Resolved_Input_Path[];
+			by_input_path: Map<Input_Path, Resolved_Input_Path>;
 			reasons: string[];
 	  }
 	| {
 			type: 'input_directories_with_no_files';
 			input_directories_with_no_files: Input_Path[];
 			path_ids_by_input_path: Map<Input_Path, Path_Id[]>;
-			input_path_data_by_input_path: Map<Input_Path, Resolved_Input_Path>;
+			resolved_input_paths: Resolved_Input_Path[];
+			by_input_path: Map<Input_Path, Resolved_Input_Path>;
 			reasons: string[];
 	  };
 
@@ -97,13 +100,15 @@ export const find_genfiles = async (
 
 	// Check which extension variation works - if it's a directory, prefer others first!
 	const timing_to_resolve_input_paths = timings?.start('resolve input paths');
-	const {input_path_data_by_input_path, unmapped_input_paths} = await resolve_input_paths(
+	const {resolved_input_paths, unmapped_input_paths} = await resolve_input_paths(
 		input_paths,
 		root_dirs,
 		extensions,
 	);
-	console.log('[find_modules]', input_path_data_by_input_path);
+	console.log('[find_modules]', resolved_input_paths);
 	timing_to_resolve_input_paths?.();
+
+	const by_input_path = new Map(resolved_input_paths.map((r) => [r.input_path, r]));
 
 	// Error if any input path could not be mapped.
 	if (unmapped_input_paths.length) {
@@ -111,7 +116,8 @@ export const find_genfiles = async (
 			ok: false,
 			type: 'unmapped_input_paths',
 			unmapped_input_paths,
-			input_path_data_by_input_path,
+			resolved_input_paths,
+			by_input_path,
 			reasons: unmapped_input_paths.map((input_path) =>
 				red(`Input path ${print_path(input_path)} cannot be mapped to a file or directory.`),
 			),
@@ -121,7 +127,7 @@ export const find_genfiles = async (
 	// Find all of the files for any directories.
 	const timing_to_search_fs = timings?.start('find files');
 	const {path_ids_by_input_path, input_directories_with_no_files} =
-		await load_path_ids_by_input_path(input_path_data_by_input_path, (id) =>
+		await load_path_ids_by_input_path(resolved_input_paths, (id) =>
 			search_fs(id, {filter: (path) => extensions.some((e) => path.includes(e))}),
 		);
 	timing_to_search_fs?.();
@@ -133,11 +139,12 @@ export const find_genfiles = async (
 			type: 'input_directories_with_no_files',
 			input_directories_with_no_files,
 			path_ids_by_input_path,
-			input_path_data_by_input_path,
+			resolved_input_paths,
+			by_input_path,
 			reasons: input_directories_with_no_files.map((input_path) =>
 				red(
 					`Input directory ${print_path(
-						input_path_data_by_input_path.get(input_path)!.id,
+						by_input_path.get(input_path)!.id,
 					)} contains no matching files.`,
 				),
 			),
@@ -147,6 +154,7 @@ export const find_genfiles = async (
 	return {
 		ok: true,
 		path_ids_by_input_path,
-		input_path_data_by_input_path,
+		resolved_input_paths,
+		by_input_path,
 	};
 };
