@@ -198,6 +198,7 @@ export const package_json = {
 			default: './dist/resolve_specifier.js',
 			types: './dist/resolve_specifier.d.ts',
 		},
+		'./resolve.task.js': {default: './dist/resolve.task.js', types: './dist/resolve.task.d.ts'},
 		'./run_gen.js': {default: './dist/run_gen.js', types: './dist/run_gen.d.ts'},
 		'./run_task.js': {default: './dist/run_task.js', types: './dist/run_task.d.ts'},
 		'./run.task.js': {default: './dist/run.task.js', types: './dist/run.task.d.ts'},
@@ -767,6 +768,13 @@ export const src_json = {
 			declarations: [
 				{name: 'Resolved_Specifier', kind: 'type'},
 				{name: 'resolve_specifier', kind: 'function'},
+			],
+		},
+		'./resolve.task.js': {
+			path: 'resolve.task.ts',
+			declarations: [
+				{name: 'Args', kind: 'variable'},
+				{name: 'task', kind: 'variable'},
 			],
 		},
 		'./run_gen.js': {

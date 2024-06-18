@@ -346,6 +346,10 @@
       "default": "./dist/resolve_specifier.js",
       "types": "./dist/resolve_specifier.d.ts"
     },
+    "./resolve.task.js": {
+      "default": "./dist/resolve.task.js",
+      "types": "./dist/resolve.task.d.ts"
+    },
     "./run_gen.js": {
       "default": "./dist/run_gen.js",
       "types": "./dist/run_gen.d.ts"
