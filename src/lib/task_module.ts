@@ -45,7 +45,7 @@ export const load_task_modules = async (
 > => {
 	const find_modules_result = await find_tasks(input_paths, task_root_paths);
 	if (!find_modules_result.ok) return find_modules_result;
-	return load_modules(find_modules_result.path_ids_by_input_path, (id) =>
+	return load_modules(find_modules_result.input_path_data_by_input_path, (id) =>
 		load_task_module(id, task_root_paths),
 	);
 };
@@ -61,7 +61,7 @@ export type Find_Tasks_Result = Result<
 	{
 		// TODO BLOCK should these be bundled into a single data structure?
 		path_ids_by_input_path: Map<Input_Path, Path_Id[]>;
-		input_path_data_by_input_path: Map<Input_Path, Input_Path_Data>;
+		input_path_data_by_input_path: Map<Input_Path, Input_Path_Data>; // TODO BLOCK probably add `input_path_datas` and just use it
 		possible_paths_by_input_path: Map<Input_Path, Possible_Path[]>;
 	},
 	Find_Modules_Failure

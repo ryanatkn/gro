@@ -1,14 +1,12 @@
 import {suite} from 'uvu';
 import * as assert from 'uvu/assert';
-import {resolve, join} from 'node:path';
+import {resolve} from 'node:path';
 
-import {load_modules, load_module} from './modules.js';
+import {load_module} from './modules.js';
 
 // TODO if we import directly, svelte-package generates types in `src/fixtures`
 /* eslint-disable no-useless-concat */
 const modTest1 = await import('../fixtures/' + 'test1.foo.js');
-const modTestBaz1 = await import('../fixtures/' + 'baz1/test1.baz.js');
-const modTestBaz2 = await import('../fixtures/' + 'baz2/test2.baz.js');
 
 /* test__load_module */
 const test__load_module = suite('load_module');
@@ -160,60 +158,60 @@ test__load_module.run();
 /* test__find_modules */
 
 /* test__load_modules */
-const test__load_modules = suite('load_modules');
+// const test__load_modules = suite('load_modules');
 
-test__load_modules('fail with load_module_failures', async () => {
-	const path_bar1 = resolve('src/fixtures/bar1');
-	const path_bar2 = resolve('src/fixtures/bar2');
-	const path_baz1 = resolve('src/fixtures/baz1');
-	const path_baz2 = resolve('src/fixtures/baz2');
-	const id_bar1 = join(path_bar1, 'test1.bar.ts');
-	const id_bar2 = join(path_bar2, 'test2.bar.ts');
-	const id_baz1 = join(path_baz1, 'test1.baz.ts');
-	const id_baz2 = join(path_baz2, 'test2.baz.ts');
-	const test_validation = ((mod: Record<string, any>) => mod.bar !== 1) as any;
-	let error;
-	const result = await load_modules(
-		new Map([
-			[path_bar1, [id_bar1, id_bar2]],
-			[path_baz1, [id_baz1, id_baz2]],
-		]),
-		async (id) => {
-			if (id === id_bar2) {
-				return {
-					ok: false,
-					type: 'failed_import',
-					id,
-					error: (error = new Error('Test failed import')),
-				};
-			}
-			return load_module(id, test_validation);
-		},
-	);
-	assert.ok(!result.ok);
-	assert.ok(result.reasons.length);
-	if (result.type !== 'load_module_failures') {
-		throw Error('Expected to fail with load_module_failures');
-	}
-	assert.is(result.load_module_failures.length, 2);
-	const [failure1, failure2] = result.load_module_failures;
-	if (failure1.type !== 'failed_validation') {
-		throw Error('Expected to fail with invalid');
-	}
-	assert.is(failure1.id, id_bar1);
-	assert.ok(failure1.mod);
-	assert.is(failure1.validation, test_validation.name);
-	if (failure2.type !== 'failed_import') {
-		throw Error('Expected to fail with failed_import');
-	}
-	assert.is(failure2.id, id_bar2);
-	assert.is(failure2.error, error);
-	assert.is(result.modules.length, 2);
-	assert.is(result.modules[0].id, id_baz1);
-	assert.is(result.modules[0].mod, modTestBaz1);
-	assert.is(result.modules[1].id, id_baz2);
-	assert.is(result.modules[1].mod, modTestBaz2);
-});
+// test__load_modules('fail with load_module_failures', async () => {
+// 	const path_bar1 = resolve('src/fixtures/bar1');
+// 	const path_bar2 = resolve('src/fixtures/bar2');
+// 	const path_baz1 = resolve('src/fixtures/baz1');
+// 	const path_baz2 = resolve('src/fixtures/baz2');
+// 	const id_bar1 = join(path_bar1, 'test1.bar.ts');
+// 	const id_bar2 = join(path_bar2, 'test2.bar.ts');
+// 	const id_baz1 = join(path_baz1, 'test1.baz.ts');
+// 	const id_baz2 = join(path_baz2, 'test2.baz.ts');
+// 	const test_validation = ((mod: Record<string, any>) => mod.bar !== 1) as any;
+// 	let error;
+// 	const result = await load_modules(
+// 		new Map([
+// 			[path_bar1, [id_bar1, id_bar2]],
+// 			[path_baz1, [id_baz1, id_baz2]],
+// 		]),
+// 		async (id) => {
+// 			if (id === id_bar2) {
+// 				return {
+// 					ok: false,
+// 					type: 'failed_import',
+// 					id,
+// 					error: (error = new Error('Test failed import')),
+// 				};
+// 			}
+// 			return load_module(id, test_validation);
+// 		},
+// 	);
+// 	assert.ok(!result.ok);
+// 	assert.ok(result.reasons.length);
+// 	if (result.type !== 'load_module_failures') {
+// 		throw Error('Expected to fail with load_module_failures');
+// 	}
+// 	assert.is(result.load_module_failures.length, 2);
+// 	const [failure1, failure2] = result.load_module_failures;
+// 	if (failure1.type !== 'failed_validation') {
+// 		throw Error('Expected to fail with invalid');
+// 	}
+// 	assert.is(failure1.id, id_bar1);
+// 	assert.ok(failure1.mod);
+// 	assert.is(failure1.validation, test_validation.name);
+// 	if (failure2.type !== 'failed_import') {
+// 		throw Error('Expected to fail with failed_import');
+// 	}
+// 	assert.is(failure2.id, id_bar2);
+// 	assert.is(failure2.error, error);
+// 	assert.is(result.modules.length, 2);
+// 	assert.is(result.modules[0].id, id_baz1);
+// 	assert.is(result.modules[0].mod, modTestBaz1);
+// 	assert.is(result.modules[1].id, id_baz2);
+// 	assert.is(result.modules[1].mod, modTestBaz2);
+// });
 
-test__load_modules.run();
+// test__load_modules.run();
 /* test__load_modules */

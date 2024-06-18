@@ -3,7 +3,7 @@ import {Unreachable_Error} from '@ryanatkn/belt/error.js';
 import type {Result} from '@ryanatkn/belt/result.js';
 import {print_error} from '@ryanatkn/belt/print.js';
 
-import {Input_Path} from './input_path.js';
+import {Input_Path, type Input_Path_Data} from './input_path.js';
 import {print_path} from './paths.js';
 import type {Path_Id} from './path.js';
 
@@ -57,7 +57,7 @@ export const load_modules = async <
 	Module_Type extends Record<string, any>,
 	T_Module_Meta extends Module_Meta<Module_Type>,
 >(
-	path_ids_by_input_path: Map<Input_Path, Path_Id[]>, // TODO maybe make this a flat array and remove `input_path`?
+	input_path_data_by_input_path: Map<Input_Path, Input_Path_Data>, // TODO maybe make this a flat array and remove `input_path`?
 	load_module_by_id: (path_id: Path_Id) => Promise<Load_Module_Result<T_Module_Meta>>,
 	timings?: Timings,
 ): Promise<Load_Modules_Result<T_Module_Meta>> => {
@@ -65,30 +65,30 @@ export const load_modules = async <
 	const modules: T_Module_Meta[] = [];
 	const load_module_failures: Load_Module_Failure[] = [];
 	const reasons: string[] = [];
-	for (const [input_path, path_ids] of path_ids_by_input_path) {
-		for (const id of path_ids) {
-			const result = await load_module_by_id(id); // eslint-disable-line no-await-in-loop
-			if (result.ok) {
-				modules.push(result.mod);
-			} else {
-				load_module_failures.push(result);
-				switch (result.type) {
-					case 'failed_import': {
-						reasons.push(
-							`Module import ${print_path(id)} failed from input ${print_path(
-								input_path,
-							)}: ${print_error(result.error)}`,
-						);
-						break;
-					}
-					case 'failed_validation': {
-						// TODO try to make this a good error message for the task case
-						reasons.push(`Module ${print_path(id)} failed validation '${result.validation}'.`);
-						break;
-					}
-					default:
-						throw new Unreachable_Error(result);
+	for (const input_path_data of input_path_data_by_input_path.values()) {
+		const result = await load_module_by_id(input_path_data.id); // eslint-disable-line no-await-in-loop
+		if (result.ok) {
+			modules.push(result.mod);
+		} else {
+			load_module_failures.push(result);
+			switch (result.type) {
+				case 'failed_import': {
+					reasons.push(
+						`Module import ${print_path(input_path_data.id)} failed from input ${print_path(
+							input_path_data.input_path,
+						)}: ${print_error(result.error)}`,
+					);
+					break;
 				}
+				case 'failed_validation': {
+					// TODO BLOCK try to make this a good error message for the task case - copy to `load_tasks`? would be less abstracted so yeah let's do it
+					reasons.push(
+						`Module ${print_path(input_path_data.id)} failed validation '${result.validation}'.`,
+					);
+					break;
+				}
+				default:
+					throw new Unreachable_Error(result);
 			}
 		}
 	}

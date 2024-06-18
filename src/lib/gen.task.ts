@@ -46,7 +46,7 @@ export const task: Task<Args> = {
 		}
 		log.info('gen files', Array.from(find_modules_result.path_ids_by_input_path.values()).flat());
 		const load_modules_result = await load_modules(
-			find_modules_result.path_ids_by_input_path,
+			find_modules_result.input_path_data_by_input_path,
 			load_gen_module,
 		);
 		if (!load_modules_result.ok) {

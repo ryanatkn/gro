@@ -12,21 +12,20 @@ import {
 	type Find_Tasks_Result,
 	type Task_Module_Meta,
 } from './task_module.js';
-import {to_gro_input_path, type Input_Path} from './input_path.js';
+import {to_gro_input_path, type Input_Path, type Input_Path_Data} from './input_path.js';
 import {print_path} from './paths.js';
-import type {Path_Id} from './path.js';
 
 export const log_tasks = async (
 	log: Logger,
 	dir_label: string,
-	path_ids_by_input_path: Map<Input_Path, Path_Id[]>,
+	input_path_data_by_input_path: Map<Input_Path, Input_Path_Data>,
 	task_root_paths: string[],
 	log_intro = true,
 ): Promise<void> => {
-	const path_ids = Array.from(path_ids_by_input_path.values()).flat();
-	if (path_ids.length) {
+	const input_path_datas = Array.from(input_path_data_by_input_path.values());
+	if (input_path_datas.length) {
 		// Load all of the tasks so we can log their summary, and args for the `--help` flag.
-		const load_modules_result = await load_modules(path_ids_by_input_path, (id) =>
+		const load_modules_result = await load_modules(input_path_data_by_input_path, (id) =>
 			load_task_module(id, task_root_paths),
 		);
 		if (!load_modules_result.ok) {
@@ -34,8 +33,8 @@ export const log_tasks = async (
 			process.exit(1);
 		}
 		const logged: string[] = [
-			`${log_intro ? '\n\n' : ''}${path_ids.length} task${plural(
-				path_ids.length,
+			`${log_intro ? '\n\n' : ''}${input_path_datas.length} task${plural(
+				input_path_datas.length,
 			)} in ${dir_label}:\n`,
 		];
 		if (log_intro) {
@@ -73,7 +72,7 @@ export const log_gro_package_tasks = async (
 		await log_tasks(
 			log,
 			print_path(gro_path_data.id),
-			gro_dir_find_tasks_result.path_ids_by_input_path,
+			gro_dir_find_tasks_result.input_path_data_by_input_path,
 			task_root_paths,
 		);
 	}
