@@ -79,7 +79,7 @@ test__load_module.run();
 // 	const result = await find_modules(
 // 		[path1, id2],
 // 		(id) => search_fs(id, {files_only: false}),
-// 		(input_path) => get_possible_path_ids(input_path, ['.foo.ts'], []),
+// 		(input_path) => get_possible_paths(input_path, ['.foo.ts'], []),
 // 	);
 // 	assert.ok(result.ok);
 // 	assert.equal(
@@ -120,7 +120,7 @@ test__load_module.run();
 // 			resolve('src/fixtures/failme2'),
 // 		],
 // 		(id) => search_fs(id, {files_only: false}),
-// 		(input_path) => get_possible_path_ids(input_path, ['.foo.ts'], []),
+// 		(input_path) => get_possible_paths(input_path, ['.foo.ts'], []),
 // 	);
 // 	assert.ok(!result.ok);
 // 	assert.ok(result.reasons.length);

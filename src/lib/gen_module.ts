@@ -60,7 +60,7 @@ export type Find_Genfiles_Result = Result<
 		// TODO BLOCK should these be bundled into a single data structure?
 		path_ids_by_input_path: Map<Input_Path, Path_Id[]>;
 		path_data_by_input_path: Map<Input_Path, Path_Data>;
-		possible_path_ids_by_input_path: Map<Input_Path, Path_Id[]>;
+		possible_paths_by_input_path: Map<Input_Path, Path_Id[]>;
 	},
 	Find_Genfiles_Failure
 >;
@@ -87,13 +87,13 @@ export const find_genfiles = async (
 	timings?: Timings,
 ): Promise<Find_Genfiles_Result> => {
 	// TODO improve this API to allow config, maybe just a simple `gen` filter function, so the user could return a Rollup pluginutils filter,
-	// gets a little tricky with the `get_possible_path_ids` API usage, which would probably need to change
+	// gets a little tricky with the `get_possible_paths` API usage, which would probably need to change
 	const extensions: string[] = [GEN_FILE_PATTERN, GEN_SCHEMA_FILE_PATTERN];
 	const root_dirs: string[] = [];
 
 	// Check which extension variation works - if it's a directory, prefer others first!
 	const timing_to_resolve_input_paths = timings?.start('resolve input paths');
-	const {path_data_by_input_path, unmapped_input_paths, possible_path_ids_by_input_path} =
+	const {path_data_by_input_path, unmapped_input_paths, possible_paths_by_input_path} =
 		await resolve_input_paths(input_paths, root_dirs, extensions);
 	console.log('[find_modules]', path_data_by_input_path);
 	timing_to_resolve_input_paths?.();
@@ -147,6 +147,6 @@ export const find_genfiles = async (
 		ok: true,
 		path_ids_by_input_path,
 		path_data_by_input_path,
-		possible_path_ids_by_input_path,
+		possible_paths_by_input_path,
 	};
 };

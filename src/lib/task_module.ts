@@ -6,7 +6,7 @@ import {
 	Input_Path,
 	load_path_ids_by_input_path,
 	resolve_input_paths,
-	type Possible_Path_Id,
+	type Possible_Path,
 } from './input_path.js';
 import {search_fs} from './search_fs.js';
 import type {Result} from '@ryanatkn/belt/result.js';
@@ -60,7 +60,7 @@ export type Find_Tasks_Result = Result<
 		// TODO BLOCK should these be bundled into a single data structure?
 		path_ids_by_input_path: Map<Input_Path, Path_Id[]>;
 		path_data_by_input_path: Map<Input_Path, Path_Data>;
-		possible_path_ids_by_input_path: Map<Input_Path, Possible_Path_Id[]>;
+		possible_paths_by_input_path: Map<Input_Path, Possible_Path[]>;
 	},
 	Find_Modules_Failure
 >;
@@ -99,7 +99,7 @@ export const find_tasks = async (
 		TASK_FILE_SUFFIXES,
 	);
 	console.log('[find_modules] resolved_input_paths', resolved_input_paths);
-	const {path_data_by_input_path, unmapped_input_paths, possible_path_ids_by_input_path} =
+	const {path_data_by_input_path, unmapped_input_paths, possible_paths_by_input_path} =
 		resolved_input_paths;
 	timing_to_resolve_input_paths?.();
 
@@ -152,6 +152,6 @@ export const find_tasks = async (
 		ok: true,
 		path_ids_by_input_path,
 		path_data_by_input_path,
-		possible_path_ids_by_input_path,
+		possible_paths_by_input_path,
 	};
 };

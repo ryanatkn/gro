@@ -6,7 +6,7 @@ import {
 	to_input_path,
 	to_input_paths,
 	load_path_ids_by_input_path,
-	get_possible_path_ids,
+	get_possible_paths,
 } from './input_path.js';
 import type {Path_Stats} from './path.js';
 import {GRO_DIST_DIR, paths} from './paths.js';
@@ -30,10 +30,10 @@ test('to_input_paths', () => {
 	]);
 });
 
-test('get_possible_path_ids with an implicit relative path', () => {
+test('get_possible_paths with an implicit relative path', () => {
 	const input_path = 'src/foo/bar';
 	assert.equal(
-		get_possible_path_ids(
+		get_possible_paths(
 			input_path,
 			[resolve('src/foo'), resolve('src/baz'), resolve('src'), resolve('.')],
 			['.ext.ts'],
@@ -51,33 +51,29 @@ test('get_possible_path_ids with an implicit relative path', () => {
 	);
 });
 
-test('get_possible_path_ids in the gro directory', () => {
+test('get_possible_paths in the gro directory', () => {
 	const input_path = resolve('src/foo/bar');
-	assert.equal(get_possible_path_ids(input_path, [], ['.ext.ts']), [
+	assert.equal(get_possible_paths(input_path, [], ['.ext.ts']), [
 		{id: input_path, root_dir: null},
 		{id: input_path + '.ext.ts', root_dir: null},
 	]);
 });
 
-test('get_possible_path_ids does not repeat the extension', () => {
+test('get_possible_paths does not repeat the extension', () => {
 	const input_path = resolve('src/foo/bar.ext.ts');
-	assert.equal(get_possible_path_ids(input_path, [], ['.ext.ts']), [
+	assert.equal(get_possible_paths(input_path, [], ['.ext.ts']), [{id: input_path, root_dir: null}]);
+});
+
+test('get_possible_paths does not repeat with the same root directory', () => {
+	const input_path = resolve('src/foo/bar.ext.ts');
+	assert.equal(get_possible_paths(input_path, [paths.root, paths.root], ['.ext.ts']), [
 		{id: input_path, root_dir: null},
 	]);
 });
 
-test('get_possible_path_ids does not repeat with the same root directory', () => {
-	const input_path = resolve('src/foo/bar.ext.ts');
-	assert.equal(get_possible_path_ids(input_path, [paths.root, paths.root], ['.ext.ts']), [
-		{id: input_path, root_dir: null},
-	]);
-});
-
-test('get_possible_path_ids implied to be a directory by trailing slash', () => {
+test('get_possible_paths implied to be a directory by trailing slash', () => {
 	const input_path = resolve('src/foo/bar') + '/';
-	assert.equal(get_possible_path_ids(input_path, [], ['.ext.ts']), [
-		{id: input_path, root_dir: null},
-	]);
+	assert.equal(get_possible_paths(input_path, [], ['.ext.ts']), [{id: input_path, root_dir: null}]);
 });
 
 test('load_path_ids_by_input_path', async () => {

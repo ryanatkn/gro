@@ -46,7 +46,7 @@ export const to_input_paths = (
 	root_path?: string,
 ): Input_Path[] => raw_input_paths.map((p) => to_input_path(p, root_path));
 
-export interface Possible_Path_Id {
+export interface Possible_Path {
 	id: Path_Id;
 	root_dir: Path_Id | null;
 }
@@ -55,42 +55,42 @@ export interface Possible_Path_Id {
  * Gets a list of possible source ids for each input path with `extensions`,
  * duplicating each under `root_dirs`.
  * This is first used to fall back to the Gro dir to search for tasks.
- * It's the helper used in implementations of `get_possible_path_ids_for_input_path` below.
+ * It's the helper used in implementations of `get_possible_paths_for_input_path` below.
  */
-export const get_possible_path_ids = (
+export const get_possible_paths = (
 	input_path: Input_Path,
 	root_dirs: Path_Id[],
 	extensions: string[],
-): Possible_Path_Id[] => {
-	const possible_path_ids: Set<Possible_Path_Id> = new Set();
+): Possible_Path[] => {
+	const possible_paths: Set<Possible_Path> = new Set();
 
-	const add_possible_path_ids = (path: string, root_dir: Path_Id | null) => {
+	const add_possible_paths = (path: string, root_dir: Path_Id | null) => {
 		// Specifically for paths to the Gro package dist, optimize by only looking for `.task.js`.
 		if (path.startsWith(GRO_DIST_DIR)) {
-			possible_path_ids.add({
+			possible_paths.add({
 				id: (path.endsWith('/') || path.endsWith(TASK_FILE_SUFFIX_JS)
 					? path
 					: path + TASK_FILE_SUFFIX_JS) as Path_Id,
 				root_dir,
 			});
 		} else {
-			possible_path_ids.add({id: path as Path_Id, root_dir});
+			possible_paths.add({id: path as Path_Id, root_dir});
 			if (!path.endsWith('/') && !extensions.some((e) => path.endsWith(e))) {
 				for (const extension of extensions) {
-					possible_path_ids.add({id: path + extension, root_dir});
+					possible_paths.add({id: path + extension, root_dir});
 				}
 			}
 		}
 	};
 
 	if (isAbsolute(input_path)) {
-		add_possible_path_ids(input_path, null);
+		add_possible_paths(input_path, null);
 	} else {
 		for (const root_dir of root_dirs) {
-			add_possible_path_ids(join(root_dir, input_path), root_dir);
+			add_possible_paths(join(root_dir, input_path), root_dir);
 		}
 	}
-	return Array.from(possible_path_ids);
+	return Array.from(possible_paths);
 };
 
 /**
@@ -105,21 +105,21 @@ export const resolve_input_paths = async (
 ): Promise<{
 	path_data_by_input_path: Map<Input_Path, Path_Data>;
 	unmapped_input_paths: Input_Path[];
-	possible_path_ids_by_input_path: Map<Input_Path, Possible_Path_Id[]>;
+	possible_paths_by_input_path: Map<Input_Path, Possible_Path[]>;
 }> => {
 	console.log(`[resolve_input_paths]`, input_paths);
 	const path_data_by_input_path = new Map<Input_Path, Path_Data>();
 	const unmapped_input_paths: Input_Path[] = [];
-	const possible_path_ids_by_input_path = new Map<Input_Path, Possible_Path_Id[]>();
+	const possible_paths_by_input_path = new Map<Input_Path, Possible_Path[]>();
 	// TODO BLOCK parallel?
 	for (const input_path of input_paths) {
 		let file_path_data: Path_Data | null = null;
 		let dir_path_data: Path_Data | null = null;
-		const possible_path_ids = get_possible_path_ids(input_path, root_dirs, extensions);
-		possible_path_ids_by_input_path.set(input_path, possible_path_ids);
+		const possible_paths = get_possible_paths(input_path, root_dirs, extensions);
+		possible_paths_by_input_path.set(input_path, possible_paths);
 
 		// Find the first existing file path or fallback to the first directory path.
-		for (const possible_path_id of possible_path_ids) {
+		for (const possible_path_id of possible_paths) {
 			if (!(await exists(possible_path_id.id))) continue; // eslint-disable-line no-await-in-loop
 			const stats = await stat(possible_path_id.id); // eslint-disable-line no-await-in-loop
 			if (stats.isDirectory()) {
@@ -140,7 +140,7 @@ export const resolve_input_paths = async (
 	return {
 		path_data_by_input_path,
 		unmapped_input_paths,
-		possible_path_ids_by_input_path,
+		possible_paths_by_input_path,
 	};
 };
 
