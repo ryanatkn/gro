@@ -48,6 +48,7 @@ export const to_input_paths = (
 
 export interface Possible_Path {
 	id: Path_Id;
+	input_path: Input_Path;
 	root_dir: Path_Id | null;
 }
 
@@ -71,13 +72,14 @@ export const get_possible_paths = (
 				id: (path.endsWith('/') || path.endsWith(TASK_FILE_SUFFIX_JS)
 					? path
 					: path + TASK_FILE_SUFFIX_JS) as Path_Id,
+				input_path,
 				root_dir,
 			});
 		} else {
-			possible_paths.add({id: path as Path_Id, root_dir});
+			possible_paths.add({id: path as Path_Id, input_path, root_dir});
 			if (!path.endsWith('/') && !extensions.some((e) => path.endsWith(e))) {
 				for (const extension of extensions) {
-					possible_paths.add({id: path + extension, root_dir});
+					possible_paths.add({id: path + extension, input_path, root_dir});
 				}
 			}
 		}
@@ -96,6 +98,7 @@ export const get_possible_paths = (
 export interface Input_Path_Data extends Path_Data {
 	input_path: Input_Path;
 	root_dir: Path_Id | null;
+	possible_paths: Possible_Path[];
 }
 
 /**
@@ -109,7 +112,6 @@ export const resolve_input_paths = async (
 	extensions: string[],
 ): Promise<{
 	input_path_data_by_input_path: Map<Input_Path, Input_Path_Data>;
-	possible_paths_by_input_path: Map<Input_Path, Possible_Path[]>;
 	unmapped_input_paths: Input_Path[];
 }> => {
 	console.log(`[resolve_input_paths]`, input_paths);
@@ -142,6 +144,7 @@ export const resolve_input_paths = async (
 				is_directory: found[0].is_directory,
 				input_path,
 				root_dir: found[1].root_dir,
+				possible_paths,
 			});
 		} else {
 			unmapped_input_paths.push(input_path);
@@ -149,7 +152,6 @@ export const resolve_input_paths = async (
 	}
 	return {
 		input_path_data_by_input_path,
-		possible_paths_by_input_path,
 		unmapped_input_paths,
 	};
 };

@@ -39,14 +39,46 @@ test('get_possible_paths with an implicit relative path', () => {
 			['.ext.ts'],
 		),
 		[
-			{id: resolve('src/foo/src/foo/bar'), root_dir: resolve('src/foo')},
-			{id: resolve('src/foo/src/foo/bar.ext.ts'), root_dir: resolve('src/foo')},
-			{id: resolve('src/baz/src/foo/bar'), root_dir: resolve('src/baz')},
-			{id: resolve('src/baz/src/foo/bar.ext.ts'), root_dir: resolve('src/baz')},
-			{id: resolve('src/src/foo/bar'), root_dir: resolve('src')},
-			{id: resolve('src/src/foo/bar.ext.ts'), root_dir: resolve('src')},
-			{id: resolve('src/foo/bar'), root_dir: resolve('.')},
-			{id: resolve('src/foo/bar.ext.ts'), root_dir: resolve('.')},
+			{
+				id: resolve('src/foo/src/foo/bar'),
+				input_path: 'src/foo/bar',
+				root_dir: resolve('src/foo'),
+			},
+			{
+				id: resolve('src/foo/src/foo/bar.ext.ts'),
+				input_path: 'src/foo/bar',
+				root_dir: resolve('src/foo'),
+			},
+			{
+				id: resolve('src/baz/src/foo/bar'),
+				input_path: 'src/foo/bar',
+				root_dir: resolve('src/baz'),
+			},
+			{
+				id: resolve('src/baz/src/foo/bar.ext.ts'),
+				input_path: 'src/foo/bar',
+				root_dir: resolve('src/baz'),
+			},
+			{
+				id: resolve('src/src/foo/bar'),
+				input_path: 'src/foo/bar',
+				root_dir: resolve('src'),
+			},
+			{
+				id: resolve('src/src/foo/bar.ext.ts'),
+				input_path: 'src/foo/bar',
+				root_dir: resolve('src'),
+			},
+			{
+				id: resolve('src/foo/bar'),
+				input_path: 'src/foo/bar',
+				root_dir: resolve('.'),
+			},
+			{
+				id: resolve('src/foo/bar.ext.ts'),
+				input_path: 'src/foo/bar',
+				root_dir: resolve('.'),
+			},
 		],
 	);
 });
@@ -54,26 +86,30 @@ test('get_possible_paths with an implicit relative path', () => {
 test('get_possible_paths in the gro directory', () => {
 	const input_path = resolve('src/foo/bar');
 	assert.equal(get_possible_paths(input_path, [], ['.ext.ts']), [
-		{id: input_path, root_dir: null},
-		{id: input_path + '.ext.ts', root_dir: null},
+		{id: input_path, input_path: resolve('src/foo/bar'), root_dir: null},
+		{id: input_path + '.ext.ts', input_path: resolve('src/foo/bar'), root_dir: null},
 	]);
 });
 
 test('get_possible_paths does not repeat the extension', () => {
 	const input_path = resolve('src/foo/bar.ext.ts');
-	assert.equal(get_possible_paths(input_path, [], ['.ext.ts']), [{id: input_path, root_dir: null}]);
+	assert.equal(get_possible_paths(input_path, [], ['.ext.ts']), [
+		{id: input_path, input_path: resolve('src/foo/bar.ext.ts'), root_dir: null},
+	]);
 });
 
 test('get_possible_paths does not repeat with the same root directory', () => {
 	const input_path = resolve('src/foo/bar.ext.ts');
 	assert.equal(get_possible_paths(input_path, [paths.root, paths.root], ['.ext.ts']), [
-		{id: input_path, root_dir: null},
+		{id: input_path, input_path: resolve('src/foo/bar.ext.ts'), root_dir: null},
 	]);
 });
 
 test('get_possible_paths implied to be a directory by trailing slash', () => {
 	const input_path = resolve('src/foo/bar') + '/';
-	assert.equal(get_possible_paths(input_path, [], ['.ext.ts']), [{id: input_path, root_dir: null}]);
+	assert.equal(get_possible_paths(input_path, [], ['.ext.ts']), [
+		{id: input_path, input_path: resolve('src/foo/bar') + '/', root_dir: null},
+	]);
 });
 
 test('load_path_ids_by_input_path', async () => {
@@ -107,21 +143,46 @@ test('load_path_ids_by_input_path', async () => {
 					is_directory: false,
 					input_path: 'fake/test1.ext.ts',
 					root_dir: null,
+					possible_paths: [],
 				},
 			],
 			[
 				'fake/test2',
-				{id: 'fake/test2.ext.ts', is_directory: false, input_path: 'fake/test2', root_dir: null},
+				{
+					id: 'fake/test2.ext.ts',
+					is_directory: false,
+					input_path: 'fake/test2',
+					root_dir: null,
+					possible_paths: [],
+				},
 			],
 			[
 				'fake/test3',
-				{id: 'fake/test3', is_directory: true, input_path: 'fake/test3', root_dir: null},
+				{
+					id: 'fake/test3',
+					is_directory: true,
+					input_path: 'fake/test3',
+					root_dir: null,
+					possible_paths: [],
+				},
 			],
-			['fake/', {id: 'fake/', is_directory: true, input_path: 'fake/', root_dir: null}],
-			['fake', {id: 'fake', is_directory: true, input_path: 'fake', root_dir: null}],
+			[
+				'fake/',
+				{id: 'fake/', is_directory: true, input_path: 'fake/', root_dir: null, possible_paths: []},
+			],
+			[
+				'fake',
+				{id: 'fake', is_directory: true, input_path: 'fake', root_dir: null, possible_paths: []},
+			],
 			[
 				'fake/nomatches',
-				{id: 'fake/nomatches', is_directory: true, input_path: 'fake/nomatches', root_dir: null},
+				{
+					id: 'fake/nomatches',
+					is_directory: true,
+					input_path: 'fake/nomatches',
+					root_dir: null,
+					possible_paths: [],
+				},
 			],
 		]),
 		async (id) => test_files[id],

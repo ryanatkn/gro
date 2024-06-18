@@ -9,7 +9,6 @@ import {
 	load_path_ids_by_input_path,
 	resolve_input_paths,
 	type Input_Path_Data,
-	type Possible_Path,
 } from './input_path.js';
 import {paths, print_path} from './paths.js';
 import {search_fs} from './search_fs.js';
@@ -66,7 +65,6 @@ export type Find_Genfiles_Result = Result<
 		// TODO BLOCK should these be bundled into a single data structure?
 		path_ids_by_input_path: Map<Input_Path, Path_Id[]>;
 		input_path_data_by_input_path: Map<Input_Path, Input_Path_Data>;
-		possible_paths_by_input_path: Map<Input_Path, Possible_Path[]>;
 	},
 	Find_Genfiles_Failure
 >;
@@ -75,7 +73,6 @@ export type Find_Genfiles_Failure =
 			type: 'unmapped_input_paths';
 			unmapped_input_paths: Input_Path[];
 			input_path_data_by_input_path: Map<Input_Path, Input_Path_Data>;
-			possible_paths_by_input_path: Map<Input_Path, Possible_Path[]>;
 			reasons: string[];
 	  }
 	| {
@@ -83,7 +80,6 @@ export type Find_Genfiles_Failure =
 			input_directories_with_no_files: Input_Path[];
 			path_ids_by_input_path: Map<Input_Path, Path_Id[]>;
 			input_path_data_by_input_path: Map<Input_Path, Input_Path_Data>;
-			possible_paths_by_input_path: Map<Input_Path, Possible_Path[]>;
 			reasons: string[];
 	  };
 
@@ -101,8 +97,11 @@ export const find_genfiles = async (
 
 	// Check which extension variation works - if it's a directory, prefer others first!
 	const timing_to_resolve_input_paths = timings?.start('resolve input paths');
-	const {input_path_data_by_input_path, possible_paths_by_input_path, unmapped_input_paths} =
-		await resolve_input_paths(input_paths, root_dirs, extensions);
+	const {input_path_data_by_input_path, unmapped_input_paths} = await resolve_input_paths(
+		input_paths,
+		root_dirs,
+		extensions,
+	);
 	console.log('[find_modules]', input_path_data_by_input_path);
 	timing_to_resolve_input_paths?.();
 
@@ -113,7 +112,6 @@ export const find_genfiles = async (
 			type: 'unmapped_input_paths',
 			unmapped_input_paths,
 			input_path_data_by_input_path,
-			possible_paths_by_input_path,
 			reasons: unmapped_input_paths.map((input_path) =>
 				red(`Input path ${print_path(input_path)} cannot be mapped to a file or directory.`),
 			),
@@ -136,7 +134,6 @@ export const find_genfiles = async (
 			input_directories_with_no_files,
 			path_ids_by_input_path,
 			input_path_data_by_input_path,
-			possible_paths_by_input_path,
 			reasons: input_directories_with_no_files.map((input_path) =>
 				red(
 					`Input directory ${print_path(
@@ -151,6 +148,5 @@ export const find_genfiles = async (
 		ok: true,
 		path_ids_by_input_path,
 		input_path_data_by_input_path,
-		possible_paths_by_input_path,
 	};
 };
