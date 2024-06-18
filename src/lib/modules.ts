@@ -4,7 +4,7 @@ import type {Result} from '@ryanatkn/belt/result.js';
 import {print_error} from '@ryanatkn/belt/print.js';
 
 import {Input_Path} from './input_path.js';
-import {paths_from_id, print_path} from './paths.js';
+import {print_path} from './paths.js';
 import type {Path_Id} from './path.js';
 
 export interface Module_Meta<T_Module extends Record<string, any> = Record<string, any>> {
@@ -14,8 +14,14 @@ export interface Module_Meta<T_Module extends Record<string, any> = Record<strin
 
 export type Load_Module_Result<T> = Result<{mod: T}, Load_Module_Failure>;
 export type Load_Module_Failure =
-	| {ok: false; type: 'importFailed'; id: string; error: Error}
-	| {ok: false; type: 'invalid'; id: string; mod: Record<string, any>; validation: string};
+	| {ok: false; type: 'failed_import'; id: string; error: Error}
+	| {
+			ok: false;
+			type: 'failed_validation';
+			id: string;
+			mod: Record<string, any>;
+			validation: string;
+	  };
 
 export const load_module = async <T extends Record<string, any>>(
 	id: string,
@@ -25,10 +31,10 @@ export const load_module = async <T extends Record<string, any>>(
 	try {
 		mod = await import(id);
 	} catch (err) {
-		return {ok: false, type: 'importFailed', id, error: err};
+		return {ok: false, type: 'failed_import', id, error: err};
 	}
 	if (validate && !validate(mod)) {
-		return {ok: false, type: 'invalid', id, mod, validation: validate.name};
+		return {ok: false, type: 'failed_validation', id, mod, validation: validate.name};
 	}
 	return {ok: true, mod: {id, mod}};
 };
@@ -67,22 +73,17 @@ export const load_modules = async <
 			} else {
 				load_module_failures.push(result);
 				switch (result.type) {
-					case 'importFailed': {
+					case 'failed_import': {
 						reasons.push(
-							`Module import ${print_path(id, paths_from_id(id))} failed from input ${print_path(
+							`Module import ${print_path(id)} failed from input ${print_path(
 								input_path,
-								paths_from_id(input_path),
 							)}: ${print_error(result.error)}`,
 						);
 						break;
 					}
-					case 'invalid': {
+					case 'failed_validation': {
 						// TODO try to make this a good error message for the task case
-						reasons.push(
-							`Module ${print_path(id, paths_from_id(id))} failed validation '${
-								result.validation
-							}'.`,
-						);
+						reasons.push(`Module ${print_path(id)} failed validation '${result.validation}'.`);
 						break;
 					}
 					default:

@@ -43,7 +43,7 @@ test__load_module('fails validation', async () => {
 	};
 	const result = await load_module(id, test_validation as any);
 	assert.ok(!result.ok);
-	if (result.type === 'invalid') {
+	if (result.type === 'failed_validation') {
 		assert.is(result.validation, test_validation.name);
 		assert.is(result.id, id);
 		assert.is(result.mod, validated_mod);
@@ -57,7 +57,7 @@ test__load_module('fails to import', async () => {
 	const id = resolve('foo/test/failure');
 	const result = await load_module(id);
 	assert.ok(!result.ok);
-	if (result.type === 'importFailed') {
+	if (result.type === 'failed_import') {
 		assert.is(result.id, id);
 		assert.ok(result.error instanceof Error);
 	} else {
@@ -182,7 +182,7 @@ test__load_modules('fail with load_module_failures', async () => {
 			if (id === id_bar2) {
 				return {
 					ok: false,
-					type: 'importFailed',
+					type: 'failed_import',
 					id,
 					error: (error = new Error('Test failed import')),
 				};
@@ -197,14 +197,14 @@ test__load_modules('fail with load_module_failures', async () => {
 	}
 	assert.is(result.load_module_failures.length, 2);
 	const [failure1, failure2] = result.load_module_failures;
-	if (failure1.type !== 'invalid') {
+	if (failure1.type !== 'failed_validation') {
 		throw Error('Expected to fail with invalid');
 	}
 	assert.is(failure1.id, id_bar1);
 	assert.ok(failure1.mod);
 	assert.is(failure1.validation, test_validation.name);
-	if (failure2.type !== 'importFailed') {
-		throw Error('Expected to fail with importFailed');
+	if (failure2.type !== 'failed_import') {
+		throw Error('Expected to fail with failed_import');
 	}
 	assert.is(failure2.id, id_bar2);
 	assert.is(failure2.error, error);

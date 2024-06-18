@@ -11,7 +11,7 @@ import {
 	type Input_Path_Data,
 	type Possible_Path,
 } from './input_path.js';
-import {paths, paths_from_id, print_path_or_gro_path} from './paths.js';
+import {paths, print_path} from './paths.js';
 import {search_fs} from './search_fs.js';
 import type {Path_Id} from './path.js';
 
@@ -115,12 +115,7 @@ export const find_genfiles = async (
 			input_path_data_by_input_path,
 			possible_paths_by_input_path,
 			reasons: unmapped_input_paths.map((input_path) =>
-				red(
-					`Input path ${print_path_or_gro_path(
-						input_path,
-						paths_from_id(input_path),
-					)} cannot be mapped to a file or directory.`,
-				),
+				red(`Input path ${print_path(input_path)} cannot be mapped to a file or directory.`),
 			),
 		};
 	}
@@ -144,9 +139,8 @@ export const find_genfiles = async (
 			possible_paths_by_input_path,
 			reasons: input_directories_with_no_files.map((input_path) =>
 				red(
-					`Input directory ${print_path_or_gro_path(
+					`Input directory ${print_path(
 						input_path_data_by_input_path.get(input_path)!.id,
-						paths_from_id(input_path),
 					)} contains no matching files.`,
 				),
 			),

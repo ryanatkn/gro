@@ -40,7 +40,7 @@ test__load_task_module('invalid module', async () => {
 	const id = resolve('src/fixtures/test_invalid_task_module.js');
 	const result = await load_task_module(id, []);
 	assert.ok(!result.ok);
-	if (result.type === 'invalid') {
+	if (result.type === 'failed_validation') {
 		assert.is(result.id, id);
 		assert.is(result.mod, test_invalid_task_module);
 		assert.is(result.validation, 'validate_task_module');
@@ -53,7 +53,7 @@ test__load_task_module('failing module', async () => {
 	const id = resolve('src/fixtures/test_failing_task_module.js');
 	const result = await load_task_module(id, []);
 	assert.ok(!result.ok);
-	if (result.type === 'importFailed') {
+	if (result.type === 'failed_import') {
 		assert.is(result.id, id);
 		assert.ok(result.error);
 	} else {

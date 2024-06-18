@@ -6,7 +6,7 @@ import {print_ms, print_timings} from '@ryanatkn/belt/print.js';
 import {to_forwarded_args, type Args} from './args.js';
 import {run_task} from './run_task.js';
 import {to_input_path, Raw_Input_Path} from './input_path.js';
-import {is_gro_id, IS_THIS_GRO, print_path, print_path_or_gro_path} from './paths.js';
+import {is_gro_id, IS_THIS_GRO, print_path} from './paths.js';
 import {load_modules} from './modules.js';
 import {find_tasks, load_task_module} from './task_module.js';
 import {load_gro_package_json} from './package_json.js';
@@ -98,9 +98,9 @@ export const invoke_task = async (
 	}
 
 	// Found a match either in the current working directory or Gro's directory.
-	const path_data = find_tasks_result.input_path_data_by_input_path.get(input_path)!; // this is null safe because result is ok
+	const input_path_data = find_tasks_result.input_path_data_by_input_path.get(input_path)!; // this is null safe because result is ok
 
-	if (!path_data.is_directory) {
+	if (!input_path_data.is_directory) {
 		// The input path matches a file, so load and run it.
 
 		// Try to load the task module.
@@ -141,15 +141,15 @@ export const invoke_task = async (
 			// Is the Gro directory the same as the cwd? Log the matching files.
 			await log_tasks(
 				log,
-				print_path(path_data.id),
+				print_path(input_path_data.id),
 				find_tasks_result.path_ids_by_input_path,
 				task_root_paths,
 			);
-		} else if (is_gro_id(path_data.id)) {
+		} else if (is_gro_id(input_path_data.id)) {
 			// Does the Gro directory contain the matching files? Log them.
 			await log_tasks(
 				log,
-				print_path_or_gro_path(path_data.id),
+				print_path(input_path_data.id),
 				find_tasks_result.path_ids_by_input_path,
 				task_root_paths,
 			);
@@ -166,7 +166,7 @@ export const invoke_task = async (
 			// Then log the current working directory matches.
 			await log_tasks(
 				log,
-				print_path(path_data.id),
+				print_path(input_path_data.id),
 				find_tasks_result.path_ids_by_input_path,
 				task_root_paths,
 				!gro_dir_find_modules_result.ok,

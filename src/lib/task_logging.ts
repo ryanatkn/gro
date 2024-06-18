@@ -13,7 +13,7 @@ import {
 	type Task_Module_Meta,
 } from './task_module.js';
 import {to_gro_input_path, type Input_Path} from './input_path.js';
-import {print_path_or_gro_path} from './paths.js';
+import {print_path} from './paths.js';
 import type {Path_Id} from './path.js';
 
 export const log_tasks = async (
@@ -72,7 +72,7 @@ export const log_gro_package_tasks = async (
 		// Log the Gro matches.
 		await log_tasks(
 			log,
-			print_path_or_gro_path(gro_path_data.id),
+			print_path(gro_path_data.id),
 			gro_dir_find_tasks_result.path_ids_by_input_path,
 			task_root_paths,
 		);

@@ -11,7 +11,7 @@ import {
 } from './input_path.js';
 import {search_fs} from './search_fs.js';
 import type {Result} from '@ryanatkn/belt/result.js';
-import {paths_from_id, print_path_or_gro_path} from './paths.js';
+import {print_path} from './paths.js';
 import type {Path_Id} from './path.js';
 import {red} from 'kleur/colors';
 
@@ -116,12 +116,7 @@ export const find_tasks = async (
 			input_path_data_by_input_path,
 			possible_paths_by_input_path,
 			reasons: unmapped_input_paths.map((input_path) =>
-				red(
-					`Input path ${print_path_or_gro_path(
-						input_path,
-						paths_from_id(input_path),
-					)} cannot be mapped to a file or directory.`,
-				),
+				red(`Input path ${print_path(input_path)} cannot be mapped to a file or directory.`),
 			),
 		};
 	}
@@ -145,9 +140,8 @@ export const find_tasks = async (
 			possible_paths_by_input_path,
 			reasons: input_directories_with_no_files.map((input_path) =>
 				red(
-					`Input directory ${print_path_or_gro_path(
+					`Input directory ${print_path(
 						input_path_data_by_input_path.get(input_path)!.id,
-						paths_from_id(input_path),
 					)} contains no matching files.`,
 				),
 			),
