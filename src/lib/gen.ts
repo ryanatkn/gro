@@ -7,6 +7,7 @@ import {gen_module_meta, to_gen_module_type} from './gen_module.js';
 import {print_path, type Source_Id} from './paths.js';
 import type {Gro_Config} from './config.js';
 import {exists} from './fs.js';
+import type {Parsed_Sveltekit_Config} from './sveltekit_config.js';
 
 export type Gen_Result = {
 	origin_id: string;
@@ -24,6 +25,7 @@ export interface Gen {
 }
 export interface Gen_Context {
 	config: Gro_Config;
+	sveltekit_config: Parsed_Sveltekit_Config;
 	/**
 	 * Same as `import.meta.url` but in path form.
 	 */

@@ -6,6 +6,7 @@ import type {Timings} from '@ryanatkn/belt/timings.js';
 import type {Args} from './args.js';
 import type {Source_Id} from './paths.js';
 import type {Gro_Config} from './config.js';
+import type {Parsed_Sveltekit_Config} from './sveltekit_config.js';
 
 export interface Task<
 	T_Args = Args, // same as `z.infer<typeof Args>`
@@ -20,6 +21,7 @@ export interface Task<
 export interface Task_Context<T_Args = object> {
 	args: T_Args;
 	config: Gro_Config;
+	sveltekit_config: Parsed_Sveltekit_Config;
 	// TODO should this go here or on `config` for convenience?
 	// sveltekit_config: Parsed_Sveltekit_Config;
 	log: Logger;

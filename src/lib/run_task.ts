@@ -8,6 +8,7 @@ import type {invoke_task as base_invoke_task} from './invoke_task.js';
 import {log_task_help} from './task_logging.js';
 import type {Gro_Config} from './config.js';
 import {Task_Error} from './task.js';
+import {sveltekit_config_global} from './sveltekit_config_global.js';
 
 export type Run_Task_Result =
 	| {
@@ -52,6 +53,7 @@ export const run_task = async (
 		output = await task.run({
 			args,
 			config,
+			sveltekit_config: sveltekit_config_global,
 			log,
 			timings,
 			invoke_task: (invoked_task_name, invoked_args, invoked_config) =>

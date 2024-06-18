@@ -162,6 +162,7 @@ import type {Task_Context} from '@ryanatkn/gro';
 export interface Task_Context<T_Args = object> {
 	args: T_Args;
 	config: Gro_Config;
+	sveltekit_config: Parsed_Sveltekit_Config;
 	log: Logger;
 	timings: Timings;
 	invoke_task: (task_name: string, args?: Args, config?: Gro_Config) => Promise<void>;
