@@ -63,20 +63,20 @@ export const log_gro_package_tasks = async (
 	log: Logger,
 ): Promise<Find_Tasks_Result> => {
 	const gro_dir_input_path = to_gro_input_path(input_path);
-	const gro_dir_find_modules_result = await find_tasks([gro_dir_input_path], task_root_paths);
-	console.log(`[log_gro_package_tasks] gro_dir_find_modules_result`, gro_dir_find_modules_result);
-	if (gro_dir_find_modules_result.ok) {
+	const gro_dir_find_tasks_result = await find_tasks([gro_dir_input_path], task_root_paths);
+	console.log(`[log_gro_package_tasks] gro_dir_find_tasks_result`, gro_dir_find_tasks_result);
+	if (gro_dir_find_tasks_result.ok) {
 		const gro_path_data =
-			gro_dir_find_modules_result.source_id_path_data_by_input_path.get(gro_dir_input_path)!;
+			gro_dir_find_tasks_result.path_data_by_input_path.get(gro_dir_input_path)!;
 		// Log the Gro matches.
 		await log_tasks(
 			log,
 			print_path_or_gro_path(gro_path_data.id),
-			gro_dir_find_modules_result.source_ids_by_input_path,
+			gro_dir_find_tasks_result.source_ids_by_input_path,
 			task_root_paths,
 		);
 	}
-	return gro_dir_find_modules_result;
+	return gro_dir_find_tasks_result;
 };
 
 export const log_error_reasons = (log: Logger, reasons: string[]): void => {

@@ -92,24 +92,25 @@ export const get_possible_source_ids = (
  * and stopping at the first existing file or falling back to the first existing directory.
  * If none is found for an input path, it's added to `unmapped_input_paths`.
  */
-export const load_source_path_data_by_input_path = async (
+export const resolve_input_paths = async (
 	input_paths: Input_Path[],
 	get_possible_source_ids_for_input_path?: (input_path: Input_Path) => Source_Id[],
 ): Promise<{
-	source_id_path_data_by_input_path: Map<Input_Path, Path_Data>;
+	path_data_by_input_path: Map<Input_Path, Path_Data>;
 	unmapped_input_paths: Input_Path[];
 	possible_source_ids_by_input_path: Map<Input_Path, Source_Id[]>;
 }> => {
-	console.log(`[load_source_path_data_by_input_path]`, input_paths);
-	const source_id_path_data_by_input_path = new Map<Input_Path, Path_Data>();
+	console.log(`[resolve_input_paths]`, input_paths);
+	const path_data_by_input_path = new Map<Input_Path, Path_Data>();
 	const unmapped_input_paths: Input_Path[] = [];
 	const possible_source_ids_by_input_path = new Map<Input_Path, Source_Id[]>();
+	// TODO BLOCK parallel?
 	for (const input_path of input_paths) {
 		let file_path_data: Path_Data | null = null;
 		let dir_path_data: Path_Data | null = null;
 		const possible_source_ids = get_possible_source_ids_for_input_path
 			? get_possible_source_ids_for_input_path(input_path)
-			: [resolve(input_path) as Source_Id];
+			: [resolve(input_path)]; // TODO BLOCK does this make sense? or does it need to use base paths? should that be a param instead of this fn?
 		possible_source_ids_by_input_path.set(input_path, possible_source_ids);
 
 		// Find the first existing file path or fallback to the first directory path.
@@ -126,13 +127,13 @@ export const load_source_path_data_by_input_path = async (
 		}
 		const path_data = file_path_data || dir_path_data;
 		if (path_data) {
-			source_id_path_data_by_input_path.set(input_path, path_data);
+			path_data_by_input_path.set(input_path, path_data);
 		} else {
 			unmapped_input_paths.push(input_path);
 		}
 	}
 	return {
-		source_id_path_data_by_input_path,
+		path_data_by_input_path,
 		unmapped_input_paths,
 		possible_source_ids_by_input_path,
 	};
@@ -143,7 +144,7 @@ export const load_source_path_data_by_input_path = async (
  * De-dupes source ids.
  */
 export const load_source_ids_by_input_path = async (
-	source_id_path_data_by_input_path: Map<Input_Path, Path_Data>,
+	path_data_by_input_path: Map<Input_Path, Path_Data>,
 	custom_search_fs = search_fs,
 ): Promise<{
 	source_ids_by_input_path: Map<Input_Path, Source_Id[]>;
@@ -152,7 +153,8 @@ export const load_source_ids_by_input_path = async (
 	const source_ids_by_input_path = new Map<Input_Path, Source_Id[]>();
 	const input_directories_with_no_files: Input_Path[] = [];
 	const existing_source_ids = new Set<Source_Id>();
-	for (const [input_path, path_data] of source_id_path_data_by_input_path) {
+	// TODO BLOCK parallel?
+	for (const [input_path, path_data] of path_data_by_input_path) {
 		const {id} = path_data;
 		if (path_data.isDirectory) {
 			const files = await custom_search_fs(id, {files_only: false}); // eslint-disable-line no-await-in-loop

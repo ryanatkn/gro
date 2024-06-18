@@ -31,7 +31,7 @@ test('schema invalid module', () => {
 test('finds gen modules in a directory', async () => {
 	const find_genfiles_result = await find_genfiles([join(paths.lib, 'docs/')]);
 	assert.ok(find_genfiles_result.ok);
-	assert.ok(find_genfiles_result.source_id_path_data_by_input_path.size);
+	assert.ok(find_genfiles_result.path_data_by_input_path.size);
 });
 
 test.run();

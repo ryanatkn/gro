@@ -90,7 +90,7 @@ test__load_module.run();
 // 		]),
 // 	);
 // 	assert.equal(
-// 		result.source_id_path_data_by_input_path,
+// 		result.path_data_by_input_path,
 // 		new Map([
 // 			[path1, {id: id1, isDirectory: false}],
 // 			[id2, {id: id2, isDirectory: false}],
@@ -108,7 +108,7 @@ test__load_module.run();
 // 		result.source_ids_by_input_path,
 // 		new Map([[id, [join(id, 'test1.foo.ts'), join(id, 'test2.foo.ts')]]]),
 // 	);
-// 	assert.equal(result.source_id_path_data_by_input_path, new Map([[id, {id, isDirectory: true}]]));
+// 	assert.equal(result.path_data_by_input_path, new Map([[id, {id, isDirectory: true}]]));
 // });
 
 // test__find_modules('fail with unmapped_input_paths', async () => {
