@@ -6,20 +6,20 @@ export const to_file_path = (path_or_url: string | URL): string =>
 // TODO ideally none of this exists
 
 export interface Path_Data {
-	id: string; // absolute path, same as `id` in rollup
-	isDirectory: boolean;
+	id: string; // TODO BLOCK type `Source_Id`? (renamed to `Path_Id`?)
+	is_directory: boolean;
 }
 
-export const to_path_data = (id: string, stats: Path_Stats): Path_Data => {
-	return {
-		id,
-		isDirectory: stats.isDirectory(),
-	};
-};
+export const to_path_data = (id: string, stats: Path_Stats): Path_Data => ({
+	id,
+	is_directory: stats.isDirectory(),
+});
 
-// subset of `fs.Stats`
+/**
+ * Subset of `fs.Stats`.
+ */
 export interface Path_Stats {
-	isDirectory: () => boolean; // TODO maybe cache as `isDirectory`?
+	isDirectory: () => boolean;
 }
 
 export interface Path_Filter {

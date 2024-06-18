@@ -57,21 +57,21 @@ export const get_possible_source_ids = (
 	extensions: string[],
 	root_dirs: string[],
 ): Source_Id[] => {
-	const possible_source_ids: Source_Id[] = [];
+	const possible_source_ids: Set<Source_Id> = new Set();
 
 	const add_possible_source_ids = (path: string) => {
 		// Specifically for paths to the Gro package dist, optimize by only looking for `.task.js`.
 		if (path.startsWith(GRO_DIST_DIR)) {
-			possible_source_ids.push(
+			possible_source_ids.add(
 				(path.endsWith('/') || path.endsWith(TASK_FILE_SUFFIX_JS)
 					? path
 					: path + TASK_FILE_SUFFIX_JS) as Source_Id,
 			);
 		} else {
-			possible_source_ids.push(path as Source_Id);
+			possible_source_ids.add(path as Source_Id);
 			if (!path.endsWith('/') && !extensions.some((e) => path.endsWith(e))) {
 				for (const extension of extensions) {
-					possible_source_ids.push(path + extension);
+					possible_source_ids.add(path + extension);
 				}
 			}
 		}
@@ -81,10 +81,11 @@ export const get_possible_source_ids = (
 		add_possible_source_ids(input_path);
 	} else {
 		for (const root_dir of root_dirs) {
+			// TODO BLOCK I wanted to associate the possible source ids with the root dir, but the problem is absolute paths have none, is that a problem?
 			add_possible_source_ids(join(root_dir, input_path));
 		}
 	}
-	return possible_source_ids;
+	return Array.from(possible_source_ids);
 };
 
 /**
@@ -94,7 +95,7 @@ export const get_possible_source_ids = (
  */
 export const resolve_input_paths = async (
 	input_paths: Input_Path[],
-	get_possible_source_ids_for_input_path?: (input_path: Input_Path) => Source_Id[],
+	get_possible_source_ids_for_input_path: (input_path: Input_Path) => Source_Id[],
 ): Promise<{
 	path_data_by_input_path: Map<Input_Path, Path_Data>;
 	unmapped_input_paths: Input_Path[];
@@ -108,9 +109,7 @@ export const resolve_input_paths = async (
 	for (const input_path of input_paths) {
 		let file_path_data: Path_Data | null = null;
 		let dir_path_data: Path_Data | null = null;
-		const possible_source_ids = get_possible_source_ids_for_input_path
-			? get_possible_source_ids_for_input_path(input_path)
-			: [resolve(input_path)]; // TODO BLOCK does this make sense? or does it need to use base paths? should that be a param instead of this fn?
+		const possible_source_ids = get_possible_source_ids_for_input_path(input_path);
 		possible_source_ids_by_input_path.set(input_path, possible_source_ids);
 
 		// Find the first existing file path or fallback to the first directory path.
@@ -153,10 +152,10 @@ export const load_source_ids_by_input_path = async (
 	const source_ids_by_input_path = new Map<Input_Path, Source_Id[]>();
 	const input_directories_with_no_files: Input_Path[] = [];
 	const existing_source_ids = new Set<Source_Id>();
-	// TODO BLOCK parallel?
+	// can't parallelize because of de-duping
 	for (const [input_path, path_data] of path_data_by_input_path) {
 		const {id} = path_data;
-		if (path_data.isDirectory) {
+		if (path_data.is_directory) {
 			const files = await custom_search_fs(id, {files_only: false}); // eslint-disable-line no-await-in-loop
 			if (files.size) {
 				const source_ids: Source_Id[] = [];

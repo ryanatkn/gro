@@ -100,7 +100,7 @@ export const invoke_task = async (
 	// Found a match either in the current working directory or Gro's directory.
 	const path_data = find_tasks_result.path_data_by_input_path.get(input_path)!; // this is null safe because result is ok
 
-	if (!path_data.isDirectory) {
+	if (!path_data.is_directory) {
 		// The input path matches a file, so load and run it.
 
 		// Try to load the task module.

@@ -58,7 +58,7 @@ export const load_task_modules = async (
 export interface Found_Task {
 	input_path: Input_Path;
 	id: Source_Id;
-	task_root_paths: string; // TODO BLOCK `Path_Id`?
+	task_root_path: string; // TODO BLOCK type `Path_Id`?
 }
 
 export type Find_Tasks_Result = Result<
@@ -93,6 +93,7 @@ export const find_tasks = async (
 	task_root_paths: string[],
 	timings?: Timings,
 ): Promise<Find_Tasks_Result> => {
+	// TODO BLOCK so each input path gets associated with one `task_root_path`, right? cache in a data structure?
 	const found_tasks: Found_Task[] = []; // TODO BLOCK maybe separate this into `resolve_task_info`? given a `Find_Modules_Result`?
 
 	// Check which extension variation works - if it's a directory, prefer others first!
