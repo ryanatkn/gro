@@ -1,19 +1,8 @@
 import type {Timings} from '@ryanatkn/belt/timings.js';
 
 import {load_module, load_modules, type Module_Meta, type Load_Module_Result} from './modules.js';
-import {
-	to_task_name,
-	is_task_path,
-	TASK_FILE_SUFFIX_TS,
-	type Task,
-	TASK_FILE_SUFFIX_JS,
-} from './task.js';
-import {
-	Input_Path,
-	get_possible_path_ids,
-	load_path_ids_by_input_path,
-	resolve_input_paths,
-} from './input_path.js';
+import {to_task_name, is_task_path, type Task, TASK_FILE_SUFFIXES} from './task.js';
+import {Input_Path, load_path_ids_by_input_path, resolve_input_paths} from './input_path.js';
 import {search_fs} from './search_fs.js';
 import type {Result} from '@ryanatkn/belt/result.js';
 import {paths_from_id, print_path_or_gro_path} from './paths.js';
@@ -99,8 +88,10 @@ export const find_tasks = async (
 
 	// Check which extension variation works - if it's a directory, prefer others first!
 	const timing_to_resolve_input_paths = timings?.start('resolve input paths');
-	const resolved_input_paths = await resolve_input_paths(input_paths, (input_path) =>
-		get_possible_path_ids(input_path, [TASK_FILE_SUFFIX_TS, TASK_FILE_SUFFIX_JS], task_root_paths),
+	const resolved_input_paths = await resolve_input_paths(
+		input_paths,
+		task_root_paths,
+		TASK_FILE_SUFFIXES,
 	);
 	console.log('[find_modules] resolved_input_paths', resolved_input_paths);
 	const {path_data_by_input_path, unmapped_input_paths, possible_path_ids_by_input_path} =

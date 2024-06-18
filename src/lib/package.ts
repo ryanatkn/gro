@@ -705,7 +705,6 @@ export const src_json = {
 				{name: 'LIB_DIR', kind: 'variable'},
 				{name: 'ROUTES_DIRNAME', kind: 'variable'},
 				{name: 'Paths', kind: 'type'},
-				{name: 'Path_Id', kind: 'type'},
 				{name: 'create_paths', kind: 'function'},
 				{name: 'paths_from_id', kind: 'function'},
 				{name: 'is_gro_id', kind: 'function'},

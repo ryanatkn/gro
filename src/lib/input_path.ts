@@ -54,8 +54,8 @@ export const to_input_paths = (
  */
 export const get_possible_path_ids = (
 	input_path: Input_Path,
+	root_dirs: Path_Id[],
 	extensions: string[],
-	root_dirs: string[],
 ): Path_Id[] => {
 	const possible_path_ids: Set<Path_Id> = new Set();
 
@@ -95,7 +95,8 @@ export const get_possible_path_ids = (
  */
 export const resolve_input_paths = async (
 	input_paths: Input_Path[],
-	get_possible_path_ids_for_input_path: (input_path: Input_Path) => Path_Id[],
+	root_dirs: Path_Id[],
+	extensions: string[],
 ): Promise<{
 	path_data_by_input_path: Map<Input_Path, Path_Data>;
 	unmapped_input_paths: Input_Path[];
@@ -109,7 +110,7 @@ export const resolve_input_paths = async (
 	for (const input_path of input_paths) {
 		let file_path_data: Path_Data | null = null;
 		let dir_path_data: Path_Data | null = null;
-		const possible_path_ids = get_possible_path_ids_for_input_path(input_path);
+		const possible_path_ids = get_possible_path_ids(input_path, root_dirs, extensions);
 		possible_path_ids_by_input_path.set(input_path, possible_path_ids);
 
 		// Find the first existing file path or fallback to the first directory path.

@@ -4,12 +4,7 @@ import {red} from 'kleur/colors';
 
 import {type Module_Meta, load_module, type Load_Module_Result} from './modules.js';
 import type {Gen} from './gen.js';
-import {
-	Input_Path,
-	get_possible_path_ids,
-	load_path_ids_by_input_path,
-	resolve_input_paths,
-} from './input_path.js';
+import {Input_Path, load_path_ids_by_input_path, resolve_input_paths} from './input_path.js';
 import {paths, paths_from_id, print_path_or_gro_path} from './paths.js';
 import {search_fs} from './search_fs.js';
 import type {Path_Data, Path_Id} from './path.js';
@@ -99,9 +94,7 @@ export const find_genfiles = async (
 	// Check which extension variation works - if it's a directory, prefer others first!
 	const timing_to_resolve_input_paths = timings?.start('resolve input paths');
 	const {path_data_by_input_path, unmapped_input_paths, possible_path_ids_by_input_path} =
-		await resolve_input_paths(input_paths, (input_path) =>
-			get_possible_path_ids(input_path, extensions, root_dirs),
-		);
+		await resolve_input_paths(input_paths, root_dirs, extensions);
 	console.log('[find_modules]', path_data_by_input_path);
 	timing_to_resolve_input_paths?.();
 

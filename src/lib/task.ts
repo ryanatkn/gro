@@ -31,6 +31,7 @@ export interface Task_Context<T_Args = object> {
 
 export const TASK_FILE_SUFFIX_TS = '.task.ts';
 export const TASK_FILE_SUFFIX_JS = '.task.js';
+export const TASK_FILE_SUFFIXES = [TASK_FILE_SUFFIX_TS, TASK_FILE_SUFFIX_JS]; // TODO from `Gro_Config`, but needs to be used everywhere the constants are
 
 export const is_task_path = (path: string): boolean =>
 	path.endsWith(TASK_FILE_SUFFIX_TS) || path.endsWith(TASK_FILE_SUFFIX_JS);

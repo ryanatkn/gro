@@ -32,7 +32,7 @@ test('to_input_paths', () => {
 
 test('get_possible_path_ids in the gro directory', () => {
 	const input_path = resolve('src/foo/bar');
-	assert.equal(get_possible_path_ids(input_path, ['.baz.ts'], []), [
+	assert.equal(get_possible_path_ids(input_path, [], ['.baz.ts']), [
 		input_path,
 		input_path + '.baz.ts',
 	]);
@@ -40,19 +40,19 @@ test('get_possible_path_ids in the gro directory', () => {
 
 test('get_possible_path_ids does not repeat the extension', () => {
 	const input_path = resolve('src/foo/bar.baz.ts');
-	assert.equal(get_possible_path_ids(input_path, ['.baz.ts'], []), [input_path]);
+	assert.equal(get_possible_path_ids(input_path, [], ['.baz.ts']), [input_path]);
 });
 
 test('get_possible_path_ids does not repeat with the same root directory', () => {
 	const input_path = resolve('src/foo/bar.baz.ts');
-	assert.equal(get_possible_path_ids(input_path, ['.baz.ts'], [paths.root, paths.root]), [
+	assert.equal(get_possible_path_ids(input_path, [paths.root, paths.root], ['.baz.ts']), [
 		input_path,
 	]);
 });
 
 test('get_possible_path_ids implied to be a directory by trailing slash', () => {
 	const input_path = resolve('src/foo/bar') + '/';
-	assert.equal(get_possible_path_ids(input_path, ['.baz.ts'], []), [input_path]);
+	assert.equal(get_possible_path_ids(input_path, [], ['.baz.ts']), [input_path]);
 });
 
 test('load_path_ids_by_input_path', async () => {
