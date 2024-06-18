@@ -31,6 +31,14 @@ export const task: Task<Args> = {
 			task_root_paths,
 			TASK_FILE_SUFFIXES,
 		);
-		console.log(`resolved input paths`, resolved_input_paths);
+		console.log(`resolved_input_paths`, resolved_input_paths);
+		// console.log(
+		// 	`possible_paths_by_input_path`,
+		// 	JSON.stringify(
+		// 		Array.from(resolved_input_paths.possible_paths_by_input_path.entries()),
+		// 		null,
+		// 		2,
+		// 	),
+		// );
 	},
 };

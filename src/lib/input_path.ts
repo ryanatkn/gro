@@ -130,6 +130,7 @@ export const resolve_input_paths = async (
 			}
 		}
 		const found = found_file_data || found_dir_data;
+		console.log(`found`, found);
 		if (found) {
 			// TODO BLOCK what data structure?
 			path_data_by_input_path.set(input_path, {
