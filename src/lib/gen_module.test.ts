@@ -32,7 +32,7 @@ test('finds gen modules in a directory', async () => {
 	const find_genfiles_result = await find_genfiles([join(paths.lib, 'docs/')]);
 	assert.ok(find_genfiles_result.ok);
 	assert.ok(find_genfiles_result.resolved_input_paths.length);
-	assert.ok(find_genfiles_result.by_input_path.size);
+	assert.ok(find_genfiles_result.resolved_input_path_by_input_path.size);
 });
 
 test.run();

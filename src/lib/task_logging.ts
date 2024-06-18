@@ -67,7 +67,8 @@ export const log_gro_package_tasks = async (
 	const gro_dir_find_tasks_result = await find_tasks([gro_dir_input_path], task_root_paths);
 	console.log(`[log_gro_package_tasks] gro_dir_find_tasks_result`, gro_dir_find_tasks_result);
 	if (gro_dir_find_tasks_result.ok) {
-		const gro_path_data = gro_dir_find_tasks_result.by_input_path.get(gro_dir_input_path)!;
+		const gro_path_data =
+			gro_dir_find_tasks_result.resolved_input_path_by_input_path.get(gro_dir_input_path)!;
 		// Log the Gro matches.
 		await log_tasks(
 			log,

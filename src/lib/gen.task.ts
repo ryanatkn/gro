@@ -35,6 +35,7 @@ export const task: Task<Args> = {
 
 		// load all of the gen modules
 		const find_modules_result = await find_genfiles(input_paths);
+		console.log(`find_modules_result`, find_modules_result);
 		if (!find_modules_result.ok) {
 			if (find_modules_result.type === 'input_directories_with_no_files') {
 				log.info('no gen modules found');

@@ -68,7 +68,7 @@ export const invoke_task = async (
 			if (
 				IS_THIS_GRO ||
 				// this is null safe because of the failure type
-				is_gro_id(find_tasks_result.by_input_path.get(input_path)!.id)
+				is_gro_id(find_tasks_result.resolved_input_path_by_input_path.get(input_path)!.id)
 			) {
 				// If the directory is inside Gro, just log the errors.
 				log_error_reasons(log, find_tasks_result.reasons);

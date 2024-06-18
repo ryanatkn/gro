@@ -28,7 +28,7 @@ export type Find_Tasks_Result = Result<
 		// TODO BLOCK should these be bundled into a single data structure?
 		path_ids_by_input_path: Map<Input_Path, Path_Id[]>;
 		resolved_input_paths: Resolved_Input_Path[]; // TODO BLOCK probably add `input_path_datas` and just use it
-		by_input_path: Map<Input_Path, Resolved_Input_Path>;
+		resolved_input_path_by_input_path: Map<Input_Path, Resolved_Input_Path>;
 	},
 	Find_Modules_Failure
 >;
@@ -37,7 +37,7 @@ export type Find_Modules_Failure =
 			type: 'unmapped_input_paths';
 			unmapped_input_paths: Input_Path[];
 			resolved_input_paths: Resolved_Input_Path[];
-			by_input_path: Map<Input_Path, Resolved_Input_Path>;
+			resolved_input_path_by_input_path: Map<Input_Path, Resolved_Input_Path>;
 			reasons: string[];
 	  }
 	| {
@@ -45,7 +45,7 @@ export type Find_Modules_Failure =
 			input_directories_with_no_files: Input_Path[];
 			path_ids_by_input_path: Map<Input_Path, Path_Id[]>;
 			resolved_input_paths: Resolved_Input_Path[];
-			by_input_path: Map<Input_Path, Resolved_Input_Path>;
+			resolved_input_path_by_input_path: Map<Input_Path, Resolved_Input_Path>;
 			reasons: string[];
 	  };
 
@@ -68,7 +68,9 @@ export const find_tasks = async (
 	const {resolved_input_paths, unmapped_input_paths} = resolved;
 	timing_to_resolve_input_paths?.();
 
-	const by_input_path = new Map(resolved_input_paths.map((r) => [r.input_path, r]));
+	const resolved_input_path_by_input_path = new Map(
+		resolved_input_paths.map((r) => [r.input_path, r]),
+	);
 
 	// Error if any input path could not be mapped.
 	if (unmapped_input_paths.length) {
@@ -77,7 +79,7 @@ export const find_tasks = async (
 			type: 'unmapped_input_paths',
 			unmapped_input_paths,
 			resolved_input_paths,
-			by_input_path,
+			resolved_input_path_by_input_path,
 			reasons: unmapped_input_paths.map((input_path) =>
 				red(`Input path ${print_path(input_path)} cannot be mapped to a file or directory.`),
 			),
@@ -101,11 +103,11 @@ export const find_tasks = async (
 			input_directories_with_no_files,
 			path_ids_by_input_path,
 			resolved_input_paths,
-			by_input_path,
+			resolved_input_path_by_input_path,
 			reasons: input_directories_with_no_files.map((input_path) =>
 				red(
 					`Input directory ${print_path(
-						by_input_path.get(input_path)!.id,
+						resolved_input_path_by_input_path.get(input_path)!.id,
 					)} contains no matching files.`,
 				),
 			),
@@ -116,7 +118,7 @@ export const find_tasks = async (
 		ok: true,
 		path_ids_by_input_path,
 		resolved_input_paths,
-		by_input_path,
+		resolved_input_path_by_input_path,
 	};
 };
 
