@@ -93,6 +93,11 @@ export const get_possible_paths = (
 	return Array.from(possible_paths);
 };
 
+export interface Input_Path_Data extends Path_Data {
+	input_path: Input_Path;
+	root_dir: Path_Id | null;
+}
+
 /**
  * Gets the path data for each input path, checking the filesystem for the possibilities
  * and stopping at the first existing file or falling back to the first existing directory.
@@ -103,12 +108,12 @@ export const resolve_input_paths = async (
 	root_dirs: Path_Id[],
 	extensions: string[],
 ): Promise<{
-	path_data_by_input_path: Map<Input_Path, Path_Data>;
+	input_path_data_by_input_path: Map<Input_Path, Input_Path_Data>;
 	unmapped_input_paths: Input_Path[];
 	possible_paths_by_input_path: Map<Input_Path, Possible_Path[]>;
 }> => {
 	console.log(`[resolve_input_paths]`, input_paths);
-	const path_data_by_input_path = new Map<Input_Path, Path_Data>();
+	const input_path_data_by_input_path = new Map<Input_Path, Input_Path_Data>();
 	const unmapped_input_paths: Input_Path[] = [];
 	const possible_paths_by_input_path = new Map<Input_Path, Possible_Path[]>();
 	for (const input_path of input_paths) {
@@ -132,8 +137,7 @@ export const resolve_input_paths = async (
 		const found = found_file_data || found_dir_data;
 		console.log(`found`, found);
 		if (found) {
-			// TODO BLOCK what data structure?
-			path_data_by_input_path.set(input_path, {
+			input_path_data_by_input_path.set(input_path, {
 				id: found[0].id,
 				is_directory: found[0].is_directory,
 				input_path,
@@ -144,18 +148,19 @@ export const resolve_input_paths = async (
 		}
 	}
 	return {
-		path_data_by_input_path,
+		input_path_data_by_input_path,
 		unmapped_input_paths,
 		possible_paths_by_input_path,
 	};
 };
 
+// TODO BLOCK maybe rename to `load_input_path_data`/`Loaded_Input_Path_Data`?
 /**
  * Finds all of the matching files for the given input paths.
  * De-dupes source ids.
  */
 export const load_path_ids_by_input_path = async (
-	path_data_by_input_path: Map<Input_Path, Path_Data>,
+	input_path_data_by_input_path: Map<Input_Path, Path_Data>,
 	custom_search_fs = search_fs,
 ): Promise<{
 	path_ids_by_input_path: Map<Input_Path, Path_Id[]>;
@@ -165,7 +170,7 @@ export const load_path_ids_by_input_path = async (
 	const input_directories_with_no_files: Input_Path[] = [];
 	const existing_path_ids = new Set<Path_Id>();
 	// can't parallelize because of de-duping
-	for (const [input_path, path_data] of path_data_by_input_path) {
+	for (const [input_path, path_data] of input_path_data_by_input_path) {
 		const {id} = path_data;
 		if (path_data.is_directory) {
 			const files = await custom_search_fs(id, {files_only: false}); // eslint-disable-line no-await-in-loop

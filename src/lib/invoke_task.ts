@@ -68,7 +68,7 @@ export const invoke_task = async (
 			if (
 				IS_THIS_GRO ||
 				// this is null safe because of the failure type
-				is_gro_id(find_tasks_result.path_data_by_input_path.get(input_path)!.id)
+				is_gro_id(find_tasks_result.input_path_data_by_input_path.get(input_path)!.id)
 			) {
 				// If the directory is inside Gro, just log the errors.
 				log_error_reasons(log, find_tasks_result.reasons);
@@ -98,7 +98,7 @@ export const invoke_task = async (
 	}
 
 	// Found a match either in the current working directory or Gro's directory.
-	const path_data = find_tasks_result.path_data_by_input_path.get(input_path)!; // this is null safe because result is ok
+	const path_data = find_tasks_result.input_path_data_by_input_path.get(input_path)!; // this is null safe because result is ok
 
 	if (!path_data.is_directory) {
 		// The input path matches a file, so load and run it.
