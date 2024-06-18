@@ -86,6 +86,7 @@ export const find_tasks = async (
 
 	// Find all of the files for any directories.
 	const timing_to_search_fs = timings?.start('find files');
+	// TODO BLOCK do we need another data structure in an array like `Resolved_Input_File` because `Resolved_Input_Path` can be directories that resolve to these?
 	const {path_ids_by_input_path, input_directories_with_no_files} =
 		await load_path_ids_by_input_path(resolved_input_paths, (id) =>
 			search_fs(id, {filter: (path) => is_task_path(path)}),
