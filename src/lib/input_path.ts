@@ -95,12 +95,19 @@ export const get_possible_paths = (
 	return Array.from(possible_paths);
 };
 
-export interface Resolved_Input_Path extends Path_Data {
+export interface Resolved_Input_Path {
 	input_path: Input_Path;
 	id: Path_Id;
 	is_directory: boolean;
 	root_dir: Path_Id | null;
 	possible_paths: Possible_Path[];
+}
+
+// TODO BLOCK this
+export interface Resolved_Input_File {
+	id: Path_Id;
+	input_path: Input_Path;
+	resolved_input_path: Resolved_Input_Path;
 }
 
 /**
