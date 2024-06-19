@@ -1,6 +1,6 @@
 import {cyan, gray, green, red} from 'kleur/colors';
 import type {Logger} from '@ryanatkn/belt/log.js';
-import {plural} from '@ryanatkn/belt/string.js';
+import {plural, strip_start} from '@ryanatkn/belt/string.js';
 import {print_value} from '@ryanatkn/belt/print.js';
 import {ZodFirstPartyTypeKind, type ZodObjectDef, type ZodTypeAny, type ZodTypeDef} from 'zod';
 
@@ -12,8 +12,8 @@ import {
 	type Find_Tasks_Result,
 	type Task_Module_Meta,
 } from './task_module.js';
-import {to_gro_input_path, type Input_Path, type Resolved_Input_Path} from './input_path.js';
-import {print_path} from './paths.js';
+import type {Input_Path, Resolved_Input_Path} from './input_path.js';
+import {GRO_DIST_DIR, paths, print_path} from './paths.js';
 
 export const log_tasks = async (
 	log: Logger,
@@ -78,6 +78,12 @@ export const log_gro_package_tasks = async (
 		);
 	}
 	return gro_dir_find_tasks_result;
+};
+// TODO BLOCK used above, I don't think this is valid any more, we shouldn't transform absolute paths like this,
+// the searching should happen with the input paths
+const to_gro_input_path = (input_path: Input_Path): Input_Path => {
+	const base_path = input_path === paths.lib.slice(0, -1) ? '' : strip_start(input_path, paths.lib);
+	return GRO_DIST_DIR + base_path;
 };
 
 export const log_error_reasons = (log: Logger, reasons: string[]): void => {

@@ -47,7 +47,7 @@ export const validate_gen_module = {
 
 export type Gen_Module_Meta = Basic_Gen_Module_Meta;
 export interface Basic_Gen_Module_Meta extends Module_Meta<Gen_Module> {
-	type: 'basic';
+	type: 'basic'; // TODO this is no longer used
 	mod: Basic_Gen_Module;
 }
 
