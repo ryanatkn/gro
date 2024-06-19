@@ -52,12 +52,12 @@ export type Load_Modules_Result<T_Module_Meta extends Module_Meta> = Result<
 	}
 >;
 
-// TODO parallelize, originally it needed to be serial for a specific usecase we no longer have
+// TODO parallelize and sort afterwards
 export const load_modules = async <
 	Module_Type extends Record<string, any>,
 	T_Module_Meta extends Module_Meta<Module_Type>,
 >(
-	resolved_input_files: Resolved_Input_File[], // TODO maybe make this a flat array and remove `input_path`?
+	resolved_input_files: Resolved_Input_File[],
 	load_module_by_id: (path_id: Path_Id) => Promise<Load_Module_Result<T_Module_Meta>>,
 	timings?: Timings,
 ): Promise<Load_Modules_Result<T_Module_Meta>> => {
