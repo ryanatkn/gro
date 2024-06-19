@@ -34,25 +34,19 @@ export const task: Task<Args> = {
 		const input_paths = raw_input_paths.length ? to_input_paths(raw_input_paths) : [paths.source];
 
 		// load all of the gen modules
-		const find_modules_result = await find_genfiles(input_paths);
-		console.log(`find_modules_result`, find_modules_result);
-		if (!find_modules_result.ok) {
-			if (find_modules_result.type === 'input_directories_with_no_files') {
+		const genfiles = await find_genfiles(input_paths);
+		console.log(`genfiles`, genfiles);
+		if (!genfiles.ok) {
+			if (genfiles.type === 'input_directories_with_no_files') {
 				log.info('no gen modules found');
 				return;
 			} else {
-				log_error_reasons(log, find_modules_result.reasons);
+				log_error_reasons(log, genfiles.reasons);
 				throw new Task_Error('Failed to find gen modules.');
 			}
 		}
-		log.info(
-			'gen files',
-			Array.from(find_modules_result.resolved_input_files_by_input_path.values()).flat(),
-		);
-		const load_modules_result = await load_modules(
-			find_modules_result.resolved_input_paths,
-			load_gen_module,
-		);
+		log.info('gen files', genfiles.resolved_input_files);
+		const load_modules_result = await load_modules(genfiles.resolved_input_files, load_gen_module);
 		if (!load_modules_result.ok) {
 			log_error_reasons(log, load_modules_result.reasons);
 			throw new Task_Error('Failed to load gen modules.');

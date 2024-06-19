@@ -3,7 +3,7 @@ import {Unreachable_Error} from '@ryanatkn/belt/error.js';
 import type {Result} from '@ryanatkn/belt/result.js';
 import {print_error} from '@ryanatkn/belt/print.js';
 
-import type {Resolved_Input_Path} from './input_path.js';
+import type {Resolved_Input_File} from './input_path.js';
 import {print_path} from './paths.js';
 import type {Path_Id} from './path.js';
 
@@ -57,7 +57,7 @@ export const load_modules = async <
 	Module_Type extends Record<string, any>,
 	T_Module_Meta extends Module_Meta<Module_Type>,
 >(
-	resolved_input_paths: Resolved_Input_Path[], // TODO maybe make this a flat array and remove `input_path`?
+	resolved_input_files: Resolved_Input_File[], // TODO maybe make this a flat array and remove `input_path`?
 	load_module_by_id: (path_id: Path_Id) => Promise<Load_Module_Result<T_Module_Meta>>,
 	timings?: Timings,
 ): Promise<Load_Modules_Result<T_Module_Meta>> => {
@@ -65,7 +65,7 @@ export const load_modules = async <
 	const modules: T_Module_Meta[] = [];
 	const load_module_failures: Load_Module_Failure[] = [];
 	const reasons: string[] = [];
-	for (const input_path_data of resolved_input_paths.values()) {
+	for (const input_path_data of resolved_input_files.values()) {
 		const result = await load_module_by_id(input_path_data.id); // eslint-disable-line no-await-in-loop
 		if (result.ok) {
 			modules.push(result.mod);

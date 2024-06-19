@@ -584,9 +584,9 @@ export const src_json = {
 				{name: 'Possible_Path', kind: 'type'},
 				{name: 'get_possible_paths', kind: 'function'},
 				{name: 'Resolved_Input_Path', kind: 'type'},
+				{name: 'Resolved_Input_File', kind: 'type'},
 				{name: 'resolve_input_paths', kind: 'function'},
 				{name: 'resolve_input_files', kind: 'function'},
-				{name: 'to_gro_input_path', kind: 'function'},
 			],
 		},
 		'./invoke_task.js': {
@@ -696,9 +696,9 @@ export const src_json = {
 				{name: 'Possible_Path', kind: 'type'},
 				{name: 'get_possible_paths', kind: 'function'},
 				{name: 'Resolved_Input_Path', kind: 'type'},
+				{name: 'Resolved_Input_File', kind: 'type'},
 				{name: 'resolve_input_paths', kind: 'function'},
 				{name: 'resolve_input_files', kind: 'function'},
-				{name: 'to_gro_input_path', kind: 'function'},
 			],
 		},
 		'./paths.js': {

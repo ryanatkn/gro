@@ -12,20 +12,19 @@ import {
 	type Find_Tasks_Result,
 	type Task_Module_Meta,
 } from './task_module.js';
-import type {Input_Path, Resolved_Input_Path} from './input_path.js';
+import type {Input_Path, Resolved_Input_File} from './input_path.js';
 import {GRO_DIST_DIR, paths, print_path} from './paths.js';
 
 export const log_tasks = async (
 	log: Logger,
 	dir_label: string,
-	resolved_input_paths: Resolved_Input_Path[],
+	resolved_input_files: Resolved_Input_File[],
 	task_root_paths: string[],
 	log_intro = true,
 ): Promise<void> => {
-	const input_path_datas = Array.from(resolved_input_paths.values());
-	if (input_path_datas.length) {
+	if (resolved_input_files.length) {
 		// Load all of the tasks so we can log their summary, and args for the `--help` flag.
-		const load_modules_result = await load_modules(resolved_input_paths, (id) =>
+		const load_modules_result = await load_modules(resolved_input_files, (id) =>
 			load_task_module(id, task_root_paths),
 		);
 		if (!load_modules_result.ok) {
@@ -33,8 +32,8 @@ export const log_tasks = async (
 			process.exit(1);
 		}
 		const logged: string[] = [
-			`${log_intro ? '\n\n' : ''}${input_path_datas.length} task${plural(
-				input_path_datas.length,
+			`${log_intro ? '\n\n' : ''}${resolved_input_files.length} task${plural(
+				resolved_input_files.length,
 			)} in ${dir_label}:\n`,
 		];
 		if (log_intro) {
@@ -73,7 +72,7 @@ export const log_gro_package_tasks = async (
 		await log_tasks(
 			log,
 			print_path(gro_path_data.id),
-			gro_dir_find_tasks_result.resolved_input_paths,
+			gro_dir_find_tasks_result.resolved_input_files,
 			task_root_paths,
 		);
 	}

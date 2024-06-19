@@ -4,7 +4,7 @@ import {stat} from 'node:fs/promises';
 import {z} from 'zod';
 import type {Flavored} from '@ryanatkn/belt/types.js';
 
-import {GRO_PACKAGE_DIR, GRO_DIST_DIR, paths} from './paths.js';
+import {GRO_PACKAGE_DIR, GRO_DIST_DIR} from './paths.js';
 import {to_path_data, type Path_Data, type Path_Id} from './path.js';
 import {exists} from './fs.js';
 import {search_fs} from './search_fs.js';
