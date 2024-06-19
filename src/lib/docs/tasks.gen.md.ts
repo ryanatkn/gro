@@ -4,8 +4,9 @@ import {strip_start} from '@ryanatkn/belt/string.js';
 
 import {type Gen, to_output_file_name} from '../gen.js';
 import {paths, base_path_to_path_id} from '../paths.js';
-import {load_task_modules} from '../task_module.js';
+import {find_tasks, load_tasks} from '../task_module.js';
 import {log_error_reasons} from '../task_logging.js';
+import {Task_Error} from '../task.js';
 
 // This is the first simple implementation of Gro's automated docs.
 // It combines Gro's gen and task systems
@@ -19,12 +20,18 @@ import {log_error_reasons} from '../task_logging.js';
 // TODO add backlinks to every document that links to this one
 
 export const gen: Gen = async ({config, origin_id, log}) => {
-	const result = await load_task_modules([paths.lib], config.task_root_paths);
-	if (!result.ok) {
-		log_error_reasons(log, result.reasons);
-		throw new Error(result.type);
+	const found = await find_tasks([paths.lib], [paths.lib]);
+	if (!found.ok) {
+		log_error_reasons(log, found.reasons);
+		throw new Task_Error(`Failed to generate task docs: ${found.type}`);
 	}
-	const tasks = result.modules;
+
+	const loaded = await load_tasks(found.resolved_input_files, config.task_root_paths);
+	if (!loaded.ok) {
+		log_error_reasons(log, loaded.reasons);
+		throw new Task_Error(`Failed to generate task docs: ${loaded.type}`);
+	}
+	const tasks = loaded.modules;
 
 	const root_path = parse_path_segments(paths.root).at(-1);
 

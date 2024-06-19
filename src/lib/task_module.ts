@@ -146,20 +146,17 @@ export const load_task_module = async (
 ): Promise<Load_Module_Result<Task_Module_Meta>> => {
 	const result = await load_module(id, validate_task_module);
 	if (!result.ok) return result;
-	// TODO BLOCK this is weird with the splatting
+	// TODO BLOCK this is weird with the spreads
 	return {...result, mod: {...result.mod, name: to_task_name(id, task_root_paths)}}; // TODO this task name needs to use task root paths or cwd
 };
 
-export const load_task_modules = async (
-	input_paths: Input_Path[],
+export const load_tasks = async (
+	resolved_input_files: Resolved_Input_File[],
 	task_root_paths: string[],
 ): Promise<
 	| ReturnType<typeof load_modules<Task_Module, Task_Module_Meta>>
 	| ({ok: false} & Find_Modules_Failure)
 > => {
-	const find_modules_result = await find_tasks(input_paths, task_root_paths);
-	if (!find_modules_result.ok) return find_modules_result;
-	return load_modules(find_modules_result.resolved_input_files, (id) =>
-		load_task_module(id, task_root_paths),
-	);
+	// TODO BLOCK use everywhere and refactor the helpers?
+	return load_modules(resolved_input_files, (id) => load_task_module(id, task_root_paths));
 };
