@@ -28,6 +28,7 @@ export const validate_gen_module = (mod: Record<string, any>): mod is Gen_Module
 
 export type Gen_Module_Meta = Module_Meta<Gen_Module>;
 
+// TODO BLOCK refactor
 export const load_gen_module = async (id: string): Promise<Load_Module_Result<Gen_Module_Meta>> => {
 	const result = await load_module(id, validate_gen_module);
 	return result as Load_Module_Result<Gen_Module_Meta>;
