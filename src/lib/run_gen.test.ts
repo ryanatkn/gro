@@ -4,7 +4,7 @@ import {resolve, join} from 'node:path';
 import {Logger} from '@ryanatkn/belt/log.js';
 import {Timings} from '@ryanatkn/belt/timings.js';
 
-import type {Gen_Module_Meta} from './gen_module.js';
+import type {Genfile_Module_Meta} from './gen_module.js';
 import {run_gen} from './run_gen.js';
 import {load_config} from './config.js';
 
@@ -20,7 +20,7 @@ test__gen('basic behavior', async () => {
 	let file_b: undefined | {filename: string; content: string};
 	let file_c1: undefined | {filename: string; content: string};
 	let file_c2: undefined | {filename: string; content: string};
-	const mod_a: Gen_Module_Meta = {
+	const mod_a: Genfile_Module_Meta = {
 		id: path_id_a,
 		mod: {
 			gen: async (ctx) => {
@@ -34,7 +34,7 @@ test__gen('basic behavior', async () => {
 			},
 		},
 	};
-	const mod_b: Gen_Module_Meta = {
+	const mod_b: Genfile_Module_Meta = {
 		id: join(path_id_bc, 'mod_b.gen.ts'),
 		mod: {
 			gen: async (ctx) => {
@@ -48,7 +48,7 @@ test__gen('basic behavior', async () => {
 			},
 		},
 	};
-	const mod_c: Gen_Module_Meta = {
+	const mod_c: Genfile_Module_Meta = {
 		id: join(path_id_bc, 'mod_c.gen.ts'),
 		mod: {
 			gen: async (ctx) => {
@@ -135,7 +135,7 @@ test__gen('failing gen function', async () => {
 	let genError; // this error should be passed through to the result
 	// This is the failing gen module.
 	// It's ordered first to test that its failure doesn't cascade.
-	const mod_a: Gen_Module_Meta = {
+	const mod_a: Genfile_Module_Meta = {
 		id: path_id_a,
 		mod: {
 			gen: async () => {
@@ -144,7 +144,7 @@ test__gen('failing gen function', async () => {
 			},
 		},
 	};
-	const mod_b: Gen_Module_Meta = {
+	const mod_b: Genfile_Module_Meta = {
 		id: join(path_idB, 'mod_b.gen.ts'),
 		mod: {
 			gen: async (ctx) => {
@@ -158,7 +158,7 @@ test__gen('failing gen function', async () => {
 			},
 		},
 	};
-	const gen_modules_by_input_path: Gen_Module_Meta[] = [mod_a, mod_b];
+	const gen_modules_by_input_path: Genfile_Module_Meta[] = [mod_a, mod_b];
 	const gen_results = await run_gen(
 		gen_modules_by_input_path,
 		await load_config(),

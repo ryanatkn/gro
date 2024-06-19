@@ -126,25 +126,25 @@ export const find_genfiles = async (
 };
 
 // TODO BLOCK this and other `Gen_` to `Genfile_`?
-export interface Gen_Module {
+export interface Genfile_Module {
 	gen: Gen;
 }
 
-export type Gen_Module_Meta = Module_Meta<Gen_Module>;
+export type Genfile_Module_Meta = Module_Meta<Genfile_Module>;
 
 export interface Loaded_Genfiles {
-	modules: Gen_Module_Meta[];
+	modules: Genfile_Module_Meta[];
 	found_genfiles: Found_Genfiles;
 }
 
-// TODO BLOCK messy with Load_Modules equivalents
+// TODO BLOCK messy with Load_Modules equivalents, extend the parts of `Load_Modules_Result` to dry ths up and just pass the Genfile_Module_Meta param, same as in task module
 export type Load_Genfiles_Result = Result<{value: Loaded_Genfiles}, Load_Genfiles_Failure>;
 export type Load_Genfiles_Failure = {
 	type: 'load_module_failures';
 	load_module_failures: Load_Module_Failure[];
 	reasons: string[];
 	// still return the modules and timings, deferring to the caller
-	modules: Gen_Module_Meta[];
+	modules: Genfile_Module_Meta[];
 };
 
 export const load_genfiles = async (
@@ -155,7 +155,7 @@ export const load_genfiles = async (
 	const loaded_modules = await load_modules(
 		found_genfiles.resolved_input_files,
 		validate_gen_module,
-		(id, mod) => ({id, mod}),
+		(id, mod): Genfile_Module_Meta => ({id, mod}),
 		timings,
 	);
 	if (!loaded_modules.ok) {
@@ -167,5 +167,5 @@ export const load_genfiles = async (
 	};
 };
 
-export const validate_gen_module = (mod: Record<string, any>): mod is Gen_Module =>
+export const validate_gen_module = (mod: Record<string, any>): mod is Genfile_Module =>
 	typeof mod?.gen === 'function';

@@ -4,9 +4,8 @@ import {strip_start} from '@ryanatkn/belt/string.js';
 
 import {type Gen, to_output_file_name} from '../gen.js';
 import {paths, base_path_to_path_id} from '../paths.js';
-import {find_tasks, load_tasks} from '../task_module.js';
 import {log_error_reasons} from '../task_logging.js';
-import {Task_Error} from '../task.js';
+import {find_tasks, load_tasks, Task_Error} from '../task.js';
 
 // This is the first simple implementation of Gro's automated docs.
 // It combines Gro's gen and task systems

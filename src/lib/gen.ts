@@ -49,21 +49,21 @@ export const Gen_Config = z.object({
 export type Gen_Config = z.infer<typeof Gen_Config>;
 
 export type Gen_Results = {
-	results: Gen_Module_Result[];
-	successes: Gen_Module_Result_Success[];
-	failures: Gen_Module_Result_Failure[];
+	results: Genfile_Module_Result[];
+	successes: Genfile_Module_Result_Success[];
+	failures: Genfile_Module_Result_Failure[];
 	input_count: number;
 	output_count: number;
 	elapsed: number;
 };
-export type Gen_Module_Result = Gen_Module_Result_Success | Gen_Module_Result_Failure;
-export type Gen_Module_Result_Success = {
+export type Genfile_Module_Result = Genfile_Module_Result_Success | Genfile_Module_Result_Failure;
+export type Genfile_Module_Result_Success = {
 	ok: true;
 	id: Path_Id;
 	files: Gen_File[];
 	elapsed: number;
 };
-export type Gen_Module_Result_Failure = {
+export type Genfile_Module_Result_Failure = {
 	ok: false;
 	id: Path_Id;
 	reason: string;

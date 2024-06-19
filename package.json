@@ -422,10 +422,6 @@
       "default": "./dist/task_logging.js",
       "types": "./dist/task_logging.d.ts"
     },
-    "./task_module.js": {
-      "default": "./dist/task_module.js",
-      "types": "./dist/task_module.d.ts"
-    },
     "./task.js": {
       "default": "./dist/task.js",
       "types": "./dist/task.d.ts"

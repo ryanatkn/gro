@@ -3,13 +3,13 @@ import {print_error} from '@ryanatkn/belt/print.js';
 import type {Timings} from '@ryanatkn/belt/timings.js';
 import type {Logger} from '@ryanatkn/belt/log.js';
 
-import type {Gen_Module_Meta} from './gen_module.js';
+import type {Genfile_Module_Meta} from './gen_module.js';
 import {
 	type Gen_Results,
-	type Gen_Module_Result,
+	type Genfile_Module_Result,
 	type Gen_Context,
-	type Gen_Module_Result_Success,
-	type Gen_Module_Result_Failure,
+	type Genfile_Module_Result_Success,
+	type Genfile_Module_Result_Failure,
 	to_gen_result,
 	type Raw_Gen_Result,
 } from './gen.js';
@@ -21,7 +21,7 @@ import {sveltekit_config_global} from './sveltekit_config_global.js';
 export const GEN_NO_PROD_MESSAGE = 'gen runs only during development';
 
 export const run_gen = async (
-	gen_modules: Gen_Module_Meta[],
+	gen_modules: Genfile_Module_Meta[],
 	config: Gro_Config,
 	log: Logger,
 	timings: Timings,
@@ -31,7 +31,7 @@ export const run_gen = async (
 	let output_count = 0;
 	const timing_for_run_gen = timings.start('run_gen');
 	const results = await Promise.all(
-		gen_modules.map(async (module_meta): Promise<Gen_Module_Result> => {
+		gen_modules.map(async (module_meta): Promise<Genfile_Module_Result> => {
 			input_count++;
 			const {id} = module_meta;
 			const timing_for_module = timings.start(id);
@@ -88,8 +88,8 @@ export const run_gen = async (
 	);
 	return {
 		results,
-		successes: results.filter((r) => r.ok) as Gen_Module_Result_Success[],
-		failures: results.filter((r) => !r.ok) as Gen_Module_Result_Failure[],
+		successes: results.filter((r) => r.ok) as Genfile_Module_Result_Success[],
+		failures: results.filter((r) => !r.ok) as Genfile_Module_Result_Failure[],
 		input_count,
 		output_count,
 		elapsed: timing_for_run_gen(),
