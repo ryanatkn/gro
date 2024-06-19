@@ -145,7 +145,6 @@ export const resolve_input_paths = async (
 			}
 		}
 		const found = found_file_data || found_dir_data;
-		console.log(`found`, found);
 		if (found) {
 			resolved_input_paths.push({
 				input_path,
@@ -164,7 +163,6 @@ export const resolve_input_paths = async (
 	};
 };
 
-// TODO BLOCK maybe rename to `load_input_path_data`/`Loaded_Resolved_Input_Path`?
 /**
  * Finds all of the matching files for the given input paths.
  * De-dupes source ids.
