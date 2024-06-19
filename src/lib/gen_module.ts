@@ -34,16 +34,14 @@ export const load_gen_module = async (id: string): Promise<Load_Module_Result<Ge
 	return result as Load_Module_Result<Gen_Module_Meta>;
 };
 
-export type Find_Genfiles_Result = Result<
-	{
-		// TODO BLOCK should these be bundled into a single data structure?
-		resolved_input_files: Resolved_Input_File[];
-		resolved_input_files_by_input_path: Map<Input_Path, Resolved_Input_File[]>;
-		resolved_input_paths: Resolved_Input_Path[];
-		resolved_input_path_by_input_path: Map<Input_Path, Resolved_Input_Path>;
-	},
-	Find_Genfiles_Failure
->;
+export interface Found_Genfiles {
+	resolved_input_files: Resolved_Input_File[];
+	resolved_input_files_by_input_path: Map<Input_Path, Resolved_Input_File[]>;
+	resolved_input_paths: Resolved_Input_Path[];
+	resolved_input_path_by_input_path: Map<Input_Path, Resolved_Input_Path>;
+}
+
+export type Find_Genfiles_Result = Result<{value: Found_Genfiles}, Find_Genfiles_Failure>;
 export type Find_Genfiles_Failure =
 	| {
 			type: 'unmapped_input_paths';
@@ -133,9 +131,11 @@ export const find_genfiles = async (
 
 	return {
 		ok: true,
-		resolved_input_files,
-		resolved_input_files_by_input_path,
-		resolved_input_paths,
-		resolved_input_path_by_input_path,
+		value: {
+			resolved_input_files,
+			resolved_input_files_by_input_path,
+			resolved_input_paths,
+			resolved_input_path_by_input_path,
+		},
 	};
 };

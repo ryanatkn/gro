@@ -34,19 +34,24 @@ export const task: Task<Args> = {
 		const input_paths = raw_input_paths.length ? to_input_paths(raw_input_paths) : [paths.source];
 
 		// load all of the gen modules
-		const genfiles = await find_genfiles(input_paths);
-		console.log(`genfiles`, genfiles);
-		if (!genfiles.ok) {
-			if (genfiles.type === 'input_directories_with_no_files') {
+		const found = await find_genfiles(input_paths);
+		console.log(`found genfiles`, found);
+		if (!found.ok) {
+			// TODO BLOCK test this, doesn't look correct, maybe we need the error to specify which directory failed, or `log_error_reasons`
+			if (found.type === 'input_directories_with_no_files') {
 				log.info('no gen modules found');
 				return;
 			} else {
-				log_error_reasons(log, genfiles.reasons);
+				log_error_reasons(log, found.reasons);
 				throw new Task_Error('Failed to find gen modules.');
 			}
 		}
-		log.info('gen files', genfiles.resolved_input_files);
-		const load_modules_result = await load_modules(genfiles.resolved_input_files, load_gen_module);
+		const found_genfiles = found.value;
+		log.info('gen files', found_genfiles.resolved_input_files);
+		const load_modules_result = await load_modules(
+			found_genfiles.resolved_input_files,
+			load_gen_module,
+		);
 		if (!load_modules_result.ok) {
 			log_error_reasons(log, load_modules_result.reasons);
 			throw new Task_Error('Failed to load gen modules.');
