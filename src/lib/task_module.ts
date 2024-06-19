@@ -140,6 +140,7 @@ export interface Task_Module_Meta extends Module_Meta<Task_Module> {
 export const validate_task_module = (mod: Record<string, any>): mod is Task_Module =>
 	!!mod.task && typeof mod.task.run === 'function';
 
+// TODO BLOCK probably rename to `load_task`, or remove and inline in `load_tasks`
 export const load_task_module = async (
 	id: string,
 	task_root_paths: string[],
