@@ -54,9 +54,7 @@ export interface Possible_Path {
 
 /**
  * Gets a list of possible source ids for each input path with `extensions`,
- * duplicating each under `root_dirs`.
- * This is first used to fall back to the Gro dir to search for tasks.
- * It's the helper used in implementations of `get_possible_paths_for_input_path` below.
+ * duplicating each under `root_dirs`, without checking the filesystem.
  */
 export const get_possible_paths = (
 	input_path: Input_Path,
@@ -120,6 +118,7 @@ export const resolve_input_paths = async (
 	extensions: string[],
 ): Promise<{
 	resolved_input_paths: Resolved_Input_Path[];
+	possible_paths_by_input_path: Map<Input_Path, Possible_Path[]>;
 	unmapped_input_paths: Input_Path[];
 }> => {
 	const resolved_input_paths: Resolved_Input_Path[] = [];
@@ -158,6 +157,7 @@ export const resolve_input_paths = async (
 	}
 	return {
 		resolved_input_paths,
+		possible_paths_by_input_path,
 		unmapped_input_paths,
 	};
 };

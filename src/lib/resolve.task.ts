@@ -28,7 +28,10 @@ export const task: Task<Args> = {
 		const {task_root_paths} = config;
 		log.info('task root paths:', task_root_paths);
 
-		const resolved = await resolve_input_paths(input_paths, task_root_paths, TASK_FILE_SUFFIXES);
-		log.info(`resolved:`, resolved);
+		const {resolved_input_paths, possible_paths_by_input_path, unmapped_input_paths} =
+			await resolve_input_paths(input_paths, task_root_paths, TASK_FILE_SUFFIXES);
+		log.info('resolved_input_paths:', resolved_input_paths);
+		log.info('possible_paths_by_input_path:', possible_paths_by_input_path);
+		log.info('unmapped_input_paths:', unmapped_input_paths);
 	},
 };

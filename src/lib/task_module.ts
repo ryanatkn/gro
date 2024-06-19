@@ -71,8 +71,6 @@ export const find_tasks = async (
 	task_root_paths: Path_Id[],
 	timings?: Timings,
 ): Promise<Find_Tasks_Result> => {
-	// TODO BLOCK if we resolve to path data that's a directory, it shouldn't add the task suffixes to possible source ids
-
 	// Check which extension variation works - if it's a directory, prefer others first!
 	const timing_to_resolve_input_paths = timings?.start('resolve input paths');
 	const resolved = await resolve_input_paths(input_paths, task_root_paths, TASK_FILE_SUFFIXES);
