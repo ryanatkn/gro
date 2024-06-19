@@ -6,26 +6,15 @@ import {validate_gen_module, find_genfiles} from './gen_module.js';
 import {paths} from './paths.js';
 
 test('basic minimal interface', () => {
-	assert.ok(validate_gen_module.basic({gen: Function.prototype}));
+	assert.ok(validate_gen_module({gen: Function.prototype}));
 });
 
 test('basic invalid module', () => {
-	assert.ok(!validate_gen_module.basic({gen: {}}));
-	assert.ok(!validate_gen_module.basic({task: {run: {}}}));
-	assert.ok(!validate_gen_module.basic(undefined as any));
-	assert.ok(!validate_gen_module.basic(null as any));
-	assert.ok(!validate_gen_module.basic(false as any));
-});
-
-test('schema minimal interface', () => {
-	assert.ok(validate_gen_module.schema({}));
-	assert.ok(validate_gen_module.schema({SomeSchema: {$id: '/schemas/SomeSchema'}}));
-});
-
-test('schema invalid module', () => {
-	assert.ok(!validate_gen_module.schema(undefined as any));
-	assert.ok(!validate_gen_module.schema(null as any));
-	assert.ok(!validate_gen_module.schema(false as any));
+	assert.ok(!validate_gen_module({gen: {}}));
+	assert.ok(!validate_gen_module({task: {run: {}}}));
+	assert.ok(!validate_gen_module(undefined as any));
+	assert.ok(!validate_gen_module(null as any));
+	assert.ok(!validate_gen_module(false as any));
 });
 
 test('finds gen modules in a directory', async () => {

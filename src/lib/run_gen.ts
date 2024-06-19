@@ -2,10 +2,8 @@ import {red} from 'kleur/colors';
 import {print_error} from '@ryanatkn/belt/print.js';
 import type {Timings} from '@ryanatkn/belt/timings.js';
 import type {Logger} from '@ryanatkn/belt/log.js';
-import {Unreachable_Error} from '@ryanatkn/belt/error.js';
-import {strip_end} from '@ryanatkn/belt/string.js';
 
-import {type Gen_Module_Meta, GEN_SCHEMA_PATH_SUFFIX} from './gen_module.js';
+import type {Gen_Module_Meta} from './gen_module.js';
 import {
 	type Gen_Results,
 	type Gen_Module_Result,
@@ -15,7 +13,7 @@ import {
 	to_gen_result,
 	type Raw_Gen_Result,
 } from './gen.js';
-import {print_path, path_id_to_base_path} from './paths.js';
+import {print_path} from './paths.js';
 import type {format_file as base_format_file} from './format_file.js';
 import type {Gro_Config} from './config.js';
 import {sveltekit_config_global} from './sveltekit_config_global.js';
@@ -47,15 +45,7 @@ export const run_gen = async (
 			};
 			let raw_gen_result: Raw_Gen_Result;
 			try {
-				switch (module_meta.type) {
-					case 'basic': {
-						raw_gen_result = await module_meta.mod.gen(gen_ctx);
-						break;
-					}
-					default: {
-						throw new Unreachable_Error(module_meta.type);
-					}
-				}
+				raw_gen_result = await module_meta.mod.gen(gen_ctx);
 			} catch (err) {
 				return {
 					ok: false,
@@ -105,7 +95,3 @@ export const run_gen = async (
 		elapsed: timing_for_run_gen(),
 	};
 };
-
-// TODO configurable
-export const to_gen_import_path = (id: string): string =>
-	'$' + strip_end(path_id_to_base_path(id), GEN_SCHEMA_PATH_SUFFIX);

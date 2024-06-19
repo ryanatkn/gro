@@ -3,12 +3,12 @@ import {join, basename, dirname, isAbsolute} from 'node:path';
 import {mkdir, readFile, writeFile} from 'node:fs/promises';
 import {z} from 'zod';
 
-import {gen_module_meta, to_gen_module_type} from './gen_module.js';
 import {print_path} from './paths.js';
 import type {Path_Id} from './path.js';
 import type {Gro_Config} from './config.js';
 import {exists} from './fs.js';
 import type {Parsed_Sveltekit_Config} from './sveltekit_config.js';
+import {GEN_FILE_PATTERN, GEN_FILE_PATTERN_TEXT} from './gen_module.js';
 
 export type Gen_Result = {
 	origin_id: string;
@@ -112,20 +112,21 @@ const to_output_file_id = (origin_id: Path_Id, raw_file_name: string | undefined
 };
 
 export const to_output_file_name = (filename: string): string => {
-	const {pattern, text} = gen_module_meta[to_gen_module_type(filename)];
 	const parts = filename.split('.');
-	const gen_pattern_index = parts.indexOf(text);
+	const gen_pattern_index = parts.indexOf(GEN_FILE_PATTERN_TEXT);
 	if (gen_pattern_index === -1) {
-		throw Error(`Invalid gen file name - '${text}' not found in '${filename}'`);
+		throw Error(`Invalid gen file name - '${GEN_FILE_PATTERN_TEXT}' not found in '${filename}'`);
 	}
-	if (gen_pattern_index !== parts.lastIndexOf(text)) {
-		throw Error(`Invalid gen file name - multiple instances of '${text}' found in '${filename}'`);
+	if (gen_pattern_index !== parts.lastIndexOf(GEN_FILE_PATTERN_TEXT)) {
+		throw Error(
+			`Invalid gen file name - multiple instances of '${GEN_FILE_PATTERN_TEXT}' found in '${filename}'`,
+		);
 	}
 	if (gen_pattern_index < parts.length - 3) {
 		// This check is technically unneccessary,
 		// but ensures a consistent file naming convention.
 		throw Error(
-			`Invalid gen file name - only one additional extension is allowed to follow '${pattern}' in '${filename}'`,
+			`Invalid gen file name - only one additional extension is allowed to follow '${GEN_FILE_PATTERN}' in '${filename}'`,
 		);
 	}
 	const final_parts: string[] = [];

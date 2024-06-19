@@ -21,7 +21,6 @@ test__gen('basic behavior', async () => {
 	let file_c1: undefined | {filename: string; content: string};
 	let file_c2: undefined | {filename: string; content: string};
 	const mod_a: Gen_Module_Meta = {
-		type: 'basic',
 		id: path_id_a,
 		mod: {
 			gen: async (ctx) => {
@@ -36,7 +35,6 @@ test__gen('basic behavior', async () => {
 		},
 	};
 	const mod_b: Gen_Module_Meta = {
-		type: 'basic',
 		id: join(path_id_bc, 'mod_b.gen.ts'),
 		mod: {
 			gen: async (ctx) => {
@@ -51,7 +49,6 @@ test__gen('basic behavior', async () => {
 		},
 	};
 	const mod_c: Gen_Module_Meta = {
-		type: 'basic',
 		id: join(path_id_bc, 'mod_c.gen.ts'),
 		mod: {
 			gen: async (ctx) => {
@@ -139,7 +136,6 @@ test__gen('failing gen function', async () => {
 	// This is the failing gen module.
 	// It's ordered first to test that its failure doesn't cascade.
 	const mod_a: Gen_Module_Meta = {
-		type: 'basic',
 		id: path_id_a,
 		mod: {
 			gen: async () => {
@@ -149,7 +145,6 @@ test__gen('failing gen function', async () => {
 		},
 	};
 	const mod_b: Gen_Module_Meta = {
-		type: 'basic',
 		id: join(path_idB, 'mod_b.gen.ts'),
 		mod: {
 			gen: async (ctx) => {
