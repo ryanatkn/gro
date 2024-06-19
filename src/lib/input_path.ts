@@ -122,7 +122,6 @@ export const resolve_input_paths = async (
 	resolved_input_paths: Resolved_Input_Path[];
 	unmapped_input_paths: Input_Path[];
 }> => {
-	console.log(`[resolve_input_paths]`, input_paths);
 	const resolved_input_paths: Resolved_Input_Path[] = [];
 	const unmapped_input_paths: Input_Path[] = [];
 	const possible_paths_by_input_path = new Map<Input_Path, Possible_Path[]>();

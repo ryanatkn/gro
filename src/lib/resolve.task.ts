@@ -1,6 +1,6 @@
 import {z} from 'zod';
 
-import {TASK_FILE_SUFFIXES, type Task} from './task.js';
+import {TASK_FILE_SUFFIXES, Task_Error, type Task} from './task.js';
 import {resolve_input_paths, to_input_paths} from './input_path.js';
 
 export const Args = z
@@ -11,12 +11,15 @@ export const Args = z
 export type Args = z.infer<typeof Args>;
 
 export const task: Task<Args> = {
-	summary: 'run `gro gen`, update `package.json`, and optionally `npm i` to sync up',
+	summary: 'diagnostic that logs the info resolved from the filesystem for the given input paths',
 	Args,
 	run: async ({args, config, log}): Promise<void> => {
 		const {_} = args;
 
-		console.log('TODO resolve input paths: ', _);
+		if (!_.length) {
+			throw new Task_Error('No input paths provided in the `gro resolve` args');
+		}
+
 		log.info('raw input paths:', _);
 
 		const input_paths = to_input_paths(_);
@@ -25,16 +28,7 @@ export const task: Task<Args> = {
 		const {task_root_paths} = config;
 		log.info('task root paths:', task_root_paths);
 
-		// TODO BLOCK this is messy, either extract a helper or refactor, need to pair to task root paths, so a new helper?
 		const resolved = await resolve_input_paths(input_paths, task_root_paths, TASK_FILE_SUFFIXES);
-		console.log(`resolved`, resolved);
-		// console.log(
-		// 	`possible_paths_by_input_path`,
-		// 	JSON.stringify(
-		// 		Array.from(resolved.possible_paths_by_input_path.entries()),
-		// 		null,
-		// 		2,
-		// 	),
-		// );
+		log.info(`resolved:`, resolved);
 	},
 };
