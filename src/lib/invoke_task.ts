@@ -112,73 +112,33 @@ export const invoke_task = async (
 	}
 	const loaded_tasks = loaded.value;
 
-	if (!resolved_input_path.is_directory) {
-		// The input path matches a file, so load and run it.
-
-		// We found a task module. Run it!
-		// `path_data` is not a directory, so there's a single task module here.
-		if (loaded_tasks.modules.length !== 1) throw Error('expected one loaded task'); // run only one task at a time
-		const task = loaded_tasks.modules[0];
-		log.info(
-			`→ ${cyan(task.name)} ${(task.mod.task.summary && gray(task.mod.task.summary)) || ''}`,
-		);
-
-		const timing_to_run_task = timings.start('run task ' + task_name);
-		const result = await run_task(
-			task,
-			{...args, ...to_forwarded_args(`gro ${task.name}`)},
-			invoke_task,
-			config,
-			timings,
-		);
-		timing_to_run_task();
-		if (result.ok) {
-			log.info(`✓ ${cyan(task.name)}`);
-		} else {
-			log.info(`${red('🞩')} ${cyan(task.name)}`);
-			log_error_reasons(log, [result.reason]);
-			throw result.error;
-		}
-	} else {
-		await log_tasks(log, loaded_tasks);
-		// TODO BLOCK delete after getting what we need:
+	if (resolved_input_path.is_directory) {
 		// // The input path matches a directory. Log the tasks but don't run them.
-		// if (IS_THIS_GRO) {
-		// 	// Is the Gro directory the same as the cwd? Log the matching files.
-		// 	await log_tasks(
-		// 		log,
-		// 		print_path(resolved_input_path.id),
-		// 		found.resolved_input_files,
-		// 		task_root_paths,
-		// 	);
-		// } else if (is_gro_id(resolved_input_path.id)) {
-		// 	// Does the Gro directory contain the matching files? Log them.
-		// 	await log_tasks(
-		// 		log,
-		// 		print_path(resolved_input_path.id),
-		// 		found.resolved_input_files,
-		// 		task_root_paths,
-		// 	);
-		// } else {
-		// 	// The Gro directory is not the same as the cwd and it doesn't contain the matching files.
-		// 	// Find all of the possible matches in both the current project and the Gro directory,
-		// 	// and log everything out.
-		// 	// Ignore any errors - the directory may not exist or have any files!
-		// 	const gro_dir_find_modules_result = await log_gro_package_tasks(
-		// 		input_path,
-		// 		task_root_paths,
-		// 		log,
-		// 	);
-		// 	// Then log the current working directory matches.
-		// 	await log_tasks(
-		// 		log,
-		// 		print_path(resolved_input_path.id),
-		// 		found.resolved_input_files,
-		// 		task_root_paths,
-		// 		!gro_dir_find_modules_result.ok,
-		// 	);
-		// }
+		await log_tasks(log, loaded_tasks);
+		finish();
+		return;
 	}
+
+	// The input path matches a file that's presumable a task, so load and run it.
+	if (loaded_tasks.modules.length !== 1) throw Error('expected one loaded task'); // run only one task at a time
+	const task = loaded_tasks.modules[0];
+	log.info(`→ ${cyan(task.name)} ${(task.mod.task.summary && gray(task.mod.task.summary)) || ''}`);
+
+	const timing_to_run_task = timings.start('run task ' + task_name);
+	const result = await run_task(
+		task,
+		{...args, ...to_forwarded_args(`gro ${task.name}`)},
+		invoke_task,
+		config,
+		timings,
+	);
+	timing_to_run_task();
+	if (!result.ok) {
+		log.info(`${red('🞩')} ${cyan(task.name)}`);
+		log_error_reasons(log, [result.reason]);
+		throw result.error;
+	}
+	log.info(`✓ ${cyan(task.name)}`);
 
 	finish();
 };
