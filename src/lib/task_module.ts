@@ -1,6 +1,12 @@
 import type {Timings} from '@ryanatkn/belt/timings.js';
 
-import {load_module, load_modules, type Module_Meta, type Load_Module_Result} from './modules.js';
+import {
+	load_module,
+	load_modules,
+	type Module_Meta,
+	type Load_Module_Result,
+	type Load_Module_Failure,
+} from './modules.js';
 import {to_task_name, is_task_path, type Task, TASK_FILE_SUFFIXES} from './task.js';
 import {
 	Input_Path,
@@ -65,9 +71,7 @@ export const find_tasks = async (
 	task_root_paths: Path_Id[],
 	timings?: Timings,
 ): Promise<Find_Tasks_Result> => {
-	// TODO BLOCK so each input path gets associated with one `task_root_path`, right? cache in a data structure?
 	// TODO BLOCK if we resolve to path data that's a directory, it shouldn't add the task suffixes to possible source ids
-	const found_tasks: Found_Task[] = []; // TODO BLOCK maybe separate this into `resolve_task_info`? given a `Find_Modules_Result`?
 
 	// Check which extension variation works - if it's a directory, prefer others first!
 	const timing_to_resolve_input_paths = timings?.start('resolve input paths');
@@ -142,6 +146,10 @@ export const find_tasks = async (
 	};
 };
 
+export interface Loaded_Tasks {
+	modules: Task_Module_Meta[];
+}
+
 export interface Task_Module {
 	task: Task;
 }
@@ -149,6 +157,32 @@ export interface Task_Module {
 export interface Task_Module_Meta extends Module_Meta<Task_Module> {
 	name: string;
 }
+
+// TODO BLOCK messy with Load_Modules equivalents
+export type Load_Tasks_Result = Result<{value: Loaded_Tasks}, Load_Tasks_Failure>;
+export type Load_Tasks_Failure = {
+	load_module_failures: Load_Module_Failure[];
+	reasons: string[];
+};
+
+export const load_tasks = async (found: Found_Tasks): Promise<Load_Tasks_Result> => {
+	// TODO BLOCK refactor
+	const loaded_modules = await load_modules(found.resolved_input_files, (id) =>
+		load_task_module(id, found.task_root_paths),
+	);
+	if (!loaded_modules.ok) {
+		// TODO BLOCK weirdly proxying this error
+		return {
+			ok: false,
+			load_module_failures: loaded_modules.load_module_failures,
+			reasons: loaded_modules.reasons,
+		};
+	}
+	return {
+		ok: true,
+		value: {modules: loaded_modules.modules},
+	};
+};
 
 export const validate_task_module = (mod: Record<string, any>): mod is Task_Module =>
 	!!mod.task && typeof mod.task.run === 'function';
@@ -164,7 +198,7 @@ export const load_task_module = async (
 	return {...result, mod: {...result.mod, name: to_task_name(id, task_root_paths)}}; // TODO this task name needs to use task root paths or cwd
 };
 
-export const load_tasks = async (
+export const load_task_modules = async (
 	resolved_input_files: Resolved_Input_File[],
 	task_root_paths: Path_Id[],
 ): Promise<

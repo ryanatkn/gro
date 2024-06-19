@@ -6,8 +6,7 @@ import {print_ms, print_timings} from '@ryanatkn/belt/print.js';
 import {to_forwarded_args, type Args} from './args.js';
 import {run_task} from './run_task.js';
 import {to_input_path, Raw_Input_Path} from './input_path.js';
-import {load_modules} from './modules.js';
-import {find_tasks, load_task_module} from './task_module.js';
+import {find_tasks, load_tasks} from './task_module.js';
 import {load_gro_package_json} from './package_json.js';
 import {log_tasks, log_error_reasons} from './task_logging.js';
 import type {Gro_Config} from './config.js';
@@ -102,24 +101,24 @@ export const invoke_task = async (
 
 	// Found a match either in the current working directory or Gro's directory.
 	const found_tasks = found.value;
-	if (found_tasks.resolved_input_paths.length !== 1) throw Error('expected one input path'); // we run only one task at a time
+	if (found_tasks.resolved_input_paths.length !== 1) throw Error('expected one input path'); // run only one task at a time
 	const resolved_input_path = found_tasks.resolved_input_paths[0];
+
+	// Load the task module.
+	const loaded = await load_tasks(found_tasks);
+	if (!loaded.ok) {
+		log_error_reasons(log, loaded.reasons);
+		process.exit(1);
+	}
+	const loaded_tasks = loaded.value;
 
 	if (!resolved_input_path.is_directory) {
 		// The input path matches a file, so load and run it.
 
-		// Try to load the task module.
-		const load_modules_result = await load_modules(found_tasks.resolved_input_files, (id) =>
-			load_task_module(id, task_root_paths),
-		);
-		if (!load_modules_result.ok) {
-			log_error_reasons(log, load_modules_result.reasons);
-			process.exit(1);
-		}
-
 		// We found a task module. Run it!
 		// `path_data` is not a directory, so there's a single task module here.
-		const task = load_modules_result.modules[0];
+		if (loaded_tasks.modules.length !== 1) throw Error('expected one loaded task'); // run only one task at a time
+		const task = loaded_tasks.modules[0];
 		log.info(
 			`→ ${cyan(task.name)} ${(task.mod.task.summary && gray(task.mod.task.summary)) || ''}`,
 		);
@@ -141,7 +140,7 @@ export const invoke_task = async (
 			throw result.error;
 		}
 	} else {
-		await log_tasks(log, found_tasks);
+		await log_tasks(log, found_tasks, loaded_tasks);
 		// TODO BLOCK delete after getting what we need:
 		// // The input path matches a directory. Log the tasks but don't run them.
 		// if (IS_THIS_GRO) {

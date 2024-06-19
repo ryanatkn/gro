@@ -5,16 +5,16 @@ import {print_value} from '@ryanatkn/belt/print.js';
 import {ZodFirstPartyTypeKind, type ZodObjectDef, type ZodTypeAny, type ZodTypeDef} from 'zod';
 
 import type {Arg_Schema} from './args.js';
-import {load_modules} from './modules.js';
-import {load_task_module, type Found_Tasks, type Task_Module_Meta} from './task_module.js';
+import type {Found_Tasks, Loaded_Tasks, Task_Module_Meta} from './task_module.js';
 import {print_path} from './paths.js';
 
 export const log_tasks = async (
 	log: Logger,
 	found_tasks: Found_Tasks,
+	loaded_tasks: Loaded_Tasks,
 	log_intro = true,
 ): Promise<void> => {
-	const {resolved_input_paths, resolved_input_files_by_input_path, task_root_paths} = found_tasks;
+	const {resolved_input_paths, resolved_input_files_by_input_path} = found_tasks;
 
 	for (const resolved_input_path of resolved_input_paths) {
 		const {input_path} = resolved_input_path;
@@ -23,14 +23,6 @@ export const log_tasks = async (
 		if (!resolved_input_files.length) {
 			log.info(`No tasks found in ${dir_label}.`);
 			continue;
-		}
-		// Load all of the tasks so we can log their summary, and args for the `--help` flag.
-		const load_modules_result = await load_modules(resolved_input_files, (id) =>
-			load_task_module(id, task_root_paths),
-		);
-		if (!load_modules_result.ok) {
-			log_error_reasons(log, load_modules_result.reasons);
-			process.exit(1);
 		}
 		const logged: string[] = [
 			`${log_intro ? '\n\n' : ''}${resolved_input_files.length} task${plural(
@@ -43,8 +35,8 @@ export const log_tasks = async (
 				`\n${gray('View help:')}  gro [name] --help`,
 			);
 		}
-		const longest_task_name = to_max_length(load_modules_result.modules, (m) => m.name);
-		for (const meta of load_modules_result.modules) {
+		const longest_task_name = to_max_length(loaded_tasks.modules, (m) => m.name);
+		for (const meta of loaded_tasks.modules) {
 			logged.push(
 				'\n' + cyan(pad(meta.name, longest_task_name)),
 				'  ',
