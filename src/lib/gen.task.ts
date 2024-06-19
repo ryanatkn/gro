@@ -5,9 +5,8 @@ import {z} from 'zod';
 
 import {Task_Error, type Task} from './task.js';
 import {run_gen} from './run_gen.js';
-import {load_gen_module, find_genfiles} from './gen_module.js';
+import {find_genfiles, load_genfiles} from './gen_module.js';
 import {Raw_Input_Path, to_input_paths} from './input_path.js';
-import {load_modules} from './modules.js';
 import {format_file} from './format_file.js';
 import {paths, print_path} from './paths.js';
 import {log_error_reasons} from './task_logging.js';
@@ -48,24 +47,16 @@ export const task: Task<Args> = {
 		}
 		const found_genfiles = found.value;
 		log.info('gen files', found_genfiles.resolved_input_files);
-		const load_modules_result = await load_modules(
-			found_genfiles.resolved_input_files,
-			load_gen_module,
-		);
-		if (!load_modules_result.ok) {
-			log_error_reasons(log, load_modules_result.reasons);
+		const loaded = await load_genfiles(found_genfiles);
+		if (!loaded.ok) {
+			log_error_reasons(log, loaded.reasons);
 			throw new Task_Error('Failed to load gen modules.');
 		}
+		const loaded_genfiles = loaded.value;
 
 		// run `gen` on each of the modules
 		const timing_to_generate_code = timings.start('generate code'); // TODO this ignores `gen_results.elapsed` - should it return `Timings` instead?
-		const gen_results = await run_gen(
-			load_modules_result.modules,
-			config,
-			log,
-			timings,
-			format_file,
-		);
+		const gen_results = await run_gen(loaded_genfiles.modules, config, log, timings, format_file);
 		timing_to_generate_code();
 
 		const fail_count = gen_results.failures.length;

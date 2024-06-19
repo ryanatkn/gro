@@ -2,7 +2,13 @@ import type {Timings} from '@ryanatkn/belt/timings.js';
 import type {Result} from '@ryanatkn/belt/result.js';
 import {red} from 'kleur/colors';
 
-import {type Module_Meta, load_module, type Load_Module_Result} from './modules.js';
+import {
+	type Module_Meta,
+	load_module,
+	type Load_Module_Result,
+	load_modules,
+	type Load_Module_Failure,
+} from './modules.js';
 import type {Gen} from './gen.js';
 import {
 	Input_Path,
@@ -18,21 +24,6 @@ export const GEN_FILE_PATTERN_TEXT = 'gen';
 export const GEN_FILE_PATTERN = '.' + GEN_FILE_PATTERN_TEXT + '.';
 
 export const is_gen_path = (path: string): boolean => path.includes(GEN_FILE_PATTERN);
-
-export interface Gen_Module {
-	gen: Gen;
-}
-
-export const validate_gen_module = (mod: Record<string, any>): mod is Gen_Module =>
-	typeof mod?.gen === 'function';
-
-export type Gen_Module_Meta = Module_Meta<Gen_Module>;
-
-// TODO BLOCK refactor
-export const load_gen_module = async (id: string): Promise<Load_Module_Result<Gen_Module_Meta>> => {
-	const result = await load_module(id, validate_gen_module);
-	return result as Load_Module_Result<Gen_Module_Meta>;
-};
 
 export interface Found_Genfiles {
 	resolved_input_files: Resolved_Input_File[];
@@ -137,5 +128,50 @@ export const find_genfiles = async (
 			resolved_input_paths,
 			resolved_input_path_by_input_path,
 		},
+	};
+};
+
+// TODO BLOCK this and other `Gen_` to `Genfile_`?
+export interface Gen_Module {
+	gen: Gen;
+}
+
+export const validate_gen_module = (mod: Record<string, any>): mod is Gen_Module =>
+	typeof mod?.gen === 'function';
+
+export type Gen_Module_Meta = Module_Meta<Gen_Module>;
+
+// TODO BLOCK refactor
+export const load_gen_module = async (id: string): Promise<Load_Module_Result<Gen_Module_Meta>> => {
+	const result = await load_module(id, validate_gen_module);
+	return result as Load_Module_Result<Gen_Module_Meta>;
+};
+
+export interface Loaded_Genfiles {
+	modules: Gen_Module_Meta[];
+	found_genfiles: Found_Genfiles;
+}
+
+// TODO BLOCK messy with Load_Modules equivalents
+export type Load_Genfiles_Result = Result<{value: Loaded_Genfiles}, Load_Genfiles_Failure>;
+export type Load_Genfiles_Failure = {
+	type: 'load_module_failures';
+	load_module_failures: Load_Module_Failure[];
+	reasons: string[];
+	// still return the modules and timings, deferring to the caller
+	modules: Gen_Module_Meta[];
+};
+
+export const load_genfiles = async (
+	found_genfiles: Found_Genfiles,
+): Promise<Load_Genfiles_Result> => {
+	// TODO BLOCK refactor
+	const loaded_modules = await load_modules(found_genfiles.resolved_input_files, load_gen_module);
+	if (!loaded_modules.ok) {
+		return loaded_modules;
+	}
+	return {
+		ok: true,
+		value: {modules: loaded_modules.modules, found_genfiles},
 	};
 };
