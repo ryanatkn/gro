@@ -113,7 +113,7 @@ export const invoke_task = async (
 	const loaded_tasks = loaded.value;
 
 	if (resolved_input_path.is_directory) {
-		// // The input path matches a directory. Log the tasks but don't run them.
+		// The input path matches a directory. Log the tasks but don't run them.
 		await log_tasks(log, loaded_tasks);
 		finish();
 		return;
