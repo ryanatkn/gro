@@ -924,7 +924,6 @@ export const src_json = {
 			path: 'task_logging.ts',
 			declarations: [
 				{name: 'log_tasks', kind: 'function'},
-				{name: 'log_gro_package_tasks', kind: 'function'},
 				{name: 'log_error_reasons', kind: 'function'},
 				{name: 'log_task_help', kind: 'function'},
 			],

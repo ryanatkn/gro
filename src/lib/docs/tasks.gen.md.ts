@@ -26,7 +26,7 @@ export const gen: Gen = async ({config, origin_id, log}) => {
 		throw new Task_Error(`Failed to generate task docs: ${found.type}`);
 	}
 
-	const loaded = await load_tasks(found.resolved_input_files, config.task_root_paths);
+	const loaded = await load_tasks(found.value.resolved_input_files, config.task_root_paths);
 	if (!loaded.ok) {
 		log_error_reasons(log, loaded.reasons);
 		throw new Task_Error(`Failed to generate task docs: ${loaded.type}`);

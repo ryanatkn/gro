@@ -1,28 +1,29 @@
 import {cyan, gray, green, red} from 'kleur/colors';
 import type {Logger} from '@ryanatkn/belt/log.js';
-import {plural, strip_start} from '@ryanatkn/belt/string.js';
+import {plural} from '@ryanatkn/belt/string.js';
 import {print_value} from '@ryanatkn/belt/print.js';
 import {ZodFirstPartyTypeKind, type ZodObjectDef, type ZodTypeAny, type ZodTypeDef} from 'zod';
 
 import type {Arg_Schema} from './args.js';
 import {load_modules} from './modules.js';
-import {
-	find_tasks,
-	load_task_module,
-	type Find_Tasks_Result,
-	type Task_Module_Meta,
-} from './task_module.js';
-import type {Input_Path, Resolved_Input_File} from './input_path.js';
-import {GRO_DIST_DIR, paths, print_path} from './paths.js';
+import {load_task_module, type Found_Tasks, type Task_Module_Meta} from './task_module.js';
+import {print_path} from './paths.js';
 
 export const log_tasks = async (
 	log: Logger,
-	dir_label: string,
-	resolved_input_files: Resolved_Input_File[],
-	task_root_paths: string[],
+	found_tasks: Found_Tasks,
 	log_intro = true,
 ): Promise<void> => {
-	if (resolved_input_files.length) {
+	const {resolved_input_paths, resolved_input_files_by_input_path, task_root_paths} = found_tasks;
+
+	for (const resolved_input_path of resolved_input_paths) {
+		const {input_path} = resolved_input_path;
+		const dir_label = print_path(resolved_input_path.id);
+		const resolved_input_files = resolved_input_files_by_input_path.get(input_path)!;
+		if (!resolved_input_files.length) {
+			log.info(`No tasks found in ${dir_label}.`);
+			continue;
+		}
 		// Load all of the tasks so we can log their summary, and args for the `--help` flag.
 		const load_modules_result = await load_modules(resolved_input_files, (id) =>
 			load_task_module(id, task_root_paths),
@@ -51,39 +52,37 @@ export const log_tasks = async (
 			);
 		}
 		log[log_intro ? 'info' : 'plain'](logged.join('') + '\n');
-	} else {
-		log.info(`No tasks found in ${dir_label}.`);
 	}
 };
 
-// TODO BLOCK probably rewrite this
-export const log_gro_package_tasks = async (
-	input_path: Input_Path,
-	task_root_paths: string[],
-	log: Logger,
-): Promise<Find_Tasks_Result> => {
-	const gro_dir_input_path = to_gro_input_path(input_path);
-	const gro_dir_find_tasks_result = await find_tasks([gro_dir_input_path], task_root_paths);
-	console.log(`[log_gro_package_tasks] gro_dir_find_tasks_result`, gro_dir_find_tasks_result);
-	if (gro_dir_find_tasks_result.ok) {
-		const gro_path_data =
-			gro_dir_find_tasks_result.resolved_input_path_by_input_path.get(gro_dir_input_path)!;
-		// Log the Gro matches.
-		await log_tasks(
-			log,
-			print_path(gro_path_data.id),
-			gro_dir_find_tasks_result.resolved_input_files,
-			task_root_paths,
-		);
-	}
-	return gro_dir_find_tasks_result;
-};
+// TODO BLOCK delete after getting the generic version working, maybe need `print_input_path`
+// export const log_gro_package_tasks = async (
+// 	input_path: Input_Path,
+// 	task_root_paths: Path_Id[],
+// 	log: Logger,
+// ): Promise<Find_Tasks_Result> => {
+// 	const gro_dir_input_path = to_gro_input_path(input_path);
+// 	const gro_dir_find_tasks_result = await find_tasks([gro_dir_input_path], task_root_paths);
+// 	console.log(`[log_gro_package_tasks] gro_dir_find_tasks_result`, gro_dir_find_tasks_result);
+// 	if (gro_dir_find_tasks_result.ok) {
+// 		const gro_path_data =
+// 			gro_dir_find_tasks_result.resolved_input_path_by_input_path.get(gro_dir_input_path)!;
+// 		// Log the Gro matches.
+// 		await log_tasks(
+// 			log,
+// 			print_path(gro_path_data.id),
+// 			gro_dir_find_tasks_result.resolved_input_files,
+// 			task_root_paths,
+// 		);
+// 	}
+// 	return gro_dir_find_tasks_result;
+// };
 // TODO BLOCK used above, I don't think this is valid any more, we shouldn't transform absolute paths like this,
 // the searching should happen with the input paths
-const to_gro_input_path = (input_path: Input_Path): Input_Path => {
-	const base_path = input_path === paths.lib.slice(0, -1) ? '' : strip_start(input_path, paths.lib);
-	return GRO_DIST_DIR + base_path;
-};
+// const to_gro_input_path = (input_path: Input_Path): Input_Path => {
+// 	const base_path = input_path === paths.lib.slice(0, -1) ? '' : strip_start(input_path, paths.lib);
+// 	return GRO_DIST_DIR + base_path;
+// };
 
 export const log_error_reasons = (log: Logger, reasons: string[]): void => {
 	for (const reason of reasons) {

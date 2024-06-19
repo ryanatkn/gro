@@ -37,7 +37,7 @@ export const is_task_path = (path: string): boolean =>
 	path.endsWith(TASK_FILE_SUFFIX_TS) || path.endsWith(TASK_FILE_SUFFIX_JS);
 
 // TODO BLOCK refactor or remove this, is a hack because the `task_root_path` should be known
-export const to_task_name = (id: Path_Id, task_root_paths: string[]): string => {
+export const to_task_name = (id: Path_Id, task_root_paths: Path_Id[]): string => {
 	// If the id is in any of the task root paths, use the longest available match and strip it.
 	// This is convoluted because we're not tracking which root path was resolved against the id.
 	// TODO improve the data flow of id from task root path so this is unnecessary

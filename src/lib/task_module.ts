@@ -24,22 +24,25 @@ export interface Found_Task {
 	task_root_path: Path_Id;
 }
 
-export type Find_Tasks_Result = Result<
-	{
-		// TODO BLOCK should these be bundled into a single data structure?
-		resolved_input_files: Resolved_Input_File[];
-		resolved_input_files_by_input_path: Map<Input_Path, Resolved_Input_File[]>;
-		resolved_input_paths: Resolved_Input_Path[]; // TODO BLOCK probably add `input_path_datas` and just use it
-		resolved_input_path_by_input_path: Map<Input_Path, Resolved_Input_Path>;
-	},
-	Find_Modules_Failure
->;
+export interface Found_Tasks {
+	// TODO BLOCK should these be bundled into a single data structure?
+	resolved_input_files: Resolved_Input_File[];
+	resolved_input_files_by_input_path: Map<Input_Path, Resolved_Input_File[]>;
+	resolved_input_paths: Resolved_Input_Path[]; // TODO BLOCK probably add `input_path_datas` and just use it
+	resolved_input_path_by_input_path: Map<Input_Path, Resolved_Input_Path>;
+	input_paths: Input_Path[];
+	task_root_paths: Path_Id[];
+}
+
+export type Find_Tasks_Result = Result<{value: Found_Tasks}, Find_Modules_Failure>;
 export type Find_Modules_Failure =
 	| {
 			type: 'unmapped_input_paths';
 			unmapped_input_paths: Input_Path[];
 			resolved_input_paths: Resolved_Input_Path[];
 			resolved_input_path_by_input_path: Map<Input_Path, Resolved_Input_Path>;
+			input_paths: Input_Path[];
+			task_root_paths: Path_Id[];
 			reasons: string[];
 	  }
 	| {
@@ -49,6 +52,8 @@ export type Find_Modules_Failure =
 			resolved_input_files_by_input_path: Map<Input_Path, Resolved_Input_File[]>;
 			resolved_input_paths: Resolved_Input_Path[];
 			resolved_input_path_by_input_path: Map<Input_Path, Resolved_Input_Path>;
+			input_paths: Input_Path[];
+			task_root_paths: Path_Id[];
 			reasons: string[];
 	  };
 
@@ -57,7 +62,7 @@ export type Find_Modules_Failure =
  */
 export const find_tasks = async (
 	input_paths: Input_Path[],
-	task_root_paths: string[],
+	task_root_paths: Path_Id[],
 	timings?: Timings,
 ): Promise<Find_Tasks_Result> => {
 	// TODO BLOCK so each input path gets associated with one `task_root_path`, right? cache in a data structure?
@@ -83,6 +88,8 @@ export const find_tasks = async (
 			unmapped_input_paths,
 			resolved_input_paths,
 			resolved_input_path_by_input_path,
+			input_paths,
+			task_root_paths,
 			reasons: unmapped_input_paths.map((input_path) =>
 				red(`Input path ${print_path(input_path)} cannot be mapped to a file or directory.`),
 			),
@@ -110,6 +117,8 @@ export const find_tasks = async (
 			resolved_input_files_by_input_path,
 			resolved_input_paths,
 			resolved_input_path_by_input_path,
+			input_paths,
+			task_root_paths,
 			reasons: input_directories_with_no_files.map(({input_path}) =>
 				red(
 					`Input directory ${print_path(
@@ -122,10 +131,14 @@ export const find_tasks = async (
 
 	return {
 		ok: true,
-		resolved_input_files,
-		resolved_input_files_by_input_path,
-		resolved_input_paths,
-		resolved_input_path_by_input_path,
+		value: {
+			resolved_input_files,
+			resolved_input_files_by_input_path,
+			resolved_input_paths,
+			resolved_input_path_by_input_path,
+			input_paths,
+			task_root_paths,
+		},
 	};
 };
 
@@ -143,7 +156,7 @@ export const validate_task_module = (mod: Record<string, any>): mod is Task_Modu
 // TODO BLOCK probably rename to `load_task`, or remove and inline in `load_tasks`
 export const load_task_module = async (
 	id: string,
-	task_root_paths: string[],
+	task_root_paths: Path_Id[],
 ): Promise<Load_Module_Result<Task_Module_Meta>> => {
 	const result = await load_module(id, validate_task_module);
 	if (!result.ok) return result;
@@ -153,7 +166,7 @@ export const load_task_module = async (
 
 export const load_tasks = async (
 	resolved_input_files: Resolved_Input_File[],
-	task_root_paths: string[],
+	task_root_paths: Path_Id[],
 ): Promise<
 	| ReturnType<typeof load_modules<Task_Module, Task_Module_Meta>>
 	| ({ok: false} & Find_Modules_Failure)

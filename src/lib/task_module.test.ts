@@ -73,7 +73,7 @@ test__load_tasks('basic behavior', async () => {
 		[resolve('src/lib')],
 	);
 	assert.ok(found.ok);
-	const result = await load_tasks(found.resolved_input_files, [resolve('src/lib')]);
+	const result = await load_tasks(found.value.resolved_input_files, [resolve('src/lib')]);
 	assert.ok(result.ok);
 	assert.is(result.modules.length, 1);
 	assert.is(result.modules[0].mod, actual_test_task_module);
