@@ -47,7 +47,7 @@ export const task: Task<Args> = {
 		}
 		const found_genfiles = found.value;
 		log.info('gen files', found_genfiles.resolved_input_files);
-		const loaded = await load_genfiles(found_genfiles);
+		const loaded = await load_genfiles(found_genfiles, timings);
 		if (!loaded.ok) {
 			log_error_reasons(log, loaded.reasons);
 			throw new Task_Error('Failed to load gen modules.');

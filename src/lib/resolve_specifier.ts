@@ -2,10 +2,11 @@ import {extname, join, relative} from 'node:path';
 
 import {replace_extension} from './paths.js';
 import {exists} from './fs.js';
+import type {Path_Id} from './path.js';
 
 export interface Resolved_Specifier {
 	specifier: string;
-	path_id: string;
+	path_id: Path_Id;
 	namespace: undefined | 'sveltekit_local_imports_ts' | 'sveltekit_local_imports_js';
 }
 

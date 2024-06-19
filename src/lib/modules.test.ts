@@ -6,7 +6,7 @@ import {load_module} from './modules.js';
 
 // TODO if we import directly, svelte-package generates types in `src/fixtures`
 /* eslint-disable no-useless-concat */
-const modTest1 = await import('../fixtures/' + 'test1.foo.js');
+const mod_test1 = await import('../fixtures/' + 'test1.foo.js');
 
 /* test__load_module */
 const test__load_module = suite('load_module');
@@ -14,22 +14,22 @@ const test__load_module = suite('load_module');
 test__load_module('basic behavior', async () => {
 	const id = resolve('src/fixtures/test1.foo.js');
 	let validated_mod;
-	const result = await load_module(id, ((mod: any) => {
+	const result = await load_module(id, (mod): mod is any => {
 		validated_mod = mod;
 		return true;
-	}) as any);
+	});
 	assert.ok(result.ok);
-	assert.is(result.mod.id, id);
-	assert.is(result.mod.mod, validated_mod);
-	assert.is(result.mod.mod, modTest1);
+	assert.is(result.id, id);
+	assert.is(result.mod, validated_mod);
+	assert.is(result.mod, mod_test1);
 });
 
 test__load_module('without validation', async () => {
 	const id = resolve('src/fixtures/test1.foo.js');
 	const result = await load_module(id);
 	assert.ok(result.ok);
-	assert.is(result.mod.id, id);
-	assert.is(result.mod.mod, modTest1);
+	assert.is(result.id, id);
+	assert.is(result.mod, mod_test1);
 });
 
 test__load_module('fails validation', async () => {
@@ -45,7 +45,7 @@ test__load_module('fails validation', async () => {
 		assert.is(result.validation, test_validation.name);
 		assert.is(result.id, id);
 		assert.is(result.mod, validated_mod);
-		assert.is(result.mod, modTest1);
+		assert.is(result.mod, mod_test1);
 	} else {
 		throw Error('Should be invalid');
 	}

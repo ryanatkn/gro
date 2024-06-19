@@ -2,13 +2,7 @@ import type {Timings} from '@ryanatkn/belt/timings.js';
 import type {Result} from '@ryanatkn/belt/result.js';
 import {red} from 'kleur/colors';
 
-import {
-	type Module_Meta,
-	load_module,
-	type Load_Module_Result,
-	load_modules,
-	type Load_Module_Failure,
-} from './modules.js';
+import {type Module_Meta, load_modules, type Load_Module_Failure} from './modules.js';
 import type {Gen} from './gen.js';
 import {
 	Input_Path,
@@ -136,16 +130,7 @@ export interface Gen_Module {
 	gen: Gen;
 }
 
-export const validate_gen_module = (mod: Record<string, any>): mod is Gen_Module =>
-	typeof mod?.gen === 'function';
-
 export type Gen_Module_Meta = Module_Meta<Gen_Module>;
-
-// TODO BLOCK refactor
-export const load_gen_module = async (id: string): Promise<Load_Module_Result<Gen_Module_Meta>> => {
-	const result = await load_module(id, validate_gen_module);
-	return result as Load_Module_Result<Gen_Module_Meta>;
-};
 
 export interface Loaded_Genfiles {
 	modules: Gen_Module_Meta[];
@@ -164,9 +149,15 @@ export type Load_Genfiles_Failure = {
 
 export const load_genfiles = async (
 	found_genfiles: Found_Genfiles,
+	timings?: Timings,
 ): Promise<Load_Genfiles_Result> => {
 	// TODO BLOCK refactor
-	const loaded_modules = await load_modules(found_genfiles.resolved_input_files, load_gen_module);
+	const loaded_modules = await load_modules(
+		found_genfiles.resolved_input_files,
+		validate_gen_module,
+		(id, mod) => ({id, mod}),
+		timings,
+	);
 	if (!loaded_modules.ok) {
 		return loaded_modules;
 	}
@@ -175,3 +166,6 @@ export const load_genfiles = async (
 		value: {modules: loaded_modules.modules, found_genfiles},
 	};
 };
+
+export const validate_gen_module = (mod: Record<string, any>): mod is Gen_Module =>
+	typeof mod?.gen === 'function';

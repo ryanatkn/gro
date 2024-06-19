@@ -47,11 +47,11 @@ export const create_paths = (root_dir: string): Paths => {
 	};
 };
 
-export const infer_paths = (id: string): Paths => (is_gro_id(id) ? gro_paths : paths);
-export const is_gro_id = (id: string): boolean => id.startsWith(strip_end(gro_paths.root, '/')); // strip `/` in case we're looking at the Gro root without a trailing slash
+export const infer_paths = (id: Path_Id): Paths => (is_gro_id(id) ? gro_paths : paths);
+export const is_gro_id = (id: Path_Id): boolean => id.startsWith(strip_end(gro_paths.root, '/')); // strip `/` in case we're looking at the Gro root without a trailing slash
 
 // '/home/me/app/src/foo/bar/baz.ts' → 'src/foo/bar/baz.ts'
-export const to_root_path = (id: string, p = infer_paths(id)): string => strip_start(id, p.root);
+export const to_root_path = (id: Path_Id, p = infer_paths(id)): string => strip_start(id, p.root);
 
 // '/home/me/app/src/foo/bar/baz.ts' → 'foo/bar/baz.ts'
 export const path_id_to_base_path = (path_id: Path_Id, p = infer_paths(path_id)): string =>
@@ -61,21 +61,6 @@ export const path_id_to_base_path = (path_id: Path_Id, p = infer_paths(path_id))
 // 'foo/bar/baz.ts' → '/home/me/app/src/foo/bar/baz.ts'
 export const base_path_to_path_id = (base_path: string, p = infer_paths(base_path)): Path_Id =>
 	join(p.source, base_path);
-
-/**
- * An `import_id` can be a path_id in a project,
- * or a Gro path_id when running inside Gro,
- * or a `gro/dist/` file id in node_modules when inside another project.
- */
-export const import_id_to_lib_path = (import_id: string, p = infer_paths(import_id)): string => {
-	if (p.root === gro_paths.root) {
-		const stripped = strip_start(strip_start(import_id, p.lib), GRO_DIST_DIR); // TODO hacky, needs more work to clarify related things
-		const lib_path = IS_THIS_GRO ? stripped : replace_extension(stripped, '.ts');
-		return lib_path;
-	} else {
-		return strip_start(import_id, p.lib);
-	}
-};
 
 export const print_path = (path: string, p = infer_paths(path), prefix = './'): string => {
 	const root_path = path === GRO_DIST_DIR ? 'gro' : to_root_path(path, p);

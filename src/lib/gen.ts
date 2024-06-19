@@ -11,13 +11,13 @@ import type {Parsed_Sveltekit_Config} from './sveltekit_config.js';
 import {GEN_FILE_PATTERN, GEN_FILE_PATTERN_TEXT} from './gen_module.js';
 
 export type Gen_Result = {
-	origin_id: string;
+	origin_id: Path_Id;
 	files: Gen_File[];
 };
 export interface Gen_File {
-	id: string;
+	id: Path_Id;
 	content: string;
-	origin_id: string;
+	origin_id: Path_Id;
 	format: boolean;
 }
 
@@ -30,7 +30,7 @@ export interface Gen_Context {
 	/**
 	 * Same as `import.meta.url` but in path form.
 	 */
-	origin_id: string;
+	origin_id: Path_Id;
 	log: Logger;
 }
 // TODO consider other return data - metadata? effects? non-file build artifacts?
@@ -59,13 +59,13 @@ export type Gen_Results = {
 export type Gen_Module_Result = Gen_Module_Result_Success | Gen_Module_Result_Failure;
 export type Gen_Module_Result_Success = {
 	ok: true;
-	id: string;
+	id: Path_Id;
 	files: Gen_File[];
 	elapsed: number;
 };
 export type Gen_Module_Result_Failure = {
 	ok: false;
-	id: string;
+	id: Path_Id;
 	reason: string;
 	error: Error;
 	elapsed: number;

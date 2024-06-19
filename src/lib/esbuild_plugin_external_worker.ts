@@ -11,6 +11,7 @@ import {esbuild_plugin_sveltekit_shim_app} from './esbuild_plugin_sveltekit_shim
 import {esbuild_plugin_sveltekit_local_imports} from './esbuild_plugin_sveltekit_local_imports.js';
 import {esbuild_plugin_svelte} from './esbuild_plugin_svelte.js';
 import type {Parsed_Sveltekit_Config} from './sveltekit_config.js';
+import type {Path_Id} from './path.js';
 
 export interface Options {
 	dev: boolean;
@@ -50,7 +51,7 @@ export const esbuild_plugin_external_worker = ({
 	name: 'external_worker',
 	setup: (build) => {
 		const builds: Map<string, Promise<esbuild.BuildResult>> = new Map();
-		const build_worker = async (path_id: string): Promise<esbuild.BuildResult> => {
+		const build_worker = async (path_id: Path_Id): Promise<esbuild.BuildResult> => {
 			if (builds.has(path_id)) return builds.get(path_id)!;
 			const building = esbuild.build({
 				entryPoints: [path_id],

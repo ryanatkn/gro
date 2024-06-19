@@ -113,7 +113,7 @@ export interface Gen_Context {
 	/**
 	 * Same as `import.meta.url` but in path form.
 	 */
-	origin_id: string;
+	origin_id: Path_Id;
 	log: Logger;
 }
 // export const gen: Gen = ({config, origin_id, log}) => {

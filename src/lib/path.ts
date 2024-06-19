@@ -10,7 +10,7 @@ export interface Path_Data {
 	is_directory: boolean;
 }
 
-export const to_path_data = (id: string, stats: Path_Stats): Path_Data => ({
+export const to_path_data = (id: Path_Id, stats: Path_Stats): Path_Data => ({
 	id,
 	is_directory: stats.isDirectory(),
 });

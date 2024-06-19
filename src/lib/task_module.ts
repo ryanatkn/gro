@@ -1,12 +1,6 @@
 import type {Timings} from '@ryanatkn/belt/timings.js';
 
-import {
-	load_module,
-	load_modules,
-	type Module_Meta,
-	type Load_Module_Result,
-	type Load_Module_Failure,
-} from './modules.js';
+import {load_modules, type Module_Meta, type Load_Module_Failure} from './modules.js';
 import {to_task_name, is_task_path, type Task, TASK_FILE_SUFFIXES} from './task.js';
 import {
 	Input_Path,
@@ -168,13 +162,15 @@ export type Load_Tasks_Failure = {
 };
 
 export const load_tasks = async (found_tasks: Found_Tasks): Promise<Load_Tasks_Result> => {
-	// TODO BLOCK refactor
-	const loaded_modules = await load_modules(found_tasks.resolved_input_files, (id) =>
-		load_task_module(id, found_tasks.task_root_paths),
+	const loaded_modules = await load_modules(
+		found_tasks.resolved_input_files,
+		validate_task_module,
+		(id, mod) => ({id, mod, name: to_task_name(id, found_tasks.task_root_paths)}),
 	);
 	if (!loaded_modules.ok) {
 		return loaded_modules;
 	}
+
 	return {
 		ok: true,
 		value: {modules: loaded_modules.modules, found_tasks},
@@ -183,14 +179,3 @@ export const load_tasks = async (found_tasks: Found_Tasks): Promise<Load_Tasks_R
 
 export const validate_task_module = (mod: Record<string, any>): mod is Task_Module =>
 	!!mod.task && typeof mod.task.run === 'function';
-
-// TODO BLOCK probably rename to `load_task`, or remove and inline in `load_tasks`
-export const load_task_module = async (
-	id: string,
-	task_root_paths: Path_Id[],
-): Promise<Load_Module_Result<Task_Module_Meta>> => {
-	const result = await load_module(id, validate_task_module);
-	if (!result.ok) return result;
-	// TODO BLOCK this is weird with the spreads
-	return {...result, mod: {...result.mod, name: to_task_name(id, task_root_paths)}}; // TODO this task name needs to use task root paths or cwd
-};
