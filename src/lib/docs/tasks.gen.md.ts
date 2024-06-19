@@ -4,7 +4,7 @@ import {strip_start} from '@ryanatkn/belt/string.js';
 
 import {type Gen, to_output_file_name} from '../gen.js';
 import {paths, base_path_to_path_id} from '../paths.js';
-import {find_tasks, load_task_modules, load_tasks} from '../task_module.js';
+import {find_tasks, load_tasks} from '../task_module.js';
 import {log_error_reasons} from '../task_logging.js';
 import {Task_Error} from '../task.js';
 
@@ -19,7 +19,7 @@ import {Task_Error} from '../task.js';
 // TODO needs some cleanup and better APIs - paths are confusing and verbose!
 // TODO add backlinks to every document that links to this one
 
-export const gen: Gen = async ({config, origin_id, log}) => {
+export const gen: Gen = async ({origin_id, log}) => {
 	const found = await find_tasks([paths.lib], [paths.lib]);
 	if (!found.ok) {
 		log_error_reasons(log, found.reasons);

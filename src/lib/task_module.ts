@@ -194,14 +194,3 @@ export const load_task_module = async (
 	// TODO BLOCK this is weird with the spreads
 	return {...result, mod: {...result.mod, name: to_task_name(id, task_root_paths)}}; // TODO this task name needs to use task root paths or cwd
 };
-
-export const load_task_modules = async (
-	resolved_input_files: Resolved_Input_File[],
-	task_root_paths: Path_Id[],
-): Promise<
-	| ReturnType<typeof load_modules<Task_Module, Task_Module_Meta>>
-	| ({ok: false} & Find_Modules_Failure)
-> => {
-	// TODO BLOCK use everywhere and refactor the helpers?
-	return load_modules(resolved_input_files, (id) => load_task_module(id, task_root_paths));
-};
