@@ -148,6 +148,7 @@ export const find_tasks = async (
 
 export interface Loaded_Tasks {
 	modules: Task_Module_Meta[];
+	found_tasks: Found_Tasks;
 }
 
 export interface Task_Module {
@@ -165,10 +166,10 @@ export type Load_Tasks_Failure = {
 	reasons: string[];
 };
 
-export const load_tasks = async (found: Found_Tasks): Promise<Load_Tasks_Result> => {
+export const load_tasks = async (found_tasks: Found_Tasks): Promise<Load_Tasks_Result> => {
 	// TODO BLOCK refactor
-	const loaded_modules = await load_modules(found.resolved_input_files, (id) =>
-		load_task_module(id, found.task_root_paths),
+	const loaded_modules = await load_modules(found_tasks.resolved_input_files, (id) =>
+		load_task_module(id, found_tasks.task_root_paths),
 	);
 	if (!loaded_modules.ok) {
 		// TODO BLOCK weirdly proxying this error
@@ -180,7 +181,7 @@ export const load_tasks = async (found: Found_Tasks): Promise<Load_Tasks_Result>
 	}
 	return {
 		ok: true,
-		value: {modules: loaded_modules.modules},
+		value: {modules: loaded_modules.modules, found_tasks},
 	};
 };
 

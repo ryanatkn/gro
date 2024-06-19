@@ -5,15 +5,15 @@ import {print_value} from '@ryanatkn/belt/print.js';
 import {ZodFirstPartyTypeKind, type ZodObjectDef, type ZodTypeAny, type ZodTypeDef} from 'zod';
 
 import type {Arg_Schema} from './args.js';
-import type {Found_Tasks, Loaded_Tasks, Task_Module_Meta} from './task_module.js';
+import type {Loaded_Tasks, Task_Module_Meta} from './task_module.js';
 import {print_path} from './paths.js';
 
 export const log_tasks = async (
 	log: Logger,
-	found_tasks: Found_Tasks,
 	loaded_tasks: Loaded_Tasks,
 	log_intro = true,
 ): Promise<void> => {
+	const {modules, found_tasks} = loaded_tasks;
 	const {resolved_input_paths, resolved_input_files_by_input_path} = found_tasks;
 
 	for (const resolved_input_path of resolved_input_paths) {
@@ -35,8 +35,8 @@ export const log_tasks = async (
 				`\n${gray('View help:')}  gro [name] --help`,
 			);
 		}
-		const longest_task_name = to_max_length(loaded_tasks.modules, (m) => m.name);
-		for (const meta of loaded_tasks.modules) {
+		const longest_task_name = to_max_length(modules, (m) => m.name);
+		for (const meta of modules) {
 			logged.push(
 				'\n' + cyan(pad(meta.name, longest_task_name)),
 				'  ',

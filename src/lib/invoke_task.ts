@@ -140,7 +140,7 @@ export const invoke_task = async (
 			throw result.error;
 		}
 	} else {
-		await log_tasks(log, found_tasks, loaded_tasks);
+		await log_tasks(log, loaded_tasks);
 		// TODO BLOCK delete after getting what we need:
 		// // The input path matches a directory. Log the tasks but don't run them.
 		// if (IS_THIS_GRO) {
