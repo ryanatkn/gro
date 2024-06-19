@@ -160,8 +160,11 @@ export interface Task_Module_Meta extends Module_Meta<Task_Module> {
 // TODO BLOCK messy with Load_Modules equivalents
 export type Load_Tasks_Result = Result<{value: Loaded_Tasks}, Load_Tasks_Failure>;
 export type Load_Tasks_Failure = {
+	type: 'load_module_failures';
 	load_module_failures: Load_Module_Failure[];
 	reasons: string[];
+	// still return the modules and timings, deferring to the caller
+	modules: Task_Module_Meta[];
 };
 
 export const load_tasks = async (found_tasks: Found_Tasks): Promise<Load_Tasks_Result> => {
@@ -170,12 +173,7 @@ export const load_tasks = async (found_tasks: Found_Tasks): Promise<Load_Tasks_R
 		load_task_module(id, found_tasks.task_root_paths),
 	);
 	if (!loaded_modules.ok) {
-		// TODO BLOCK weirdly proxying this error
-		return {
-			ok: false,
-			load_module_failures: loaded_modules.load_module_failures,
-			reasons: loaded_modules.reasons,
-		};
+		return loaded_modules;
 	}
 	return {
 		ok: true,

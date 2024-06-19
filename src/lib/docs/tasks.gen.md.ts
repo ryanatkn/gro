@@ -4,7 +4,7 @@ import {strip_start} from '@ryanatkn/belt/string.js';
 
 import {type Gen, to_output_file_name} from '../gen.js';
 import {paths, base_path_to_path_id} from '../paths.js';
-import {find_tasks, load_task_modules} from '../task_module.js';
+import {find_tasks, load_task_modules, load_tasks} from '../task_module.js';
 import {log_error_reasons} from '../task_logging.js';
 import {Task_Error} from '../task.js';
 
@@ -25,13 +25,15 @@ export const gen: Gen = async ({config, origin_id, log}) => {
 		log_error_reasons(log, found.reasons);
 		throw new Task_Error(`Failed to generate task docs: ${found.type}`);
 	}
+	const found_tasks = found.value;
 
-	const loaded = await load_task_modules(found.value.resolved_input_files, config.task_root_paths);
+	const loaded = await load_tasks(found_tasks);
 	if (!loaded.ok) {
 		log_error_reasons(log, loaded.reasons);
 		throw new Task_Error(`Failed to generate task docs: ${loaded.type}`);
 	}
-	const tasks = loaded.modules;
+	const loaded_tasks = loaded.value;
+	const tasks = loaded_tasks.modules;
 
 	const root_path = parse_path_segments(paths.root).at(-1);
 
