@@ -7,6 +7,7 @@ import {
 	to_input_paths,
 	resolve_input_files,
 	get_possible_paths,
+	type Resolved_Input_Path,
 } from './input_path.js';
 import type {Path_Stats} from './path.js';
 import {GRO_DIST_DIR, paths} from './paths.js';
@@ -134,50 +135,72 @@ test('resolve_input_files', async () => {
 		]),
 		'fake/nomatches': new Map([['fake/nomatches', {isDirectory: () => true}]]),
 	};
-	const result = await resolve_input_files(
+	const a: Resolved_Input_Path = {
+		id: 'fake/test1.ext.ts',
+		is_directory: false,
+		input_path: 'fake/test1.ext.ts',
+		root_dir: null,
+		possible_paths: [],
+	};
+	const b: Resolved_Input_Path = {
+		id: 'fake/test2.ext.ts',
+		is_directory: false,
+		input_path: 'fake/test2',
+		root_dir: null,
+		possible_paths: [],
+	};
+	const c: Resolved_Input_Path = {
+		id: 'fake/test3',
+		is_directory: true,
+		input_path: 'fake/test3',
+		root_dir: null,
+		possible_paths: [],
+	};
+	const d: Resolved_Input_Path = {
+		id: 'fake/',
+		is_directory: true,
+		input_path: 'fake/',
+		root_dir: null,
+		possible_paths: [],
+	};
+	const e: Resolved_Input_Path = {
+		id: 'fake',
+		is_directory: true,
+		input_path: 'fake',
+		root_dir: null,
+		possible_paths: [],
+	};
+	const f: Resolved_Input_Path = {
+		id: 'fake/nomatches',
+		is_directory: true,
+		input_path: 'fake/nomatches',
+		root_dir: null,
+		possible_paths: [],
+	};
+	const result = await resolve_input_files([a, b, c, d, e, f], async (id) => test_files[id]);
+	assert.equal(result.resolved_input_files, [
+		{id: a.id, input_path: a.input_path, resolved_input_path: a},
+		{id: b.id, input_path: b.input_path, resolved_input_path: b},
+		{id: 'fake/test3/a.ts', input_path: c.input_path, resolved_input_path: c},
+		{id: 'fake/test3/b.ts', input_path: c.input_path, resolved_input_path: c},
+		{id: 'fake/test3/c.ts', input_path: e.input_path, resolved_input_path: e},
+	]);
+	assert.equal(Array.from(result.resolved_input_files_by_input_path.keys()), [
+		'fake/test1.ext.ts',
+		'fake/test2',
+		'fake/test3',
+		'fake',
+	]);
+	assert.equal(Array.from(result.resolved_input_files_by_input_path.values()), [
+		[{id: a.id, input_path: a.input_path, resolved_input_path: a}],
+		[{id: b.id, input_path: b.input_path, resolved_input_path: b}],
 		[
-			{
-				id: 'fake/test1.ext.ts',
-				is_directory: false,
-				input_path: 'fake/test1.ext.ts',
-				root_dir: null,
-				possible_paths: [],
-			},
-			{
-				id: 'fake/test2.ext.ts',
-				is_directory: false,
-				input_path: 'fake/test2',
-				root_dir: null,
-				possible_paths: [],
-			},
-			{
-				id: 'fake/test3',
-				is_directory: true,
-				input_path: 'fake/test3',
-				root_dir: null,
-				possible_paths: [],
-			},
-			{id: 'fake/', is_directory: true, input_path: 'fake/', root_dir: null, possible_paths: []},
-			{id: 'fake', is_directory: true, input_path: 'fake', root_dir: null, possible_paths: []},
-			{
-				id: 'fake/nomatches',
-				is_directory: true,
-				input_path: 'fake/nomatches',
-				root_dir: null,
-				possible_paths: [],
-			},
+			{id: 'fake/test3/a.ts', input_path: c.input_path, resolved_input_path: c},
+			{id: 'fake/test3/b.ts', input_path: c.input_path, resolved_input_path: c},
 		],
-		async (id) => test_files[id],
-	);
-	assert.equal(result, {
-		resolved_input_files_by_input_path: new Map([
-			['fake/test1.ext.ts', ['fake/test1.ext.ts']],
-			['fake/test2', ['fake/test2.ext.ts']],
-			['fake/test3', ['fake/test3/a.ts', 'fake/test3/b.ts']],
-			['fake', ['fake/test3/c.ts']],
-		]),
-		input_directories_with_no_files: ['fake/nomatches'],
-	});
+		[{id: 'fake/test3/c.ts', input_path: e.input_path, resolved_input_path: e}],
+	]);
+	assert.equal(result.input_directories_with_no_files, [f]);
 });
 
 test.run();
