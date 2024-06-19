@@ -6,13 +6,13 @@ import {type Module_Meta, load_module, type Load_Module_Result} from './modules.
 import type {Gen} from './gen.js';
 import {
 	Input_Path,
-	load_path_ids_by_input_path,
+	resolve_input_files,
 	resolve_input_paths,
+	type Resolved_Input_File,
 	type Resolved_Input_Path,
 } from './input_path.js';
 import {paths, print_path} from './paths.js';
 import {search_fs} from './search_fs.js';
-import type {Path_Id} from './path.js';
 
 export const GEN_FILE_PATTERN_TEXT = 'gen';
 export const GEN_FILE_PATTERN = '.' + GEN_FILE_PATTERN_TEXT + '.';
@@ -63,7 +63,8 @@ export const load_gen_module = async (id: string): Promise<Load_Module_Result<Ge
 export type Find_Genfiles_Result = Result<
 	{
 		// TODO BLOCK should these be bundled into a single data structure?
-		path_ids_by_input_path: Map<Input_Path, Path_Id[]>;
+		resolved_input_files: Resolved_Input_File[];
+		resolved_input_files_by_input_path: Map<Input_Path, Resolved_Input_File[]>;
 		resolved_input_paths: Resolved_Input_Path[];
 		resolved_input_path_by_input_path: Map<Input_Path, Resolved_Input_Path>;
 	},
@@ -79,8 +80,9 @@ export type Find_Genfiles_Failure =
 	  }
 	| {
 			type: 'input_directories_with_no_files';
-			input_directories_with_no_files: Input_Path[];
-			path_ids_by_input_path: Map<Input_Path, Path_Id[]>;
+			input_directories_with_no_files: Resolved_Input_Path[];
+			resolved_input_files: Resolved_Input_File[];
+			resolved_input_files_by_input_path: Map<Input_Path, Resolved_Input_File[]>;
 			resolved_input_paths: Resolved_Input_Path[];
 			resolved_input_path_by_input_path: Map<Input_Path, Resolved_Input_Path>;
 			reasons: string[];
@@ -128,10 +130,13 @@ export const find_genfiles = async (
 
 	// Find all of the files for any directories.
 	const timing_to_search_fs = timings?.start('find files');
-	const {path_ids_by_input_path, input_directories_with_no_files} =
-		await load_path_ids_by_input_path(resolved_input_paths, (id) =>
-			search_fs(id, {filter: (path) => extensions.some((e) => path.includes(e))}),
-		);
+	const {
+		resolved_input_files,
+		resolved_input_files_by_input_path,
+		input_directories_with_no_files,
+	} = await resolve_input_files(resolved_input_paths, (id) =>
+		search_fs(id, {filter: (path) => extensions.some((e) => path.includes(e))}),
+	);
 	timing_to_search_fs?.();
 
 	// Error if any input path has no files. (means we have an empty directory)
@@ -140,10 +145,11 @@ export const find_genfiles = async (
 			ok: false,
 			type: 'input_directories_with_no_files',
 			input_directories_with_no_files,
-			path_ids_by_input_path,
+			resolved_input_files,
+			resolved_input_files_by_input_path,
 			resolved_input_paths,
 			resolved_input_path_by_input_path,
-			reasons: input_directories_with_no_files.map((input_path) =>
+			reasons: input_directories_with_no_files.map(({input_path}) =>
 				red(
 					`Input directory ${print_path(
 						resolved_input_path_by_input_path.get(input_path)!.id,
@@ -155,7 +161,8 @@ export const find_genfiles = async (
 
 	return {
 		ok: true,
-		path_ids_by_input_path,
+		resolved_input_files,
+		resolved_input_files_by_input_path,
 		resolved_input_paths,
 		resolved_input_path_by_input_path,
 	};

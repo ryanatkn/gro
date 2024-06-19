@@ -103,7 +103,6 @@ export interface Resolved_Input_Path {
 	possible_paths: Possible_Path[];
 }
 
-// TODO BLOCK this
 export interface Resolved_Input_File {
 	id: Path_Id;
 	input_path: Input_Path;
@@ -170,15 +169,17 @@ export const resolve_input_paths = async (
  * Finds all of the matching files for the given input paths.
  * De-dupes source ids.
  */
-export const load_path_ids_by_input_path = async (
+export const resolve_input_files = async (
 	resolved_input_paths: Resolved_Input_Path[],
 	custom_search_fs = search_fs,
 ): Promise<{
-	path_ids_by_input_path: Map<Input_Path, Path_Id[]>;
-	input_directories_with_no_files: Input_Path[];
+	resolved_input_files: Resolved_Input_File[];
+	resolved_input_files_by_input_path: Map<Input_Path, Resolved_Input_File[]>;
+	input_directories_with_no_files: Resolved_Input_Path[];
 }> => {
-	const path_ids_by_input_path = new Map<Input_Path, Path_Id[]>();
-	const input_directories_with_no_files: Input_Path[] = [];
+	const resolved_input_files: Resolved_Input_File[] = [];
+	const resolved_input_files_by_input_path = new Map<Input_Path, Resolved_Input_File[]>();
+	const input_directories_with_no_files: Resolved_Input_Path[] = [];
 	const existing_path_ids = new Set<Path_Id>();
 	// TODO parallelize but would need to de-dupe and retain order
 	for (const resolved_input_path of resolved_input_paths) {
@@ -198,21 +199,37 @@ export const load_path_ids_by_input_path = async (
 					}
 				}
 				if (path_ids.length) {
-					path_ids_by_input_path.set(input_path, path_ids);
+					const resolved_input_files_for_input_path: Resolved_Input_File[] = [];
+					for (const path_id of path_ids) {
+						const resolved_input_file: Resolved_Input_File = {
+							id: path_id,
+							input_path,
+							resolved_input_path,
+						};
+						resolved_input_files.push(resolved_input_file);
+						resolved_input_files_for_input_path.push(resolved_input_file);
+					}
+					resolved_input_files_by_input_path.set(input_path, resolved_input_files_for_input_path);
 				}
 				if (!has_files) {
-					input_directories_with_no_files.push(input_path);
+					input_directories_with_no_files.push(resolved_input_path);
 				}
 				// do callers ever need `input_directories_with_duplicate_files`?
 			} else {
-				input_directories_with_no_files.push(input_path);
+				input_directories_with_no_files.push(resolved_input_path);
 			}
 		} else if (!existing_path_ids.has(id)) {
 			existing_path_ids.add(id);
-			path_ids_by_input_path.set(input_path, [id]);
+			const resolved_input_file: Resolved_Input_File = {id, input_path, resolved_input_path};
+			resolved_input_files.push(resolved_input_file);
+			resolved_input_files_by_input_path.set(input_path, [resolved_input_file]);
 		}
 	}
-	return {path_ids_by_input_path, input_directories_with_no_files};
+	return {
+		resolved_input_files,
+		resolved_input_files_by_input_path,
+		input_directories_with_no_files,
+	};
 };
 
 // TODO I don't think this is valid any more, we shouldn't transform absolute paths like this,

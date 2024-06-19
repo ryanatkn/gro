@@ -81,7 +81,7 @@ test__load_module.run();
 // 	);
 // 	assert.ok(result.ok);
 // 	assert.equal(
-// 		result.path_ids_by_input_path,
+// 		result.resolved_input_files_by_input_path,
 // 		new Map([
 // 			[path1, [id1]],
 // 			[id2, [id2]],
@@ -103,7 +103,7 @@ test__load_module.run();
 // 	);
 // 	assert.ok(result.ok);
 // 	assert.equal(
-// 		result.path_ids_by_input_path,
+// 		result.resolved_input_files_by_input_path,
 // 		new Map([[id, [join(id, 'test1.foo.ts'), join(id, 'test2.foo.ts')]]]),
 // 	);
 // 	assert.equal(result.resolved_input_paths, new Map([[id, {id, is_directory: true}]]));

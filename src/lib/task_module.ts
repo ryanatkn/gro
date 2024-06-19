@@ -4,8 +4,9 @@ import {load_module, load_modules, type Module_Meta, type Load_Module_Result} fr
 import {to_task_name, is_task_path, type Task, TASK_FILE_SUFFIXES} from './task.js';
 import {
 	Input_Path,
-	load_path_ids_by_input_path,
+	resolve_input_files,
 	resolve_input_paths,
+	type Resolved_Input_File,
 	type Resolved_Input_Path,
 } from './input_path.js';
 import {search_fs} from './search_fs.js';
@@ -26,7 +27,8 @@ export interface Found_Task {
 export type Find_Tasks_Result = Result<
 	{
 		// TODO BLOCK should these be bundled into a single data structure?
-		path_ids_by_input_path: Map<Input_Path, Path_Id[]>;
+		resolved_input_files: Resolved_Input_File[];
+		resolved_input_files_by_input_path: Map<Input_Path, Resolved_Input_File[]>;
 		resolved_input_paths: Resolved_Input_Path[]; // TODO BLOCK probably add `input_path_datas` and just use it
 		resolved_input_path_by_input_path: Map<Input_Path, Resolved_Input_Path>;
 	},
@@ -42,8 +44,9 @@ export type Find_Modules_Failure =
 	  }
 	| {
 			type: 'input_directories_with_no_files';
-			input_directories_with_no_files: Input_Path[];
-			path_ids_by_input_path: Map<Input_Path, Path_Id[]>;
+			input_directories_with_no_files: Resolved_Input_Path[];
+			resolved_input_files: Resolved_Input_File[];
+			resolved_input_files_by_input_path: Map<Input_Path, Resolved_Input_File[]>;
 			resolved_input_paths: Resolved_Input_Path[];
 			resolved_input_path_by_input_path: Map<Input_Path, Resolved_Input_Path>;
 			reasons: string[];
@@ -88,10 +91,13 @@ export const find_tasks = async (
 
 	// Find all of the files for any directories.
 	const timing_to_search_fs = timings?.start('find files');
-	const {path_ids_by_input_path, input_directories_with_no_files} =
-		await load_path_ids_by_input_path(resolved_input_paths, (id) =>
-			search_fs(id, {filter: (path) => is_task_path(path)}),
-		);
+	const {
+		resolved_input_files,
+		resolved_input_files_by_input_path,
+		input_directories_with_no_files,
+	} = await resolve_input_files(resolved_input_paths, (id) =>
+		search_fs(id, {filter: (path) => is_task_path(path)}),
+	);
 	timing_to_search_fs?.();
 
 	// Error if any input path has no files. (means we have an empty directory)
@@ -100,10 +106,11 @@ export const find_tasks = async (
 			ok: false,
 			type: 'input_directories_with_no_files',
 			input_directories_with_no_files,
-			path_ids_by_input_path,
+			resolved_input_files,
+			resolved_input_files_by_input_path,
 			resolved_input_paths,
 			resolved_input_path_by_input_path,
-			reasons: input_directories_with_no_files.map((input_path) =>
+			reasons: input_directories_with_no_files.map(({input_path}) =>
 				red(
 					`Input directory ${print_path(
 						resolved_input_path_by_input_path.get(input_path)!.id,
@@ -115,7 +122,8 @@ export const find_tasks = async (
 
 	return {
 		ok: true,
-		path_ids_by_input_path,
+		resolved_input_files,
+		resolved_input_files_by_input_path,
 		resolved_input_paths,
 		resolved_input_path_by_input_path,
 	};

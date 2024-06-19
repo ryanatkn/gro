@@ -5,7 +5,7 @@ import {resolve} from 'node:path';
 import {
 	to_input_path,
 	to_input_paths,
-	load_path_ids_by_input_path,
+	resolve_input_files,
 	get_possible_paths,
 } from './input_path.js';
 import type {Path_Stats} from './path.js';
@@ -112,7 +112,7 @@ test('get_possible_paths implied to be a directory by trailing slash', () => {
 	]);
 });
 
-test('load_path_ids_by_input_path', async () => {
+test('resolve_input_files', async () => {
 	const test_files: Record<string, Map<string, Path_Stats>> = {
 		'fake/test1.ext.ts': new Map([['fake/test1.ext.ts', {isDirectory: () => false}]]),
 		'fake/test2.ext.ts': new Map([['fake/test2.ext.ts', {isDirectory: () => false}]]),
@@ -134,7 +134,7 @@ test('load_path_ids_by_input_path', async () => {
 		]),
 		'fake/nomatches': new Map([['fake/nomatches', {isDirectory: () => true}]]),
 	};
-	const result = await load_path_ids_by_input_path(
+	const result = await resolve_input_files(
 		[
 			{
 				id: 'fake/test1.ext.ts',
@@ -170,7 +170,7 @@ test('load_path_ids_by_input_path', async () => {
 		async (id) => test_files[id],
 	);
 	assert.equal(result, {
-		path_ids_by_input_path: new Map([
+		resolved_input_files_by_input_path: new Map([
 			['fake/test1.ext.ts', ['fake/test1.ext.ts']],
 			['fake/test2', ['fake/test2.ext.ts']],
 			['fake/test3', ['fake/test3/a.ts', 'fake/test3/b.ts']],

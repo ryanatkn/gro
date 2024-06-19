@@ -45,7 +45,10 @@ export const task: Task<Args> = {
 				throw new Task_Error('Failed to find gen modules.');
 			}
 		}
-		log.info('gen files', Array.from(find_modules_result.path_ids_by_input_path.values()).flat());
+		log.info(
+			'gen files',
+			Array.from(find_modules_result.resolved_input_files_by_input_path.values()).flat(),
+		);
 		const load_modules_result = await load_modules(
 			find_modules_result.resolved_input_paths,
 			load_gen_module,
