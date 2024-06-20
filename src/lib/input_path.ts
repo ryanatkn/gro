@@ -127,6 +127,7 @@ export const resolve_input_paths = async (
 	for (const input_path of input_paths) {
 		let found_file_data: [Path_Data, Possible_Path] | null = null;
 		let found_dir_data: [Path_Data, Possible_Path] | null = null;
+		// TODO BLOCK probably want to check for existence before adding to this, but I need to figure out the resolution issue to the base Gro directory
 		const possible_paths = get_possible_paths(input_path, root_dirs, extensions);
 		possible_paths_by_input_path.set(input_path, possible_paths);
 

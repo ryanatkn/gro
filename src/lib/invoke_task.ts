@@ -106,6 +106,8 @@ export const invoke_task = async (
 		// 	process.exit(1);
 		// }
 	}
+	console.log(`found.resolved_input_paths`, found.value.resolved_input_paths);
+	console.log(`found.resolved_input_paths[0]`, found.value.resolved_input_paths[0]);
 
 	// Found a match either in the current working directory or Gro's directory.
 	const found_tasks = found.value;
