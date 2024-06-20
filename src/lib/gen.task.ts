@@ -7,13 +7,17 @@ import {Task_Error, type Task} from './task.js';
 import {run_gen} from './run_gen.js';
 import {Raw_Input_Path, to_input_paths} from './input_path.js';
 import {format_file} from './format_file.js';
-import {paths, print_path} from './paths.js';
+import {print_path} from './paths.js';
 import {log_error_reasons} from './task_logging.js';
 import {write_gen_results, analyze_gen_results, find_genfiles, load_genfiles} from './gen.js';
+import {SOURCE_DIRNAME} from './path_constants.js';
 
 export const Args = z
 	.object({
-		_: z.array(Raw_Input_Path, {description: 'paths to generate'}).default([]),
+		_: z.array(Raw_Input_Path, {description: 'input paths to generate'}).default([SOURCE_DIRNAME]),
+		root_dirs: z
+			.array(z.string(), {description: 'root directories to resolve input paths against'}) // TODO `Path_Id` schema
+			.default([process.cwd()]),
 		check: z
 			.boolean({description: 'exit with a nonzero code if any files need to be generated'})
 			.default(false),
@@ -27,13 +31,12 @@ export const task: Task<Args> = {
 	summary: 'run code generation scripts',
 	Args,
 	run: async ({args, log, timings, config}): Promise<void> => {
-		const {_: raw_input_paths, check} = args;
+		const {_: raw_input_paths, root_dirs, check} = args;
 
-		const input_paths = raw_input_paths.length ? to_input_paths(raw_input_paths) : [paths.source];
+		const input_paths = to_input_paths(raw_input_paths);
 
 		// load all of the gen modules
-		const found = await find_genfiles(input_paths);
-		console.log(`found genfiles`, found);
+		const found = await find_genfiles(input_paths, root_dirs, timings);
 		if (!found.ok) {
 			// TODO BLOCK test this, doesn't look correct, maybe we need the error to specify which directory failed, or `log_error_reasons`
 			if (found.type === 'input_directories_with_no_files') {

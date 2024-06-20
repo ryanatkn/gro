@@ -9,7 +9,7 @@ import {find_tasks, load_tasks, Task_Error} from '../task.js';
 
 // This is the first simple implementation of Gro's automated docs.
 // It combines Gro's gen and task systems
-// to generate a markdown file describing all of the project's tasks.
+// to generate a markdown file with a summary of all of Gro's tasks.
 // Other projects that use Gro should be able to import this module
 // or other otherwise get frictionless access to this specific use case,
 // and they should be able to extend or customize it to any degree.
@@ -19,7 +19,7 @@ import {find_tasks, load_tasks, Task_Error} from '../task.js';
 // TODO add backlinks to every document that links to this one
 
 export const gen: Gen = async ({origin_id, log}) => {
-	const found = await find_tasks([paths.lib], [paths.lib]);
+	const found = await find_tasks(['.'], [paths.lib]);
 	if (!found.ok) {
 		log_error_reasons(log, found.reasons);
 		throw new Task_Error(`Failed to generate task docs: ${found.type}`);

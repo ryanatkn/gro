@@ -6,7 +6,7 @@ import type {Result} from '@ryanatkn/belt/result.js';
 import type {Timings} from '@ryanatkn/belt/timings.js';
 import {red} from 'kleur/colors';
 
-import {paths, print_path} from './paths.js';
+import {print_path} from './paths.js';
 import type {Path_Id} from './path.js';
 import type {Gro_Config} from './config.js';
 import {exists} from './fs.js';
@@ -236,6 +236,7 @@ export const write_gen_results = async (
 export interface Found_Genfiles {
 	resolved_input_files: Resolved_Input_File[];
 	resolved_input_files_by_input_path: Map<Input_Path, Resolved_Input_File[]>;
+	resolved_input_file_by_id: Map<Path_Id, Resolved_Input_File>;
 	resolved_input_paths: Resolved_Input_Path[];
 	resolved_input_path_by_input_path: Map<Input_Path, Resolved_Input_Path>;
 }
@@ -254,6 +255,7 @@ export type Find_Genfiles_Failure =
 			input_directories_with_no_files: Resolved_Input_Path[];
 			resolved_input_files: Resolved_Input_File[];
 			resolved_input_files_by_input_path: Map<Input_Path, Resolved_Input_File[]>;
+			resolved_input_file_by_id: Map<Path_Id, Resolved_Input_File>;
 			resolved_input_paths: Resolved_Input_Path[];
 			resolved_input_path_by_input_path: Map<Input_Path, Resolved_Input_Path>;
 			reasons: string[];
@@ -263,11 +265,11 @@ export type Find_Genfiles_Failure =
  * Finds modules from input paths. (see `src/lib/input_path.ts` for more)
  */
 export const find_genfiles = async (
-	input_paths: Input_Path[] = [paths.source],
+	input_paths: Input_Path[],
+	root_dirs: Path_Id[],
 	timings?: Timings,
 ): Promise<Find_Genfiles_Result> => {
 	const extensions: string[] = [GEN_FILE_PATTERN];
-	const root_dirs: string[] = [];
 
 	// Check which extension variation works - if it's a directory, prefer others first!
 	const timing_to_resolve_input_paths = timings?.start('resolve input paths');
@@ -301,6 +303,7 @@ export const find_genfiles = async (
 	const {
 		resolved_input_files,
 		resolved_input_files_by_input_path,
+		resolved_input_file_by_id,
 		input_directories_with_no_files,
 	} = await resolve_input_files(resolved_input_paths, (id) =>
 		search_fs(id, {filter: (path) => extensions.some((e) => path.includes(e))}),
@@ -315,6 +318,7 @@ export const find_genfiles = async (
 			input_directories_with_no_files,
 			resolved_input_files,
 			resolved_input_files_by_input_path,
+			resolved_input_file_by_id,
 			resolved_input_paths,
 			resolved_input_path_by_input_path,
 			reasons: input_directories_with_no_files.map(({input_path}) =>
@@ -332,6 +336,7 @@ export const find_genfiles = async (
 		value: {
 			resolved_input_files,
 			resolved_input_files_by_input_path,
+			resolved_input_file_by_id,
 			resolved_input_paths,
 			resolved_input_path_by_input_path,
 		},

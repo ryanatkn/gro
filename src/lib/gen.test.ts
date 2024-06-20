@@ -1,6 +1,6 @@
 import {test} from 'uvu';
 import * as assert from 'uvu/assert';
-import {join, resolve} from 'node:path';
+import {resolve} from 'node:path';
 
 import {to_gen_result, find_genfiles, validate_gen_module} from './gen.js';
 import {paths} from './paths.js';
@@ -300,7 +300,7 @@ test('validate_gen_module basic behavior', () => {
 });
 
 test('find_genfiles_result finds gen modules in a directory', async () => {
-	const find_genfiles_result = await find_genfiles([join(paths.lib, 'docs/')]);
+	const find_genfiles_result = await find_genfiles(['docs'], [paths.lib]);
 	assert.ok(find_genfiles_result.ok);
 	assert.ok(find_genfiles_result.value.resolved_input_paths.length);
 	assert.ok(find_genfiles_result.value.resolved_input_path_by_input_path.size);

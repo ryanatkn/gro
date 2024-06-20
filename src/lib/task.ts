@@ -49,6 +49,7 @@ export const is_task_path = (path: string): boolean =>
 	path.endsWith(TASK_FILE_SUFFIX_TS) || path.endsWith(TASK_FILE_SUFFIX_JS);
 
 export const to_task_name = (id: Path_Id, task_root_dir: Path_Id | null): string => {
+	console.log(`id, task_root_dir`, id, task_root_dir);
 	let task_name =
 		task_root_dir && id.startsWith(task_root_dir)
 			? strip_start(strip_start(id, task_root_dir), '/')
@@ -75,6 +76,7 @@ export interface Found_Task {
 export interface Found_Tasks {
 	resolved_input_files: Resolved_Input_File[];
 	resolved_input_files_by_input_path: Map<Input_Path, Resolved_Input_File[]>;
+	resolved_input_file_by_id: Map<Path_Id, Resolved_Input_File>;
 	resolved_input_paths: Resolved_Input_Path[];
 	resolved_input_path_by_input_path: Map<Input_Path, Resolved_Input_Path>;
 	input_paths: Input_Path[];
@@ -97,6 +99,7 @@ export type Find_Modules_Failure =
 			input_directories_with_no_files: Resolved_Input_Path[];
 			resolved_input_files: Resolved_Input_File[];
 			resolved_input_files_by_input_path: Map<Input_Path, Resolved_Input_File[]>;
+			resolved_input_file_by_id: Map<Path_Id, Resolved_Input_File>;
 			resolved_input_paths: Resolved_Input_Path[];
 			resolved_input_path_by_input_path: Map<Input_Path, Resolved_Input_Path>;
 			input_paths: Input_Path[];
@@ -143,6 +146,7 @@ export const find_tasks = async (
 	const {
 		resolved_input_files,
 		resolved_input_files_by_input_path,
+		resolved_input_file_by_id,
 		input_directories_with_no_files,
 	} = await resolve_input_files(resolved_input_paths, (id) =>
 		search_fs(id, {filter: (path) => is_task_path(path)}),
@@ -157,6 +161,7 @@ export const find_tasks = async (
 			input_directories_with_no_files,
 			resolved_input_files,
 			resolved_input_files_by_input_path,
+			resolved_input_file_by_id,
 			resolved_input_paths,
 			resolved_input_path_by_input_path,
 			input_paths,
@@ -176,6 +181,7 @@ export const find_tasks = async (
 		value: {
 			resolved_input_files,
 			resolved_input_files_by_input_path,
+			resolved_input_file_by_id,
 			resolved_input_paths,
 			resolved_input_path_by_input_path,
 			input_paths,
@@ -213,10 +219,9 @@ export const load_tasks = async (found_tasks: Found_Tasks): Promise<Load_Tasks_R
 		(id, mod): Task_Module_Meta => ({
 			id,
 			mod,
-			// TODO BLOCK maybe add `resolved_input_file_by_id`?
 			name: to_task_name(
 				id,
-				found_tasks.resolved_input_files.find((r) => r.id === id)!.resolved_input_path.root_dir,
+				found_tasks.resolved_input_file_by_id.get(id)!.resolved_input_path.root_dir,
 			),
 		}),
 	);
