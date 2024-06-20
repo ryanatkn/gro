@@ -4,7 +4,7 @@ import {resolve, join} from 'node:path';
 import {Logger} from '@ryanatkn/belt/log.js';
 import {Timings} from '@ryanatkn/belt/timings.js';
 
-import type {Genfile_Module_Meta} from './gen_module.js';
+import type {Genfile_Module_Meta} from './gen.js';
 import {run_gen} from './run_gen.js';
 import {load_config} from './config.js';
 

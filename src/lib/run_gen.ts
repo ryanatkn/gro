@@ -3,13 +3,13 @@ import {print_error} from '@ryanatkn/belt/print.js';
 import type {Timings} from '@ryanatkn/belt/timings.js';
 import type {Logger} from '@ryanatkn/belt/log.js';
 
-import type {Genfile_Module_Meta} from './gen_module.js';
 import {
 	type Gen_Results,
 	type Genfile_Module_Result,
 	type Gen_Context,
 	type Genfile_Module_Result_Success,
 	type Genfile_Module_Result_Failure,
+	type Genfile_Module_Meta,
 	to_gen_result,
 	type Raw_Gen_Result,
 } from './gen.js';

@@ -210,10 +210,6 @@
       "default": "./dist/fs.js",
       "types": "./dist/fs.d.ts"
     },
-    "./gen_module.js": {
-      "default": "./dist/gen_module.js",
-      "types": "./dist/gen_module.d.ts"
-    },
     "./gen.task.js": {
       "default": "./dist/gen.task.js",
       "types": "./dist/gen.task.d.ts"

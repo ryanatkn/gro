@@ -5,12 +5,11 @@ import {z} from 'zod';
 
 import {Task_Error, type Task} from './task.js';
 import {run_gen} from './run_gen.js';
-import {find_genfiles, load_genfiles} from './gen_module.js';
 import {Raw_Input_Path, to_input_paths} from './input_path.js';
 import {format_file} from './format_file.js';
 import {paths, print_path} from './paths.js';
 import {log_error_reasons} from './task_logging.js';
-import {write_gen_results, analyze_gen_results} from './gen.js';
+import {write_gen_results, analyze_gen_results, find_genfiles, load_genfiles} from './gen.js';
 
 export const Args = z
 	.object({
