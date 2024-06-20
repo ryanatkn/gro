@@ -343,7 +343,6 @@ export const find_genfiles = async (
 	};
 };
 
-// TODO BLOCK this and other `Gen_` to `Genfile_`?
 export interface Genfile_Module {
 	gen: Gen;
 }
@@ -369,7 +368,6 @@ export const load_genfiles = async (
 	found_genfiles: Found_Genfiles,
 	timings?: Timings,
 ): Promise<Load_Genfiles_Result> => {
-	// TODO BLOCK refactor
 	const loaded_modules = await load_modules(
 		found_genfiles.resolved_input_files,
 		validate_gen_module,
