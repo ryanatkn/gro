@@ -14,6 +14,7 @@ import type {Gro_Config} from './config.js';
 // TODO BLOCK fix/test:
 // from zzz:
 // 		gro ./
+// 		gro ./multi (needs to print names relative cwd)
 //    gro [task when routes configured]
 //    gro (doesn't log Gro tasks)
 // from gro:
