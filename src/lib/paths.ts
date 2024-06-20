@@ -51,7 +51,8 @@ export const infer_paths = (id: Path_Id): Paths => (is_gro_id(id) ? gro_paths : 
 export const is_gro_id = (id: Path_Id): boolean => id.startsWith(strip_end(gro_paths.root, '/')); // strip `/` in case we're looking at the Gro root without a trailing slash
 
 // '/home/me/app/src/foo/bar/baz.ts' → 'src/foo/bar/baz.ts'
-export const to_root_path = (id: Path_Id, p = infer_paths(id)): string => strip_start(id, p.root);
+export const to_root_path = (id: Path_Id, p = infer_paths(id)): string =>
+	relative(p.root, id) || './';
 
 // '/home/me/app/src/foo/bar/baz.ts' → 'foo/bar/baz.ts'
 export const path_id_to_base_path = (path_id: Path_Id, p = infer_paths(path_id)): string =>
@@ -62,9 +63,11 @@ export const path_id_to_base_path = (path_id: Path_Id, p = infer_paths(path_id))
 export const base_path_to_path_id = (base_path: string, p = infer_paths(base_path)): Path_Id =>
 	join(p.source, base_path);
 
-export const print_path = (path: string, p = infer_paths(path), prefix = './'): string => {
-	const root_path = path === GRO_DIST_DIR ? 'gro' : to_root_path(path, p);
-	return gray(`${prefix}${root_path}`);
+// TODO BLOCK should this pass through absolute paths instead of changing them relative to the root?
+export const print_path = (path: string, p = infer_paths(path)): string => {
+	const root_path =
+		strip_end(path, '/') === strip_end(GRO_DIST_DIR, '/') ? 'gro' : to_root_path(path, p);
+	return gray(root_path || './');
 };
 
 export const replace_extension = (path: string, new_extension: string): string => {

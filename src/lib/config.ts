@@ -31,7 +31,11 @@ export const create_empty_config = (): Gro_Config => ({
 	plugins: () => [],
 	// TODO maybe disable if no SvelteKit `lib` directory? or other detection to improve defaults
 	map_package_json: default_map_package_json,
-	task_root_dirs: [paths.lib, paths.root, IS_THIS_GRO ? null! : GRO_DIST_DIR].filter(Boolean),
+	task_root_dirs: [
+		paths.lib,
+		IS_THIS_GRO ? null! : paths.root,
+		IS_THIS_GRO ? null! : GRO_DIST_DIR,
+	].filter(Boolean),
 });
 
 const default_map_package_json: Map_Package_Json = async (package_json) => {

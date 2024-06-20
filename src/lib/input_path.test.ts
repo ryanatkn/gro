@@ -193,7 +193,18 @@ test('resolve_input_files', async () => {
 			],
 			['fake', [{id: 'fake/test3/c.ts', input_path: e.input_path, resolved_input_path: e}]],
 		]),
-		resolved_input_file_by_id: new Map(resolved_input_files.map((r) => [r.id, r])),
+		resolved_input_files_by_root_dir: new Map([
+			[
+				null,
+				[
+					{id: 'fake/test1.ext.ts', input_path: 'fake/test1.ext.ts', resolved_input_path: a},
+					{id: 'fake/test2.ext.ts', input_path: 'fake/test2', resolved_input_path: b},
+					{id: 'fake/test3/a.ts', input_path: 'fake/test3', resolved_input_path: c},
+					{id: 'fake/test3/b.ts', input_path: 'fake/test3', resolved_input_path: c},
+					{id: 'fake/test3/c.ts', input_path: 'fake', resolved_input_path: e},
+				],
+			],
+		]),
 		input_directories_with_no_files: [f],
 	});
 });

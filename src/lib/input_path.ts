@@ -106,6 +106,13 @@ export interface Resolved_Input_File {
 	resolved_input_path: Resolved_Input_Path;
 }
 
+export interface Resolved_Input_Paths {
+	resolved_input_paths: Resolved_Input_Path[];
+	resolved_input_paths_by_input_path: Map<Input_Path, Resolved_Input_Path[]>;
+	possible_paths_by_input_path: Map<Input_Path, Possible_Path[]>;
+	unmapped_input_paths: Input_Path[];
+}
+
 /**
  * Gets the path data for each input path, checking the filesystem for the possibilities
  * and stopping at the first existing file or falling back to the first existing directory.
@@ -115,17 +122,13 @@ export const resolve_input_paths = async (
 	input_paths: Input_Path[],
 	root_dirs: Path_Id[],
 	extensions: string[],
-): Promise<{
-	resolved_input_paths: Resolved_Input_Path[];
-	possible_paths_by_input_path: Map<Input_Path, Possible_Path[]>;
-	unmapped_input_paths: Input_Path[];
-}> => {
+): Promise<Resolved_Input_Paths> => {
 	const resolved_input_paths: Resolved_Input_Path[] = [];
-	const unmapped_input_paths: Input_Path[] = [];
 	const possible_paths_by_input_path = new Map<Input_Path, Possible_Path[]>();
+	const unmapped_input_paths: Input_Path[] = [];
 	for (const input_path of input_paths) {
-		let found_file_data: [Path_Data, Possible_Path] | null = null;
-		let found_dir_data: [Path_Data, Possible_Path] | null = null;
+		let found_file: [Path_Data, Possible_Path] | null = null;
+		let found_dirs: Array<[Path_Data, Possible_Path]> | null = null;
 		// TODO BLOCK probably want to check for existence before adding to this, but I need to figure out the resolution issue to the base Gro directory
 		const possible_paths = get_possible_paths(input_path, root_dirs, extensions);
 		possible_paths_by_input_path.set(input_path, possible_paths);
@@ -135,31 +138,54 @@ export const resolve_input_paths = async (
 			if (!(await exists(possible_path.id))) continue; // eslint-disable-line no-await-in-loop
 			const stats = await stat(possible_path.id); // eslint-disable-line no-await-in-loop
 			if (stats.isDirectory()) {
-				if (found_dir_data) continue;
-				found_dir_data = [to_path_data(possible_path.id, stats), possible_path];
+				found_dirs ??= [];
+				found_dirs.push([to_path_data(possible_path.id, stats), possible_path]);
 			} else {
-				found_file_data = [to_path_data(possible_path.id, stats), possible_path];
+				found_file = [to_path_data(possible_path.id, stats), possible_path];
 				break;
 			}
 		}
-		const found = found_file_data || found_dir_data;
-		if (found) {
+		if (found_file) {
 			resolved_input_paths.push({
 				input_path,
-				id: found[0].id,
-				is_directory: found[0].is_directory,
-				root_dir: found[1].root_dir,
+				id: found_file[0].id,
+				is_directory: found_file[0].is_directory,
+				root_dir: found_file[1].root_dir,
 			});
+		} else if (found_dirs) {
+			for (const found_dir of found_dirs) {
+				resolved_input_paths.push({
+					input_path,
+					id: found_dir[0].id,
+					is_directory: found_dir[0].is_directory,
+					root_dir: found_dir[1].root_dir,
+				});
+			}
 		} else {
 			unmapped_input_paths.push(input_path);
 		}
 	}
 	return {
 		resolved_input_paths,
+		resolved_input_paths_by_input_path: resolved_input_paths.reduce((map, resolved_input_path) => {
+			if (map.has(resolved_input_path.input_path)) {
+				map.get(resolved_input_path.input_path)!.push(resolved_input_path);
+			} else {
+				map.set(resolved_input_path.input_path, [resolved_input_path]);
+			}
+			return map;
+		}, new Map<Input_Path, Resolved_Input_Path[]>()),
 		possible_paths_by_input_path,
 		unmapped_input_paths,
 	};
 };
+
+export interface Resolved_Input_Files {
+	resolved_input_files: Resolved_Input_File[];
+	resolved_input_files_by_input_path: Map<Input_Path, Resolved_Input_File[]>;
+	resolved_input_files_by_root_dir: Map<Path_Id | null, Resolved_Input_File[]>;
+	input_directories_with_no_files: Resolved_Input_Path[];
+}
 
 /**
  * Finds all of the matching files for the given input paths.
@@ -168,15 +194,9 @@ export const resolve_input_paths = async (
 export const resolve_input_files = async (
 	resolved_input_paths: Resolved_Input_Path[],
 	custom_search_fs = search_fs,
-): Promise<{
-	resolved_input_files: Resolved_Input_File[];
-	resolved_input_files_by_input_path: Map<Input_Path, Resolved_Input_File[]>;
-	resolved_input_file_by_id: Map<Path_Id, Resolved_Input_File>;
-	input_directories_with_no_files: Resolved_Input_Path[];
-}> => {
+): Promise<Resolved_Input_Files> => {
 	const resolved_input_files: Resolved_Input_File[] = [];
 	const resolved_input_files_by_input_path = new Map<Input_Path, Resolved_Input_File[]>();
-	const resolved_input_file_by_id = new Map<Path_Id, Resolved_Input_File>();
 	const input_directories_with_no_files: Resolved_Input_Path[] = [];
 	const existing_path_ids = new Set<Path_Id>();
 	// TODO parallelize but would need to de-dupe and retain order
@@ -205,7 +225,6 @@ export const resolve_input_files = async (
 							resolved_input_path,
 						};
 						resolved_input_files.push(resolved_input_file);
-						resolved_input_file_by_id.set(resolved_input_file.id, resolved_input_file);
 						resolved_input_files_for_input_path.push(resolved_input_file);
 					}
 					resolved_input_files_by_input_path.set(input_path, resolved_input_files_for_input_path);
@@ -221,14 +240,21 @@ export const resolve_input_files = async (
 			existing_path_ids.add(id);
 			const resolved_input_file: Resolved_Input_File = {id, input_path, resolved_input_path};
 			resolved_input_files.push(resolved_input_file);
-			resolved_input_file_by_id.set(resolved_input_file.id, resolved_input_file);
 			resolved_input_files_by_input_path.set(input_path, [resolved_input_file]);
 		}
 	}
 	return {
 		resolved_input_files,
 		resolved_input_files_by_input_path,
-		resolved_input_file_by_id,
+		resolved_input_files_by_root_dir: resolved_input_files.reduce((map, resolved_input_file) => {
+			const {root_dir} = resolved_input_file.resolved_input_path;
+			if (map.has(root_dir)) {
+				map.get(root_dir)!.push(resolved_input_file);
+			} else {
+				map.set(root_dir, [resolved_input_file]);
+			}
+			return map;
+		}, new Map<Path_Id | null, Resolved_Input_File[]>()),
 		input_directories_with_no_files,
 	};
 };

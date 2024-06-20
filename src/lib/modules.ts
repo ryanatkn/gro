@@ -64,18 +64,18 @@ export const load_modules = async <
 >(
 	resolved_input_files: Resolved_Input_File[],
 	validate: (mod: any) => mod is T_Module,
-	map_module_meta: (id: Path_Id, mod: T_Module) => T_Module_Meta,
+	map_module_meta: (resolved_input_file: Resolved_Input_File, mod: T_Module) => T_Module_Meta,
 	timings?: Timings,
 ): Promise<Load_Modules_Result<T_Module_Meta>> => {
 	const timing_to_load_modules = timings?.start('load modules');
 	const modules: T_Module_Meta[] = [];
 	const load_module_failures: Load_Module_Failure[] = [];
 	const reasons: string[] = [];
-	for (const input_path_data of resolved_input_files.values()) {
-		const {id, input_path} = input_path_data;
+	for (const resolved_input_file of resolved_input_files.values()) {
+		const {id, input_path} = resolved_input_file;
 		const result = await load_module(id, validate); // eslint-disable-line no-await-in-loop
 		if (result.ok) {
-			modules.push(map_module_meta(id, result.mod));
+			modules.push(map_module_meta(resolved_input_file, result.mod));
 		} else {
 			load_module_failures.push(result);
 			switch (result.type) {

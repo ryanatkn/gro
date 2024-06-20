@@ -75,9 +75,9 @@ export interface Found_Task {
 export interface Found_Tasks {
 	resolved_input_files: Resolved_Input_File[];
 	resolved_input_files_by_input_path: Map<Input_Path, Resolved_Input_File[]>;
-	resolved_input_file_by_id: Map<Path_Id, Resolved_Input_File>;
+	resolved_input_files_by_root_dir: Map<Path_Id | null, Resolved_Input_File[]>;
 	resolved_input_paths: Resolved_Input_Path[];
-	resolved_input_path_by_input_path: Map<Input_Path, Resolved_Input_Path>;
+	resolved_input_paths_by_input_path: Map<Input_Path, Resolved_Input_Path[]>;
 	input_paths: Input_Path[];
 	task_root_dirs: Path_Id[];
 }
@@ -88,7 +88,7 @@ export type Find_Modules_Failure =
 			type: 'unmapped_input_paths';
 			unmapped_input_paths: Input_Path[];
 			resolved_input_paths: Resolved_Input_Path[];
-			resolved_input_path_by_input_path: Map<Input_Path, Resolved_Input_Path>;
+			resolved_input_paths_by_input_path: Map<Input_Path, Resolved_Input_Path[]>;
 			input_paths: Input_Path[];
 			task_root_dirs: Path_Id[];
 			reasons: string[];
@@ -98,9 +98,9 @@ export type Find_Modules_Failure =
 			input_directories_with_no_files: Resolved_Input_Path[];
 			resolved_input_files: Resolved_Input_File[];
 			resolved_input_files_by_input_path: Map<Input_Path, Resolved_Input_File[]>;
-			resolved_input_file_by_id: Map<Path_Id, Resolved_Input_File>;
+			resolved_input_files_by_root_dir: Map<Path_Id | null, Resolved_Input_File[]>;
 			resolved_input_paths: Resolved_Input_Path[];
-			resolved_input_path_by_input_path: Map<Input_Path, Resolved_Input_Path>;
+			resolved_input_paths_by_input_path: Map<Input_Path, Resolved_Input_Path[]>;
 			input_paths: Input_Path[];
 			task_root_dirs: Path_Id[];
 			reasons: string[];
@@ -117,12 +117,8 @@ export const find_tasks = async (
 	// Check which extension variation works - if it's a directory, prefer others first!
 	const timing_to_resolve_input_paths = timings?.start('resolve input paths');
 	const resolved = await resolve_input_paths(input_paths, task_root_dirs, TASK_FILE_SUFFIXES);
-	const {resolved_input_paths, unmapped_input_paths} = resolved;
+	const {resolved_input_paths, resolved_input_paths_by_input_path, unmapped_input_paths} = resolved;
 	timing_to_resolve_input_paths?.();
-
-	const resolved_input_path_by_input_path = new Map(
-		resolved_input_paths.map((r) => [r.input_path, r]),
-	);
 
 	// Error if any input path could not be mapped.
 	if (unmapped_input_paths.length) {
@@ -131,7 +127,7 @@ export const find_tasks = async (
 			type: 'unmapped_input_paths',
 			unmapped_input_paths,
 			resolved_input_paths,
-			resolved_input_path_by_input_path,
+			resolved_input_paths_by_input_path,
 			input_paths,
 			task_root_dirs,
 			reasons: unmapped_input_paths.map((input_path) =>
@@ -145,7 +141,7 @@ export const find_tasks = async (
 	const {
 		resolved_input_files,
 		resolved_input_files_by_input_path,
-		resolved_input_file_by_id,
+		resolved_input_files_by_root_dir,
 		input_directories_with_no_files,
 	} = await resolve_input_files(resolved_input_paths, (id) =>
 		search_fs(id, {filter: (path) => is_task_path(path)}),
@@ -160,18 +156,19 @@ export const find_tasks = async (
 			input_directories_with_no_files,
 			resolved_input_files,
 			resolved_input_files_by_input_path,
-			resolved_input_file_by_id,
+			resolved_input_files_by_root_dir,
 			resolved_input_paths,
-			resolved_input_path_by_input_path,
+			resolved_input_paths_by_input_path,
 			input_paths,
 			task_root_dirs,
-			reasons: input_directories_with_no_files.map(({input_path}) =>
-				red(
-					`Input directory ${print_path(
-						resolved_input_path_by_input_path.get(input_path)!.id,
-					)} contains no matching files.`,
-				),
-			),
+			reasons: input_directories_with_no_files.map(({input_path}) => {
+				const resolved_input_paths = resolved_input_paths_by_input_path.get(input_path)!;
+				return red(
+					`Input director${resolved_input_paths.length === 1 ? 'y' : 'ies'} contains no matching files: ${print_path(
+						resolved_input_paths.join(', '),
+					)}`,
+				);
+			}),
 		};
 	}
 
@@ -180,9 +177,9 @@ export const find_tasks = async (
 		value: {
 			resolved_input_files,
 			resolved_input_files_by_input_path,
-			resolved_input_file_by_id,
+			resolved_input_files_by_root_dir,
 			resolved_input_paths,
-			resolved_input_path_by_input_path,
+			resolved_input_paths_by_input_path,
 			input_paths,
 			task_root_dirs,
 		},
@@ -209,13 +206,10 @@ export const load_tasks = async (found_tasks: Found_Tasks): Promise<Load_Tasks_R
 	const loaded_modules = await load_modules(
 		found_tasks.resolved_input_files,
 		validate_task_module,
-		(id, mod): Task_Module_Meta => ({
-			id,
+		(resolved_input_file, mod): Task_Module_Meta => ({
+			id: resolved_input_file.id,
 			mod,
-			name: to_task_name(
-				id,
-				found_tasks.resolved_input_file_by_id.get(id)!.resolved_input_path.root_dir,
-			),
+			name: to_task_name(resolved_input_file.id, resolved_input_file.resolved_input_path.root_dir),
 		}),
 	);
 	if (!loaded_modules.ok) {

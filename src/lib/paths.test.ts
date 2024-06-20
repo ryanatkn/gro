@@ -45,6 +45,8 @@ const test__to_root_path = suite('to_root_path');
 
 test__to_root_path('basic behavior', () => {
 	assert.is(to_root_path(resolve('foo/bar')), 'foo/bar');
+	assert.is(to_root_path(resolve('./')), './');
+	assert.is(to_root_path(resolve('./')), './');
 });
 
 test__to_root_path.run();

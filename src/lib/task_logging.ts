@@ -14,12 +14,10 @@ export const log_tasks = async (
 	log_intro = true,
 ): Promise<void> => {
 	const {modules, found_tasks} = loaded_tasks;
-	const {resolved_input_paths, resolved_input_files_by_input_path} = found_tasks;
+	const {resolved_input_files_by_root_dir} = found_tasks;
 
-	for (const resolved_input_path of resolved_input_paths) {
-		const {input_path} = resolved_input_path;
-		const dir_label = print_path(resolved_input_path.id);
-		const resolved_input_files = resolved_input_files_by_input_path.get(input_path)!;
+	for (const [root_dir, resolved_input_files] of resolved_input_files_by_root_dir) {
+		const dir_label = root_dir === null ? gray('paths') : print_path(root_dir); // TODO BLOCK how to handle null root dirs? what are they exactly, only for absolute paths?
 		if (!resolved_input_files.length) {
 			log.info(`No tasks found in ${dir_label}.`);
 			continue;
@@ -36,7 +34,8 @@ export const log_tasks = async (
 			);
 		}
 		const longest_task_name = to_max_length(modules, (m) => m.name);
-		for (const meta of modules) {
+		for (const resolved_input_file of resolved_input_files) {
+			const meta = modules.find((m) => m.id === resolved_input_file.id)!;
 			logged.push(
 				'\n' + cyan(pad(meta.name, longest_task_name)),
 				'  ',
@@ -58,7 +57,7 @@ export const log_tasks = async (
 // 	console.log(`[log_gro_package_tasks] gro_dir_find_tasks_result`, gro_dir_find_tasks_result);
 // 	if (gro_dir_find_tasks_result.ok) {
 // 		const gro_path_data =
-// 			gro_dir_find_tasks_result.resolved_input_path_by_input_path.get(gro_dir_input_path)!;
+// 			gro_dir_find_tasks_result.resolved_input_paths_by_input_path.get(gro_dir_input_path)!;
 // 		// Log the Gro matches.
 // 		await log_tasks(
 // 			log,

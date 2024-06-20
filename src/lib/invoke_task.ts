@@ -79,7 +79,7 @@ export const invoke_task = async (
 		// 	if (
 		// 		IS_THIS_GRO ||
 		// 		// this is null safe because of the failure type
-		// 		is_gro_id(found.resolved_input_path_by_input_path.get(input_path)!.id)
+		// 		is_gro_id(found.resolved_input_paths_by_input_path.get(input_path)!.id)
 		// 	) {
 		// 		// If the directory is inside Gro, just log the errors.
 		// 		log_error_reasons(log, found.reasons);
@@ -107,13 +107,11 @@ export const invoke_task = async (
 		// 	process.exit(1);
 		// }
 	}
-	console.log(`found.resolved_input_paths`, found.value.resolved_input_paths);
-	console.log(`found.resolved_input_paths[0]`, found.value.resolved_input_paths[0]);
 
 	// Found a match either in the current working directory or Gro's directory.
 	const found_tasks = found.value;
-	if (found_tasks.resolved_input_paths.length !== 1) throw Error('expected one input path'); // run only one task at a time
-	const resolved_input_path = found_tasks.resolved_input_paths[0];
+	console.log(`found_tasks`, found_tasks);
+	const {resolved_input_files} = found_tasks;
 
 	// Load the task module.
 	const loaded = await load_tasks(found_tasks);
@@ -123,7 +121,7 @@ export const invoke_task = async (
 	}
 	const loaded_tasks = loaded.value;
 
-	if (resolved_input_path.is_directory) {
+	if (resolved_input_files.length > 1 || resolved_input_files[0].resolved_input_path.is_directory) {
 		// The input path matches a directory. Log the tasks but don't run them.
 		await log_tasks(log, loaded_tasks);
 		finish();
