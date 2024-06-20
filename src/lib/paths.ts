@@ -65,9 +65,11 @@ export const base_path_to_path_id = (base_path: string, p = infer_paths(base_pat
 
 // TODO BLOCK should this pass through absolute paths instead of changing them relative to the root?
 export const print_path = (path: string, p = infer_paths(path)): string => {
-	const root_path =
+	let final_path =
 		strip_end(path, '/') === strip_end(GRO_DIST_DIR, '/') ? 'gro' : to_root_path(path, p);
-	return gray(root_path || './');
+	final_path =
+		final_path === 'gro' ? final_path : final_path[0] === '.' ? final_path : './' + final_path;
+	return gray(final_path);
 };
 
 export const replace_extension = (path: string, new_extension: string): string => {
