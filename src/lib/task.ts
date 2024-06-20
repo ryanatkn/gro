@@ -48,10 +48,10 @@ export const TASK_FILE_SUFFIXES = [TASK_FILE_SUFFIX_TS, TASK_FILE_SUFFIX_JS]; //
 export const is_task_path = (path: string): boolean =>
 	path.endsWith(TASK_FILE_SUFFIX_TS) || path.endsWith(TASK_FILE_SUFFIX_JS);
 
-export const to_task_name = (id: Path_Id, task_root_path: Path_Id | null): string => {
+export const to_task_name = (id: Path_Id, task_root_dir: Path_Id | null): string => {
 	let task_name =
-		task_root_path && id.startsWith(task_root_path)
-			? strip_start(strip_start(id, task_root_path), '/')
+		task_root_dir && id.startsWith(task_root_dir)
+			? strip_start(strip_start(id, task_root_dir), '/')
 			: id;
 	for (const suffix of TASK_FILE_SUFFIXES) {
 		task_name = strip_end(task_name, suffix);
@@ -69,7 +69,7 @@ export class Task_Error extends Error {}
 export interface Found_Task {
 	input_path: Input_Path;
 	id: Path_Id;
-	task_root_path: Path_Id;
+	task_root_dir: Path_Id;
 }
 
 export interface Found_Tasks {
@@ -78,7 +78,7 @@ export interface Found_Tasks {
 	resolved_input_paths: Resolved_Input_Path[];
 	resolved_input_path_by_input_path: Map<Input_Path, Resolved_Input_Path>;
 	input_paths: Input_Path[];
-	task_root_paths: Path_Id[];
+	task_root_dirs: Path_Id[];
 }
 
 export type Find_Tasks_Result = Result<{value: Found_Tasks}, Find_Modules_Failure>;
@@ -89,7 +89,7 @@ export type Find_Modules_Failure =
 			resolved_input_paths: Resolved_Input_Path[];
 			resolved_input_path_by_input_path: Map<Input_Path, Resolved_Input_Path>;
 			input_paths: Input_Path[];
-			task_root_paths: Path_Id[];
+			task_root_dirs: Path_Id[];
 			reasons: string[];
 	  }
 	| {
@@ -100,7 +100,7 @@ export type Find_Modules_Failure =
 			resolved_input_paths: Resolved_Input_Path[];
 			resolved_input_path_by_input_path: Map<Input_Path, Resolved_Input_Path>;
 			input_paths: Input_Path[];
-			task_root_paths: Path_Id[];
+			task_root_dirs: Path_Id[];
 			reasons: string[];
 	  };
 
@@ -109,12 +109,12 @@ export type Find_Modules_Failure =
  */
 export const find_tasks = async (
 	input_paths: Input_Path[],
-	task_root_paths: Path_Id[],
+	task_root_dirs: Path_Id[],
 	timings?: Timings,
 ): Promise<Find_Tasks_Result> => {
 	// Check which extension variation works - if it's a directory, prefer others first!
 	const timing_to_resolve_input_paths = timings?.start('resolve input paths');
-	const resolved = await resolve_input_paths(input_paths, task_root_paths, TASK_FILE_SUFFIXES);
+	const resolved = await resolve_input_paths(input_paths, task_root_dirs, TASK_FILE_SUFFIXES);
 	const {resolved_input_paths, unmapped_input_paths} = resolved;
 	timing_to_resolve_input_paths?.();
 
@@ -131,7 +131,7 @@ export const find_tasks = async (
 			resolved_input_paths,
 			resolved_input_path_by_input_path,
 			input_paths,
-			task_root_paths,
+			task_root_dirs,
 			reasons: unmapped_input_paths.map((input_path) =>
 				red(`Input path ${print_path(input_path)} cannot be mapped to a file or directory.`),
 			),
@@ -160,7 +160,7 @@ export const find_tasks = async (
 			resolved_input_paths,
 			resolved_input_path_by_input_path,
 			input_paths,
-			task_root_paths,
+			task_root_dirs,
 			reasons: input_directories_with_no_files.map(({input_path}) =>
 				red(
 					`Input directory ${print_path(
@@ -179,7 +179,7 @@ export const find_tasks = async (
 			resolved_input_paths,
 			resolved_input_path_by_input_path,
 			input_paths,
-			task_root_paths,
+			task_root_dirs,
 		},
 	};
 };

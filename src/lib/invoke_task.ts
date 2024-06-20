@@ -62,11 +62,11 @@ export const invoke_task = async (
 	// Resolve the input path for the provided task name.
 	const input_path = to_input_path(task_name);
 
-	const {task_root_paths} = config;
+	const {task_root_dirs} = config;
 
 	// Find the task or directory specified by the `input_path`.
 	// Fall back to searching the Gro directory as well.
-	const found = await find_tasks([input_path], task_root_paths);
+	const found = await find_tasks([input_path], task_root_dirs);
 	console.log(`[invoke_task] find_modules_result`, found);
 	if (!found.ok) {
 		log_error_reasons(log, found.reasons);
@@ -88,7 +88,7 @@ export const invoke_task = async (
 		// 		// but it has no matching files, we still want to search Gro's directory.
 		// 		const gro_dir_find_modules_result = await log_gro_package_tasks(
 		// 			input_path,
-		// 			task_root_paths,
+		// 			task_root_dirs,
 		// 			log,
 		// 		);
 		// 		if (!gro_dir_find_modules_result.ok) {

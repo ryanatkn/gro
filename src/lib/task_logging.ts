@@ -50,11 +50,11 @@ export const log_tasks = async (
 // TODO BLOCK delete after getting the generic version working, maybe need `print_input_path`
 // export const log_gro_package_tasks = async (
 // 	input_path: Input_Path,
-// 	task_root_paths: Path_Id[],
+// 	task_root_dirs: Path_Id[],
 // 	log: Logger,
 // ): Promise<Find_Tasks_Result> => {
 // 	const gro_dir_input_path = to_gro_input_path(input_path);
-// 	const gro_dir_find_tasks_result = await find_tasks([gro_dir_input_path], task_root_paths);
+// 	const gro_dir_find_tasks_result = await find_tasks([gro_dir_input_path], task_root_dirs);
 // 	console.log(`[log_gro_package_tasks] gro_dir_find_tasks_result`, gro_dir_find_tasks_result);
 // 	if (gro_dir_find_tasks_result.ok) {
 // 		const gro_path_data =
@@ -64,7 +64,7 @@ export const log_tasks = async (
 // 			log,
 // 			print_path(gro_path_data.id),
 // 			gro_dir_find_tasks_result.resolved_input_files,
-// 			task_root_paths,
+// 			task_root_dirs,
 // 		);
 // 	}
 // 	return gro_dir_find_tasks_result;

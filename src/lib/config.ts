@@ -19,9 +19,8 @@ export interface Gro_Config {
 	 * The root directories to search for tasks given implicit relative input paths.
 	 * Defaults to `./src/lib`, then the cwd, then the Gro package dist.
 	 */
-	// TODO BLOCK maybe rename to `task_root_dirs`?
-	task_root_paths: string[]; // TODO should be `Path_Id`, need a `Normalized_Gro_Config` though to not be confusing
-	// TODO `task_discovery_paths`
+	task_root_dirs: string[]; // TODO should be `Path_Id`, need a `Normalized_Gro_Config` though to not be confusing
+	// TODO `task_discovery_dirs`
 }
 
 export interface Create_Gro_Config {
@@ -32,7 +31,7 @@ export const create_empty_config = (): Gro_Config => ({
 	plugins: () => [],
 	// TODO maybe disable if no SvelteKit `lib` directory? or other detection to improve defaults
 	map_package_json: default_map_package_json,
-	task_root_paths: [paths.lib, paths.root, IS_THIS_GRO ? null! : GRO_DIST_DIR].filter(Boolean),
+	task_root_dirs: [paths.lib, paths.root, IS_THIS_GRO ? null! : GRO_DIST_DIR].filter(Boolean),
 });
 
 const default_map_package_json: Map_Package_Json = async (package_json) => {
@@ -71,7 +70,7 @@ export const load_config = async (dir = paths.root): Promise<Gro_Config> => {
 // Mutates `config` with cleaned up values.
 const normalize_config = (config: Gro_Config): void => {
 	// TODO any validation?
-	config.task_root_paths = config.task_root_paths.map((p) => resolve(p));
+	config.task_root_dirs = config.task_root_dirs.map((p) => resolve(p));
 };
 
 export const validate_config_module: (

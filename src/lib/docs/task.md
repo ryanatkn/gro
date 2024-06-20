@@ -28,7 +28,7 @@ and defers composition to the user in regular TypeScript modules.
 - Gro automatically discovers all `*.task.ts|js` files
   in its configurable directory, so creating a new task
   is as simple as [creating a new file](#define-a-task), no config needed
-  (defaults to `src/lib`, see the config option [`task_root_paths`](./config.md#task_root_paths))
+  (defaults to `src/lib`, see the config option [`task_root_dirs`](./config.md#task_root_dirs))
 - to view [the available tasks](https://github.com/ryanatkn/gro/blob/main/src/lib/docs/tasks.md)
   run `gro` with no arguments
 - task definitions are just objects with an async `run` function and some optional properties,
@@ -59,10 +59,10 @@ As a developer, it's nice to be able to reuse TypeScript modules in every contex
 $ gro
 ```
 
-The [config](./config.md) option [task_root_paths](./config.md#task_root_paths)
+The [config](./config.md) option [task_root_dirs](./config.md#task_root_dirs)
 tells Gro where to search for tasks.
 
-> Currently, only the first directory specified in `task_root_paths` that's found on the filesystem
+> Currently, only the first directory specified in `task_root_dirs` that's found on the filesystem
 > will be used to automatically discover tasks, like when running `gro` without args.
 > Please open an issue if you would like to see Gro be able to discover
 > tasks in more than one directory - it will take some reworking of internals

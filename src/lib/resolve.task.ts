@@ -25,11 +25,11 @@ export const task: Task<Args> = {
 		const input_paths = to_input_paths(_);
 		log.info('input paths:', input_paths);
 
-		const {task_root_paths} = config;
-		log.info('task root paths:', task_root_paths);
+		const {task_root_dirs} = config;
+		log.info('task root paths:', task_root_dirs);
 
 		const {resolved_input_paths, possible_paths_by_input_path, unmapped_input_paths} =
-			await resolve_input_paths(input_paths, task_root_paths, TASK_FILE_SUFFIXES);
+			await resolve_input_paths(input_paths, task_root_dirs, TASK_FILE_SUFFIXES);
 		log.info('resolved_input_paths:', resolved_input_paths);
 		log.info('possible_paths_by_input_path:', possible_paths_by_input_path);
 		log.info('unmapped_input_paths:', unmapped_input_paths);
