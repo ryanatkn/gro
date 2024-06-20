@@ -1,6 +1,6 @@
 import {join, extname, relative, basename} from 'node:path';
 import {fileURLToPath} from 'node:url';
-import {strip_end, strip_start} from '@ryanatkn/belt/string.js';
+import {strip_end} from '@ryanatkn/belt/string.js';
 import {gray} from 'kleur/colors';
 
 import {
@@ -63,7 +63,6 @@ export const path_id_to_base_path = (path_id: Path_Id, p = infer_paths(path_id))
 export const base_path_to_path_id = (base_path: string, p = infer_paths(base_path)): Path_Id =>
 	join(p.source, base_path);
 
-// TODO BLOCK should this pass through absolute paths instead of changing them relative to the root?
 export const print_path = (path: string, p = infer_paths(path)): string => {
 	let final_path =
 		strip_end(path, '/') === strip_end(GRO_DIST_DIR, '/') ? 'gro' : to_root_path(path, p);
