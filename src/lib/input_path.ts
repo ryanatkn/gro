@@ -98,7 +98,6 @@ export interface Resolved_Input_Path {
 	id: Path_Id;
 	is_directory: boolean;
 	root_dir: Path_Id | null;
-	possible_paths: Possible_Path[];
 }
 
 export interface Resolved_Input_File {
@@ -150,7 +149,6 @@ export const resolve_input_paths = async (
 				id: found[0].id,
 				is_directory: found[0].is_directory,
 				root_dir: found[1].root_dir,
-				possible_paths,
 			});
 		} else {
 			unmapped_input_paths.push(input_path);

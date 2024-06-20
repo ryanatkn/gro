@@ -140,42 +140,36 @@ test('resolve_input_files', async () => {
 		is_directory: false,
 		input_path: 'fake/test1.ext.ts',
 		root_dir: null,
-		possible_paths: [],
 	};
 	const b: Resolved_Input_Path = {
 		id: 'fake/test2.ext.ts',
 		is_directory: false,
 		input_path: 'fake/test2',
 		root_dir: null,
-		possible_paths: [],
 	};
 	const c: Resolved_Input_Path = {
 		id: 'fake/test3',
 		is_directory: true,
 		input_path: 'fake/test3',
 		root_dir: null,
-		possible_paths: [],
 	};
 	const d: Resolved_Input_Path = {
 		id: 'fake/',
 		is_directory: true,
 		input_path: 'fake/',
 		root_dir: null,
-		possible_paths: [],
 	};
 	const e: Resolved_Input_Path = {
 		id: 'fake',
 		is_directory: true,
 		input_path: 'fake',
 		root_dir: null,
-		possible_paths: [],
 	};
 	const f: Resolved_Input_Path = {
 		id: 'fake/nomatches',
 		is_directory: true,
 		input_path: 'fake/nomatches',
 		root_dir: null,
-		possible_paths: [],
 	};
 	const result = await resolve_input_files([a, b, c, d, e, f], async (id) => test_files[id]);
 	const resolved_input_files = [
