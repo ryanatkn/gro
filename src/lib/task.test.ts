@@ -14,21 +14,13 @@ test('is_task_path basic behavior', () => {
 });
 
 test('to_task_name basic behavior', () => {
-	assert.is(to_task_name('foo.task.ts', []), 'foo');
-	assert.is(to_task_name('bar/baz/foo.task.ts', []), 'bar/baz/foo');
-	assert.is(to_task_name('a/b/c/foo.task.ts', ['a/b/c', 'a']), 'foo');
-	assert.is(to_task_name('a/b/c/foo.task.ts', ['a']), 'b/c/foo');
-	assert.is(to_task_name('a/b/c/foo.task.ts', ['a/b', 'a']), 'c/foo');
+	assert.is(to_task_name('foo.task.ts', null), 'foo');
+	assert.is(to_task_name('bar/baz/foo.task.ts', null), 'bar/baz/foo');
+	assert.is(to_task_name('a/b/c/foo.task.ts', 'a/b/c'), 'foo');
+	assert.is(to_task_name('a/b/c/foo.task.ts', 'a'), 'b/c/foo');
+	assert.is(to_task_name('a/b/c/foo.task.ts', 'a/b'), 'c/foo');
 	assert.is(
-		to_task_name(resolve('node_modules/@ryanatkn/gro/dist/foo'), [
-			resolve('./'),
-			resolve('node_modules/@ryanatkn/gro/dist/'),
-		]),
-		'foo',
-		'resolves to node_modules before the cwd',
-	);
-	assert.is(
-		to_task_name(resolve('a/b'), [resolve('b')]),
+		to_task_name(resolve('a/b'), resolve('b')),
 		resolve('a/b'),
 		'falls back to the id when unresolved',
 	);

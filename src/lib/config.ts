@@ -19,6 +19,7 @@ export interface Gro_Config {
 	 * The root directories to search for tasks given implicit relative input paths.
 	 * Defaults to `./src/lib`, then the cwd, then the Gro package dist.
 	 */
+	// TODO BLOCK maybe rename to `task_root_dirs`?
 	task_root_paths: string[]; // TODO should be `Path_Id`, need a `Normalized_Gro_Config` though to not be confusing
 	// TODO `task_discovery_paths`
 }

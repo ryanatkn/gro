@@ -48,21 +48,15 @@ export const TASK_FILE_SUFFIXES = [TASK_FILE_SUFFIX_TS, TASK_FILE_SUFFIX_JS]; //
 export const is_task_path = (path: string): boolean =>
 	path.endsWith(TASK_FILE_SUFFIX_TS) || path.endsWith(TASK_FILE_SUFFIX_JS);
 
-// TODO BLOCK refactor or remove this, is a hack because the `task_root_path` should be known
-export const to_task_name = (id: Path_Id, task_root_paths: Path_Id[]): string => {
-	// If the id is in any of the task root paths, use the longest available match and strip it.
-	// This is convoluted because we're not tracking which root path was resolved against the id.
-	// TODO improve the data flow of id from task root path so this is unnecessary
-	let longest_matching_path = '';
-	for (const path of task_root_paths) {
-		if (id.startsWith(path) && path.length > longest_matching_path.length) {
-			longest_matching_path = path;
-		}
+export const to_task_name = (id: Path_Id, task_root_path: Path_Id | null): string => {
+	let task_name =
+		task_root_path && id.startsWith(task_root_path)
+			? strip_start(strip_start(id, task_root_path), '/')
+			: id;
+	for (const suffix of TASK_FILE_SUFFIXES) {
+		task_name = strip_end(task_name, suffix);
 	}
-	const task_name = longest_matching_path
-		? strip_start(strip_start(id, longest_matching_path), '/')
-		: id;
-	return strip_end(strip_end(task_name, TASK_FILE_SUFFIX_TS), TASK_FILE_SUFFIX_JS);
+	return task_name;
 };
 
 /**
@@ -216,7 +210,15 @@ export const load_tasks = async (found_tasks: Found_Tasks): Promise<Load_Tasks_R
 	const loaded_modules = await load_modules(
 		found_tasks.resolved_input_files,
 		validate_task_module,
-		(id, mod): Task_Module_Meta => ({id, mod, name: to_task_name(id, found_tasks.task_root_paths)}),
+		(id, mod): Task_Module_Meta => ({
+			id,
+			mod,
+			// TODO BLOCK maybe add `resolved_input_file_by_id`?
+			name: to_task_name(
+				id,
+				found_tasks.resolved_input_files.find((r) => r.id === id)!.resolved_input_path.root_dir,
+			),
+		}),
 	);
 	if (!loaded_modules.ok) {
 		return loaded_modules;
