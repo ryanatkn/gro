@@ -17,7 +17,9 @@ export const log_tasks = async (
 	const {resolved_input_files_by_root_dir} = found_tasks;
 
 	for (const [root_dir, resolved_input_files] of resolved_input_files_by_root_dir) {
-		const dir_label = root_dir === null ? gray('paths') : print_path(root_dir); // TODO BLOCK how to handle null root dirs? what are they exactly, only for absolute paths?
+		// TODO BLOCK how to handle null root dirs? what are they exactly, only for absolute paths?
+		// TODO BLOCK is grouping by root_dir strictly correct, or does it need to be by input path by root dir?
+		const dir_label = root_dir === null ? gray('paths') : print_path(root_dir);
 		if (!resolved_input_files.length) {
 			log.info(`No tasks found in ${dir_label}.`);
 			continue;
