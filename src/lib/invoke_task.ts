@@ -11,6 +11,14 @@ import {load_gro_package_json} from './package_json.js';
 import {log_tasks, log_error_reasons} from './task_logging.js';
 import type {Gro_Config} from './config.js';
 
+// TODO BLOCK fix/test:
+// from zzz:
+// 		gro ./
+//    gro [task when routes configured]
+//    gro (doesn't log Gro tasks)
+// from gro:
+//    gro src/ (logs relative task paths not their exact names)
+
 /**
  * Invokes Gro tasks by name using the filesystem as the source.
  *
