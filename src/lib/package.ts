@@ -603,6 +603,7 @@ export const src_json = {
 				{name: 'Load_Module_Result', kind: 'type'},
 				{name: 'Load_Module_Failure', kind: 'type'},
 				{name: 'load_module', kind: 'function'},
+				{name: 'Load_Modules_Failure', kind: 'type'},
 				{name: 'Load_Modules_Result', kind: 'type'},
 				{name: 'load_modules', kind: 'function'},
 			],
