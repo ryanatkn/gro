@@ -18,7 +18,7 @@ import {
 } from './input_path.js';
 import {print_path} from './paths.js';
 import {search_fs} from './search_fs.js';
-import {load_modules, type Load_Module_Failure, type Module_Meta} from './modules.js';
+import {load_modules, type Load_Modules_Failure, type Module_Meta} from './modules.js';
 
 export interface Task<
 	T_Args = Args, // same as `z.infer<typeof Args>`
@@ -49,7 +49,6 @@ export const is_task_path = (path: string): boolean =>
 	path.endsWith(TASK_FILE_SUFFIX_TS) || path.endsWith(TASK_FILE_SUFFIX_JS);
 
 export const to_task_name = (id: Path_Id, task_root_dir: Path_Id | null): string => {
-	console.log(`id, task_root_dir`, id, task_root_dir);
 	let task_name =
 		task_root_dir && id.startsWith(task_root_dir)
 			? strip_start(strip_start(id, task_root_dir), '/')
@@ -204,13 +203,7 @@ export interface Task_Module_Meta extends Module_Meta<Task_Module> {
 }
 
 export type Load_Tasks_Result = Result<{value: Loaded_Tasks}, Load_Tasks_Failure>;
-export type Load_Tasks_Failure = {
-	type: 'load_module_failures';
-	load_module_failures: Load_Module_Failure[];
-	reasons: string[];
-	// still return the modules and timings, deferring to the caller
-	modules: Task_Module_Meta[];
-};
+export type Load_Tasks_Failure = Load_Modules_Failure<Task_Module_Meta>;
 
 export const load_tasks = async (found_tasks: Found_Tasks): Promise<Load_Tasks_Result> => {
 	const loaded_modules = await load_modules(

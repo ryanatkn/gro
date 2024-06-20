@@ -42,17 +42,19 @@ export const load_module = async <T_Module extends Record<string, any>>(
 	return {ok: true, id, mod};
 };
 
+export interface Load_Modules_Failure<T_Module_Meta extends Module_Meta> {
+	type: 'load_module_failures';
+	load_module_failures: Load_Module_Failure[];
+	reasons: string[];
+	// still return the modules and timings, deferring to the caller
+	modules: T_Module_Meta[];
+}
+
 export type Load_Modules_Result<T_Module_Meta extends Module_Meta> = Result<
 	{
 		modules: T_Module_Meta[];
 	},
-	{
-		type: 'load_module_failures';
-		load_module_failures: Load_Module_Failure[];
-		reasons: string[];
-		// still return the modules and timings, deferring to the caller
-		modules: T_Module_Meta[];
-	}
+	Load_Modules_Failure<T_Module_Meta>
 >;
 
 // TODO parallelize and sort afterwards

@@ -11,7 +11,7 @@ import type {Path_Id} from './path.js';
 import type {Gro_Config} from './config.js';
 import {exists} from './fs.js';
 import type {Parsed_Sveltekit_Config} from './sveltekit_config.js';
-import {load_modules, type Load_Module_Failure, type Module_Meta} from './modules.js';
+import {load_modules, type Load_Modules_Failure, type Module_Meta} from './modules.js';
 import {
 	Input_Path,
 	resolve_input_files,
@@ -354,15 +354,8 @@ export interface Loaded_Genfiles {
 	found_genfiles: Found_Genfiles;
 }
 
-// TODO BLOCK messy with Load_Modules equivalents, extend the parts of `Load_Modules_Result` to dry ths up and just pass the Genfile_Module_Meta param, same as in task module
 export type Load_Genfiles_Result = Result<{value: Loaded_Genfiles}, Load_Genfiles_Failure>;
-export type Load_Genfiles_Failure = {
-	type: 'load_module_failures';
-	load_module_failures: Load_Module_Failure[];
-	reasons: string[];
-	// still return the modules and timings, deferring to the caller
-	modules: Genfile_Module_Meta[];
-};
+export type Load_Genfiles_Failure = Load_Modules_Failure<Genfile_Module_Meta>;
 
 export const load_genfiles = async (
 	found_genfiles: Found_Genfiles,
