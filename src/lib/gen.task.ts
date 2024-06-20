@@ -1,4 +1,4 @@
-import {red, green, gray, yellow} from 'kleur/colors';
+import {red, green, gray} from 'kleur/colors';
 import {print_ms, print_error} from '@ryanatkn/belt/print.js';
 import {plural} from '@ryanatkn/belt/string.js';
 import {z} from 'zod';
@@ -40,7 +40,7 @@ export const task: Task<Args> = {
 		if (!found.ok) {
 			if (found.type === 'input_directories_with_no_files') {
 				// TODO maybe let this error like the normal case, but only call `gro gen` if we find gen files? problem is the args would need to be hoisted to callers like `gro sync`
-				log.info(yellow('no gen modules found in ' + input_paths.join(', ')));
+				log.info('no gen modules found in ' + input_paths.join(', '));
 				return;
 			} else {
 				log_error_reasons(log, found.reasons);
