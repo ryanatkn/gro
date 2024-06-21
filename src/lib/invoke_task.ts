@@ -14,12 +14,21 @@ import type {Gro_Config} from './config.js';
 // TODO BLOCK ignore .git and node_modules OR don't search the fs for the `./` root_dir
 // TODO BLOCK fix/test:
 // from zzz:
+//    gro foo
+//    gro ./foo
+//    gro ../gro/src/lib/foo
 // 		gro ./
 // 		gro ./multi (needs to print names relative cwd)
 //    gro [task when routes configured]
 //    gro (doesn't log Gro tasks)
+//    gro /absolute/path/to/foo
+//    gro /absolute/path/to/dir
 // from gro:
+//    gro test
 //    gro src/ (logs relative task paths not their exact names)
+//    gro /absolute/path/to/foo
+//    gro /absolute/path/to/dir
+//    gro ../zzz/foo
 
 /**
  * Invokes Gro tasks by name using the filesystem as the source.
