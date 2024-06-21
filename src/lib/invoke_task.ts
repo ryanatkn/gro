@@ -22,6 +22,7 @@ import type {Gro_Config} from './config.js';
 //    gro ./foo
 //    gro ../gro/src/lib/foo
 // 		gro ./
+//    gro multi
 // 		gro ./multi (needs to print names relative cwd)
 //    gro /absolute/path/to/foo
 //    gro /absolute/path/to/dir
