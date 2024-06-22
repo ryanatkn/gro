@@ -86,40 +86,6 @@ export const invoke_task = async (
 	if (!found.ok) {
 		log_error_reasons(log, found.reasons);
 		process.exit(1);
-		// TODO BLOCK any of these details needed?
-		// if (found.type === 'input_directories_with_no_files') {
-		// 	// TODO BLOCK this is only valid if there's a base directory for gro, make generic
-		// 	// The input path matched a directory, but it contains no matching files.
-		// 	if (
-		// 		IS_THIS_GRO ||
-		// 		// this is null safe because of the failure type
-		// 		is_gro_id(found.resolved_input_paths_by_input_path.get(input_path)!.id)
-		// 	) {
-		// 		// If the directory is inside Gro, just log the errors.
-		// 		log_error_reasons(log, found.reasons);
-		// 		process.exit(1);
-		// 	} else {
-		// 		// If there's a matching directory in the current working directory,
-		// 		// but it has no matching files, we still want to search Gro's directory.
-		// 		const gro_dir_find_modules_result = await log_gro_package_tasks(
-		// 			input_path,
-		// 			task_root_dirs,
-		// 			log,
-		// 		);
-		// 		if (!gro_dir_find_modules_result.ok) {
-		// 			// Log the original errors, not the Gro-specific ones.
-		// 			log_error_reasons(log, found.reasons);
-		// 			process.exit(1);
-		// 		}
-		// 		finish();
-		// 		return;
-		// 	}
-		// } else {
-		// 	// Some unknown find modules result failure happened, so log it out.
-		// 	// (currently, just "unmapped_input_paths")
-		// 	log_error_reasons(log, found.reasons);
-		// 	process.exit(1);
-		// }
 	}
 
 	// Found a match either in the current working directory or Gro's directory.

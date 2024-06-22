@@ -1,7 +1,7 @@
 import glob from 'tiny-glob';
 import {stat} from 'node:fs/promises';
 import {sort_map, compare_simple_map_entries} from '@ryanatkn/belt/map.js';
-import {strip_end, strip_start} from '@ryanatkn/belt/string.js';
+import {strip_start} from '@ryanatkn/belt/string.js';
 import {EMPTY_OBJECT} from '@ryanatkn/belt/object.js';
 
 import type {Path_Stats, Path_Filter} from './path.js';
@@ -21,13 +21,13 @@ export const search_fs = async (
 	options: Search_Fs_Options = EMPTY_OBJECT,
 ): Promise<Map<string, Path_Stats>> => {
 	const {filter, sort = compare_simple_map_entries, files_only = true} = options;
-	const final_dir = strip_end(dir, '/');
+	const final_dir = dir.at(-1) === '/' ? dir : dir + '/';
 	if (!(await exists(final_dir))) return new Map();
-	const globbed = await glob(final_dir + '/**/*', {absolute: true, filesOnly: files_only});
+	const globbed = await glob(final_dir + '**/*', {absolute: true, filesOnly: files_only});
 	const paths: Map<string, Path_Stats> = new Map();
 	await Promise.all(
 		globbed.map(async (g) => {
-			const path = strip_start(g, final_dir + '/');
+			const path = strip_start(g, final_dir);
 			const stats = await stat(g);
 			if (!filter || stats.isDirectory() || filter(path, stats)) {
 				paths.set(path, stats);

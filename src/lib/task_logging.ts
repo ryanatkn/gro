@@ -16,6 +16,14 @@ export const log_tasks = async (
 	const {modules, found_tasks} = loaded_tasks;
 	const {resolved_input_files_by_root_dir} = found_tasks;
 
+	const logged: string[] = [];
+	if (log_intro) {
+		logged.unshift(
+			`\n\n${gray('Run a task:')} gro [name]`,
+			`\n${gray('View help:')}  gro [name] --help`,
+		);
+	}
+
 	for (const [root_dir, resolved_input_files] of resolved_input_files_by_root_dir) {
 		// TODO BLOCK how to handle null root dirs? what are they exactly, only for absolute paths?
 		const dir_label = root_dir === null ? gray('paths') : print_path(root_dir);
@@ -23,17 +31,11 @@ export const log_tasks = async (
 			log.info(`No tasks found in ${dir_label}.`);
 			continue;
 		}
-		const logged: string[] = [
+		logged.push(
 			`${log_intro ? '\n\n' : ''}${resolved_input_files.length} task${plural(
 				resolved_input_files.length,
 			)} in ${dir_label}:\n`,
-		];
-		if (log_intro) {
-			logged.unshift(
-				`\n\n${gray('Run a task:')} gro [name]`,
-				`\n${gray('View help:')}  gro [name] --help`,
-			);
-		}
+		);
 		const longest_task_name = to_max_length(modules, (m) => m.name);
 		for (const resolved_input_file of resolved_input_files) {
 			const meta = modules.find((m) => m.id === resolved_input_file.id)!;
@@ -43,38 +45,9 @@ export const log_tasks = async (
 				meta.mod.task.summary || '',
 			);
 		}
-		log[log_intro ? 'info' : 'plain'](logged.join('') + '\n');
 	}
+	log[log_intro ? 'info' : 'plain'](logged.join('') + '\n');
 };
-
-// TODO BLOCK delete after getting the generic version working, maybe need `print_input_path`
-// export const log_gro_package_tasks = async (
-// 	input_path: Input_Path,
-// 	task_root_dirs: Path_Id[],
-// 	log: Logger,
-// ): Promise<Find_Tasks_Result> => {
-// 	const gro_dir_input_path = to_gro_input_path(input_path);
-// 	const gro_dir_find_tasks_result = await find_tasks([gro_dir_input_path], task_root_dirs);
-// 	console.log(`[log_gro_package_tasks] gro_dir_find_tasks_result`, gro_dir_find_tasks_result);
-// 	if (gro_dir_find_tasks_result.ok) {
-// 		const gro_path_data =
-// 			gro_dir_find_tasks_result.resolved_input_paths_by_input_path.get(gro_dir_input_path)!;
-// 		// Log the Gro matches.
-// 		await log_tasks(
-// 			log,
-// 			print_path(gro_path_data.id),
-// 			gro_dir_find_tasks_result.resolved_input_files,
-// 			task_root_dirs,
-// 		);
-// 	}
-// 	return gro_dir_find_tasks_result;
-// };
-// TODO BLOCK used above, I don't think this is valid any more, we shouldn't transform absolute paths like this,
-// the searching should happen with the input paths
-// const to_gro_input_path = (input_path: Input_Path): Input_Path => {
-// 	const base_path = input_path === paths.lib.slice(0, -1) ? '' : strip_start(input_path, paths.lib);
-// 	return GRO_DIST_DIR + base_path;
-// };
 
 export const log_error_reasons = (log: Logger, reasons: string[]): void => {
 	for (const reason of reasons) {

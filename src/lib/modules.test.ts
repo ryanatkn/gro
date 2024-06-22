@@ -1,4 +1,4 @@
-import {suite} from 'uvu';
+import {test} from 'uvu';
 import * as assert from 'uvu/assert';
 import {resolve} from 'node:path';
 
@@ -8,10 +8,7 @@ import {load_module} from './modules.js';
 /* eslint-disable no-useless-concat */
 const mod_test1 = await import('../fixtures/' + 'test1.foo.js');
 
-/* test__load_module */
-const test__load_module = suite('load_module');
-
-test__load_module('basic behavior', async () => {
+test('load_module basic behavior', async () => {
 	const id = resolve('src/fixtures/test1.foo.js');
 	let validated_mod;
 	const result = await load_module(id, (mod): mod is any => {
@@ -24,7 +21,7 @@ test__load_module('basic behavior', async () => {
 	assert.is(result.mod, mod_test1);
 });
 
-test__load_module('without validation', async () => {
+test('load_module without validation', async () => {
 	const id = resolve('src/fixtures/test1.foo.js');
 	const result = await load_module(id);
 	assert.ok(result.ok);
@@ -32,7 +29,7 @@ test__load_module('without validation', async () => {
 	assert.is(result.mod, mod_test1);
 });
 
-test__load_module('fails validation', async () => {
+test('load_module fails validation', async () => {
 	const id = resolve('src/fixtures/test1.foo.js');
 	let validated_mod;
 	const test_validation = (mod: Record<string, any>) => {
@@ -51,7 +48,7 @@ test__load_module('fails validation', async () => {
 	}
 });
 
-test__load_module('fails to import', async () => {
+test('load_module fails to import', async () => {
 	const id = resolve('foo/test/failure');
 	const result = await load_module(id);
 	assert.ok(!result.ok);
@@ -63,155 +60,4 @@ test__load_module('fails to import', async () => {
 	}
 });
 
-test__load_module.run();
-/* test__load_module */
-
-// TODO BLOCK delete, but add similar tests to task_module/gen_module
-/* test__find_modules */
-// const test__find_modules = suite('find_modules');
-
-// test__find_modules('with and without extension', async () => {
-// 	const path1 = resolve('src/fixtures/test1');
-// 	const id1 = resolve('src/fixtures/test1.foo.ts');
-// 	const id2 = resolve('src/fixtures/test2.foo.ts');
-// 	const result = await find_modules(
-// 		[path1, id2],
-// 		(id) => search_fs(id, {files_only: false}),
-// 		(input_path) => get_possible_paths(input_path, ['.foo.ts'], []),
-// 	);
-// 	assert.ok(result.ok);
-// 	assert.equal(
-// 		result.resolved_input_files_by_input_path,
-// 		new Map([
-// 			[path1, [id1]],
-// 			[id2, [id2]],
-// 		]),
-// 	);
-// 	assert.equal(
-// 		result.resolved_input_paths,
-// 		new Map([
-// 			[path1, {id: id1, is_directory: false}],
-// 			[id2, {id: id2, is_directory: false}],
-// 		]),
-// 	);
-// });
-
-// test__find_modules('directory', async () => {
-// 	const id = resolve('src/fixtures/');
-// 	const result = await find_modules([id], (id) =>
-// 		search_fs(id, {filter: (path) => path.includes('.foo.')}),
-// 	);
-// 	assert.ok(result.ok);
-// 	assert.equal(
-// 		result.resolved_input_files_by_input_path,
-// 		new Map([[id, [join(id, 'test1.foo.ts'), join(id, 'test2.foo.ts')]]]),
-// 	);
-// 	assert.equal(result.resolved_input_paths, new Map([[id, {id, is_directory: true}]]));
-// });
-
-// test__find_modules('fail with unmapped_input_paths', async () => {
-// 	const result = await find_modules(
-// 		[
-// 			resolve('src/fixtures/bar1'),
-// 			resolve('src/fixtures/failme1'),
-// 			resolve('src/fixtures/bar2'),
-// 			resolve('src/fixtures/failme2'),
-// 		],
-// 		(id) => search_fs(id, {files_only: false}),
-// 		(input_path) => get_possible_paths(input_path, ['.foo.ts'], []),
-// 	);
-// 	assert.ok(!result.ok);
-// 	assert.ok(result.reasons.length);
-// 	if (result.type === 'unmapped_input_paths') {
-// 		assert.equal(result.unmapped_input_paths, [
-// 			resolve('src/fixtures/failme1'),
-// 			resolve('src/fixtures/failme2'),
-// 		]);
-// 	} else {
-// 		throw Error('Expected to fail with unmapped_input_paths');
-// 	}
-// });
-
-// test__find_modules('fail with input_directories_with_no_files', async () => {
-// 	const result = await find_modules(
-// 		[
-// 			resolve('src/fixtures/baz1'),
-// 			resolve('src/fixtures/bar1'),
-// 			resolve('src/fixtures/bar2'),
-// 			resolve('src/fixtures/baz2'),
-// 		],
-// 		(id) => search_fs(id, {filter: (path) => !path.includes('.bar.'), files_only: false}),
-// 	);
-// 	assert.ok(!result.ok);
-// 	assert.ok(result.reasons.length);
-// 	if (result.type === 'input_directories_with_no_files') {
-// 		assert.equal(result.input_directories_with_no_files, [
-// 			resolve('src/fixtures/bar1'),
-// 			resolve('src/fixtures/bar2'),
-// 		]);
-// 	} else {
-// 		throw Error('Expected to fail with input_directories_with_no_files');
-// 	}
-// });
-
-// test__find_modules.run();
-/* test__find_modules */
-
-/* test__load_modules */
-// const test__load_modules = suite('load_modules');
-
-// test__load_modules('fail with load_module_failures', async () => {
-// 	const path_bar1 = resolve('src/fixtures/bar1');
-// 	const path_bar2 = resolve('src/fixtures/bar2');
-// 	const path_baz1 = resolve('src/fixtures/baz1');
-// 	const path_baz2 = resolve('src/fixtures/baz2');
-// 	const id_bar1 = join(path_bar1, 'test1.bar.ts');
-// 	const id_bar2 = join(path_bar2, 'test2.bar.ts');
-// 	const id_baz1 = join(path_baz1, 'test1.baz.ts');
-// 	const id_baz2 = join(path_baz2, 'test2.baz.ts');
-// 	const test_validation = ((mod: Record<string, any>) => mod.bar !== 1) as any;
-// 	let error;
-// 	const result = await load_modules(
-// 		new Map([
-// 			[path_bar1, [id_bar1, id_bar2]],
-// 			[path_baz1, [id_baz1, id_baz2]],
-// 		]),
-// 		async (id) => {
-// 			if (id === id_bar2) {
-// 				return {
-// 					ok: false,
-// 					type: 'failed_import',
-// 					id,
-// 					error: (error = new Error('Test failed import')),
-// 				};
-// 			}
-// 			return load_module(id, test_validation);
-// 		},
-// 	);
-// 	assert.ok(!result.ok);
-// 	assert.ok(result.reasons.length);
-// 	if (result.type !== 'load_module_failures') {
-// 		throw Error('Expected to fail with load_module_failures');
-// 	}
-// 	assert.is(result.load_module_failures.length, 2);
-// 	const [failure1, failure2] = result.load_module_failures;
-// 	if (failure1.type !== 'failed_validation') {
-// 		throw Error('Expected to fail with invalid');
-// 	}
-// 	assert.is(failure1.id, id_bar1);
-// 	assert.ok(failure1.mod);
-// 	assert.is(failure1.validation, test_validation.name);
-// 	if (failure2.type !== 'failed_import') {
-// 		throw Error('Expected to fail with failed_import');
-// 	}
-// 	assert.is(failure2.id, id_bar2);
-// 	assert.is(failure2.error, error);
-// 	assert.is(result.modules.length, 2);
-// 	assert.is(result.modules[0].id, id_baz1);
-// 	assert.is(result.modules[0].mod, modTestBaz1);
-// 	assert.is(result.modules[1].id, id_baz2);
-// 	assert.is(result.modules[1].mod, modTestBaz2);
-// });
-
-// test__load_modules.run();
-/* test__load_modules */
+test.run();

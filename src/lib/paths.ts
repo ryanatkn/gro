@@ -64,10 +64,13 @@ export const base_path_to_path_id = (base_path: string, p = infer_paths(base_pat
 	join(p.source, base_path);
 
 export const print_path = (path: string, p = infer_paths(path)): string => {
+	console.log(`path`, path);
+	console.log(`to_root_path(path, p)`, to_root_path(path, p));
 	let final_path =
 		strip_end(path, '/') === strip_end(GRO_DIST_DIR, '/') ? 'gro' : to_root_path(path, p);
 	final_path =
 		final_path === 'gro' ? final_path : final_path[0] === '.' ? final_path : './' + final_path;
+	console.log(`final_path`, final_path);
 	return gray(final_path);
 };
 
