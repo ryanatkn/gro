@@ -14,7 +14,7 @@ export interface Search_Fs_Options {
 	 * but is slower than using `suffixes` and `exclude_paths`
 	 * because it doesn't short-circuit directories like globbing does.
 	 */
-	filter?: Path_Filter; // TODO BLOCK don't use unless necessary
+	filter?: Path_Filter;
 	/**
 	 * An array of file suffixes to include.
 	 */
