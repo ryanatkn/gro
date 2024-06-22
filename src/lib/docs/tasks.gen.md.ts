@@ -3,13 +3,13 @@ import {parse_path_parts, parse_path_segments} from '@ryanatkn/belt/path.js';
 import {strip_start} from '@ryanatkn/belt/string.js';
 
 import {type Gen, to_output_file_name} from '../gen.js';
-import {paths, base_path_to_source_id} from '../paths.js';
-import {load_task_modules} from '../task_module.js';
+import {paths, base_path_to_path_id} from '../paths.js';
 import {log_error_reasons} from '../task_logging.js';
+import {find_tasks, load_tasks, Task_Error} from '../task.js';
 
 // This is the first simple implementation of Gro's automated docs.
 // It combines Gro's gen and task systems
-// to generate a markdown file describing all of the project's tasks.
+// to generate a markdown file with a summary of all of Gro's tasks.
 // Other projects that use Gro should be able to import this module
 // or other otherwise get frictionless access to this specific use case,
 // and they should be able to extend or customize it to any degree.
@@ -18,13 +18,21 @@ import {log_error_reasons} from '../task_logging.js';
 // TODO needs some cleanup and better APIs - paths are confusing and verbose!
 // TODO add backlinks to every document that links to this one
 
-export const gen: Gen = async ({config, origin_id, log}) => {
-	const result = await load_task_modules([paths.lib], config.task_root_paths);
-	if (!result.ok) {
-		log_error_reasons(log, result.reasons);
-		throw new Error(result.type);
+export const gen: Gen = async ({origin_id, log, config}) => {
+	const found = await find_tasks(['.'], [paths.lib], config);
+	if (!found.ok) {
+		log_error_reasons(log, found.reasons);
+		throw new Task_Error(`Failed to generate task docs: ${found.type}`);
 	}
-	const tasks = result.modules;
+	const found_tasks = found.value;
+
+	const loaded = await load_tasks(found_tasks);
+	if (!loaded.ok) {
+		log_error_reasons(log, loaded.reasons);
+		throw new Task_Error(`Failed to generate task docs: ${loaded.type}`);
+	}
+	const loaded_tasks = loaded.value;
+	const tasks = loaded_tasks.modules;
 
 	const root_path = parse_path_segments(paths.root).at(-1);
 
@@ -46,7 +54,7 @@ export const gen: Gen = async ({config, origin_id, log}) => {
 	const path_parts = parse_path_parts(relative_dir).map(
 		(relative_path_part) =>
 			`[${parse_path_segments(relative_path_part).at(-1)}](${
-				relative(origin_dir, base_path_to_source_id(relative_path_part)) || './'
+				relative(origin_dir, base_path_to_path_id(relative_path_part)) || './'
 			})`,
 	);
 	const breadcrumbs =

@@ -5,76 +5,47 @@ import {print_value} from '@ryanatkn/belt/print.js';
 import {ZodFirstPartyTypeKind, type ZodObjectDef, type ZodTypeAny, type ZodTypeDef} from 'zod';
 
 import type {Arg_Schema} from './args.js';
-import {find_modules, load_modules, type Find_Modules_Result} from './modules.js';
-import {load_task_module, type Task_Module_Meta} from './task_module.js';
-import {to_gro_input_path, type Input_Path} from './input_path.js';
-import {print_path_or_gro_path, type Source_Id} from './paths.js';
-import {is_task_path} from './task.js';
-import {search_fs} from './search_fs.js';
+import type {Loaded_Tasks, Task_Module_Meta} from './task.js';
+import {print_path} from './paths.js';
 
 export const log_tasks = async (
 	log: Logger,
-	dir_label: string,
-	source_ids_by_input_path: Map<Input_Path, Source_Id[]>,
-	task_root_paths: string[],
+	loaded_tasks: Loaded_Tasks,
 	log_intro = true,
 ): Promise<void> => {
-	const source_ids = Array.from(source_ids_by_input_path.values()).flat();
-	if (source_ids.length) {
-		// Load all of the tasks so we can log their summary, and args for the `--help` flag.
-		const load_modules_result = await load_modules(source_ids_by_input_path, (id) =>
-			load_task_module(id, task_root_paths),
+	const {modules, found_tasks} = loaded_tasks;
+	const {resolved_input_files_by_root_dir} = found_tasks;
+
+	const logged: string[] = [];
+	if (log_intro) {
+		logged.unshift(
+			`\n\n${gray('Run a task:')} gro [name]`,
+			`\n${gray('View help:')}  gro [name] --help`,
 		);
-		if (!load_modules_result.ok) {
-			log_error_reasons(log, load_modules_result.reasons);
-			process.exit(1);
+	}
+
+	for (const [root_dir, resolved_input_files] of resolved_input_files_by_root_dir) {
+		const dir_label = print_path(root_dir);
+		if (!resolved_input_files.length) {
+			log.info(`No tasks found in ${dir_label}.`);
+			continue;
 		}
-		const logged: string[] = [
-			`${log_intro ? '\n\n' : ''}${source_ids.length} task${plural(
-				source_ids.length,
+		logged.push(
+			`${log_intro ? '\n\n' : ''}${resolved_input_files.length} task${plural(
+				resolved_input_files.length,
 			)} in ${dir_label}:\n`,
-		];
-		if (log_intro) {
-			logged.unshift(
-				`\n\n${gray('Run a task:')} gro [name]`,
-				`\n${gray('View help:')}  gro [name] --help`,
-			);
-		}
-		const longest_task_name = to_max_length(load_modules_result.modules, (m) => m.name);
-		for (const meta of load_modules_result.modules) {
+		);
+		const longest_task_name = to_max_length(modules, (m) => m.name);
+		for (const resolved_input_file of resolved_input_files) {
+			const meta = modules.find((m) => m.id === resolved_input_file.id)!;
 			logged.push(
 				'\n' + cyan(pad(meta.name, longest_task_name)),
 				'  ',
 				meta.mod.task.summary || '',
 			);
 		}
-		log[log_intro ? 'info' : 'plain'](logged.join('') + '\n');
-	} else {
-		log.info(`No tasks found in ${dir_label}.`);
 	}
-};
-
-export const log_gro_package_tasks = async (
-	input_path: Input_Path,
-	task_root_paths: string[],
-	log: Logger,
-): Promise<Find_Modules_Result> => {
-	const gro_dir_input_path = to_gro_input_path(input_path);
-	const gro_dir_find_modules_result = await find_modules([gro_dir_input_path], (id) =>
-		search_fs(id, {filter: (path) => is_task_path(path)}),
-	);
-	if (gro_dir_find_modules_result.ok) {
-		const gro_path_data =
-			gro_dir_find_modules_result.source_id_path_data_by_input_path.get(gro_dir_input_path)!;
-		// Log the Gro matches.
-		await log_tasks(
-			log,
-			print_path_or_gro_path(gro_path_data.id),
-			gro_dir_find_modules_result.source_ids_by_input_path,
-			task_root_paths,
-		);
-	}
-	return gro_dir_find_modules_result;
+	log[log_intro ? 'info' : 'plain'](logged.join('') + '\n');
 };
 
 export const log_error_reasons = (log: Logger, reasons: string[]): void => {

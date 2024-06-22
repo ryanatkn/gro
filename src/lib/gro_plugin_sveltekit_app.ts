@@ -11,6 +11,7 @@ import {spawn_cli} from './cli.js';
 import {type Map_Src_Json, serialize_src_json, create_src_json} from './src_json.js';
 import {DEFAULT_EXPORTS_EXCLUDER} from './config.js';
 import {sveltekit_config_global} from './sveltekit_config_global.js';
+import {SOURCE_DIRNAME} from './path_constants.js';
 
 export interface Options {
 	/**
@@ -116,7 +117,7 @@ export const gro_plugin_sveltekit_app = ({
 						: null!,
 					serialized_src_json && well_known_src_files
 						? await copy_temporarily(
-								'src',
+								SOURCE_DIRNAME,
 								assets_path,
 								'.well-known',
 								well_known_src_files === true

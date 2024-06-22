@@ -109,10 +109,11 @@ The `Gen` function receives one argument, the `Gen_Context` object:
 ```ts
 export interface Gen_Context {
 	config: Gro_Config;
+	sveltekit_config: Parsed_Sveltekit_Config;
 	/**
 	 * Same as `import.meta.url` but in path form.
 	 */
-	origin_id: string;
+	origin_id: Path_Id;
 	log: Logger;
 }
 // export const gen: Gen = ({config, origin_id, log}) => {

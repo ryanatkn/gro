@@ -1,11 +1,12 @@
-import {isAbsolute, join, resolve} from 'node:path';
+import {dirname, isAbsolute, join, resolve} from 'node:path';
+import {existsSync, statSync} from 'node:fs';
 import {strip_start} from '@ryanatkn/belt/string.js';
 import {stat} from 'node:fs/promises';
 import {z} from 'zod';
 import type {Flavored} from '@ryanatkn/belt/types.js';
 
-import {GRO_PACKAGE_DIR, GRO_DIST_DIR, paths, Source_Id} from './paths.js';
-import {to_path_data, type Path_Data} from './path.js';
+import {GRO_PACKAGE_DIR, GRO_DIST_DIR} from './paths.js';
+import {to_path_data, type Path_Data, type Path_Id} from './path.js';
 import {exists} from './fs.js';
 import {search_fs} from './search_fs.js';
 import {TASK_FILE_SUFFIX_JS} from './task.js';
@@ -46,140 +47,221 @@ export const to_input_paths = (
 	root_path?: string,
 ): Input_Path[] => raw_input_paths.map((p) => to_input_path(p, root_path));
 
+export interface Possible_Path {
+	id: Path_Id;
+	input_path: Input_Path;
+	root_dir: Path_Id;
+}
+
 /**
  * Gets a list of possible source ids for each input path with `extensions`,
- * duplicating each under `root_dirs`.
- * This is first used to fall back to the Gro dir to search for tasks.
- * It's the helper used in implementations of `get_possible_source_ids_for_input_path` below.
+ * duplicating each under `root_dirs`, without checking the filesystem.
  */
-export const get_possible_source_ids = (
+export const get_possible_paths = (
 	input_path: Input_Path,
+	root_dirs: Path_Id[],
 	extensions: string[],
-	root_dirs: string[],
-): Source_Id[] => {
-	const possible_source_ids: Source_Id[] = [];
+): Possible_Path[] => {
+	const possible_paths: Set<Possible_Path> = new Set();
 
-	const add_possible_source_ids = (path: string) => {
+	const add_possible_paths = (path: string, root_dir: Path_Id) => {
 		// Specifically for paths to the Gro package dist, optimize by only looking for `.task.js`.
 		if (path.startsWith(GRO_DIST_DIR)) {
-			possible_source_ids.push(
-				(path.endsWith('/') || path.endsWith(TASK_FILE_SUFFIX_JS)
+			possible_paths.add({
+				id: (path.endsWith('/') || path.endsWith(TASK_FILE_SUFFIX_JS)
 					? path
-					: path + TASK_FILE_SUFFIX_JS) as Source_Id,
-			);
+					: path + TASK_FILE_SUFFIX_JS) as Path_Id,
+				input_path,
+				root_dir,
+			});
 		} else {
-			possible_source_ids.push(path as Source_Id);
+			possible_paths.add({id: path as Path_Id, input_path, root_dir});
 			if (!path.endsWith('/') && !extensions.some((e) => path.endsWith(e))) {
 				for (const extension of extensions) {
-					possible_source_ids.push(path + extension);
+					possible_paths.add({id: path + extension, input_path, root_dir});
 				}
 			}
 		}
 	};
 
 	if (isAbsolute(input_path)) {
-		add_possible_source_ids(input_path);
+		// TODO this is hacky because it's the only place we're using sync fs calls (even if they're faster, it's oddly inconsistent),
+		// we probably should just change this function to check the filesystem and not return non-existing paths
+		add_possible_paths(
+			input_path,
+			existsSync(input_path) && statSync(input_path).isDirectory()
+				? input_path
+				: dirname(input_path),
+		);
 	} else {
 		for (const root_dir of root_dirs) {
-			add_possible_source_ids(join(root_dir, input_path));
+			add_possible_paths(join(root_dir, input_path), root_dir);
 		}
 	}
-	return possible_source_ids;
+	return Array.from(possible_paths);
 };
+
+export interface Resolved_Input_Path {
+	input_path: Input_Path;
+	id: Path_Id;
+	is_directory: boolean;
+	root_dir: Path_Id;
+}
+
+export interface Resolved_Input_File {
+	id: Path_Id;
+	input_path: Input_Path;
+	resolved_input_path: Resolved_Input_Path;
+}
+
+export interface Resolved_Input_Paths {
+	resolved_input_paths: Resolved_Input_Path[];
+	resolved_input_paths_by_input_path: Map<Input_Path, Resolved_Input_Path[]>;
+	possible_paths_by_input_path: Map<Input_Path, Possible_Path[]>;
+	unmapped_input_paths: Input_Path[];
+}
 
 /**
  * Gets the path data for each input path, checking the filesystem for the possibilities
  * and stopping at the first existing file or falling back to the first existing directory.
  * If none is found for an input path, it's added to `unmapped_input_paths`.
  */
-export const load_source_path_data_by_input_path = async (
+export const resolve_input_paths = async (
 	input_paths: Input_Path[],
-	get_possible_source_ids_for_input_path?: (input_path: Input_Path) => Source_Id[],
-): Promise<{
-	source_id_path_data_by_input_path: Map<Input_Path, Path_Data>;
-	unmapped_input_paths: Input_Path[];
-}> => {
-	const source_id_path_data_by_input_path = new Map<Input_Path, Path_Data>();
+	root_dirs: Path_Id[],
+	extensions: string[],
+): Promise<Resolved_Input_Paths> => {
+	const resolved_input_paths: Resolved_Input_Path[] = [];
+	const possible_paths_by_input_path = new Map<Input_Path, Possible_Path[]>();
 	const unmapped_input_paths: Input_Path[] = [];
 	for (const input_path of input_paths) {
-		let file_path_data: Path_Data | null = null;
-		let dir_path_data: Path_Data | null = null;
-		const possible_source_ids = get_possible_source_ids_for_input_path
-			? get_possible_source_ids_for_input_path(input_path)
-			: [input_path];
+		let found_file: [Path_Data, Possible_Path] | null = null;
+		let found_dirs: Array<[Path_Data, Possible_Path]> | null = null;
+		const possible_paths = get_possible_paths(input_path, root_dirs, extensions);
+		possible_paths_by_input_path.set(input_path, possible_paths);
+
 		// Find the first existing file path or fallback to the first directory path.
-		for (const possible_source_id of possible_source_ids) {
-			if (!(await exists(possible_source_id))) continue; // eslint-disable-line no-await-in-loop
-			const stats = await stat(possible_source_id); // eslint-disable-line no-await-in-loop
+		for (const possible_path of possible_paths) {
+			if (!(await exists(possible_path.id))) continue; // eslint-disable-line no-await-in-loop
+			const stats = await stat(possible_path.id); // eslint-disable-line no-await-in-loop
 			if (stats.isDirectory()) {
-				if (dir_path_data) continue;
-				dir_path_data = to_path_data(possible_source_id, stats);
+				found_dirs ??= [];
+				found_dirs.push([to_path_data(possible_path.id, stats), possible_path]);
 			} else {
-				file_path_data = to_path_data(possible_source_id, stats);
+				found_file = [to_path_data(possible_path.id, stats), possible_path];
 				break;
 			}
 		}
-		const path_data = file_path_data || dir_path_data;
-		if (path_data) {
-			source_id_path_data_by_input_path.set(input_path, path_data);
+		if (found_file) {
+			resolved_input_paths.push({
+				input_path,
+				id: found_file[0].id,
+				is_directory: found_file[0].is_directory,
+				root_dir: found_file[1].root_dir,
+			});
+		} else if (found_dirs) {
+			for (const found_dir of found_dirs) {
+				resolved_input_paths.push({
+					input_path,
+					id: found_dir[0].id,
+					is_directory: found_dir[0].is_directory,
+					root_dir: found_dir[1].root_dir,
+				});
+			}
 		} else {
 			unmapped_input_paths.push(input_path);
 		}
 	}
-	return {source_id_path_data_by_input_path, unmapped_input_paths};
+	return {
+		resolved_input_paths,
+		resolved_input_paths_by_input_path: resolved_input_paths.reduce((map, resolved_input_path) => {
+			if (map.has(resolved_input_path.input_path)) {
+				map.get(resolved_input_path.input_path)!.push(resolved_input_path);
+			} else {
+				map.set(resolved_input_path.input_path, [resolved_input_path]);
+			}
+			return map;
+		}, new Map<Input_Path, Resolved_Input_Path[]>()),
+		possible_paths_by_input_path,
+		unmapped_input_paths,
+	};
 };
+
+export interface Resolved_Input_Files {
+	resolved_input_files: Resolved_Input_File[];
+	resolved_input_files_by_input_path: Map<Input_Path, Resolved_Input_File[]>;
+	resolved_input_files_by_root_dir: Map<Path_Id, Resolved_Input_File[]>;
+	input_directories_with_no_files: Resolved_Input_Path[];
+}
 
 /**
  * Finds all of the matching files for the given input paths.
  * De-dupes source ids.
  */
-export const load_source_ids_by_input_path = async (
-	source_id_path_data_by_input_path: Map<Input_Path, Path_Data>,
+export const resolve_input_files = async (
+	resolved_input_paths: Resolved_Input_Path[],
 	custom_search_fs = search_fs,
-): Promise<{
-	source_ids_by_input_path: Map<Input_Path, Source_Id[]>;
-	input_directories_with_no_files: Input_Path[];
-}> => {
-	const source_ids_by_input_path = new Map<Input_Path, Source_Id[]>();
-	const input_directories_with_no_files: Input_Path[] = [];
-	const existing_source_ids = new Set<Source_Id>();
-	for (const [input_path, path_data] of source_id_path_data_by_input_path) {
-		const {id} = path_data;
-		if (path_data.isDirectory) {
+): Promise<Resolved_Input_Files> => {
+	const resolved_input_files: Resolved_Input_File[] = [];
+	const resolved_input_files_by_input_path = new Map<Input_Path, Resolved_Input_File[]>();
+	const input_directories_with_no_files: Resolved_Input_Path[] = [];
+	const existing_path_ids = new Set<Path_Id>();
+	// TODO parallelize but would need to de-dupe and retain order
+	for (const resolved_input_path of resolved_input_paths) {
+		const {input_path, id, is_directory} = resolved_input_path;
+		if (is_directory) {
 			const files = await custom_search_fs(id, {files_only: false}); // eslint-disable-line no-await-in-loop
 			if (files.size) {
-				const source_ids: Source_Id[] = [];
+				const path_ids: Path_Id[] = [];
 				let has_files = false;
 				for (const [path, stats] of files) {
 					if (stats.isDirectory()) continue;
 					has_files = true;
-					const source_id = join(id, path);
-					if (!existing_source_ids.has(source_id)) {
-						existing_source_ids.add(source_id);
-						source_ids.push(source_id);
+					const path_id = join(id, path);
+					if (!existing_path_ids.has(path_id)) {
+						existing_path_ids.add(path_id);
+						path_ids.push(path_id);
 					}
 				}
-				if (source_ids.length) {
-					source_ids_by_input_path.set(input_path, source_ids);
+				if (path_ids.length) {
+					const resolved_input_files_for_input_path: Resolved_Input_File[] = [];
+					for (const path_id of path_ids) {
+						const resolved_input_file: Resolved_Input_File = {
+							id: path_id,
+							input_path,
+							resolved_input_path,
+						};
+						resolved_input_files.push(resolved_input_file);
+						resolved_input_files_for_input_path.push(resolved_input_file);
+					}
+					resolved_input_files_by_input_path.set(input_path, resolved_input_files_for_input_path);
 				}
 				if (!has_files) {
-					input_directories_with_no_files.push(input_path);
+					input_directories_with_no_files.push(resolved_input_path);
 				}
 				// do callers ever need `input_directories_with_duplicate_files`?
 			} else {
-				input_directories_with_no_files.push(input_path);
+				input_directories_with_no_files.push(resolved_input_path);
 			}
-		} else if (!existing_source_ids.has(id)) {
-			existing_source_ids.add(id);
-			source_ids_by_input_path.set(input_path, [id]);
+		} else if (!existing_path_ids.has(id)) {
+			existing_path_ids.add(id);
+			const resolved_input_file: Resolved_Input_File = {id, input_path, resolved_input_path};
+			resolved_input_files.push(resolved_input_file);
+			resolved_input_files_by_input_path.set(input_path, [resolved_input_file]);
 		}
 	}
-	return {source_ids_by_input_path, input_directories_with_no_files};
-};
-
-// TODO I don't think this is valid any more, we shouldn't transform absolute paths like this,
-// the searching should happen with the input paths
-export const to_gro_input_path = (input_path: Input_Path): Input_Path => {
-	const base_path = input_path === paths.lib.slice(0, -1) ? '' : strip_start(input_path, paths.lib);
-	return GRO_DIST_DIR + base_path;
+	return {
+		resolved_input_files,
+		resolved_input_files_by_input_path,
+		resolved_input_files_by_root_dir: resolved_input_files.reduce((map, resolved_input_file) => {
+			const {root_dir} = resolved_input_file.resolved_input_path;
+			if (map.has(root_dir)) {
+				map.get(root_dir)!.push(resolved_input_file);
+			} else {
+				map.set(root_dir, [resolved_input_file]);
+			}
+			return map;
+		}, new Map<Path_Id, Resolved_Input_File[]>()),
+		input_directories_with_no_files,
+	};
 };

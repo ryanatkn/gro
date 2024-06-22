@@ -2,10 +2,11 @@ import {extname, join, relative} from 'node:path';
 
 import {replace_extension} from './paths.js';
 import {exists} from './fs.js';
+import type {Path_Id} from './path.js';
 
 export interface Resolved_Specifier {
 	specifier: string;
-	source_id: string;
+	path_id: Path_Id;
 	namespace: undefined | 'sveltekit_local_imports_ts' | 'sveltekit_local_imports_js';
 }
 
@@ -19,36 +20,36 @@ export interface Resolved_Specifier {
  * @returns
  */
 export const resolve_specifier = async (path: string, dir: string): Promise<Resolved_Specifier> => {
-	const path_id = path[0] === '/' ? path : join(dir, path);
+	const absolute_path = path[0] === '/' ? path : join(dir, path);
 
 	let mapped_path;
-	let source_id;
+	let path_id;
 	let namespace: Resolved_Specifier['namespace'];
 
-	const ext = extname(path_id);
+	const ext = extname(absolute_path);
 	const is_js = ext === '.js';
 	const is_ts = ext === '.ts';
 
-	if (!is_js && !is_ts && (await exists(path_id))) {
+	if (!is_js && !is_ts && (await exists(absolute_path))) {
 		// unrecognized extension and the file exists
-		mapped_path = path_id;
-		source_id = path_id;
+		mapped_path = absolute_path;
+		path_id = absolute_path;
 	} else if (is_ts) {
 		// explicitly ts
-		mapped_path = replace_extension(path_id, '.js');
-		source_id = path_id;
+		mapped_path = replace_extension(absolute_path, '.js');
+		path_id = absolute_path;
 		namespace = 'sveltekit_local_imports_ts';
 	} else {
 		// extensionless, or js that points to ts, or just js
-		const js_id = is_js ? path_id : path_id + '.js';
-		const ts_id = is_js ? replace_extension(path_id, '.ts') : path_id + '.ts';
+		const js_id = is_js ? absolute_path : absolute_path + '.js';
+		const ts_id = is_js ? replace_extension(absolute_path, '.ts') : absolute_path + '.ts';
 		if (!(await exists(ts_id)) && (await exists(js_id))) {
 			mapped_path = js_id;
-			source_id = js_id;
+			path_id = js_id;
 			namespace = 'sveltekit_local_imports_js';
 		} else {
 			mapped_path = js_id;
-			source_id = ts_id;
+			path_id = ts_id;
 			namespace = 'sveltekit_local_imports_ts';
 		}
 	}
@@ -56,5 +57,5 @@ export const resolve_specifier = async (path: string, dir: string): Promise<Reso
 	let specifier = relative(dir, mapped_path);
 	if (specifier[0] !== '.') specifier = './' + specifier;
 
-	return {specifier, source_id, namespace};
+	return {specifier, path_id, namespace};
 };

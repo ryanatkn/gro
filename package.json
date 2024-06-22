@@ -210,10 +210,6 @@
       "default": "./dist/fs.js",
       "types": "./dist/fs.d.ts"
     },
-    "./gen_module.js": {
-      "default": "./dist/gen_module.js",
-      "types": "./dist/gen_module.d.ts"
-    },
     "./gen.task.js": {
       "default": "./dist/gen.task.js",
       "types": "./dist/gen.task.d.ts"
@@ -346,6 +342,10 @@
       "default": "./dist/resolve_specifier.js",
       "types": "./dist/resolve_specifier.d.ts"
     },
+    "./resolve.task.js": {
+      "default": "./dist/resolve.task.js",
+      "types": "./dist/resolve.task.d.ts"
+    },
     "./run_gen.js": {
       "default": "./dist/run_gen.js",
       "types": "./dist/run_gen.d.ts"
@@ -417,10 +417,6 @@
     "./task_logging.js": {
       "default": "./dist/task_logging.js",
       "types": "./dist/task_logging.d.ts"
-    },
-    "./task_module.js": {
-      "default": "./dist/task_module.js",
-      "types": "./dist/task_module.d.ts"
     },
     "./task.js": {
       "default": "./dist/task.js",

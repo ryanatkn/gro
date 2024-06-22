@@ -4,7 +4,7 @@ import {resolve, join} from 'node:path';
 import {Logger} from '@ryanatkn/belt/log.js';
 import {Timings} from '@ryanatkn/belt/timings.js';
 
-import type {Gen_Module_Meta} from './gen_module.js';
+import type {Genfile_Module_Meta} from './gen.js';
 import {run_gen} from './run_gen.js';
 import {load_config} from './config.js';
 
@@ -14,18 +14,17 @@ const log = new Logger('test__gen'); // TODO test logger?
 const test__gen = suite('gen');
 
 test__gen('basic behavior', async () => {
-	const source_id_a = resolve('src/foo.gen.ts');
-	const source_id_bc = resolve('src/bar/bc');
+	const path_id_a = resolve('src/foo.gen.ts');
+	const path_id_bc = resolve('src/bar/bc');
 	let file_a: undefined | {filename: string; content: string};
 	let file_b: undefined | {filename: string; content: string};
 	let file_c1: undefined | {filename: string; content: string};
 	let file_c2: undefined | {filename: string; content: string};
-	const mod_a: Gen_Module_Meta = {
-		type: 'basic',
-		id: source_id_a,
+	const mod_a: Genfile_Module_Meta = {
+		id: path_id_a,
 		mod: {
 			gen: async (ctx) => {
-				assert.is(ctx.origin_id, source_id_a);
+				assert.is(ctx.origin_id, path_id_a);
 				if (file_a) throw Error('Already generated file_a');
 				file_a = {
 					filename: 'foo.ts',
@@ -35,9 +34,8 @@ test__gen('basic behavior', async () => {
 			},
 		},
 	};
-	const mod_b: Gen_Module_Meta = {
-		type: 'basic',
-		id: join(source_id_bc, 'mod_b.gen.ts'),
+	const mod_b: Genfile_Module_Meta = {
+		id: join(path_id_bc, 'mod_b.gen.ts'),
 		mod: {
 			gen: async (ctx) => {
 				assert.is(ctx.origin_id, mod_b.id);
@@ -50,9 +48,8 @@ test__gen('basic behavior', async () => {
 			},
 		},
 	};
-	const mod_c: Gen_Module_Meta = {
-		type: 'basic',
-		id: join(source_id_bc, 'mod_c.gen.ts'),
+	const mod_c: Genfile_Module_Meta = {
+		id: join(path_id_bc, 'mod_c.gen.ts'),
 		mod: {
 			gen: async (ctx) => {
 				assert.is(ctx.origin_id, mod_c.id);
@@ -132,15 +129,14 @@ test__gen('basic behavior', async () => {
 });
 
 test__gen('failing gen function', async () => {
-	const source_id_a = resolve('src/foo.gen.ts');
-	const source_idB = resolve('src/bar/baz');
+	const path_id_a = resolve('src/foo.gen.ts');
+	const path_idB = resolve('src/bar/baz');
 	let file_b: undefined | {filename: string; content: string}; // no file_a because it's never generated
 	let genError; // this error should be passed through to the result
 	// This is the failing gen module.
 	// It's ordered first to test that its failure doesn't cascade.
-	const mod_a: Gen_Module_Meta = {
-		type: 'basic',
-		id: source_id_a,
+	const mod_a: Genfile_Module_Meta = {
+		id: path_id_a,
 		mod: {
 			gen: async () => {
 				genError = Error('This fails for testing');
@@ -148,9 +144,8 @@ test__gen('failing gen function', async () => {
 			},
 		},
 	};
-	const mod_b: Gen_Module_Meta = {
-		type: 'basic',
-		id: join(source_idB, 'mod_b.gen.ts'),
+	const mod_b: Genfile_Module_Meta = {
+		id: join(path_idB, 'mod_b.gen.ts'),
 		mod: {
 			gen: async (ctx) => {
 				assert.is(ctx.origin_id, mod_b.id);
@@ -163,7 +158,7 @@ test__gen('failing gen function', async () => {
 			},
 		},
 	};
-	const gen_modules_by_input_path: Gen_Module_Meta[] = [mod_a, mod_b];
+	const gen_modules_by_input_path: Genfile_Module_Meta[] = [mod_a, mod_b];
 	const gen_results = await run_gen(
 		gen_modules_by_input_path,
 		await load_config(),

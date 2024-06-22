@@ -11,6 +11,7 @@ import {esbuild_plugin_sveltekit_shim_app} from './esbuild_plugin_sveltekit_shim
 import {esbuild_plugin_sveltekit_local_imports} from './esbuild_plugin_sveltekit_local_imports.js';
 import {esbuild_plugin_svelte} from './esbuild_plugin_svelte.js';
 import type {Parsed_Sveltekit_Config} from './sveltekit_config.js';
+import type {Path_Id} from './path.js';
 
 export interface Options {
 	dev: boolean;
@@ -50,10 +51,10 @@ export const esbuild_plugin_external_worker = ({
 	name: 'external_worker',
 	setup: (build) => {
 		const builds: Map<string, Promise<esbuild.BuildResult>> = new Map();
-		const build_worker = async (source_id: string): Promise<esbuild.BuildResult> => {
-			if (builds.has(source_id)) return builds.get(source_id)!;
+		const build_worker = async (path_id: Path_Id): Promise<esbuild.BuildResult> => {
+			if (builds.has(path_id)) return builds.get(path_id)!;
 			const building = esbuild.build({
-				entryPoints: [source_id],
+				entryPoints: [path_id],
 				plugins: [
 					esbuild_plugin_sveltekit_shim_app({dev, base_url, assets_url}),
 					esbuild_plugin_sveltekit_shim_env({
@@ -76,14 +77,14 @@ export const esbuild_plugin_external_worker = ({
 				define: to_define_import_meta_env(dev, base_url),
 				...build_options,
 			});
-			builds.set(source_id, building);
+			builds.set(path_id, building);
 			return building;
 		};
 
 		build.onResolve({filter: /\.worker(|\.js|\.ts)$/u}, async ({path, resolveDir}) => {
 			const parsed = await resolve_specifier(path, resolveDir);
-			const {specifier, source_id, namespace} = parsed;
-			const build_result = await build_worker(source_id);
+			const {specifier, path_id, namespace} = parsed;
+			const build_result = await build_worker(path_id);
 			if (log) print_build_result(log, build_result);
 			return {path: './' + basename(specifier), external: true, namespace};
 		});

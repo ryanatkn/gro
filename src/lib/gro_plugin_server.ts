@@ -7,7 +7,8 @@ import {strip_before, strip_end} from '@ryanatkn/belt/string.js';
 import type {Result} from '@ryanatkn/belt/result.js';
 
 import type {Plugin, Plugin_Context} from './plugin.js';
-import {base_path_to_source_id, LIB_DIRNAME, paths, type Source_Id} from './paths.js';
+import {base_path_to_path_id, LIB_DIRNAME, paths} from './paths.js';
+import type {Path_Id} from './path.js';
 import {GRO_DEV_DIRNAME, SERVER_DIST_PATH} from './path_constants.js';
 import {watch_dir, type Watch_Node_Fs} from './watch_dir.js';
 import {init_sveltekit_config} from './sveltekit_config.js';
@@ -24,7 +25,7 @@ import {sveltekit_config_global} from './sveltekit_config_global.js';
 
 // TODO sourcemap as a hoisted option? disable for production by default - or like `outpaths`, passed a `dev` param
 
-export const SERVER_SOURCE_ID = base_path_to_source_id(LIB_DIRNAME + '/server/server.ts');
+export const SERVER_SOURCE_ID = base_path_to_path_id(LIB_DIRNAME + '/server/server.ts');
 
 export const has_server = async (
 	path = SERVER_SOURCE_ID,
@@ -129,7 +130,7 @@ export const gro_plugin_server = ({
 	let build_ctx: esbuild.BuildContext;
 	let watcher: Watch_Node_Fs;
 	let server_process: Restartable_Process | null = null;
-	let deps: Set<Source_Id> | null = null;
+	let deps: Set<Path_Id> | null = null;
 
 	return {
 		name: 'gro_plugin_server',

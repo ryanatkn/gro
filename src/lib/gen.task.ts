@@ -5,17 +5,19 @@ import {z} from 'zod';
 
 import {Task_Error, type Task} from './task.js';
 import {run_gen} from './run_gen.js';
-import {load_gen_module, find_gen_modules} from './gen_module.js';
 import {Raw_Input_Path, to_input_paths} from './input_path.js';
-import {load_modules} from './modules.js';
 import {format_file} from './format_file.js';
-import {paths, print_path} from './paths.js';
+import {print_path} from './paths.js';
 import {log_error_reasons} from './task_logging.js';
-import {write_gen_results, analyze_gen_results} from './gen.js';
+import {write_gen_results, analyze_gen_results, find_genfiles, load_genfiles} from './gen.js';
+import {SOURCE_DIRNAME} from './path_constants.js';
 
 export const Args = z
 	.object({
-		_: z.array(Raw_Input_Path, {description: 'paths to generate'}).default([]),
+		_: z.array(Raw_Input_Path, {description: 'input paths to generate'}).default([SOURCE_DIRNAME]),
+		root_dirs: z
+			.array(z.string(), {description: 'root directories to resolve input paths against'}) // TODO `Path_Id` schema
+			.default([process.cwd()]),
 		check: z
 			.boolean({description: 'exit with a nonzero code if any files need to be generated'})
 			.default(false),
@@ -29,40 +31,37 @@ export const task: Task<Args> = {
 	summary: 'run code generation scripts',
 	Args,
 	run: async ({args, log, timings, config}): Promise<void> => {
-		const {_: raw_input_paths, check} = args;
+		const {_: raw_input_paths, root_dirs, check} = args;
 
-		const input_paths = raw_input_paths.length ? to_input_paths(raw_input_paths) : [paths.source];
+		const input_paths = to_input_paths(raw_input_paths);
 
 		// load all of the gen modules
-		const find_modules_result = await find_gen_modules(input_paths);
-		if (!find_modules_result.ok) {
-			if (find_modules_result.type === 'input_directories_with_no_files') {
-				log.info('no gen modules found');
+		const found = await find_genfiles(input_paths, root_dirs, timings);
+		if (!found.ok) {
+			if (found.type === 'input_directories_with_no_files') {
+				// TODO maybe let this error like the normal case, but only call `gro gen` if we find gen files? problem is the args would need to be hoisted to callers like `gro sync`
+				log.info('no gen modules found in ' + input_paths.join(', '));
 				return;
 			} else {
-				log_error_reasons(log, find_modules_result.reasons);
+				log_error_reasons(log, found.reasons);
 				throw new Task_Error('Failed to find gen modules.');
 			}
 		}
-		log.info('gen files', Array.from(find_modules_result.source_ids_by_input_path.values()).flat());
-		const load_modules_result = await load_modules(
-			find_modules_result.source_ids_by_input_path,
-			load_gen_module,
+		const found_genfiles = found.value;
+		log.info(
+			'gen files',
+			found_genfiles.resolved_input_files.map((f) => f.id),
 		);
-		if (!load_modules_result.ok) {
-			log_error_reasons(log, load_modules_result.reasons);
+		const loaded = await load_genfiles(found_genfiles, timings);
+		if (!loaded.ok) {
+			log_error_reasons(log, loaded.reasons);
 			throw new Task_Error('Failed to load gen modules.');
 		}
+		const loaded_genfiles = loaded.value;
 
 		// run `gen` on each of the modules
 		const timing_to_generate_code = timings.start('generate code'); // TODO this ignores `gen_results.elapsed` - should it return `Timings` instead?
-		const gen_results = await run_gen(
-			load_modules_result.modules,
-			config,
-			log,
-			timings,
-			format_file,
-		);
+		const gen_results = await run_gen(loaded_genfiles.modules, config, log, timings, format_file);
 		timing_to_generate_code();
 
 		const fail_count = gen_results.failures.length;
@@ -106,11 +105,11 @@ export const task: Task<Args> = {
 		// TODO these final printed results could be improved showing a breakdown per file id
 		const new_count = analyzed_gen_results.filter((r) => r.is_new).length;
 		const changed_count = analyzed_gen_results.filter((r) => r.has_changed).length;
-		const skipped_count = analyzed_gen_results.filter((r) => !r.is_new && !r.has_changed).length;
+		const unchanged_count = analyzed_gen_results.filter((r) => !r.is_new && !r.has_changed).length;
 		let log_result = green('gen results:');
 		log_result += `\n\t${new_count} ` + gray('new');
 		log_result += `\n\t${changed_count} ` + gray('changed');
-		log_result += `\n\t${skipped_count} ` + gray('skipped');
+		log_result += `\n\t${unchanged_count} ` + gray('unchanged');
 		for (const result of gen_results.results) {
 			log_result += `\n\t${result.ok ? green('✓') : red('🞩')}  ${
 				result.ok ? result.files.length : 0
