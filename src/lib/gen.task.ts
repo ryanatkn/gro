@@ -102,11 +102,11 @@ export const task: Task<Args> = {
 		// TODO these final printed results could be improved showing a breakdown per file id
 		const new_count = analyzed_gen_results.filter((r) => r.is_new).length;
 		const changed_count = analyzed_gen_results.filter((r) => r.has_changed).length;
-		const skipped_count = analyzed_gen_results.filter((r) => !r.is_new && !r.has_changed).length;
+		const unchanged_count = analyzed_gen_results.filter((r) => !r.is_new && !r.has_changed).length;
 		let log_result = green('gen results:');
 		log_result += `\n\t${new_count} ` + gray('new');
 		log_result += `\n\t${changed_count} ` + gray('changed');
-		log_result += `\n\t${skipped_count} ` + gray('skipped');
+		log_result += `\n\t${unchanged_count} ` + gray('unchanged');
 		for (const result of gen_results.results) {
 			log_result += `\n\t${result.ok ? green('✓') : red('🞩')}  ${
 				result.ok ? result.files.length : 0
