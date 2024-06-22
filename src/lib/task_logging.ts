@@ -25,8 +25,15 @@ export const log_tasks = async (
 	}
 
 	for (const [root_dir, resolved_input_files] of resolved_input_files_by_root_dir) {
-		// TODO BLOCK how to handle null root dirs? what are they exactly, only for absolute paths?
-		const dir_label = root_dir === null ? gray('paths') : print_path(root_dir);
+		// Handle absolute input paths which have a `null` `root_dir` -
+		// this is technically unnecessary right now because we accept only one input path,
+		// but it's more correct and might handle future cases.
+		const dir_label =
+			root_dir === null
+				? Array.from(new Set(resolved_input_files.map((f) => f.input_path)))
+						.map((p) => print_path(p))
+						.join(' ')
+				: print_path(root_dir);
 		if (!resolved_input_files.length) {
 			log.info(`No tasks found in ${dir_label}.`);
 			continue;
