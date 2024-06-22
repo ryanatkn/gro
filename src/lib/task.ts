@@ -122,8 +122,8 @@ export const find_tasks = async (
 ): Promise<Find_Tasks_Result> => {
 	// Check which extension variation works - if it's a directory, prefer others first!
 	const timing_to_resolve_input_paths = timings?.start('resolve input paths');
-	const resolved = await resolve_input_paths(input_paths, task_root_dirs, TASK_FILE_SUFFIXES);
-	const {resolved_input_paths, resolved_input_paths_by_input_path, unmapped_input_paths} = resolved;
+	const {resolved_input_paths, resolved_input_paths_by_input_path, unmapped_input_paths} =
+		await resolve_input_paths(input_paths, task_root_dirs, TASK_FILE_SUFFIXES);
 	timing_to_resolve_input_paths?.();
 
 	// Error if any input path could not be mapped.
