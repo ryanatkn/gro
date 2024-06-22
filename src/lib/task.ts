@@ -144,7 +144,7 @@ export const find_tasks = async (
 		resolved_input_files_by_root_dir,
 		input_directories_with_no_files,
 	} = await resolve_input_files(resolved_input_paths, (id) =>
-		search_fs(id, {filter: (path) => is_task_path(path)}),
+		search_fs(id, {suffixes: TASK_FILE_SUFFIXES}),
 	);
 	timing_to_search_fs?.();
 

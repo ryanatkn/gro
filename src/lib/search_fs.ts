@@ -10,21 +10,47 @@ import {exists} from './fs.js';
 export interface Search_Fs_Options {
 	filter?: Path_Filter;
 	/**
+	 * An array of file suffixes to include.
+	 */
+	suffixes?: string[];
+
+	/**
+	 * An array of paths to exclude relative to the search directory.
+	 */
+	exclude_paths?: string[];
+	/**
 	 * Pass `null` to speed things up at the risk of volatile ordering.
 	 */
 	sort?: typeof compare_simple_map_entries | null;
 	files_only?: boolean;
 }
 
+// TODO this is more complex than it needs to be because I kept an old interface when switching to globbing
 export const search_fs = async (
 	dir: string,
 	options: Search_Fs_Options = EMPTY_OBJECT,
 ): Promise<Map<string, Path_Stats>> => {
-	const {filter, sort = compare_simple_map_entries, files_only = true} = options;
+	const {
+		filter,
+		suffixes,
+		exclude_paths,
+		sort = compare_simple_map_entries,
+		files_only = true,
+	} = options;
 	const final_dir = dir.at(-1) === '/' ? dir : dir + '/';
 	if (!(await exists(final_dir))) return new Map();
-	const globbed = await glob(final_dir + '**/*', {absolute: true, filesOnly: files_only});
+	let pattern = final_dir;
+	if (exclude_paths?.length) {
+		pattern += `!(${exclude_paths.join('|')})`;
+	}
+	pattern += '**/*';
+	if (suffixes?.length) {
+		pattern += `+(${suffixes.join('|')})`;
+	}
+	console.log(`pattern`, pattern);
+	const globbed = await glob(pattern, {absolute: true, filesOnly: files_only});
 	const paths: Map<string, Path_Stats> = new Map();
+	console.log(`globbed`, globbed);
 	await Promise.all(
 		globbed.map(async (g) => {
 			const path = strip_start(g, final_dir);
