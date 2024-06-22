@@ -41,7 +41,7 @@ export interface Search_Fs_Options {
 	files_only?: boolean;
 }
 
-// TODO this is more complex than it needs to be because I kept an old interface when switching to globbing
+// TODO this is terrible because of the `tiny-glob` limitations, rewrite without it, it's also making it exclude all directories that start with any of the excluded ones
 export const search_fs = async (
 	dir: string,
 	options: Search_Fs_Options = EMPTY_OBJECT,
@@ -49,7 +49,7 @@ export const search_fs = async (
 	const {
 		filter,
 		suffixes,
-		exclude_paths, // TODO BLOCK this doesn't work with `node_modules2` = ['node_modules'],
+		exclude_paths,
 		root_dir = process.cwd(),
 		sort = compare_simple_map_entries,
 		dot = false,
@@ -57,33 +57,39 @@ export const search_fs = async (
 	} = options;
 	const final_dir = dir.at(-1) === '/' ? dir : dir + '/';
 	if (!(await exists(final_dir))) return new Map();
-	let pattern = final_dir;
+	const patterns: string[] = [];
 	if (exclude_paths?.length) {
-		pattern += `!(${exclude_paths.join('|')})/**/*`;
+		patterns.push(final_dir + `*`); // unlike in bash, it's erroring when nested trying to include the root directory
+		patterns.push(final_dir + `!(${exclude_paths.join('|')})/**/*`);
 	} else {
-		pattern += '**/*';
+		patterns.push(final_dir + '**/*');
 	}
 	if (suffixes?.length) {
-		pattern += `+(${suffixes.join('|')})`;
+		for (let i = 0; i < patterns.length; i++) {
+			patterns[i] += `+(${suffixes.join('|')})`;
+		}
 	}
 	let cwd: string | undefined; // is set to the `final_root_dir` if `dir` is inside `root_dir`
 	const final_root_dir = strip_end(root_dir, '/') + '/';
-	if (pattern.startsWith(final_root_dir)) {
-		pattern = pattern.substring(final_root_dir.length);
-		cwd = final_root_dir;
+	for (let i = 0; i < patterns.length; i++) {
+		if (patterns[i].startsWith(final_root_dir)) {
+			patterns[i] = patterns[i].substring(final_root_dir.length);
+			cwd = final_root_dir;
+		}
 	}
-	console.log(`pattern`, pattern);
-	const globbed = await glob(pattern, {absolute: true, dot, filesOnly: files_only, cwd});
 	const paths: Map<string, Path_Stats> = new Map();
-	console.log(`globbed`, globbed);
-	await Promise.all(
-		globbed.map(async (g) => {
-			const path = strip_start(g, final_dir);
-			const stats = await stat(g);
-			if (!filter || stats.isDirectory() || filter(path, stats)) {
-				paths.set(path, stats);
-			}
-		}),
-	);
+	for (const pattern of patterns) {
+		const globbed = await glob(pattern, {absolute: true, dot, filesOnly: files_only, cwd}); // eslint-disable-line no-await-in-loop
+		// eslint-disable-next-line no-await-in-loop
+		await Promise.all(
+			globbed.map(async (g) => {
+				const path = strip_start(g, final_dir);
+				const stats = await stat(g);
+				if (!filter || stats.isDirectory() || filter(path, stats)) {
+					paths.set(path, stats);
+				}
+			}),
+		);
+	}
 	return sort ? sort_map(paths, sort) : paths;
 };
