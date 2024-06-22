@@ -236,7 +236,7 @@ export const write_gen_results = async (
 export interface Found_Genfiles {
 	resolved_input_files: Resolved_Input_File[];
 	resolved_input_files_by_input_path: Map<Input_Path, Resolved_Input_File[]>;
-	resolved_input_files_by_root_dir: Map<Path_Id | null, Resolved_Input_File[]>;
+	resolved_input_files_by_root_dir: Map<Path_Id, Resolved_Input_File[]>;
 	resolved_input_paths: Resolved_Input_Path[];
 	resolved_input_paths_by_input_path: Map<Input_Path, Resolved_Input_Path[]>;
 }
@@ -255,7 +255,7 @@ export type Find_Genfiles_Failure =
 			input_directories_with_no_files: Resolved_Input_Path[];
 			resolved_input_files: Resolved_Input_File[];
 			resolved_input_files_by_input_path: Map<Input_Path, Resolved_Input_File[]>;
-			resolved_input_files_by_root_dir: Map<Path_Id | null, Resolved_Input_File[]>;
+			resolved_input_files_by_root_dir: Map<Path_Id, Resolved_Input_File[]>;
 			resolved_input_paths: Resolved_Input_Path[];
 			resolved_input_paths_by_input_path: Map<Input_Path, Resolved_Input_Path[]>;
 			reasons: string[];

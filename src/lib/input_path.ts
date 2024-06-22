@@ -50,7 +50,7 @@ export const to_input_paths = (
 export interface Possible_Path {
 	id: Path_Id;
 	input_path: Input_Path;
-	root_dir: Path_Id | null;
+	root_dir: Path_Id;
 }
 
 /**
@@ -64,7 +64,7 @@ export const get_possible_paths = (
 ): Possible_Path[] => {
 	const possible_paths: Set<Possible_Path> = new Set();
 
-	const add_possible_paths = (path: string, root_dir: Path_Id | null) => {
+	const add_possible_paths = (path: string, root_dir: Path_Id) => {
 		// Specifically for paths to the Gro package dist, optimize by only looking for `.task.js`.
 		if (path.startsWith(GRO_DIST_DIR)) {
 			possible_paths.add({
@@ -105,7 +105,7 @@ export interface Resolved_Input_Path {
 	input_path: Input_Path;
 	id: Path_Id;
 	is_directory: boolean;
-	root_dir: Path_Id | null;
+	root_dir: Path_Id;
 }
 
 export interface Resolved_Input_File {
@@ -190,7 +190,7 @@ export const resolve_input_paths = async (
 export interface Resolved_Input_Files {
 	resolved_input_files: Resolved_Input_File[];
 	resolved_input_files_by_input_path: Map<Input_Path, Resolved_Input_File[]>;
-	resolved_input_files_by_root_dir: Map<Path_Id | null, Resolved_Input_File[]>;
+	resolved_input_files_by_root_dir: Map<Path_Id, Resolved_Input_File[]>;
 	input_directories_with_no_files: Resolved_Input_Path[];
 }
 
@@ -261,7 +261,7 @@ export const resolve_input_files = async (
 				map.set(root_dir, [resolved_input_file]);
 			}
 			return map;
-		}, new Map<Path_Id | null, Resolved_Input_File[]>()),
+		}, new Map<Path_Id, Resolved_Input_File[]>()),
 		input_directories_with_no_files,
 	};
 };

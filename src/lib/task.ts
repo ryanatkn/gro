@@ -48,11 +48,10 @@ export const TASK_FILE_SUFFIXES = [TASK_FILE_SUFFIX_TS, TASK_FILE_SUFFIX_JS]; //
 export const is_task_path = (path: string): boolean =>
 	path.endsWith(TASK_FILE_SUFFIX_TS) || path.endsWith(TASK_FILE_SUFFIX_JS);
 
-export const to_task_name = (id: Path_Id, task_root_dir: Path_Id | null): string => {
-	let task_name =
-		task_root_dir && id.startsWith(task_root_dir)
-			? strip_start(strip_start(id, task_root_dir), '/')
-			: id;
+export const to_task_name = (id: Path_Id, task_root_dir: Path_Id): string => {
+	let task_name = id.startsWith(task_root_dir)
+		? strip_start(strip_start(id, task_root_dir), '/')
+		: id;
 	for (const suffix of TASK_FILE_SUFFIXES) {
 		task_name = strip_end(task_name, suffix);
 	}
@@ -75,7 +74,7 @@ export interface Found_Task {
 export interface Found_Tasks {
 	resolved_input_files: Resolved_Input_File[];
 	resolved_input_files_by_input_path: Map<Input_Path, Resolved_Input_File[]>;
-	resolved_input_files_by_root_dir: Map<Path_Id | null, Resolved_Input_File[]>;
+	resolved_input_files_by_root_dir: Map<Path_Id, Resolved_Input_File[]>;
 	resolved_input_paths: Resolved_Input_Path[];
 	resolved_input_paths_by_input_path: Map<Input_Path, Resolved_Input_Path[]>;
 	input_paths: Input_Path[];
@@ -98,7 +97,7 @@ export type Find_Modules_Failure =
 			input_directories_with_no_files: Resolved_Input_Path[];
 			resolved_input_files: Resolved_Input_File[];
 			resolved_input_files_by_input_path: Map<Input_Path, Resolved_Input_File[]>;
-			resolved_input_files_by_root_dir: Map<Path_Id | null, Resolved_Input_File[]>;
+			resolved_input_files_by_root_dir: Map<Path_Id, Resolved_Input_File[]>;
 			resolved_input_paths: Resolved_Input_Path[];
 			resolved_input_paths_by_input_path: Map<Input_Path, Resolved_Input_Path[]>;
 			input_paths: Input_Path[];
