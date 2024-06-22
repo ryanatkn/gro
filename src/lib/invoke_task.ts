@@ -11,7 +11,6 @@ import {load_gro_package_json} from './package_json.js';
 import {log_tasks, log_error_reasons} from './task_logging.js';
 import type {Gro_Config} from './config.js';
 
-// TODO BLOCK ignore .git and node_modules OR don't search the fs for the `./` root_dir
 // TODO BLOCK fix printing names relative to the root dir
 // 		gro ./multi
 // 		gro ../gro
