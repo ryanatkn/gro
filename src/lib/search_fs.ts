@@ -13,7 +13,6 @@ export interface Search_Fs_Options {
 	 * An array of file suffixes to include.
 	 */
 	suffixes?: string[];
-
 	/**
 	 * An array of paths to exclude relative to the search directory.
 	 */
@@ -22,6 +21,13 @@ export interface Search_Fs_Options {
 	 * Pass `null` to speed things up at the risk of volatile ordering.
 	 */
 	sort?: typeof compare_simple_map_entries | null;
+	/**
+	 * Sets the `tiny-glob` `dot` option.
+	 */
+	dot?: boolean;
+	/**
+	 * Sets the `tiny-glob` `filesOnly` option.
+	 */
 	files_only?: boolean;
 }
 
@@ -35,6 +41,7 @@ export const search_fs = async (
 		suffixes,
 		exclude_paths, // TODO BLOCK this doesn't work with `node_modules2` = ['node_modules'],
 		sort = compare_simple_map_entries,
+		dot = false,
 		files_only = true,
 	} = options;
 	const final_dir = dir.at(-1) === '/' ? dir : dir + '/';
@@ -49,7 +56,7 @@ export const search_fs = async (
 		pattern += `+(${suffixes.join('|')})`;
 	}
 	console.log(`pattern`, pattern);
-	const globbed = await glob(pattern, {absolute: true, filesOnly: files_only});
+	const globbed = await glob(pattern, {absolute: true, dot, filesOnly: files_only});
 	const paths: Map<string, Path_Stats> = new Map();
 	console.log(`globbed`, globbed);
 	await Promise.all(

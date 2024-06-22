@@ -112,6 +112,7 @@ export type Find_Modules_Failure =
 export const find_tasks = async (
 	input_paths: Input_Path[],
 	task_root_dirs: Path_Id[],
+	config: Gro_Config,
 	timings?: Timings,
 ): Promise<Find_Tasks_Result> => {
 	// Check which extension variation works - if it's a directory, prefer others first!
@@ -144,7 +145,11 @@ export const find_tasks = async (
 		resolved_input_files_by_root_dir,
 		input_directories_with_no_files,
 	} = await resolve_input_files(resolved_input_paths, (id) =>
-		search_fs(id, {suffixes: TASK_FILE_SUFFIXES}),
+		search_fs(id, {
+			suffixes: TASK_FILE_SUFFIXES,
+			exclude_paths: config.search_exclude_paths,
+			dot: config.search_glob_include_dot,
+		}),
 	);
 	timing_to_resolve_input_files?.();
 

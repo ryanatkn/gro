@@ -4,6 +4,7 @@ import {resolve} from 'node:path';
 
 import {is_task_path, to_task_name, validate_task_module, find_tasks, load_tasks} from './task.js';
 import * as actual_test_task_module from './test.task.js';
+import {create_empty_config} from './config.js';
 
 test('is_task_path basic behavior', () => {
 	assert.ok(is_task_path('foo.task.ts'));
@@ -40,6 +41,7 @@ test('load_tasks basic behavior', async () => {
 	const found = await find_tasks(
 		[resolve('src/lib/test'), resolve('src/lib/test.task.ts')],
 		[resolve('src/lib')],
+		create_empty_config(),
 	);
 	assert.ok(found.ok);
 	const result = await load_tasks(found.value);

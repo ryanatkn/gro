@@ -1,7 +1,13 @@
 import {join, resolve} from 'node:path';
 
 import {GRO_DIST_DIR, IS_THIS_GRO, paths} from './paths.js';
-import {GRO_CONFIG_PATH} from './path_constants.js';
+import {
+	GRO_CONFIG_PATH,
+	NODE_MODULES_DIRNAME,
+	SERVER_DIST_PATH,
+	SVELTEKIT_BUILD_DIRNAME,
+	SVELTEKIT_DIST_DIRNAME,
+} from './path_constants.js';
 import create_default_config from './gro.config.default.js';
 import type {Create_Config_Plugins} from './plugin.js';
 import {exists} from './fs.js';
@@ -20,6 +26,18 @@ export interface Gro_Config {
 	 * Defaults to `./src/lib`, then the cwd, then the Gro package dist.
 	 */
 	task_root_dirs: string[]; // TODO should be `Path_Id`, need a `Normalized_Gro_Config` though to not be confusing
+	/**
+	 * Directories to exclude when searching for tasks and genfiles.
+	 * Uses `tiny-glob` internally, so dot-prefixed directories are ignored by default
+	 * unless you set `search_glob_include_dot` to `true`.
+	 */
+	search_exclude_paths: string[];
+	/**
+	 * Sets the `tiny-glob` `dot` option. Be aware that setting this to `true`
+	 * will include directories like `.git`, `.svelte-kit`, and `.gro`,
+	 * so to avoid slowdowns add those to `search_exclude_paths` unless you want them.
+	 */
+	search_glob_include_dot: boolean;
 	// TODO `task_discovery_dirs`
 }
 
@@ -36,6 +54,13 @@ export const create_empty_config = (): Gro_Config => ({
 		IS_THIS_GRO ? null! : paths.root,
 		IS_THIS_GRO ? null! : GRO_DIST_DIR,
 	].filter(Boolean),
+	search_exclude_paths: [
+		NODE_MODULES_DIRNAME,
+		SVELTEKIT_BUILD_DIRNAME,
+		SVELTEKIT_DIST_DIRNAME,
+		SERVER_DIST_PATH,
+	],
+	search_glob_include_dot: false,
 });
 
 const default_map_package_json: Map_Package_Json = async (package_json) => {
