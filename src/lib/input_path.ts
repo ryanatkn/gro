@@ -1,4 +1,5 @@
-import {isAbsolute, join, resolve} from 'node:path';
+import {dirname, isAbsolute, join, resolve} from 'node:path';
+import {existsSync, statSync} from 'node:fs';
 import {strip_start} from '@ryanatkn/belt/string.js';
 import {stat} from 'node:fs/promises';
 import {z} from 'zod';
@@ -84,7 +85,14 @@ export const get_possible_paths = (
 	};
 
 	if (isAbsolute(input_path)) {
-		add_possible_paths(input_path, null);
+		// TODO this is hacky because it's the only place we're using sync fs calls (even if they're faster, it's oddly inconsistent),
+		// we probably should just change this function to check the filesystem and not return non-existing paths
+		add_possible_paths(
+			input_path,
+			existsSync(input_path) && statSync(input_path).isDirectory()
+				? input_path
+				: dirname(input_path),
+		);
 	} else {
 		for (const root_dir of root_dirs) {
 			add_possible_paths(join(root_dir, input_path), root_dir);

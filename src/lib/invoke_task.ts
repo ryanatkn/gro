@@ -11,30 +11,6 @@ import {load_gro_package_json} from './package_json.js';
 import {log_tasks, log_error_reasons} from './task_logging.js';
 import type {Gro_Config} from './config.js';
 
-// TODO BLOCK fix printing names relative to the root dir
-// 		gro ./multi
-// 		gro ../gro
-// from zzz:
-//    gro
-//    gro [with src/routes as the only, replacing src/lib, and added]
-//    gro foo
-//    gro src/routes/foo
-//    gro node_modules/foo
-//    gro ./foo
-//    gro ../gro/src/lib/foo
-// 		gro ./
-//    gro multi
-// 		gro ./multi
-//    gro /absolute/path/to/foo
-//    gro /absolute/path/to/dir
-// from gro:
-//    gro
-//    gro test
-//    gro src/ (logs relative task paths not their exact names)
-//    gro /absolute/path/to/foo
-//    gro /absolute/path/to/dir
-//    gro ../zzz/foo
-
 /**
  * Invokes Gro tasks by name using the filesystem as the source.
  *

@@ -49,10 +49,6 @@ export const is_task_path = (path: string): boolean =>
 	path.endsWith(TASK_FILE_SUFFIX_TS) || path.endsWith(TASK_FILE_SUFFIX_JS);
 
 export const to_task_name = (id: Path_Id, task_root_dir: Path_Id | null): string => {
-	// TODO BLOCK this is broken for `gro ./` in another project
-	console.log(`[to_task_name] id`, id);
-	console.log(`[to_task_name] task_root_dir`, task_root_dir);
-
 	let task_name =
 		task_root_dir && id.startsWith(task_root_dir)
 			? strip_start(strip_start(id, task_root_dir), '/')
@@ -60,7 +56,6 @@ export const to_task_name = (id: Path_Id, task_root_dir: Path_Id | null): string
 	for (const suffix of TASK_FILE_SUFFIXES) {
 		task_name = strip_end(task_name, suffix);
 	}
-	console.log(`[to_task_name] task_name`, task_name);
 	return task_name;
 };
 
