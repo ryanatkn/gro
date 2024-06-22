@@ -53,7 +53,6 @@
     "mri": "^1.2.0",
     "prettier": "^3.3.2",
     "prettier-plugin-svelte": "^3.2.4",
-    "tiny-glob": "^0.2.9",
     "ts-morph": "^22.0.0",
     "tslib": "^2.6.3",
     "zod": "^3.23.8"
