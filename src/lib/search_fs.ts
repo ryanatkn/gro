@@ -8,7 +8,13 @@ import type {Path_Stats, Path_Filter} from './path.js';
 import {exists} from './fs.js';
 
 export interface Search_Fs_Options {
-	filter?: Path_Filter;
+	/**
+	 * A function to filter the results after they're globbed.
+	 * This is useful for advanced cases,
+	 * but is slower than using `suffixes` and `exclude_paths`
+	 * because it doesn't short-circuit directories like globbing does.
+	 */
+	filter?: Path_Filter; // TODO BLOCK don't use unless necessary
 	/**
 	 * An array of file suffixes to include.
 	 */
