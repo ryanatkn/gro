@@ -137,7 +137,7 @@ export const find_tasks = async (
 	}
 
 	// Find all of the files for any directories.
-	const timing_to_search_fs = timings?.start('find files');
+	const timing_to_resolve_input_files = timings?.start('resolve input files');
 	const {
 		resolved_input_files,
 		resolved_input_files_by_input_path,
@@ -146,7 +146,7 @@ export const find_tasks = async (
 	} = await resolve_input_files(resolved_input_paths, (id) =>
 		search_fs(id, {suffixes: TASK_FILE_SUFFIXES}),
 	);
-	timing_to_search_fs?.();
+	timing_to_resolve_input_files?.();
 
 	// Error if any input path has no files. (means we have an empty directory)
 	if (input_directories_with_no_files.length) {
