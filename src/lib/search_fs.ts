@@ -59,7 +59,7 @@ export const search_fs = async (
 	if (!(await exists(final_dir))) return new Map();
 	let pattern = final_dir;
 	if (exclude_paths?.length) {
-		pattern += `**/!(${exclude_paths.join('|')})/*`;
+		pattern += `!(${exclude_paths.join('|')})/**/*`;
 	} else {
 		pattern += '**/*';
 	}

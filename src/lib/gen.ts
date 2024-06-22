@@ -314,14 +314,9 @@ export const find_genfiles = async (
 			resolved_input_files_by_root_dir,
 			resolved_input_paths,
 			resolved_input_paths_by_input_path,
-			reasons: input_directories_with_no_files.map(({input_path}) => {
-				const resolved_input_paths = resolved_input_paths_by_input_path.get(input_path)!;
-				return red(
-					`Input director${resolved_input_paths.length === 1 ? 'y' : 'ies'} contains no matching files: ${print_path(
-						resolved_input_paths.join(', '),
-					)}`,
-				);
-			}),
+			reasons: input_directories_with_no_files.map(({input_path}) =>
+				red(`Input directory contains no matching files: ${print_path(input_path)}`),
+			),
 		};
 	}
 
