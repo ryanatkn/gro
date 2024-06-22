@@ -13,6 +13,9 @@ import type {Gro_Config} from './config.js';
 
 // TODO BLOCK ignore .git and node_modules OR don't search the fs for the `./` root_dir
 // TODO BLOCK fix/test:
+// FIX printing names relative to the root dir
+// 		gro ./multi
+// 		gro ..gro
 // from zzz:
 //    gro
 //    gro [with src/routes as the only, replacing src/lib, and added]
@@ -23,7 +26,7 @@ import type {Gro_Config} from './config.js';
 //    gro ../gro/src/lib/foo
 // 		gro ./
 //    gro multi
-// 		gro ./multi (needs to print names relative cwd)
+// 		gro ./multi
 //    gro /absolute/path/to/foo
 //    gro /absolute/path/to/dir
 // from gro:
