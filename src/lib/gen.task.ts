@@ -48,7 +48,10 @@ export const task: Task<Args> = {
 			}
 		}
 		const found_genfiles = found.value;
-		log.info('gen files', found_genfiles.resolved_input_files);
+		log.info(
+			'gen files',
+			found_genfiles.resolved_input_files.map((f) => f.id),
+		);
 		const loaded = await load_genfiles(found_genfiles, timings);
 		if (!loaded.ok) {
 			log_error_reasons(log, loaded.reasons);
