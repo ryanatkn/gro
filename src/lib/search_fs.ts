@@ -33,7 +33,7 @@ export const search_fs = async (
 	const {
 		filter,
 		suffixes,
-		exclude_paths,
+		exclude_paths, // TODO BLOCK this doesn't work with `node_modules2` = ['node_modules'],
 		sort = compare_simple_map_entries,
 		files_only = true,
 	} = options;
@@ -41,9 +41,10 @@ export const search_fs = async (
 	if (!(await exists(final_dir))) return new Map();
 	let pattern = final_dir;
 	if (exclude_paths?.length) {
-		pattern += `!(${exclude_paths.join('|')})`;
+		pattern += `**/!(${exclude_paths.join('|')})/*`;
+	} else {
+		pattern += '**/*';
 	}
-	pattern += '**/*';
 	if (suffixes?.length) {
 		pattern += `+(${suffixes.join('|')})`;
 	}
