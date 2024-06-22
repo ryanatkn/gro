@@ -1,4 +1,3 @@
-import glob from 'tiny-glob';
 import {stat} from 'node:fs/promises';
 import {sort_map, compare_simple_map_entries} from '@ryanatkn/belt/map.js';
 import {strip_end, strip_start} from '@ryanatkn/belt/string.js';
