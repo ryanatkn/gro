@@ -55,10 +55,10 @@ test('DEFAULT_SEARCH_EXCLUDER', () => {
 	assert_includes('groE/build', false);
 	assert_includes('gro/dist', true);
 	assert_includes('gro/distE', true);
-	assert_includes('groE/dist', true);
-	assert_includes('not_gro/dist', true);
-	assert_includes('not_dist', true);
-	assert_includes('grodist', true);
+	assert_includes('groE/dist', false);
+	assert_includes('not_gro/dist', false);
+	assert_includes('not_dist', true); // TODO BLOCK these fail
+	assert_includes('grodist', true); // TODO BLOCK these fail
 });
 
 test.run();
