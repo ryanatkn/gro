@@ -5,7 +5,7 @@ import {z} from 'zod';
 import type {Flavored} from '@ryanatkn/belt/types.js';
 
 import {GRO_PACKAGE_DIR, GRO_DIST_DIR} from './paths.js';
-import type {Path_Info, Path_Id} from './path.js';
+import type {Path_Info, Path_Id, Resolved_Path} from './path.js';
 import {search_fs} from './search_fs.js';
 import {TASK_FILE_SUFFIX_JS} from './task.js';
 
@@ -198,7 +198,7 @@ export interface Resolved_Input_Files {
  */
 export const resolve_input_files = (
 	resolved_input_paths: Resolved_Input_Path[],
-	custom_search_fs = search_fs,
+	custom_search_fs: (dir: string) => Resolved_Path[] = search_fs,
 ): Resolved_Input_Files => {
 	const resolved_input_files: Resolved_Input_File[] = [];
 	const resolved_input_files_by_input_path = new Map<Input_Path, Resolved_Input_File[]>();
@@ -208,7 +208,7 @@ export const resolve_input_files = (
 	for (const resolved_input_path of resolved_input_paths) {
 		const {input_path, id, is_directory} = resolved_input_path;
 		if (is_directory) {
-			const files = custom_search_fs(id, {include_directories: true});
+			const files = custom_search_fs(id);
 			if (files.length) {
 				const path_ids: Path_Id[] = [];
 				let has_files = false;

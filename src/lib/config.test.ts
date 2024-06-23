@@ -54,6 +54,9 @@ test('DEFAULT_SEARCH_EXCLUDER', () => {
 	assert_includes('gro/buildE', true);
 	assert_includes('groE/build', false);
 	assert_includes('gro/dist', true);
+	assert_includes('node_modules/gro/dist', true);
+	assert_includes('node_modules/@someuser/gro/dist', true);
+	assert_includes('node_modules/@someuser/foo/gro/dist', false);
 	assert_includes('gro/distE', true);
 	assert_includes('groE/dist', false);
 	assert_includes('Egro/dist', false);

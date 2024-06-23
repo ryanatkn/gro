@@ -299,9 +299,8 @@ export const find_genfiles = async (
 		resolved_input_files_by_input_path,
 		resolved_input_files_by_root_dir,
 		input_directories_with_no_files,
-	} = resolve_input_files(resolved_input_paths, (id, options) =>
+	} = resolve_input_files(resolved_input_paths, (id) =>
 		search_fs(id, {
-			...options,
 			filter: config.search_filters,
 			file_filter: (p) => extensions.some((e) => p.includes(e)),
 		}),
