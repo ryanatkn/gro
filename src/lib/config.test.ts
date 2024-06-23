@@ -9,60 +9,55 @@ test('load_config', async () => {
 });
 
 test('DEFAULT_SEARCH_EXCLUDER', () => {
-	const assert_excludes = (dirname: string) => {
-		assert.ok(DEFAULT_SEARCH_EXCLUDER.test(`a/${dirname}/c`), 'should exclude: ' + dirname);
-		assert.ok(DEFAULT_SEARCH_EXCLUDER.test(`a/${dirname}/c/d.js`), 'should exclude: ' + dirname);
-		assert.ok(DEFAULT_SEARCH_EXCLUDER.test(`a/${dirname}/`), 'should exclude: ' + dirname);
-		assert.ok(DEFAULT_SEARCH_EXCLUDER.test(`a/${dirname}`), 'should exclude: ' + dirname);
-		assert.ok(DEFAULT_SEARCH_EXCLUDER.test(`/a/${dirname}/c`), 'should exclude: ' + dirname);
-		assert.ok(DEFAULT_SEARCH_EXCLUDER.test(`/a/${dirname}/c/d.js`), 'should exclude: ' + dirname);
-		assert.ok(DEFAULT_SEARCH_EXCLUDER.test(`/a/${dirname}/`), 'should exclude: ' + dirname);
-		assert.ok(DEFAULT_SEARCH_EXCLUDER.test(`/a/${dirname}`), 'should exclude: ' + dirname);
-		assert.ok(DEFAULT_SEARCH_EXCLUDER.test(`/${dirname}/a`), 'should exclude: ' + dirname);
-		assert.ok(DEFAULT_SEARCH_EXCLUDER.test(`/${dirname}/a/b.js`), 'should exclude: ' + dirname);
-		assert.ok(DEFAULT_SEARCH_EXCLUDER.test(`/${dirname}/`), 'should exclude: ' + dirname);
-		assert.ok(DEFAULT_SEARCH_EXCLUDER.test(`/${dirname}`), 'should exclude: ' + dirname);
-		assert.ok(DEFAULT_SEARCH_EXCLUDER.test(`./${dirname}/a`), 'should exclude: ' + dirname);
-		assert.ok(DEFAULT_SEARCH_EXCLUDER.test(`./${dirname}/a/b.js`), 'should exclude: ' + dirname);
-		assert.ok(DEFAULT_SEARCH_EXCLUDER.test(`./${dirname}/`), 'should exclude: ' + dirname);
-		assert.ok(DEFAULT_SEARCH_EXCLUDER.test(`./${dirname}`), 'should exclude: ' + dirname);
-		assert.ok(DEFAULT_SEARCH_EXCLUDER.test(`${dirname}/a`), 'should exclude: ' + dirname);
-		assert.ok(DEFAULT_SEARCH_EXCLUDER.test(`${dirname}/a/b.js`), 'should exclude: ' + dirname);
-		assert.ok(DEFAULT_SEARCH_EXCLUDER.test(`${dirname}/`), 'should exclude: ' + dirname);
-		assert.ok(DEFAULT_SEARCH_EXCLUDER.test(`${dirname}`), 'should exclude: ' + dirname);
+	const assert_includes = (path: string, exclude: boolean) => {
+		const msg = 'should include: ' + path;
+		assert.ok(!DEFAULT_SEARCH_EXCLUDER.test(`a/${path}/c`), msg);
+		assert.ok(!DEFAULT_SEARCH_EXCLUDER.test(`a/${path}/c/d.js`), msg);
+		assert.ok(!DEFAULT_SEARCH_EXCLUDER.test(`a/${path}/c/d.e.js`), msg);
+		assert.ok(!DEFAULT_SEARCH_EXCLUDER.test(`a/${path}/`), msg);
+		assert.ok(!DEFAULT_SEARCH_EXCLUDER.test(`a/${path}`), msg);
+		assert.ok(!DEFAULT_SEARCH_EXCLUDER.test(`/a/${path}/c`), msg);
+		assert.ok(!DEFAULT_SEARCH_EXCLUDER.test(`/a/${path}/c/d.js`), msg);
+		assert.ok(!DEFAULT_SEARCH_EXCLUDER.test(`/a/${path}/c/d.e.js`), msg);
+		assert.ok(!DEFAULT_SEARCH_EXCLUDER.test(`/a/${path}/`), msg);
+		assert.ok(!DEFAULT_SEARCH_EXCLUDER.test(`/a/${path}`), msg);
+		assert.ok(!DEFAULT_SEARCH_EXCLUDER.test(`/${path}/a`), msg);
+		assert.ok(!DEFAULT_SEARCH_EXCLUDER.test(`/${path}/a/b.js`), msg);
+		assert.ok(!DEFAULT_SEARCH_EXCLUDER.test(`/${path}/a/b.e.js`), msg);
+		assert.ok(!DEFAULT_SEARCH_EXCLUDER.test(`/${path}/`), msg);
+		assert.ok(!DEFAULT_SEARCH_EXCLUDER.test(`/${path}`), msg);
+		assert.ok(!DEFAULT_SEARCH_EXCLUDER.test(`./${path}/a`), msg);
+		assert.ok(!DEFAULT_SEARCH_EXCLUDER.test(`./${path}/a/b.js`), msg);
+		assert.ok(!DEFAULT_SEARCH_EXCLUDER.test(`./${path}/a/b.c.js`), msg);
+		assert.ok(!DEFAULT_SEARCH_EXCLUDER.test(`./${path}/`), msg);
+		assert.ok(!DEFAULT_SEARCH_EXCLUDER.test(`./${path}`), msg);
+		assert.ok(!DEFAULT_SEARCH_EXCLUDER.test(`${path}/a`), msg);
+		assert.ok(!DEFAULT_SEARCH_EXCLUDER.test(`${path}/a/b.js`), msg);
+		assert.ok(!DEFAULT_SEARCH_EXCLUDER.test(`${path}/a/b.c.js`), msg);
+		assert.ok(!DEFAULT_SEARCH_EXCLUDER.test(`${path}/`), msg);
+		assert.ok(!DEFAULT_SEARCH_EXCLUDER.test(path), msg);
 	};
 
-	assert_excludes('node_modules');
-	assert_excludes('dist');
-	assert_excludes('build');
-	assert_excludes('.git');
-	assert_excludes('.gro');
-	assert_excludes('.svelte-kit');
+	assert_includes('node_modules', false);
+	assert_includes('dist', false);
+	assert_includes('build', false);
+	assert_includes('.git', false);
+	assert_includes('.gro', false);
+	assert_includes('.svelte-kit', false);
 
-	assert.ok(!DEFAULT_SEARCH_EXCLUDER.test('nodemodules'));
-	assert.ok(!DEFAULT_SEARCH_EXCLUDER.test('a/b/c'));
-	assert.ok(!DEFAULT_SEARCH_EXCLUDER.test('/a/b/c'));
-	assert.ok(!DEFAULT_SEARCH_EXCLUDER.test('/a/b/c.js'));
-	assert.ok(!DEFAULT_SEARCH_EXCLUDER.test('/a/b/c.d.js'));
-	assert.ok(!DEFAULT_SEARCH_EXCLUDER.test('./a/b/c'));
-	assert.ok(!DEFAULT_SEARCH_EXCLUDER.test('./a/b/c.d.js'));
+	assert_includes('a', true);
+	assert_includes('nodemodules', true);
 
-	// Special exception for `gro/dist/`:
-	assert.ok(DEFAULT_SEARCH_EXCLUDER.test('/home/not_gro/dist/a.task.js'));
-	assert.ok(DEFAULT_SEARCH_EXCLUDER.test('/home/grodist/a.task.js'));
-	assert.ok(DEFAULT_SEARCH_EXCLUDER.test('/home/gro/distE'));
-	assert.ok(DEFAULT_SEARCH_EXCLUDER.test('not_gro/dist/a.task.js'));
-	assert.ok(DEFAULT_SEARCH_EXCLUDER.test('not_dist/a.task.js'));
-	assert.ok(DEFAULT_SEARCH_EXCLUDER.test('grodist/a.task.js'));
-	assert.ok(!DEFAULT_SEARCH_EXCLUDER.test('/home/gro/dist'));
-	assert.ok(!DEFAULT_SEARCH_EXCLUDER.test('/home/gro/dist/'));
-	assert.ok(!DEFAULT_SEARCH_EXCLUDER.test('/home/gro/dist/a.task.js'));
-	assert.ok(!DEFAULT_SEARCH_EXCLUDER.test('gro/dist/a.task.js'));
-	assert.ok(!DEFAULT_SEARCH_EXCLUDER.test('./gro/dist/a.task.js'));
-	// But not `gro/build/` and others because they're not usecases:
-	assert.ok(DEFAULT_SEARCH_EXCLUDER.test('/home/gro/build/a.task.js'));
-	assert.ok(DEFAULT_SEARCH_EXCLUDER.test('/home/gro/buildE'));
-	assert.ok(DEFAULT_SEARCH_EXCLUDER.test('/home/gro/node_modules/a.task.js'));
+	// Special exception for `gro/dist/`, but not `gro/build/` etc because they're not usecases.
+	assert_includes('gro/build', false);
+	assert_includes('gro/buildE', true);
+	assert_includes('groE/build', false);
+	assert_includes('gro/dist', true);
+	assert_includes('gro/distE', true);
+	assert_includes('groE/dist', true);
+	assert_includes('not_gro/dist', true);
+	assert_includes('not_dist', true);
+	assert_includes('grodist', true);
 });
 
 test.run();
