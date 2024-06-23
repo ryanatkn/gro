@@ -9,8 +9,8 @@ import {
 	get_possible_paths,
 	type Resolved_Input_Path,
 } from './input_path.js';
-import type {Path_Stats} from './path.js';
 import {GRO_DIST_DIR, paths} from './paths.js';
+import type {Path_Data} from './path.js';
 
 test('to_input_path', () => {
 	assert.is(to_input_path(resolve('foo.ts')), resolve('foo.ts'));
@@ -114,26 +114,26 @@ test('get_possible_paths implied to be a directory by trailing slash', () => {
 });
 
 test('resolve_input_files', async () => {
-	const test_files: Record<string, Map<string, Path_Stats>> = {
-		'fake/test1.ext.ts': new Map([['fake/test1.ext.ts', {isDirectory: () => false}]]),
-		'fake/test2.ext.ts': new Map([['fake/test2.ext.ts', {isDirectory: () => false}]]),
+	const test_files: Record<string, Map<string, Path_Data>> = {
+		'fake/test1.ext.ts': new Map([['fake/test1.ext.ts', {id: '', is_directory: false}]]),
+		'fake/test2.ext.ts': new Map([['fake/test2.ext.ts', {id: '', is_directory: false}]]),
 		'fake/test3': new Map([
-			['fake/test3', {isDirectory: () => true}],
-			['a.ts', {isDirectory: () => false}],
-			['b.ts', {isDirectory: () => false}],
+			['fake/test3', {id: '', is_directory: true}],
+			['a.ts', {id: '', is_directory: false}],
+			['b.ts', {id: '', is_directory: false}],
 		]),
 		// duplicate
 		'fake/': new Map([
-			['fake/test3', {isDirectory: () => true}],
-			['test3/a.ts', {isDirectory: () => false}],
+			['fake/test3', {id: '', is_directory: true}],
+			['test3/a.ts', {id: '', is_directory: false}],
 		]),
 		// duplicate and not
 		fake: new Map([
-			['fake/test3', {isDirectory: () => true}],
-			['test3/a.ts', {isDirectory: () => false}],
-			['test3/c.ts', {isDirectory: () => false}],
+			['fake/test3', {id: '', is_directory: true}],
+			['test3/a.ts', {id: '', is_directory: false}],
+			['test3/c.ts', {id: '', is_directory: false}],
 		]),
-		'fake/nomatches': new Map([['fake/nomatches', {isDirectory: () => true}]]),
+		'fake/nomatches': new Map([['fake/nomatches', {id: '', is_directory: true}]]),
 	};
 	const a: Resolved_Input_Path = {
 		id: 'fake/test1.ext.ts',

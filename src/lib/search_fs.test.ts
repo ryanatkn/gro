@@ -1,13 +1,10 @@
-import {suite} from 'uvu';
+import {test} from 'uvu';
 import * as assert from 'uvu/assert';
 
 import {search_fs} from './search_fs.js';
 import {paths} from './paths.js';
 
-/* test__search_fs */
-const test__search_fs = suite('search_fs');
-
-test__search_fs('basic behavior', async () => {
+test('search_fs basic behavior', async () => {
 	const ignored_path = 'test1.foo.ts';
 	let has_ignored_path = false;
 	const result = await search_fs('./src/fixtures', {
@@ -51,7 +48,4 @@ test__search_fs('basic behavior', async () => {
 	);
 });
 
-// TODO more tests
-
-test__search_fs.run();
-/* test__search_fs */
+test.run();

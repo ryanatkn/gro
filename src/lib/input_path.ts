@@ -6,7 +6,7 @@ import {z} from 'zod';
 import type {Flavored} from '@ryanatkn/belt/types.js';
 
 import {GRO_PACKAGE_DIR, GRO_DIST_DIR} from './paths.js';
-import {to_path_data, type Path_Data, type Path_Id} from './path.js';
+import type {Path_Data, Path_Id} from './path.js';
 import {exists} from './fs.js';
 import {search_fs} from './search_fs.js';
 import {TASK_FILE_SUFFIX_JS} from './task.js';
@@ -146,9 +146,9 @@ export const resolve_input_paths = async (
 			const stats = await stat(possible_path.id); // eslint-disable-line no-await-in-loop
 			if (stats.isDirectory()) {
 				found_dirs ??= [];
-				found_dirs.push([to_path_data(possible_path.id, stats), possible_path]);
+				found_dirs.push([{id: possible_path.id, is_directory: stats.isDirectory()}, possible_path]);
 			} else {
-				found_file = [to_path_data(possible_path.id, stats), possible_path];
+				found_file = [{id: possible_path.id, is_directory: stats.isDirectory()}, possible_path];
 				break;
 			}
 		}
@@ -210,12 +210,12 @@ export const resolve_input_files = async (
 	for (const resolved_input_path of resolved_input_paths) {
 		const {input_path, id, is_directory} = resolved_input_path;
 		if (is_directory) {
-			const files = await custom_search_fs(id, {files_only: false}); // eslint-disable-line no-await-in-loop
+			const files = await custom_search_fs(id, {include_directories: true}); // eslint-disable-line no-await-in-loop
 			if (files.size) {
 				const path_ids: Path_Id[] = [];
 				let has_files = false;
-				for (const [path, stats] of files) {
-					if (stats.isDirectory()) continue;
+				for (const [path, is_directory] of files) {
+					if (is_directory) continue;
 					has_files = true;
 					const path_id = join(id, path);
 					if (!existing_path_ids.has(path_id)) {
