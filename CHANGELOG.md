@@ -1,5 +1,19 @@
 # @ryanatkn/gro
 
+## 0.120.0
+
+### Minor Changes
+
+- rename `Path_Id` from `Source_Id` ([#468](https://github.com/ryanatkn/gro/pull/468))
+- upgrade node@22.3 ([#469](https://github.com/ryanatkn/gro/pull/469))
+- rename `Path_Info` from `Path_Data` ([#469](https://github.com/ryanatkn/gro/pull/469))
+- rewrite task resolution ([#468](https://github.com/ryanatkn/gro/pull/468))
+- rewrite `search_fs` to not use globs ([#469](https://github.com/ryanatkn/gro/pull/469))
+
+### Patch Changes
+
+- remove `exists`, use `existsSync` from `fs:node` instead ([#469](https://github.com/ryanatkn/gro/pull/469))
+
 ## 0.119.1
 
 ### Patch Changes
