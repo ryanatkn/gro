@@ -1,5 +1,6 @@
 import {test} from 'uvu';
 import * as assert from 'uvu/assert';
+import {resolve} from 'node:path';
 
 import {DEFAULT_SEARCH_EXCLUDER, load_config} from './config.js';
 
@@ -42,7 +43,11 @@ test('DEFAULT_SEARCH_EXCLUDER', () => {
 	assert.ok(!DEFAULT_SEARCH_EXCLUDER.test('nodemodules'));
 	assert.ok(!DEFAULT_SEARCH_EXCLUDER.test('a/b/c'));
 	assert.ok(!DEFAULT_SEARCH_EXCLUDER.test('/a/b/c'));
+	assert.ok(!DEFAULT_SEARCH_EXCLUDER.test('/a/b/c.js'));
+	assert.ok(!DEFAULT_SEARCH_EXCLUDER.test('/a/b/c.d.js'));
 	assert.ok(!DEFAULT_SEARCH_EXCLUDER.test('./a/b/c'));
+	assert.ok(!DEFAULT_SEARCH_EXCLUDER.test('./a/b/c.d.js'));
+	assert.ok(!DEFAULT_SEARCH_EXCLUDER.test(resolve('dist/typecheck.task.js')));
 });
 
 test.run();

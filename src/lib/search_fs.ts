@@ -43,6 +43,8 @@ export const search_fs = async (
 	} = options;
 
 	const final_dir = ensure_end(cwd && !isAbsolute(dir) ? join(cwd, dir) : dir, '/');
+	console.log(`cwd`, cwd);
+	console.log(`final_dir`, final_dir);
 
 	const filters =
 		!filter || (Array.isArray(filter) && !filter.length) ? undefined : to_array(filter);
@@ -69,14 +71,17 @@ const crawl = (
 	include_directories: boolean,
 	base_dir: string | null,
 ): Resolved_Path[] => {
+	console.log(`crawl dir`, dir);
 	// This sync version is significantly faster than using the `fs/promises` version -
 	// it doesn't parallelize but that's not the common case in Gro.
 	const dirents = readdirSync(dir, {withFileTypes: true});
+	console.log(`filters`, filters);
 	for (const dirent of dirents) {
 		const {name, parentPath} = dirent;
 		const is_directory = dirent.isDirectory();
 		const id = parentPath + name;
 		const include = !filters || filters.every((f) => f(id, is_directory));
+		console.log('include?', id, include);
 		if (include) {
 			const path = base_dir === null ? name : base_dir + '/' + name;
 			if (is_directory) {

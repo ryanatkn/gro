@@ -211,6 +211,7 @@ export const resolve_input_files = async (
 		const {input_path, id, is_directory} = resolved_input_path;
 		if (is_directory) {
 			const files = await custom_search_fs(id, {include_directories: true}); // eslint-disable-line no-await-in-loop
+			console.log(`files`, files);
 			if (files.length) {
 				const path_ids: Path_Id[] = [];
 				let has_files = false;
@@ -237,10 +238,12 @@ export const resolve_input_files = async (
 					resolved_input_files_by_input_path.set(input_path, resolved_input_files_for_input_path);
 				}
 				if (!has_files) {
+					console.log('NO FILES', input_path, id, resolved_input_path);
 					input_directories_with_no_files.push(resolved_input_path);
 				}
 				// do callers ever need `input_directories_with_duplicate_files`?
 			} else {
+				console.log('NPOPp FILES', input_path, id, resolved_input_path);
 				input_directories_with_no_files.push(resolved_input_path);
 			}
 		} else if (!existing_path_ids.has(id)) {
