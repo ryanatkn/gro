@@ -1,6 +1,5 @@
 import {test} from 'uvu';
 import * as assert from 'uvu/assert';
-import {resolve} from 'node:path';
 
 import {DEFAULT_SEARCH_EXCLUDER, load_config} from './config.js';
 
@@ -49,11 +48,13 @@ test('DEFAULT_SEARCH_EXCLUDER', () => {
 	assert.ok(!DEFAULT_SEARCH_EXCLUDER.test('./a/b/c.d.js'));
 
 	// Special exception for `gro/dist/`:
-	assert_excludes(resolve('build/a.task.js'));
 	assert.ok(DEFAULT_SEARCH_EXCLUDER.test('/home/not_gro/dist/a.task.js'));
 	assert.ok(!DEFAULT_SEARCH_EXCLUDER.test('/home/gro/dist/a.task.js'));
 	assert.ok(!DEFAULT_SEARCH_EXCLUDER.test('gro/dist/a.task.js'));
 	assert.ok(!DEFAULT_SEARCH_EXCLUDER.test('./gro/dist/a.task.js'));
+	// But not `gro/build/` and others because they're not usecases:
+	assert.ok(DEFAULT_SEARCH_EXCLUDER.test('/home/gro/build/a.task.js'));
+	assert.ok(DEFAULT_SEARCH_EXCLUDER.test('/home/gro/node_modules/a.task.js'));
 });
 
 test.run();
