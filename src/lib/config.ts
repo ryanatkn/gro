@@ -58,17 +58,14 @@ export const create_empty_config = (): Gro_Config => ({
  * See the test cases for the exact behavior.
  */
 export const DEFAULT_SEARCH_EXCLUDER = new RegExp(
-	`(${[
-		'\\.[^/]+',
-		// TODO probably change to `pkg.name` instead of this catch-all
-		`${NODE_MODULES_DIRNAME}(?!/(@[^/]+/)?gro/${SVELTEKIT_DIST_DIRNAME})`,
-		// `${NODE_MODULES_DIRNAME}(?!/(@.+?/)?gro/${SVELTEKIT_DIST_DIRNAME})`,
-		SVELTEKIT_BUILD_DIRNAME,
-		`(?<!(^|/)gro/)${SVELTEKIT_DIST_DIRNAME}`,
-		SERVER_DIST_PATH,
-	]
-		.map((p) => '(^|/)' + p)
-		.join('|')})($|/)`,
+	`(${
+		'(^|/)\\.[^/]+' +
+		// TODO probably change to `pkg.name` instead of this catch-all (also `gro` below)
+		`|(^|/)${NODE_MODULES_DIRNAME}(?!/(@[^/]+/)?gro/${SVELTEKIT_DIST_DIRNAME})` +
+		`|(^|/)${SVELTEKIT_BUILD_DIRNAME}` +
+		`|(^|/)(?<!(^|/)gro/)${SVELTEKIT_DIST_DIRNAME}` +
+		`|(^|/)${SERVER_DIST_PATH}`
+	})($|/)`,
 	'u',
 );
 
