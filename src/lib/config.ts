@@ -28,7 +28,8 @@ export interface Gro_Config {
 	 */
 	task_root_dirs: string[]; // TODO should be `Path_Id`, need a `Normalized_Gro_Config` though to not be confusing
 	/**
-	 * Patterns to exclude when searching for tasks and genfiles.
+	 * When searching the filsystem for tasks and genfiles,
+	 * directories and files are included if they pass all of these filters.
 	 */
 	search_filters: Path_Filter | Path_Filter[];
 	// TODO `task_discovery_dirs`
