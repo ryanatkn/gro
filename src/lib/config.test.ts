@@ -39,7 +39,9 @@ test('DEFAULT_SEARCH_EXCLUDER', () => {
 	assert_excludes('.git');
 	assert_excludes('.gro');
 	assert_excludes('.svelte-kit');
+	assert_excludes(resolve('build/typecheck.task.js'));
 
+	assert.ok(!DEFAULT_SEARCH_EXCLUDER.test(resolve('dist/typecheck.task.js')));
 	assert.ok(!DEFAULT_SEARCH_EXCLUDER.test('nodemodules'));
 	assert.ok(!DEFAULT_SEARCH_EXCLUDER.test('a/b/c'));
 	assert.ok(!DEFAULT_SEARCH_EXCLUDER.test('/a/b/c'));
@@ -47,7 +49,6 @@ test('DEFAULT_SEARCH_EXCLUDER', () => {
 	assert.ok(!DEFAULT_SEARCH_EXCLUDER.test('/a/b/c.d.js'));
 	assert.ok(!DEFAULT_SEARCH_EXCLUDER.test('./a/b/c'));
 	assert.ok(!DEFAULT_SEARCH_EXCLUDER.test('./a/b/c.d.js'));
-	assert.ok(!DEFAULT_SEARCH_EXCLUDER.test(resolve('dist/typecheck.task.js')));
 });
 
 test.run();
