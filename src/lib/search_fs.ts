@@ -11,7 +11,7 @@ export interface Search_Fs_Options {
 	/**
 	 * One or more filter functions, any of which can short-circuit the search by returning `false`.
 	 */
-	filter?: Path_Filter | Path_Filter[];
+	filter?: Path_Filter | Path_Filter[] | null;
 	/**
 	 * An array of file suffixes to include.
 	 */

@@ -31,7 +31,7 @@ export interface Gro_Config {
 	 * When searching the filsystem for tasks and genfiles,
 	 * directories and files are included if they pass all of these filters.
 	 */
-	search_filters: Path_Filter | Path_Filter[];
+	search_filters: Path_Filter | Path_Filter[] | null;
 	// TODO `task_discovery_dirs`
 }
 
@@ -52,6 +52,9 @@ export const create_empty_config = (): Gro_Config => ({
 });
 
 /**
+ * The regexp used by default to exclude directories and files
+ * when searching the filesystem for tasks and genfiles.
+ * Customize via `search_filters` in the `Gro_Config`.
  * See the test cases for the exact behavior.
  */
 export const DEFAULT_SEARCH_EXCLUDER = new RegExp(
