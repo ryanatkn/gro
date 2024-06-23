@@ -17,7 +17,7 @@ export interface Search_Fs_Options {
 	 */
 	file_filter?: File_Filter | File_Filter[];
 	/**
-	 * Pass `null` or `false` to speed things up at the risk of volatile ordering.
+	 * Pass `null` or `false` to speed things up at the cost of volatile ordering.
 	 */
 	sort?: boolean | null | ((a: Resolved_Path, b: Resolved_Path) => number);
 	/**
