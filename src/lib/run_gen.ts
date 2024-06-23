@@ -7,8 +7,6 @@ import {
 	type Gen_Results,
 	type Genfile_Module_Result,
 	type Gen_Context,
-	type Genfile_Module_Result_Success,
-	type Genfile_Module_Result_Failure,
 	type Genfile_Module_Meta,
 	to_gen_result,
 	type Raw_Gen_Result,
@@ -88,8 +86,8 @@ export const run_gen = async (
 	);
 	return {
 		results,
-		successes: results.filter((r) => r.ok) as Genfile_Module_Result_Success[],
-		failures: results.filter((r) => !r.ok) as Genfile_Module_Result_Failure[],
+		successes: results.filter((r) => r.ok),
+		failures: results.filter((r) => !r.ok),
 		input_count,
 		output_count,
 		elapsed: timing_for_run_gen(),
