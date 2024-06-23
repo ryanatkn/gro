@@ -52,7 +52,7 @@ export const create_empty_config = (): Gro_Config => ({
 });
 
 export const DEFAULT_SEARCH_EXCLUDER = new RegExp(
-	`(^|/)(\\.[^/]+|${NODE_MODULES_DIRNAME}|${SVELTEKIT_BUILD_DIRNAME}|(?!gro/)${SVELTEKIT_DIST_DIRNAME}|${SERVER_DIST_PATH})($|/)`,
+	`(^|/)(?!gro/)(\\.[^/]+|${NODE_MODULES_DIRNAME}|${SVELTEKIT_BUILD_DIRNAME}|${SVELTEKIT_DIST_DIRNAME}|${SERVER_DIST_PATH})($|/)`,
 	'u',
 );
 
