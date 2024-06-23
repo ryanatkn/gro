@@ -50,6 +50,9 @@ test('DEFAULT_SEARCH_EXCLUDER', () => {
 	// Special exception for `gro/dist/`:
 	assert.ok(DEFAULT_SEARCH_EXCLUDER.test('/home/not_gro/dist/a.task.js'));
 	assert.ok(DEFAULT_SEARCH_EXCLUDER.test('/home/grodist/a.task.js'));
+	assert.ok(DEFAULT_SEARCH_EXCLUDER.test('not_gro/dist/a.task.js'));
+	assert.ok(DEFAULT_SEARCH_EXCLUDER.test('not_dist/a.task.js'));
+	assert.ok(DEFAULT_SEARCH_EXCLUDER.test('grodist/a.task.js'));
 	assert.ok(!DEFAULT_SEARCH_EXCLUDER.test('/home/gro/dist/a.task.js'));
 	assert.ok(!DEFAULT_SEARCH_EXCLUDER.test('gro/dist/a.task.js'));
 	assert.ok(!DEFAULT_SEARCH_EXCLUDER.test('./gro/dist/a.task.js'));
