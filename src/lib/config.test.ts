@@ -61,8 +61,8 @@ test('DEFAULT_SEARCH_EXCLUDER', () => {
 	assert_includes('buildE', true);
 	assert_includes('grobuild', true);
 	assert_includes('distE', true);
-	assert_includes('Edist', true); // TODO BLOCK these fail
-	assert_includes('grodist', true); // TODO BLOCK these fail
+	assert_includes('Edist', true);
+	assert_includes('grodist', true);
 });
 
 test.run();
