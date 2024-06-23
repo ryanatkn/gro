@@ -51,8 +51,9 @@ export const create_empty_config = (): Gro_Config => ({
 	search_filters: [(id) => !DEFAULT_SEARCH_EXCLUDER.test(id)],
 });
 
+// TODO BLOCK `(?!gro/)` isn't working here
 export const DEFAULT_SEARCH_EXCLUDER = new RegExp(
-	`(^|/)(?!gro/)(\\.[^/]+|${NODE_MODULES_DIRNAME}|${SVELTEKIT_BUILD_DIRNAME}|${SVELTEKIT_DIST_DIRNAME}|${SERVER_DIST_PATH})($|/)`,
+	`(^|/)(\\.[^/]+|${NODE_MODULES_DIRNAME}|${SVELTEKIT_BUILD_DIRNAME}|${SVELTEKIT_DIST_DIRNAME}|${SERVER_DIST_PATH})($|/)`,
 	'u',
 );
 
