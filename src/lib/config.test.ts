@@ -52,6 +52,8 @@ test('DEFAULT_SEARCH_EXCLUDER', () => {
 	assert_excludes(resolve('build/typecheck.task.js'));
 	assert.ok(DEFAULT_SEARCH_EXCLUDER.test('/home/not_gro/dist/typecheck.task.js'));
 	assert.ok(!DEFAULT_SEARCH_EXCLUDER.test('/home/gro/dist/typecheck.task.js'));
+	assert.ok(!DEFAULT_SEARCH_EXCLUDER.test('gro/dist/typecheck.task.js'));
+	assert.ok(!DEFAULT_SEARCH_EXCLUDER.test('./gro/dist/typecheck.task.js'));
 });
 
 test.run();

@@ -1,6 +1,6 @@
 import {join, resolve} from 'node:path';
 
-import {GRO_DIST_DIR, IS_THIS_GRO, gro_paths, paths} from './paths.js';
+import {GRO_DIST_DIR, IS_THIS_GRO, paths} from './paths.js';
 import {
 	GRO_CONFIG_PATH,
 	NODE_MODULES_DIRNAME,
@@ -48,12 +48,11 @@ export const create_empty_config = (): Gro_Config => ({
 		IS_THIS_GRO ? null! : paths.root,
 		IS_THIS_GRO ? null! : GRO_DIST_DIR,
 	].filter(Boolean),
-	search_filters: [(id) => !DEFAULT_SEARCH_EXCLUDER.test(id) || id.startsWith(GRO_DIST_DIR)],
+	search_filters: [(id) => !DEFAULT_SEARCH_EXCLUDER.test(id)],
 });
 
-// TODO BLOCK `(?!gro/)` isn't working here so there's the `|| id.startsWith(GRO_DIST_DIR)` hack
 export const DEFAULT_SEARCH_EXCLUDER = new RegExp(
-	`(^|/)(\\.[^/]+|${NODE_MODULES_DIRNAME}|${SVELTEKIT_BUILD_DIRNAME}|${SVELTEKIT_DIST_DIRNAME}|${SERVER_DIST_PATH})($|/)`,
+	`(^|/)(\\.[^/]+|${NODE_MODULES_DIRNAME}|${SVELTEKIT_BUILD_DIRNAME}|(?<!/gro/)${SVELTEKIT_DIST_DIRNAME}|${SERVER_DIST_PATH})($|/)`,
 	'u',
 );
 
