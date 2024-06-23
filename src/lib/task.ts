@@ -146,19 +146,10 @@ export const find_tasks = async (
 	} = await resolve_input_files(resolved_input_paths, (id) =>
 		search_fs(id, {
 			filter: config.search_filters,
-			file_filter: (p) => {
-				console.log(
-					`p`,
-					p,
-					TASK_FILE_SUFFIXES.some((s) => p.endsWith(s)),
-				);
-				return TASK_FILE_SUFFIXES.some((s) => p.endsWith(s));
-			},
+			file_filter: (p) => TASK_FILE_SUFFIXES.some((s) => p.endsWith(s)),
 		}),
 	);
 	timing_to_resolve_input_files?.();
-
-	console.log(`input_directories_with_no_files`, input_directories_with_no_files);
 
 	// Error if any input path has no files. (means we have an empty directory)
 	if (input_directories_with_no_files.length) {
