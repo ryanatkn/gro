@@ -10,7 +10,7 @@ import {
 	type Resolved_Input_Path,
 } from './input_path.js';
 import {GRO_DIST_DIR, paths} from './paths.js';
-import type {Path_Data} from './path.js';
+import type {Path_Info} from './path.js';
 
 test('to_input_path', () => {
 	assert.is(to_input_path(resolve('foo.ts')), resolve('foo.ts'));
@@ -114,7 +114,7 @@ test('get_possible_paths implied to be a directory by trailing slash', () => {
 });
 
 test('resolve_input_files', async () => {
-	const test_files: Record<string, Map<string, Path_Data>> = {
+	const test_files: Record<string, Map<string, Path_Info>> = {
 		'fake/test1.ext.ts': new Map([['fake/test1.ext.ts', {id: '', is_directory: false}]]),
 		'fake/test2.ext.ts': new Map([['fake/test2.ext.ts', {id: '', is_directory: false}]]),
 		'fake/test3': new Map([

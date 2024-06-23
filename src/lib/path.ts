@@ -3,10 +3,7 @@ import type {Flavored} from '@ryanatkn/belt/types.js';
 
 export type Path_Id = Flavored<string, 'Path_Id'>;
 
-// TODO ideally none of this exists
-
-// TODO BLOCK maybe rename to `Path_Info`?
-export interface Path_Data {
+export interface Path_Info {
 	id: Path_Id;
 	is_directory: boolean;
 }

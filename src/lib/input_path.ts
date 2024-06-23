@@ -6,7 +6,7 @@ import {z} from 'zod';
 import type {Flavored} from '@ryanatkn/belt/types.js';
 
 import {GRO_PACKAGE_DIR, GRO_DIST_DIR} from './paths.js';
-import type {Path_Data, Path_Id} from './path.js';
+import type {Path_Info, Path_Id} from './path.js';
 import {exists} from './fs.js';
 import {search_fs} from './search_fs.js';
 import {TASK_FILE_SUFFIX_JS} from './task.js';
@@ -135,8 +135,8 @@ export const resolve_input_paths = async (
 	const possible_paths_by_input_path = new Map<Input_Path, Possible_Path[]>();
 	const unmapped_input_paths: Input_Path[] = [];
 	for (const input_path of input_paths) {
-		let found_file: [Path_Data, Possible_Path] | null = null;
-		let found_dirs: Array<[Path_Data, Possible_Path]> | null = null;
+		let found_file: [Path_Info, Possible_Path] | null = null;
+		let found_dirs: Array<[Path_Info, Possible_Path]> | null = null;
 		const possible_paths = get_possible_paths(input_path, root_dirs, extensions);
 		possible_paths_by_input_path.set(input_path, possible_paths);
 
@@ -214,8 +214,8 @@ export const resolve_input_files = async (
 			if (files.size) {
 				const path_ids: Path_Id[] = [];
 				let has_files = false;
-				for (const [path, path_data] of files) {
-					if (path_data.is_directory) continue;
+				for (const [path, path_info] of files) {
+					if (path_info.is_directory) continue;
 					has_files = true;
 					const path_id = join(id, path);
 					if (!existing_path_ids.has(path_id)) {
