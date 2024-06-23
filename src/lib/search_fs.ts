@@ -1,8 +1,8 @@
-import {readdir} from 'node:fs/promises';
 import {EMPTY_OBJECT} from '@ryanatkn/belt/object.js';
 import {to_array} from '@ryanatkn/belt/array.js';
 import {ensure_end} from '@ryanatkn/belt/string.js';
 import {isAbsolute, join} from 'node:path';
+import {readdirSync} from 'node:fs';
 
 import type {File_Filter, Resolved_Path, Path_Filter} from './path.js';
 import {exists} from './fs.js';
@@ -30,7 +30,6 @@ export interface Search_Fs_Options {
 	cwd?: string | null;
 }
 
-// TODO this is terrible because of the `tiny-glob` limitations, rewrite without it, it's also making it exclude all directories that start with any of the excluded ones
 export const search_fs = async (
 	dir: string,
 	options: Search_Fs_Options = EMPTY_OBJECT,
@@ -55,23 +54,24 @@ export const search_fs = async (
 	if (!(await exists(final_dir))) return [];
 
 	const paths: Resolved_Path[] = [];
-	await crawl(final_dir, paths, filters, file_filters, include_directories, null);
+	crawl(final_dir, paths, filters, file_filters, include_directories, null);
 
 	return sort ? paths.sort(typeof sort === 'boolean' ? default_sort : sort) : paths;
 };
 
 const default_sort = (a: Resolved_Path, b: Resolved_Path): number => a.path.localeCompare(b.path);
 
-// TODO BLOCK benchmark with sync calls here
-const crawl = async (
+const crawl = (
 	dir: string,
 	paths: Resolved_Path[],
 	filters: Path_Filter[] | undefined,
 	file_filter: File_Filter[] | undefined,
 	include_directories: boolean,
 	base_dir: string | null,
-): Promise<Resolved_Path[]> => {
-	const dirents = await readdir(dir, {withFileTypes: true});
+): Resolved_Path[] => {
+	// This sync version is significantly faster than using the `fs/promises` version -
+	// it doesn't parallelize but that's not the common case in Gro.
+	const dirents = readdirSync(dir, {withFileTypes: true});
 	for (const dirent of dirents) {
 		const {name, parentPath} = dirent;
 		const is_directory = dirent.isDirectory();
@@ -84,7 +84,7 @@ const crawl = async (
 				if (include_directories) {
 					paths.push({path, id: dir_id, is_directory: true});
 				}
-				await crawl(dir_id, paths, filters, file_filter, include_directories, path); // eslint-disable-line no-await-in-loop
+				crawl(dir_id, paths, filters, file_filter, include_directories, path); // eslint-disable-line no-await-in-loop
 			} else if (!file_filter || file_filter.every((f) => f(id))) {
 				paths.push({path, id, is_directory: false});
 			}
