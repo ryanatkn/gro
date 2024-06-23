@@ -1,5 +1,16 @@
 # @ryanatkn/gro
 
+## 0.121.0
+
+### Minor Changes
+
+- change some functions to be synchronous - `resolve_input_paths`, `resolve_input_files`, ([#470](https://github.com/ryanatkn/gro/pull/470))
+  `find_tasks`, `search_fs`
+
+### Patch Changes
+
+- fix the default search excluder ([#470](https://github.com/ryanatkn/gro/pull/470))
+
 ## 0.120.1
 
 ### Patch Changes
