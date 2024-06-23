@@ -2,4 +2,4 @@
 '@ryanatkn/gro': minor
 ---
 
-upgrade node@20.15
+upgrade node@22.3
