@@ -239,7 +239,6 @@ const to_root_dir_that_doesnt_exist = async (dir: string): Promise<string | unde
 	let prev: string | undefined;
 	let d = dir;
 	do {
-		// eslint-disable-next-line no-await-in-loop
 		if (existsSync(d)) {
 			return prev;
 		}

@@ -1,7 +1,6 @@
 import {dirname, isAbsolute, join, resolve} from 'node:path';
 import {existsSync, statSync} from 'node:fs';
 import {strip_start} from '@ryanatkn/belt/string.js';
-import {stat} from 'node:fs/promises';
 import {z} from 'zod';
 import type {Flavored} from '@ryanatkn/belt/types.js';
 
@@ -141,8 +140,8 @@ export const resolve_input_paths = async (
 
 		// Find the first existing file path or fallback to the first directory path.
 		for (const possible_path of possible_paths) {
-			if (!existsSync(possible_path.id)) continue; // eslint-disable-line no-await-in-loop
-			const stats = await stat(possible_path.id); // eslint-disable-line no-await-in-loop
+			if (!existsSync(possible_path.id)) continue;
+			const stats = statSync(possible_path.id);
 			if (stats.isDirectory()) {
 				found_dirs ??= [];
 				found_dirs.push([{id: possible_path.id, is_directory: stats.isDirectory()}, possible_path]);

@@ -1,8 +1,8 @@
 import chokidar, {type WatchOptions} from 'chokidar';
-import {stat} from 'node:fs/promises';
 import {relative} from 'node:path';
 
 import type {Path_Filter} from './path.js';
+import {statSync} from 'node:fs';
 
 // TODO pretty hacky
 
@@ -49,19 +49,19 @@ export const watch_dir = ({
 		init: async () => {
 			watcher = chokidar.watch(dir, chokidar_options);
 			watcher.on('add', async (path, s) => {
-				const stats = s || (await stat(path));
+				const stats = s || statSync(path);
 				const final_path = absolute ? path : relative(dir, path);
 				if (filter && !filter(final_path, stats.isDirectory())) return;
 				on_change({type: 'create', path: final_path, is_directory: stats.isDirectory()});
 			});
 			watcher.on('addDir', async (path, s) => {
-				const stats = s || (await stat(path));
+				const stats = s || statSync(path);
 				const final_path = absolute ? path : relative(dir, path);
 				if (filter && !filter(final_path, stats.isDirectory())) return;
 				on_change({type: 'create', path: final_path, is_directory: stats.isDirectory()});
 			});
 			watcher.on('change', async (path, s) => {
-				const stats = s || (await stat(path));
+				const stats = s || statSync(path);
 				const final_path = absolute ? path : relative(dir, path);
 				if (filter && !filter(final_path, stats.isDirectory())) return;
 				on_change({type: 'update', path: final_path, is_directory: stats.isDirectory()});
