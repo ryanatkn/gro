@@ -52,8 +52,9 @@ export const search_fs = async (
 
 	const paths: Map<string, Path_Data> = new Map();
 	// {absolute: true, dot, filesOnly: files_only, cwd}
-	const crawled = await crawl(final_dir, paths, filters, include_directories, suffixes);
-	console.log(`crawled`, crawled);
+	console.log('beginning crawling', final_dir, '=============================================');
+	await crawl(final_dir, paths, filters, include_directories, suffixes);
+	console.log('finished crawling', final_dir, '---------------------------------------------');
 	// eslint-disable-next-line no-await-in-loop
 	// await Promise.all(
 	// 	found.map(async (g) => {
@@ -64,6 +65,7 @@ export const search_fs = async (
 	// 		}
 	// 	}),
 	// );
+	console.log(`paths`, paths);
 	return sort ? sort_map(paths, sort) : paths;
 };
 
@@ -75,13 +77,32 @@ const crawl = async (
 	include_directories: boolean,
 	suffixes: string[] | undefined,
 ): Promise<Map<string, Path_Data>> => {
+	console.log(`crawl`, dir);
 	const dirents = await readdir(dir, {withFileTypes: true});
 	for (const dirent of dirents) {
-		console.log(`found dirent`, dirent);
-		const include = filters?.every((filter) =>
-			filter(dirent.parentPath + dirent.name, dirent.isDirectory()),
+		console.log(
+			`found dirent`,
+			dirent.name,
+			dirent.parentPath,
+			dirent.isDirectory(),
+			dirent.isFile(),
 		);
+		const is_directory = dirent.isDirectory();
+		const include = filters?.every((filter) =>
+			filter(dirent.parentPath + dirent.name, is_directory),
+		);
+		if (include) {
+			if (is_directory) {
+				const id = dirent.parentPath + dirent.name + '/';
+				if (include_directories) {
+					paths.set(id, {id, is_directory: true});
+				}
+				await crawl(id, paths, filters, include_directories, suffixes); // eslint-disable-line no-await-in-loop
+			} else {
+				const id = dirent.parentPath + dirent.name;
+				paths.set(id, {id, is_directory: true});
+			}
+		}
 	}
-	console.log(`found`, dirents);
 	return paths;
 };
