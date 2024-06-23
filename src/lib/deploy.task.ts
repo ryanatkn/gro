@@ -2,14 +2,14 @@ import {spawn} from '@ryanatkn/belt/process.js';
 import {print_error} from '@ryanatkn/belt/print.js';
 import {green, red} from 'kleur/colors';
 import {z} from 'zod';
-import {cp, mkdir,  rm} from 'node:fs/promises';
+import {cp, mkdir, rm} from 'node:fs/promises';
 import {join, resolve} from 'node:path';
 import {existsSync, readdirSync} from 'node:fs';
 
 import {Task_Error, type Task} from './task.js';
 import {print_path} from './paths.js';
 import {GRO_DIRNAME, GIT_DIRNAME, SVELTEKIT_BUILD_DIRNAME} from './path_constants.js';
-import {empty_dir, } from './fs.js';
+import {empty_dir} from './fs.js';
 import {
 	git_check_clean_workspace,
 	git_checkout,
@@ -155,7 +155,7 @@ export const task: Task<Args> = {
 
 			// Second, initialize the deploy dir if needed.
 			// It may not exist, or it may have been deleted after failing to sync above.
-			if (!(existsSync(resolved_deploy_dir))) {
+			if (!existsSync(resolved_deploy_dir)) {
 				const local_deploy_branch_exists = await git_local_branch_exists(target);
 				await git_fetch(origin, ('+' + target + ':' + target) as Git_Branch); // fetch+merge and allow non-fastforward updates with the +
 				await git_clone_locally(origin, target, dir, resolved_deploy_dir);
@@ -209,7 +209,7 @@ export const task: Task<Args> = {
 			if (build) {
 				await invoke_task('build');
 			}
-			if (!(existsSync(build_dir))) {
+			if (!existsSync(build_dir)) {
 				log.error(red('directory to deploy does not exist after building:'), build_dir);
 				return;
 			}
@@ -223,7 +223,7 @@ export const task: Task<Args> = {
 
 		// Copy the build
 		await Promise.all(
-			(readdirSync(build_dir)).map((path) =>
+			readdirSync(build_dir).map((path) =>
 				cp(join(build_dir, path), join(resolved_deploy_dir, path), {recursive: true}),
 			),
 		);

@@ -1,6 +1,6 @@
 import {z} from 'zod';
 import {green, cyan} from 'kleur/colors';
-import {existsSync, } from 'node:fs';
+import {existsSync} from 'node:fs';
 
 import {Task_Error, type Task} from './task.js';
 import {resolve_gro_module_path, spawn_with_loader} from './gro_helpers.js';
@@ -27,7 +27,7 @@ export const task: Task<Args> = {
 			return;
 		}
 
-		if (!(existsSync(path))) {
+		if (!existsSync(path)) {
 			throw new Task_Error('Cannot find file to run at path: ' + path);
 		}
 

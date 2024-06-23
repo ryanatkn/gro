@@ -2,7 +2,7 @@ import {realpath} from 'node:fs/promises';
 import {join, resolve} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {spawn, type Spawn_Result} from '@ryanatkn/belt/process.js';
-import {existsSync, } from 'node:fs';
+import {existsSync} from 'node:fs';
 
 import {NODE_MODULES_DIRNAME, SVELTEKIT_DIST_DIRNAME} from './path_constants.js';
 
@@ -57,8 +57,8 @@ export const resolve_gro_module_path = async (path = ''): Promise<string> => {
 	// If running Gro inside its own repo, require the local dist.
 	// If the local dist is not yet built it will fall back to the global.
 	if (
-		(existsSync(join(SVELTEKIT_DIST_DIRNAME, 'gro.js'))) &&
-		(existsSync(join(SVELTEKIT_DIST_DIRNAME, path)))
+		existsSync(join(SVELTEKIT_DIST_DIRNAME, 'gro.js')) &&
+		existsSync(join(SVELTEKIT_DIST_DIRNAME, path))
 	) {
 		return resolve(SVELTEKIT_DIST_DIRNAME, path);
 	}

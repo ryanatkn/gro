@@ -141,7 +141,7 @@ export const resolve_input_paths = async (
 
 		// Find the first existing file path or fallback to the first directory path.
 		for (const possible_path of possible_paths) {
-			if (!(existsSync(possible_path.id))) continue; // eslint-disable-line no-await-in-loop
+			if (!existsSync(possible_path.id)) continue; // eslint-disable-line no-await-in-loop
 			const stats = await stat(possible_path.id); // eslint-disable-line no-await-in-loop
 			if (stats.isDirectory()) {
 				found_dirs ??= [];

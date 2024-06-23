@@ -1,7 +1,7 @@
 import {spawn} from '@ryanatkn/belt/process.js';
 import {z} from 'zod';
 import {green, cyan} from 'kleur/colors';
-import {existsSync, } from 'node:fs';
+import {existsSync} from 'node:fs';
 
 import {Task_Error, type Task} from './task.js';
 import {load_package_json, parse_repo_url} from './package_json.js';
@@ -169,7 +169,7 @@ export const task: Task<Args> = {
 			);
 		}
 
-		if (!changelog_exists && (existsSync(changelog))) {
+		if (!changelog_exists && existsSync(changelog)) {
 			await spawn('git', ['add', changelog]);
 		}
 		await spawn('git', ['commit', '-a', '-m', `publish v${version}`]);

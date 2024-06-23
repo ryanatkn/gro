@@ -3,7 +3,7 @@ import {join} from 'node:path';
 import {strip_start} from '@ryanatkn/belt/string.js';
 import type {Logger} from '@ryanatkn/belt/log.js';
 import {Project} from 'ts-morph';
-import {existsSync, } from 'node:fs';
+import {existsSync} from 'node:fs';
 
 import {paths, replace_extension} from './paths.js';
 import {
@@ -96,7 +96,7 @@ export const to_src_modules = async (
 						return [k, src_module];
 					}
 					const source_file_id = join(lib_path, source_file_path);
-					if (!(existsSync(source_file_id))) {
+					if (!existsSync(source_file_id)) {
 						log?.warn(
 							'failed to infer source file from export path',
 							k,

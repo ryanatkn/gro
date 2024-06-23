@@ -1,8 +1,7 @@
 import dotenv from 'dotenv';
 import {readFile} from 'node:fs/promises';
 import {resolve} from 'node:path';
-import {existsSync, } from 'node:fs';
-
+import {existsSync} from 'node:fs';
 
 export const load_env = async (
 	dev: boolean,
@@ -23,7 +22,7 @@ export const load_env = async (
 };
 
 const load = async (path: string): Promise<Record<string, string> | undefined> => {
-	if (!(existsSync(path))) return undefined;
+	if (!existsSync(path)) return undefined;
 	const loaded = await readFile(path, 'utf8');
 	return dotenv.parse(loaded);
 };

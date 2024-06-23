@@ -5,7 +5,7 @@ import {z} from 'zod';
 import type {Result} from '@ryanatkn/belt/result.js';
 import type {Timings} from '@ryanatkn/belt/timings.js';
 import {red} from 'kleur/colors';
-import {existsSync, } from 'node:fs';
+import {existsSync} from 'node:fs';
 
 import {print_path} from './paths.js';
 import type {Path_Id} from './path.js';
@@ -188,7 +188,7 @@ export const analyze_gen_results = (gen_results: Gen_Results): Promise<Analyzed_
 	);
 
 export const analyze_gen_result = async (file: Gen_File): Promise<Analyzed_Gen_Result> => {
-	if (!(existsSync(file.id))) {
+	if (!existsSync(file.id)) {
 		return {
 			file,
 			existing_content: null,

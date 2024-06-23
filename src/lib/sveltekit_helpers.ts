@@ -1,5 +1,5 @@
 import type {Result} from '@ryanatkn/belt/result.js';
-import {existsSync, } from 'node:fs';
+import {existsSync} from 'node:fs';
 
 import {Package_Json, load_package_json} from './package_json.js';
 import {sveltekit_config_global} from './sveltekit_config_global.js';
@@ -14,7 +14,7 @@ export const SVELTE_PACKAGE_CLI = 'svelte-package';
 export const SVELTE_PACKAGE_DEP_NAME = '@sveltejs/package';
 
 export const has_sveltekit_app = async (): Promise<Result<object, {message: string}>> => {
-	if (!(existsSync(SVELTEKIT_CONFIG_FILENAME))) {
+	if (!existsSync(SVELTEKIT_CONFIG_FILENAME)) {
 		return {ok: false, message: `no SvelteKit config found at ${SVELTEKIT_CONFIG_FILENAME}`};
 	}
 	// TODO check for routes?
@@ -30,7 +30,7 @@ export const has_sveltekit_library = async (
 		return has_sveltekit_app_result;
 	}
 
-	if (!(existsSync(sveltekit_config.lib_path))) {
+	if (!existsSync(sveltekit_config.lib_path)) {
 		return {ok: false, message: `no SvelteKit lib directory found at ${sveltekit_config.lib_path}`};
 	}
 

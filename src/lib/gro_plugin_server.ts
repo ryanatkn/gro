@@ -5,7 +5,7 @@ import {join, resolve} from 'node:path';
 import {identity} from '@ryanatkn/belt/function.js';
 import {strip_before, strip_end} from '@ryanatkn/belt/string.js';
 import type {Result} from '@ryanatkn/belt/result.js';
-import {existsSync, } from 'node:fs';
+import {existsSync} from 'node:fs';
 
 import type {Plugin, Plugin_Context} from './plugin.js';
 import {base_path_to_path_id, LIB_DIRNAME, paths} from './paths.js';
@@ -30,7 +30,7 @@ export const SERVER_SOURCE_ID = base_path_to_path_id(LIB_DIRNAME + '/server/serv
 export const has_server = async (
 	path = SERVER_SOURCE_ID,
 ): Promise<Result<object, {message: string}>> => {
-	if (!(existsSync(path))) {
+	if (!existsSync(path)) {
 		return {ok: false, message: `no server file found at ${path}`};
 	}
 	return {ok: true};
@@ -254,7 +254,7 @@ export const gro_plugin_server = ({
 				watcher_ready = true;
 			}
 
-			if (!(existsSync(server_outpath))) {
+			if (!existsSync(server_outpath)) {
 				throw Error(`Node server failed to start due to missing file: ${server_outpath}`);
 			}
 

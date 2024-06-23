@@ -50,7 +50,7 @@ export const search_fs = async (
 			? undefined
 			: to_array(file_filter);
 
-	if (!(existsSync(final_dir))) return [];
+	if (!existsSync(final_dir)) return [];
 
 	const paths: Resolved_Path[] = [];
 	crawl(final_dir, paths, filters, file_filters, include_directories, null);
