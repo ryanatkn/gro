@@ -1,5 +1,12 @@
 # @ryanatkn/gro
 
+## 0.121.1
+
+### Patch Changes
+
+- remove options from `resolve_input_files` calling `search_fs` ([dd83f14](https://github.com/ryanatkn/gro/commit/dd83f14))
+- more search excluder fixes ([dd83f14](https://github.com/ryanatkn/gro/commit/dd83f14))
+
 ## 0.121.0
 
 ### Minor Changes
