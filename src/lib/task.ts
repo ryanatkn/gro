@@ -108,16 +108,16 @@ export type Find_Modules_Failure =
 /**
  * Finds modules from input paths. (see `src/lib/input_path.ts` for more)
  */
-export const find_tasks = async (
+export const find_tasks = (
 	input_paths: Input_Path[],
 	task_root_dirs: Path_Id[],
 	config: Gro_Config,
 	timings?: Timings,
-): Promise<Find_Tasks_Result> => {
+): Find_Tasks_Result => {
 	// Check which extension variation works - if it's a directory, prefer others first!
 	const timing_to_resolve_input_paths = timings?.start('resolve input paths');
 	const {resolved_input_paths, resolved_input_paths_by_input_path, unmapped_input_paths} =
-		await resolve_input_paths(input_paths, task_root_dirs, TASK_FILE_SUFFIXES);
+		resolve_input_paths(input_paths, task_root_dirs, TASK_FILE_SUFFIXES);
 	timing_to_resolve_input_paths?.();
 
 	// Error if any input path could not be mapped.
@@ -143,7 +143,7 @@ export const find_tasks = async (
 		resolved_input_files_by_input_path,
 		resolved_input_files_by_root_dir,
 		input_directories_with_no_files,
-	} = await resolve_input_files(resolved_input_paths, (id, options) =>
+	} = resolve_input_files(resolved_input_paths, (id, options) =>
 		search_fs(id, {
 			...options,
 			filter: config.search_filters,

@@ -124,11 +124,11 @@ export interface Resolved_Input_Paths {
  * and stopping at the first existing file or falling back to the first existing directory.
  * If none is found for an input path, it's added to `unmapped_input_paths`.
  */
-export const resolve_input_paths = async (
+export const resolve_input_paths = (
 	input_paths: Input_Path[],
 	root_dirs: Path_Id[],
 	extensions: string[],
-): Promise<Resolved_Input_Paths> => {
+): Resolved_Input_Paths => {
 	const resolved_input_paths: Resolved_Input_Path[] = [];
 	const possible_paths_by_input_path = new Map<Input_Path, Possible_Path[]>();
 	const unmapped_input_paths: Input_Path[] = [];
@@ -196,10 +196,10 @@ export interface Resolved_Input_Files {
  * Finds all of the matching files for the given input paths.
  * De-dupes source ids.
  */
-export const resolve_input_files = async (
+export const resolve_input_files = (
 	resolved_input_paths: Resolved_Input_Path[],
 	custom_search_fs = search_fs,
-): Promise<Resolved_Input_Files> => {
+): Resolved_Input_Files => {
 	const resolved_input_files: Resolved_Input_File[] = [];
 	const resolved_input_files_by_input_path = new Map<Input_Path, Resolved_Input_File[]>();
 	const input_directories_with_no_files: Resolved_Input_Path[] = [];
@@ -208,7 +208,7 @@ export const resolve_input_files = async (
 	for (const resolved_input_path of resolved_input_paths) {
 		const {input_path, id, is_directory} = resolved_input_path;
 		if (is_directory) {
-			const files = await custom_search_fs(id, {include_directories: true}); // eslint-disable-line no-await-in-loop
+			const files = custom_search_fs(id, {include_directories: true});
 			if (files.length) {
 				const path_ids: Path_Id[] = [];
 				let has_files = false;

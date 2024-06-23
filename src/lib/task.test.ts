@@ -38,7 +38,7 @@ test('validate_task_module basic behavior', () => {
 });
 
 test('load_tasks basic behavior', async () => {
-	const found = await find_tasks(
+	const found = find_tasks(
 		[resolve('src/lib/test'), resolve('src/lib/test.task.ts')],
 		[resolve('src/lib')],
 		create_empty_config(),
