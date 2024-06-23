@@ -1,13 +1,11 @@
 import {dirname, isAbsolute, join, resolve} from 'node:path';
 import {existsSync, statSync} from 'node:fs';
 import {strip_start} from '@ryanatkn/belt/string.js';
-import {stat} from 'node:fs/promises';
 import {z} from 'zod';
 import type {Flavored} from '@ryanatkn/belt/types.js';
 
 import {GRO_PACKAGE_DIR, GRO_DIST_DIR} from './paths.js';
-import {to_path_data, type Path_Data, type Path_Id} from './path.js';
-import {exists} from './fs.js';
+import type {Path_Info, Path_Id} from './path.js';
 import {search_fs} from './search_fs.js';
 import {TASK_FILE_SUFFIX_JS} from './task.js';
 
@@ -135,20 +133,20 @@ export const resolve_input_paths = async (
 	const possible_paths_by_input_path = new Map<Input_Path, Possible_Path[]>();
 	const unmapped_input_paths: Input_Path[] = [];
 	for (const input_path of input_paths) {
-		let found_file: [Path_Data, Possible_Path] | null = null;
-		let found_dirs: Array<[Path_Data, Possible_Path]> | null = null;
+		let found_file: [Path_Info, Possible_Path] | null = null;
+		let found_dirs: Array<[Path_Info, Possible_Path]> | null = null;
 		const possible_paths = get_possible_paths(input_path, root_dirs, extensions);
 		possible_paths_by_input_path.set(input_path, possible_paths);
 
 		// Find the first existing file path or fallback to the first directory path.
 		for (const possible_path of possible_paths) {
-			if (!(await exists(possible_path.id))) continue; // eslint-disable-line no-await-in-loop
-			const stats = await stat(possible_path.id); // eslint-disable-line no-await-in-loop
+			if (!existsSync(possible_path.id)) continue;
+			const stats = statSync(possible_path.id);
 			if (stats.isDirectory()) {
 				found_dirs ??= [];
-				found_dirs.push([to_path_data(possible_path.id, stats), possible_path]);
+				found_dirs.push([{id: possible_path.id, is_directory: stats.isDirectory()}, possible_path]);
 			} else {
-				found_file = [to_path_data(possible_path.id, stats), possible_path];
+				found_file = [{id: possible_path.id, is_directory: stats.isDirectory()}, possible_path];
 				break;
 			}
 		}
@@ -210,12 +208,12 @@ export const resolve_input_files = async (
 	for (const resolved_input_path of resolved_input_paths) {
 		const {input_path, id, is_directory} = resolved_input_path;
 		if (is_directory) {
-			const files = await custom_search_fs(id, {files_only: false}); // eslint-disable-line no-await-in-loop
-			if (files.size) {
+			const files = await custom_search_fs(id, {include_directories: true}); // eslint-disable-line no-await-in-loop
+			if (files.length) {
 				const path_ids: Path_Id[] = [];
 				let has_files = false;
-				for (const [path, stats] of files) {
-					if (stats.isDirectory()) continue;
+				for (const {path, is_directory} of files) {
+					if (is_directory) continue;
 					has_files = true;
 					const path_id = join(id, path);
 					if (!existing_path_ids.has(path_id)) {

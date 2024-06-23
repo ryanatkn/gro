@@ -1,8 +1,8 @@
 import {spawn, spawn_out} from '@ryanatkn/belt/process.js';
 import type {SpawnOptions} from 'child_process';
 import {z} from 'zod';
+import {existsSync} from 'node:fs';
 
-import {exists} from './fs.js';
 import {to_file_path} from './path.js';
 
 // TODO maybe extract to `util-git`
@@ -32,7 +32,7 @@ export const git_remote_branch_exists = async (
 	options?: SpawnOptions,
 ): Promise<boolean> => {
 	const final_branch = branch ?? (await git_current_branch_name(options));
-	if (options?.cwd && !(await exists(to_file_path(options.cwd)))) {
+	if (options?.cwd && !existsSync(to_file_path(options.cwd))) {
 		return false;
 	}
 	const result = await spawn(
@@ -58,7 +58,7 @@ export const git_local_branch_exists = async (
 	branch: Git_Branch,
 	options?: SpawnOptions,
 ): Promise<boolean> => {
-	if (options?.cwd && !(await exists(to_file_path(options.cwd)))) {
+	if (options?.cwd && !existsSync(to_file_path(options.cwd))) {
 		return false;
 	}
 	const result = await spawn('git', ['show-ref', '--quiet', 'refs/heads/' + branch], options);

@@ -1,11 +1,11 @@
 import {spawn} from '@ryanatkn/belt/process.js';
 import {z} from 'zod';
 import {green, cyan} from 'kleur/colors';
+import {existsSync} from 'node:fs';
 
 import {Task_Error, type Task} from './task.js';
 import {load_package_json, parse_repo_url} from './package_json.js';
 import {find_cli, spawn_cli} from './cli.js';
-import {exists} from './fs.js';
 import {IS_THIS_GRO} from './paths.js';
 import {has_sveltekit_library} from './sveltekit_helpers.js';
 import {update_changelog} from './changelog.js';
@@ -76,7 +76,7 @@ export const task: Task<Args> = {
 			await spawn('npm', ['run', 'build']);
 		}
 
-		const changelog_exists = await exists(changelog);
+		const changelog_exists = existsSync(changelog);
 
 		if (!(await find_cli('changeset'))) {
 			throw new Task_Error(
@@ -169,7 +169,7 @@ export const task: Task<Args> = {
 			);
 		}
 
-		if (!changelog_exists && (await exists(changelog))) {
+		if (!changelog_exists && existsSync(changelog)) {
 			await spawn('git', ['add', changelog]);
 		}
 		await spawn('git', ['commit', '-a', '-m', `publish v${version}`]);

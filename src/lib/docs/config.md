@@ -45,6 +45,7 @@ export interface Gro_Config {
 	plugins: Create_Config_Plugins;
 	map_package_json: Map_Package_Json | null;
 	task_root_dirs: string[];
+	search_filters: Path_Filter | Path_Filter[] | null;
 }
 ```
 
@@ -55,7 +56,11 @@ import type {Create_Gro_Config} from '@ryanatkn/gro';
 import {gro_plugin_sveltekit_app} from '@ryanatkn/gro/gro_plugin_sveltekit_app.js';
 
 const config: Create_Gro_Config = async (cfg) => {
-	// example setting your own plugins:
+	// `cfg`, which is equal to `create_empty_config()`,
+	// can be mutated or you can return your own.
+	// A return value is required to avoid potential errors and reduce ambiguity.
+
+	// example setting your own plugins):
 	cfg.plugins = async () => [
 		gro_plugin_sveltekit_app(),
 		(await import('./src/custom_plugin.js')).plugin(),
@@ -91,6 +96,7 @@ const config = create_empty_config();
 // config.plugins = ...;
 // config.map_package_json = ...;
 // config.task_root_dirs = ...;
+// config.search_filters = ...;
 
 export default config;
 ```
@@ -185,3 +191,13 @@ but non-explicit input paths, like `foo`, are resolved by searching
 through `task_root_dirs` in order until a matching file or directory is found on the filesystem.
 
 The default task paths are `./src/lib`, then `.`, and then Gro's dist directory.
+
+## `search_filters`
+
+The Gro config option `search_filters` allows customizing
+how Gro searches for tasks and genfiles on the filesystem.
+Directories and files are included if they pass all of these filters.
+
+By default, it uses the `DEFAULT_SEARCH_EXCLUDER` to exclude
+dot-prefixed directories, node_modules,
+and the build and dist directories for SvelteKit and Gro.

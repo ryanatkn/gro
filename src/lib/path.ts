@@ -3,27 +3,21 @@ import type {Flavored} from '@ryanatkn/belt/types.js';
 
 export type Path_Id = Flavored<string, 'Path_Id'>;
 
-// TODO ideally none of this exists
-
-export interface Path_Data {
+export interface Path_Info {
 	id: Path_Id;
 	is_directory: boolean;
 }
 
-export const to_path_data = (id: Path_Id, stats: Path_Stats): Path_Data => ({
-	id,
-	is_directory: stats.isDirectory(),
-});
-
-/**
- * Subset of `fs.Stats`.
- */
-export interface Path_Stats {
-	isDirectory: () => boolean;
+export interface Resolved_Path extends Path_Info {
+	path: string;
 }
 
 export interface Path_Filter {
-	(path: string, stats: Path_Stats): boolean;
+	(path: string, is_directory: boolean): boolean;
+}
+
+export interface File_Filter {
+	(path: string): boolean;
 }
 
 export const to_file_path = (path_or_url: string | URL): string =>

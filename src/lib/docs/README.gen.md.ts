@@ -31,7 +31,7 @@ export const gen: Gen = async ({origin_id}) => {
 	const root_link = `[${root_path}](/../..)`;
 	const doc_files = await search_fs(origin_dir);
 	const doc_paths: string[] = [];
-	for (const path of doc_files.keys()) {
+	for (const {path} of doc_files) {
 		if (path === output_file_name || !path.endsWith('.md')) {
 			continue;
 		}

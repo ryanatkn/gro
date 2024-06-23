@@ -1,95 +1,93 @@
-import glob from 'tiny-glob';
-import {stat} from 'node:fs/promises';
-import {sort_map, compare_simple_map_entries} from '@ryanatkn/belt/map.js';
-import {strip_end, strip_start} from '@ryanatkn/belt/string.js';
 import {EMPTY_OBJECT} from '@ryanatkn/belt/object.js';
+import {to_array} from '@ryanatkn/belt/array.js';
+import {ensure_end} from '@ryanatkn/belt/string.js';
+import {isAbsolute, join} from 'node:path';
+import {existsSync, readdirSync} from 'node:fs';
 
-import type {Path_Stats, Path_Filter} from './path.js';
-import {exists} from './fs.js';
+import type {File_Filter, Resolved_Path, Path_Filter} from './path.js';
 
 export interface Search_Fs_Options {
 	/**
-	 * A function to filter the results after they're globbed.
-	 * This is useful for advanced cases,
-	 * but is slower than using `suffixes` and `exclude_paths`
-	 * because it doesn't short-circuit directories like globbing does.
+	 * One or more filter functions, any of which can short-circuit the search by returning `false`.
 	 */
-	filter?: Path_Filter;
+	filter?: Path_Filter | Path_Filter[] | null;
 	/**
 	 * An array of file suffixes to include.
 	 */
-	suffixes?: string[];
+	file_filter?: File_Filter | File_Filter[];
 	/**
-	 * An array of paths to exclude relative to the search directory.
+	 * Pass `null` or `false` to speed things up at the cost of volatile ordering.
 	 */
-	exclude_paths?: string[];
+	sort?: boolean | null | ((a: Resolved_Path, b: Resolved_Path) => number);
 	/**
-	 * The root directory to search from. Defaults to the cwd.
+	 * Set to `false` to include directories.
 	 */
-	root_dir?: string;
+	include_directories?: boolean;
 	/**
-	 * Pass `null` to speed things up at the risk of volatile ordering.
+	 * Sets the cwd for `dir` unless it's an absolute path or `null`.
 	 */
-	sort?: typeof compare_simple_map_entries | null;
-	/**
-	 * Sets the `tiny-glob` `dot` option.
-	 */
-	dot?: boolean;
-	/**
-	 * Sets the `tiny-glob` `filesOnly` option.
-	 */
-	files_only?: boolean;
+	cwd?: string | null;
 }
 
-// TODO this is terrible because of the `tiny-glob` limitations, rewrite without it, it's also making it exclude all directories that start with any of the excluded ones
 export const search_fs = async (
 	dir: string,
 	options: Search_Fs_Options = EMPTY_OBJECT,
-): Promise<Map<string, Path_Stats>> => {
+): Promise<Resolved_Path[]> => {
 	const {
 		filter,
-		suffixes,
-		exclude_paths,
-		root_dir = process.cwd(),
-		sort = compare_simple_map_entries,
-		dot = false,
-		files_only = true,
+		file_filter,
+		sort = default_sort,
+		include_directories = false,
+		cwd = process.cwd(),
 	} = options;
-	const final_dir = dir.at(-1) === '/' ? dir : dir + '/';
-	if (!(await exists(final_dir))) return new Map();
-	const patterns: string[] = [];
-	if (exclude_paths?.length) {
-		patterns.push(final_dir + `*`); // unlike in bash, it's erroring when nested trying to include the root directory
-		patterns.push(final_dir + `!(${exclude_paths.join('|')})/**/*`);
-	} else {
-		patterns.push(final_dir + '**/*');
-	}
-	if (suffixes?.length) {
-		for (let i = 0; i < patterns.length; i++) {
-			patterns[i] += `+(${suffixes.join('|')})`;
-		}
-	}
-	let cwd: string | undefined; // is set to the `final_root_dir` if `dir` is inside `root_dir`
-	const final_root_dir = strip_end(root_dir, '/') + '/';
-	for (let i = 0; i < patterns.length; i++) {
-		if (patterns[i].startsWith(final_root_dir)) {
-			patterns[i] = patterns[i].substring(final_root_dir.length);
-			cwd = final_root_dir;
-		}
-	}
-	const paths: Map<string, Path_Stats> = new Map();
-	for (const pattern of patterns) {
-		const globbed = await glob(pattern, {absolute: true, dot, filesOnly: files_only, cwd}); // eslint-disable-line no-await-in-loop
-		// eslint-disable-next-line no-await-in-loop
-		await Promise.all(
-			globbed.map(async (g) => {
-				const path = strip_start(g, final_dir);
-				const stats = await stat(g);
-				if (!filter || stats.isDirectory() || filter(path, stats)) {
-					paths.set(path, stats);
+
+	const final_dir = ensure_end(cwd && !isAbsolute(dir) ? join(cwd, dir) : dir, '/');
+
+	const filters =
+		!filter || (Array.isArray(filter) && !filter.length) ? undefined : to_array(filter);
+	const file_filters =
+		!file_filter || (Array.isArray(file_filter) && !file_filter.length)
+			? undefined
+			: to_array(file_filter);
+
+	if (!existsSync(final_dir)) return [];
+
+	const paths: Resolved_Path[] = [];
+	crawl(final_dir, paths, filters, file_filters, include_directories, null);
+
+	return sort ? paths.sort(typeof sort === 'boolean' ? default_sort : sort) : paths;
+};
+
+const default_sort = (a: Resolved_Path, b: Resolved_Path): number => a.path.localeCompare(b.path);
+
+const crawl = (
+	dir: string,
+	paths: Resolved_Path[],
+	filters: Path_Filter[] | undefined,
+	file_filter: File_Filter[] | undefined,
+	include_directories: boolean,
+	base_dir: string | null,
+): Resolved_Path[] => {
+	// This sync version is significantly faster than using the `fs/promises` version -
+	// it doesn't parallelize but that's not the common case in Gro.
+	const dirents = readdirSync(dir, {withFileTypes: true});
+	for (const dirent of dirents) {
+		const {name, parentPath} = dirent;
+		const is_directory = dirent.isDirectory();
+		const id = parentPath + name;
+		const include = !filters || filters.every((f) => f(id, is_directory));
+		if (include) {
+			const path = base_dir === null ? name : base_dir + '/' + name;
+			if (is_directory) {
+				const dir_id = id + '/';
+				if (include_directories) {
+					paths.push({path, id: dir_id, is_directory: true});
 				}
-			}),
-		);
+				crawl(dir_id, paths, filters, file_filter, include_directories, path);
+			} else if (!file_filter || file_filter.every((f) => f(id))) {
+				paths.push({path, id, is_directory: false});
+			}
+		}
 	}
-	return sort ? sort_map(paths, sort) : paths;
+	return paths;
 };

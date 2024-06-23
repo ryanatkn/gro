@@ -145,9 +145,8 @@ export const find_tasks = async (
 		input_directories_with_no_files,
 	} = await resolve_input_files(resolved_input_paths, (id) =>
 		search_fs(id, {
-			suffixes: TASK_FILE_SUFFIXES,
-			exclude_paths: config.search_exclude_paths,
-			dot: config.search_glob_include_dot,
+			filter: config.search_filters,
+			file_filter: (p) => TASK_FILE_SUFFIXES.some((s) => p.endsWith(s)),
 		}),
 	);
 	timing_to_resolve_input_files?.();

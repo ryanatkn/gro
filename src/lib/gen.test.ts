@@ -4,6 +4,7 @@ import {resolve} from 'node:path';
 
 import {to_gen_result, find_genfiles, validate_gen_module} from './gen.js';
 import {paths} from './paths.js';
+import {create_empty_config} from './config.js';
 
 const origin_id = resolve('src/foo.gen.ts');
 
@@ -300,7 +301,7 @@ test('validate_gen_module basic behavior', () => {
 });
 
 test('find_genfiles_result finds gen modules in a directory', async () => {
-	const find_genfiles_result = await find_genfiles(['docs'], [paths.lib]);
+	const find_genfiles_result = await find_genfiles(['docs'], [paths.lib], create_empty_config());
 	assert.ok(find_genfiles_result.ok);
 	assert.ok(find_genfiles_result.value.resolved_input_paths.length);
 	assert.ok(find_genfiles_result.value.resolved_input_paths_by_input_path.size);

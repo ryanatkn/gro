@@ -5,11 +5,11 @@ import {z} from 'zod';
 import type {Result} from '@ryanatkn/belt/result.js';
 import type {Timings} from '@ryanatkn/belt/timings.js';
 import {red} from 'kleur/colors';
+import {existsSync} from 'node:fs';
 
 import {print_path} from './paths.js';
 import type {Path_Id} from './path.js';
 import type {Gro_Config} from './config.js';
-import {exists} from './fs.js';
 import type {Parsed_Sveltekit_Config} from './sveltekit_config.js';
 import {load_modules, type Load_Modules_Failure, type Module_Meta} from './modules.js';
 import {
@@ -188,7 +188,7 @@ export const analyze_gen_results = (gen_results: Gen_Results): Promise<Analyzed_
 	);
 
 export const analyze_gen_result = async (file: Gen_File): Promise<Analyzed_Gen_Result> => {
-	if (!(await exists(file.id))) {
+	if (!existsSync(file.id)) {
 		return {
 			file,
 			existing_content: null,
@@ -267,6 +267,7 @@ export type Find_Genfiles_Failure =
 export const find_genfiles = async (
 	input_paths: Input_Path[],
 	root_dirs: Path_Id[],
+	config: Gro_Config,
 	timings?: Timings,
 ): Promise<Find_Genfiles_Result> => {
 	const extensions: string[] = [GEN_FILE_PATTERN];
@@ -299,7 +300,10 @@ export const find_genfiles = async (
 		resolved_input_files_by_root_dir,
 		input_directories_with_no_files,
 	} = await resolve_input_files(resolved_input_paths, (id) =>
-		search_fs(id, {filter: (path) => extensions.some((e) => path.includes(e))}),
+		search_fs(id, {
+			filter: config.search_filters,
+			file_filter: (p) => extensions.some((e) => p.includes(e)),
+		}),
 	);
 	timing_to_search_fs?.();
 

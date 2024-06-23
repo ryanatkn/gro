@@ -1,22 +1,21 @@
 import {test} from 'uvu';
 import * as assert from 'uvu/assert';
-
-import {exists} from './fs.js';
+import {existsSync} from 'node:fs';
 
 test('file exists', async () => {
-	assert.ok(await exists('./src/lib/fs.ts'));
+	assert.ok(existsSync('./src/lib/fs.ts'));
 });
 
 test('file does not exist', async () => {
-	assert.ok(!(await exists('./src/lib/existsssss.ts')));
+	assert.ok(!existsSync('./src/lib/existsssss.ts'));
 });
 
 test('directory exists', async () => {
-	assert.ok(await exists('./src/lib'));
+	assert.ok(existsSync('./src/lib'));
 });
 
 test('directory does not exist', async () => {
-	assert.ok(!(await exists('./src/libbbbbbbb')));
+	assert.ok(!existsSync('./src/libbbbbbbb'));
 });
 
 test.run();

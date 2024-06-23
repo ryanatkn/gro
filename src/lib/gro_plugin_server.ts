@@ -5,6 +5,7 @@ import {join, resolve} from 'node:path';
 import {identity} from '@ryanatkn/belt/function.js';
 import {strip_before, strip_end} from '@ryanatkn/belt/string.js';
 import type {Result} from '@ryanatkn/belt/result.js';
+import {existsSync} from 'node:fs';
 
 import type {Plugin, Plugin_Context} from './plugin.js';
 import {base_path_to_path_id, LIB_DIRNAME, paths} from './paths.js';
@@ -18,7 +19,6 @@ import {print_build_result, to_define_import_meta_env} from './esbuild_helpers.j
 import {esbuild_plugin_sveltekit_shim_alias} from './esbuild_plugin_sveltekit_shim_alias.js';
 import {esbuild_plugin_external_worker} from './esbuild_plugin_external_worker.js';
 import {esbuild_plugin_sveltekit_local_imports} from './esbuild_plugin_sveltekit_local_imports.js';
-import {exists} from './fs.js';
 import {esbuild_plugin_svelte} from './esbuild_plugin_svelte.js';
 import {throttle} from './throttle.js';
 import {sveltekit_config_global} from './sveltekit_config_global.js';
@@ -30,7 +30,7 @@ export const SERVER_SOURCE_ID = base_path_to_path_id(LIB_DIRNAME + '/server/serv
 export const has_server = async (
 	path = SERVER_SOURCE_ID,
 ): Promise<Result<object, {message: string}>> => {
-	if (!(await exists(path))) {
+	if (!existsSync(path)) {
 		return {ok: false, message: `no server file found at ${path}`};
 	}
 	return {ok: true};
@@ -254,7 +254,7 @@ export const gro_plugin_server = ({
 				watcher_ready = true;
 			}
 
-			if (!(await exists(server_outpath))) {
+			if (!existsSync(server_outpath)) {
 				throw Error(`Node server failed to start due to missing file: ${server_outpath}`);
 			}
 
