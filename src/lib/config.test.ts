@@ -49,11 +49,11 @@ test('DEFAULT_SEARCH_EXCLUDER', () => {
 	assert.ok(!DEFAULT_SEARCH_EXCLUDER.test('./a/b/c.d.js'));
 
 	// Special exception for `gro/dist/`:
-	assert_excludes(resolve('build/typecheck.task.js'));
-	assert.ok(DEFAULT_SEARCH_EXCLUDER.test('/home/not_gro/dist/typecheck.task.js'));
-	assert.ok(!DEFAULT_SEARCH_EXCLUDER.test('/home/gro/dist/typecheck.task.js'));
-	assert.ok(!DEFAULT_SEARCH_EXCLUDER.test('gro/dist/typecheck.task.js'));
-	assert.ok(!DEFAULT_SEARCH_EXCLUDER.test('./gro/dist/typecheck.task.js'));
+	assert_excludes(resolve('build/a.task.js'));
+	assert.ok(DEFAULT_SEARCH_EXCLUDER.test('/home/not_gro/dist/a.task.js'));
+	assert.ok(!DEFAULT_SEARCH_EXCLUDER.test('/home/gro/dist/a.task.js'));
+	assert.ok(!DEFAULT_SEARCH_EXCLUDER.test('gro/dist/a.task.js'));
+	assert.ok(!DEFAULT_SEARCH_EXCLUDER.test('./gro/dist/a.task.js'));
 });
 
 test.run();
