@@ -9,23 +9,40 @@ test('load_config', async () => {
 });
 
 test('DEFAULT_SEARCH_EXCLUDER', () => {
-	assert.ok(DEFAULT_SEARCH_EXCLUDER.test('a/node_modules/c/d'));
-	assert.ok(DEFAULT_SEARCH_EXCLUDER.test('a/node_modules/c'));
-	assert.ok(DEFAULT_SEARCH_EXCLUDER.test('a/node_modules/'));
-	assert.ok(DEFAULT_SEARCH_EXCLUDER.test('a/node_modules'));
-	assert.ok(DEFAULT_SEARCH_EXCLUDER.test('/a/node_modules/c/d'));
-	assert.ok(DEFAULT_SEARCH_EXCLUDER.test('/a/node_modules/c'));
-	assert.ok(DEFAULT_SEARCH_EXCLUDER.test('/a/node_modules/'));
-	assert.ok(DEFAULT_SEARCH_EXCLUDER.test('/a/node_modules'));
-	assert.ok(DEFAULT_SEARCH_EXCLUDER.test('/node_modules/a/b'));
-	assert.ok(DEFAULT_SEARCH_EXCLUDER.test('/node_modules/a'));
-	assert.ok(DEFAULT_SEARCH_EXCLUDER.test('/node_modules/'));
-	assert.ok(DEFAULT_SEARCH_EXCLUDER.test('/node_modules'));
-	assert.ok(DEFAULT_SEARCH_EXCLUDER.test('node_modules/a/b'));
-	assert.ok(DEFAULT_SEARCH_EXCLUDER.test('node_modules/a'));
-	assert.ok(DEFAULT_SEARCH_EXCLUDER.test('node_modules/'));
-	assert.ok(DEFAULT_SEARCH_EXCLUDER.test('node_modules'));
+	const assert_excludes = (dirname: string) => {
+		assert.ok(DEFAULT_SEARCH_EXCLUDER.test(`a/${dirname}/c/d`), 'should exclude: ' + dirname);
+		assert.ok(DEFAULT_SEARCH_EXCLUDER.test(`a/${dirname}/c`), 'should exclude: ' + dirname);
+		assert.ok(DEFAULT_SEARCH_EXCLUDER.test(`a/${dirname}/`), 'should exclude: ' + dirname);
+		assert.ok(DEFAULT_SEARCH_EXCLUDER.test(`a/${dirname}`), 'should exclude: ' + dirname);
+		assert.ok(DEFAULT_SEARCH_EXCLUDER.test(`/a/${dirname}/c/d`), 'should exclude: ' + dirname);
+		assert.ok(DEFAULT_SEARCH_EXCLUDER.test(`/a/${dirname}/c`), 'should exclude: ' + dirname);
+		assert.ok(DEFAULT_SEARCH_EXCLUDER.test(`/a/${dirname}/`), 'should exclude: ' + dirname);
+		assert.ok(DEFAULT_SEARCH_EXCLUDER.test(`/a/${dirname}`), 'should exclude: ' + dirname);
+		assert.ok(DEFAULT_SEARCH_EXCLUDER.test(`/${dirname}/a/b`), 'should exclude: ' + dirname);
+		assert.ok(DEFAULT_SEARCH_EXCLUDER.test(`/${dirname}/a`), 'should exclude: ' + dirname);
+		assert.ok(DEFAULT_SEARCH_EXCLUDER.test(`/${dirname}/`), 'should exclude: ' + dirname);
+		assert.ok(DEFAULT_SEARCH_EXCLUDER.test(`/${dirname}`), 'should exclude: ' + dirname);
+		assert.ok(DEFAULT_SEARCH_EXCLUDER.test(`./${dirname}/a/b`), 'should exclude: ' + dirname);
+		assert.ok(DEFAULT_SEARCH_EXCLUDER.test(`./${dirname}/a`), 'should exclude: ' + dirname);
+		assert.ok(DEFAULT_SEARCH_EXCLUDER.test(`./${dirname}/`), 'should exclude: ' + dirname);
+		assert.ok(DEFAULT_SEARCH_EXCLUDER.test(`./${dirname}`), 'should exclude: ' + dirname);
+		assert.ok(DEFAULT_SEARCH_EXCLUDER.test(`${dirname}/a/b`), 'should exclude: ' + dirname);
+		assert.ok(DEFAULT_SEARCH_EXCLUDER.test(`${dirname}/a`), 'should exclude: ' + dirname);
+		assert.ok(DEFAULT_SEARCH_EXCLUDER.test(`${dirname}/`), 'should exclude: ' + dirname);
+		assert.ok(DEFAULT_SEARCH_EXCLUDER.test(`${dirname}`), 'should exclude: ' + dirname);
+	};
+
+	assert_excludes('node_modules');
+	assert_excludes('dist');
+	assert_excludes('build');
+	assert_excludes('.git');
+	assert_excludes('.gro');
+	assert_excludes('.svelte-kit');
+
 	assert.ok(!DEFAULT_SEARCH_EXCLUDER.test('nodemodules'));
+	assert.ok(!DEFAULT_SEARCH_EXCLUDER.test('a/b/c'));
+	assert.ok(!DEFAULT_SEARCH_EXCLUDER.test('/a/b/c'));
+	assert.ok(!DEFAULT_SEARCH_EXCLUDER.test('./a/b/c'));
 });
 
 test.run();
