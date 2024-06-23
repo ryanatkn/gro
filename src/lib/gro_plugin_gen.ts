@@ -46,7 +46,7 @@ export const plugin = (): Plugin<Plugin_Context<Task_Args>> => {
 
 	return {
 		name: 'gro_plugin_gen',
-		setup: async ({args: {watch}, dev, log}) => {
+		setup: async ({args: {watch}, dev, log, config}) => {
 			// For production builds, we assume `gen` is already fresh,
 			// which should be checked by CI via `gro check` which calls `gro gen --check`.
 			if (!dev) return;
@@ -55,7 +55,7 @@ export const plugin = (): Plugin<Plugin_Context<Task_Args>> => {
 			// Some parts of the build may have already happened,
 			// making us miss `build` events for gen dependencies,
 			// so we run `gen` here even if it's usually wasteful.
-			const found = await find_genfiles([paths.source]);
+			const found = await find_genfiles([paths.source], root_dirs, config);
 			if (found.ok && found.resolved_input_files_by_input_path.size > 0) {
 				await gen();
 			}

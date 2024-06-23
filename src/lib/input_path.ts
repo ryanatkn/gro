@@ -214,8 +214,8 @@ export const resolve_input_files = async (
 			if (files.size) {
 				const path_ids: Path_Id[] = [];
 				let has_files = false;
-				for (const [path, is_directory] of files) {
-					if (is_directory) continue;
+				for (const [path, path_data] of files) {
+					if (path_data.is_directory) continue;
 					has_files = true;
 					const path_id = join(id, path);
 					if (!existing_path_ids.has(path_id)) {
