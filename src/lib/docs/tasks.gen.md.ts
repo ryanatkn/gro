@@ -19,7 +19,7 @@ import {find_tasks, load_tasks, Task_Error} from '../task.js';
 // TODO add backlinks to every document that links to this one
 
 export const gen: Gen = async ({origin_id, log, config}) => {
-	const found = await find_tasks(['.'], [paths.lib], config);
+	const found = find_tasks(['.'], [paths.lib], config);
 	if (!found.ok) {
 		log_error_reasons(log, found.reasons);
 		throw new Task_Error(`Failed to generate task docs: ${found.type}`);

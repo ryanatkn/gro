@@ -154,7 +154,7 @@ export const sync_package_json = async (
 	dir = paths.root,
 	exports_dir = paths.lib,
 ): Promise<{package_json: Package_Json | null; changed: boolean}> => {
-	const exported_files = await search_fs(exports_dir);
+	const exported_files = search_fs(exports_dir);
 	const exported_paths = exported_files.map((f) => f.path);
 	const updated = await update_package_json(
 		dir,

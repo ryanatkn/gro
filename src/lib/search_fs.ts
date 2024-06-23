@@ -14,7 +14,7 @@ export interface Search_Fs_Options {
 	/**
 	 * An array of file suffixes to include.
 	 */
-	file_filter?: File_Filter | File_Filter[];
+	file_filter?: File_Filter | File_Filter[] | null;
 	/**
 	 * Pass `null` or `false` to speed things up at the cost of volatile ordering.
 	 */
@@ -29,10 +29,10 @@ export interface Search_Fs_Options {
 	cwd?: string | null;
 }
 
-export const search_fs = async (
+export const search_fs = (
 	dir: string,
 	options: Search_Fs_Options = EMPTY_OBJECT,
-): Promise<Resolved_Path[]> => {
+): Resolved_Path[] => {
 	const {
 		filter,
 		file_filter,

@@ -171,7 +171,7 @@ test('resolve_input_files', async () => {
 		input_path: 'fake/nomatches',
 		root_dir: process.cwd(),
 	};
-	const result = await resolve_input_files([a, b, c, d, e, f], async (id) => test_files[id]);
+	const result = resolve_input_files([a, b, c, d, e, f], (id) => test_files[id]);
 	const resolved_input_files = [
 		{id: a.id, input_path: a.input_path, resolved_input_path: a},
 		{id: b.id, input_path: b.input_path, resolved_input_path: b},

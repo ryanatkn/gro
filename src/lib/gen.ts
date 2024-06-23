@@ -275,7 +275,7 @@ export const find_genfiles = async (
 	// Check which extension variation works - if it's a directory, prefer others first!
 	const timing_to_resolve_input_paths = timings?.start('resolve input paths');
 	const {resolved_input_paths, resolved_input_paths_by_input_path, unmapped_input_paths} =
-		await resolve_input_paths(input_paths, root_dirs, extensions);
+		resolve_input_paths(input_paths, root_dirs, extensions);
 	timing_to_resolve_input_paths?.();
 
 	// Error if any input path could not be mapped.
@@ -299,7 +299,7 @@ export const find_genfiles = async (
 		resolved_input_files_by_input_path,
 		resolved_input_files_by_root_dir,
 		input_directories_with_no_files,
-	} = await resolve_input_files(resolved_input_paths, (id, options) =>
+	} = resolve_input_files(resolved_input_paths, (id, options) =>
 		search_fs(id, {
 			...options,
 			filter: config.search_filters,
