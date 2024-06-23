@@ -11,24 +11,24 @@ test('load_config', async () => {
 
 test('DEFAULT_SEARCH_EXCLUDER', () => {
 	const assert_excludes = (dirname: string) => {
-		assert.ok(DEFAULT_SEARCH_EXCLUDER.test(`a/${dirname}/c/d`), 'should exclude: ' + dirname);
 		assert.ok(DEFAULT_SEARCH_EXCLUDER.test(`a/${dirname}/c`), 'should exclude: ' + dirname);
+		assert.ok(DEFAULT_SEARCH_EXCLUDER.test(`a/${dirname}/c/d.js`), 'should exclude: ' + dirname);
 		assert.ok(DEFAULT_SEARCH_EXCLUDER.test(`a/${dirname}/`), 'should exclude: ' + dirname);
 		assert.ok(DEFAULT_SEARCH_EXCLUDER.test(`a/${dirname}`), 'should exclude: ' + dirname);
-		assert.ok(DEFAULT_SEARCH_EXCLUDER.test(`/a/${dirname}/c/d`), 'should exclude: ' + dirname);
 		assert.ok(DEFAULT_SEARCH_EXCLUDER.test(`/a/${dirname}/c`), 'should exclude: ' + dirname);
+		assert.ok(DEFAULT_SEARCH_EXCLUDER.test(`/a/${dirname}/c/d.js`), 'should exclude: ' + dirname);
 		assert.ok(DEFAULT_SEARCH_EXCLUDER.test(`/a/${dirname}/`), 'should exclude: ' + dirname);
 		assert.ok(DEFAULT_SEARCH_EXCLUDER.test(`/a/${dirname}`), 'should exclude: ' + dirname);
-		assert.ok(DEFAULT_SEARCH_EXCLUDER.test(`/${dirname}/a/b`), 'should exclude: ' + dirname);
 		assert.ok(DEFAULT_SEARCH_EXCLUDER.test(`/${dirname}/a`), 'should exclude: ' + dirname);
+		assert.ok(DEFAULT_SEARCH_EXCLUDER.test(`/${dirname}/a/b.js`), 'should exclude: ' + dirname);
 		assert.ok(DEFAULT_SEARCH_EXCLUDER.test(`/${dirname}/`), 'should exclude: ' + dirname);
 		assert.ok(DEFAULT_SEARCH_EXCLUDER.test(`/${dirname}`), 'should exclude: ' + dirname);
-		assert.ok(DEFAULT_SEARCH_EXCLUDER.test(`./${dirname}/a/b`), 'should exclude: ' + dirname);
 		assert.ok(DEFAULT_SEARCH_EXCLUDER.test(`./${dirname}/a`), 'should exclude: ' + dirname);
+		assert.ok(DEFAULT_SEARCH_EXCLUDER.test(`./${dirname}/a/b.js`), 'should exclude: ' + dirname);
 		assert.ok(DEFAULT_SEARCH_EXCLUDER.test(`./${dirname}/`), 'should exclude: ' + dirname);
 		assert.ok(DEFAULT_SEARCH_EXCLUDER.test(`./${dirname}`), 'should exclude: ' + dirname);
-		assert.ok(DEFAULT_SEARCH_EXCLUDER.test(`${dirname}/a/b`), 'should exclude: ' + dirname);
 		assert.ok(DEFAULT_SEARCH_EXCLUDER.test(`${dirname}/a`), 'should exclude: ' + dirname);
+		assert.ok(DEFAULT_SEARCH_EXCLUDER.test(`${dirname}/a/b.js`), 'should exclude: ' + dirname);
 		assert.ok(DEFAULT_SEARCH_EXCLUDER.test(`${dirname}/`), 'should exclude: ' + dirname);
 		assert.ok(DEFAULT_SEARCH_EXCLUDER.test(`${dirname}`), 'should exclude: ' + dirname);
 	};
