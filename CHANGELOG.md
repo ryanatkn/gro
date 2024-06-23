@@ -251,7 +251,7 @@
 
 ### Minor Changes
 
-- upgrade node@20.15 ([#441](https://github.com/ryanatkn/gro/pull/441))
+- upgrade node@20.10 ([#441](https://github.com/ryanatkn/gro/pull/441))
 
 ### Patch Changes
 
