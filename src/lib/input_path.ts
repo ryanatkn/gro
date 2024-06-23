@@ -211,11 +211,11 @@ export const resolve_input_files = async (
 		const {input_path, id, is_directory} = resolved_input_path;
 		if (is_directory) {
 			const files = await custom_search_fs(id, {include_directories: true}); // eslint-disable-line no-await-in-loop
-			if (files.size) {
+			if (files.length) {
 				const path_ids: Path_Id[] = [];
 				let has_files = false;
-				for (const [path, path_info] of files) {
-					if (path_info.is_directory) continue;
+				for (const {path, is_directory} of files) {
+					if (is_directory) continue;
 					has_files = true;
 					const path_id = join(id, path);
 					if (!existing_path_ids.has(path_id)) {

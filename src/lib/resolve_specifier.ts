@@ -1,4 +1,4 @@
-import {extname, join, relative} from 'node:path';
+import {extname, isAbsolute, join, relative} from 'node:path';
 
 import {replace_extension} from './paths.js';
 import {exists} from './fs.js';
@@ -20,7 +20,7 @@ export interface Resolved_Specifier {
  * @returns
  */
 export const resolve_specifier = async (path: string, dir: string): Promise<Resolved_Specifier> => {
-	const absolute_path = path[0] === '/' ? path : join(dir, path);
+	const absolute_path = isAbsolute(path) ? path : join(dir, path);
 
 	let mapped_path;
 	let path_id;

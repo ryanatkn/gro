@@ -8,6 +8,10 @@ export interface Path_Info {
 	is_directory: boolean;
 }
 
+export interface Resolved_Path extends Path_Info {
+	path: string;
+}
+
 export interface Path_Filter {
 	(path: string, is_directory: boolean): boolean;
 }
