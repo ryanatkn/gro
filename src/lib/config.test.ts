@@ -9,7 +9,6 @@ test('load_config', async () => {
 });
 
 test('DEFAULT_SEARCH_EXCLUDER', () => {
-	console.log(`DEFAULT_SEARCH_EXCLUDER`, DEFAULT_SEARCH_EXCLUDER);
 	assert.ok(DEFAULT_SEARCH_EXCLUDER.test('a/node_modules/c/d'));
 	assert.ok(DEFAULT_SEARCH_EXCLUDER.test('a/node_modules/c'));
 	assert.ok(DEFAULT_SEARCH_EXCLUDER.test('a/node_modules/'));
