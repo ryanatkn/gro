@@ -84,7 +84,7 @@ const crawl = (
 				if (include_directories) {
 					paths.push({path, id: dir_id, is_directory: true});
 				}
-				crawl(dir_id, paths, filters, file_filter, include_directories, path); // eslint-disable-line no-await-in-loop
+				crawl(dir_id, paths, filters, file_filter, include_directories, path);
 			} else if (!file_filter || file_filter.every((f) => f(id))) {
 				paths.push({path, id, is_directory: false});
 			}
