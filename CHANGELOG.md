@@ -1,5 +1,11 @@
 # @ryanatkn/gro
 
+## 0.120.1
+
+### Patch Changes
+
+- fix search options for tasks and genfiles ([f17187a](https://github.com/ryanatkn/gro/commit/f17187a))
+
 ## 0.120.0
 
 ### Minor Changes
