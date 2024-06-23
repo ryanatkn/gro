@@ -18,7 +18,7 @@ export const package_json = {
 	bugs: 'https://github.com/ryanatkn/gro/issues',
 	funding: 'https://www.ryanatkn.com/funding',
 	type: 'module',
-	engines: {node: '>=20.10'},
+	engines: {node: '>=20.15'},
 	scripts: {
 		build:
 			'rm -rf .gro dist && svelte-kit sync && svelte-package && chmod +x ./dist/gro.js && npm link -f',
