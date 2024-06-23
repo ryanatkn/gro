@@ -4,10 +4,9 @@ import {red, blue} from 'kleur/colors';
 import type {WrittenConfig} from '@changesets/types';
 import {readFile, writeFile} from 'node:fs/promises';
 import {join} from 'node:path';
-import {readdir} from 'node:fs/promises';
+import {existsSync, readdirSync} from 'node:fs';
 
 import {Task_Error, type Task} from './task.js';
-import {exists} from './fs.js';
 import {load_package_json} from './package_json.js';
 import {find_cli, spawn_cli} from './cli.js';
 import {Git_Origin, git_check_fully_staged_workspace, git_push_to_create} from './git.js';
@@ -90,7 +89,7 @@ export const task: Task<Args> = {
 
 		const path = join(dir, 'config.json');
 
-		const inited = await exists(path);
+		const inited = existsSync(path);
 
 		if (!inited) {
 			await spawn_cli('changeset', ['init']);
@@ -144,9 +143,9 @@ const create_changeset_adder = async (
 	message: string,
 	bump: Changeset_Bump,
 ) => {
-	const filenames_before = await readdir(dir);
+	const filenames_before = readdirSync(dir);
 	return async () => {
-		const filenames_after = await readdir(dir);
+		const filenames_after = readdirSync(dir);
 		const filenames_added = filenames_after.filter((p) => !filenames_before.includes(p));
 		if (!filenames_added.length) {
 			throw Error('expected to find a new changeset file');

@@ -1,15 +1,15 @@
 import type {SpawnOptions} from 'node:child_process';
 import {spawn, spawn_out, type Spawn_Result} from '@ryanatkn/belt/process.js';
 import {join} from 'node:path';
+import {existsSync} from 'node:fs';
 
-import {exists} from './fs.js';
 import {NODE_MODULES_DIRNAME} from './path_constants.js';
 
 /**
  * Looks for the CLI `name`, first local to the cwd and then globally.
  */
 export const find_cli = async (name: string): Promise<'local' | 'global' | null> => {
-	if (await exists(join(NODE_MODULES_DIRNAME, `.bin/${name}`))) {
+	if (existsSync(join(NODE_MODULES_DIRNAME, `.bin/${name}`))) {
 		return 'local';
 	}
 	const {stdout} = await spawn_out('which', [name]);

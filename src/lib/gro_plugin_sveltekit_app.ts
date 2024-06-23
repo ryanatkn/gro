@@ -1,10 +1,10 @@
 import {spawn_process, type Spawned_Process} from '@ryanatkn/belt/process.js';
 import {cp, mkdir, rm, writeFile} from 'node:fs/promises';
 import {dirname, join} from 'node:path';
+import {existsSync, } from 'node:fs';
 
 import type {Plugin, Plugin_Context} from './plugin.js';
 import {print_command_args, serialize_args, to_forwarded_args} from './args.js';
-import {exists} from './fs.js';
 import {serialize_package_json, type Map_Package_Json, load_package_json} from './package_json.js';
 import {Task_Error} from './task.js';
 import {spawn_cli} from './cli.js';
@@ -174,7 +174,7 @@ const copy_temporarily = async (
 	const path = join(dest_dir, dest_base_dir, source_path);
 	const dir = dirname(path);
 
-	const dir_already_exists = await exists(dir);
+	const dir_already_exists = existsSync(dir);
 	let root_created_dir: string | undefined;
 	if (!dir_already_exists) {
 		root_created_dir = await to_root_dir_that_doesnt_exist(dir);
@@ -182,7 +182,7 @@ const copy_temporarily = async (
 		await mkdir(dir, {recursive: true});
 	}
 
-	const path_already_exists = await exists(path);
+	const path_already_exists = existsSync(path);
 	if (!path_already_exists) {
 		await cp(source_path, path, {recursive: true, filter});
 	}
@@ -207,7 +207,7 @@ const copy_temporarily = async (
 const create_temporarily = async (path: string, contents: string): Promise<Cleanup> => {
 	const dir = dirname(path);
 
-	const dir_already_exists = await exists(dir);
+	const dir_already_exists = existsSync(dir);
 	let root_created_dir: string | undefined;
 	if (!dir_already_exists) {
 		root_created_dir = await to_root_dir_that_doesnt_exist(dir);
@@ -215,7 +215,7 @@ const create_temporarily = async (path: string, contents: string): Promise<Clean
 		await mkdir(dir, {recursive: true});
 	}
 
-	const path_already_exists = await exists(path);
+	const path_already_exists = existsSync(path);
 	if (!path_already_exists) {
 		await writeFile(path, contents, 'utf8');
 	}
@@ -240,7 +240,7 @@ const to_root_dir_that_doesnt_exist = async (dir: string): Promise<string | unde
 	let d = dir;
 	do {
 		// eslint-disable-next-line no-await-in-loop
-		if (await exists(d)) {
+		if (existsSync(d)) {
 			return prev;
 		}
 		prev = d;

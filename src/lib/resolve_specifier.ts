@@ -1,7 +1,7 @@
 import {extname, isAbsolute, join, relative} from 'node:path';
+import {existsSync, } from 'node:fs';
 
 import {replace_extension} from './paths.js';
-import {exists} from './fs.js';
 import type {Path_Id} from './path.js';
 
 export interface Resolved_Specifier {
@@ -30,7 +30,7 @@ export const resolve_specifier = async (path: string, dir: string): Promise<Reso
 	const is_js = ext === '.js';
 	const is_ts = ext === '.ts';
 
-	if (!is_js && !is_ts && (await exists(absolute_path))) {
+	if (!is_js && !is_ts && (existsSync(absolute_path))) {
 		// unrecognized extension and the file exists
 		mapped_path = absolute_path;
 		path_id = absolute_path;
@@ -43,7 +43,7 @@ export const resolve_specifier = async (path: string, dir: string): Promise<Reso
 		// extensionless, or js that points to ts, or just js
 		const js_id = is_js ? absolute_path : absolute_path + '.js';
 		const ts_id = is_js ? replace_extension(absolute_path, '.ts') : absolute_path + '.ts';
-		if (!(await exists(ts_id)) && (await exists(js_id))) {
+		if (!(existsSync(ts_id)) && (existsSync(js_id))) {
 			mapped_path = js_id;
 			path_id = js_id;
 			namespace = 'sveltekit_local_imports_js';

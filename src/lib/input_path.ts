@@ -7,7 +7,6 @@ import type {Flavored} from '@ryanatkn/belt/types.js';
 
 import {GRO_PACKAGE_DIR, GRO_DIST_DIR} from './paths.js';
 import type {Path_Info, Path_Id} from './path.js';
-import {exists} from './fs.js';
 import {search_fs} from './search_fs.js';
 import {TASK_FILE_SUFFIX_JS} from './task.js';
 
@@ -142,7 +141,7 @@ export const resolve_input_paths = async (
 
 		// Find the first existing file path or fallback to the first directory path.
 		for (const possible_path of possible_paths) {
-			if (!(await exists(possible_path.id))) continue; // eslint-disable-line no-await-in-loop
+			if (!(existsSync(possible_path.id))) continue; // eslint-disable-line no-await-in-loop
 			const stats = await stat(possible_path.id); // eslint-disable-line no-await-in-loop
 			if (stats.isDirectory()) {
 				found_dirs ??= [];

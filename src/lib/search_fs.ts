@@ -2,10 +2,9 @@ import {EMPTY_OBJECT} from '@ryanatkn/belt/object.js';
 import {to_array} from '@ryanatkn/belt/array.js';
 import {ensure_end} from '@ryanatkn/belt/string.js';
 import {isAbsolute, join} from 'node:path';
-import {readdirSync} from 'node:fs';
+import {existsSync, readdirSync} from 'node:fs';
 
 import type {File_Filter, Resolved_Path, Path_Filter} from './path.js';
-import {exists} from './fs.js';
 
 export interface Search_Fs_Options {
 	/**
@@ -51,7 +50,7 @@ export const search_fs = async (
 			? undefined
 			: to_array(file_filter);
 
-	if (!(await exists(final_dir))) return [];
+	if (!(existsSync(final_dir))) return [];
 
 	const paths: Resolved_Path[] = [];
 	crawl(final_dir, paths, filters, file_filters, include_directories, null);

@@ -1,4 +1,5 @@
 import {join, resolve} from 'node:path';
+import {existsSync} from 'node:fs';
 
 import {GRO_DIST_DIR, IS_THIS_GRO, paths} from './paths.js';
 import {
@@ -10,7 +11,6 @@ import {
 } from './path_constants.js';
 import create_default_config from './gro.config.default.js';
 import type {Create_Config_Plugins} from './plugin.js';
-import {exists} from './fs.js';
 import type {Map_Package_Json} from './package_json.js';
 import type {Path_Filter} from './path.js';
 
@@ -81,7 +81,7 @@ export const load_config = async (dir = paths.root): Promise<Gro_Config> => {
 	const default_config = await create_default_config(create_empty_config());
 	const config_path = join(dir, GRO_CONFIG_PATH);
 	let config: Gro_Config;
-	if (await exists(config_path)) {
+	if (existsSync(config_path)) {
 		const config_module = await import(config_path);
 		validate_config_module(config_module, config_path);
 		config =
