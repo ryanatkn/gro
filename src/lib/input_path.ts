@@ -240,7 +240,7 @@ export const resolve_input_files = (
 		}, new Map<Path_Id, Resolved_Input_File[]>()),
 		input_directories_with_no_files: Array.from(
 			new Set(resolved_input_paths.map((p) => p.input_path)).difference(
-				new Set(resolved_input_files.map((f) => f.input_path)),
+				new Set(resolved_input_files.map((f) => [f.input_path, f.id]).flat()), // also remove ids to catch any files that map to input paths
 			),
 		),
 	};
