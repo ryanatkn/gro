@@ -8,6 +8,7 @@ import {
 	resolve_input_files,
 	get_possible_paths,
 	type Resolved_Input_Path,
+	type Resolved_Input_File,
 } from './input_path.js';
 import {GRO_DIST_DIR, paths} from './paths.js';
 import type {Resolved_Path} from './path.js';
@@ -172,7 +173,7 @@ test('resolve_input_files', async () => {
 		root_dir: process.cwd(),
 	};
 	const result = resolve_input_files([a, b, c, d, e, f], (id) => test_files[id]);
-	const resolved_input_files = [
+	const resolved_input_files: Resolved_Input_File[] = [
 		{id: a.id, input_path: a.input_path, resolved_input_path: a},
 		{id: b.id, input_path: b.input_path, resolved_input_path: b},
 		{id: 'fake/test3/a.ts', input_path: c.input_path, resolved_input_path: c},
