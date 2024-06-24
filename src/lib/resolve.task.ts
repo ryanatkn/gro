@@ -11,7 +11,7 @@ export const Args = z
 export type Args = z.infer<typeof Args>;
 
 export const task: Task<Args> = {
-	summary: 'diagnostic that logs the info resolved from the filesystem for the given input paths',
+	summary: 'diagnostic that logs resolved filesystem info for the given input paths',
 	Args,
 	run: async ({args, config, log}): Promise<void> => {
 		const {_} = args;
