@@ -43,7 +43,6 @@ test('load_tasks basic behavior', async () => {
 		[resolve('src/lib')],
 		create_empty_config(),
 	);
-	console.log(`found`, found);
 	assert.ok(found.ok);
 	const result = await load_tasks(found.value);
 	assert.ok(result.ok);
