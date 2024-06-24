@@ -178,7 +178,6 @@ export const resolve_input_paths = (
 
 export interface Resolved_Input_Files {
 	resolved_input_files: Resolved_Input_File[];
-	resolved_input_files_by_input_path: Map<Input_Path, Resolved_Input_File[]>;
 	resolved_input_files_by_root_dir: Map<Path_Id, Resolved_Input_File[]>;
 	input_directories_with_no_files: Resolved_Input_Path[];
 }
@@ -192,7 +191,6 @@ export const resolve_input_files = (
 	custom_search_fs: (dir: string) => Resolved_Path[] = search_fs,
 ): Resolved_Input_Files => {
 	const resolved_input_files: Resolved_Input_File[] = [];
-	const resolved_input_files_by_input_path = new Map<Input_Path, Resolved_Input_File[]>();
 	const input_directories_with_no_files: Resolved_Input_Path[] = [];
 	const existing_path_ids = new Set<Path_Id>();
 	// TODO parallelize but would need to de-dupe and retain order
@@ -223,7 +221,6 @@ export const resolve_input_files = (
 						resolved_input_files.push(resolved_input_file);
 						resolved_input_files_for_input_path.push(resolved_input_file);
 					}
-					resolved_input_files_by_input_path.set(input_path, resolved_input_files_for_input_path);
 				}
 				if (!has_files) {
 					input_directories_with_no_files.push(resolved_input_path);
@@ -236,12 +233,12 @@ export const resolve_input_files = (
 			existing_path_ids.add(id);
 			const resolved_input_file: Resolved_Input_File = {id, input_path, resolved_input_path};
 			resolved_input_files.push(resolved_input_file);
-			resolved_input_files_by_input_path.set(input_path, [resolved_input_file]);
 		}
 	}
+	console.log(`resolved_input_files`, resolved_input_files);
+	console.log(`input_directories_with_no_files`, input_directories_with_no_files);
 	return {
 		resolved_input_files,
-		resolved_input_files_by_input_path,
 		resolved_input_files_by_root_dir: resolved_input_files.reduce((map, resolved_input_file) => {
 			const {root_dir} = resolved_input_file.resolved_input_path;
 			if (map.has(root_dir)) {
