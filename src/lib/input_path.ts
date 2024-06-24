@@ -182,6 +182,9 @@ export interface Resolved_Input_Files {
 	input_directories_with_no_files: Resolved_Input_Path[];
 }
 
+// TODO BLOCK the issue is that we need to be iterating based on input paths, or otherwise figure out which input paths have no associated input files --
+// the point is that not every `Resolved_Input_Path` needs to have files, but every input path does
+
 /**
  * Finds all of the matching files for the given input paths.
  * De-dupes source ids.
@@ -194,9 +197,11 @@ export const resolve_input_files = (
 	const input_directories_with_no_files: Resolved_Input_Path[] = [];
 	const existing_path_ids = new Set<Path_Id>();
 	// TODO parallelize but would need to de-dupe and retain order
+	console.log(`[resolve_input_files] resolved_input_paths`, resolved_input_paths);
 	for (const resolved_input_path of resolved_input_paths) {
 		const {input_path, id, is_directory} = resolved_input_path;
 		if (is_directory) {
+			// Handle input paths that resolve to directories.
 			const files = custom_search_fs(id);
 			if (files.length) {
 				const path_ids: Path_Id[] = [];
@@ -230,6 +235,7 @@ export const resolve_input_files = (
 				input_directories_with_no_files.push(resolved_input_path);
 			}
 		} else if (!existing_path_ids.has(id)) {
+			// Handle input paths that resolve to files.
 			existing_path_ids.add(id);
 			const resolved_input_file: Resolved_Input_File = {id, input_path, resolved_input_path};
 			resolved_input_files.push(resolved_input_file);
