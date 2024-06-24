@@ -193,7 +193,7 @@ test('resolve_input_files', async () => {
 				],
 			],
 		]),
-		input_directories_with_no_files: [f],
+		input_directories_with_no_files: [f.input_path],
 	});
 });
 
