@@ -191,7 +191,7 @@ export interface Resolved_Input_Files {
  */
 export const resolve_input_files = (
 	resolved_input_paths: Resolved_Input_Path[],
-	custom_search_fs: (dir: string) => Resolved_Path[] = search_fs,
+	search: (dir: string) => Resolved_Path[] = search_fs,
 ): Resolved_Input_Files => {
 	const resolved_input_files: Resolved_Input_File[] = [];
 	const input_directories_with_no_files: Resolved_Input_Path[] = [];
@@ -202,7 +202,7 @@ export const resolve_input_files = (
 		const {input_path, id, is_directory} = resolved_input_path;
 		if (is_directory) {
 			// Handle input paths that resolve to directories.
-			const files = custom_search_fs(id);
+			const files = search(id);
 			if (files.length) {
 				const path_ids: Path_Id[] = [];
 				let has_files = false;
