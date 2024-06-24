@@ -179,11 +179,8 @@ export const resolve_input_paths = (
 export interface Resolved_Input_Files {
 	resolved_input_files: Resolved_Input_File[];
 	resolved_input_files_by_root_dir: Map<Path_Id, Resolved_Input_File[]>;
-	input_directories_with_no_files: Resolved_Input_Path[];
+	input_directories_with_no_files: Input_Path[];
 }
-
-// TODO BLOCK the issue is that we need to be iterating based on input paths, or otherwise figure out which input paths have no associated input files --
-// the point is that not every `Resolved_Input_Path` needs to have files, but every input path does (so the names are weird)
 
 /**
  * Finds all of the matching files for the given input paths.
@@ -194,45 +191,34 @@ export const resolve_input_files = (
 	search: (dir: string) => Resolved_Path[] = search_fs,
 ): Resolved_Input_Files => {
 	const resolved_input_files: Resolved_Input_File[] = [];
-	const input_directories_with_no_files: Resolved_Input_Path[] = [];
+	// Add all input paths initially, and remove each when resolved to a file.
 	const existing_path_ids = new Set<Path_Id>();
 	// TODO parallelize but would need to de-dupe and retain order
-	console.log(`[resolve_input_files] resolved_input_paths`, resolved_input_paths);
 	for (const resolved_input_path of resolved_input_paths) {
 		const {input_path, id, is_directory} = resolved_input_path;
 		if (is_directory) {
 			// Handle input paths that resolve to directories.
 			const files = search(id);
-			if (files.length) {
-				const path_ids: Path_Id[] = [];
-				let has_files = false;
-				for (const {path, is_directory} of files) {
-					if (is_directory) continue;
-					has_files = true;
-					const path_id = join(id, path);
-					if (!existing_path_ids.has(path_id)) {
-						existing_path_ids.add(path_id);
-						path_ids.push(path_id);
-					}
+			if (!files.length) continue;
+			const path_ids: Path_Id[] = [];
+			for (const {path, is_directory} of files) {
+				if (is_directory) continue;
+				const path_id = join(id, path);
+				if (!existing_path_ids.has(path_id)) {
+					existing_path_ids.add(path_id);
+					path_ids.push(path_id);
 				}
-				if (path_ids.length) {
-					const resolved_input_files_for_input_path: Resolved_Input_File[] = [];
-					for (const path_id of path_ids) {
-						const resolved_input_file: Resolved_Input_File = {
-							id: path_id,
-							input_path,
-							resolved_input_path,
-						};
-						resolved_input_files.push(resolved_input_file);
-						resolved_input_files_for_input_path.push(resolved_input_file);
-					}
-				}
-				if (!has_files) {
-					input_directories_with_no_files.push(resolved_input_path);
-				}
-				// do callers ever need `input_directories_with_duplicate_files`?
-			} else {
-				input_directories_with_no_files.push(resolved_input_path);
+			}
+			if (!path_ids.length) continue;
+			const resolved_input_files_for_input_path: Resolved_Input_File[] = [];
+			for (const path_id of path_ids) {
+				const resolved_input_file: Resolved_Input_File = {
+					id: path_id,
+					input_path,
+					resolved_input_path,
+				};
+				resolved_input_files.push(resolved_input_file);
+				resolved_input_files_for_input_path.push(resolved_input_file);
 			}
 		} else if (!existing_path_ids.has(id)) {
 			// Handle input paths that resolve to files.
@@ -241,8 +227,6 @@ export const resolve_input_files = (
 			resolved_input_files.push(resolved_input_file);
 		}
 	}
-	console.log(`resolved_input_files`, resolved_input_files);
-	console.log(`input_directories_with_no_files`, input_directories_with_no_files);
 	return {
 		resolved_input_files,
 		resolved_input_files_by_root_dir: resolved_input_files.reduce((map, resolved_input_file) => {
@@ -254,6 +238,10 @@ export const resolve_input_files = (
 			}
 			return map;
 		}, new Map<Path_Id, Resolved_Input_File[]>()),
-		input_directories_with_no_files,
+		input_directories_with_no_files: Array.from(
+			new Set(resolved_input_paths.map((p) => p.input_path)).difference(
+				new Set(resolved_input_files.map((f) => f.input_path)),
+			),
+		),
 	};
 };

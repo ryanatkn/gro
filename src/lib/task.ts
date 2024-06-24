@@ -91,7 +91,7 @@ export type Find_Modules_Failure =
 	  }
 	| {
 			type: 'input_directories_with_no_files';
-			input_directories_with_no_files: Resolved_Input_Path[];
+			input_directories_with_no_files: Input_Path[];
 			resolved_input_files: Resolved_Input_File[];
 			resolved_input_files_by_root_dir: Map<Path_Id, Resolved_Input_File[]>;
 			resolved_input_paths: Resolved_Input_Path[];
@@ -155,7 +155,7 @@ export const find_tasks = (
 			resolved_input_paths,
 			input_paths,
 			task_root_dirs,
-			reasons: input_directories_with_no_files.map(({input_path}) =>
+			reasons: input_directories_with_no_files.map((input_path) =>
 				red(`Input directory contains no matching files: ${print_path(input_path)}`),
 			),
 		};
