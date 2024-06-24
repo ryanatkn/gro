@@ -1,5 +1,16 @@
 # @ryanatkn/gro
 
+## 0.122.0
+
+### Minor Changes
+
+- remove `resolved_input_paths_by_input_path` and `resolved_input_files_by_input_path` ([#471](https://github.com/ryanatkn/gro/pull/471))
+- upgrade `@ryanatkn/belt@0.21` ([46a03e8](https://github.com/ryanatkn/gro/commit/46a03e8))
+
+### Patch Changes
+
+- fix running `gro` with no args and no local tasks ([#471](https://github.com/ryanatkn/gro/pull/471))
+
 ## 0.121.1
 
 ### Patch Changes
