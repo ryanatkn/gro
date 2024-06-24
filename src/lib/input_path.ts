@@ -114,7 +114,6 @@ export interface Resolved_Input_File {
 
 export interface Resolved_Input_Paths {
 	resolved_input_paths: Resolved_Input_Path[];
-	resolved_input_paths_by_input_path: Map<Input_Path, Resolved_Input_Path[]>;
 	possible_paths_by_input_path: Map<Input_Path, Possible_Path[]>;
 	unmapped_input_paths: Input_Path[];
 }
@@ -172,14 +171,6 @@ export const resolve_input_paths = (
 	}
 	return {
 		resolved_input_paths,
-		resolved_input_paths_by_input_path: resolved_input_paths.reduce((map, resolved_input_path) => {
-			if (map.has(resolved_input_path.input_path)) {
-				map.get(resolved_input_path.input_path)!.push(resolved_input_path);
-			} else {
-				map.set(resolved_input_path.input_path, [resolved_input_path]);
-			}
-			return map;
-		}, new Map<Input_Path, Resolved_Input_Path[]>()),
 		possible_paths_by_input_path,
 		unmapped_input_paths,
 	};

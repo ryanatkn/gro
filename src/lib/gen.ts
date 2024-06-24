@@ -238,7 +238,6 @@ export interface Found_Genfiles {
 	resolved_input_files_by_input_path: Map<Input_Path, Resolved_Input_File[]>;
 	resolved_input_files_by_root_dir: Map<Path_Id, Resolved_Input_File[]>;
 	resolved_input_paths: Resolved_Input_Path[];
-	resolved_input_paths_by_input_path: Map<Input_Path, Resolved_Input_Path[]>;
 }
 
 export type Find_Genfiles_Result = Result<{value: Found_Genfiles}, Find_Genfiles_Failure>;
@@ -247,7 +246,6 @@ export type Find_Genfiles_Failure =
 			type: 'unmapped_input_paths';
 			unmapped_input_paths: Input_Path[];
 			resolved_input_paths: Resolved_Input_Path[];
-			resolved_input_paths_by_input_path: Map<Input_Path, Resolved_Input_Path[]>;
 			reasons: string[];
 	  }
 	| {
@@ -257,7 +255,6 @@ export type Find_Genfiles_Failure =
 			resolved_input_files_by_input_path: Map<Input_Path, Resolved_Input_File[]>;
 			resolved_input_files_by_root_dir: Map<Path_Id, Resolved_Input_File[]>;
 			resolved_input_paths: Resolved_Input_Path[];
-			resolved_input_paths_by_input_path: Map<Input_Path, Resolved_Input_Path[]>;
 			reasons: string[];
 	  };
 
@@ -274,8 +271,11 @@ export const find_genfiles = async (
 
 	// Check which extension variation works - if it's a directory, prefer others first!
 	const timing_to_resolve_input_paths = timings?.start('resolve input paths');
-	const {resolved_input_paths, resolved_input_paths_by_input_path, unmapped_input_paths} =
-		resolve_input_paths(input_paths, root_dirs, extensions);
+	const {resolved_input_paths, unmapped_input_paths} = resolve_input_paths(
+		input_paths,
+		root_dirs,
+		extensions,
+	);
 	timing_to_resolve_input_paths?.();
 
 	// Error if any input path could not be mapped.
@@ -285,7 +285,6 @@ export const find_genfiles = async (
 			type: 'unmapped_input_paths',
 			unmapped_input_paths,
 			resolved_input_paths,
-			resolved_input_paths_by_input_path,
 			reasons: unmapped_input_paths.map((input_path) =>
 				red(`Input path ${print_path(input_path)} cannot be mapped to a file or directory.`),
 			),
@@ -317,7 +316,6 @@ export const find_genfiles = async (
 			resolved_input_files_by_input_path,
 			resolved_input_files_by_root_dir,
 			resolved_input_paths,
-			resolved_input_paths_by_input_path,
 			reasons: input_directories_with_no_files.map(({input_path}) =>
 				red(`Input directory contains no matching files: ${print_path(input_path)}`),
 			),
@@ -331,7 +329,6 @@ export const find_genfiles = async (
 			resolved_input_files_by_input_path,
 			resolved_input_files_by_root_dir,
 			resolved_input_paths,
-			resolved_input_paths_by_input_path,
 		},
 	};
 };
