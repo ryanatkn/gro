@@ -183,7 +183,7 @@ export interface Resolved_Input_Files {
 }
 
 // TODO BLOCK the issue is that we need to be iterating based on input paths, or otherwise figure out which input paths have no associated input files --
-// the point is that not every `Resolved_Input_Path` needs to have files, but every input path does
+// the point is that not every `Resolved_Input_Path` needs to have files, but every input path does (so the names are weird)
 
 /**
  * Finds all of the matching files for the given input paths.
