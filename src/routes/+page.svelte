@@ -17,7 +17,7 @@
 
 <main class="box w_100">
 	<div class="box width_md">
-		<section class="prose box">
+		<section class="box">
 			<h1>gro</h1>
 			<a class="panel p_md box mb_xl3" title="source repo" href="https://github.com/ryanatkn/gro">
 				<img
