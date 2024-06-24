@@ -8,6 +8,7 @@ import {
 	resolve_input_files,
 	get_possible_paths,
 	type Resolved_Input_Path,
+	type Resolved_Input_File,
 } from './input_path.js';
 import {GRO_DIST_DIR, paths} from './paths.js';
 import type {Resolved_Path} from './path.js';
@@ -154,45 +155,27 @@ test('resolve_input_files', async () => {
 		root_dir: process.cwd(),
 	};
 	const d: Resolved_Input_Path = {
-		id: 'fake/',
-		is_directory: true,
-		input_path: 'fake/',
-		root_dir: process.cwd(),
-	};
-	const e: Resolved_Input_Path = {
 		id: 'fake',
 		is_directory: true,
 		input_path: 'fake',
 		root_dir: process.cwd(),
 	};
-	const f: Resolved_Input_Path = {
+	const e: Resolved_Input_Path = {
 		id: 'fake/nomatches',
 		is_directory: true,
 		input_path: 'fake/nomatches',
 		root_dir: process.cwd(),
 	};
-	const result = resolve_input_files([a, b, c, d, e, f], (id) => test_files[id]);
-	const resolved_input_files = [
+	const result = resolve_input_files([a, b, c, d, e], (id) => test_files[id]);
+	const resolved_input_files: Resolved_Input_File[] = [
 		{id: a.id, input_path: a.input_path, resolved_input_path: a},
 		{id: b.id, input_path: b.input_path, resolved_input_path: b},
 		{id: 'fake/test3/a.ts', input_path: c.input_path, resolved_input_path: c},
 		{id: 'fake/test3/b.ts', input_path: c.input_path, resolved_input_path: c},
-		{id: 'fake/test3/c.ts', input_path: e.input_path, resolved_input_path: e},
+		{id: 'fake/test3/c.ts', input_path: d.input_path, resolved_input_path: d},
 	];
 	assert.equal(result, {
 		resolved_input_files,
-		resolved_input_files_by_input_path: new Map([
-			['fake/test1.ext.ts', [{id: a.id, input_path: a.input_path, resolved_input_path: a}]],
-			['fake/test2', [{id: b.id, input_path: b.input_path, resolved_input_path: b}]],
-			[
-				'fake/test3',
-				[
-					{id: 'fake/test3/a.ts', input_path: c.input_path, resolved_input_path: c},
-					{id: 'fake/test3/b.ts', input_path: c.input_path, resolved_input_path: c},
-				],
-			],
-			['fake', [{id: 'fake/test3/c.ts', input_path: e.input_path, resolved_input_path: e}]],
-		]),
 		resolved_input_files_by_root_dir: new Map([
 			[
 				process.cwd(),
@@ -201,11 +184,11 @@ test('resolve_input_files', async () => {
 					{id: 'fake/test2.ext.ts', input_path: 'fake/test2', resolved_input_path: b},
 					{id: 'fake/test3/a.ts', input_path: 'fake/test3', resolved_input_path: c},
 					{id: 'fake/test3/b.ts', input_path: 'fake/test3', resolved_input_path: c},
-					{id: 'fake/test3/c.ts', input_path: 'fake', resolved_input_path: e},
+					{id: 'fake/test3/c.ts', input_path: 'fake', resolved_input_path: d},
 				],
 			],
 		]),
-		input_directories_with_no_files: [f],
+		input_directories_with_no_files: [e.input_path],
 	});
 });
 

@@ -73,10 +73,8 @@ export interface Found_Task {
 
 export interface Found_Tasks {
 	resolved_input_files: Resolved_Input_File[];
-	resolved_input_files_by_input_path: Map<Input_Path, Resolved_Input_File[]>;
 	resolved_input_files_by_root_dir: Map<Path_Id, Resolved_Input_File[]>;
 	resolved_input_paths: Resolved_Input_Path[];
-	resolved_input_paths_by_input_path: Map<Input_Path, Resolved_Input_Path[]>;
 	input_paths: Input_Path[];
 	task_root_dirs: Path_Id[];
 }
@@ -87,19 +85,16 @@ export type Find_Modules_Failure =
 			type: 'unmapped_input_paths';
 			unmapped_input_paths: Input_Path[];
 			resolved_input_paths: Resolved_Input_Path[];
-			resolved_input_paths_by_input_path: Map<Input_Path, Resolved_Input_Path[]>;
 			input_paths: Input_Path[];
 			task_root_dirs: Path_Id[];
 			reasons: string[];
 	  }
 	| {
 			type: 'input_directories_with_no_files';
-			input_directories_with_no_files: Resolved_Input_Path[];
+			input_directories_with_no_files: Input_Path[];
 			resolved_input_files: Resolved_Input_File[];
-			resolved_input_files_by_input_path: Map<Input_Path, Resolved_Input_File[]>;
 			resolved_input_files_by_root_dir: Map<Path_Id, Resolved_Input_File[]>;
 			resolved_input_paths: Resolved_Input_Path[];
-			resolved_input_paths_by_input_path: Map<Input_Path, Resolved_Input_Path[]>;
 			input_paths: Input_Path[];
 			task_root_dirs: Path_Id[];
 			reasons: string[];
@@ -116,8 +111,11 @@ export const find_tasks = (
 ): Find_Tasks_Result => {
 	// Check which extension variation works - if it's a directory, prefer others first!
 	const timing_to_resolve_input_paths = timings?.start('resolve input paths');
-	const {resolved_input_paths, resolved_input_paths_by_input_path, unmapped_input_paths} =
-		resolve_input_paths(input_paths, task_root_dirs, TASK_FILE_SUFFIXES);
+	const {resolved_input_paths, unmapped_input_paths} = resolve_input_paths(
+		input_paths,
+		task_root_dirs,
+		TASK_FILE_SUFFIXES,
+	);
 	timing_to_resolve_input_paths?.();
 
 	// Error if any input path could not be mapped.
@@ -127,7 +125,6 @@ export const find_tasks = (
 			type: 'unmapped_input_paths',
 			unmapped_input_paths,
 			resolved_input_paths,
-			resolved_input_paths_by_input_path,
 			input_paths,
 			task_root_dirs,
 			reasons: unmapped_input_paths.map((input_path) =>
@@ -138,17 +135,13 @@ export const find_tasks = (
 
 	// Find all of the files for any directories.
 	const timing_to_resolve_input_files = timings?.start('resolve input files');
-	const {
-		resolved_input_files,
-		resolved_input_files_by_input_path,
-		resolved_input_files_by_root_dir,
-		input_directories_with_no_files,
-	} = resolve_input_files(resolved_input_paths, (id) =>
-		search_fs(id, {
-			filter: config.search_filters,
-			file_filter: (p) => TASK_FILE_SUFFIXES.some((s) => p.endsWith(s)),
-		}),
-	);
+	const {resolved_input_files, resolved_input_files_by_root_dir, input_directories_with_no_files} =
+		resolve_input_files(resolved_input_paths, (id) =>
+			search_fs(id, {
+				filter: config.search_filters,
+				file_filter: (p) => TASK_FILE_SUFFIXES.some((s) => p.endsWith(s)),
+			}),
+		);
 	timing_to_resolve_input_files?.();
 
 	// Error if any input path has no files. (means we have an empty directory)
@@ -158,13 +151,11 @@ export const find_tasks = (
 			type: 'input_directories_with_no_files',
 			input_directories_with_no_files,
 			resolved_input_files,
-			resolved_input_files_by_input_path,
 			resolved_input_files_by_root_dir,
 			resolved_input_paths,
-			resolved_input_paths_by_input_path,
 			input_paths,
 			task_root_dirs,
-			reasons: input_directories_with_no_files.map(({input_path}) =>
+			reasons: input_directories_with_no_files.map((input_path) =>
 				red(`Input directory contains no matching files: ${print_path(input_path)}`),
 			),
 		};
@@ -174,10 +165,8 @@ export const find_tasks = (
 		ok: true,
 		value: {
 			resolved_input_files,
-			resolved_input_files_by_input_path,
 			resolved_input_files_by_root_dir,
 			resolved_input_paths,
-			resolved_input_paths_by_input_path,
 			input_paths,
 			task_root_dirs,
 		},
