@@ -21,7 +21,7 @@ export interface Gro_Config {
 	 * The `package_json` argument may be mutated, but the return value is what's used by the caller.
 	 * Returning `null` is a no-op for the caller.
 	 */
-	map_package_json: Map_Package_Json | null;
+	map_package_json: Map_Package_Json | null; // TODO BLOCK should be not nullable
 	/**
 	 * The root directories to search for tasks given implicit relative input paths.
 	 * Defaults to `./src/lib`, then the cwd, then the Gro package dist.
@@ -31,7 +31,7 @@ export interface Gro_Config {
 	 * When searching the filsystem for tasks and genfiles,
 	 * directories and files are included if they pass all of these filters.
 	 */
-	search_filters: Path_Filter | Path_Filter[] | null;
+	search_filters: Path_Filter | Path_Filter[] | null; // TODO BLOCK this should be just `Path_Filter[]`
 	// TODO `task_discovery_dirs`
 }
 
