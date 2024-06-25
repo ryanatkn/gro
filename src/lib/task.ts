@@ -4,6 +4,7 @@ import type {z} from 'zod';
 import type {Timings} from '@ryanatkn/belt/timings.js';
 import {red} from 'kleur/colors';
 import type {Result} from '@ryanatkn/belt/result.js';
+import {isAbsolute, join, relative} from 'node:path';
 
 import type {Args} from './args.js';
 import type {Path_Id} from './path.js';
@@ -48,12 +49,20 @@ export const TASK_FILE_SUFFIXES = [TASK_FILE_SUFFIX_TS, TASK_FILE_SUFFIX_JS]; //
 export const is_task_path = (path: string): boolean =>
 	path.endsWith(TASK_FILE_SUFFIX_TS) || path.endsWith(TASK_FILE_SUFFIX_JS);
 
-export const to_task_name = (id: Path_Id, task_root_dir: Path_Id): string => {
+export const to_task_name = (
+	id: Path_Id,
+	task_root_dir: Path_Id,
+	input_path: Input_Path,
+	root_path: Path_Id,
+): string => {
 	let task_name = id.startsWith(task_root_dir)
 		? strip_start(strip_start(id, task_root_dir), '/')
 		: id;
 	for (const suffix of TASK_FILE_SUFFIXES) {
 		task_name = strip_end(task_name, suffix);
+	}
+	if (isAbsolute(input_path)) {
+		return relative(root_path, join(input_path, task_name));
 	}
 	return task_name;
 };
@@ -189,14 +198,22 @@ export interface Task_Module_Meta extends Module_Meta<Task_Module> {
 export type Load_Tasks_Result = Result<{value: Loaded_Tasks}, Load_Tasks_Failure>;
 export type Load_Tasks_Failure = Load_Modules_Failure<Task_Module_Meta>;
 
-export const load_tasks = async (found_tasks: Found_Tasks): Promise<Load_Tasks_Result> => {
+export const load_tasks = async (
+	found_tasks: Found_Tasks,
+	root_path: Path_Id = process.cwd(), // TODO @multiple isn't passed in anywhere, maybe hoist to `invoke_task` and others
+): Promise<Load_Tasks_Result> => {
 	const loaded_modules = await load_modules(
 		found_tasks.resolved_input_files,
 		validate_task_module,
 		(resolved_input_file, mod): Task_Module_Meta => ({
 			id: resolved_input_file.id,
 			mod,
-			name: to_task_name(resolved_input_file.id, resolved_input_file.resolved_input_path.root_dir),
+			name: to_task_name(
+				resolved_input_file.id,
+				resolved_input_file.resolved_input_path.root_dir,
+				resolved_input_file.resolved_input_path.input_path,
+				root_path,
+			),
 		}),
 	);
 	if (!loaded_modules.ok) {
