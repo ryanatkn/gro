@@ -1,5 +1,15 @@
 # @ryanatkn/gro
 
+## 0.123.0
+
+### Minor Changes
+
+- change `to_task_name` to accept a root path ([4d843e7](https://github.com/ryanatkn/gro/commit/4d843e7))
+
+### Patch Changes
+
+- fix `resolve_input_files` corner case with multiples ([#472](https://github.com/ryanatkn/gro/pull/472))
+
 ## 0.122.0
 
 ### Minor Changes
