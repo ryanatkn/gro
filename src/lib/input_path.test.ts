@@ -116,27 +116,30 @@ test('get_possible_paths implied to be a directory by trailing slash', () => {
 
 test('resolve_input_files', async () => {
 	const test_files: Record<string, Resolved_Path[]> = {
-		'fake/test1.ext.ts': [{id: '', path: 'fake/test1.ext.ts', is_directory: false}],
-		'fake/test2.ext.ts': [{id: '', path: 'fake/test2.ext.ts', is_directory: false}],
+		'fake/test1.ext.ts': [
+			{id: 'fake/test1.ext.ts', path: 'fake/test1.ext.ts', is_directory: false},
+		],
+		'fake/test2.ext.ts': [
+			{id: 'fake/test2.ext.ts', path: 'fake/test2.ext.ts', is_directory: false},
+		],
 		'fake/test3': [
-			{id: '', path: 'fake/test3', is_directory: true},
-			{id: '', path: 'a.ts', is_directory: false},
-			{id: '', path: 'b.ts', is_directory: false},
+			{id: 'fake/test3', path: 'fake/test3', is_directory: true},
+			{id: 'a.ts', path: 'a.ts', is_directory: false},
+			{id: 'b.ts', path: 'b.ts', is_directory: false},
 		],
 		// duplicate
 		'fake/': [
-			{id: '', path: 'fake/test3', is_directory: true},
-			{id: '', path: 'test3/a.ts', is_directory: false},
+			{id: 'fake/test3', path: 'fake/test3', is_directory: true},
+			{id: 'test3/a.ts', path: 'test3/a.ts', is_directory: false},
 		],
 		// duplicate and not
 		fake: [
-			{id: '', path: 'fake/test3', is_directory: true},
-			{id: '', path: 'test3/a.ts', is_directory: false},
-			{id: '', path: 'test3/c.ts', is_directory: false},
+			{id: 'fake/test3', path: 'fake/test3', is_directory: true},
+			{id: 'test3/a.ts', path: 'test3/a.ts', is_directory: false},
+			{id: 'test3/c.ts', path: 'test3/c.ts', is_directory: false},
 		],
-		'fake/nomatches': [{id: '', path: 'fake/nomatches', is_directory: true}],
-		fake2: [{id: 'fake2/test.ext.ts', path: 'fake2/test.ext.ts', is_directory: false}],
-		fake3: [{id: 'fake3/test.ext.ts', path: 'fake3/test.ext.ts', is_directory: false}],
+		'fake/nomatches': [{id: 'fake/nomatches', path: 'fake/nomatches', is_directory: true}],
+		fake2: [{id: 'test.ext.ts', path: 'test.ext.ts', is_directory: false}],
 	};
 	const a: Resolved_Input_Path = {
 		id: 'fake/test1.ext.ts',
@@ -168,7 +171,7 @@ test('resolve_input_files', async () => {
 		input_path: 'fake/nomatches',
 		root_dir: process.cwd(),
 	};
-	// These two have the same id from different input paths where the directory is first.
+	// These two have the same id from different directory input paths.
 	const f: Resolved_Input_Path = {
 		id: 'fake2',
 		is_directory: true,
@@ -178,10 +181,10 @@ test('resolve_input_files', async () => {
 	const g: Resolved_Input_Path = {
 		id: 'fake2',
 		is_directory: true,
-		input_path: 'fake2/',
+		input_path: './fake2/',
 		root_dir: process.cwd(),
 	};
-	// These two have the same id from different input paths where the file is first.
+	// These two have the same id from different file input paths.
 	const h: Resolved_Input_Path = {
 		id: 'fake3/test.ext.ts',
 		is_directory: false,
