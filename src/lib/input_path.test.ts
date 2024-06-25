@@ -116,25 +116,30 @@ test('get_possible_paths implied to be a directory by trailing slash', () => {
 
 test('resolve_input_files', async () => {
 	const test_files: Record<string, Resolved_Path[]> = {
-		'fake/test1.ext.ts': [{id: '', path: 'fake/test1.ext.ts', is_directory: false}],
-		'fake/test2.ext.ts': [{id: '', path: 'fake/test2.ext.ts', is_directory: false}],
+		'fake/test1.ext.ts': [
+			{id: 'fake/test1.ext.ts', path: 'fake/test1.ext.ts', is_directory: false},
+		],
+		'fake/test2.ext.ts': [
+			{id: 'fake/test2.ext.ts', path: 'fake/test2.ext.ts', is_directory: false},
+		],
 		'fake/test3': [
-			{id: '', path: 'fake/test3', is_directory: true},
-			{id: '', path: 'a.ts', is_directory: false},
-			{id: '', path: 'b.ts', is_directory: false},
+			{id: 'fake/test3', path: 'fake/test3', is_directory: true},
+			{id: 'a.ts', path: 'a.ts', is_directory: false},
+			{id: 'b.ts', path: 'b.ts', is_directory: false},
 		],
 		// duplicate
 		'fake/': [
-			{id: '', path: 'fake/test3', is_directory: true},
-			{id: '', path: 'test3/a.ts', is_directory: false},
+			{id: 'fake/test3', path: 'fake/test3', is_directory: true},
+			{id: 'test3/a.ts', path: 'test3/a.ts', is_directory: false},
 		],
 		// duplicate and not
 		fake: [
-			{id: '', path: 'fake/test3', is_directory: true},
-			{id: '', path: 'test3/a.ts', is_directory: false},
-			{id: '', path: 'test3/c.ts', is_directory: false},
+			{id: 'fake/test3', path: 'fake/test3', is_directory: true},
+			{id: 'test3/a.ts', path: 'test3/a.ts', is_directory: false},
+			{id: 'test3/c.ts', path: 'test3/c.ts', is_directory: false},
 		],
-		'fake/nomatches': [{id: '', path: 'fake/nomatches', is_directory: true}],
+		'fake/nomatches': [{id: 'fake/nomatches', path: 'fake/nomatches', is_directory: true}],
+		fake2: [{id: 'test.ext.ts', path: 'test.ext.ts', is_directory: false}],
 	};
 	const a: Resolved_Input_Path = {
 		id: 'fake/test1.ext.ts',
@@ -166,13 +171,41 @@ test('resolve_input_files', async () => {
 		input_path: 'fake/nomatches',
 		root_dir: process.cwd(),
 	};
-	const result = resolve_input_files([a, b, c, d, e], (id) => test_files[id]);
+	// These two have the same id from different directory input paths.
+	const f: Resolved_Input_Path = {
+		id: 'fake2',
+		is_directory: true,
+		input_path: 'fake2',
+		root_dir: process.cwd(),
+	};
+	const g: Resolved_Input_Path = {
+		id: 'fake2',
+		is_directory: true,
+		input_path: './fake2/',
+		root_dir: process.cwd(),
+	};
+	// These two have the same id from different file input paths.
+	const h: Resolved_Input_Path = {
+		id: 'fake3/test.ext.ts',
+		is_directory: false,
+		input_path: 'fake3/test.ext.ts',
+		root_dir: process.cwd(),
+	};
+	const i: Resolved_Input_Path = {
+		id: 'fake3/test.ext.ts',
+		is_directory: false,
+		input_path: 'fake3/test',
+		root_dir: process.cwd(),
+	};
+	const result = resolve_input_files([a, b, c, d, e, f, g, h, i], (dir) => test_files[dir]);
 	const resolved_input_files: Resolved_Input_File[] = [
 		{id: a.id, input_path: a.input_path, resolved_input_path: a},
 		{id: b.id, input_path: b.input_path, resolved_input_path: b},
 		{id: 'fake/test3/a.ts', input_path: c.input_path, resolved_input_path: c},
 		{id: 'fake/test3/b.ts', input_path: c.input_path, resolved_input_path: c},
 		{id: 'fake/test3/c.ts', input_path: d.input_path, resolved_input_path: d},
+		{id: 'fake2/test.ext.ts', input_path: f.input_path, resolved_input_path: f},
+		{id: 'fake3/test.ext.ts', input_path: h.input_path, resolved_input_path: h},
 	];
 	assert.equal(result, {
 		resolved_input_files,
@@ -180,11 +213,13 @@ test('resolve_input_files', async () => {
 			[
 				process.cwd(),
 				[
-					{id: 'fake/test1.ext.ts', input_path: 'fake/test1.ext.ts', resolved_input_path: a},
-					{id: 'fake/test2.ext.ts', input_path: 'fake/test2', resolved_input_path: b},
-					{id: 'fake/test3/a.ts', input_path: 'fake/test3', resolved_input_path: c},
-					{id: 'fake/test3/b.ts', input_path: 'fake/test3', resolved_input_path: c},
-					{id: 'fake/test3/c.ts', input_path: 'fake', resolved_input_path: d},
+					{id: 'fake/test1.ext.ts', input_path: a.input_path, resolved_input_path: a},
+					{id: 'fake/test2.ext.ts', input_path: b.input_path, resolved_input_path: b},
+					{id: 'fake/test3/a.ts', input_path: c.input_path, resolved_input_path: c},
+					{id: 'fake/test3/b.ts', input_path: c.input_path, resolved_input_path: c},
+					{id: 'fake/test3/c.ts', input_path: d.input_path, resolved_input_path: d},
+					{id: 'fake2/test.ext.ts', input_path: f.input_path, resolved_input_path: f},
+					{id: 'fake3/test.ext.ts', input_path: h.input_path, resolved_input_path: h},
 				],
 			],
 		]),

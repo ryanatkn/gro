@@ -193,6 +193,14 @@ export const resolve_input_files = (
 	const resolved_input_files: Resolved_Input_File[] = [];
 	// Add all input paths initially, and remove each when resolved to a file.
 	const existing_path_ids = new Set<Path_Id>();
+
+	let remaining = resolved_input_paths.slice();
+	const handle_found = (input_path: Input_Path, id: Path_Id) => {
+		remaining = remaining.filter(
+			(r) => !(r.id === id || r.input_path === input_path || r.input_path === id), // `r.input_path === id` may be unnecessary
+		);
+	};
+
 	// TODO parallelize but would need to de-dupe and retain order
 	for (const resolved_input_path of resolved_input_paths) {
 		const {input_path, id, is_directory} = resolved_input_path;
@@ -208,6 +216,7 @@ export const resolve_input_files = (
 					existing_path_ids.add(path_id);
 					path_ids.push(path_id);
 				}
+				handle_found(input_path, path_id);
 			}
 			if (!path_ids.length) continue;
 			const resolved_input_files_for_input_path: Resolved_Input_File[] = [];
@@ -220,11 +229,14 @@ export const resolve_input_files = (
 				resolved_input_files.push(resolved_input_file);
 				resolved_input_files_for_input_path.push(resolved_input_file);
 			}
-		} else if (!existing_path_ids.has(id)) {
-			// Handle input paths that resolve to files.
-			existing_path_ids.add(id);
-			const resolved_input_file: Resolved_Input_File = {id, input_path, resolved_input_path};
-			resolved_input_files.push(resolved_input_file);
+		} else {
+			if (!existing_path_ids.has(id)) {
+				// Handle input paths that resolve to files.
+				existing_path_ids.add(id);
+				const resolved_input_file: Resolved_Input_File = {id, input_path, resolved_input_path};
+				resolved_input_files.push(resolved_input_file);
+			}
+			handle_found(input_path, id);
 		}
 	}
 	return {
@@ -238,10 +250,6 @@ export const resolve_input_files = (
 			}
 			return map;
 		}, new Map<Path_Id, Resolved_Input_File[]>()),
-		input_directories_with_no_files: Array.from(
-			new Set(resolved_input_paths.map((p) => p.input_path)).difference(
-				new Set(resolved_input_files.map((f) => [f.input_path, f.id]).flat()), // also remove ids to catch any files that map to input paths
-			),
-		),
+		input_directories_with_no_files: remaining.map((r) => r.input_path),
 	};
 };
