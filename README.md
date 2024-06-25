@@ -122,7 +122,7 @@ lint       run eslint
 publish    bump version, publish to npm, and git push
 reinstall  refreshes package-lock.json with the latest and cleanest deps
 release    publish and deploy
-resolve    run `gro gen`, update `package.json`, and optionally `npm i` to sync up
+resolve    diagnostic that logs resolved filesystem info for the given input paths
 run        execute a file with the loader, like `node` but works for TypeScript
 sync       run `gro gen`, update `package.json`, and optionally `npm i` to sync up
 test       run tests with uvu

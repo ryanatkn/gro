@@ -15,13 +15,16 @@ test('is_task_path basic behavior', () => {
 });
 
 test('to_task_name basic behavior', () => {
-	assert.is(to_task_name('foo.task.ts', process.cwd()), 'foo');
-	assert.is(to_task_name('bar/baz/foo.task.ts', process.cwd()), 'bar/baz/foo');
-	assert.is(to_task_name('a/b/c/foo.task.ts', 'a/b/c'), 'foo');
-	assert.is(to_task_name('a/b/c/foo.task.ts', 'a'), 'b/c/foo');
-	assert.is(to_task_name('a/b/c/foo.task.ts', 'a/b'), 'c/foo');
+	assert.is(to_task_name('foo.task.ts', process.cwd(), '', ''), 'foo');
+	assert.is(to_task_name('bar/baz/foo.task.ts', process.cwd(), '', ''), 'bar/baz/foo');
+	assert.is(to_task_name('a/b/c/foo.task.ts', 'a/b/c', '', ''), 'foo');
+	assert.is(to_task_name('a/b/c/foo.task.ts', 'a', '', ''), 'b/c/foo');
+	assert.is(to_task_name('a/b/c/foo.task.ts', 'a/b', '', ''), 'c/foo');
+	assert.is(to_task_name('/a/b/c/foo.task.ts', '/a/b', '/a/b', '/a/b/d'), '../c/foo');
+	assert.is(to_task_name('/a/b/c/foo.task.ts', '/a/b', '/a/b', '/a/b'), 'c/foo');
+	assert.is(to_task_name('/a/b/c/foo.task.ts', '/a/b', '/a/b', '/a/b/c'), 'foo');
 	assert.is(
-		to_task_name(resolve('a/b'), resolve('b')),
+		to_task_name(resolve('a/b'), resolve('b'), '', ''),
 		resolve('a/b'),
 		'falls back to the id when unresolved',
 	);

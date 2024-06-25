@@ -1,5 +1,26 @@
 # @ryanatkn/gro
 
+## 0.123.0
+
+### Minor Changes
+
+- change `to_task_name` to accept a root path ([4d843e7](https://github.com/ryanatkn/gro/commit/4d843e7))
+
+### Patch Changes
+
+- fix `resolve_input_files` corner case with multiples ([#472](https://github.com/ryanatkn/gro/pull/472))
+
+## 0.122.0
+
+### Minor Changes
+
+- remove `resolved_input_paths_by_input_path` and `resolved_input_files_by_input_path` ([#471](https://github.com/ryanatkn/gro/pull/471))
+- upgrade `@ryanatkn/belt@0.21` ([46a03e8](https://github.com/ryanatkn/gro/commit/46a03e8))
+
+### Patch Changes
+
+- fix running `gro` with no args and no local tasks ([#471](https://github.com/ryanatkn/gro/pull/471))
+
 ## 0.121.1
 
 ### Patch Changes

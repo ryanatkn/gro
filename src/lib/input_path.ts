@@ -30,7 +30,7 @@ export type Raw_Input_Path = Flavored<z.infer<typeof Raw_Input_Path>, 'Raw_Input
  */
 export const to_input_path = (
 	raw_input_path: Raw_Input_Path,
-	root_path = process.cwd(),
+	root_path = process.cwd(), // TODO @multiple isn't passed in anywhere, maybe hoist to `invoke_task` and others
 ): Input_Path => {
 	if (raw_input_path.startsWith(GRO_PACKAGE_DIR)) {
 		return GRO_DIST_DIR + strip_start(raw_input_path, GRO_PACKAGE_DIR);
@@ -42,7 +42,7 @@ export const to_input_path = (
 
 export const to_input_paths = (
 	raw_input_paths: Raw_Input_Path[],
-	root_path?: string,
+	root_path?: string, // TODO @multiple isn't passed in anywhere, maybe hoist to `invoke_task` and others
 ): Input_Path[] => raw_input_paths.map((p) => to_input_path(p, root_path));
 
 export interface Possible_Path {
@@ -114,7 +114,6 @@ export interface Resolved_Input_File {
 
 export interface Resolved_Input_Paths {
 	resolved_input_paths: Resolved_Input_Path[];
-	resolved_input_paths_by_input_path: Map<Input_Path, Resolved_Input_Path[]>;
 	possible_paths_by_input_path: Map<Input_Path, Possible_Path[]>;
 	unmapped_input_paths: Input_Path[];
 }
@@ -172,14 +171,6 @@ export const resolve_input_paths = (
 	}
 	return {
 		resolved_input_paths,
-		resolved_input_paths_by_input_path: resolved_input_paths.reduce((map, resolved_input_path) => {
-			if (map.has(resolved_input_path.input_path)) {
-				map.get(resolved_input_path.input_path)!.push(resolved_input_path);
-			} else {
-				map.set(resolved_input_path.input_path, [resolved_input_path]);
-			}
-			return map;
-		}, new Map<Input_Path, Resolved_Input_Path[]>()),
 		possible_paths_by_input_path,
 		unmapped_input_paths,
 	};
@@ -187,9 +178,8 @@ export const resolve_input_paths = (
 
 export interface Resolved_Input_Files {
 	resolved_input_files: Resolved_Input_File[];
-	resolved_input_files_by_input_path: Map<Input_Path, Resolved_Input_File[]>;
 	resolved_input_files_by_root_dir: Map<Path_Id, Resolved_Input_File[]>;
-	input_directories_with_no_files: Resolved_Input_Path[];
+	input_directories_with_no_files: Input_Path[];
 }
 
 /**
@@ -198,59 +188,59 @@ export interface Resolved_Input_Files {
  */
 export const resolve_input_files = (
 	resolved_input_paths: Resolved_Input_Path[],
-	custom_search_fs: (dir: string) => Resolved_Path[] = search_fs,
+	search: (dir: string) => Resolved_Path[] = search_fs,
 ): Resolved_Input_Files => {
 	const resolved_input_files: Resolved_Input_File[] = [];
-	const resolved_input_files_by_input_path = new Map<Input_Path, Resolved_Input_File[]>();
-	const input_directories_with_no_files: Resolved_Input_Path[] = [];
+	// Add all input paths initially, and remove each when resolved to a file.
 	const existing_path_ids = new Set<Path_Id>();
+
+	let remaining = resolved_input_paths.slice();
+	const handle_found = (input_path: Input_Path, id: Path_Id) => {
+		remaining = remaining.filter(
+			(r) => !(r.id === id || r.input_path === input_path || r.input_path === id), // `r.input_path === id` may be unnecessary
+		);
+	};
+
 	// TODO parallelize but would need to de-dupe and retain order
 	for (const resolved_input_path of resolved_input_paths) {
 		const {input_path, id, is_directory} = resolved_input_path;
 		if (is_directory) {
-			const files = custom_search_fs(id);
-			if (files.length) {
-				const path_ids: Path_Id[] = [];
-				let has_files = false;
-				for (const {path, is_directory} of files) {
-					if (is_directory) continue;
-					has_files = true;
-					const path_id = join(id, path);
-					if (!existing_path_ids.has(path_id)) {
-						existing_path_ids.add(path_id);
-						path_ids.push(path_id);
-					}
+			// Handle input paths that resolve to directories.
+			const files = search(id);
+			if (!files.length) continue;
+			const path_ids: Path_Id[] = [];
+			for (const {path, is_directory} of files) {
+				if (is_directory) continue;
+				const path_id = join(id, path);
+				if (!existing_path_ids.has(path_id)) {
+					existing_path_ids.add(path_id);
+					path_ids.push(path_id);
 				}
-				if (path_ids.length) {
-					const resolved_input_files_for_input_path: Resolved_Input_File[] = [];
-					for (const path_id of path_ids) {
-						const resolved_input_file: Resolved_Input_File = {
-							id: path_id,
-							input_path,
-							resolved_input_path,
-						};
-						resolved_input_files.push(resolved_input_file);
-						resolved_input_files_for_input_path.push(resolved_input_file);
-					}
-					resolved_input_files_by_input_path.set(input_path, resolved_input_files_for_input_path);
-				}
-				if (!has_files) {
-					input_directories_with_no_files.push(resolved_input_path);
-				}
-				// do callers ever need `input_directories_with_duplicate_files`?
-			} else {
-				input_directories_with_no_files.push(resolved_input_path);
+				handle_found(input_path, path_id);
 			}
-		} else if (!existing_path_ids.has(id)) {
-			existing_path_ids.add(id);
-			const resolved_input_file: Resolved_Input_File = {id, input_path, resolved_input_path};
-			resolved_input_files.push(resolved_input_file);
-			resolved_input_files_by_input_path.set(input_path, [resolved_input_file]);
+			if (!path_ids.length) continue;
+			const resolved_input_files_for_input_path: Resolved_Input_File[] = [];
+			for (const path_id of path_ids) {
+				const resolved_input_file: Resolved_Input_File = {
+					id: path_id,
+					input_path,
+					resolved_input_path,
+				};
+				resolved_input_files.push(resolved_input_file);
+				resolved_input_files_for_input_path.push(resolved_input_file);
+			}
+		} else {
+			if (!existing_path_ids.has(id)) {
+				// Handle input paths that resolve to files.
+				existing_path_ids.add(id);
+				const resolved_input_file: Resolved_Input_File = {id, input_path, resolved_input_path};
+				resolved_input_files.push(resolved_input_file);
+			}
+			handle_found(input_path, id);
 		}
 	}
 	return {
 		resolved_input_files,
-		resolved_input_files_by_input_path,
 		resolved_input_files_by_root_dir: resolved_input_files.reduce((map, resolved_input_file) => {
 			const {root_dir} = resolved_input_file.resolved_input_path;
 			if (map.has(root_dir)) {
@@ -260,6 +250,6 @@ export const resolve_input_files = (
 			}
 			return map;
 		}, new Map<Path_Id, Resolved_Input_File[]>()),
-		input_directories_with_no_files,
+		input_directories_with_no_files: remaining.map((r) => r.input_path),
 	};
 };

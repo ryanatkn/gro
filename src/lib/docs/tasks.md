@@ -19,7 +19,7 @@ What is a `Task`? See [`task.md`](./task.md).
 - [publish](../publish.task.ts) - bump version, publish to npm, and git push
 - [reinstall](../reinstall.task.ts) - refreshes package-lock.json with the latest and cleanest deps
 - [release](../release.task.ts) - publish and deploy
-- [resolve](../resolve.task.ts) - diagnostic that logs the info resolved from the filesystem for the given input paths
+- [resolve](../resolve.task.ts) - diagnostic that logs resolved filesystem info for the given input paths
 - [run](../run.task.ts) - execute a file with the loader, like `node` but works for TypeScript
 - [sync](../sync.task.ts) - run `gro gen`, update `package.json`, and optionally `npm i` to sync up
 - [test](../test.task.ts) - run tests with uvu
