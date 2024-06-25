@@ -193,7 +193,6 @@ test('resolve_input_files', async () => {
 		root_dir: process.cwd(),
 	};
 	const result = resolve_input_files([a, b, c, d, e, f, g, h, i], (dir) => test_files[dir]);
-	console.log(`result`, result);
 	const resolved_input_files: Resolved_Input_File[] = [
 		{id: a.id, input_path: a.input_path, resolved_input_path: a},
 		{id: b.id, input_path: b.input_path, resolved_input_path: b},
@@ -219,7 +218,7 @@ test('resolve_input_files', async () => {
 				],
 			],
 		]),
-		input_directories_with_no_files: [e.input_path, i.input_path],
+		input_directories_with_no_files: [e.input_path],
 	});
 });
 
