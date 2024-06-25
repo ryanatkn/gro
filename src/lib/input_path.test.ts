@@ -135,6 +135,8 @@ test('resolve_input_files', async () => {
 			{id: '', path: 'test3/c.ts', is_directory: false},
 		],
 		'fake/nomatches': [{id: '', path: 'fake/nomatches', is_directory: true}],
+		fake2: [{id: 'fake2/test.ext.ts', path: 'fake2/test.ext.ts', is_directory: false}],
+		fake3: [{id: 'fake3/test.ext.ts', path: 'fake3/test.ext.ts', is_directory: false}],
 	};
 	const a: Resolved_Input_Path = {
 		id: 'fake/test1.ext.ts',
@@ -168,15 +170,15 @@ test('resolve_input_files', async () => {
 	};
 	// These two have the same id from different input paths where the directory is first.
 	const f: Resolved_Input_Path = {
-		id: 'fake2/test.ext.ts',
-		is_directory: false,
+		id: 'fake2',
+		is_directory: true,
 		input_path: 'fake2',
 		root_dir: process.cwd(),
 	};
 	const g: Resolved_Input_Path = {
-		id: 'fake2/test.ext.ts',
-		is_directory: false,
-		input_path: 'fake2/test.ext.ts',
+		id: 'fake2',
+		is_directory: true,
+		input_path: 'fake2/',
 		root_dir: process.cwd(),
 	};
 	// These two have the same id from different input paths where the file is first.
@@ -189,7 +191,7 @@ test('resolve_input_files', async () => {
 	const i: Resolved_Input_Path = {
 		id: 'fake3/test.ext.ts',
 		is_directory: false,
-		input_path: 'fake3',
+		input_path: 'fake3/test',
 		root_dir: process.cwd(),
 	};
 	const result = resolve_input_files([a, b, c, d, e, f, g, h, i], (dir) => test_files[dir]);
