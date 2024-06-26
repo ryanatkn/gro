@@ -18,7 +18,7 @@ export const package_json = {
 	bugs: 'https://github.com/ryanatkn/gro/issues',
 	funding: 'https://www.ryanatkn.com/funding',
 	type: 'module',
-	engines: {node: '>=22.3'},
+	engines: {node: '>=20.12'},
 	scripts: {
 		build:
 			'rm -rf .gro dist && svelte-kit sync && svelte-package && chmod +x ./dist/gro.js && npm link -f',
@@ -38,7 +38,7 @@ export const package_json = {
 	],
 	files: ['dist'],
 	dependencies: {
-		'@ryanatkn/belt': '^0.21.0',
+		'@ryanatkn/belt': '^0.22.0',
 		chokidar: '^3.6.0',
 		dotenv: '^16.4.5',
 		'es-module-lexer': '^1.5.4',
