@@ -1,5 +1,11 @@
 # @ryanatkn/gro
 
+## 0.124.0
+
+### Minor Changes
+
+- support `node@20.12` and later ([fcd3b7e](https://github.com/ryanatkn/gro/commit/fcd3b7e))
+
 ## 0.123.0
 
 ### Minor Changes
