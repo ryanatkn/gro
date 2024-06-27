@@ -1,5 +1,5 @@
 import {z} from 'zod';
-import {green, cyan} from 'kleur/colors';
+import {green, cyan} from '@ryanatkn/belt/styletext.js';
 import {existsSync} from 'node:fs';
 
 import {Task_Error, type Task} from './task.js';

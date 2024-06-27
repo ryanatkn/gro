@@ -1,4 +1,4 @@
-import {gray, magenta} from 'kleur/colors';
+import {gray, magenta} from '@ryanatkn/belt/styletext.js';
 import mri from 'mri';
 import type {z} from 'zod';
 

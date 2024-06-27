@@ -1,4 +1,4 @@
-import {cyan, red, gray} from 'kleur/colors';
+import {cyan, red, gray} from '@ryanatkn/belt/styletext.js';
 import {System_Logger, print_log_label} from '@ryanatkn/belt/log.js';
 import {create_stopwatch, Timings} from '@ryanatkn/belt/timings.js';
 import {print_ms, print_timings} from '@ryanatkn/belt/print.js';

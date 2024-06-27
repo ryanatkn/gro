@@ -38,11 +38,10 @@ export const package_json = {
 	],
 	files: ['dist'],
 	dependencies: {
-		'@ryanatkn/belt': '^0.22.0',
+		'@ryanatkn/belt': '^0.23.0',
 		chokidar: '^3.6.0',
 		dotenv: '^16.4.5',
 		'es-module-lexer': '^1.5.4',
-		kleur: '^4.1.5',
 		mri: '^1.2.0',
 		prettier: '^3.3.2',
 		'prettier-plugin-svelte': '^3.2.5',

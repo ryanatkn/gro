@@ -1,4 +1,4 @@
-import {red, green, gray} from 'kleur/colors';
+import {red, green, gray} from '@ryanatkn/belt/styletext.js';
 import {print_ms, print_error} from '@ryanatkn/belt/print.js';
 import {plural} from '@ryanatkn/belt/string.js';
 import {z} from 'zod';

@@ -1,7 +1,7 @@
 import {join, extname, relative, basename} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {strip_end} from '@ryanatkn/belt/string.js';
-import {gray} from 'kleur/colors';
+import {gray} from '@ryanatkn/belt/styletext.js';
 
 import {
 	GRO_CONFIG_PATH,

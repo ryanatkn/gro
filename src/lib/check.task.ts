@@ -1,6 +1,6 @@
 import {z} from 'zod';
 import {spawn} from '@ryanatkn/belt/process.js';
-import {red} from 'kleur/colors';
+import {red} from '@ryanatkn/belt/styletext.js';
 
 import {Task_Error, type Task} from './task.js';
 import {git_check_clean_workspace} from './git.js';
