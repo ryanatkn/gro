@@ -30,8 +30,7 @@ export const task: Task<Args> = {
 			return;
 		}
 
-		const {run} = await import('uvu/run');
-		const {parse} = await import('uvu/parse');
+		const [{run}, {parse}] = await Promise.all([import('uvu/run'), import('uvu/parse')]);
 
 		// uvu doesn't work with esm loaders and TypeScript files,
 		// so we use its `parse` and `run` APIs directly instead of its CLI.

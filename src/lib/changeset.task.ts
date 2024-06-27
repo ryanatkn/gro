@@ -15,6 +15,8 @@ import {has_sveltekit_library} from './sveltekit_helpers.js';
 const RESTRICTED_ACCESS = 'restricted';
 const PUBLIC_ACCESS = 'public';
 
+const CHANGESET_CLI = 'changeset';
+
 const CHANGESET_DIR = '.changeset';
 
 export const Changeset_Bump = z.enum(['patch', 'minor', 'major']);
@@ -42,6 +44,7 @@ export const Args = z
 			.boolean({description: 'opt out of npm installing the changelog package'})
 			.default(false),
 		origin: Git_Origin.describe('git origin to deploy to').default('origin'),
+		changeset_cli: z.string({description: 'the changeset CLI to use'}).default(CHANGESET_CLI),
 	})
 	.strict();
 export type Args = z.infer<typeof Args>;
@@ -61,7 +64,7 @@ export const task: Task<Args> = {
 	run: async (ctx): Promise<void> => {
 		const {
 			invoke_task,
-			args: {_, minor, major, dir, access: access_arg, changelog, install, origin},
+			args: {_, minor, major, dir, access: access_arg, changelog, install, origin, changeset_cli},
 			log,
 		} = ctx;
 
@@ -72,7 +75,7 @@ export const task: Task<Args> = {
 
 		const bump: Changeset_Bump = minor ? 'minor' : major ? 'major' : 'patch';
 
-		if (!(await find_cli('changeset'))) {
+		if (!(await find_cli(changeset_cli))) {
 			throw new Task_Error(
 				'changeset command not found: install @changesets/cli locally or globally',
 			);
@@ -92,7 +95,7 @@ export const task: Task<Args> = {
 		const inited = existsSync(path);
 
 		if (!inited) {
-			await spawn_cli('changeset', ['init']);
+			await spawn_cli(changeset_cli, ['init']);
 
 			const access = access_arg ?? package_json.private ? RESTRICTED_ACCESS : PUBLIC_ACCESS;
 
@@ -120,14 +123,14 @@ export const task: Task<Args> = {
 		if (message) {
 			// TODO see the helper below, simplify this to CLI flags when support is added to Changesets
 			const changeset_adder = await create_changeset_adder(package_json.name, dir, message, bump);
-			await spawn_cli('changeset', ['add', '--empty']);
+			await spawn_cli(changeset_cli, ['add', '--empty']);
 			await changeset_adder();
 			if (!(await git_check_fully_staged_workspace())) {
 				await spawn('git', ['commit', '-m', message]);
 				await git_push_to_create(origin);
 			}
 		} else {
-			await spawn_cli('changeset');
+			await spawn_cli(changeset_cli);
 			await spawn('git', ['add', dir]);
 		}
 	},
