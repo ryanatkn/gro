@@ -85,7 +85,8 @@ export const Package_Json = z.intersection(
 						'a Gro extension that enables publishing `.well-known/package.json` and `.well-known/src`',
 				})
 				.optional(),
-			icon: z.string({description: 'a Gro extension'}).optional(), // TODO maybe base64 favicon?
+			// TODO icon/favicon/logo that can point to a URL as an alternative to the inferred `favicon.png`
+			emoji: z.string({description: 'a Gro extension'}).optional(),
 
 			private: z.boolean({description: 'disallow npm publish'}).optional(),
 
