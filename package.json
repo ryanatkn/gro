@@ -1,16 +1,14 @@
 {
   "name": "@ryanatkn/gro",
   "version": "0.124.0",
-  "public": true,
   "description": "task runner and toolkit extending SvelteKit",
   "motto": "generate, run, optimize",
   "glyph": "🌰",
-  "license": "MIT",
-  "scripts": {
-    "build": "rm -rf .gro dist && svelte-kit sync && svelte-package && chmod +x ./dist/gro.js && npm link -f",
-    "start": "gro dev",
-    "test": "gro test"
+  "public": true,
+  "bin": {
+    "gro": "dist/gro.js"
   },
+  "license": "MIT",
   "homepage": "https://gro.ryanatkn.com/",
   "author": {
     "name": "Ryan Atkinson",
@@ -23,6 +21,15 @@
   },
   "bugs": "https://github.com/ryanatkn/gro/issues",
   "funding": "https://www.ryanatkn.com/funding",
+  "type": "module",
+  "engines": {
+    "node": ">=20.12"
+  },
+  "scripts": {
+    "build": "rm -rf .gro dist && svelte-kit sync && svelte-package && chmod +x ./dist/gro.js && npm link -f",
+    "start": "gro dev",
+    "test": "gro test"
+  },
   "keywords": [
     "web",
     "tools",
@@ -34,10 +41,9 @@
     "vite",
     "typescript"
   ],
-  "type": "module",
-  "engines": {
-    "node": ">=20.12"
-  },
+  "files": [
+    "dist"
+  ],
   "dependencies": {
     "@ryanatkn/belt": "^0.22.0",
     "chokidar": "^3.6.0",
@@ -50,6 +56,10 @@
     "ts-morph": "^23.0.0",
     "tslib": "^2.6.3",
     "zod": "^3.23.8"
+  },
+  "peerDependencies": {
+    "esbuild": "^0.20",
+    "svelte": "^5.0.0-next.0"
   },
   "devDependencies": {
     "@changesets/changelog-git": "^0.2.0",
@@ -73,16 +83,30 @@
     "typescript": "^5.5.2",
     "uvu": "^0.5.6"
   },
-  "peerDependencies": {
-    "esbuild": "^0.20",
-    "svelte": "^5.0.0-next.0"
+  "eslintConfig": {
+    "root": true,
+    "extends": "@ryanatkn",
+    "rules": {
+      "no-console": 1
+    }
   },
-  "bin": {
-    "gro": "dist/gro.js"
+  "prettier": {
+    "plugins": [
+      "prettier-plugin-svelte"
+    ],
+    "useTabs": true,
+    "printWidth": 100,
+    "singleQuote": true,
+    "bracketSpacing": false,
+    "overrides": [
+      {
+        "files": "package.json",
+        "options": {
+          "useTabs": false
+        }
+      }
+    ]
   },
-  "files": [
-    "dist"
-  ],
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -421,29 +445,5 @@
       "types": "./dist/watch_dir.d.ts",
       "default": "./dist/watch_dir.js"
     }
-  },
-  "eslintConfig": {
-    "root": true,
-    "extends": "@ryanatkn",
-    "rules": {
-      "no-console": 1
-    }
-  },
-  "prettier": {
-    "plugins": [
-      "prettier-plugin-svelte"
-    ],
-    "useTabs": true,
-    "printWidth": 100,
-    "singleQuote": true,
-    "bracketSpacing": false,
-    "overrides": [
-      {
-        "files": "package.json",
-        "options": {
-          "useTabs": false
-        }
-      }
-    ]
   }
 }
