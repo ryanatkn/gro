@@ -1,5 +1,24 @@
 # @ryanatkn/gro
 
+## 0.125.0
+
+### Minor Changes
+
+- improve CLI handling ([#475](https://github.com/ryanatkn/gro/pull/475))
+
+  - change `find_cli` to return an object
+  - remove `npx` usage
+  - add a bunch of CLI customizability
+  - improve CLI resolution performance
+
+- rename `package.json` `icon` to `glyph` ([#476](https://github.com/ryanatkn/gro/pull/476))
+- add `Raw_Gro_Config` that's transformed to `Gro_Config` via `normalized_config`, ([#473](https://github.com/ryanatkn/gro/pull/473))
+  changing usage after creation to be more strict but keeping user definitions relaxed
+
+### Patch Changes
+
+- rearrange generated exports ([#474](https://github.com/ryanatkn/gro/pull/474))
+
 ## 0.124.0
 
 ### Minor Changes
