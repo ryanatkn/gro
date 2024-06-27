@@ -92,7 +92,7 @@ export const task: Task<Args> = {
 		const inited = existsSync(path);
 
 		if (!inited) {
-			await spawn_cli(found_changeset_cli, ['init']);
+			await spawn_cli(found_changeset_cli, ['init'], log);
 
 			const access =
 				access_arg ?? package_json.private ? CHANGESET_RESTRICTED_ACCESS : CHANGESET_PUBLIC_ACCESS;
@@ -121,14 +121,14 @@ export const task: Task<Args> = {
 		if (message) {
 			// TODO see the helper below, simplify this to CLI flags when support is added to Changesets
 			const changeset_adder = await create_changeset_adder(package_json.name, dir, message, bump);
-			await spawn_cli(found_changeset_cli, ['add', '--empty']);
+			await spawn_cli(found_changeset_cli, ['add', '--empty'], log);
 			await changeset_adder();
 			if (!(await git_check_fully_staged_workspace())) {
 				await spawn('git', ['commit', '-m', message]);
 				await git_push_to_create(origin);
 			}
 		} else {
-			await spawn_cli(found_changeset_cli);
+			await spawn_cli(found_changeset_cli, [], log);
 			await spawn('git', ['add', dir]);
 		}
 	},

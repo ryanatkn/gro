@@ -138,7 +138,7 @@ export const task: Task<Args> = {
 
 			// This is the first line that alters the repo.
 
-			const npmVersionResult = await spawn_cli(found_changeset_cli, ['version']);
+			const npmVersionResult = await spawn_cli(found_changeset_cli, ['version'], log);
 			if (!npmVersionResult?.ok) {
 				throw Error('npm version failed: no commits were made: see the error above');
 			}
@@ -176,7 +176,7 @@ export const task: Task<Args> = {
 			return;
 		}
 
-		const npm_publish_result = await spawn_cli(found_changeset_cli, ['publish']);
+		const npm_publish_result = await spawn_cli(found_changeset_cli, ['publish'], log);
 		if (!npm_publish_result?.ok) {
 			throw new Task_Error(
 				`\`${changeset_cli} publish\` failed - revert the version tag or run it again manually`,

@@ -31,7 +31,7 @@ export const task: Task<Args> = {
 
 		const forwarded_args = {_, 'max-warnings': 0, ...to_forwarded_args(eslint_cli)};
 		const serialized_args = serialize_args(forwarded_args);
-		const eslintResult = await spawn_cli(found_eslint_cli, serialized_args, undefined, log);
+		const eslintResult = await spawn_cli(found_eslint_cli, serialized_args, log);
 		if (!eslintResult?.ok) {
 			throw new Task_Error(`ESLint found some problems. ${print_spawn_result(eslintResult!)}`);
 		}

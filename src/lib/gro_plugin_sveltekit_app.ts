@@ -68,12 +68,7 @@ export const gro_plugin_sveltekit_app = ({
 				// `vite dev` in development mode
 				if (watch) {
 					const serialized_args = ['dev', ...serialize_args(to_forwarded_args(vite_cli))];
-					sveltekit_process = await spawn_cli_process(
-						found_vite_cli,
-						serialized_args,
-						undefined,
-						log,
-					);
+					sveltekit_process = await spawn_cli_process(found_vite_cli, serialized_args, log);
 				} else {
 					log.debug(
 						`the SvelteKit app plugin is loaded but will not output anything` +
@@ -151,7 +146,7 @@ export const gro_plugin_sveltekit_app = ({
 				const cleanup = () => Promise.all(cleanups.map((c) => c()));
 				try {
 					const serialized_args = ['build', ...serialize_args(to_forwarded_args(vite_cli))];
-					const spawned = await spawn_cli(found_vite_cli, serialized_args, undefined, log);
+					const spawned = await spawn_cli(found_vite_cli, serialized_args, log);
 					if (!spawned?.ok) {
 						throw new Task_Error(`${vite_cli} build failed with exit code ${spawned?.code}`);
 					}

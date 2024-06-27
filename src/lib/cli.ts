@@ -48,8 +48,8 @@ export const find_cli = async (
 export const spawn_cli = async (
 	name_or_cli: string | Cli,
 	args: string[] = [],
-	options?: SpawnOptions | undefined,
 	log?: Logger,
+	options?: SpawnOptions | undefined,
 ): Promise<Spawn_Result | undefined> => {
 	const cli = await resolve_cli(name_or_cli, args, options?.cwd, log);
 	if (!cli) return;
@@ -64,8 +64,8 @@ export const spawn_cli = async (
 export const spawn_cli_process = async (
 	name_or_cli: string | Cli,
 	args: string[] = [],
-	options?: SpawnOptions | undefined,
 	log?: Logger,
+	options?: SpawnOptions | undefined,
 ): Promise<Spawned_Process | undefined> => {
 	const cli = await resolve_cli(name_or_cli, args, options?.cwd, log);
 	if (!cli) return;

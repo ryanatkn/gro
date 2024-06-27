@@ -46,7 +46,7 @@ export const format_directory = async (
 	if (dir === paths.source) {
 		serialized_args.push(`${paths.root}{${root_paths}}`);
 	}
-	const spawned = await spawn_cli(prettier_cli, serialized_args, undefined, log);
+	const spawned = await spawn_cli(prettier_cli, serialized_args, log);
 	if (!spawned)
 		throw new Error(
 			`failed to find \`${to_cli_name(prettier_cli)}\` CLI locally or globally, do you need to run \`npm i\`?`,

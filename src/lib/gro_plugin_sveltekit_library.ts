@@ -17,7 +17,7 @@ export interface Options {
 
 export const gro_plugin_sveltekit_library = ({
 	svelte_package_cli = SVELTE_PACKAGE_CLI,
-}: Options): Plugin<Plugin_Context> => {
+}: Options = {}): Plugin<Plugin_Context> => {
 	return {
 		name: 'gro_plugin_sveltekit_library',
 		setup: async ({log}) => {
@@ -34,7 +34,7 @@ export const gro_plugin_sveltekit_library = ({
 				);
 			}
 			const serialized_args = serialize_args(to_forwarded_args(svelte_package_cli));
-			await spawn_cli(found_svelte_package_cli, serialized_args, undefined, log);
+			await spawn_cli(found_svelte_package_cli, serialized_args, log);
 		},
 		adapt: async ({log, timings}) => {
 			const package_json = await load_package_json();
