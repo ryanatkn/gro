@@ -76,7 +76,7 @@ It includes:
 
 ## install
 
-> depends on node >=22.3
+> depends on node >=20.12
 
 Typical usage installs [@ryanatkn/gro](https://www.npmjs.com/package/@ryanatkn/gro)
 as a dev dependency:

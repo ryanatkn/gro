@@ -5,7 +5,7 @@ import type {Src_Json} from './src_json.js';
 
 export const package_json = {
 	name: '@ryanatkn/gro',
-	version: '0.123.0',
+	version: '0.124.0',
 	description: 'task runner and toolkit extending SvelteKit',
 	motto: 'generate, run, optimize',
 	icon: '🌰',
@@ -18,7 +18,7 @@ export const package_json = {
 	bugs: 'https://github.com/ryanatkn/gro/issues',
 	funding: 'https://www.ryanatkn.com/funding',
 	type: 'module',
-	engines: {node: '>=22.3'},
+	engines: {node: '>=20.12'},
 	scripts: {
 		build:
 			'rm -rf .gro dist && svelte-kit sync && svelte-package && chmod +x ./dist/gro.js && npm link -f',
@@ -38,7 +38,7 @@ export const package_json = {
 	],
 	files: ['dist'],
 	dependencies: {
-		'@ryanatkn/belt': '^0.21.0',
+		'@ryanatkn/belt': '^0.22.0',
 		chokidar: '^3.6.0',
 		dotenv: '^16.4.5',
 		'es-module-lexer': '^1.5.4',
@@ -55,8 +55,8 @@ export const package_json = {
 		'@changesets/changelog-git': '^0.2.0',
 		'@changesets/types': '^6.0.0',
 		'@ryanatkn/eslint-config': '^0.1.3',
-		'@ryanatkn/fuz': '^0.104.1',
-		'@ryanatkn/moss': '^0.5.0',
+		'@ryanatkn/fuz': '^0.105.1',
+		'@ryanatkn/moss': '^0.6.0',
 		'@sveltejs/adapter-static': '^3.0.2',
 		'@sveltejs/kit': '^2.5.17',
 		'@sveltejs/package': '^2.3.2',
@@ -262,7 +262,7 @@ export const package_json = {
 
 export const src_json = {
 	name: '@ryanatkn/gro',
-	version: '0.123.0',
+	version: '0.124.0',
 	modules: {
 		'.': {
 			path: 'index.ts',
