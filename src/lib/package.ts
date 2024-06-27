@@ -33,6 +33,8 @@ export const package_json = {
 		'vite',
 		'typescript',
 	],
+	type: 'module',
+	engines: {node: '>=20.12'},
 	dependencies: {
 		'@ryanatkn/belt': '^0.22.0',
 		chokidar: '^3.6.0',
@@ -69,8 +71,6 @@ export const package_json = {
 		uvu: '^0.5.6',
 	},
 	peerDependencies: {esbuild: '^0.20', svelte: '^5.0.0-next.0'},
-	type: 'module',
-	engines: {node: '>=20.12'},
 	bin: {gro: 'dist/gro.js'},
 	files: ['dist'],
 	exports: {

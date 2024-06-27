@@ -101,7 +101,6 @@ export const Package_Json = z
 		author: z.union([z.string(), Package_Json_Author.optional()]),
 		repository: z.union([z.string(), Url, Package_Json_Repository]).optional(),
 		contributors: z.array(z.union([z.string(), Package_Json_Author])).optional(),
-
 		bugs: z
 			.union([z.string(), z.object({url: Url.optional(), email: Email.optional()}).passthrough()])
 			.optional(),
@@ -110,16 +109,16 @@ export const Package_Json = z
 			.optional(),
 		keywords: z.array(z.string()).optional(),
 
+		type: z.string().optional(),
+		engines: z.record(z.string()).optional(),
+		os: z.array(z.string()).optional(),
+		cpu: z.array(z.string()).optional(),
+
 		dependencies: z.record(z.string()).optional(),
 		devDependencies: z.record(z.string()).optional(),
 		peerDependencies: z.record(z.string()).optional(),
 		peerDependenciesMeta: z.record(z.record(z.string())).optional(),
 		optionalDependencies: z.record(z.string()).optional(),
-
-		type: z.string().optional(),
-		engines: z.record(z.string()).optional(),
-		os: z.array(z.string()).optional(),
-		cpu: z.array(z.string()).optional(),
 
 		bin: z.record(z.string()).optional(),
 		files: z.array(z.string()).optional(),
