@@ -69,6 +69,7 @@ export const package_json = {
 		uvu: '^0.5.6',
 	},
 	peerDependencies: {esbuild: '^0.20', svelte: '^5.0.0-next.0'},
+	type: 'module',
 	engines: {node: '>=20.12'},
 	bin: {gro: 'dist/gro.js'},
 	files: ['dist'],
@@ -252,7 +253,6 @@ export const package_json = {
 		'./upgrade.task.js': {types: './dist/upgrade.task.d.ts', default: './dist/upgrade.task.js'},
 		'./watch_dir.js': {types: './dist/watch_dir.d.ts', default: './dist/watch_dir.js'},
 	},
-	type: 'module',
 	eslintConfig: {root: true, extends: '@ryanatkn', rules: {'no-console': 1}},
 	prettier: {
 		plugins: ['prettier-plugin-svelte'],

@@ -73,6 +73,7 @@
     "esbuild": "^0.20",
     "svelte": "^5.0.0-next.0"
   },
+  "type": "module",
   "engines": {
     "node": ">=20.12"
   },
@@ -421,7 +422,6 @@
       "default": "./dist/watch_dir.js"
     }
   },
-  "type": "module",
   "eslintConfig": {
     "root": true,
     "extends": "@ryanatkn",

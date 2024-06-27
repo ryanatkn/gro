@@ -120,6 +120,7 @@ export const Package_Json = z
 		peerDependenciesMeta: z.record(z.record(z.string())).optional(),
 		optionalDependencies: z.record(z.string()).optional(),
 
+		type: z.string().optional(),
 		engines: z.record(z.string()).optional(),
 		os: z.array(z.string()).optional(),
 		cpu: z.array(z.string()).optional(),
@@ -150,8 +151,7 @@ export const load_package_json = async (
 	} catch (err) {
 		return EMPTY_PACKAGE_JSON;
 	}
-	// TODO do we want to do this?
-	// parse_or_throw_formatted_error('package.json', Package_Json, package_json);
+	parse_or_throw_formatted_error('package.json', Package_Json, package_json);
 	if (cache) cache[dir] = package_json;
 	return package_json;
 };
