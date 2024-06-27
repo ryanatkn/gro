@@ -146,7 +146,7 @@ export const load_package_json = async (
 	} catch (err) {
 		return EMPTY_PACKAGE_JSON;
 	}
-	parse_package_json(Package_Json, package_json);
+	package_json = parse_package_json(Package_Json, package_json);
 	if (cache) cache[dir] = package_json;
 	return package_json;
 };
@@ -196,10 +196,8 @@ export const write_package_json = async (serialized_package_json: string): Promi
 	await writeFile(join(paths.root, 'package.json'), serialized_package_json);
 };
 
-export const serialize_package_json = (package_json: Package_Json): string => {
-	parse_package_json(Package_Json, package_json);
-	return JSON.stringify(package_json, null, 2) + '\n';
-};
+export const serialize_package_json = (package_json: Package_Json): string =>
+	JSON.stringify(parse_package_json(Package_Json, package_json), null, 2) + '\n';
 
 /**
  * Updates package.json. Writes to the filesystem only when contents change.
