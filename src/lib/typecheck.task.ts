@@ -30,7 +30,12 @@ export const task: Task<Args> = {
 		const found_svelte_check_cli = await find_cli(svelte_check_cli);
 		if (found_svelte_check_cli) {
 			const serialized = serialize_args(to_forwarded_args(svelte_check_cli));
-			const svelte_check_result = await spawn_cli(svelte_check_cli, serialized, undefined, log);
+			const svelte_check_result = await spawn_cli(
+				found_svelte_check_cli,
+				serialized,
+				undefined,
+				log,
+			);
 			if (!svelte_check_result?.ok) {
 				throw new Task_Error(`Failed to typecheck. ${print_spawn_result(svelte_check_result!)}`);
 			}

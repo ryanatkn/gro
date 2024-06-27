@@ -11,7 +11,7 @@ import {
 	GRO_CONFIG_PATH,
 } from './path_constants.js';
 import {serialize_args, to_forwarded_args} from './args.js';
-import {spawn_cli} from './cli.js';
+import {spawn_cli, to_cli_name, type Cli} from './cli.js';
 
 const PRETTIER_CLI = 'prettier';
 
@@ -37,9 +37,9 @@ export const format_directory = async (
 	check = false,
 	extensions = DEFAULT_EXTENSIONS,
 	root_paths = DEFAULT_ROOT_PATHS,
-	prettier_cli = PRETTIER_CLI,
+	prettier_cli: string | Cli = PRETTIER_CLI,
 ): Promise<Spawn_Result> => {
-	const forwarded_args = to_forwarded_args(prettier_cli);
+	const forwarded_args = to_forwarded_args(to_cli_name(prettier_cli));
 	forwarded_args[check ? 'check' : 'write'] = true;
 	const serialized_args = serialize_args(forwarded_args);
 	serialized_args.push(`${dir}**/*.{${extensions}}`);
@@ -49,7 +49,7 @@ export const format_directory = async (
 	const spawned = await spawn_cli(prettier_cli, serialized_args, undefined, log);
 	if (!spawned)
 		throw new Error(
-			`failed to find \`${prettier_cli}\` CLI locally or globally, do you need to run \`npm i\`?`,
+			`failed to find \`${to_cli_name(prettier_cli)}\` CLI locally or globally, do you need to run \`npm i\`?`,
 		);
 	return spawned;
 };
