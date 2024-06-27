@@ -5,15 +5,21 @@ import {existsSync} from 'node:fs';
 
 import {NODE_MODULES_DIRNAME} from './path_constants.js';
 
+export type Cli =
+	| {kind: 'local'; name: string; path: string}
+	| {kind: 'global'; name: string; path: string};
+
 /**
  * Looks for the CLI `name`, first local to the cwd and then globally.
  */
-export const find_cli = async (name: string): Promise<'local' | 'global' | null> => {
-	if (existsSync(join(NODE_MODULES_DIRNAME, `.bin/${name}`))) {
-		return 'local';
+export const find_cli = async (name: string, cwd = process.cwd()): Promise<Cli | null> => {
+	const local_path = join(cwd, NODE_MODULES_DIRNAME, `.bin/${name}`);
+	if (existsSync(local_path)) {
+		return {name, path: local_path, kind: 'local'};
 	}
 	const {stdout} = await spawn_out('which', [name]);
-	return stdout === null ? null : 'global';
+	if (!stdout) return null;
+	return {name, path: stdout.trim(), kind: 'global'};
 };
 
 /**
