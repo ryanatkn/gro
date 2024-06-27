@@ -146,7 +146,7 @@ export const load_package_json = async (
 	} catch (err) {
 		return EMPTY_PACKAGE_JSON;
 	}
-	// parse_or_throw_formatted_error('package.json', Package_Json, package_json);
+	parse_package_json(Package_Json, package_json);
 	if (cache) cache[dir] = package_json;
 	return package_json;
 };
@@ -168,7 +168,7 @@ export const sync_package_json = async (
 				package_json.exports = exports;
 			}
 			const mapped = await map_package_json(package_json);
-			return mapped ? parse_or_throw_formatted_error('package.json', Package_Json, mapped) : mapped;
+			return mapped ? parse_package_json(Package_Json, mapped) : mapped;
 		},
 		!check,
 	);
@@ -197,7 +197,7 @@ export const write_package_json = async (serialized_package_json: string): Promi
 };
 
 export const serialize_package_json = (package_json: Package_Json): string => {
-	parse_or_throw_formatted_error('package.json', Package_Json, package_json);
+	parse_package_json(Package_Json, package_json);
 	return JSON.stringify(package_json, null, 2) + '\n';
 };
 
@@ -294,6 +294,17 @@ export const parse_repo_url = (
 	}
 	const [, owner, repo] = parsed_repo_url;
 	return {owner, repo};
+};
+
+/**
+ * Parses a `Package_Json` object but preserves the order of the original keys.
+ */
+const parse_package_json = (schema: typeof Package_Json, value: any): Package_Json => {
+	const parsed = parse_or_throw_formatted_error('package.json', schema, value);
+	const keys = Object.keys(value);
+	return Object.fromEntries(
+		Object.entries(parsed).sort(([a], [b]) => keys.indexOf(a) - keys.indexOf(b)),
+	) as any;
 };
 
 // TODO maybe extract to zod helpers? see also everything in `task_logging.ts`
