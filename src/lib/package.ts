@@ -331,6 +331,7 @@ export const src_json = {
 		'./cli.js': {
 			path: 'cli.ts',
 			declarations: [
+				{name: 'Cli', kind: 'type'},
 				{name: 'find_cli', kind: 'function'},
 				{name: 'spawn_cli', kind: 'function'},
 			],
