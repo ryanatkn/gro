@@ -16,6 +16,7 @@ import type {Path_Filter, Path_Id} from './path.js';
 
 /**
  * The config that users can extend via `gro.config.ts`.
+ * This is exposed to users in places like tasks and genfiles.
  * @see https://github.com/ryanatkn/gro/blob/main/src/lib/docs/config.md
  */
 export interface Gro_Config {
@@ -28,7 +29,7 @@ export interface Gro_Config {
 	 * The `package_json` argument may be mutated, but the return value is what's used by the caller.
 	 * Returning `null` is a no-op for the caller.
 	 */
-	map_package_json: Map_Package_Json;
+	map_package_json: Map_Package_Json | null;
 	/**
 	 * The root directories to search for tasks given implicit relative input paths.
 	 * Defaults to `./src/lib`, then the cwd, then the Gro package dist.
@@ -42,14 +43,15 @@ export interface Gro_Config {
 }
 
 /**
- * The relaxed variant of `Gro_Config` that users can provide.
+ * The relaxed variant of `Gro_Config` that users can provide via `gro.config.ts`.
+ * Superset of `Gro_Config`.
  * @see https://github.com/ryanatkn/gro/blob/main/src/lib/docs/config.md
  */
 export interface Raw_Gro_Config {
-	plugins: Create_Config_Plugins;
-	map_package_json: Map_Package_Json | null;
-	task_root_dirs: string[];
-	search_filters: Path_Filter | Path_Filter[] | null;
+	plugins?: Create_Config_Plugins;
+	map_package_json?: Map_Package_Json | null;
+	task_root_dirs?: string[];
+	search_filters?: Path_Filter | Path_Filter[] | null;
 }
 
 export interface Create_Gro_Config {
@@ -101,21 +103,27 @@ export const DEFAULT_EXPORTS_EXCLUDER = /(\.md|\.(test|ignore)\.|\/(test|fixture
  * Transforms a `Raw_Gro_Config` to the more strict `Gro_Config`.
  * This allows users to provide a more relaxed config.
  */
-export const normalize_config = ({
-	plugins,
-	map_package_json,
-	task_root_dirs,
-	search_filters,
-}: Raw_Gro_Config): Gro_Config => ({
-	plugins,
-	map_package_json: map_package_json ?? default_map_package_json,
-	task_root_dirs: task_root_dirs.map((p) => resolve(p)),
-	search_filters: Array.isArray(search_filters)
-		? search_filters
-		: search_filters
-			? [search_filters]
-			: [],
-});
+export const normalize_config = (raw_config: Raw_Gro_Config): Gro_Config => {
+	const empty_config = create_empty_config();
+	// All of the raw config properties are optional,
+	// so fall back to the empty values when `undefined`.
+	const {
+		plugins = empty_config.plugins,
+		map_package_json = empty_config.map_package_json,
+		task_root_dirs = empty_config.task_root_dirs,
+		search_filters = empty_config.search_filters,
+	} = raw_config;
+	return {
+		plugins,
+		map_package_json,
+		task_root_dirs: task_root_dirs.map((p) => resolve(p)),
+		search_filters: Array.isArray(search_filters)
+			? search_filters
+			: search_filters
+				? [search_filters]
+				: [],
+	};
+};
 
 export interface Gro_Config_Module {
 	readonly default: Raw_Gro_Config | Create_Gro_Config;
