@@ -1,10 +1,11 @@
 import {z} from 'zod';
 import {join} from 'node:path';
 import {readFile, writeFile} from 'node:fs/promises';
-import {plural} from '@ryanatkn/belt/string.js';
+import {count_graphemes, plural} from '@ryanatkn/belt/string.js';
 import type {Logger} from '@ryanatkn/belt/log.js';
 import {strip_end} from '@ryanatkn/belt/string.js';
 import type {Flavored} from '@ryanatkn/belt/types.js';
+import {red} from 'kleur/colors';
 
 import {paths, gro_paths, IS_THIS_GRO, replace_extension} from './paths.js';
 import {SVELTEKIT_DIST_DIRNAME} from './path_constants.js';
@@ -70,59 +71,64 @@ export type Package_Json_Exports = z.infer<typeof Package_Json_Exports>;
 /**
  * @see https://docs.npmjs.com/cli/v10/configuring-npm/package-json
  */
-export const Package_Json = z.intersection(
-	z.record(z.unknown()),
-	z
-		.object({
-			// according to the npm docs, `name` and `version` are the only required properties
-			name: z.string(),
-			version: z.string(),
+export const Package_Json = z
+	.object({
+		// according to the npm docs, `name` and `version` are the only required properties
+		name: z.string(),
+		version: z.string(),
 
-			// Gro extensions
-			public: z
-				.boolean({
-					description:
-						'a Gro extension that enables publishing `.well-known/package.json` and `.well-known/src`',
-				})
-				.optional(),
-			// TODO icon/favicon/logo that can point to a URL
-			emoji: z.string({description: 'a Gro extension'}).optional(),
+		// Gro extensions
+		public: z
+			.boolean({
+				description:
+					'a Gro extension that enables publishing `.well-known/package.json` and `.well-known/src`',
+			})
+			.optional(),
+		motto: z
+			.string({description: "a Gro extension that's a short phrase that represents this project"})
+			.optional(),
+		// TODO icon/favicon/logo that can point to a URL as an alternative to `<link rel="icon"`?
+		emoji: z
+			.string({
+				description:
+					"a Gro extension that's a single unicode character that represents this project",
+			})
+			.refine((v) => count_graphemes(v) === 1, 'must be a single unicode character')
+			.optional(),
 
-			private: z.boolean({description: 'disallow npm publish'}).optional(),
+		private: z.boolean({description: 'disallow npm publish'}).optional(),
 
-			description: z.string().optional(),
-			motto: z.string().optional(),
-			license: z.string().optional(),
-			homepage: Url.optional(),
-			repository: z.union([z.string(), Url, Package_Json_Repository]).optional(),
-			author: z.union([z.string(), Package_Json_Author.optional()]),
-			contributors: z.array(z.union([z.string(), Package_Json_Author])).optional(),
-			bugs: z
-				.union([z.string(), z.object({url: Url.optional(), email: Email.optional()}).passthrough()])
-				.optional(),
-			funding: z
-				.union([Url, Package_Json_Funding, z.array(z.union([Url, Package_Json_Funding]))])
-				.optional(),
-			keywords: z.array(z.string()).optional(),
+		description: z.string().optional(),
+		license: z.string().optional(),
+		homepage: Url.optional(),
+		repository: z.union([z.string(), Url, Package_Json_Repository]).optional(),
+		author: z.union([z.string(), Package_Json_Author.optional()]),
+		contributors: z.array(z.union([z.string(), Package_Json_Author])).optional(),
+		bugs: z
+			.union([z.string(), z.object({url: Url.optional(), email: Email.optional()}).passthrough()])
+			.optional(),
+		funding: z
+			.union([Url, Package_Json_Funding, z.array(z.union([Url, Package_Json_Funding]))])
+			.optional(),
+		keywords: z.array(z.string()).optional(),
 
-			scripts: z.record(z.string()).optional(),
+		scripts: z.record(z.string()).optional(),
 
-			bin: z.record(z.string()).optional(),
-			files: z.array(z.string()).optional(),
-			exports: Package_Json_Exports.transform(transform_empty_object_to_undefined).optional(),
+		bin: z.record(z.string()).optional(),
+		files: z.array(z.string()).optional(),
+		exports: Package_Json_Exports.transform(transform_empty_object_to_undefined).optional(),
 
-			dependencies: z.record(z.string()).optional(),
-			devDependencies: z.record(z.string()).optional(),
-			peerDependencies: z.record(z.string()).optional(),
-			peerDependenciesMeta: z.record(z.record(z.string())).optional(),
-			optionalDependencies: z.record(z.string()).optional(),
+		dependencies: z.record(z.string()).optional(),
+		devDependencies: z.record(z.string()).optional(),
+		peerDependencies: z.record(z.string()).optional(),
+		peerDependenciesMeta: z.record(z.record(z.string())).optional(),
+		optionalDependencies: z.record(z.string()).optional(),
 
-			engines: z.record(z.string()).optional(),
-			os: z.array(z.string()).optional(),
-			cpu: z.array(z.string()).optional(),
-		})
-		.passthrough(),
-);
+		engines: z.record(z.string()).optional(),
+		os: z.array(z.string()).optional(),
+		cpu: z.array(z.string()).optional(),
+	})
+	.passthrough();
 export type Package_Json = z.infer<typeof Package_Json>;
 
 export interface Map_Package_Json {
@@ -143,6 +149,14 @@ export const load_package_json = async (
 		package_json = JSON.parse(await load_package_json_contents(dir));
 	} catch (err) {
 		return EMPTY_PACKAGE_JSON;
+	}
+	const parsed = Package_Json.safeParse(package_json);
+	if (!parsed.success) {
+		let msg = red('Failed to parse package.json:\n');
+		for (const issue of parsed.error.issues) {
+			msg += red(`\n\t"${issue.path}" ${issue.message}\n`);
+		}
+		throw Error(msg);
 	}
 	if (cache) cache[dir] = package_json;
 	return package_json;

@@ -11,6 +11,9 @@ import {load_gro_package_json} from './package_json.js';
 import {log_tasks, log_error_reasons} from './task_logging.js';
 import type {Gro_Config} from './config.js';
 
+const pkg = await load_gro_package_json();
+console.log(`pkg`, pkg.emoji);
+
 /**
  * Invokes Gro tasks by name using the filesystem as the source.
  *
