@@ -195,7 +195,7 @@ export const task: Task<Args> = {
 				target_spawn_options,
 			);
 			await spawn('git', ['add', INITIAL_FILE_PATH], target_spawn_options);
-			await spawn('git', ['git', 'commit', '-m', 'init'], target_spawn_options);
+			await spawn('git', ['commit', '-m', 'init'], target_spawn_options);
 			await git_push_to_create(origin, target, target_spawn_options);
 			await git_delete_local_branch(source, target_spawn_options);
 		}
