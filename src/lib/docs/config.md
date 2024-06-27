@@ -38,14 +38,23 @@ The default export of a Gro config is `Gro_Config | Create_Gro_Config`:
 
 ```ts
 export interface Create_Gro_Config {
-	(base_config: Gro_Config): Gro_Config | Promise<Gro_Config>;
+	(base_config: Gro_Config): Raw_Gro_Config | Promise<Raw_Gro_Config>;
 }
 
+// The strict variant that's used internally and exposed to users in tasks and elsewhere.
 export interface Gro_Config {
 	plugins: Create_Config_Plugins;
 	map_package_json: Map_Package_Json | null;
-	task_root_dirs: string[];
-	search_filters: Path_Filter | Path_Filter[] | null;
+	task_root_dirs: Path_Id[];
+	search_filters: Path_Filter[];
+}
+
+// The relaxed variant that users can provide. Superset of `Gro_Config`.
+export interface Raw_Gro_Config {
+	plugins?: Create_Config_Plugins;
+	map_package_json?: Map_Package_Json | null;
+	task_root_dirs?: string[];
+	search_filters?: Path_Filter | Path_Filter[] | null;
 }
 ```
 
@@ -56,7 +65,7 @@ import type {Create_Gro_Config} from '@ryanatkn/gro';
 import {gro_plugin_sveltekit_app} from '@ryanatkn/gro/gro_plugin_sveltekit_app.js';
 
 const config: Create_Gro_Config = async (cfg) => {
-	// `cfg`, which is equal to `create_empty_config()`,
+	// `cfg`, which has type `Gro_Config` and is equal to `create_empty_config()`,
 	// can be mutated or you can return your own.
 	// A return value is required to avoid potential errors and reduce ambiguity.
 
@@ -80,7 +89,8 @@ const config: Create_Gro_Config = async (cfg) => {
 		);
 		return updated_plugins.concat(create_some_custom_plugin());
 	};
-	return cfg;
+
+	return cfg; // return type is `Raw_Gro_Config`, which is a relaxed superset of `Gro_Config`
 };
 
 export default config;

@@ -10,11 +10,11 @@ export interface Search_Fs_Options {
 	/**
 	 * One or more filter functions, any of which can short-circuit the search by returning `false`.
 	 */
-	filter?: Path_Filter | Path_Filter[] | null;
+	filter?: Path_Filter | Path_Filter[];
 	/**
 	 * An array of file suffixes to include.
 	 */
-	file_filter?: File_Filter | File_Filter[] | null;
+	file_filter?: File_Filter | File_Filter[];
 	/**
 	 * Pass `null` or `false` to speed things up at the cost of volatile ordering.
 	 */
