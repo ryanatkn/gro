@@ -96,9 +96,10 @@ export const Package_Json = z
 			.refine((v) => count_graphemes(v) === 1, 'must be a single unicode character')
 			.optional(),
 		license: z.string().optional(),
+		scripts: z.record(z.string()).optional(),
 		homepage: Url.optional(),
-		repository: z.union([z.string(), Url, Package_Json_Repository]).optional(),
 		author: z.union([z.string(), Package_Json_Author.optional()]),
+		repository: z.union([z.string(), Url, Package_Json_Repository]).optional(),
 		contributors: z.array(z.union([z.string(), Package_Json_Author])).optional(),
 
 		bugs: z
@@ -108,8 +109,6 @@ export const Package_Json = z
 			.union([Url, Package_Json_Funding, z.array(z.union([Url, Package_Json_Funding]))])
 			.optional(),
 		keywords: z.array(z.string()).optional(),
-
-		scripts: z.record(z.string()).optional(),
 
 		dependencies: z.record(z.string()).optional(),
 		devDependencies: z.record(z.string()).optional(),

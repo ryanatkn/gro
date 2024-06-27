@@ -11,9 +11,15 @@ export const package_json = {
 	motto: 'generate, run, optimize',
 	glyph: '🌰',
 	license: 'MIT',
+	scripts: {
+		build:
+			'rm -rf .gro dist && svelte-kit sync && svelte-package && chmod +x ./dist/gro.js && npm link -f',
+		start: 'gro dev',
+		test: 'gro test',
+	},
 	homepage: 'https://gro.ryanatkn.com/',
-	repository: {type: 'git', url: 'git+https://github.com/ryanatkn/gro.git'},
 	author: {name: 'Ryan Atkinson', email: 'mail@ryanatkn.com', url: 'https://www.ryanatkn.com/'},
+	repository: {type: 'git', url: 'git+https://github.com/ryanatkn/gro.git'},
 	bugs: 'https://github.com/ryanatkn/gro/issues',
 	funding: 'https://www.ryanatkn.com/funding',
 	keywords: [
@@ -27,12 +33,6 @@ export const package_json = {
 		'vite',
 		'typescript',
 	],
-	scripts: {
-		build:
-			'rm -rf .gro dist && svelte-kit sync && svelte-package && chmod +x ./dist/gro.js && npm link -f',
-		start: 'gro dev',
-		test: 'gro test',
-	},
 	dependencies: {
 		'@ryanatkn/belt': '^0.22.0',
 		chokidar: '^3.6.0',
