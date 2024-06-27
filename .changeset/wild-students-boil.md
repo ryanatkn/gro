@@ -2,4 +2,5 @@
 '@ryanatkn/gro': minor
 ---
 
-add `Normalized_Gro_Config`, changing usage after creation to be more strict
+add `Raw_Gro_Config` that's transformed to `Gro_Config` via `normalized_config`,
+changing usage after creation to be more strict but keeping user definitions relaxed

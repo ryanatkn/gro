@@ -12,38 +12,55 @@ import {
 import create_default_config from './gro.config.default.js';
 import type {Create_Config_Plugins} from './plugin.js';
 import type {Map_Package_Json} from './package_json.js';
-import type {Path_Filter} from './path.js';
+import type {Path_Filter, Path_Id} from './path.js';
 
+/**
+ * The config that users can extend via `gro.config.ts`.
+ * @see https://github.com/ryanatkn/gro/blob/main/src/lib/docs/config.md
+ */
 export interface Gro_Config {
+	/**
+	 * @see https://github.com/ryanatkn/gro/blob/main/src/lib/docs/plugin.md
+	 */
 	plugins: Create_Config_Plugins;
 	/**
 	 * Maps the project's `package.json` before writing it to the filesystem.
 	 * The `package_json` argument may be mutated, but the return value is what's used by the caller.
 	 * Returning `null` is a no-op for the caller.
 	 */
-	map_package_json: Map_Package_Json | null; // TODO BLOCK should be not nullable
+	map_package_json: Map_Package_Json;
 	/**
 	 * The root directories to search for tasks given implicit relative input paths.
 	 * Defaults to `./src/lib`, then the cwd, then the Gro package dist.
 	 */
-	task_root_dirs: string[]; // TODO BLOCK should be `Path_Id`, need a `Normalized_Gro_Config` though to not be confusing
+	task_root_dirs: Path_Id[];
 	/**
 	 * When searching the filsystem for tasks and genfiles,
 	 * directories and files are included if they pass all of these filters.
 	 */
-	search_filters: Path_Filter | Path_Filter[] | null; // TODO BLOCK this should be just `Path_Filter[]`
-	// TODO `task_discovery_dirs`
+	search_filters: Path_Filter[];
+}
+
+/**
+ * The relaxed variant of `Gro_Config` that users can provide.
+ * @see https://github.com/ryanatkn/gro/blob/main/src/lib/docs/config.md
+ */
+export interface Raw_Gro_Config {
+	plugins: Create_Config_Plugins;
+	map_package_json: Map_Package_Json | null;
+	task_root_dirs: string[];
+	search_filters: Path_Filter | Path_Filter[] | null;
 }
 
 export interface Create_Gro_Config {
-	(base_config: Gro_Config): Gro_Config | Promise<Gro_Config>;
+	(base_config: Gro_Config): Raw_Gro_Config | Promise<Raw_Gro_Config>;
 }
 
 export const create_empty_config = (): Gro_Config => ({
 	plugins: () => [],
-	// TODO maybe disable if no SvelteKit `lib` directory? or other detection to improve defaults
 	map_package_json: default_map_package_json,
 	task_root_dirs: [
+		// TODO maybe disable if no SvelteKit `lib` directory? or other detection to improve defaults
 		paths.lib,
 		IS_THIS_GRO ? null! : paths.root,
 		IS_THIS_GRO ? null! : GRO_DIST_DIR,
@@ -80,32 +97,45 @@ const default_map_package_json: Map_Package_Json = async (package_json) => {
 
 export const DEFAULT_EXPORTS_EXCLUDER = /(\.md|\.(test|ignore)\.|\/(test|fixtures|ignore)\/)/u;
 
+/**
+ * Transforms a `Raw_Gro_Config` to the more strict `Gro_Config`.
+ * This allows users to provide a more relaxed config.
+ */
+export const normalize_config = ({
+	plugins,
+	map_package_json,
+	task_root_dirs,
+	search_filters,
+}: Raw_Gro_Config): Gro_Config => ({
+	plugins,
+	map_package_json: map_package_json ?? default_map_package_json,
+	task_root_dirs: task_root_dirs.map((p) => resolve(p)),
+	search_filters: Array.isArray(search_filters)
+		? search_filters
+		: search_filters
+			? [search_filters]
+			: [],
+});
+
 export interface Gro_Config_Module {
-	readonly default: Gro_Config | Create_Gro_Config;
+	readonly default: Raw_Gro_Config | Create_Gro_Config;
 }
 
 export const load_config = async (dir = paths.root): Promise<Gro_Config> => {
-	const default_config = await create_default_config(create_empty_config());
+	const default_config = normalize_config(await create_default_config(create_empty_config()));
 	const config_path = join(dir, GRO_CONFIG_PATH);
-	let config: Gro_Config;
-	if (existsSync(config_path)) {
-		const config_module = await import(config_path);
-		validate_config_module(config_module, config_path);
-		config =
-			typeof config_module.default === 'function'
-				? await config_module.default(default_config)
-				: config_module.default;
-		normalize_config(config);
-	} else {
-		config = default_config;
+	if (!existsSync(config_path)) {
+		// No user config file found, so return the default.
+		return default_config;
 	}
-	return config;
-};
-
-// Mutates `config` with cleaned up values.
-const normalize_config = (config: Gro_Config): void => {
-	// TODO any validation?
-	config.task_root_dirs = config.task_root_dirs.map((p) => resolve(p));
+	// Import the user's `gro.config.ts`.
+	const config_module = await import(config_path);
+	validate_config_module(config_module, config_path);
+	return normalize_config(
+		typeof config_module.default === 'function'
+			? await config_module.default(default_config)
+			: config_module.default,
+	);
 };
 
 export const validate_config_module: (
