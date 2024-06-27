@@ -26,7 +26,6 @@ import {
 	git_clone_locally,
 	git_current_branch_name,
 } from './git.js';
-import {escape_bash} from './cli.js';
 
 // docs at ./docs/deploy.md
 
@@ -36,7 +35,6 @@ import {escape_bash} from './cli.js';
 // TODO customize
 const dir = process.cwd();
 const INITIAL_FILE_PATH = '.gitkeep';
-const INITIAL_FILE_CONTENTS = '';
 const DEPLOY_DIR = GRO_DIRNAME + '/deploy';
 const SOURCE_BRANCH = 'main';
 const TARGET_BRANCH = 'deploy';
@@ -190,11 +188,7 @@ export const task: Task<Args> = {
 			await spawn('git', ['checkout', '--orphan', target], target_spawn_options);
 			// TODO there's definitely a better way to do this
 			await spawn('git', ['rm', '-rf', '.'], target_spawn_options);
-			await spawn(
-				'echo',
-				[escape_bash(INITIAL_FILE_CONTENTS), '>>', INITIAL_FILE_PATH],
-				target_spawn_options,
-			);
+			await spawn('touch', [INITIAL_FILE_PATH], target_spawn_options);
 			await spawn('git', ['add', INITIAL_FILE_PATH], target_spawn_options);
 			await spawn('git', ['commit', '-m', 'init'], target_spawn_options);
 			await git_push_to_create(origin, target, target_spawn_options);
