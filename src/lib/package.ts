@@ -334,6 +334,7 @@ export const src_json = {
 				{name: 'Cli', kind: 'type'},
 				{name: 'find_cli', kind: 'function'},
 				{name: 'spawn_cli', kind: 'function'},
+				{name: 'spawn_cli_process', kind: 'function'},
 			],
 		},
 		'./commit.task.js': {
@@ -554,7 +555,10 @@ export const src_json = {
 		},
 		'./gro_plugin_sveltekit_library.js': {
 			path: 'gro_plugin_sveltekit_library.ts',
-			declarations: [{name: 'gro_plugin_sveltekit_library', kind: 'function'}],
+			declarations: [
+				{name: 'Options', kind: 'type'},
+				{name: 'gro_plugin_sveltekit_library', kind: 'function'},
+			],
 		},
 		'./gro.config.default.js': {
 			path: 'gro.config.default.ts',
@@ -835,8 +839,10 @@ export const src_json = {
 			path: 'sveltekit_helpers.ts',
 			declarations: [
 				{name: 'SVELTEKIT_CLI', kind: 'variable'},
+				{name: 'SVELTE_CHECK_CLI', kind: 'variable'},
 				{name: 'SVELTE_PACKAGE_CLI', kind: 'variable'},
 				{name: 'SVELTE_PACKAGE_DEP_NAME', kind: 'variable'},
+				{name: 'VITE_CLI', kind: 'variable'},
 				{name: 'has_sveltekit_app', kind: 'function'},
 				{name: 'has_sveltekit_library', kind: 'function'},
 				{name: 'sveltekit_sync', kind: 'function'},

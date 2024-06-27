@@ -2,7 +2,7 @@ import {print_spawn_result} from '@ryanatkn/belt/process.js';
 import {z} from 'zod';
 
 import {Task_Error, type Task} from './task.js';
-import {print_command_args, serialize_args, to_forwarded_args} from './args.js';
+import {serialize_args, to_forwarded_args} from './args.js';
 import {find_cli, spawn_cli} from './cli.js';
 import {SVELTE_CHECK_CLI, sveltekit_sync} from './sveltekit_helpers.js';
 
@@ -26,28 +26,32 @@ export const task: Task<Args> = {
 
 		await sveltekit_sync();
 
-		if (await find_cli(svelte_check_cli)) {
-			// Prefer svelte-check if available.
+		// Prefer svelte-check if available.
+		const found_svelte_check_cli = await find_cli(svelte_check_cli);
+		if (found_svelte_check_cli) {
 			const serialized = serialize_args(to_forwarded_args(svelte_check_cli));
-			log.info(print_command_args([svelte_check_cli].concat(serialized)));
-			const svelte_check_result = await spawn_cli(svelte_check_cli, serialized);
+			const svelte_check_result = await spawn_cli(svelte_check_cli, serialized, undefined, log);
 			if (!svelte_check_result?.ok) {
 				throw new Task_Error(`Failed to typecheck. ${print_spawn_result(svelte_check_result!)}`);
 			}
-		} else if (await find_cli(typescript_cli)) {
-			// Fall back to tsc.
+			return;
+		}
+
+		// Fall back to tsc.
+		const found_typescript_cli = await find_cli(typescript_cli);
+		if (found_typescript_cli) {
 			const forwarded = to_forwarded_args(typescript_cli);
 			if (!forwarded.noEmit) forwarded.noEmit = true;
 			const serialized = serialize_args(forwarded);
-			log.info(print_command_args([typescript_cli].concat(serialized)));
-			const svelte_check_result = await spawn_cli(typescript_cli, serialized);
+			const svelte_check_result = await spawn_cli(found_typescript_cli, serialized, undefined, log);
 			if (!svelte_check_result?.ok) {
 				throw new Task_Error(`Failed to typecheck. ${print_spawn_result(svelte_check_result!)}`);
 			}
-		} else {
-			throw new Task_Error(
-				`Failed to typecheck because neither \`${svelte_check_cli}\` nor \`${typescript_cli}\` was found`,
-			);
+			return;
 		}
+
+		throw new Task_Error(
+			`Failed to typecheck because neither \`${svelte_check_cli}\` nor \`${typescript_cli}\` was found`,
+		);
 	},
 };

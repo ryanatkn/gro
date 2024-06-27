@@ -1,11 +1,21 @@
 import type {SpawnOptions} from 'node:child_process';
-import {spawn, spawn_out, type Spawn_Result} from '@ryanatkn/belt/process.js';
+import {
+	spawn,
+	spawn_out,
+	spawn_process,
+	type Spawn_Result,
+	type Spawned_Process,
+} from '@ryanatkn/belt/process.js';
 import {join} from 'node:path';
 import {existsSync} from 'node:fs';
 import {fileURLToPath} from 'node:url';
+import type {Logger} from '@ryanatkn/belt/log.js';
 
 import {NODE_MODULES_DIRNAME} from './path_constants.js';
 import type {Path_Id} from './path.js';
+import {print_command_args} from './args.js';
+
+// TODO maybe upstream to Belt?
 
 export type Cli =
 	| {kind: 'local'; name: string; id: Path_Id}
@@ -30,24 +40,54 @@ export const find_cli = async (
 	return {name, id: global_id, kind: 'global'};
 };
 
-// TODO BLOCK add an option to log the args? see usage
 /**
- * Spawns a CLI if available.
+ * Spawns a CLI if available using Belt's `spawn`.
  * If a string is provided for `name_or_cli`, it checks first local to the cwd and then globally.
  * @returns `undefined` if no CLI is found, or the spawn result
  */
 export const spawn_cli = async (
 	name_or_cli: string | Cli,
-	args: any[] = [],
+	args: string[] = [],
 	options?: SpawnOptions | undefined,
+	log?: Logger,
 ): Promise<Spawn_Result | undefined> => {
+	const cli = await resolve_cli(name_or_cli, args, options?.cwd, log);
+	if (!cli) return;
+	return spawn(cli.id, args, options);
+};
+
+/**
+ * Spawns a CLI if available using Belt's `spawn_process`.
+ * If a string is provided for `name_or_cli`, it checks first local to the cwd and then globally.
+ * @returns `undefined` if no CLI is found, or the spawn result
+ */
+export const spawn_cli_process = async (
+	name_or_cli: string | Cli,
+	args: string[] = [],
+	options?: SpawnOptions | undefined,
+	log?: Logger,
+): Promise<Spawned_Process | undefined> => {
+	const cli = await resolve_cli(name_or_cli, args, options?.cwd, log);
+	if (!cli) return;
+	return spawn_process(cli.id, args, options);
+};
+
+const resolve_cli = async (
+	name_or_cli: string | Cli,
+	args: string[] = [],
+	cwd: string | URL | undefined,
+	log?: Logger,
+) => {
 	let final_cli;
 	if (typeof name_or_cli === 'string') {
-		const found = await find_cli(name_or_cli, options?.cwd);
+		const found = await find_cli(name_or_cli, cwd);
 		if (!found) return;
 		final_cli = found;
 	} else {
 		final_cli = name_or_cli;
 	}
-	return spawn(final_cli.id, args, options);
+	if (log) {
+		log.info(print_command_args([final_cli.name].concat(args)));
+	}
+	return final_cli;
 };

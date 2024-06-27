@@ -15,6 +15,8 @@ export const SVELTE_CHECK_CLI = 'svelte-check';
 export const SVELTE_PACKAGE_CLI = 'svelte-package';
 export const SVELTE_PACKAGE_DEP_NAME = '@sveltejs/package';
 
+export const VITE_CLI = 'vite';
+
 export const has_sveltekit_app = async (): Promise<Result<object, {message: string}>> => {
 	if (!existsSync(SVELTEKIT_CONFIG_FILENAME)) {
 		return {ok: false, message: `no SvelteKit config found at ${SVELTEKIT_CONFIG_FILENAME}`};
@@ -52,7 +54,9 @@ export const has_sveltekit_library = async (
 export const sveltekit_sync = async (): Promise<void> => {
 	const result = await spawn_cli(SVELTEKIT_CLI, ['sync']);
 	if (!result) {
-		throw new Task_Error(`Failed to find ${SVELTEKIT_CLI} CLI - do you need to run \`npm i\`?`);
+		throw new Task_Error(
+			`Failed to find SvelteKit CLI \`${SVELTEKIT_CLI}\`, do you need to run \`npm i\`?`,
+		);
 	} else if (!result.ok) {
 		throw new Task_Error(`Failed ${SVELTEKIT_CLI} sync`);
 	}
