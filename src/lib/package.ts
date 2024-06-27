@@ -88,6 +88,10 @@ export const package_json = {
 		'./args.js': {types: './dist/args.d.ts', default: './dist/args.js'},
 		'./build.task.js': {types: './dist/build.task.d.ts', default: './dist/build.task.js'},
 		'./changelog.js': {types: './dist/changelog.d.ts', default: './dist/changelog.js'},
+		'./changeset_helpers.js': {
+			types: './dist/changeset_helpers.d.ts',
+			default: './dist/changeset_helpers.js',
+		},
 		'./changeset.task.js': {
 			types: './dist/changeset.task.d.ts',
 			default: './dist/changeset.task.js',
@@ -305,10 +309,20 @@ export const src_json = {
 			path: 'changelog.ts',
 			declarations: [{name: 'update_changelog', kind: 'function'}],
 		},
+		'./changeset_helpers.js': {
+			path: 'changeset_helpers.ts',
+			declarations: [
+				{name: 'CHANGESET_RESTRICTED_ACCESS', kind: 'variable'},
+				{name: 'CHANGESET_PUBLIC_ACCESS', kind: 'variable'},
+				{name: 'Changeset_Access', kind: 'variable'},
+				{name: 'CHANGESET_CLI', kind: 'variable'},
+				{name: 'CHANGESET_DIR', kind: 'variable'},
+				{name: 'Changeset_Bump', kind: 'variable'},
+			],
+		},
 		'./changeset.task.js': {
 			path: 'changeset.task.ts',
 			declarations: [
-				{name: 'Changeset_Bump', kind: 'variable'},
 				{name: 'Args', kind: 'variable'},
 				{name: 'task', kind: 'variable'},
 			],
@@ -335,6 +349,8 @@ export const src_json = {
 				{name: 'find_cli', kind: 'function'},
 				{name: 'spawn_cli', kind: 'function'},
 				{name: 'spawn_cli_process', kind: 'function'},
+				{name: 'resolve_cli', kind: 'function'},
+				{name: 'to_cli_name', kind: 'function'},
 			],
 		},
 		'./commit.task.js': {
