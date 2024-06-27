@@ -94,3 +94,7 @@ export const resolve_cli = async (
 
 export const to_cli_name = (cli: string | Cli): string =>
 	typeof cli === 'string' ? cli : cli.name;
+
+// TODO use this more places
+export const escape_bash = (arg: string): string =>
+	arg.includes("'") ? `'${arg.replaceAll("'", "\\'")}'` : arg;

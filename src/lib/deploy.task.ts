@@ -26,6 +26,7 @@ import {
 	git_clone_locally,
 	git_current_branch_name,
 } from './git.js';
+import {escape_bash} from './cli.js';
 
 // docs at ./docs/deploy.md
 
@@ -191,7 +192,7 @@ export const task: Task<Args> = {
 			await spawn('git', ['rm', '-rf', '.'], target_spawn_options);
 			await spawn(
 				'echo',
-				[`"${INITIAL_FILE_CONTENTS}"`, '>>', INITIAL_FILE_PATH],
+				[escape_bash(INITIAL_FILE_CONTENTS), '>>', INITIAL_FILE_PATH],
 				target_spawn_options,
 			);
 			await spawn('git', ['add', INITIAL_FILE_PATH], target_spawn_options);
