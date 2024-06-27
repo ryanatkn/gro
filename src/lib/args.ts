@@ -1,4 +1,4 @@
-import {magenta} from 'kleur/colors';
+import {gray, magenta} from 'kleur/colors';
 import mri from 'mri';
 import type {z} from 'zod';
 
@@ -166,4 +166,4 @@ export const to_forwarded_args_by_command = (
 };
 
 export const print_command_args = (serialized_args: string[]): string =>
-	magenta('running command: ') + serialized_args.join(' ');
+	gray('[') + magenta('running command') + gray(']') + ' ' + serialized_args.join(' ');

@@ -88,6 +88,10 @@ export const package_json = {
 		'./args.js': {types: './dist/args.d.ts', default: './dist/args.js'},
 		'./build.task.js': {types: './dist/build.task.d.ts', default: './dist/build.task.js'},
 		'./changelog.js': {types: './dist/changelog.d.ts', default: './dist/changelog.js'},
+		'./changeset_helpers.js': {
+			types: './dist/changeset_helpers.d.ts',
+			default: './dist/changeset_helpers.js',
+		},
 		'./changeset.task.js': {
 			types: './dist/changeset.task.d.ts',
 			default: './dist/changeset.task.js',
@@ -305,10 +309,20 @@ export const src_json = {
 			path: 'changelog.ts',
 			declarations: [{name: 'update_changelog', kind: 'function'}],
 		},
+		'./changeset_helpers.js': {
+			path: 'changeset_helpers.ts',
+			declarations: [
+				{name: 'CHANGESET_RESTRICTED_ACCESS', kind: 'variable'},
+				{name: 'CHANGESET_PUBLIC_ACCESS', kind: 'variable'},
+				{name: 'Changeset_Access', kind: 'variable'},
+				{name: 'CHANGESET_CLI', kind: 'variable'},
+				{name: 'CHANGESET_DIR', kind: 'variable'},
+				{name: 'Changeset_Bump', kind: 'variable'},
+			],
+		},
 		'./changeset.task.js': {
 			path: 'changeset.task.ts',
 			declarations: [
-				{name: 'Changeset_Bump', kind: 'variable'},
 				{name: 'Args', kind: 'variable'},
 				{name: 'task', kind: 'variable'},
 			],
@@ -331,8 +345,12 @@ export const src_json = {
 		'./cli.js': {
 			path: 'cli.ts',
 			declarations: [
+				{name: 'Cli', kind: 'type'},
 				{name: 'find_cli', kind: 'function'},
 				{name: 'spawn_cli', kind: 'function'},
+				{name: 'spawn_cli_process', kind: 'function'},
+				{name: 'resolve_cli', kind: 'function'},
+				{name: 'to_cli_name', kind: 'function'},
 			],
 		},
 		'./commit.task.js': {
@@ -553,7 +571,10 @@ export const src_json = {
 		},
 		'./gro_plugin_sveltekit_library.js': {
 			path: 'gro_plugin_sveltekit_library.ts',
-			declarations: [{name: 'gro_plugin_sveltekit_library', kind: 'function'}],
+			declarations: [
+				{name: 'Options', kind: 'type'},
+				{name: 'gro_plugin_sveltekit_library', kind: 'function'},
+			],
 		},
 		'./gro.config.default.js': {
 			path: 'gro.config.default.ts',
@@ -834,8 +855,10 @@ export const src_json = {
 			path: 'sveltekit_helpers.ts',
 			declarations: [
 				{name: 'SVELTEKIT_CLI', kind: 'variable'},
+				{name: 'SVELTE_CHECK_CLI', kind: 'variable'},
 				{name: 'SVELTE_PACKAGE_CLI', kind: 'variable'},
 				{name: 'SVELTE_PACKAGE_DEP_NAME', kind: 'variable'},
+				{name: 'VITE_CLI', kind: 'variable'},
 				{name: 'has_sveltekit_app', kind: 'function'},
 				{name: 'has_sveltekit_library', kind: 'function'},
 				{name: 'sveltekit_sync', kind: 'function'},

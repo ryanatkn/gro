@@ -10,8 +10,10 @@ import {
 	TSCONFIG_FILENAME,
 	GRO_CONFIG_PATH,
 } from './path_constants.js';
-import {print_command_args, serialize_args, to_forwarded_args} from './args.js';
-import {spawn_cli} from './cli.js';
+import {serialize_args, to_forwarded_args} from './args.js';
+import {spawn_cli, to_cli_name, type Cli} from './cli.js';
+
+const PRETTIER_CLI = 'prettier';
 
 const DEFAULT_EXTENSIONS = 'ts,js,json,svelte,html,css,md,yml';
 const DEFAULT_ROOT_PATHS = `${[
@@ -35,19 +37,19 @@ export const format_directory = async (
 	check = false,
 	extensions = DEFAULT_EXTENSIONS,
 	root_paths = DEFAULT_ROOT_PATHS,
+	prettier_cli: string | Cli = PRETTIER_CLI,
 ): Promise<Spawn_Result> => {
-	const forwarded_args = to_forwarded_args('prettier');
+	const forwarded_args = to_forwarded_args(to_cli_name(prettier_cli));
 	forwarded_args[check ? 'check' : 'write'] = true;
 	const serialized_args = serialize_args(forwarded_args);
 	serialized_args.push(`${dir}**/*.{${extensions}}`);
 	if (dir === paths.source) {
 		serialized_args.push(`${paths.root}{${root_paths}}`);
 	}
-	log.info(print_command_args(serialized_args));
-	const spawned = await spawn_cli('prettier', serialized_args);
+	const spawned = await spawn_cli(prettier_cli, serialized_args, log);
 	if (!spawned)
 		throw new Error(
-			'failed to find `prettier` CLI locally or globally, do you need to run `npm i`?',
+			`failed to find \`${to_cli_name(prettier_cli)}\` CLI locally or globally, do you need to run \`npm i\`?`,
 		);
 	return spawned;
 };

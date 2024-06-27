@@ -83,7 +83,7 @@ as a dev dependency:
 
 ```bash
 npm i -D @ryanatkn/gro
-npx gro
+npx gro # note the package is namespaced, don't install `gro`
 ```
 
 It's handy to install globally too:

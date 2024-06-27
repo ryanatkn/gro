@@ -3,11 +3,21 @@ import {print_spawn_result, spawn} from '@ryanatkn/belt/process.js';
 import type {Plugin, Plugin_Context} from './plugin.js';
 import {Task_Error} from './task.js';
 import {load_package_json} from './package_json.js';
-import {print_command_args, serialize_args, to_forwarded_args} from './args.js';
+import {serialize_args, to_forwarded_args} from './args.js';
 import {find_cli, spawn_cli} from './cli.js';
 import {SVELTE_PACKAGE_CLI, has_sveltekit_library} from './sveltekit_helpers.js';
 
-export const gro_plugin_sveltekit_library = (): Plugin<Plugin_Context> => {
+// TODO suport typesafe CLI args that can continue to be overridden by the CLI via forwarded args - https://kit.svelte.dev/docs/packaging
+export interface Options {
+	/**
+	 * The SvelteKit packaging CLI to use. Defaults to `svelte-package`.
+	 */
+	svelte_package_cli?: string;
+}
+
+export const gro_plugin_sveltekit_library = ({
+	svelte_package_cli = SVELTE_PACKAGE_CLI,
+}: Options = {}): Plugin<Plugin_Context> => {
 	return {
 		name: 'gro_plugin_sveltekit_library',
 		setup: async ({log}) => {
@@ -17,12 +27,14 @@ export const gro_plugin_sveltekit_library = (): Plugin<Plugin_Context> => {
 					'Failed to find SvelteKit library: ' + has_sveltekit_library_result.message,
 				);
 			}
-			if ((await find_cli(SVELTE_PACKAGE_CLI)) !== 'local') {
-				throw new Task_Error(`Failed to find ${SVELTE_PACKAGE_CLI}, run \`npm i\``);
+			const found_svelte_package_cli = await find_cli(svelte_package_cli);
+			if (found_svelte_package_cli?.kind !== 'local') {
+				throw new Task_Error(
+					`Failed to find SvelteKit packaging CLI \`${svelte_package_cli}\`, do you need to run \`npm i\`?`,
+				);
 			}
-			const serialized_args = serialize_args(to_forwarded_args(SVELTE_PACKAGE_CLI));
-			log.info(print_command_args(serialized_args));
-			await spawn_cli(SVELTE_PACKAGE_CLI, serialized_args);
+			const serialized_args = serialize_args(to_forwarded_args(svelte_package_cli));
+			await spawn_cli(found_svelte_package_cli, serialized_args, log);
 		},
 		adapt: async ({log, timings}) => {
 			const package_json = await load_package_json();

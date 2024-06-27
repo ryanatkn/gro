@@ -125,6 +125,10 @@
       "types": "./dist/changelog.d.ts",
       "default": "./dist/changelog.js"
     },
+    "./changeset_helpers.js": {
+      "types": "./dist/changeset_helpers.d.ts",
+      "default": "./dist/changeset_helpers.js"
+    },
     "./changeset.task.js": {
       "types": "./dist/changeset.task.d.ts",
       "default": "./dist/changeset.task.js"
