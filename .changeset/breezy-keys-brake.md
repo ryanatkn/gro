@@ -7,3 +7,4 @@ improve CLI handling
 - change `find_cli` to return an object
 - remove `npx` usage
 - add a bunch of CLI customizability
+- improve CLI resolution performance
