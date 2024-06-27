@@ -72,12 +72,12 @@ export const spawn_cli_process = async (
 	return spawn_process(cli.id, args, options);
 };
 
-const resolve_cli = async (
+export const resolve_cli = async (
 	name_or_cli: string | Cli,
 	args: string[] = [],
 	cwd: string | URL | undefined,
 	log?: Logger,
-) => {
+): Promise<Cli | undefined> => {
 	let final_cli;
 	if (typeof name_or_cli === 'string') {
 		const found = await find_cli(name_or_cli, cwd);
