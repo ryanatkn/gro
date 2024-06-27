@@ -1,6 +1,9 @@
 import {fileURLToPath} from 'node:url';
 import type {Flavored} from '@ryanatkn/belt/types.js';
 
+/**
+ * An absolute path on the filesystem. Named "id" to be consistent with Rollup.
+ */
 export type Path_Id = Flavored<string, 'Path_Id'>;
 
 export interface Path_Info {

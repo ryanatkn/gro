@@ -1,17 +1,18 @@
-import {spawn_process, type Spawned_Process} from '@ryanatkn/belt/process.js';
+import type {Spawned_Process} from '@ryanatkn/belt/process.js';
 import {cp, mkdir, rm, writeFile} from 'node:fs/promises';
 import {dirname, join} from 'node:path';
 import {existsSync} from 'node:fs';
 
 import type {Plugin, Plugin_Context} from './plugin.js';
-import {print_command_args, serialize_args, to_forwarded_args} from './args.js';
+import {serialize_args, to_forwarded_args} from './args.js';
 import {serialize_package_json, type Map_Package_Json, load_package_json} from './package_json.js';
 import {Task_Error} from './task.js';
-import {spawn_cli} from './cli.js';
+import {find_cli, spawn_cli, spawn_cli_process} from './cli.js';
 import {type Map_Src_Json, serialize_src_json, create_src_json} from './src_json.js';
 import {DEFAULT_EXPORTS_EXCLUDER} from './config.js';
 import {sveltekit_config_global} from './sveltekit_config_global.js';
 import {SOURCE_DIRNAME} from './path_constants.js';
+import {VITE_CLI} from './sveltekit_helpers.js';
 
 export interface Options {
 	/**
@@ -37,6 +38,10 @@ export interface Options {
 	 * Pass a function to customize which files get copied.
 	 */
 	well_known_src_files?: boolean | Copy_File_Filter;
+	/**
+	 * The Vite CLI to use.
+	 */
+	vite_cli?: string;
 }
 
 export type Host_Target = 'github_pages' | 'static' | 'node';
@@ -50,17 +55,20 @@ export const gro_plugin_sveltekit_app = ({
 	well_known_package_json,
 	well_known_src_json,
 	well_known_src_files,
+	vite_cli = VITE_CLI,
 }: Options = {}): Plugin<Plugin_Context> => {
-	let sveltekit_process: Spawned_Process | null = null;
+	let sveltekit_process: Spawned_Process | undefined = undefined;
 	return {
 		name: 'gro_plugin_sveltekit_app',
 		setup: async ({dev, watch, log}) => {
+			const found_vite_cli = await find_cli(vite_cli);
+			if (!found_vite_cli)
+				throw new Error(`Failed to find Vite CLI \`${vite_cli}\`, do you need to run \`npm i\`?`);
 			if (dev) {
 				// `vite dev` in development mode
 				if (watch) {
-					const serialized_args = ['vite', 'dev', ...serialize_args(to_forwarded_args('vite'))];
-					log.info(print_command_args(serialized_args));
-					sveltekit_process = spawn_process('npx', serialized_args);
+					const serialized_args = ['dev', ...serialize_args(to_forwarded_args(vite_cli))];
+					sveltekit_process = await spawn_cli_process(found_vite_cli, serialized_args, log);
 				} else {
 					log.debug(
 						`the SvelteKit app plugin is loaded but will not output anything` +
@@ -137,11 +145,10 @@ export const gro_plugin_sveltekit_app = ({
 				].filter(Boolean);
 				const cleanup = () => Promise.all(cleanups.map((c) => c()));
 				try {
-					const serialized_args = ['build', ...serialize_args(to_forwarded_args('vite'))];
-					log.info(print_command_args(['vite'].concat(serialized_args)));
-					const spawned = await spawn_cli('vite', serialized_args); // TODO call with the gro helper instead of npx?
+					const serialized_args = ['build', ...serialize_args(to_forwarded_args(vite_cli))];
+					const spawned = await spawn_cli(found_vite_cli, serialized_args, log);
 					if (!spawned?.ok) {
-						throw new Task_Error('vite build failed with exit code ' + spawned?.code);
+						throw new Task_Error(`${vite_cli} build failed with exit code ${spawned?.code}`);
 					}
 				} catch (err) {
 					await cleanup();

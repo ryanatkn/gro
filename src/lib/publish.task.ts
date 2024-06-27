@@ -18,6 +18,7 @@ import {
 	git_fetch,
 	git_pull,
 } from './git.js';
+import {CHANGESET_CLI} from './changeset_helpers.js';
 
 // publish.task.ts
 // - usage: `gro publish patch`
@@ -51,6 +52,7 @@ export const Args = z
 		'no-build': z.boolean({description: 'opt out of building'}).default(false),
 		pull: z.boolean({description: 'dual of no-pull'}).default(true),
 		'no-pull': z.boolean({description: 'opt out of git pull'}).default(false),
+		changeset_cli: z.string({description: 'the changeset CLI to use'}).default(CHANGESET_CLI),
 	})
 	.strict();
 export type Args = z.infer<typeof Args>;
@@ -59,7 +61,18 @@ export const task: Task<Args> = {
 	summary: 'bump version, publish to npm, and git push',
 	Args,
 	run: async ({args, log, invoke_task}): Promise<void> => {
-		const {branch, origin, changelog, preserve_changelog, dry, check, build, pull, optional} = args;
+		const {
+			branch,
+			origin,
+			changelog,
+			preserve_changelog,
+			dry,
+			check,
+			build,
+			pull,
+			optional,
+			changeset_cli,
+		} = args;
 		if (dry) {
 			log.info(green('dry run!'));
 		}
@@ -78,7 +91,8 @@ export const task: Task<Args> = {
 
 		const changelog_exists = existsSync(changelog);
 
-		if (!(await find_cli('changeset'))) {
+		const found_changeset_cli = await find_cli(changeset_cli);
+		if (!found_changeset_cli) {
 			throw new Task_Error(
 				'changeset command not found, install @changesets/cli locally or globally',
 			);
@@ -124,7 +138,7 @@ export const task: Task<Args> = {
 
 			// This is the first line that alters the repo.
 
-			const npmVersionResult = await spawn_cli('changeset', ['version']);
+			const npmVersionResult = await spawn_cli(found_changeset_cli, ['version'], log);
 			if (!npmVersionResult?.ok) {
 				throw Error('npm version failed: no commits were made: see the error above');
 			}
@@ -147,7 +161,7 @@ export const task: Task<Args> = {
 				if (optional) {
 					return; // exit gracefully
 				} else {
-					throw new Task_Error('changeset version failed: are there any changes?');
+					throw new Task_Error(`\`${changeset_cli} version\` failed: are there any changes?`);
 				}
 			}
 		}
@@ -162,10 +176,10 @@ export const task: Task<Args> = {
 			return;
 		}
 
-		const npm_publish_result = await spawn_cli('changeset', ['publish']);
+		const npm_publish_result = await spawn_cli(found_changeset_cli, ['publish'], log);
 		if (!npm_publish_result?.ok) {
 			throw new Task_Error(
-				'changeset publish failed - revert the version tag or run it again manually',
+				`\`${changeset_cli} publish\` failed - revert the version tag or run it again manually`,
 			);
 		}
 

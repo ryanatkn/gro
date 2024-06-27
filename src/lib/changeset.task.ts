@@ -11,14 +11,14 @@ import {load_package_json} from './package_json.js';
 import {find_cli, spawn_cli} from './cli.js';
 import {Git_Origin, git_check_fully_staged_workspace, git_push_to_create} from './git.js';
 import {has_sveltekit_library} from './sveltekit_helpers.js';
-
-const RESTRICTED_ACCESS = 'restricted';
-const PUBLIC_ACCESS = 'public';
-
-const CHANGESET_DIR = '.changeset';
-
-export const Changeset_Bump = z.enum(['patch', 'minor', 'major']);
-export type Changeset_Bump = z.infer<typeof Changeset_Bump>;
+import {
+	CHANGESET_CLI,
+	CHANGESET_DIR,
+	Changeset_Access,
+	Changeset_Bump,
+	CHANGESET_PUBLIC_ACCESS,
+	CHANGESET_RESTRICTED_ACCESS,
+} from './changeset_helpers.js';
 
 export const Args = z
 	.object({
@@ -29,11 +29,9 @@ export const Args = z
 		minor: z.boolean({description: 'bump the minor version'}).default(false),
 		major: z.boolean({description: 'bump the major version'}).default(false),
 		dir: z.string({description: 'changeset dir'}).default(CHANGESET_DIR),
-		access: z
-			.enum([RESTRICTED_ACCESS, PUBLIC_ACCESS], {
-				description: `changeset 'access' config value, the default depends on package.json#private`,
-			})
-			.optional(),
+		access: Changeset_Access.describe(
+			"changeset 'access' config value, the default depends on package.json#private",
+		).optional(),
 		changelog: z
 			.string({description: 'changeset "changelog" config value'})
 			.default('@changesets/changelog-git'),
@@ -42,6 +40,7 @@ export const Args = z
 			.boolean({description: 'opt out of npm installing the changelog package'})
 			.default(false),
 		origin: Git_Origin.describe('git origin to deploy to').default('origin'),
+		changeset_cli: z.string({description: 'the changeset CLI to use'}).default(CHANGESET_CLI),
 	})
 	.strict();
 export type Args = z.infer<typeof Args>;
@@ -61,7 +60,7 @@ export const task: Task<Args> = {
 	run: async (ctx): Promise<void> => {
 		const {
 			invoke_task,
-			args: {_, minor, major, dir, access: access_arg, changelog, install, origin},
+			args: {_, minor, major, dir, access: access_arg, changelog, install, origin, changeset_cli},
 			log,
 		} = ctx;
 
@@ -72,7 +71,8 @@ export const task: Task<Args> = {
 
 		const bump: Changeset_Bump = minor ? 'minor' : major ? 'major' : 'patch';
 
-		if (!(await find_cli('changeset'))) {
+		const found_changeset_cli = await find_cli(changeset_cli);
+		if (!found_changeset_cli) {
 			throw new Task_Error(
 				'changeset command not found: install @changesets/cli locally or globally',
 			);
@@ -92,13 +92,14 @@ export const task: Task<Args> = {
 		const inited = existsSync(path);
 
 		if (!inited) {
-			await spawn_cli('changeset', ['init']);
+			await spawn_cli(found_changeset_cli, ['init'], log);
 
-			const access = access_arg ?? package_json.private ? RESTRICTED_ACCESS : PUBLIC_ACCESS;
+			const access =
+				access_arg ?? package_json.private ? CHANGESET_RESTRICTED_ACCESS : CHANGESET_PUBLIC_ACCESS;
 
-			const access_color = access === RESTRICTED_ACCESS ? blue : red;
+			const access_color = access === CHANGESET_RESTRICTED_ACCESS ? blue : red;
 			log.info('initing changeset with ' + access_color(access) + ' access');
-			if (access !== RESTRICTED_ACCESS) {
+			if (access !== CHANGESET_RESTRICTED_ACCESS) {
 				await update_changeset_config(path, (config) => {
 					const updated = {...config};
 					updated.access = access;
@@ -120,14 +121,14 @@ export const task: Task<Args> = {
 		if (message) {
 			// TODO see the helper below, simplify this to CLI flags when support is added to Changesets
 			const changeset_adder = await create_changeset_adder(package_json.name, dir, message, bump);
-			await spawn_cli('changeset', ['add', '--empty']);
+			await spawn_cli(found_changeset_cli, ['add', '--empty'], log);
 			await changeset_adder();
 			if (!(await git_check_fully_staged_workspace())) {
 				await spawn('git', ['commit', '-m', message]);
 				await git_push_to_create(origin);
 			}
 		} else {
-			await spawn_cli('changeset');
+			await spawn_cli(found_changeset_cli, [], log);
 			await spawn('git', ['add', dir]);
 		}
 	},
