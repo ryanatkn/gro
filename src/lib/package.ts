@@ -8,7 +8,7 @@ export const package_json = {
 	version: '0.124.0',
 	public: true,
 	motto: 'generate, run, optimize',
-	emoji: '🌰',
+	glyph: '🌰',
 	description: 'task runner and toolkit extending SvelteKit',
 	license: 'MIT',
 	homepage: 'https://gro.ryanatkn.com/',

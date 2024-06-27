@@ -88,7 +88,7 @@ export const Package_Json = z
 			.string({description: "a Gro extension that's a short phrase that represents this project"})
 			.optional(),
 		// TODO icon/favicon/logo that can point to a URL as an alternative to `<link rel="icon"`?
-		emoji: z
+		glyph: z
 			.string({
 				description:
 					"a Gro extension that's a single unicode character that represents this project",

@@ -2,4 +2,4 @@
 '@ryanatkn/gro': minor
 ---
 
-rename `package.json` `icon` to `emoji`
+rename `package.json` `icon` to `glyph`
