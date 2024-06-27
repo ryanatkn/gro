@@ -2,9 +2,9 @@
   "name": "@ryanatkn/gro",
   "version": "0.124.0",
   "public": true,
+  "description": "task runner and toolkit extending SvelteKit",
   "motto": "generate, run, optimize",
   "glyph": "🌰",
-  "description": "task runner and toolkit extending SvelteKit",
   "license": "MIT",
   "homepage": "https://gro.ryanatkn.com/",
   "repository": {

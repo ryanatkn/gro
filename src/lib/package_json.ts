@@ -76,14 +76,14 @@ export const Package_Json = z
 		// according to the npm docs, `name` and `version` are the only required properties
 		name: z.string(),
 		version: z.string(),
-
-		// Gro extensions
+		private: z.boolean({description: 'disallow npm publish'}).optional(),
 		public: z
 			.boolean({
 				description:
 					'a Gro extension that enables publishing `.well-known/package.json` and `.well-known/src`',
 			})
 			.optional(),
+		description: z.string().optional(),
 		motto: z
 			.string({description: "a Gro extension that's a short phrase that represents this project"})
 			.optional(),
@@ -95,15 +95,12 @@ export const Package_Json = z
 			})
 			.refine((v) => count_graphemes(v) === 1, 'must be a single unicode character')
 			.optional(),
-
-		private: z.boolean({description: 'disallow npm publish'}).optional(),
-
-		description: z.string().optional(),
 		license: z.string().optional(),
 		homepage: Url.optional(),
 		repository: z.union([z.string(), Url, Package_Json_Repository]).optional(),
 		author: z.union([z.string(), Package_Json_Author.optional()]),
 		contributors: z.array(z.union([z.string(), Package_Json_Author])).optional(),
+
 		bugs: z
 			.union([z.string(), z.object({url: Url.optional(), email: Email.optional()}).passthrough()])
 			.optional(),
