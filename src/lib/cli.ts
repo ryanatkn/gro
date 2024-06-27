@@ -91,3 +91,6 @@ const resolve_cli = async (
 	}
 	return final_cli;
 };
+
+export const to_cli_name = (cli: string | Cli): string =>
+	typeof cli === 'string' ? cli : cli.name;

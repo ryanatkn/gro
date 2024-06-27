@@ -5,7 +5,7 @@ import {Package_Json, load_package_json} from './package_json.js';
 import {sveltekit_config_global} from './sveltekit_config_global.js';
 import type {Parsed_Sveltekit_Config} from './sveltekit_config.js';
 import {SVELTEKIT_CONFIG_FILENAME, SVELTEKIT_DEV_DIRNAME} from './path_constants.js';
-import {find_cli, spawn_cli} from './cli.js';
+import {find_cli, spawn_cli, to_cli_name, type Cli} from './cli.js';
 import {Task_Error} from './task.js';
 
 export const SVELTEKIT_CLI = 'svelte-kit';
@@ -51,26 +51,32 @@ export const has_sveltekit_library = async (
 	return {ok: true};
 };
 
-export const sveltekit_sync = async (): Promise<void> => {
-	const result = await spawn_cli(SVELTEKIT_CLI, ['sync']);
+export const sveltekit_sync = async (
+	sveltekit_cli: string | Cli = SVELTEKIT_CLI,
+): Promise<void> => {
+	const result = await spawn_cli(sveltekit_cli, ['sync']);
 	if (!result) {
 		throw new Task_Error(
-			`Failed to find SvelteKit CLI \`${SVELTEKIT_CLI}\`, do you need to run \`npm i\`?`,
+			`Failed to find SvelteKit CLI \`${to_cli_name(sveltekit_cli)}\`, do you need to run \`npm i\`?`,
 		);
 	} else if (!result.ok) {
-		throw new Task_Error(`Failed ${SVELTEKIT_CLI} sync`);
+		throw new Task_Error(`Failed ${to_cli_name(sveltekit_cli)} sync`);
 	}
 };
 
 /**
  * If the SvelteKit CLI is found and its `.svelte-kit` directory is not, run `svelte-kit sync`.
  */
-export const sveltekit_sync_if_obviously_needed = async (): Promise<void> => {
+export const sveltekit_sync_if_obviously_needed = async (
+	sveltekit_cli: string | Cli = SVELTEKIT_CLI,
+): Promise<void> => {
 	if (existsSync(SVELTEKIT_DEV_DIRNAME)) {
 		return;
 	}
-	if (!(await find_cli(SVELTEKIT_CLI))) {
+	const found_sveltekit_cli =
+		typeof sveltekit_cli === 'string' ? await find_cli(sveltekit_cli) : sveltekit_cli;
+	if (!found_sveltekit_cli) {
 		return;
 	}
-	return sveltekit_sync();
+	return sveltekit_sync(found_sveltekit_cli);
 };
