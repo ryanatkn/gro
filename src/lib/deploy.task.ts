@@ -194,6 +194,7 @@ export const task: Task<Args> = {
 					`git add ${INITIAL_FILE_PATH} && ` +
 					`git commit -m "init"`,
 				[],
+				// TODO BLOCK remove `shell: true` here because `target` is user input
 				// Use `shell: true` because the above is unwieldy with standard command construction
 				{...target_spawn_options, shell: true},
 			);

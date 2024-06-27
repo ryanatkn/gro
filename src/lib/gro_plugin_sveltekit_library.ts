@@ -17,7 +17,7 @@ export const gro_plugin_sveltekit_library = (): Plugin<Plugin_Context> => {
 					'Failed to find SvelteKit library: ' + has_sveltekit_library_result.message,
 				);
 			}
-			if ((await find_cli(SVELTE_PACKAGE_CLI)) !== 'local') {
+			if ((await find_cli(SVELTE_PACKAGE_CLI))?.kind !== 'local') {
 				throw new Task_Error(`Failed to find ${SVELTE_PACKAGE_CLI}, run \`npm i\``);
 			}
 			const serialized_args = serialize_args(to_forwarded_args(SVELTE_PACKAGE_CLI));

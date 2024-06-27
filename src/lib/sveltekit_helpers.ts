@@ -10,6 +10,8 @@ import {Task_Error} from './task.js';
 
 export const SVELTEKIT_CLI = 'svelte-kit';
 
+export const SVELTE_CHECK_CLI = 'svelte-check';
+
 export const SVELTE_PACKAGE_CLI = 'svelte-package';
 export const SVELTE_PACKAGE_DEP_NAME = '@sveltejs/package';
 
