@@ -97,4 +97,4 @@ export const to_cli_name = (cli: string | Cli): string =>
 
 // TODO use this more places
 export const escape_bash = (arg: string): string =>
-	arg.includes("'") ? `'${arg.replaceAll("'", "\\'")}'` : arg;
+	arg ? (arg.includes("'") ? `'${arg.replaceAll("'", "\\'")}'` : arg) : "''";

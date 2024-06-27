@@ -8,6 +8,7 @@ test('escape_bash', () => {
 	assert.is(escape_bash('a" b'), 'a" b');
 	assert.is(escape_bash("a' b"), "'a\\' b'");
 	assert.is(escape_bash("'a' 'b'''"), "'\\'a\\' \\'b\\'\\'\\''");
+	assert.is(escape_bash(''), "''");
 });
 
 test.run();

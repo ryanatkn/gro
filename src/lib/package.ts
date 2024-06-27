@@ -351,6 +351,7 @@ export const src_json = {
 				{name: 'spawn_cli_process', kind: 'function'},
 				{name: 'resolve_cli', kind: 'function'},
 				{name: 'to_cli_name', kind: 'function'},
+				{name: 'escape_bash', kind: 'function'},
 			],
 		},
 		'./commit.task.js': {
