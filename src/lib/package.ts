@@ -273,6 +273,7 @@ export const src_json = {
 			declarations: [
 				{name: 'Gro_Config', kind: 'type'},
 				{name: 'Create_Gro_Config', kind: 'type'},
+				{name: 'Raw_Gro_Config', kind: 'type'},
 				{name: 'Plugin', kind: 'type'},
 				{name: 'replace_plugin', kind: 'function'},
 				{name: 'Gen', kind: 'type'},
@@ -364,10 +365,12 @@ export const src_json = {
 			path: 'config.ts',
 			declarations: [
 				{name: 'Gro_Config', kind: 'type'},
+				{name: 'Raw_Gro_Config', kind: 'type'},
 				{name: 'Create_Gro_Config', kind: 'type'},
 				{name: 'create_empty_config', kind: 'function'},
 				{name: 'DEFAULT_SEARCH_EXCLUDER', kind: 'variable'},
 				{name: 'DEFAULT_EXPORTS_EXCLUDER', kind: 'variable'},
+				{name: 'normalize_config', kind: 'function'},
 				{name: 'Gro_Config_Module', kind: 'type'},
 				{name: 'load_config', kind: 'function'},
 				{name: 'validate_config_module', kind: 'function'},
