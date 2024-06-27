@@ -184,6 +184,10 @@ export const git_push_to_create = async (
 ): Promise<void> => {
 	const final_branch = branch ?? (await git_current_branch_name(options));
 	const push_args = ['push'];
+	console.log(
+		`await git_remote_branch_exists(origin, final_branch, options)`,
+		await git_remote_branch_exists(origin, final_branch, options),
+	);
 	if (await git_remote_branch_exists(origin, final_branch, options)) {
 		push_args.push(origin);
 	} else {
