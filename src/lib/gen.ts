@@ -4,7 +4,7 @@ import {mkdir, readFile, writeFile} from 'node:fs/promises';
 import {z} from 'zod';
 import type {Result} from '@ryanatkn/belt/result.js';
 import type {Timings} from '@ryanatkn/belt/timings.js';
-import {red} from 'kleur/colors';
+import {red} from '@ryanatkn/belt/styletext.js';
 import {existsSync} from 'node:fs';
 
 import {print_path} from './paths.js';

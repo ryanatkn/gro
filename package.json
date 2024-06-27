@@ -45,7 +45,7 @@
     "dist"
   ],
   "dependencies": {
-    "@ryanatkn/belt": "^0.22.0",
+    "@ryanatkn/belt": "^0.23.0",
     "chokidar": "^3.6.0",
     "dotenv": "^16.4.5",
     "es-module-lexer": "^1.5.4",

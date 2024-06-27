@@ -1,6 +1,6 @@
 import {z} from 'zod';
 import {spawn} from '@ryanatkn/belt/process.js';
-import {red, blue} from 'kleur/colors';
+import {red, blue} from '@ryanatkn/belt/styletext.js';
 import type {WrittenConfig} from '@changesets/types';
 import {readFile, writeFile} from 'node:fs/promises';
 import {join} from 'node:path';

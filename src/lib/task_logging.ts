@@ -1,4 +1,4 @@
-import {cyan, gray, green, red} from 'kleur/colors';
+import {cyan, gray, green, red} from '@ryanatkn/belt/styletext.js';
 import type {Logger} from '@ryanatkn/belt/log.js';
 import {plural} from '@ryanatkn/belt/string.js';
 import {print_value} from '@ryanatkn/belt/print.js';

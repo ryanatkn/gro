@@ -1,4 +1,4 @@
-import {yellow, red} from 'kleur/colors';
+import {yellow, red} from '@ryanatkn/belt/styletext.js';
 import type {Logger} from '@ryanatkn/belt/log.js';
 import type * as esbuild from 'esbuild';
 

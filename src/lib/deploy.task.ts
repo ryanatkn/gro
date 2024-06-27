@@ -1,6 +1,6 @@
 import {spawn} from '@ryanatkn/belt/process.js';
 import {print_error} from '@ryanatkn/belt/print.js';
-import {green, red} from 'kleur/colors';
+import {green, red} from '@ryanatkn/belt/styletext.js';
 import {z} from 'zod';
 import {cp, mkdir, rm} from 'node:fs/promises';
 import {join, resolve} from 'node:path';

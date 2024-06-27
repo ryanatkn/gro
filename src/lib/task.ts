@@ -2,7 +2,7 @@ import type {Logger} from '@ryanatkn/belt/log.js';
 import {strip_end, strip_start} from '@ryanatkn/belt/string.js';
 import type {z} from 'zod';
 import type {Timings} from '@ryanatkn/belt/timings.js';
-import {red} from 'kleur/colors';
+import {red} from '@ryanatkn/belt/styletext.js';
 import type {Result} from '@ryanatkn/belt/result.js';
 import {isAbsolute, join, relative} from 'node:path';
 

@@ -1,4 +1,4 @@
-import {yellow} from 'kleur/colors';
+import {yellow} from '@ryanatkn/belt/styletext.js';
 import {z} from 'zod';
 
 import {Task_Error, type Task} from './task.js';

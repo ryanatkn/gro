@@ -1,4 +1,4 @@
-import {red} from 'kleur/colors';
+import {red} from '@ryanatkn/belt/styletext.js';
 import {print_error} from '@ryanatkn/belt/print.js';
 import type {Timings} from '@ryanatkn/belt/timings.js';
 import type {Logger} from '@ryanatkn/belt/log.js';

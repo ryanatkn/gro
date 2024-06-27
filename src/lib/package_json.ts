@@ -5,7 +5,7 @@ import {count_graphemes, plural} from '@ryanatkn/belt/string.js';
 import type {Logger} from '@ryanatkn/belt/log.js';
 import {strip_end} from '@ryanatkn/belt/string.js';
 import type {Flavored} from '@ryanatkn/belt/types.js';
-import {red} from 'kleur/colors';
+import {red} from '@ryanatkn/belt/styletext.js';
 
 import {paths, gro_paths, IS_THIS_GRO, replace_extension} from './paths.js';
 import {SVELTEKIT_DIST_DIRNAME} from './path_constants.js';
