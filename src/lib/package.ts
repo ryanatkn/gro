@@ -8,7 +8,7 @@ export const package_json = {
 	version: '0.124.0',
 	description: 'task runner and toolkit extending SvelteKit',
 	motto: 'generate, run, optimize',
-	icon: '🌰',
+	glyph: '🌰',
 	public: true,
 	bin: {gro: 'dist/gro.js'},
 	license: 'MIT',

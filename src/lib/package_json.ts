@@ -1,10 +1,11 @@
 import {z} from 'zod';
 import {join} from 'node:path';
 import {readFile, writeFile} from 'node:fs/promises';
-import {plural} from '@ryanatkn/belt/string.js';
+import {count_graphemes, plural} from '@ryanatkn/belt/string.js';
 import type {Logger} from '@ryanatkn/belt/log.js';
 import {strip_end} from '@ryanatkn/belt/string.js';
 import type {Flavored} from '@ryanatkn/belt/types.js';
+import {red} from 'kleur/colors';
 
 import {paths, gro_paths, IS_THIS_GRO, replace_extension} from './paths.js';
 import {SVELTEKIT_DIST_DIRNAME} from './path_constants.js';
@@ -70,58 +71,60 @@ export type Package_Json_Exports = z.infer<typeof Package_Json_Exports>;
 /**
  * @see https://docs.npmjs.com/cli/v10/configuring-npm/package-json
  */
-export const Package_Json = z.intersection(
-	z.record(z.unknown()),
-	z
-		.object({
-			// according to the npm docs, `name` and `version` are the only required properties
-			name: z.string(),
-			version: z.string(),
+export const Package_Json = z
+	.object({
+		// according to the npm docs, `name` and `version` are the only required properties
+		name: z.string(),
+		version: z.string(),
+		private: z.boolean({description: 'disallow npm publish'}).optional(),
+		public: z
+			.boolean({
+				description:
+					'a Gro extension that enables publishing `.well-known/package.json` and `.well-known/src`',
+			})
+			.optional(),
+		description: z.string().optional(),
+		motto: z
+			.string({description: "a Gro extension that's a short phrase that represents this project"})
+			.optional(),
+		// TODO icon/favicon/logo that can point to a URL as an alternative to `<link rel="icon"`?
+		glyph: z
+			.string({
+				description:
+					"a Gro extension that's a single unicode character that represents this project",
+			})
+			.refine((v) => count_graphemes(v) === 1, 'must be a single unicode character')
+			.optional(),
+		license: z.string().optional(),
+		scripts: z.record(z.string()).optional(),
+		homepage: Url.optional(),
+		author: z.union([z.string(), Package_Json_Author.optional()]),
+		repository: z.union([z.string(), Url, Package_Json_Repository]).optional(),
+		contributors: z.array(z.union([z.string(), Package_Json_Author])).optional(),
+		bugs: z
+			.union([z.string(), z.object({url: Url.optional(), email: Email.optional()}).passthrough()])
+			.optional(),
+		funding: z
+			.union([Url, Package_Json_Funding, z.array(z.union([Url, Package_Json_Funding]))])
+			.optional(),
+		keywords: z.array(z.string()).optional(),
 
-			// Gro extensions
-			public: z
-				.boolean({
-					description:
-						'a Gro extension that enables publishing `.well-known/package.json` and `.well-known/src`',
-				})
-				.optional(),
-			icon: z.string({description: 'a Gro extension'}).optional(), // TODO maybe base64 favicon?
+		type: z.string().optional(),
+		engines: z.record(z.string()).optional(),
+		os: z.array(z.string()).optional(),
+		cpu: z.array(z.string()).optional(),
 
-			private: z.boolean({description: 'disallow npm publish'}).optional(),
+		dependencies: z.record(z.string()).optional(),
+		devDependencies: z.record(z.string()).optional(),
+		peerDependencies: z.record(z.string()).optional(),
+		peerDependenciesMeta: z.record(z.record(z.string())).optional(),
+		optionalDependencies: z.record(z.string()).optional(),
 
-			description: z.string().optional(),
-			motto: z.string().optional(),
-			license: z.string().optional(),
-			homepage: Url.optional(),
-			repository: z.union([z.string(), Url, Package_Json_Repository]).optional(),
-			author: z.union([z.string(), Package_Json_Author.optional()]),
-			contributors: z.array(z.union([z.string(), Package_Json_Author])).optional(),
-			bugs: z
-				.union([z.string(), z.object({url: Url.optional(), email: Email.optional()}).passthrough()])
-				.optional(),
-			funding: z
-				.union([Url, Package_Json_Funding, z.array(z.union([Url, Package_Json_Funding]))])
-				.optional(),
-			keywords: z.array(z.string()).optional(),
-
-			scripts: z.record(z.string()).optional(),
-
-			bin: z.record(z.string()).optional(),
-			files: z.array(z.string()).optional(),
-			exports: Package_Json_Exports.transform(transform_empty_object_to_undefined).optional(),
-
-			dependencies: z.record(z.string()).optional(),
-			devDependencies: z.record(z.string()).optional(),
-			peerDependencies: z.record(z.string()).optional(),
-			peerDependenciesMeta: z.record(z.record(z.string())).optional(),
-			optionalDependencies: z.record(z.string()).optional(),
-
-			engines: z.record(z.string()).optional(),
-			os: z.array(z.string()).optional(),
-			cpu: z.array(z.string()).optional(),
-		})
-		.passthrough(),
-);
+		bin: z.record(z.string()).optional(),
+		files: z.array(z.string()).optional(),
+		exports: Package_Json_Exports.transform(transform_empty_object_to_undefined).optional(),
+	})
+	.passthrough();
 export type Package_Json = z.infer<typeof Package_Json>;
 
 export interface Map_Package_Json {
@@ -143,6 +146,7 @@ export const load_package_json = async (
 	} catch (err) {
 		return EMPTY_PACKAGE_JSON;
 	}
+	package_json = parse_package_json(Package_Json, package_json);
 	if (cache) cache[dir] = package_json;
 	return package_json;
 };
@@ -164,7 +168,7 @@ export const sync_package_json = async (
 				package_json.exports = exports;
 			}
 			const mapped = await map_package_json(package_json);
-			return mapped ? Package_Json.parse(mapped) : mapped;
+			return mapped ? parse_package_json(Package_Json, mapped) : mapped;
 		},
 		!check,
 	);
@@ -192,10 +196,8 @@ export const write_package_json = async (serialized_package_json: string): Promi
 	await writeFile(join(paths.root, 'package.json'), serialized_package_json);
 };
 
-export const serialize_package_json = (package_json: Package_Json): string => {
-	Package_Json.parse(package_json);
-	return JSON.stringify(package_json, null, 2) + '\n';
-};
+export const serialize_package_json = (package_json: Package_Json): string =>
+	JSON.stringify(parse_package_json(Package_Json, package_json), null, 2) + '\n';
 
 /**
  * Updates package.json. Writes to the filesystem only when contents change.
@@ -265,7 +267,7 @@ export const to_package_exports = (paths: string[]): Package_Json_Exports => {
 			};
 		}
 	}
-	return Package_Json_Exports.parse(exports);
+	return parse_or_throw_formatted_error('package.json#exports', Package_Json_Exports, exports);
 };
 
 const IMPORT_PREFIX = './' + SVELTEKIT_DIST_DIRNAME + '/';
@@ -290,4 +292,32 @@ export const parse_repo_url = (
 	}
 	const [, owner, repo] = parsed_repo_url;
 	return {owner, repo};
+};
+
+/**
+ * Parses a `Package_Json` object but preserves the order of the original keys.
+ */
+const parse_package_json = (schema: typeof Package_Json, value: any): Package_Json => {
+	const parsed = parse_or_throw_formatted_error('package.json', schema, value);
+	const keys = Object.keys(value);
+	return Object.fromEntries(
+		Object.entries(parsed).sort(([a], [b]) => keys.indexOf(a) - keys.indexOf(b)),
+	) as any;
+};
+
+// TODO maybe extract to zod helpers? see also everything in `task_logging.ts`
+const parse_or_throw_formatted_error = <T extends z.ZodTypeAny>(
+	name: string,
+	schema: T,
+	value: any,
+): z.infer<T> => {
+	const parsed = schema.safeParse(value);
+	if (!parsed.success) {
+		let msg = red(`Failed to parse ${name}:\n`);
+		for (const issue of parsed.error.issues) {
+			msg += red(`\n\t"${issue.path}" ${issue.message}\n`);
+		}
+		throw Error(msg);
+	}
+	return parsed.data;
 };
