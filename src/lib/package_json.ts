@@ -150,14 +150,7 @@ export const load_package_json = async (
 	} catch (err) {
 		return EMPTY_PACKAGE_JSON;
 	}
-	const parsed = Package_Json.safeParse(package_json);
-	if (!parsed.success) {
-		let msg = red('Failed to parse package.json:\n');
-		for (const issue of parsed.error.issues) {
-			msg += red(`\n\t"${issue.path}" ${issue.message}\n`);
-		}
-		throw Error(msg);
-	}
+	parse_or_throw_formatted_error('package.json', Package_Json, package_json);
 	if (cache) cache[dir] = package_json;
 	return package_json;
 };
@@ -179,7 +172,7 @@ export const sync_package_json = async (
 				package_json.exports = exports;
 			}
 			const mapped = await map_package_json(package_json);
-			return mapped ? Package_Json.parse(mapped) : mapped;
+			return mapped ? parse_or_throw_formatted_error('package.json', Package_Json, mapped) : mapped;
 		},
 		!check,
 	);
@@ -208,7 +201,7 @@ export const write_package_json = async (serialized_package_json: string): Promi
 };
 
 export const serialize_package_json = (package_json: Package_Json): string => {
-	Package_Json.parse(package_json);
+	parse_or_throw_formatted_error('package.json', Package_Json, package_json);
 	return JSON.stringify(package_json, null, 2) + '\n';
 };
 
@@ -280,7 +273,7 @@ export const to_package_exports = (paths: string[]): Package_Json_Exports => {
 			};
 		}
 	}
-	return Package_Json_Exports.parse(exports);
+	return parse_or_throw_formatted_error('package.json#exports', Package_Json_Exports, exports);
 };
 
 const IMPORT_PREFIX = './' + SVELTEKIT_DIST_DIRNAME + '/';
@@ -305,4 +298,21 @@ export const parse_repo_url = (
 	}
 	const [, owner, repo] = parsed_repo_url;
 	return {owner, repo};
+};
+
+// TODO maybe extract to zod helpers? see also everything in `task_logging.ts`
+const parse_or_throw_formatted_error = <T extends z.ZodTypeAny>(
+	name: string,
+	schema: T,
+	value: any,
+): z.infer<T> => {
+	const parsed = schema.safeParse(value);
+	if (!parsed.success) {
+		let msg = red(`Failed to parse ${name}:\n`);
+		for (const issue of parsed.error.issues) {
+			msg += red(`\n\t"${issue.path}" ${issue.message}\n`);
+		}
+		throw Error(msg);
+	}
+	return parsed.data;
 };
