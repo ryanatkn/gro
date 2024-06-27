@@ -186,18 +186,16 @@ export const task: Task<Args> = {
 			// Create the target branch locally and remotely.
 			// This is more complex to avoid churning the cwd.
 			await git_clone_locally(origin, source, dir, resolved_deploy_dir);
+			await spawn('git', ['checkout', '--orphan', target], target_spawn_options);
+			// TODO there's definitely a better way to do this
+			await spawn('git', ['rm', '-rf', '.'], target_spawn_options);
 			await spawn(
-				`git checkout --orphan ${target} && ` +
-					// TODO there's definitely a better way to do this
-					`git rm -rf . && ` +
-					`echo "${INITIAL_FILE_CONTENTS}" >> ${INITIAL_FILE_PATH} && ` +
-					`git add ${INITIAL_FILE_PATH} && ` +
-					`git commit -m "init"`,
-				[],
-				// TODO BLOCK remove `shell: true` here because `target` is user input
-				// Use `shell: true` because the above is unwieldy with standard command construction
-				{...target_spawn_options, shell: true},
+				'echo',
+				[`"${INITIAL_FILE_CONTENTS}"`, '>>', INITIAL_FILE_PATH],
+				target_spawn_options,
 			);
+			await spawn('git', ['add', INITIAL_FILE_PATH], target_spawn_options);
+			await spawn('git', ['git', 'commit', '-m', 'init'], target_spawn_options);
 			await git_push_to_create(origin, target, target_spawn_options);
 			await git_delete_local_branch(source, target_spawn_options);
 		}
