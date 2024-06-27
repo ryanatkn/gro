@@ -237,27 +237,27 @@ export const to_package_exports = (paths: string[]): Package_Json_Exports => {
 		} else if (path.endsWith('.json.d.ts')) {
 			const json_path = path.substring(0, path.length - 5);
 			exports['./' + json_path] = {
-				default: IMPORT_PREFIX + json_path, // assuming a matching json file
 				types: IMPORT_PREFIX + path,
+				default: IMPORT_PREFIX + json_path, // assuming a matching json file
 			};
 		} else if (path.endsWith('.ts') && !path.endsWith('.d.ts')) {
 			const js_path = replace_extension(path, '.js');
 			const key = is_index(path) ? '.' : './' + js_path;
 			exports[key] = {
-				default: IMPORT_PREFIX + js_path,
 				types: IMPORT_PREFIX + replace_extension(path, '.d.ts'),
+				default: IMPORT_PREFIX + js_path,
 			};
 		} else if (path.endsWith('.js')) {
 			const key = is_index(path) ? '.' : './' + path;
 			exports[key] = {
-				default: IMPORT_PREFIX + path,
 				types: IMPORT_PREFIX + replace_extension(path, '.d.ts'), // assuming JSDoc types
+				default: IMPORT_PREFIX + path,
 			};
 		} else if (path.endsWith('.svelte')) {
 			exports['./' + path] = {
+				types: IMPORT_PREFIX + path + '.d.ts',
 				svelte: IMPORT_PREFIX + path,
 				default: IMPORT_PREFIX + path, // needed for loader imports
-				types: IMPORT_PREFIX + path + '.d.ts',
 			};
 		} else {
 			exports['./' + path] = {
