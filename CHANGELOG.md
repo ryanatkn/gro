@@ -1,5 +1,11 @@
 # @ryanatkn/gro
 
+## 0.125.1
+
+### Patch Changes
+
+- replace `kleur` with Node's `styleText` ([#477](https://github.com/ryanatkn/gro/pull/477))
+
 ## 0.125.0
 
 ### Minor Changes
