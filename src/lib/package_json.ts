@@ -114,10 +114,6 @@ export const Package_Json = z
 
 		scripts: z.record(z.string()).optional(),
 
-		bin: z.record(z.string()).optional(),
-		files: z.array(z.string()).optional(),
-		exports: Package_Json_Exports.transform(transform_empty_object_to_undefined).optional(),
-
 		dependencies: z.record(z.string()).optional(),
 		devDependencies: z.record(z.string()).optional(),
 		peerDependencies: z.record(z.string()).optional(),
@@ -127,6 +123,10 @@ export const Package_Json = z
 		engines: z.record(z.string()).optional(),
 		os: z.array(z.string()).optional(),
 		cpu: z.array(z.string()).optional(),
+
+		bin: z.record(z.string()).optional(),
+		files: z.array(z.string()).optional(),
+		exports: Package_Json_Exports.transform(transform_empty_object_to_undefined).optional(),
 	})
 	.passthrough();
 export type Package_Json = z.infer<typeof Package_Json>;
@@ -150,7 +150,8 @@ export const load_package_json = async (
 	} catch (err) {
 		return EMPTY_PACKAGE_JSON;
 	}
-	parse_or_throw_formatted_error('package.json', Package_Json, package_json);
+	// TODO do we want to do this?
+	// parse_or_throw_formatted_error('package.json', Package_Json, package_json);
 	if (cache) cache[dir] = package_json;
 	return package_json;
 };
