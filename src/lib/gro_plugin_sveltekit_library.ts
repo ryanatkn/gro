@@ -27,7 +27,7 @@ export const gro_plugin_sveltekit_library = ({
 					'Failed to find SvelteKit library: ' + has_sveltekit_library_result.message,
 				);
 			}
-			const found_svelte_package_cli = await find_cli(svelte_package_cli);
+			const found_svelte_package_cli = find_cli(svelte_package_cli);
 			if (found_svelte_package_cli?.kind !== 'local') {
 				throw new Task_Error(
 					`Failed to find SvelteKit packaging CLI \`${svelte_package_cli}\`, do you need to run \`npm i\`?`,

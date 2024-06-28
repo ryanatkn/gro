@@ -61,14 +61,14 @@ export const gro_plugin_sveltekit_app = ({
 	return {
 		name: 'gro_plugin_sveltekit_app',
 		setup: async ({dev, watch, log}) => {
-			const found_vite_cli = await find_cli(vite_cli);
+			const found_vite_cli = find_cli(vite_cli);
 			if (!found_vite_cli)
 				throw new Error(`Failed to find Vite CLI \`${vite_cli}\`, do you need to run \`npm i\`?`);
 			if (dev) {
 				// `vite dev` in development mode
 				if (watch) {
 					const serialized_args = ['dev', ...serialize_args(to_forwarded_args(vite_cli))];
-					sveltekit_process = await spawn_cli_process(found_vite_cli, serialized_args, log);
+					sveltekit_process = spawn_cli_process(found_vite_cli, serialized_args, log);
 				} else {
 					log.debug(
 						`the SvelteKit app plugin is loaded but will not output anything` +
