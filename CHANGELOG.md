@@ -1,5 +1,16 @@
 # @ryanatkn/gro
 
+## 0.126.0
+
+### Minor Changes
+
+- make `find_cli`, `spawn_cli_process`, and `resolve_cli` synchronous ([#478](https://github.com/ryanatkn/gro/pull/478))
+
+### Patch Changes
+
+- rename and move some identifiers for consistency ([6513cd4](https://github.com/ryanatkn/gro/commit/6513cd4))
+- support svelte-package options in `gro_plugin_sveltekit_library` ([f7e2b72](https://github.com/ryanatkn/gro/commit/f7e2b72))
+
 ## 0.125.1
 
 ### Patch Changes
