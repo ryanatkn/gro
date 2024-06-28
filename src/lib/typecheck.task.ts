@@ -27,7 +27,7 @@ export const task: Task<Args> = {
 		await sveltekit_sync();
 
 		// Prefer svelte-check if available.
-		const found_svelte_check_cli = await find_cli(svelte_check_cli);
+		const found_svelte_check_cli = find_cli(svelte_check_cli);
 		if (found_svelte_check_cli) {
 			const serialized = serialize_args(to_forwarded_args(svelte_check_cli));
 			const svelte_check_result = await spawn_cli(found_svelte_check_cli, serialized, log);
@@ -38,7 +38,7 @@ export const task: Task<Args> = {
 		}
 
 		// Fall back to tsc.
-		const found_typescript_cli = await find_cli(typescript_cli);
+		const found_typescript_cli = find_cli(typescript_cli);
 		if (found_typescript_cli) {
 			const forwarded = to_forwarded_args(typescript_cli);
 			if (!forwarded.noEmit) forwarded.noEmit = true;

@@ -74,7 +74,7 @@ export const sveltekit_sync_if_obviously_needed = async (
 		return;
 	}
 	const found_sveltekit_cli =
-		typeof sveltekit_cli === 'string' ? await find_cli(sveltekit_cli) : sveltekit_cli;
+		typeof sveltekit_cli === 'string' ? find_cli(sveltekit_cli) : sveltekit_cli;
 	if (!found_sveltekit_cli) {
 		return;
 	}
