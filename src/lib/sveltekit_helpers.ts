@@ -54,7 +54,7 @@ export const has_sveltekit_library = async (
 export const sveltekit_sync = async (
 	sveltekit_cli: string | Cli = SVELTEKIT_CLI,
 ): Promise<void> => {
-	const result = await spawn_cli(sveltekit_cli, ['sync']); // TODO BLOCK use `spawnSync` here
+	const result = await spawn_cli(sveltekit_cli, ['sync']);
 	if (!result) {
 		throw new Task_Error(
 			`Failed to find SvelteKit CLI \`${to_cli_name(sveltekit_cli)}\`, do you need to run \`npm i\`?`,
