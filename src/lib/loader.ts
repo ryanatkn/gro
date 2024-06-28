@@ -9,8 +9,8 @@ import {render_env_shim_module} from './sveltekit_shim_env.js';
 import {
 	render_sveltekit_shim_app_environment,
 	render_sveltekit_shim_app_paths,
-	sveltekit_shim_app_environment_matcher,
-	sveltekit_shim_app_paths_matcher,
+	SVELTEKIT_SHIM_APP_ENVIRONMENT_MATCHER,
+	SVELTEKIT_SHIM_APP_PATHS_MATCHER,
 	sveltekit_shim_app_specifiers,
 } from './sveltekit_shim_app.js';
 import {sveltekit_config_global} from './sveltekit_config_global.js';
@@ -75,23 +75,23 @@ const final_ts_transform_options: esbuild.TransformOptions = {
 
 const aliases = Object.entries({$lib: 'src/lib', ...alias});
 
-const ts_matcher = /\.(ts|tsx|mts|cts)$/u;
-const json_matcher = /\.(json)$/u;
-const noop_matcher = /\.(css|svg)$/u; // TODO others? configurable?
-const env_matcher = /src\/lib\/\$env\/(static|dynamic)\/(public|private)$/u;
-const node_modules_matcher = new RegExp(escape_regexp('/' + NODE_MODULES_DIRNAME + '/'), 'u');
+const TS_MATCHER = /\.(ts|tsx|mts|cts)$/u;
+const JSON_MATCHER = /\.(json)$/u;
+const NOOP_MATCHER = /\.(css|svg)$/u; // TODO others? configurable?
+const ENV_MATCHER = /src\/lib\/\$env\/(static|dynamic)\/(public|private)$/u;
+const NODE_MODULES_MATCHER = new RegExp(escape_regexp('/' + NODE_MODULES_DIRNAME + '/'), 'u');
 
 const package_json_cache: Record<string, Package_Json> = {};
 
 export const load: LoadHook = async (url, context, nextLoad) => {
-	if (sveltekit_shim_app_paths_matcher.test(url)) {
+	if (SVELTEKIT_SHIM_APP_PATHS_MATCHER.test(url)) {
 		// SvelteKit `$app/paths` shim
 		return {
 			format: 'module',
 			shortCircuit: true,
 			source: render_sveltekit_shim_app_paths(base_url, assets_url),
 		};
-	} else if (sveltekit_shim_app_environment_matcher.test(url)) {
+	} else if (SVELTEKIT_SHIM_APP_ENVIRONMENT_MATCHER.test(url)) {
 		// SvelteKit `$app/environment` shim
 		return {
 			format: 'module',
@@ -109,7 +109,7 @@ export const load: LoadHook = async (url, context, nextLoad) => {
 		const source = loaded.source!.toString(); // eslint-disable-line @typescript-eslint/no-base-to-string
 		const transformed = compileModule(source, {...svelte_compile_module_options, filename});
 		return {format: 'module', shortCircuit: true, source: transformed.js.code};
-	} else if (ts_matcher.test(url)) {
+	} else if (TS_MATCHER.test(url)) {
 		// ts
 		const loaded = await nextLoad(
 			url,
@@ -135,19 +135,19 @@ export const load: LoadHook = async (url, context, nextLoad) => {
 		const source = preprocessed?.code ?? raw_source;
 		const transformed = compile(source, {...svelte_compile_options, filename});
 		return {format: 'module', shortCircuit: true, source: transformed.js.code};
-	} else if (json_matcher.test(url)) {
+	} else if (JSON_MATCHER.test(url)) {
 		// json
 		// TODO probably follow esbuild and also export every top-level property for objects from the module - https://esbuild.github.io/content-types/#json (type generation?)
 		const loaded = await nextLoad(url);
 		const raw_source = loaded.source!.toString(); // eslint-disable-line @typescript-eslint/no-base-to-string
 		const source = `export default ` + raw_source;
 		return {format: 'module', shortCircuit: true, source};
-	} else if (noop_matcher.test(url)) {
+	} else if (NOOP_MATCHER.test(url)) {
 		// no-ops like `.css` and `.svg`
 		const source = `export default 'no-op import from ${url}'`;
 		return {format: 'module', shortCircuit: true, source};
 	} else {
-		const matched_env = env_matcher.exec(url);
+		const matched_env = ENV_MATCHER.exec(url);
 		if (matched_env) {
 			// SvelteKit `$env`
 			const mode: 'static' | 'dynamic' = matched_env[1] as any;
@@ -188,7 +188,7 @@ export const resolve: ResolveHook = async (specifier, context, nextResolve) => {
 	}
 
 	const parent_url = context.parentURL;
-	if (!parent_url || node_modules_matcher.test(parent_url)) {
+	if (!parent_url || NODE_MODULES_MATCHER.test(parent_url)) {
 		return nextResolve(specifier, context);
 	}
 
@@ -210,7 +210,7 @@ export const resolve: ResolveHook = async (specifier, context, nextResolve) => {
 	// The specifier `path` has now been mapped to its final form, so we can inspect it.
 	if (path[0] !== '.' && path[0] !== '/') {
 		// Resolve to `node_modules`.
-		if (SVELTE_MATCHER.test(path) || json_matcher.test(path)) {
+		if (SVELTE_MATCHER.test(path) || JSON_MATCHER.test(path)) {
 			// Match the behavior of Vite and esbuild for Svelte and JSON imports.
 			// TODO maybe `.ts` too
 			const path_id = await resolve_node_specifier(path, dir, parent_url, package_json_cache);

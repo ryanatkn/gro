@@ -1,7 +1,7 @@
 import type {Parsed_Sveltekit_Config} from './sveltekit_config.js';
 
-export const sveltekit_shim_app_paths_matcher = /\/util\/sveltekit_shim_app_paths\.js$/u;
-export const sveltekit_shim_app_environment_matcher =
+export const SVELTEKIT_SHIM_APP_PATHS_MATCHER = /\/util\/sveltekit_shim_app_paths\.js$/u;
+export const SVELTEKIT_SHIM_APP_ENVIRONMENT_MATCHER =
 	/\/util\/sveltekit_shim_app_environment\.js$/u;
 
 /**

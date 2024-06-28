@@ -11,6 +11,7 @@ import {paths, gro_paths, IS_THIS_GRO, replace_extension} from './paths.js';
 import {SVELTEKIT_DIST_DIRNAME} from './path_constants.js';
 import {search_fs} from './search_fs.js';
 import {has_sveltekit_library} from './sveltekit_helpers.js';
+import {GITHUB_REPO_MATCHER} from './github.js';
 
 // TODO @multiple belongs elsewhere
 export const Url = z.string();
@@ -284,9 +285,7 @@ export const parse_repo_url = (
 	if (!repo_url) {
 		return undefined;
 	}
-	const parsed_repo_url = /.+github.com\/(.+)\/(.+)/u.exec(
-		strip_end(strip_end(repo_url, '/'), '.git'),
-	);
+	const parsed_repo_url = GITHUB_REPO_MATCHER.exec(strip_end(strip_end(repo_url, '/'), '.git'));
 	if (!parsed_repo_url) {
 		return undefined;
 	}

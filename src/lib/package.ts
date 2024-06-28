@@ -533,6 +533,7 @@ export const src_json = {
 		'./github.js': {
 			path: 'github.ts',
 			declarations: [
+				{name: 'GITHUB_REPO_MATCHER', kind: 'variable'},
 				{name: 'Github_Pull_Request', kind: 'variable'},
 				{name: 'github_fetch_commit_prs', kind: 'function'},
 			],

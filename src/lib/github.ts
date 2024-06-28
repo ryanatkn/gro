@@ -6,6 +6,8 @@ import {Fetch_Value_Cache, fetch_value} from '@ryanatkn/belt/fetch.js';
 import type {Logger} from '@ryanatkn/belt/log.js';
 import {z} from 'zod';
 
+export const GITHUB_REPO_MATCHER = /.+github.com\/(.+)\/(.+)/u;
+
 export const Github_Pull_Request = z.object({
 	url: z.string(),
 	id: z.number(),
