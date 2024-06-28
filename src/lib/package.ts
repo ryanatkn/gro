@@ -866,6 +866,7 @@ export const src_json = {
 				{name: 'has_sveltekit_library', kind: 'function'},
 				{name: 'sveltekit_sync', kind: 'function'},
 				{name: 'sveltekit_sync_if_obviously_needed', kind: 'function'},
+				{name: 'Svelte_Package_Options', kind: 'type'},
 			],
 		},
 		'./sveltekit_shim_app_environment.js': {

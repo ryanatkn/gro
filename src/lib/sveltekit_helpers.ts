@@ -80,3 +80,53 @@ export const sveltekit_sync_if_obviously_needed = async (
 	}
 	return sveltekit_sync(found_sveltekit_cli);
 };
+
+/**
+ * Options to the SvelteKit packaging CLI.
+ * @see https://kit.svelte.dev/docs/packaging#options
+ */
+export interface Svelte_Package_Options {
+	/**
+	 * Watch files in src/lib for changes and rebuild the package
+	 */
+	watch?: boolean;
+	/**
+	 * Alias for `watch`.
+	 */
+	w?: boolean;
+	/**
+	 * The input directory which contains all the files of the package.
+	 * Defaults to src/lib
+	 */
+	input?: string;
+	/**
+	 * Alias for `input`.
+	 */
+	i?: string;
+	/**
+	 * The output directory where the processed files are written to.
+	 * Your package.json's exports should point to files inside there,
+	 * and the files array should include that folder.
+	 * Defaults to dist
+	 */
+	output?: string;
+	/**
+	 * Alias for `output`.
+	 */
+	o?: string;
+	/**
+	 * Whether or not to create type definitions (d.ts files).
+	 * We strongly recommend doing this as it fosters ecosystem library quality.
+	 * Defaults to true
+	 */
+	types?: boolean;
+	/**
+	 * Alias for `types`.
+	 */
+	t?: boolean;
+	/**
+	 * The path to a tsconfig or jsconfig.
+	 * When not provided, searches for the next upper tsconfig/jsconfig in the workspace path.
+	 */
+	tsconfig?: string;
+}

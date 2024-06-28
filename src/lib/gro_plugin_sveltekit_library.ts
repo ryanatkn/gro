@@ -5,17 +5,27 @@ import {Task_Error} from './task.js';
 import {load_package_json} from './package_json.js';
 import {serialize_args, to_forwarded_args} from './args.js';
 import {find_cli, spawn_cli} from './cli.js';
-import {SVELTE_PACKAGE_CLI, has_sveltekit_library} from './sveltekit_helpers.js';
+import {
+	SVELTE_PACKAGE_CLI,
+	has_sveltekit_library,
+	type Svelte_Package_Options,
+} from './sveltekit_helpers.js';
 
-// TODO suport typesafe CLI args that can continue to be overridden by the CLI via forwarded args - https://kit.svelte.dev/docs/packaging
 export interface Options {
 	/**
+	 * The options passed to the SvelteKit packaging CLI.
+	 * @see https://kit.svelte.dev/docs/packaging#options
+	 */
+	svelte_package_options?: Svelte_Package_Options;
+	/**
 	 * The SvelteKit packaging CLI to use. Defaults to `svelte-package`.
+	 * @see https://kit.svelte.dev/docs/packaging
 	 */
 	svelte_package_cli?: string;
 }
 
 export const gro_plugin_sveltekit_library = ({
+	svelte_package_options,
 	svelte_package_cli = SVELTE_PACKAGE_CLI,
 }: Options = {}): Plugin<Plugin_Context> => {
 	return {
@@ -33,7 +43,10 @@ export const gro_plugin_sveltekit_library = ({
 					`Failed to find SvelteKit packaging CLI \`${svelte_package_cli}\`, do you need to run \`npm i\`?`,
 				);
 			}
-			const serialized_args = serialize_args(to_forwarded_args(svelte_package_cli));
+			const serialized_args = serialize_args({
+				...svelte_package_options,
+				...to_forwarded_args(svelte_package_cli),
+			});
 			await spawn_cli(found_svelte_package_cli, serialized_args, log);
 		},
 		adapt: async ({log, timings}) => {
