@@ -1,5 +1,11 @@
 # @ryanatkn/gro
 
+## 0.127.0
+
+### Minor Changes
+
+- upgrade `esbuild@0.21` ([#479](https://github.com/ryanatkn/gro/pull/479))
+
 ## 0.126.0
 
 ### Minor Changes
