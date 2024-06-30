@@ -122,6 +122,7 @@ export const Package_Json = z
 		optionalDependencies: z.record(z.string()).optional(),
 
 		bin: z.record(z.string()).optional(),
+		sideEffects: z.array(z.string()).optional(),
 		files: z.array(z.string()).optional(),
 		exports: Package_Json_Exports.transform(transform_empty_object_to_undefined).optional(),
 	})

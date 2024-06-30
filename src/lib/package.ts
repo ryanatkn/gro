@@ -36,7 +36,6 @@ export const package_json = {
 		'vite',
 		'typescript',
 	],
-	files: ['dist'],
 	dependencies: {
 		'@ryanatkn/belt': '^0.23.0',
 		chokidar: '^3.6.0',
@@ -81,6 +80,8 @@ export const package_json = {
 		bracketSpacing: false,
 		overrides: [{files: 'package.json', options: {useTabs: false}}],
 	},
+	sideEffects: ['**/*.css'],
+	files: ['dist'],
 	exports: {
 		'.': {types: './dist/index.d.ts', default: './dist/index.js'},
 		'./package.json': './package.json',
