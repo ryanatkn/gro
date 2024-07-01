@@ -4,7 +4,7 @@
   "description": "task runner and toolkit extending SvelteKit",
   "motto": "generate, run, optimize",
   "glyph": "🌰",
-  "logo": "logo.svg",
+  "logo": "favicon.png",
   "logo_alt": "a pixelated green oak acorn with a glint of sun",
   "public": true,
   "license": "MIT",
