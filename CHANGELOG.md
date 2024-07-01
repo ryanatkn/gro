@@ -1,5 +1,12 @@
 # @ryanatkn/gro
 
+## 0.127.1
+
+### Patch Changes
+
+- add `sideEffects` to `package.json` ([b5fd793](https://github.com/ryanatkn/gro/commit/b5fd793))
+- support `logo` and `logo_alt` in `package.json` ([#480](https://github.com/ryanatkn/gro/pull/480))
+
 ## 0.127.0
 
 ### Minor Changes
