@@ -88,13 +88,21 @@ export const Package_Json = z
 		motto: z
 			.string({description: "a Gro extension that's a short phrase that represents this project"})
 			.optional(),
-		// TODO icon/favicon/logo that can point to a URL as an alternative to `<link rel="icon"`?
 		glyph: z
 			.string({
 				description:
 					"a Gro extension that's a single unicode character that represents this project",
 			})
 			.refine((v) => count_graphemes(v) === 1, 'must be a single unicode character')
+			.optional(),
+		logo: z
+			.string({
+				description:
+					"a Gro extension that's a link relative to the `homepage` to an image that represents this project",
+			})
+			.optional(),
+		logo_alt: z
+			.string({description: "a Gro extension that's the alt text for the `logo`"})
 			.optional(),
 		license: z.string().optional(),
 		scripts: z.record(z.string()).optional(),
