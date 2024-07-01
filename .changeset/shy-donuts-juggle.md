@@ -2,4 +2,4 @@
 '@ryanatkn/gro': patch
 ---
 
-add svg logo
+support `logo` and `logo_alt` in `package.json`
