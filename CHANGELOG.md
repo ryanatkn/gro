@@ -1,5 +1,11 @@
 # @ryanatkn/gro
 
+## 0.128.0
+
+### Minor Changes
+
+- upgrade `@ryanatkn/belt@0.24` and fix task timings ([9dc0a5f](https://github.com/ryanatkn/gro/commit/9dc0a5f))
+
 ## 0.127.1
 
 ### Patch Changes
