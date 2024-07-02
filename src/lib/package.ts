@@ -56,7 +56,7 @@ export const package_json = {
 		'@changesets/types': '^6.0.0',
 		'@ryanatkn/eslint-config': '^0.1.3',
 		'@ryanatkn/fuz': '^0.106.3',
-		'@ryanatkn/moss': '^0.6.2',
+		'@ryanatkn/moss': '^0.6.3',
 		'@sveltejs/adapter-static': '^3.0.2',
 		'@sveltejs/kit': '^2.5.18',
 		'@sveltejs/package': '^2.3.2',
