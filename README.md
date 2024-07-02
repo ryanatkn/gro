@@ -1,4 +1,4 @@
-# gro <img src="static/favicon.png" width="32" height="32">
+# gro <img src="static/favicon.png" alt="a pixelated green oak acorn with a glint of sun" width="32" height="32">
 
 [<img src="static/favicon.png" alt="a pixelated green oak acorn with a glint of sun" align="right" width="192" height="192">](https://gro.ryanatkn.com/)
 
