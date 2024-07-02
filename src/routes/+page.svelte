@@ -3,6 +3,7 @@
 	import Library_Footer from '@ryanatkn/fuz/Library_Footer.svelte';
 	import Package_Detail from '@ryanatkn/fuz/Package_Detail.svelte';
 	import Package_Summary from '@ryanatkn/fuz/Package_Summary.svelte';
+	import Gro_Logo from '@ryanatkn/fuz/Gro_Logo.svelte';
 	import {slide} from 'svelte/transition';
 
 	import {parse_package_meta} from '$lib/package_meta.js';
@@ -20,12 +21,7 @@
 		<section class="box">
 			<h1>gro</h1>
 			<a class="panel p_md box mb_xl3" title="source repo" href="https://github.com/ryanatkn/gro">
-				<img
-					alt="a pixelated green oak acorn with a glint of sun"
-					src="{base}/favicon.png"
-					style:width="var(--icon_size_lg)"
-					style:height="var(--icon_size_lg)"
-				/>
+				<Gro_Logo size="var(--icon_size_lg)" />
 			</a>
 			<aside>
 				This website is a work in progress!<br />
