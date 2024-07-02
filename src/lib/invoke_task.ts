@@ -27,18 +27,26 @@ import type {Gro_Config} from './config.js';
  * Precise error messages are especially difficult and
  * there are some subtle differences in the complex logical branches.
  * The comments describe each condition.
+ *
+ * @param task_name - The name of the task to invoke.
+ * @param args - The CLI args to pass to the task.
+ * @param config - The Gro configuration.
+ * @param initial_timings - The timings to use for the top-level task, `null` for composed tasks.
  */
 export const invoke_task = async (
 	task_name: Raw_Input_Path,
 	args: Args | undefined,
 	config: Gro_Config,
-	timings = new Timings(),
+	initial_timings: Timings | null = null,
 ): Promise<void> => {
 	const log = new System_Logger(print_log_label(task_name || 'gro'));
 	log.info('invoking', task_name ? cyan(task_name) : 'gro');
 
+	const timings = initial_timings ?? new Timings();
+
 	const total_timing = create_stopwatch();
 	const finish = () => {
+		if (!initial_timings) return; // print timings only for the top-level task
 		print_timings(timings, log);
 		log.info(`🕒 ${print_ms(total_timing())}`);
 	};
