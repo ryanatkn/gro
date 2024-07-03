@@ -1,5 +1,15 @@
 # @ryanatkn/gro
 
+## 0.129.0
+
+### Minor Changes
+
+- change `resolve_gro_module_path` to be sync ([#481](https://github.com/ryanatkn/gro/pull/481))
+
+### Patch Changes
+
+- add `esm-env` and set the export condition to development by default ([#481](https://github.com/ryanatkn/gro/pull/481))
+
 ## 0.128.0
 
 ### Minor Changes
