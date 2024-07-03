@@ -71,6 +71,11 @@ export const resolve_gro_module_path = (path = ''): string => {
 /**
  * Runs a file using the Gro loader.
  *
+ * Uses conditional exports to correctly set up `esm-env` as development by default,
+ * so if you want production set `NODE_ENV=production`.
+ *
+ * @see https://nodejs.org/api/packages.html#conditional-exports
+ *
  * @param loader_path path to loader
  * @param invoke_path path to file to spawn with `node`
  */
@@ -78,14 +83,20 @@ export const spawn_with_loader = (
 	loader_path: string,
 	invoke_path: string,
 	argv: string[],
-): Promise<Spawn_Result> =>
-	spawn('node', [
+): Promise<Spawn_Result> => {
+	const args = [
 		'--import',
+		// This does the same as `$lib/register.ts` but without the cost of importing another file.
 		`data:text/javascript,
 			import {register} from "node:module";
 			import {pathToFileURL} from "node:url";
 			register("${loader_path}", pathToFileURL("./"));`,
-		'--enable-source-maps',
-		invoke_path,
-		...argv,
-	]);
+		'--enable-source-maps', // because TypeScript
+	];
+	// In almost all cases we want the exports condition to be `"development"`.
+	if (process.env.NODE_ENV !== 'production') {
+		args.push('-C', 'development'); // same as `--conditions`
+	}
+	args.push(invoke_path, ...argv);
+	return spawn('node', args);
+};
