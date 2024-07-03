@@ -1,6 +1,6 @@
 import {z} from 'zod';
 import {spawn} from '@ryanatkn/belt/process.js';
-import {rm} from 'fs/promises';
+import {rm} from 'node:fs/promises';
 
 import {Task_Error, type Task} from './task.js';
 import {LOCKFILE_FILENAME, NODE_MODULES_DIRNAME} from './path_constants.js';
