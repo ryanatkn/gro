@@ -19,10 +19,15 @@ export const package_json = {
 	bugs: 'https://github.com/ryanatkn/gro/issues',
 	funding: 'https://www.ryanatkn.com/funding',
 	scripts: {
-		build:
+		bootstrap:
 			'rm -rf .gro dist && svelte-kit sync && svelte-package && chmod +x ./dist/gro.js && npm link -f',
 		start: 'gro dev',
+		dev: 'gro dev',
+		build: 'gro build',
+		check: 'gro check',
 		test: 'gro test',
+		preview: 'vite preview',
+		deploy: 'gro deploy',
 	},
 	type: 'module',
 	engines: {node: '>=20.12'},
@@ -56,7 +61,7 @@ export const package_json = {
 		'@changesets/changelog-git': '^0.2.0',
 		'@changesets/types': '^6.0.0',
 		'@ryanatkn/eslint-config': '^0.1.3',
-		'@ryanatkn/fuz': '^0.107.0',
+		'@ryanatkn/fuz': '^0.107.1',
 		'@ryanatkn/moss': '^0.6.3',
 		'@sveltejs/adapter-static': '^3.0.2',
 		'@sveltejs/kit': '^2.5.18',
