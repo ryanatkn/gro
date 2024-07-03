@@ -1,5 +1,5 @@
 import {spawn, spawn_out} from '@ryanatkn/belt/process.js';
-import type {SpawnOptions} from 'child_process';
+import type {SpawnOptions} from 'node:child_process';
 import {z} from 'zod';
 import {existsSync} from 'node:fs';
 

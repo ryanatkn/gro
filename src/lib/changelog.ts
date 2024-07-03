@@ -1,4 +1,4 @@
-import {readFile, writeFile} from 'fs/promises';
+import {readFile, writeFile} from 'node:fs/promises';
 import {z} from 'zod';
 import type {Logger} from '@ryanatkn/belt/log.js';
 import type {Fetch_Value_Cache} from '@ryanatkn/belt/fetch.js';
