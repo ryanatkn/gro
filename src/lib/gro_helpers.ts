@@ -1,4 +1,4 @@
-import {realpath} from 'node:fs/promises';
+import {realpathSync} from 'node:fs';
 import {join, resolve} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {spawn, type Spawn_Result} from '@ryanatkn/belt/process.js';
@@ -46,12 +46,12 @@ This module is intended to have minimal dependencies to avoid over-imports in th
  * When using the global CLI, this uses the global Gro installation.
  *
  */
-export const resolve_gro_module_path = (path = ''): Promise<string> => {
+export const resolve_gro_module_path = (path = ''): string => {
 	const gro_bin_path = resolve(NODE_MODULES_DIRNAME, '.bin/gro');
 	// case 1
 	// Prefer any locally installed version of Gro.
 	if (existsSync(gro_bin_path)) {
-		return join(await realpath(gro_bin_path), '..', path);
+		return join(realpathSync(gro_bin_path), '..', path);
 	}
 	// case 2
 	// If running Gro inside its own repo, require the local dist.
@@ -74,7 +74,7 @@ export const resolve_gro_module_path = (path = ''): Promise<string> => {
  * @param loader_path path to loader
  * @param invoke_path path to file to spawn with `node`
  */
-export const spawn_with_loader = async (
+export const spawn_with_loader = (
 	loader_path: string,
 	invoke_path: string,
 	argv: string[],
