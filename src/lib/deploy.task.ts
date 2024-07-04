@@ -30,7 +30,7 @@ import {
 // docs at ./docs/deploy.md
 
 // terminal command for testing:
-// npm run build && rm -rf .gro && clear && gro deploy --source no-git-workspace --no-build --dry
+// npm run bootstrap && rm -rf .gro && clear && gro deploy --source no-git-workspace --no-build --dry
 
 // TODO customize
 const dir = process.cwd();
