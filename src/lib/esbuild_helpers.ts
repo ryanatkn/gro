@@ -37,7 +37,8 @@ export const to_define_import_meta_env = (
 	[import_meta_env + 'PROD']: JSON.stringify(!dev),
 	[import_meta_env + 'SSR']: JSON.stringify(ssr),
 	[import_meta_env + 'MODE']: JSON.stringify(mode),
-	[import_meta_env + 'BASE_URL']: JSON.stringify(base_url || '/'), // it appears SvelteKit's `''` translates to Vite's `'/'`, so this intentionally falls back for falsy values, not just undefined
+	// it appears SvelteKit's `''` translates to Vite's `'/'`, so this intentionally falls back for falsy values, not just undefined
+	[import_meta_env + 'BASE_URL']: JSON.stringify(base_url || '/'), // eslint-disable-line @typescript-eslint/prefer-nullish-coalescing
 });
 
 export const ts_transform_options: esbuild.TransformOptions = {

@@ -13,7 +13,7 @@ import {search_fs} from '../search_fs.js';
 /**
  * Renders a simple index of a possibly nested directory of files.
  */
-export const gen: Gen = async ({origin_id}) => {
+export const gen: Gen = ({origin_id}) => {
 	// TODO need to get this from project config or something
 	const root_path = parse_path_segments(paths.root).at(-1);
 

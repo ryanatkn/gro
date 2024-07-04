@@ -9,7 +9,7 @@ import {load_from_env} from './env.js';
 
 const log = new Logger();
 
-const token = await load_from_env('GITHUB_TOKEN_SECRET');
+const token = load_from_env('GITHUB_TOKEN_SECRET');
 if (!token) {
 	log.warn('the env var GITHUB_TOKEN_SECRET was not found, so API calls with be unauthorized');
 }

@@ -12,10 +12,10 @@ import {resolve_specifier} from './resolve_specifier.js';
 export const esbuild_plugin_sveltekit_local_imports = (): esbuild.Plugin => ({
 	name: 'sveltekit_local_imports',
 	setup: (build) => {
-		build.onResolve({filter: /^(\/|\.)/u}, async (args) => {
+		build.onResolve({filter: /^(\/|\.)/u}, (args) => {
 			const {path, importer} = args;
 			if (!importer) return {path};
-			const {path_id, namespace} = await resolve_specifier(path, dirname(importer));
+			const {path_id, namespace} = resolve_specifier(path, dirname(importer));
 			return {path: path_id, namespace}; // `namespace` may be `undefined`, but esbuild needs the absolute path for json etc
 		});
 		build.onLoad({filter: /.*/u, namespace: 'sveltekit_local_imports_ts'}, async ({path}) => ({
