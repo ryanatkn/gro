@@ -43,7 +43,7 @@ export const throttle = <T extends (...args: any[]) => Promise<void>>(cb: T, del
 		resolve(result); // resolve last to prevent synchronous call issues
 	};
 
-	const call = (args: any[]): Promise<void> => {
+	const call = (args: any[]): Promise<any> => {
 		pending_promise = cb(...args);
 		void pending_promise.then(async () => {
 			await wait(delay);

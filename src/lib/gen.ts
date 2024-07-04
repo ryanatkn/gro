@@ -357,4 +357,4 @@ export const load_genfiles = async (
 };
 
 export const validate_gen_module = (mod: Record<string, any>): mod is Genfile_Module =>
-	typeof mod?.gen === 'function';
+	typeof mod.gen === 'function';

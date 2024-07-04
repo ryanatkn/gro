@@ -8,11 +8,7 @@ import type {Arg_Schema} from './args.js';
 import type {Loaded_Tasks, Task_Module_Meta} from './task.js';
 import {print_path} from './paths.js';
 
-export const log_tasks = async (
-	log: Logger,
-	loaded_tasks: Loaded_Tasks,
-	log_intro = true,
-): Promise<void> => {
+export const log_tasks = (log: Logger, loaded_tasks: Loaded_Tasks, log_intro = true): void => {
 	const {modules, found_tasks} = loaded_tasks;
 	const {resolved_input_files_by_root_dir} = found_tasks;
 
@@ -41,7 +37,7 @@ export const log_tasks = async (
 			logged.push(
 				'\n' + cyan(pad(meta.name, longest_task_name)),
 				'  ',
-				meta.mod.task.summary || '',
+				meta.mod.task.summary ?? '',
 			);
 		}
 	}
@@ -65,7 +61,7 @@ export const log_task_help = (log: Logger, meta: Task_Module_Meta): void => {
 	logged.push(
 		cyan(name),
 		'help',
-		cyan(`\n\ngro ${name}`) + `: ${task.summary || '(no summary available)'}\n`,
+		cyan(`\n\ngro ${name}`) + `: ${task.summary ?? '(no summary available)'}\n`,
 	);
 	if (task.Args) {
 		const properties = to_arg_properties(task.Args._def, meta);
