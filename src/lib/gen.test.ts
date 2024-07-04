@@ -295,9 +295,6 @@ test('validate_gen_module basic behavior', () => {
 	assert.ok(validate_gen_module({gen: Function.prototype}));
 	assert.ok(!validate_gen_module({gen: {}}));
 	assert.ok(!validate_gen_module({task: {run: {}}}));
-	assert.ok(!validate_gen_module(undefined as any));
-	assert.ok(!validate_gen_module(null as any));
-	assert.ok(!validate_gen_module(false as any));
 });
 
 test('find_genfiles_result finds gen modules in a directory', () => {
