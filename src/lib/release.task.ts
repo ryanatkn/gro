@@ -10,11 +10,11 @@ export const task: Task<Args> = {
 	summary: 'publish and deploy',
 	Args,
 	run: async ({invoke_task}) => {
-		const publish = (await has_sveltekit_library()).ok;
+		const publish = has_sveltekit_library().ok;
 		if (publish) {
 			await invoke_task('publish', {optional: true});
 		}
-		if ((await has_sveltekit_app()).ok) {
+		if (has_sveltekit_app().ok) {
 			await invoke_task('deploy', {build: !publish});
 		}
 	},

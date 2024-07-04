@@ -19,7 +19,7 @@ export interface Resolved_Specifier {
  * @param passthrough_extensions - used to support specifiers that have no file extention, which Vite supports, so we do our best effort
  * @returns
  */
-export const resolve_specifier = async (path: string, dir: string): Promise<Resolved_Specifier> => {
+export const resolve_specifier = (path: string, dir: string): Resolved_Specifier => {
 	const absolute_path = isAbsolute(path) ? path : join(dir, path);
 
 	let mapped_path;

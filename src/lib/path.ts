@@ -15,13 +15,9 @@ export interface Resolved_Path extends Path_Info {
 	path: string;
 }
 
-export interface Path_Filter {
-	(path: string, is_directory: boolean): boolean;
-}
+export type Path_Filter = (path: string, is_directory: boolean) => boolean;
 
-export interface File_Filter {
-	(path: string): boolean;
-}
+export type File_Filter = (path: string) => boolean;
 
 export const to_file_path = (path_or_url: string | URL): string =>
 	typeof path_or_url === 'string' ? path_or_url : fileURLToPath(path_or_url.href);

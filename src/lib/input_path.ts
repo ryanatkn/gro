@@ -129,7 +129,7 @@ export const resolve_input_paths = (
 	extensions: string[],
 ): Resolved_Input_Paths => {
 	const resolved_input_paths: Resolved_Input_Path[] = [];
-	const possible_paths_by_input_path = new Map<Input_Path, Possible_Path[]>();
+	const possible_paths_by_input_path: Map<Input_Path, Possible_Path[]> = new Map();
 	const unmapped_input_paths: Input_Path[] = [];
 	for (const input_path of input_paths) {
 		let found_file: [Path_Info, Possible_Path] | null = null;
@@ -192,7 +192,7 @@ export const resolve_input_files = (
 ): Resolved_Input_Files => {
 	const resolved_input_files: Resolved_Input_File[] = [];
 	// Add all input paths initially, and remove each when resolved to a file.
-	const existing_path_ids = new Set<Path_Id>();
+	const existing_path_ids: Set<Path_Id> = new Set();
 
 	let remaining = resolved_input_paths.slice();
 	const handle_found = (input_path: Input_Path, id: Path_Id) => {

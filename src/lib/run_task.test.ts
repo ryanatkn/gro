@@ -44,9 +44,10 @@ test('invokes a sub task', async () => {
 			},
 		},
 		args,
-		async (invoking_task_name, invoking_args) => {
+		(invoking_task_name, invoking_args) => {
 			invoked_task_name = invoking_task_name;
 			invoked_args = invoking_args;
+			return Promise.resolve();
 		},
 		await load_config(),
 		new Timings(),
@@ -65,7 +66,7 @@ test('failing task', async () => {
 			id: 'foo/testTask',
 			mod: {
 				task: {
-					run: async () => {
+					run: () => {
 						err = Error();
 						throw err;
 					},

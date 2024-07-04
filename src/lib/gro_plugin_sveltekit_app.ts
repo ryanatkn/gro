@@ -1,9 +1,8 @@
 import type {Spawned_Process} from '@ryanatkn/belt/process.js';
-import {cp, mkdir, rm, writeFile} from 'node:fs/promises';
+import {cpSync, mkdirSync, rmSync, writeFileSync, existsSync} from 'node:fs';
 import {dirname, join} from 'node:path';
-import {existsSync} from 'node:fs';
 
-import type {Plugin, Plugin_Context} from './plugin.js';
+import type {Plugin} from './plugin.js';
 import {serialize_args, to_forwarded_args} from './args.js';
 import {serialize_package_json, type Map_Package_Json, load_package_json} from './package_json.js';
 import {Task_Error} from './task.js';
@@ -46,9 +45,7 @@ export interface Options {
 
 export type Host_Target = 'github_pages' | 'static' | 'node';
 
-export interface Copy_File_Filter {
-	(file_path: string): boolean | Promise<boolean>;
-}
+export type Copy_File_Filter = (file_path: string) => boolean;
 
 export const gro_plugin_sveltekit_app = ({
 	host_target = 'github_pages',
@@ -56,7 +53,7 @@ export const gro_plugin_sveltekit_app = ({
 	well_known_src_json,
 	well_known_src_files,
 	vite_cli = VITE_CLI,
-}: Options = {}): Plugin<Plugin_Context> => {
+}: Options = {}): Plugin => {
 	let sveltekit_process: Spawned_Process | undefined = undefined;
 	return {
 		name: 'gro_plugin_sveltekit_app',
@@ -79,7 +76,7 @@ export const gro_plugin_sveltekit_app = ({
 				// `vite build` in production mode
 
 				// `.well-known/package.json`
-				const package_json = await load_package_json(); // TODO put in plugin context? same with sveltekit config?
+				const package_json = load_package_json(); // TODO put in plugin context? same with sveltekit config?
 				if (well_known_package_json === undefined) {
 					well_known_package_json = package_json.public; // eslint-disable-line no-param-reassign
 				}
@@ -92,7 +89,7 @@ export const gro_plugin_sveltekit_app = ({
 					mapped_package_json && serialize_package_json(mapped_package_json);
 
 				// `.well-known/src.json` and `.well-known/src/`
-				const final_package_json = mapped_package_json || package_json;
+				const final_package_json = mapped_package_json ?? package_json;
 				const src_json = await create_src_json(final_package_json);
 				if (well_known_src_json === undefined) {
 					well_known_src_json = final_package_json.public; // eslint-disable-line no-param-reassign
@@ -112,19 +109,16 @@ export const gro_plugin_sveltekit_app = ({
 				const {assets_path} = sveltekit_config_global;
 				const cleanups: Cleanup[] = [
 					serialized_package_json
-						? await create_temporarily(
+						? create_temporarily(
 								join(assets_path, '.well-known/package.json'),
 								serialized_package_json,
 							)
 						: null!,
 					serialized_src_json
-						? await create_temporarily(
-								join(assets_path, '.well-known/src.json'),
-								serialized_src_json,
-							)
+						? create_temporarily(join(assets_path, '.well-known/src.json'), serialized_src_json)
 						: null!,
 					serialized_src_json && well_known_src_files
-						? await copy_temporarily(
+						? copy_temporarily(
 								SOURCE_DIRNAME,
 								assets_path,
 								'.well-known',
@@ -140,10 +134,12 @@ export const gro_plugin_sveltekit_app = ({
 					 * to tell GitHub Pages to treat the outputs as plain static files.
 					 */
 					host_target === 'github_pages'
-						? await create_temporarily(join(assets_path, '.nojekyll'), '')
+						? create_temporarily(join(assets_path, '.nojekyll'), '')
 						: null!,
 				].filter(Boolean);
-				const cleanup = () => Promise.all(cleanups.map((c) => c()));
+				const cleanup = () => {
+					for (const c of cleanups) c();
+				};
 				try {
 					const serialized_args = ['build', ...serialize_args(to_forwarded_args(vite_cli))];
 					const spawned = await spawn_cli(found_vite_cli, serialized_args, log);
@@ -151,10 +147,10 @@ export const gro_plugin_sveltekit_app = ({
 						throw new Task_Error(`${vite_cli} build failed with exit code ${spawned?.code}`);
 					}
 				} catch (err) {
-					await cleanup();
+					cleanup();
 					throw err;
 				}
-				await cleanup();
+				cleanup();
 			}
 		},
 		teardown: async () => {
@@ -166,40 +162,38 @@ export const gro_plugin_sveltekit_app = ({
 	};
 };
 
-interface Cleanup {
-	(): Promise<void>;
-}
+type Cleanup = () => void;
 
 // TODO probably extract these, and create a common helper or merge them
 
-const copy_temporarily = async (
+const copy_temporarily = (
 	source_path: string,
 	dest_dir: string,
 	dest_base_dir = '',
 	filter?: Copy_File_Filter,
-): Promise<Cleanup> => {
+): Cleanup => {
 	const path = join(dest_dir, dest_base_dir, source_path);
 	const dir = dirname(path);
 
 	const dir_already_exists = existsSync(dir);
 	let root_created_dir: string | undefined;
 	if (!dir_already_exists) {
-		root_created_dir = await to_root_dir_that_doesnt_exist(dir);
+		root_created_dir = to_root_dir_that_doesnt_exist(dir);
 		if (!root_created_dir) throw Error();
-		await mkdir(dir, {recursive: true});
+		mkdirSync(dir, {recursive: true});
 	}
 
 	const path_already_exists = existsSync(path);
 	if (!path_already_exists) {
-		await cp(source_path, path, {recursive: true, filter});
+		cpSync(source_path, path, {recursive: true, filter});
 	}
 
-	return async () => {
+	return () => {
 		if (!dir_already_exists) {
 			if (!root_created_dir) throw Error();
-			await rm(root_created_dir, {recursive: true});
+			rmSync(root_created_dir, {recursive: true});
 		} else if (!path_already_exists) {
-			await rm(path, {recursive: true});
+			rmSync(path, {recursive: true});
 		}
 	};
 };
@@ -211,28 +205,28 @@ const copy_temporarily = async (
  * @param contents
  * @returns cleanup function that deletes the file and any created dirs
  */
-const create_temporarily = async (path: string, contents: string): Promise<Cleanup> => {
+const create_temporarily = (path: string, contents: string): Cleanup => {
 	const dir = dirname(path);
 
 	const dir_already_exists = existsSync(dir);
 	let root_created_dir: string | undefined;
 	if (!dir_already_exists) {
-		root_created_dir = await to_root_dir_that_doesnt_exist(dir);
+		root_created_dir = to_root_dir_that_doesnt_exist(dir);
 		if (!root_created_dir) throw Error();
-		await mkdir(dir, {recursive: true});
+		mkdirSync(dir, {recursive: true});
 	}
 
 	const path_already_exists = existsSync(path);
 	if (!path_already_exists) {
-		await writeFile(path, contents, 'utf8');
+		writeFileSync(path, contents, 'utf8');
 	}
 
-	return async () => {
+	return () => {
 		if (!dir_already_exists) {
 			if (!root_created_dir) throw Error();
-			await rm(root_created_dir, {recursive: true});
+			rmSync(root_created_dir, {recursive: true});
 		} else if (!path_already_exists) {
-			await rm(path);
+			rmSync(path);
 		}
 	};
 };
@@ -242,7 +236,7 @@ const create_temporarily = async (path: string, contents: string): Promise<Clean
  * for `/a/b/DOESNT_EXIST/NOR_THIS/ETC` returns `/a/b/DOESNT_EXIST`
  * where `/a/b` does exist on the filesystem and `DOESNT_EXIST` is not one of its subdirectories.
  */
-const to_root_dir_that_doesnt_exist = async (dir: string): Promise<string | undefined> => {
+const to_root_dir_that_doesnt_exist = (dir: string): string | undefined => {
 	let prev: string | undefined;
 	let d = dir;
 	do {

@@ -49,9 +49,7 @@ export const Src_Json = z.intersection(
 );
 export type Src_Json = z.infer<typeof Src_Json>;
 
-export interface Map_Src_Json {
-	(src_json: Src_Json): Src_Json | null | Promise<Src_Json | null>;
-}
+export type Map_Src_Json = (src_json: Src_Json) => Src_Json | null | Promise<Src_Json | null>;
 
 export const create_src_json = async (
 	package_json: Package_Json,
@@ -83,7 +81,7 @@ export const to_src_modules = async (
 	return Object.fromEntries(
 		(
 			await Promise.all(
-				Object.entries(exports).map(async ([k, _v]) => {
+				Object.entries(exports).map(([k, _v]) => {
 					// TODO hacky - doesn't handle any but the normal mappings, also add a helper?
 					const source_file_path =
 						k === '.' || k === './'
@@ -114,7 +112,6 @@ export const to_src_modules = async (
 					); // TODO expected this to work without the callback, according to my read of the docs it is, but `project.getSourceFile(source_file_path)` fails
 					if (source_file) {
 						for (const [name, decls] of source_file.getExportedDeclarations()) {
-							if (!decls) continue;
 							// TODO how to correctly handle multiples?
 							for (const decl of decls) {
 								// TODO helper

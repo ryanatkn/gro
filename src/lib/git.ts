@@ -161,7 +161,7 @@ export const git_pull = async (
  */
 export const git_push = async (
 	origin: Git_Origin,
-	branch: Git_Branch,
+	branch?: Git_Branch,
 	options?: SpawnOptions,
 	set_upstream = false,
 ): Promise<void> => {

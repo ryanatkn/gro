@@ -7,7 +7,7 @@ import {strip_before, strip_end} from '@ryanatkn/belt/string.js';
 import type {Result} from '@ryanatkn/belt/result.js';
 import {existsSync} from 'node:fs';
 
-import type {Plugin, Plugin_Context} from './plugin.js';
+import type {Plugin} from './plugin.js';
 import {base_path_to_path_id, LIB_DIRNAME, paths} from './paths.js';
 import type {Path_Id} from './path.js';
 import {GRO_DEV_DIRNAME, SERVER_DIST_PATH} from './path_constants.js';
@@ -27,9 +27,7 @@ import {sveltekit_config_global} from './sveltekit_config_global.js';
 
 export const SERVER_SOURCE_ID = base_path_to_path_id(LIB_DIRNAME + '/server/server.ts');
 
-export const has_server = async (
-	path = SERVER_SOURCE_ID,
-): Promise<Result<object, {message: string}>> => {
+export const has_server = (path = SERVER_SOURCE_ID): Result<object, {message: string}> => {
 	if (!existsSync(path)) {
 		return {ok: false, message: `no server file found at ${path}`};
 	}
@@ -106,9 +104,7 @@ export interface Outpaths {
 	outname: string;
 }
 
-export interface Create_Outpaths {
-	(dev: boolean): Outpaths;
-}
+export type Create_Outpaths = (dev: boolean) => Outpaths;
 
 export const gro_plugin_server = ({
 	entry_points = [SERVER_SOURCE_ID],
@@ -126,9 +122,9 @@ export const gro_plugin_server = ({
 	rebuild_throttle_delay = 1000,
 	cli_command = 'node',
 	run, // `dev` default is not available in this scope
-}: Options = {}): Plugin<Plugin_Context> => {
-	let build_ctx: esbuild.BuildContext;
-	let watcher: Watch_Node_Fs;
+}: Options = {}): Plugin => {
+	let build_ctx: esbuild.BuildContext | null = null;
+	let watcher: Watch_Node_Fs | null = null;
 	let server_process: Restartable_Process | null = null;
 	let deps: Set<Path_Id> | null = null;
 
@@ -222,7 +218,7 @@ export const gro_plugin_server = ({
 			const rebuild = throttle(async () => {
 				let build_result;
 				try {
-					build_result = await build_ctx.rebuild();
+					build_result = await build_ctx!.rebuild();
 				} catch (err) {
 					log.error('[gro_plugin_server] build failed', err);
 					return;
@@ -284,7 +280,7 @@ export const gro_plugin_server = ({
  * so we resolve them here relative to the `dir`.
  */
 const parse_deps = (metafile_inputs: Record<string, unknown>, dir: string): Set<string> => {
-	const deps = new Set<string>();
+	const deps: Set<string> = new Set();
 	for (const key in metafile_inputs) {
 		deps.add(resolve(dir, strip_before(key, ':')));
 	}

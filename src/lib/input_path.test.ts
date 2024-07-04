@@ -114,7 +114,7 @@ test('get_possible_paths implied to be a directory by trailing slash', () => {
 	]);
 });
 
-test('resolve_input_files', async () => {
+test('resolve_input_files', () => {
 	const test_files: Record<string, Resolved_Path[]> = {
 		'fake/test1.ext.ts': [
 			{id: 'fake/test1.ext.ts', path: 'fake/test1.ext.ts', is_directory: false},

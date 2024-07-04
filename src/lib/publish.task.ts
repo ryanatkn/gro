@@ -77,7 +77,7 @@ export const task: Task<Args> = {
 			log.info(green('dry run!'));
 		}
 
-		const has_sveltekit_library_result = await has_sveltekit_library();
+		const has_sveltekit_library_result = has_sveltekit_library();
 		if (!has_sveltekit_library_result.ok) {
 			throw new Task_Error(
 				'Failed to find SvelteKit library: ' + has_sveltekit_library_result.message,
@@ -123,7 +123,7 @@ export const task: Task<Args> = {
 		if (dry) {
 			log.info('dry run, skipping changeset version');
 		} else {
-			const package_json_before = await load_package_json();
+			const package_json_before = load_package_json();
 			if (typeof package_json_before.version !== 'string') {
 				throw new Task_Error('Failed to find package.json version');
 			}
@@ -144,7 +144,7 @@ export const task: Task<Args> = {
 			}
 
 			if (!preserve_changelog) {
-				const token = await load_from_env('GITHUB_TOKEN_SECRET');
+				const token = load_from_env('GITHUB_TOKEN_SECRET');
 				if (!token) {
 					log.warn(
 						'the env var GITHUB_TOKEN_SECRET was not found, so API calls with be unauthorized',
@@ -153,7 +153,7 @@ export const task: Task<Args> = {
 				await update_changelog(parsed_repo_url.owner, parsed_repo_url.repo, changelog, token, log);
 			}
 
-			const package_json_after = await load_package_json();
+			const package_json_after = load_package_json();
 			version = package_json_after.version!;
 			if (package_json_before.version === version) {
 				// The version didn't change.

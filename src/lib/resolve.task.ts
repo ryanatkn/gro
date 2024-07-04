@@ -13,7 +13,7 @@ export type Args = z.infer<typeof Args>;
 export const task: Task<Args> = {
 	summary: 'diagnostic that logs resolved filesystem info for the given input paths',
 	Args,
-	run: async ({args, config, log}): Promise<void> => {
+	run: ({args, config, log}): void => {
 		const {_} = args;
 
 		log.info('raw input paths:', _);

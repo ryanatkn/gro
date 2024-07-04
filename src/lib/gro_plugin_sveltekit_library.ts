@@ -1,6 +1,6 @@
 import {print_spawn_result, spawn} from '@ryanatkn/belt/process.js';
 
-import type {Plugin, Plugin_Context} from './plugin.js';
+import type {Plugin} from './plugin.js';
 import {Task_Error} from './task.js';
 import {load_package_json} from './package_json.js';
 import {serialize_args, to_forwarded_args} from './args.js';
@@ -27,11 +27,11 @@ export interface Options {
 export const gro_plugin_sveltekit_library = ({
 	svelte_package_options,
 	svelte_package_cli = SVELTE_PACKAGE_CLI,
-}: Options = {}): Plugin<Plugin_Context> => {
+}: Options = {}): Plugin => {
 	return {
 		name: 'gro_plugin_sveltekit_library',
 		setup: async ({log}) => {
-			const has_sveltekit_library_result = await has_sveltekit_library();
+			const has_sveltekit_library_result = has_sveltekit_library();
 			if (!has_sveltekit_library_result.ok) {
 				throw new Task_Error(
 					'Failed to find SvelteKit library: ' + has_sveltekit_library_result.message,
@@ -50,7 +50,7 @@ export const gro_plugin_sveltekit_library = ({
 			await spawn_cli(found_svelte_package_cli, serialized_args, log);
 		},
 		adapt: async ({log, timings}) => {
-			const package_json = await load_package_json();
+			const package_json = load_package_json();
 
 			// `npm link`
 			if (package_json.bin) {
