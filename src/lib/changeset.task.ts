@@ -7,7 +7,6 @@ import {join} from 'node:path';
 import {existsSync, readdirSync} from 'node:fs';
 
 import {Task_Error, type Task} from './task.js';
-import {load_package_json} from './package_json.js';
 import {find_cli, spawn_cli} from './cli.js';
 import {Git_Origin, git_check_fully_staged_workspace, git_push_to_create} from './git.js';
 import {has_sveltekit_library} from './sveltekit_helpers.js';
@@ -19,6 +18,7 @@ import {
 	CHANGESET_PUBLIC_ACCESS,
 	CHANGESET_RESTRICTED_ACCESS,
 } from './changeset_helpers.js';
+import {load_package_json} from './package_json.js';
 
 export const Args = z
 	.object({
@@ -62,6 +62,7 @@ export const task: Task<Args> = {
 			invoke_task,
 			args: {_, minor, major, dir, access: access_arg, changelog, install, origin, changeset_cli},
 			log,
+			sveltekit_config,
 		} = ctx;
 
 		const message = _.join(' ');
@@ -78,9 +79,9 @@ export const task: Task<Args> = {
 			);
 		}
 
-		const package_json = await load_package_json();
+		const package_json = load_package_json();
 
-		const has_sveltekit_library_result = await has_sveltekit_library(package_json);
+		const has_sveltekit_library_result = has_sveltekit_library(package_json, sveltekit_config);
 		if (!has_sveltekit_library_result.ok) {
 			throw new Task_Error(
 				'Failed to find SvelteKit library: ' + has_sveltekit_library_result.message,
@@ -120,7 +121,7 @@ export const task: Task<Args> = {
 
 		if (message) {
 			// TODO see the helper below, simplify this to CLI flags when support is added to Changesets
-			const changeset_adder = await create_changeset_adder(package_json.name, dir, message, bump);
+			const changeset_adder = create_changeset_adder(package_json.name, dir, message, bump);
 			await spawn_cli(found_changeset_cli, ['add', '--empty'], log);
 			await changeset_adder();
 			if (!(await git_check_fully_staged_workspace())) {
@@ -138,7 +139,7 @@ export const task: Task<Args> = {
  * TODO ideally this wouldn't exist and we'd use CLI flags, but they doesn't exist yet
  * @see https://github.com/changesets/changesets/pull/1121
  */
-const create_changeset_adder = async (
+const create_changeset_adder = (
 	repo_name: string,
 	dir: string,
 	message: string,
@@ -172,13 +173,9 @@ const create_new_changeset = (
 ${message}
 `;
 
-interface Changeset_Callback {
-	(config: WrittenConfig): WrittenConfig | Promise<WrittenConfig>;
-}
+type Changeset_Callback = (config: WrittenConfig) => WrittenConfig | Promise<WrittenConfig>;
 
-interface Update_Written_Config {
-	(path: string, cb: Changeset_Callback): Promise<boolean>;
-}
+type Update_Written_Config = (path: string, cb: Changeset_Callback) => Promise<boolean>;
 
 // TODO refactor all of this with zod and package_json helpers - util file helper? JSON parse pluggable
 

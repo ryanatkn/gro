@@ -10,7 +10,7 @@ import {gro_plugin_sveltekit_app} from './src/lib/gro_plugin_sveltekit_app.js';
  */
 const config = create_empty_config();
 
-config.plugins = async () => [
+config.plugins = () => [
 	gro_plugin_sveltekit_library(),
 	gro_plugin_sveltekit_app(),
 	// TODO replace with an esbuild plugin, see the module for more

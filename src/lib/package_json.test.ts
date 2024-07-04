@@ -9,29 +9,29 @@ import {
 	to_package_exports,
 } from './package_json.js';
 
-test('load_package_json', async () => {
-	const package_json = await load_package_json();
+test('load_package_json', () => {
+	const package_json = load_package_json();
 	assert.ok(package_json);
 	const parsed = Package_Json.parse(package_json);
 	assert.ok(parsed);
 	serialize_package_json(package_json);
 });
 
-test('load_package_json with cache', async () => {
+test('load_package_json with cache', () => {
 	const cache = {};
-	const package_json1 = await load_package_json(undefined, cache);
+	const package_json1 = load_package_json(undefined, cache);
 	assert.ok(package_json1);
 	assert.is(Object.keys(cache).length, 1);
-	const package_json2 = await load_package_json(undefined, cache);
+	const package_json2 = load_package_json(undefined, cache);
 	assert.is(Object.keys(cache).length, 1);
 	assert.is(package_json1, package_json2);
 });
 
-test('Package_Json.parse', async () => {
+test('Package_Json.parse', () => {
 	Package_Json.parse({name: 'abc', version: '123'});
 });
 
-test('Package_Json.parse fails with bad data', async () => {
+test('Package_Json.parse fails with bad data', () => {
 	let err;
 	try {
 		Package_Json.parse({version: '123'});
@@ -41,11 +41,11 @@ test('Package_Json.parse fails with bad data', async () => {
 	assert.ok(err);
 });
 
-test('serialize_package_json', async () => {
+test('serialize_package_json', () => {
 	serialize_package_json({name: 'abc', version: '123'});
 });
 
-test('serialize_package_json fails with bad data', async () => {
+test('serialize_package_json fails with bad data', () => {
 	let err;
 	try {
 		serialize_package_json({version: '123'} as any);
@@ -55,7 +55,7 @@ test('serialize_package_json fails with bad data', async () => {
 	assert.ok(err);
 });
 
-test('to_package_exports', async () => {
+test('to_package_exports', () => {
 	assert.equal(to_package_exports(['a/b.ts']), {
 		'./package.json': './package.json',
 		'./a/b.js': {
@@ -92,8 +92,8 @@ test('to_package_exports', async () => {
 	);
 });
 
-test('parse_repo_url', async () => {
-	const parsed = parse_repo_url(await load_package_json());
+test('parse_repo_url', () => {
+	const parsed = parse_repo_url(load_package_json());
 	assert.is(parsed?.owner, 'ryanatkn');
 	assert.is(parsed?.repo, 'gro');
 });

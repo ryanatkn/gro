@@ -13,13 +13,11 @@ export interface Plugin<T_Plugin_Context extends Plugin_Context = Plugin_Context
 	teardown?: (ctx: T_Plugin_Context) => void | Promise<void>;
 }
 
-export interface Create_Config_Plugins<T_Plugin_Context extends Plugin_Context = Plugin_Context> {
-	(
-		ctx: T_Plugin_Context,
-	):
-		| (Plugin<T_Plugin_Context> | null | Array<Plugin<T_Plugin_Context> | null>)
-		| Promise<Plugin<T_Plugin_Context> | null | Array<Plugin<T_Plugin_Context> | null>>;
-}
+export type Create_Config_Plugins<T_Plugin_Context extends Plugin_Context = Plugin_Context> = (
+	ctx: T_Plugin_Context,
+) =>
+	| (Plugin<T_Plugin_Context> | null | Array<Plugin<T_Plugin_Context> | null>)
+	| Promise<Plugin<T_Plugin_Context> | null | Array<Plugin<T_Plugin_Context> | null>>;
 
 export interface Plugin_Context<T_Args = object> extends Task_Context<T_Args> {
 	dev: boolean;

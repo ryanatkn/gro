@@ -36,7 +36,7 @@ export const task: Task<Args> = {
 		const input_paths = to_input_paths(raw_input_paths);
 
 		// load all of the gen modules
-		const found = await find_genfiles(input_paths, root_dirs, config, timings);
+		const found = find_genfiles(input_paths, root_dirs, config, timings);
 		if (!found.ok) {
 			if (found.type === 'input_directories_with_no_files') {
 				// TODO maybe let this error like the normal case, but only call `gro gen` if we find gen files? problem is the args would need to be hoisted to callers like `gro sync`

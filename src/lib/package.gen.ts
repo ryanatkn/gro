@@ -13,7 +13,7 @@ import {create_src_json} from './src_json.js';
  * allowing apps to import typesafe data from their own `package.json`.
  */
 export const gen: Gen = async ({origin_id}) => {
-	const package_json = await load_package_json();
+	const package_json = load_package_json();
 	const src_json = await create_src_json(package_json);
 
 	return `

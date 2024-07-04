@@ -4,24 +4,24 @@ import * as assert from 'uvu/assert';
 import {resolve_node_specifier} from './resolve_node_specifier.js';
 import {paths} from './paths.js';
 
-test('resolves a JS specifier', async () => {
+test('resolves a JS specifier', () => {
 	assert.is(
-		await resolve_node_specifier('@ryanatkn/fuz/tome.js'),
+		resolve_node_specifier('@ryanatkn/fuz/tome.js'),
 		paths.root + 'node_modules/@ryanatkn/fuz/dist/tome.js',
 	);
 });
 
-test('resolves a Svelte specifier', async () => {
+test('resolves a Svelte specifier', () => {
 	assert.is(
-		await resolve_node_specifier('@ryanatkn/fuz/Library.svelte'),
+		resolve_node_specifier('@ryanatkn/fuz/Library.svelte'),
 		paths.root + 'node_modules/@ryanatkn/fuz/dist/Library.svelte',
 	);
 });
 
-test('throws for a specifier that does not exist', async () => {
+test('throws for a specifier that does not exist', () => {
 	let err;
 	try {
-		await resolve_node_specifier('@ryanatkn/fuz/this_does_not_exist');
+		resolve_node_specifier('@ryanatkn/fuz/this_does_not_exist');
 	} catch (_err) {
 		err = _err;
 	}

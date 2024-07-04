@@ -26,10 +26,10 @@ export const GEN_FILE_PATTERN = '.' + GEN_FILE_PATTERN_TEXT + '.';
 
 export const is_gen_path = (path: string): boolean => path.includes(GEN_FILE_PATTERN);
 
-export type Gen_Result = {
+export interface Gen_Result {
 	origin_id: Path_Id;
 	files: Gen_File[];
-};
+}
 export interface Gen_File {
 	id: Path_Id;
 	content: string;
@@ -37,9 +37,7 @@ export interface Gen_File {
 	format: boolean;
 }
 
-export interface Gen {
-	(ctx: Gen_Context): Raw_Gen_Result | Promise<Raw_Gen_Result>;
-}
+export type Gen = (ctx: Gen_Context) => Raw_Gen_Result | Promise<Raw_Gen_Result>;
 export interface Gen_Context {
 	config: Gro_Config;
 	sveltekit_config: Parsed_Sveltekit_Config;
@@ -64,28 +62,28 @@ export const Gen_Config = z.object({
 });
 export type Gen_Config = z.infer<typeof Gen_Config>;
 
-export type Gen_Results = {
+export interface Gen_Results {
 	results: Genfile_Module_Result[];
 	successes: Genfile_Module_Result_Success[];
 	failures: Genfile_Module_Result_Failure[];
 	input_count: number;
 	output_count: number;
 	elapsed: number;
-};
+}
 export type Genfile_Module_Result = Genfile_Module_Result_Success | Genfile_Module_Result_Failure;
-export type Genfile_Module_Result_Success = {
+export interface Genfile_Module_Result_Success {
 	ok: true;
 	id: Path_Id;
 	files: Gen_File[];
 	elapsed: number;
-};
-export type Genfile_Module_Result_Failure = {
+}
+export interface Genfile_Module_Result_Failure {
 	ok: false;
 	id: Path_Id;
 	reason: string;
 	error: Error;
 	elapsed: number;
-};
+}
 
 export const to_gen_result = (origin_id: Path_Id, raw_result: Raw_Gen_Result): Gen_Result => {
 	return {
@@ -117,7 +115,7 @@ const to_output_file_id = (origin_id: Path_Id, raw_file_name: string | undefined
 	if (raw_file_name === '') {
 		throw Error(`Output file name cannot be an empty string`);
 	}
-	const filename = raw_file_name || to_output_file_name(basename(origin_id));
+	const filename = raw_file_name ?? to_output_file_name(basename(origin_id));
 	if (isAbsolute(filename)) return filename;
 	const dir = dirname(origin_id);
 	const output_file_id = join(dir, filename);
@@ -259,12 +257,12 @@ export type Find_Genfiles_Failure =
 /**
  * Finds modules from input paths. (see `src/lib/input_path.ts` for more)
  */
-export const find_genfiles = async (
+export const find_genfiles = (
 	input_paths: Input_Path[],
 	root_dirs: Path_Id[],
 	config: Gro_Config,
 	timings?: Timings,
-): Promise<Find_Genfiles_Result> => {
+): Find_Genfiles_Result => {
 	const extensions: string[] = [GEN_FILE_PATTERN];
 
 	// Check which extension variation works - if it's a directory, prefer others first!

@@ -19,7 +19,7 @@ export const load_sveltekit_config = async (
 ): Promise<SveltekitConfig | null> => {
 	try {
 		return (await import(join(dir, SVELTEKIT_CONFIG_FILENAME))).default;
-	} catch (err) {
+	} catch (_err) {
 		return null;
 	}
 };

@@ -71,13 +71,13 @@ export const serialize_args = (args: Args): string[] => {
 		if (value === undefined) return;
 		result.push(name);
 		if (typeof value !== 'boolean') {
-			result.push((value as any) + '');
+			result.push(value.toString());
 		}
 	};
 	let _: string[] | null = null;
 	for (const [key, value] of Object.entries(args)) {
 		if (key === '_') {
-			_ = value ? (value as any[]).map((v) => (v === undefined ? '' : v + '')) : [];
+			_ = value ? (value as any[]).map((v) => (v === undefined ? '' : v.toString())) : [];
 		} else {
 			const name = `${key.length === 1 ? '-' : '--'}${key}`;
 			if (Array.isArray(value)) {
@@ -97,7 +97,7 @@ export const serialize_args = (args: Args): string[] => {
 export const to_task_args = (argv = process.argv): {task_name: string; args: Args} => {
 	const forwarded_index = argv.indexOf('--');
 	const args = mri(forwarded_index === -1 ? argv.slice(2) : argv.slice(2, forwarded_index));
-	const task_name = args._.shift() || '';
+	const task_name = args._.shift() ?? '';
 	if (!args._.length) delete (args as Args)._; // enable schema defaults
 	return {task_name, args};
 };
@@ -120,11 +120,11 @@ export const to_forwarded_args = (
 	command: string,
 	raw_rest_args?: string[],
 	cache = to_forwarded_args_by_command(raw_rest_args),
-): Args => cache[command] || {};
+): Args => cache[command] ?? {};
 
 export const to_forwarded_args_by_command = (
 	raw_rest_args = to_raw_rest_args(),
-): Record<string, Args> => {
+): Record<string, Args | undefined> => {
 	// Parse each segment of `argv` separated by `--`.
 	const argvs: string[][] = [];
 	let arr: string[] | undefined;
@@ -157,7 +157,7 @@ export const to_forwarded_args_by_command = (
 					`Malformed args following a \`--\`. Expected gro taskname: \`${argv.join(' ')}\``,
 				);
 			}
-			command += ' ' + args._.shift();
+			command += ' ' + args._.shift()!;
 		}
 		if (!args._.length) delete (args as Args)._;
 		forwarded_args_by_command[command] = args;
