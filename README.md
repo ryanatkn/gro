@@ -237,13 +237,13 @@ For more see [the tasks index](/src/lib/docs/tasks.md),
 
 ```bash
 npm i
-npm run build # build and link `gro` - needed only once
-gro build # same as `npm run build` when the `gro` CLI is available
+npm run bootstrap # build and link `gro` without itself - needed only once
+gro build # same as `npm run bootstrap` when the `gro` CLI is available
 gro test # make sure everything looks good - same as `npm test`
 gro test some.test another.test
 
 # use your development version of `gro` locally in another project:
-gro build # updates the `gro` CLI, same as `npm run build`
+gro build # updates the `gro` CLI, same as `npm run bootstrap`
 cd ../otherproject
 npm link ../gro # from `otherproject/`
 gro build # from `../gro` on changes
