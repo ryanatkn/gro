@@ -104,7 +104,7 @@ export const replace_plugin = <
 	new_plugin: Plugin,
 	name = new_plugin.name,
 ): T_Plugin[] => {
-	const array = to_array(plugins).filter(Boolean) as Plugin[];
+	const array = to_array(plugins).filter((v) => v !== null);
 	const index = array.findIndex((p) => p.name === name);
 	if (index === -1) throw Error('Failed to find plugin to replace: ' + name);
 	const replaced = array.slice();
