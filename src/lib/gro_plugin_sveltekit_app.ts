@@ -224,13 +224,13 @@ const create_temporarily = (path: string, contents: string): Cleanup => {
 	return () => {
 		if (!dir_already_exists) {
 			if (!root_created_dir) throw Error();
-			rmSync(root_created_dir, {recursive: true});
+			if (existsSync(root_created_dir)) {
+				rmSync(root_created_dir, {recursive: true});
+			}
 		} else if (!path_already_exists) {
-			console.log(`path`, path);
-			console.log(`dir`, dir);
-			console.log(`dir_already__exists`, dir_already_exists);
-			console.log(`path_already_exists`, path_already_exists);
-			rmSync(path);
+			if (existsSync(path)) {
+				rmSync(path);
+			}
 		}
 	};
 };
