@@ -71,13 +71,13 @@ export const serialize_args = (args: Args): string[] => {
 		if (value === undefined) return;
 		result.push(name);
 		if (typeof value !== 'boolean') {
-			result.push(value.toString());
+			result.push(value + '');
 		}
 	};
 	let _: string[] | null = null;
 	for (const [key, value] of Object.entries(args)) {
 		if (key === '_') {
-			_ = value ? (value as any[]).map((v) => (v === undefined ? '' : v.toString())) : [];
+			_ = value ? (value as any[]).map((v) => (v === undefined ? '' : v + '')) : [];
 		} else {
 			const name = `${key.length === 1 ? '-' : '--'}${key}`;
 			if (Array.isArray(value)) {
@@ -157,7 +157,7 @@ export const to_forwarded_args_by_command = (
 					`Malformed args following a \`--\`. Expected gro taskname: \`${argv.join(' ')}\``,
 				);
 			}
-			command += ' ' + args._.shift()!;
+			command += ' ' + args._.shift();
 		}
 		if (!args._.length) delete (args as Args)._;
 		forwarded_args_by_command[command] = args;
