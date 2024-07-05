@@ -12,8 +12,8 @@ export const load_env = (
 	ambient_env = process.env,
 ): Record<string, string> => {
 	const envs: Array<Record<string, string | undefined>> = env_files
-		.map((path) => load(env_dir === undefined ? path : resolve(env_dir, path))!)
-		.filter(Boolean);
+		.map((path) => load(env_dir === undefined ? path : resolve(env_dir, path)))
+		.filter((v) => v !== undefined);
 	envs.push(ambient_env);
 	return merge_envs(envs, visibility, public_prefix, private_prefix);
 };

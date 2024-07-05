@@ -113,10 +113,10 @@ export const gro_plugin_sveltekit_app = ({
 								join(assets_path, '.well-known/package.json'),
 								serialized_package_json,
 							)
-						: null!,
+						: null,
 					serialized_src_json
 						? create_temporarily(join(assets_path, '.well-known/src.json'), serialized_src_json)
-						: null!,
+						: null,
 					serialized_src_json && well_known_src_files
 						? copy_temporarily(
 								SOURCE_DIRNAME,
@@ -126,7 +126,7 @@ export const gro_plugin_sveltekit_app = ({
 									? (file_path) => !DEFAULT_EXPORTS_EXCLUDER.test(file_path)
 									: well_known_src_files,
 							)
-						: null!,
+						: null,
 					/**
 					 * GitHub pages processes everything with Jekyll by default,
 					 * breaking things like files and dirs prefixed with an underscore.
@@ -135,8 +135,8 @@ export const gro_plugin_sveltekit_app = ({
 					 */
 					host_target === 'github_pages'
 						? create_temporarily(join(assets_path, '.nojekyll'), '')
-						: null!,
-				].filter(Boolean);
+						: null,
+				].filter((v) => v != null);
 				const cleanup = () => {
 					for (const c of cleanups) c();
 				};
@@ -226,6 +226,10 @@ const create_temporarily = (path: string, contents: string): Cleanup => {
 			if (!root_created_dir) throw Error();
 			rmSync(root_created_dir, {recursive: true});
 		} else if (!path_already_exists) {
+			console.log(`path`, path);
+			console.log(`dir`, dir);
+			console.log(`dir_already__exists`, dir_already_exists);
+			console.log(`path_already_exists`, path_already_exists);
 			rmSync(path);
 		}
 	};

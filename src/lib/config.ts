@@ -64,9 +64,9 @@ export const create_empty_config = (): Gro_Config => ({
 	task_root_dirs: [
 		// TODO maybe disable if no SvelteKit `lib` directory? or other detection to improve defaults
 		paths.lib,
-		IS_THIS_GRO ? null! : paths.root,
-		IS_THIS_GRO ? null! : GRO_DIST_DIR,
-	].filter(Boolean),
+		IS_THIS_GRO ? null : paths.root,
+		IS_THIS_GRO ? null : GRO_DIST_DIR,
+	].filter((v) => v !== null),
 	search_filters: [(id) => !DEFAULT_SEARCH_EXCLUDER.test(id)],
 });
 

@@ -100,7 +100,7 @@ export const to_src_modules = (
 						source_file_id,
 						'does not exist',
 					);
-					return null!;
+					return null;
 				}
 
 				const declarations: Src_Module_Declaration[] = [];
@@ -148,6 +148,6 @@ export const to_src_modules = (
 				const src_module: Src_Module = {path: source_file_path, declarations};
 				return [k, src_module];
 			})
-			.filter(Boolean),
+			.filter((v) => v !== null),
 	);
 };
