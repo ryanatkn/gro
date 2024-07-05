@@ -23,7 +23,7 @@ export type Email = Flavored<z.infer<typeof Email>, 'Email'>;
 // TODO move this where?
 export const transform_empty_object_to_undefined = (val: any): any => {
 	if (val && Object.keys(val).length === 0) {
-		return undefined;
+		return;
 	}
 	return val;
 };
@@ -291,11 +291,11 @@ export const parse_repo_url = (
 			: repository.url
 		: undefined;
 	if (!repo_url) {
-		return undefined;
+		return;
 	}
 	const parsed_repo_url = GITHUB_REPO_MATCHER.exec(strip_end(strip_end(repo_url, '/'), '.git'));
 	if (!parsed_repo_url) {
-		return undefined;
+		return;
 	}
 	const [, owner, repo] = parsed_repo_url;
 	return {owner, repo};
