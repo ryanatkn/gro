@@ -18,7 +18,8 @@ behavior designed for public open source projects:
   containing additional information about the source modules,
   mapping it with the optional
   [`well_known_src_json` option](./gro_plugin_sveltekit_app.md#well_known_src_json).
-- If you opt in with `well_known_src_files`,
+- If you define a truthy value for the
+  [`well_known_src_files` option](./gro_plugin_sveltekit_app.md#well_known_src_files),
   `gro_plugin_sveltekit_app` outputs `.well-known/src/` by
   copying over `src/` during `vite build`, filtered by `well_known_src_files` if it's a function.
   This is costly (usually more than doubling the final output size
