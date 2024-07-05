@@ -19,7 +19,7 @@ export const load_env = (
 };
 
 const load = (path: string): Record<string, string> | undefined => {
-	if (!existsSync(path)) return undefined;
+	if (!existsSync(path)) return;
 	const loaded = readFileSync(path, 'utf8');
 	return dotenv.parse(loaded);
 };

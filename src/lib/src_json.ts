@@ -73,7 +73,7 @@ export const to_src_modules = async (
 	log?: Logger,
 	lib_path = paths.lib,
 ): Promise<Src_Modules | undefined> => {
-	if (!exports) return undefined;
+	if (!exports) return;
 
 	const project = new Project();
 	project.addSourceFilesAtPaths('src/**/*.ts'); // TODO dir? maybe rewrite with `lib_path`?

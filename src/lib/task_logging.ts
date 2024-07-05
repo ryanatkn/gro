@@ -166,7 +166,6 @@ const to_args_schema_default = ({_def}: ZodTypeAny): any => {
 	if (subschema) {
 		return to_args_schema_default(subschema);
 	}
-	return undefined;
 };
 
 const to_subschema = (_def: any): ZodTypeAny | undefined => {
