@@ -191,9 +191,13 @@ const copy_temporarily = (
 	return () => {
 		if (!dir_already_exists) {
 			if (!root_created_dir) throw Error();
-			rmSync(root_created_dir, {recursive: true});
+			if (existsSync(root_created_dir)) {
+				rmSync(root_created_dir, {recursive: true});
+			}
 		} else if (!path_already_exists) {
-			rmSync(path, {recursive: true});
+			if (existsSync(path)) {
+				rmSync(path, {recursive: true});
+			}
 		}
 	};
 };
