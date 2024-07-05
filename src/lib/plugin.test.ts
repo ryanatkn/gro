@@ -3,7 +3,7 @@ import * as assert from 'uvu/assert';
 
 import {replace_plugin} from './plugin.js';
 
-test('replace_plugin', async () => {
+test('replace_plugin', () => {
 	const a = {name: 'a'};
 	const b = {name: 'b'};
 	const c = {name: 'c'};
@@ -35,14 +35,14 @@ test('replace_plugin', async () => {
 	assert.is(p[2], c2);
 });
 
-test('replace_plugin without an array', async () => {
+test('replace_plugin without an array', () => {
 	const a = {name: 'a'};
 	const a2 = {name: 'a'};
 	const p = replace_plugin(a, a2);
 	assert.is(p[0], a2);
 });
 
-test('replace_plugin throws if it cannot find the given name', async () => {
+test('replace_plugin throws if it cannot find the given name', () => {
 	const a = {name: 'a'};
 	const plugins = [a];
 	let err;

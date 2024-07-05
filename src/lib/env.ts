@@ -1,9 +1,8 @@
 import dotenv from 'dotenv';
-import {readFile} from 'node:fs/promises';
 import {resolve} from 'node:path';
-import {existsSync} from 'node:fs';
+import {existsSync, readFileSync} from 'node:fs';
 
-export const load_env = async (
+export const load_env = (
 	dev: boolean,
 	visibility: 'public' | 'private',
 	public_prefix: string,
@@ -11,19 +10,17 @@ export const load_env = async (
 	env_dir?: string,
 	env_files = ['.env', '.env.' + (dev ? 'development' : 'production')],
 	ambient_env = process.env,
-): Promise<Record<string, string>> => {
-	const envs: Array<Record<string, string | undefined>> = await Promise.all(
-		env_files
-			.map(async (path) => (await load(env_dir === undefined ? path : resolve(env_dir, path)))!)
-			.filter(Boolean),
-	);
+): Record<string, string> => {
+	const envs: Array<Record<string, string | undefined>> = env_files
+		.map((path) => load(env_dir === undefined ? path : resolve(env_dir, path)))
+		.filter((v) => v !== undefined);
 	envs.push(ambient_env);
 	return merge_envs(envs, visibility, public_prefix, private_prefix);
 };
 
-const load = async (path: string): Promise<Record<string, string> | undefined> => {
-	if (!existsSync(path)) return undefined;
-	const loaded = await readFile(path, 'utf8');
+const load = (path: string): Record<string, string> | undefined => {
+	if (!existsSync(path)) return;
+	const loaded = readFileSync(path, 'utf8');
 	return dotenv.parse(loaded);
 };
 
@@ -68,13 +65,10 @@ export const is_public_env = (
  * Loads a single env value without merging it into `process.env`.
  * By default searches process.env, then a local `.env` if one exists, then `../.env` if it exists.
  */
-export const load_from_env = async (
-	key: string,
-	paths = ['.env', '../.env'],
-): Promise<string | undefined> => {
+export const load_from_env = (key: string, paths = ['.env', '../.env']): string | undefined => {
 	if (process.env[key]) return process.env[key];
 	for (const path of paths) {
-		const env = await load(path); // eslint-disable-line no-await-in-loop
+		const env = load(path);
 		if (env?.[key]) return env[key];
 	}
 	return undefined;

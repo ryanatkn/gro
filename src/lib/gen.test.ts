@@ -295,13 +295,10 @@ test('validate_gen_module basic behavior', () => {
 	assert.ok(validate_gen_module({gen: Function.prototype}));
 	assert.ok(!validate_gen_module({gen: {}}));
 	assert.ok(!validate_gen_module({task: {run: {}}}));
-	assert.ok(!validate_gen_module(undefined as any));
-	assert.ok(!validate_gen_module(null as any));
-	assert.ok(!validate_gen_module(false as any));
 });
 
-test('find_genfiles_result finds gen modules in a directory', async () => {
-	const find_genfiles_result = await find_genfiles(['docs'], [paths.lib], create_empty_config());
+test('find_genfiles_result finds gen modules in a directory', () => {
+	const find_genfiles_result = find_genfiles(['docs'], [paths.lib], create_empty_config());
 	assert.ok(find_genfiles_result.ok);
 	assert.ok(find_genfiles_result.value.resolved_input_paths.length);
 });

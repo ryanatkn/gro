@@ -3,14 +3,13 @@ import {z} from 'zod';
 
 import {Task_Error, type Task} from './task.js';
 import {serialize_args, to_forwarded_args} from './args.js';
-import {SOURCE_DIRNAME} from './path_constants.js';
 import {find_cli, spawn_cli} from './cli.js';
 
 const ESLINT_CLI = 'eslint';
 
 export const Args = z
 	.object({
-		_: z.array(z.string(), {description: 'paths to serve'}).default([SOURCE_DIRNAME]),
+		_: z.array(z.string(), {description: 'paths to serve'}).default([]),
 		eslint_cli: z.string({description: 'the ESLint CLI to use'}).default(ESLINT_CLI),
 	})
 	.strict();

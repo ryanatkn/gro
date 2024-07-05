@@ -35,7 +35,7 @@ export const find_cli = (
 		return {name, id: local_id, kind: 'local'};
 	}
 	const {stdout} = spawnSync('which', [name], options);
-	const global_id = stdout?.toString().trim();
+	const global_id = stdout.toString().trim();
 	if (!global_id) return null;
 	return {name, id: global_id, kind: 'global'};
 };

@@ -37,7 +37,7 @@ export const esbuild_plugin_svelte = (options: Options = {}): esbuild.Plugin => 
 						filename,
 						...svelte_compile_module_options,
 					});
-					const contents = js.map ? js.code + '//# sourceMappingURL=' + js.map.toUrl() : js.code;
+					const contents = js.code + '//# sourceMappingURL=' + js.map.toUrl();
 					return {
 						contents,
 						warnings: warnings.map((w) => convert_svelte_message_to_esbuild(filename, source, w)),
@@ -54,12 +54,12 @@ export const esbuild_plugin_svelte = (options: Options = {}): esbuild.Plugin => 
 						? await preprocess(source, svelte_preprocessors, {filename})
 						: null;
 					// TODO handle preprocessor sourcemaps, same as in loader - merge?
-					if (preprocessed?.code) source = preprocessed?.code;
+					if (preprocessed?.code) source = preprocessed.code;
 					const {js, warnings} = compile(source, {
 						filename,
 						...svelte_compile_options,
 					});
-					const contents = js.map ? js.code + '//# sourceMappingURL=' + js.map.toUrl() : js.code;
+					const contents = js.code + '//# sourceMappingURL=' + js.map.toUrl();
 					return {
 						contents,
 						warnings: warnings.map((w) => convert_svelte_message_to_esbuild(filename, source, w)),

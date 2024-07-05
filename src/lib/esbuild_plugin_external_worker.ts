@@ -82,7 +82,7 @@ export const esbuild_plugin_external_worker = ({
 		};
 
 		build.onResolve({filter: /\.worker(|\.js|\.ts)$/u}, async ({path, resolveDir}) => {
-			const parsed = await resolve_specifier(path, resolveDir);
+			const parsed = resolve_specifier(path, resolveDir);
 			const {specifier, path_id, namespace} = parsed;
 			const build_result = await build_worker(path_id);
 			if (log) print_build_result(log, build_result);

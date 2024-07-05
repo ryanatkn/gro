@@ -53,7 +53,7 @@ export const invoke_task = async (
 
 	// Check if the caller just wants to see the version.
 	if (!task_name && (args?.version || args?.v)) {
-		const gro_package_json = await load_gro_package_json();
+		const gro_package_json = load_gro_package_json();
 		log.info(`${gray('v')}${cyan(gro_package_json.version)}`);
 		finish();
 		return;
@@ -86,7 +86,7 @@ export const invoke_task = async (
 
 	if (resolved_input_files.length > 1 || resolved_input_files[0].resolved_input_path.is_directory) {
 		// The input path matches a directory. Log the tasks but don't run them.
-		await log_tasks(log, loaded_tasks);
+		log_tasks(log, loaded_tasks);
 		finish();
 		return;
 	}
@@ -94,7 +94,7 @@ export const invoke_task = async (
 	// The input path matches a file that's presumable a task, so load and run it.
 	if (loaded_tasks.modules.length !== 1) throw Error('expected one loaded task'); // run only one task at a time
 	const task = loaded_tasks.modules[0];
-	log.info(`→ ${cyan(task.name)} ${(task.mod.task.summary && gray(task.mod.task.summary)) || ''}`);
+	log.info(`→ ${cyan(task.name)} ${(task.mod.task.summary && gray(task.mod.task.summary)) ?? ''}`);
 
 	const timing_to_run_task = timings.start('run task ' + task_name);
 	const result = await run_task(

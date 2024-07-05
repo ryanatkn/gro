@@ -2,8 +2,6 @@
 // because we no longer have a normal system build - replace with an esbuild plugin
 // @ts-nocheck
 
-import {spawn} from '@ryanatkn/belt/process.js';
-
 import type {Plugin, Plugin_Context} from './plugin.js';
 import type {Args} from './args.js';
 import {path_id_to_base_path} from './paths.js';
@@ -55,7 +53,7 @@ export const plugin = (): Plugin<Plugin_Context<Task_Args>> => {
 			// Some parts of the build may have already happened,
 			// making us miss `build` events for gen dependencies,
 			// so we run `gen` here even if it's usually wasteful.
-			const found = await find_genfiles([paths.source], root_dirs, config);
+			const found = find_genfiles([paths.source], root_dirs, config);
 			if (found.ok && found.value.resolved_input_files.size > 0) {
 				await gen();
 			}
@@ -69,7 +67,7 @@ export const plugin = (): Plugin<Plugin_Context<Task_Args>> => {
 
 			// When a file builds, check it and its tree of dependents
 			// for any `.gen.` files that need to run.
-			on_filer_build = async ({source_file, build_config}) => {
+			on_filer_build = ({source_file, build_config}) => {
 				// TODO how to handle this now? the loader traces deps for us with `parentPath`,
 				// but we probably want to make this an esbuild plugin instead
 				// if (build_config.name !== 'system') return;
@@ -88,7 +86,7 @@ export const plugin = (): Plugin<Plugin_Context<Task_Args>> => {
 			};
 			filer.on('build', on_filer_build);
 		},
-		teardown: async ({filer}) => {
+		teardown: ({filer}) => {
 			if (on_filer_build && filer) {
 				filer.off('build', on_filer_build);
 			}

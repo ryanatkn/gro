@@ -17,7 +17,7 @@ export const SVELTE_PACKAGE_DEP_NAME = '@sveltejs/package';
 
 export const VITE_CLI = 'vite';
 
-export const has_sveltekit_app = async (): Promise<Result<object, {message: string}>> => {
+export const has_sveltekit_app = (): Result<object, {message: string}> => {
 	if (!existsSync(SVELTEKIT_CONFIG_FILENAME)) {
 		return {ok: false, message: `no SvelteKit config found at ${SVELTEKIT_CONFIG_FILENAME}`};
 	}
@@ -25,11 +25,11 @@ export const has_sveltekit_app = async (): Promise<Result<object, {message: stri
 	return {ok: true};
 };
 
-export const has_sveltekit_library = async (
+export const has_sveltekit_library = (
 	package_json?: Package_Json,
 	sveltekit_config: Parsed_Sveltekit_Config = sveltekit_config_global,
-): Promise<Result<object, {message: string}>> => {
-	const has_sveltekit_app_result = await has_sveltekit_app();
+): Result<object, {message: string}> => {
+	const has_sveltekit_app_result = has_sveltekit_app();
 	if (!has_sveltekit_app_result.ok) {
 		return has_sveltekit_app_result;
 	}
@@ -38,7 +38,7 @@ export const has_sveltekit_library = async (
 		return {ok: false, message: `no SvelteKit lib directory found at ${sveltekit_config.lib_path}`};
 	}
 
-	const pkg = package_json ?? (await load_package_json());
+	const pkg = package_json ?? load_package_json();
 	if (
 		!(pkg.devDependencies?.[SVELTE_PACKAGE_DEP_NAME] || pkg.dependencies?.[SVELTE_PACKAGE_DEP_NAME])
 	) {

@@ -1,9 +1,8 @@
 import {z} from 'zod';
 import {join} from 'node:path';
-import {readFile, writeFile} from 'node:fs/promises';
-import {count_graphemes, plural} from '@ryanatkn/belt/string.js';
+import {readFileSync, writeFileSync} from 'node:fs';
+import {count_graphemes, plural, strip_end} from '@ryanatkn/belt/string.js';
 import type {Logger} from '@ryanatkn/belt/log.js';
-import {strip_end} from '@ryanatkn/belt/string.js';
 import type {Flavored} from '@ryanatkn/belt/types.js';
 import {red} from '@ryanatkn/belt/styletext.js';
 
@@ -24,7 +23,7 @@ export type Email = Flavored<z.infer<typeof Email>, 'Email'>;
 // TODO move this where?
 export const transform_empty_object_to_undefined = (val: any): any => {
 	if (val && Object.keys(val).length === 0) {
-		return undefined;
+		return;
 	}
 	return val;
 };
@@ -137,23 +136,23 @@ export const Package_Json = z
 	.passthrough();
 export type Package_Json = z.infer<typeof Package_Json>;
 
-export interface Map_Package_Json {
-	(package_json: Package_Json): Package_Json | null | Promise<Package_Json | null>;
-}
+export type Map_Package_Json = (
+	package_json: Package_Json,
+) => Package_Json | null | Promise<Package_Json | null>;
 
 export const EMPTY_PACKAGE_JSON: Package_Json = {name: '', version: ''};
 
-export const load_package_json = async (
+export const load_package_json = (
 	dir = IS_THIS_GRO ? gro_paths.root : paths.root,
 	cache?: Record<string, Package_Json>,
-): Promise<Package_Json> => {
+): Package_Json => {
 	let package_json: Package_Json;
 	if (cache && dir in cache) {
 		return cache[dir];
 	}
 	try {
-		package_json = JSON.parse(await load_package_json_contents(dir));
-	} catch (err) {
+		package_json = JSON.parse(load_package_json_contents(dir));
+	} catch (_err) {
 		return EMPTY_PACKAGE_JSON;
 	}
 	package_json = parse_package_json(Package_Json, package_json);
@@ -173,7 +172,7 @@ export const sync_package_json = async (
 	const updated = await update_package_json(
 		dir,
 		async (package_json) => {
-			if ((await has_sveltekit_library(package_json)).ok) {
+			if (has_sveltekit_library(package_json).ok) {
 				const exports = to_package_exports(exported_paths);
 				package_json.exports = exports;
 			}
@@ -196,14 +195,14 @@ export const sync_package_json = async (
 	return updated;
 };
 
-export const load_gro_package_json = (): Promise<Package_Json> => load_package_json(gro_paths.root);
+export const load_gro_package_json = (): Package_Json => load_package_json(gro_paths.root);
 
 // TODO probably make this nullable and make callers handle failures
-const load_package_json_contents = (dir: string): Promise<string> =>
-	readFile(join(dir, 'package.json'), 'utf8');
+const load_package_json_contents = (dir: string): string =>
+	readFileSync(join(dir, 'package.json'), 'utf8');
 
-export const write_package_json = async (serialized_package_json: string): Promise<void> => {
-	await writeFile(join(paths.root, 'package.json'), serialized_package_json);
+export const write_package_json = (serialized_package_json: string): void => {
+	writeFileSync(join(paths.root, 'package.json'), serialized_package_json);
 };
 
 export const serialize_package_json = (package_json: Package_Json): string =>
@@ -217,7 +216,7 @@ export const update_package_json = async (
 	update: (package_json: Package_Json) => Package_Json | null | Promise<Package_Json | null>,
 	write = true,
 ): Promise<{package_json: Package_Json | null; changed: boolean}> => {
-	const original_contents = await load_package_json_contents(dir);
+	const original_contents = load_package_json_contents(dir);
 	const original = JSON.parse(original_contents);
 	const updated = await update(original);
 	if (updated === null) {
@@ -227,7 +226,7 @@ export const update_package_json = async (
 	if (updated_contents === original_contents) {
 		return {package_json: original, changed: false};
 	}
-	if (write) await write_package_json(updated_contents);
+	if (write) write_package_json(updated_contents);
 	return {package_json: updated, changed: true};
 };
 
@@ -292,11 +291,11 @@ export const parse_repo_url = (
 			: repository.url
 		: undefined;
 	if (!repo_url) {
-		return undefined;
+		return;
 	}
 	const parsed_repo_url = GITHUB_REPO_MATCHER.exec(strip_end(strip_end(repo_url, '/'), '.git'));
 	if (!parsed_repo_url) {
-		return undefined;
+		return;
 	}
 	const [, owner, repo] = parsed_repo_url;
 	return {owner, repo};

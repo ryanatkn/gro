@@ -13,13 +13,11 @@ export interface Plugin<T_Plugin_Context extends Plugin_Context = Plugin_Context
 	teardown?: (ctx: T_Plugin_Context) => void | Promise<void>;
 }
 
-export interface Create_Config_Plugins<T_Plugin_Context extends Plugin_Context = Plugin_Context> {
-	(
-		ctx: T_Plugin_Context,
-	):
-		| (Plugin<T_Plugin_Context> | null | Array<Plugin<T_Plugin_Context> | null>)
-		| Promise<Plugin<T_Plugin_Context> | null | Array<Plugin<T_Plugin_Context> | null>>;
-}
+export type Create_Config_Plugins<T_Plugin_Context extends Plugin_Context = Plugin_Context> = (
+	ctx: T_Plugin_Context,
+) =>
+	| (Plugin<T_Plugin_Context> | null | Array<Plugin<T_Plugin_Context> | null>)
+	| Promise<Plugin<T_Plugin_Context> | null | Array<Plugin<T_Plugin_Context> | null>>;
 
 export interface Plugin_Context<T_Args = object> extends Task_Context<T_Args> {
 	dev: boolean;
@@ -38,7 +36,9 @@ export class Plugins<T_Plugin_Context extends Plugin_Context> {
 	): Promise<Plugins<T_Plugin_Context>> {
 		const {timings} = ctx;
 		const timing_to_create = timings.start('plugins.create');
-		const instances: Plugin[] = to_array(await ctx.config.plugins(ctx)).filter(Boolean) as any;
+		const instances: Plugin[] = to_array(await ctx.config.plugins(ctx)).filter(
+			(v) => v !== null,
+		) as Plugin[]; // TODO remove cast, should infer the type predicate? `Type '(Plugin<Plugin_Context<object>> | null)[]' is not assignable to type 'Plugin<Plugin_Context<object>>[]'.`
 		const plugins = new Plugins(ctx, instances);
 		timing_to_create();
 		return plugins;
@@ -104,7 +104,7 @@ export const replace_plugin = <
 	new_plugin: Plugin,
 	name = new_plugin.name,
 ): T_Plugin[] => {
-	const array = to_array(plugins).filter(Boolean) as Plugin[];
+	const array = to_array(plugins).filter((v) => v !== null);
 	const index = array.findIndex((p) => p.name === name);
 	if (index === -1) throw Error('Failed to find plugin to replace: ' + name);
 	const replaced = array.slice();

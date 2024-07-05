@@ -54,9 +54,9 @@ export interface Raw_Gro_Config {
 	search_filters?: Path_Filter | Path_Filter[] | null;
 }
 
-export interface Create_Gro_Config {
-	(base_config: Gro_Config): Raw_Gro_Config | Promise<Raw_Gro_Config>;
-}
+export type Create_Gro_Config = (
+	base_config: Gro_Config,
+) => Raw_Gro_Config | Promise<Raw_Gro_Config>;
 
 export const create_empty_config = (): Gro_Config => ({
 	plugins: () => [],
@@ -64,9 +64,9 @@ export const create_empty_config = (): Gro_Config => ({
 	task_root_dirs: [
 		// TODO maybe disable if no SvelteKit `lib` directory? or other detection to improve defaults
 		paths.lib,
-		IS_THIS_GRO ? null! : paths.root,
-		IS_THIS_GRO ? null! : GRO_DIST_DIR,
-	].filter(Boolean),
+		IS_THIS_GRO ? null : paths.root,
+		IS_THIS_GRO ? null : GRO_DIST_DIR,
+	].filter((v) => v !== null),
 	search_filters: [(id) => !DEFAULT_SEARCH_EXCLUDER.test(id)],
 });
 
@@ -88,7 +88,7 @@ export const DEFAULT_SEARCH_EXCLUDER = new RegExp(
 	'u',
 );
 
-const default_map_package_json: Map_Package_Json = async (package_json) => {
+const default_map_package_json: Map_Package_Json = (package_json) => {
 	if (package_json.exports) {
 		package_json.exports = Object.fromEntries(
 			Object.entries(package_json.exports).filter(([k]) => !DEFAULT_EXPORTS_EXCLUDER.test(k)),

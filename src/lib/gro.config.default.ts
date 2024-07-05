@@ -17,7 +17,7 @@ const config: Create_Gro_Config = async (cfg) => {
 	const [has_sveltekit_library_result, has_server_result, has_sveltekit_app_result] =
 		await Promise.all([has_sveltekit_library(), has_server(), has_sveltekit_app()]);
 
-	cfg.plugins = async () => [
+	cfg.plugins = () => [
 		has_sveltekit_library_result.ok ? gro_plugin_sveltekit_library() : null,
 		has_server_result.ok ? gro_plugin_server() : null,
 		has_sveltekit_app_result.ok

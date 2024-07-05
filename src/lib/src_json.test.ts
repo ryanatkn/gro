@@ -5,9 +5,9 @@ import {to_src_modules} from './src_json.js';
 import {to_package_exports} from './package_json.js';
 import {paths} from './paths.js';
 
-test('to_package_modules', async () => {
+test('to_package_modules', () => {
 	assert.equal(
-		await to_src_modules(
+		to_src_modules(
 			to_package_exports([
 				'fixtures/modules/some_test_css.css',
 				'fixtures/modules/Some_Test_Svelte.svelte',

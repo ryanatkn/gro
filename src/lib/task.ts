@@ -26,7 +26,7 @@ export interface Task<
 	T_Args_Schema extends z.ZodType = z.ZodType,
 	T_Return = unknown,
 > {
-	run: (ctx: Task_Context<T_Args>) => Promise<T_Return>; // TODO return value (make generic, forward it..how?)
+	run: (ctx: Task_Context<T_Args>) => T_Return | Promise<T_Return>; // TODO unused return value
 	summary?: string;
 	Args?: T_Args_Schema;
 }

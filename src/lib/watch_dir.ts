@@ -17,9 +17,7 @@ export interface Watcher_Change {
 	is_directory: boolean;
 }
 export type Watcher_Change_Type = 'create' | 'update' | 'delete';
-export interface Watcher_Change_Callback {
-	(change: Watcher_Change): void;
-}
+export type Watcher_Change_Callback = (change: Watcher_Change) => void;
 
 export interface Options {
 	dir: string;
@@ -48,20 +46,20 @@ export const watch_dir = ({
 	return {
 		init: async () => {
 			watcher = chokidar.watch(dir, chokidar_options);
-			watcher.on('add', async (path, s) => {
-				const stats = s || statSync(path);
+			watcher.on('add', (path, s) => {
+				const stats = s ?? statSync(path);
 				const final_path = absolute ? path : relative(dir, path);
 				if (filter && !filter(final_path, stats.isDirectory())) return;
 				on_change({type: 'create', path: final_path, is_directory: stats.isDirectory()});
 			});
-			watcher.on('addDir', async (path, s) => {
-				const stats = s || statSync(path);
+			watcher.on('addDir', (path, s) => {
+				const stats = s ?? statSync(path);
 				const final_path = absolute ? path : relative(dir, path);
 				if (filter && !filter(final_path, stats.isDirectory())) return;
 				on_change({type: 'create', path: final_path, is_directory: stats.isDirectory()});
 			});
-			watcher.on('change', async (path, s) => {
-				const stats = s || statSync(path);
+			watcher.on('change', (path, s) => {
+				const stats = s ?? statSync(path);
 				const final_path = absolute ? path : relative(dir, path);
 				if (filter && !filter(final_path, stats.isDirectory())) return;
 				on_change({type: 'update', path: final_path, is_directory: stats.isDirectory()});

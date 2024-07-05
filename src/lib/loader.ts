@@ -155,7 +155,7 @@ export const load: LoadHook = async (url, context, nextLoad) => {
 			return {
 				format: 'module',
 				shortCircuit: true,
-				source: await render_env_shim_module(
+				source: render_env_shim_module(
 					dev,
 					mode,
 					visibility,
@@ -213,14 +213,14 @@ export const resolve: ResolveHook = async (specifier, context, nextResolve) => {
 		if (SVELTE_MATCHER.test(path) || JSON_MATCHER.test(path)) {
 			// Match the behavior of Vite and esbuild for Svelte and JSON imports.
 			// TODO maybe `.ts` too
-			const path_id = await resolve_node_specifier(path, dir, parent_url, package_json_cache);
+			const path_id = resolve_node_specifier(path, dir, parent_url, package_json_cache);
 			return {url: pathToFileURL(path_id).href, format: 'module', shortCircuit: true};
 		} else {
 			return nextResolve(path, context);
 		}
 	}
 
-	const {path_id} = await resolve_specifier(path, dirname(fileURLToPath(parent_url)));
+	const {path_id} = resolve_specifier(path, dirname(fileURLToPath(parent_url)));
 
 	return {url: pathToFileURL(path_id).href, format: 'module', shortCircuit: true};
 };

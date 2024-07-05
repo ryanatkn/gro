@@ -39,7 +39,7 @@ export const task: Task<Args> = {
 			await git_pull(origin);
 		}
 
-		const package_json = await load_package_json();
+		const package_json = load_package_json();
 
 		const all_deps = to_deps(package_json);
 

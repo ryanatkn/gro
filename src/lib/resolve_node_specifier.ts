@@ -5,17 +5,17 @@ import type {Path_Id} from './path.js';
 import {paths} from './paths.js';
 import {NODE_MODULES_DIRNAME} from './path_constants.js';
 
-export const resolve_node_specifier = async (
+export const resolve_node_specifier = (
 	specifier: string,
 	dir = paths.root,
 	parent_url?: string,
 	cache?: Record<string, Package_Json>,
 	exports_key = specifier.endsWith('.svelte') ? 'svelte' : 'default',
-): Promise<Path_Id> => {
+): Path_Id => {
 	const parsed = parse_node_specifier(specifier);
 	const subpath = './' + parsed.path;
 	const package_dir = join(dir, NODE_MODULES_DIRNAME, parsed.name);
-	const package_json = await load_package_json(package_dir, cache);
+	const package_json = load_package_json(package_dir, cache);
 	const exported = package_json.exports?.[subpath];
 	if (!exported) {
 		// same error message as Node
