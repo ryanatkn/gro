@@ -90,7 +90,7 @@ export const gro_plugin_sveltekit_app = ({
 
 				// `.well-known/src.json` and `.well-known/src/`
 				const final_package_json = mapped_package_json ?? package_json;
-				const src_json = await create_src_json(final_package_json);
+				const src_json = create_src_json(final_package_json);
 				if (well_known_src_json === undefined) {
 					well_known_src_json = final_package_json.public; // eslint-disable-line no-param-reassign
 				}
