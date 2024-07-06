@@ -23,6 +23,34 @@ test('to_task_name basic behavior', () => {
 	assert.is(to_task_name('/a/b/c/foo.task.ts', '/a/b', '/a/b', '/a/b/d'), '../c/foo');
 	assert.is(to_task_name('/a/b/c/foo.task.ts', '/a/b', '/a/b', '/a/b'), 'c/foo');
 	assert.is(to_task_name('/a/b/c/foo.task.ts', '/a/b', '/a/b', '/a/b/c'), 'foo');
+	assert.is(to_task_name('/a/b/d/foo.task.js', '/a/b/d', '/a/b/d/foo', '/a/c'), '../b/d/foo');
+	assert.is(
+		to_task_name(
+			'/a/node_modules/b/c/foo.task.js',
+			'/a/node_modules/b/c',
+			'/a/node_modules/b/c/foo',
+			'/a',
+		),
+		'foo',
+	);
+	assert.is(
+		to_task_name(
+			'/a/node_modules/b/c/foo.task.js',
+			'/a/node_modules/b/c/', // compared to the above, adds a trailing slash here
+			'/a/node_modules/b/c/foo',
+			'/a',
+		),
+		'foo',
+	);
+	assert.is(
+		to_task_name(
+			'/a/node_modules/b/c/foo.task.js',
+			'/a/node_modules/b/c',
+			'/a/node_modules/b/c/foo',
+			'/a/', // compared to the above, adds a trailing slash here
+		),
+		'foo',
+	);
 	assert.is(
 		to_task_name(resolve('a/b'), resolve('b'), '', ''),
 		resolve('a/b'),
