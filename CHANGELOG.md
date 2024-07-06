@@ -1,5 +1,11 @@
 # @ryanatkn/gro
 
+## 0.129.6
+
+### Patch Changes
+
+- attempt to fix .npmignore directories ([a051f49](https://github.com/ryanatkn/gro/commit/a051f49))
+
 ## 0.129.5
 
 ### Patch Changes
