@@ -90,12 +90,19 @@ const to_deps = (package_json: Package_Json): Dep[] => {
 	return prod_deps.concat(dev_deps);
 };
 
+const EXACT_VERSION_MATCHER = /^..*@.+/u;
+const CUSTOM_TAG_MATCHER = /^[\^~><=]*.+-(.+)/u;
+
 // TODO hacky and limited
 // TODO probably want to pass through exact deps as well, e.g. @foo/bar@1
 const to_upgrade_items = (deps: Dep[]): string[] =>
 	deps.map((dep) => {
-		if (dep.key.endsWith('@next') || dep.key.endsWith('@latest')) {
+		if (EXACT_VERSION_MATCHER.test(dep.key)) {
 			return dep.key;
 		}
-		return dep.key + (dep.value.includes('-next.') ? '@next' : '@latest');
+		const custom_tag_matches = CUSTOM_TAG_MATCHER.exec(dep.value);
+		if (custom_tag_matches) {
+			return dep.key + '@' + custom_tag_matches[1].split('.')[0]; // I tried adding `\.?` to the end but doesn't work and I'm being lazy so I'm just splitting
+		}
+		return dep.key + '@latest';
 	});
