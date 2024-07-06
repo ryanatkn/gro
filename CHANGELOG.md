@@ -1,5 +1,11 @@
 # @ryanatkn/gro
 
+## 0.129.5
+
+### Patch Changes
+
+- add .npmignore and include src/lib ([85a627a](https://github.com/ryanatkn/gro/commit/85a627a))
+
 ## 0.129.4
 
 ### Patch Changes
