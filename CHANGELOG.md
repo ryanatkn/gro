@@ -1,5 +1,11 @@
 # @ryanatkn/gro
 
+## 0.129.3
+
+### Patch Changes
+
+- enable tsconfig `declarationMap` and `isolatedModules` ([a24fea2](https://github.com/ryanatkn/gro/commit/a24fea2))
+
 ## 0.129.2
 
 ### Patch Changes
