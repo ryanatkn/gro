@@ -1,4 +1,4 @@
-*.test.ts
-test/
-fixtures/
-docs/
+src/**/*.test.ts
+src/**/test/
+src/**/fixtures/
+src/**/docs/
