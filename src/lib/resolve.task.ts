@@ -32,10 +32,8 @@ export const task: Task<Args> = {
 		if (verbose) log.info('possible_paths_by_input_path:', possible_paths_by_input_path);
 		if (verbose) log.info('unmapped_input_paths:', unmapped_input_paths);
 
-		if (!verbose) {
-			for (const p of resolved_input_paths) {
-				log.info('resolved:', green(p.id));
-			}
+		for (const p of resolved_input_paths) {
+			log.info('resolved:', green(p.id));
 		}
 
 		if (!resolved_input_paths.length) {
