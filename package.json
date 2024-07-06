@@ -49,7 +49,7 @@
     "typescript"
   ],
   "dependencies": {
-    "@ryanatkn/belt": "^0.24.1",
+    "@ryanatkn/belt": "^0.24.2",
     "chokidar": "^3.6.0",
     "dotenv": "^16.4.5",
     "es-module-lexer": "^1.5.4",
@@ -62,27 +62,27 @@
     "zod": "^3.23.8"
   },
   "peerDependencies": {
-    "esbuild": "^0.21",
+    "esbuild": "^0.21.0",
     "svelte": "^5.0.0-next.0"
   },
   "devDependencies": {
     "@changesets/changelog-git": "^0.2.0",
     "@changesets/types": "^6.0.0",
     "@ryanatkn/eslint-config": "^0.4.0",
-    "@ryanatkn/fuz": "^0.107.1",
-    "@ryanatkn/moss": "^0.6.3",
+    "@ryanatkn/fuz": "^0.108.2",
+    "@ryanatkn/moss": "^0.7.0",
     "@sveltejs/adapter-static": "^3.0.2",
     "@sveltejs/kit": "^2.5.18",
     "@sveltejs/package": "^2.3.2",
     "@sveltejs/vite-plugin-svelte": "^3.1.1",
     "@types/fs-extra": "^11.0.4",
-    "@types/node": "^20.14.9",
+    "@types/node": "^20.14.10",
     "esbuild": "^0.21.5",
     "eslint": "^9.6.0",
     "eslint-plugin-svelte": "^2.41.0",
-    "svelte": "^5.0.0-next.167",
+    "svelte": "^5.0.0-next.175",
     "svelte-check": "^3.8.4",
-    "typescript": "^5.5.2",
+    "typescript": "^5.5.3",
     "typescript-eslint": "^8.0.0-alpha.39",
     "uvu": "^0.5.6"
   },

@@ -5,6 +5,7 @@
 	import Package_Summary from '@ryanatkn/fuz/Package_Summary.svelte';
 	import Gro_Logo from '@ryanatkn/fuz/Gro_Logo.svelte';
 	import {slide} from 'svelte/transition';
+	import Hidden_Personal_Links from '@ryanatkn/fuz/Hidden_Personal_Links.svelte';
 
 	import {parse_package_meta} from '$lib/package_meta.js';
 	import {package_json, src_json} from '$lib/package.js';
@@ -50,12 +51,9 @@
 		<section>
 			<Library_Footer {pkg}>
 				{#snippet logo_header()}<a href="{base}/about" class="mb_xs">about</a>{/snippet}
+				<Hidden_Personal_Links />
 			</Library_Footer>
 		</section>
-	</div>
-	<div hidden>
-		Mastodon verification:
-		<a rel="me" href="https://hci.social/@ryanatkn">@ryanatkn@hci.social</a>
 	</div>
 </main>
 

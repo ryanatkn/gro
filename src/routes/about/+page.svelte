@@ -1,6 +1,7 @@
 <script lang="ts">
 	import Package_Detail from '@ryanatkn/fuz/Package_Detail.svelte';
 	import Library_Footer from '@ryanatkn/fuz/Library_Footer.svelte';
+	import Community_Links_Panel from '@ryanatkn/fuz/Community_Links_Panel.svelte';
 	import Breadcrumb from '@ryanatkn/fuz/Breadcrumb.svelte';
 
 	import {parse_package_meta} from '$lib/package_meta.js';
@@ -18,6 +19,7 @@
 		</header>
 		<Breadcrumb>🧶</Breadcrumb>
 	</section>
+	<Community_Links_Panel />
 	<section class="box w_100 mb_lg">
 		<div class="panel p_md width_md">
 			<Package_Detail {pkg} />
