@@ -102,7 +102,7 @@ const to_upgrade_items = (deps: Dep[]): string[] =>
 		}
 		const custom_matches = CUSTOM_TAG_MATCHER.exec(dep.value);
 		if (custom_matches) {
-			return dep.key + '@' + custom_matches[1].split('.')[0]; // I tried adding `\.?` to the end but doesn't work and I'm being lazy
+			return dep.key + '@' + custom_matches[1].split('.')[0]; // I tried adding `\.?` to the end but doesn't work and I'm being lazy so I'm just splitting
 		}
 		return dep.key + '@latest';
 	});
