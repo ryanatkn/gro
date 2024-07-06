@@ -62,7 +62,12 @@ export const to_task_name = (
 		task_name = strip_end(task_name, suffix);
 	}
 	if (isAbsolute(input_path)) {
-		return relative(root_path, join(input_path, task_name));
+		// is a bit hacky, but does what we want
+		const relative_to_root = relative(root_path, join(task_root_dir, task_name));
+		if (relative_to_root.startsWith('node_modules/')) {
+			return task_name;
+		}
+		return relative_to_root;
 	}
 	return task_name;
 };
