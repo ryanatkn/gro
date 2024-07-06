@@ -1,5 +1,12 @@
 # @ryanatkn/gro
 
+## 0.129.2
+
+### Patch Changes
+
+- fix bug inferring task names ([#484](https://github.com/ryanatkn/gro/pull/484))
+- improve `gro upgrade` to handle more version variants ([#483](https://github.com/ryanatkn/gro/pull/483))
+
 ## 0.129.1
 
 ### Patch Changes
