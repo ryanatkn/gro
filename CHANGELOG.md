@@ -1,5 +1,12 @@
 # @ryanatkn/gro
 
+## 0.129.4
+
+### Patch Changes
+
+- enable tsconfig `declaration` and disable `isolatedModules` because SvelteKit does it ([2a936af](https://github.com/ryanatkn/gro/commit/2a936af))
+- upgrade `@ryanatkn/belt@0.24.3` ([0b74b12](https://github.com/ryanatkn/gro/commit/0b74b12))
+
 ## 0.129.3
 
 ### Patch Changes
