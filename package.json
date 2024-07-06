@@ -107,7 +107,8 @@
     "**/*.css"
   ],
   "files": [
-    "dist"
+    "dist",
+    "src/lib"
   ],
   "exports": {
     ".": {
