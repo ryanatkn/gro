@@ -90,11 +90,13 @@ const to_deps = (package_json: Package_Json): Dep[] => {
 	return prod_deps.concat(dev_deps);
 };
 
+const EXACT_VERSION_MATCHER = /^..*@.+/u;
+
 // TODO hacky and limited
 // TODO probably want to pass through exact deps as well, e.g. @foo/bar@1
 const to_upgrade_items = (deps: Dep[]): string[] =>
 	deps.map((dep) => {
-		if (dep.key.endsWith('@next') || dep.key.endsWith('@latest')) {
+		if (EXACT_VERSION_MATCHER.test(dep.key)) {
 			return dep.key;
 		}
 		return dep.key + (dep.value.includes('-next.') ? '@next' : '@latest');
