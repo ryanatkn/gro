@@ -44,7 +44,7 @@ export const package_json = {
 		'typescript',
 	],
 	dependencies: {
-		'@ryanatkn/belt': '^0.24.3',
+		'@ryanatkn/belt': '^0.24.4',
 		chokidar: '^3.6.0',
 		dotenv: '^16.4.5',
 		'es-module-lexer': '^1.5.4',
