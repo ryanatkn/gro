@@ -1,5 +1,11 @@
 # @ryanatkn/gro
 
+## 0.129.14
+
+### Patch Changes
+
+- improve task name inference ([12faa47](https://github.com/ryanatkn/gro/commit/12faa47))
+
 ## 0.129.13
 
 ### Patch Changes
