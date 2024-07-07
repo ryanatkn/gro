@@ -13,7 +13,7 @@ gro build
 This runs the configured Gro plugins, `setup -> adapt -> teardown`, in production mode.
 
 If your project has a SvelteKit frontend,
-[the default plugin](../gro_plugin_sveltekit_app.ts) calls `vite build`,
+[the default plugin](../lib/gro_plugin_sveltekit_app.ts) calls `vite build`,
 forwarding any [`-- vite [...]` args](https://vitejs.dev/config/):
 
 ```bash

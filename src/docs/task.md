@@ -29,7 +29,7 @@ and defers composition to the user in regular TypeScript modules.
   in its configurable directory, so creating a new task
   is as simple as [creating a new file](#define-a-task), no config needed
   (defaults to `src/lib`, see the config option [`task_root_dirs`](./config.md#task_root_dirs))
-- to view [the available tasks](https://github.com/ryanatkn/gro/blob/main/src/lib/docs/tasks.md)
+- to view [the available tasks](https://github.com/ryanatkn/gro/blob/main/src/docs/tasks.md)
   run `gro` with no arguments
 - task definitions are just objects with an async `run` function and some optional properties,
   so composing tasks is explicit in your code, just like any other module
@@ -77,7 +77,7 @@ $ gro some/dir
 ```
 
 > To learn more about the Gro CLI path conventions,
-> see [the `input_paths` comments](../input_path.ts)
+> see [the `input_paths` comments](../lib/input_path.ts)
 
 ### run a task
 
@@ -217,7 +217,7 @@ export const task: Task = {
 };
 ```
 
-### hook into one of [Gro's builtin tasks](../docs/tasks.md)
+### hook into one of [Gro's builtin tasks](./tasks.md)
 
 ```bash
 # This normally loads Gro's version of the test task at `gro/src/lib/test.task.ts`,
@@ -243,7 +243,7 @@ export const task: Task = {
 };
 ```
 
-Note that when hooking into [Gro's builtin tasks](../docs/tasks.md),
+Note that when hooking into [Gro's builtin tasks](./tasks.md),
 like `test.task.ts` above, you don't have to call its version.
 You can copy/paste an existing task and customize it,
 rewrite a task from scratch, compose them together, or whatever is needed for each project.

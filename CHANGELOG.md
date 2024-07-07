@@ -1362,7 +1362,7 @@
 - **break**: change `invoke_task` to no longer forward `args` automatically
   ([#313](https://github.com/ryanatkn/gro/pull/313))
 - **break**: add generic agnostic command args forwarding
-  [using the `--` pattern](src/lib/docs/task.md#task-args-forwarding)
+  [using the `--` pattern](src/docs/task.md#task-args-forwarding)
   ([#313](https://github.com/ryanatkn/gro/pull/313))
 - **break**: remove `-v` alias for `gro --version`
   ([#313](https://github.com/ryanatkn/gro/pull/313))
@@ -1584,7 +1584,7 @@
 ## 0.36.0
 
 - **break**: fix test sourcemaps by adding
-  [`Gro_Config` option `main_test`](src/lib/docs/config.md#main_test),
+  [`Gro_Config` option `main_test`](src/docs/config.md#main_test),
   which initializes projects with a conventional `lib/main.test.ts`
   for installing sourcemaps and other global test concerns (update: reverted in 0.37.0)
   ([#259](https://github.com/ryanatkn/gro/pull/259))
@@ -1877,7 +1877,7 @@
 
 - **break**: redesign `gro publish` and `gro deploy`
   ([#187](https://github.com/ryanatkn/gro/pull/187))
-- **break**: add [`Adapter` system](/src/lib/docs/adapt.md) and
+- **break**: add [`Adapter` system](/src/docs/adapt.md) and
   [Node library adapter](/src/lib/gro_adapter_library.ts)
   ([#187](https://github.com/ryanatkn/gro/pull/187))
 - **break**: add a default `"node"` build named `"node"` if one is not defined

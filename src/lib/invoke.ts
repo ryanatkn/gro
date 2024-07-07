@@ -9,7 +9,7 @@ import {sveltekit_sync_if_obviously_needed} from './sveltekit_helpers.js';
 
 This module invokes the Gro CLI which in turn invokes tasks.
 Tasks are the CLI's primary concept.
-To learn more about them, see `src/lib/docs/task.md`.
+To learn more about them, see `src/docs/task.md`.
 
 When the CLI is invoked it passes the first CLI arg as `task_name` to `invoke_task`,
 and the rest of the args are forwarded to the task's `run` function.

@@ -21,17 +21,17 @@ Maybe let you map the array of each method batch. (is that possible with those?)
 
 Gro's builtin plugins:
 
-- [`@ryanatkn/gro_plugin_server`](../gro_plugin_server.ts)
-- [`@ryanatkn/gro_plugin_sveltekit_library`](../gro_plugin_sveltekit_library.ts)
-- [`@ryanatkn/gro_plugin_sveltekit_app`](../gro_plugin_sveltekit_app.ts)
-- [`@ryanatkn/gro_plugin_gen`](../gro_plugin_gen.ts)
+- [`@ryanatkn/gro_plugin_server`](../lib/gro_plugin_server.ts)
+- [`@ryanatkn/gro_plugin_sveltekit_library`](../lib/gro_plugin_sveltekit_library.ts)
+- [`@ryanatkn/gro_plugin_sveltekit_app`](../lib/gro_plugin_sveltekit_app.ts)
+- [`@ryanatkn/gro_plugin_gen`](../lib/gro_plugin_gen.ts)
   (currently disabled, will be replaced with an esbuild plugin)
 
 Also see [`config.plugin` in the config docs](config.md#plugin)
-and usage in [the default config](../gro.config.default.ts).
+and usage in [the default config](../lib/gro.config.default.ts).
 The default config detects which plugins are included by inspecting the current project.
 
-The implementation is at [`src/lib/plugin.ts`](../plugin.ts) with more details.
+The implementation is at [`src/lib/plugin.ts`](../lib/plugin.ts) with more details.
 
 ```ts
 export interface Plugin<T_Plugin_Context extends Plugin_Context = Plugin_Context> {
