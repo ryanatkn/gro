@@ -5,6 +5,7 @@ import {resolve} from 'node:path';
 import {is_task_path, to_task_name, validate_task_module, find_tasks, load_tasks} from './task.js';
 import * as actual_test_task_module from './test.task.js';
 import {create_empty_config} from './config.js';
+import {GRO_DIST_DIR} from './paths.js';
 
 test('is_task_path basic behavior', () => {
 	assert.ok(is_task_path('foo.task.ts'));
@@ -26,28 +27,19 @@ test('to_task_name basic behavior', () => {
 	assert.is(to_task_name('/a/b/d/foo.task.js', '/a/b/d', '/a/b/d/foo', '/a/c'), '../b/d/foo');
 	assert.is(
 		to_task_name(
-			'/a/node_modules/b/c/foo.task.js',
-			'/a/node_modules/b/c',
-			'/a/node_modules/b/c/foo',
+			GRO_DIST_DIR + 'foo.task.js',
+			GRO_DIST_DIR.slice(0, -1),
+			GRO_DIST_DIR + 'foo',
 			'/a',
 		),
 		'foo',
 	);
 	assert.is(
 		to_task_name(
-			'/a/node_modules/b/c/foo.task.js',
-			'/a/node_modules/b/c/', // compared to the above, adds a trailing slash here
-			'/a/node_modules/b/c/foo',
+			GRO_DIST_DIR + 'foo.task.js',
+			GRO_DIST_DIR, // same as above but adds a trailing slash here
+			GRO_DIST_DIR + 'foo',
 			'/a',
-		),
-		'foo',
-	);
-	assert.is(
-		to_task_name(
-			'/a/node_modules/b/c/foo.task.js',
-			'/a/node_modules/b/c',
-			'/a/node_modules/b/c/foo',
-			'/a/', // compared to the above, adds a trailing slash here
 		),
 		'foo',
 	);
