@@ -1,5 +1,11 @@
 # @ryanatkn/gro
 
+## 0.129.10
+
+### Patch Changes
+
+- ignore dist test files ([4faa34e](https://github.com/ryanatkn/gro/commit/4faa34e))
+
 ## 0.129.9
 
 ### Patch Changes
