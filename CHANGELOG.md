@@ -1,5 +1,12 @@
 # @ryanatkn/gro
 
+## 0.129.7
+
+### Patch Changes
+
+- update .npmignore ([e567bb7](https://github.com/ryanatkn/gro/commit/e567bb7))
+- move docs to `src/` from `src/lib` ([ddd6d1b](https://github.com/ryanatkn/gro/commit/ddd6d1b))
+
 ## 0.129.6
 
 ### Patch Changes
