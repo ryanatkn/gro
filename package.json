@@ -109,7 +109,8 @@
   "files": [
     "dist",
     "src/lib/**/*.ts",
-    "!src/lib/**/*.test.*"
+    "!src/lib/**/*.test.*",
+    "!dist/**/*.test.*"
   ],
   "exports": {
     ".": {
