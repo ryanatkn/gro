@@ -1,5 +1,11 @@
 # @ryanatkn/gro
 
+## 0.129.12
+
+### Patch Changes
+
+- fix tsconfig `sourceRoot` ([ba35389](https://github.com/ryanatkn/gro/commit/ba35389))
+
 ## 0.129.11
 
 ### Patch Changes
