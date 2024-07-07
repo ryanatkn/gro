@@ -1,5 +1,11 @@
 # @ryanatkn/gro
 
+## 0.129.11
+
+### Patch Changes
+
+- add tsconfig `sourceRoot` to fix declaration maps ([faceb82](https://github.com/ryanatkn/gro/commit/faceb82))
+
 ## 0.129.10
 
 ### Patch Changes
