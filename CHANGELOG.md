@@ -1,5 +1,11 @@
 # @ryanatkn/gro
 
+## 0.129.8
+
+### Patch Changes
+
+- try again to fix .npmignore ([9b05272](https://github.com/ryanatkn/gro/commit/9b05272))
+
 ## 0.129.7
 
 ### Patch Changes
