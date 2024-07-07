@@ -1,5 +1,11 @@
 # @ryanatkn/gro
 
+## 0.129.9
+
+### Patch Changes
+
+- add ignore pattern directly to files and delete .npmignore ([e1871b0](https://github.com/ryanatkn/gro/commit/e1871b0))
+
 ## 0.129.8
 
 ### Patch Changes
