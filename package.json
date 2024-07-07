@@ -108,7 +108,8 @@
   ],
   "files": [
     "dist",
-    "src/lib"
+    "src/lib",
+    "!src/lib/**/*.test.*"
   ],
   "exports": {
     ".": {

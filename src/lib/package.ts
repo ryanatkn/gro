@@ -87,7 +87,7 @@ export const package_json = {
 		overrides: [{files: 'package.json', options: {useTabs: false}}],
 	},
 	sideEffects: ['**/*.css'],
-	files: ['dist', 'src/lib'],
+	files: ['dist', 'src/lib', '!src/lib/**/*.test.*'],
 	exports: {
 		'.': {types: './dist/index.d.ts', default: './dist/index.js'},
 		'./package.json': './package.json',
