@@ -117,7 +117,7 @@ export const task: Task<Args> = {
 		}
 
 		// TODO small problem here where generated files don't get committed
-		await invoke_task('sync'); // after the `npm i` above, and in all cases
+		await invoke_task('sync', {install: false}); // after the `npm i` above, and in all cases
 
 		if (message) {
 			// TODO see the helper below, simplify this to CLI flags when support is added to Changesets
