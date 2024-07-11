@@ -5,7 +5,7 @@ import type {Src_Json} from './src_json.js';
 
 export const package_json = {
 	name: '@ryanatkn/gro',
-	version: '0.129.1',
+	version: '0.129.14',
 	description: 'task runner and toolkit extending SvelteKit',
 	motto: 'generate, run, optimize',
 	glyph: '🌰',
@@ -87,7 +87,7 @@ export const package_json = {
 		overrides: [{files: 'package.json', options: {useTabs: false}}],
 	},
 	sideEffects: ['**/*.css'],
-	files: ['dist'],
+	files: ['dist', 'src/lib/**/*.ts', '!src/lib/**/*.test.*', '!dist/**/*.test.*'],
 	exports: {
 		'.': {types: './dist/index.d.ts', default: './dist/index.js'},
 		'./package.json': './package.json',
@@ -272,7 +272,7 @@ export const package_json = {
 
 export const src_json = {
 	name: '@ryanatkn/gro',
-	version: '0.129.1',
+	version: '0.129.14',
 	modules: {
 		'.': {
 			path: 'index.ts',

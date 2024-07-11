@@ -17,11 +17,11 @@ import type {Path_Filter, Path_Id} from './path.js';
 /**
  * The config that users can extend via `gro.config.ts`.
  * This is exposed to users in places like tasks and genfiles.
- * @see https://github.com/ryanatkn/gro/blob/main/src/lib/docs/config.md
+ * @see https://github.com/ryanatkn/gro/blob/main/src/docs/config.md
  */
 export interface Gro_Config {
 	/**
-	 * @see https://github.com/ryanatkn/gro/blob/main/src/lib/docs/plugin.md
+	 * @see https://github.com/ryanatkn/gro/blob/main/src/docs/plugin.md
 	 */
 	plugins: Create_Config_Plugins;
 	/**
@@ -45,7 +45,7 @@ export interface Gro_Config {
 /**
  * The relaxed variant of `Gro_Config` that users can provide via `gro.config.ts`.
  * Superset of `Gro_Config`.
- * @see https://github.com/ryanatkn/gro/blob/main/src/lib/docs/config.md
+ * @see https://github.com/ryanatkn/gro/blob/main/src/docs/config.md
  */
 export interface Raw_Gro_Config {
 	plugins?: Create_Config_Plugins;

@@ -1,5 +1,86 @@
 # @ryanatkn/gro
 
+## 0.129.14
+
+### Patch Changes
+
+- improve task name inference ([12faa47](https://github.com/ryanatkn/gro/commit/12faa47))
+
+## 0.129.13
+
+### Patch Changes
+
+- upgrade `@ryanatkn/belt@0.24.4` ([4d46d33](https://github.com/ryanatkn/gro/commit/4d46d33))
+
+## 0.129.12
+
+### Patch Changes
+
+- fix tsconfig `sourceRoot` ([ba35389](https://github.com/ryanatkn/gro/commit/ba35389))
+
+## 0.129.11
+
+### Patch Changes
+
+- add tsconfig `sourceRoot` to fix declaration maps ([faceb82](https://github.com/ryanatkn/gro/commit/faceb82))
+
+## 0.129.10
+
+### Patch Changes
+
+- ignore dist test files ([4faa34e](https://github.com/ryanatkn/gro/commit/4faa34e))
+
+## 0.129.9
+
+### Patch Changes
+
+- add ignore pattern directly to files and delete .npmignore ([e1871b0](https://github.com/ryanatkn/gro/commit/e1871b0))
+
+## 0.129.8
+
+### Patch Changes
+
+- try again to fix .npmignore ([9b05272](https://github.com/ryanatkn/gro/commit/9b05272))
+
+## 0.129.7
+
+### Patch Changes
+
+- update .npmignore ([e567bb7](https://github.com/ryanatkn/gro/commit/e567bb7))
+- move docs to `src/` from `src/lib` ([ddd6d1b](https://github.com/ryanatkn/gro/commit/ddd6d1b))
+
+## 0.129.6
+
+### Patch Changes
+
+- attempt to fix .npmignore directories ([a051f49](https://github.com/ryanatkn/gro/commit/a051f49))
+
+## 0.129.5
+
+### Patch Changes
+
+- add .npmignore and include src/lib ([85a627a](https://github.com/ryanatkn/gro/commit/85a627a))
+
+## 0.129.4
+
+### Patch Changes
+
+- enable tsconfig `declaration` and disable `isolatedModules` because SvelteKit does it ([2a936af](https://github.com/ryanatkn/gro/commit/2a936af))
+- upgrade `@ryanatkn/belt@0.24.3` ([0b74b12](https://github.com/ryanatkn/gro/commit/0b74b12))
+
+## 0.129.3
+
+### Patch Changes
+
+- enable tsconfig `declarationMap` and `isolatedModules` ([a24fea2](https://github.com/ryanatkn/gro/commit/a24fea2))
+
+## 0.129.2
+
+### Patch Changes
+
+- fix bug inferring task names ([#484](https://github.com/ryanatkn/gro/pull/484))
+- improve `gro upgrade` to handle more version variants ([#483](https://github.com/ryanatkn/gro/pull/483))
+
 ## 0.129.1
 
 ### Patch Changes
@@ -1330,7 +1411,7 @@
 - **break**: change `invoke_task` to no longer forward `args` automatically
   ([#313](https://github.com/ryanatkn/gro/pull/313))
 - **break**: add generic agnostic command args forwarding
-  [using the `--` pattern](src/lib/docs/task.md#task-args-forwarding)
+  [using the `--` pattern](src/docs/task.md#task-args-forwarding)
   ([#313](https://github.com/ryanatkn/gro/pull/313))
 - **break**: remove `-v` alias for `gro --version`
   ([#313](https://github.com/ryanatkn/gro/pull/313))
@@ -1552,7 +1633,7 @@
 ## 0.36.0
 
 - **break**: fix test sourcemaps by adding
-  [`Gro_Config` option `main_test`](src/lib/docs/config.md#main_test),
+  [`Gro_Config` option `main_test`](src/docs/config.md#main_test),
   which initializes projects with a conventional `lib/main.test.ts`
   for installing sourcemaps and other global test concerns (update: reverted in 0.37.0)
   ([#259](https://github.com/ryanatkn/gro/pull/259))
@@ -1845,7 +1926,7 @@
 
 - **break**: redesign `gro publish` and `gro deploy`
   ([#187](https://github.com/ryanatkn/gro/pull/187))
-- **break**: add [`Adapter` system](/src/lib/docs/adapt.md) and
+- **break**: add [`Adapter` system](/src/docs/adapt.md) and
   [Node library adapter](/src/lib/gro_adapter_library.ts)
   ([#187](https://github.com/ryanatkn/gro/pull/187))
 - **break**: add a default `"node"` build named `"node"` if one is not defined

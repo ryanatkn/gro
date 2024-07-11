@@ -1,5 +1,5 @@
 import type {Logger} from '@ryanatkn/belt/log.js';
-import {strip_end, strip_start} from '@ryanatkn/belt/string.js';
+import {ensure_end, strip_end, strip_start} from '@ryanatkn/belt/string.js';
 import type {z} from 'zod';
 import type {Timings} from '@ryanatkn/belt/timings.js';
 import {red} from '@ryanatkn/belt/styletext.js';
@@ -17,7 +17,7 @@ import {
 	type Resolved_Input_File,
 	type Resolved_Input_Path,
 } from './input_path.js';
-import {print_path} from './paths.js';
+import {GRO_DIST_DIR, print_path} from './paths.js';
 import {search_fs} from './search_fs.js';
 import {load_modules, type Load_Modules_Failure, type Module_Meta} from './modules.js';
 
@@ -61,8 +61,14 @@ export const to_task_name = (
 	for (const suffix of TASK_FILE_SUFFIXES) {
 		task_name = strip_end(task_name, suffix);
 	}
+	if (ensure_end(task_root_dir, '/') === GRO_DIST_DIR) {
+		// TODO ideally it would display this in some contexts like the task progress logs,
+		// but not all, like printing the task list, UNLESS there's a local override
+		// return 'gro/' + task_name;
+		return task_name;
+	}
 	if (isAbsolute(input_path)) {
-		return relative(root_path, join(input_path, task_name));
+		return relative(root_path, join(task_root_dir, task_name));
 	}
 	return task_name;
 };

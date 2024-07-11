@@ -2,9 +2,9 @@ import {dirname, relative, basename} from 'node:path';
 import {parse_path_parts, parse_path_segments} from '@ryanatkn/belt/path.js';
 import {strip_start} from '@ryanatkn/belt/string.js';
 
-import {type Gen, to_output_file_name} from '../gen.js';
-import {paths, base_path_to_path_id} from '../paths.js';
-import {search_fs} from '../search_fs.js';
+import {type Gen, to_output_file_name} from '../lib/gen.js';
+import {paths, base_path_to_path_id} from '../lib/paths.js';
+import {search_fs} from '../lib/search_fs.js';
 
 // TODO look at `tasks.gen.md.ts` to refactor and generalize
 // TODO show nested structure, not a flat list
@@ -28,7 +28,7 @@ export const gen: Gen = ({origin_id}) => {
 	const output_file_name = to_output_file_name(origin_base);
 
 	// TODO this is GitHub-specific
-	const root_link = `[${root_path}](/../..)`;
+	const root_link = `[${root_path}](/..)`;
 	const doc_files = search_fs(origin_dir);
 	const doc_paths: string[] = [];
 	for (const {path} of doc_files) {

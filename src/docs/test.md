@@ -8,7 +8,7 @@ gro test thing.test somedir test/a.+b # run tests matching regexp patterns
 ```
 
 > Running `gro test [...args]` calls `uvu`'s `parse` and `run` helpers
-> inside Gro's normal [task context](/src/lib/docs/task.md) instead of using the `uvu` CLI.
+> inside Gro's normal [task context](/src/docs/task.md) instead of using the `uvu` CLI.
 > Gro typically defers to a tool's CLI, so it can transparently forward args without wrapping,
 > but in this case `uvu` doesn't support [loaders](https://nodejs.org/api/esm.html#loaders)
 > for running TypeScript files directly.

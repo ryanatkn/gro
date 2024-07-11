@@ -35,7 +35,7 @@ export const Src_Modules = z.record(Src_Module);
 export type Src_Modules = z.infer<typeof Src_Modules>;
 
 /**
- * @see https://github.com/ryanatkn/gro/blob/main/src/lib/docs/gro_plugin_sveltekit_app.md#well-known-src
+ * @see https://github.com/ryanatkn/gro/blob/main/src/docs/gro_plugin_sveltekit_app.md#well-known-src
  */
 export const Src_Json = z.intersection(
 	z.record(z.unknown()), // TODO is this what we want?
