@@ -7,7 +7,7 @@ import {clean_fs} from './clean_fs.js';
 export const Args = z
 	.object({
 		install: z.boolean({description: 'dual of no-install'}).default(true),
-		'no-install': z
+		'no-install': z // convenience, same as `gro build -- gro sync --no-install` but the latter takes precedence
 			.boolean({description: 'opt out of npm installing before building'})
 			.default(false),
 	})

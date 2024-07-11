@@ -22,6 +22,8 @@ export const Args = z
 		'no-lint': z.boolean({description: 'opt out of linting'}).default(false),
 		sync: z.boolean({description: 'dual of no-sync'}).default(true),
 		'no-sync': z.boolean({description: 'opt out of syncing'}).default(false),
+		install: z.boolean({description: 'dual of no-install'}).default(true),
+		'no-install': z.boolean({description: 'opt out of npm install when syncing'}).default(false), // convenience, same as `gro check -- gro sync --no-install` but the latter takes precedence
 		workspace: z
 			.boolean({description: 'ensure a clean git workspace, useful for CI, also implies --no-sync'})
 			.default(false),
@@ -33,12 +35,12 @@ export const task: Task<Args> = {
 	summary: 'check that everything is ready to commit',
 	Args,
 	run: async ({args, invoke_task, log, config}) => {
-		const {typecheck, test, gen, format, package_json, lint, sync, workspace} = args;
+		const {typecheck, test, gen, format, package_json, lint, sync, install, workspace} = args;
 
 		// When checking the workspace, which was added for CI, never sync.
 		// Setup like `npm i` and `sveltekit-sync` should be done in the CI setup.
 		if (sync && !workspace) {
-			await invoke_task('sync', {gen: false}); // never generate because `gro gen --check` runs below
+			await invoke_task('sync', {install, gen: false}); // never generate because `gro gen --check` runs below
 		}
 
 		if (typecheck) {
