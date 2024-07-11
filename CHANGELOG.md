@@ -1,5 +1,13 @@
 # @ryanatkn/gro
 
+## 0.129.15
+
+### Patch Changes
+
+- fix check to not sync ([#485](https://github.com/ryanatkn/gro/pull/485))
+- add `sync` and `no-sync` args to `gro check` ([#485](https://github.com/ryanatkn/gro/pull/485))
+- upgrade `@ryanatkn/belt@0.24.4` from `0.24.2` ([#485](https://github.com/ryanatkn/gro/pull/485))
+
 ## 0.129.14
 
 ### Patch Changes
