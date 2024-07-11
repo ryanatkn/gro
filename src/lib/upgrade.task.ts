@@ -58,16 +58,13 @@ export const task: Task<Args> = {
 		log.info(`upgrading:`, upgrade_items.join(' '));
 
 		const install_args = ['install'].concat(upgrade_items);
-
 		if (dry) {
 			install_args.push('--dry-run');
 			log.info(`deps`, deps);
 		}
-
 		if (force) {
 			install_args.push('--force');
 		}
-
 		await spawn('npm', install_args);
 
 		// Sync in a new process to pick up any changes after installing, avoiding some errors.
