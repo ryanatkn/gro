@@ -33,10 +33,10 @@ export const Args = z
 			"changeset 'access' config value, the default depends on package.json#private",
 		).optional(),
 		changelog: z
-			.string({description: 'changeset "changelog" config value'})
+			.string({description: 'changelog dep package name, used as changeset\'s "changelog" config'})
 			.default('@changesets/changelog-git'),
-		install: z.boolean({description: 'dual of no-install'}).default(true),
-		'no-install': z
+		dep: z.boolean({description: 'dual of no-dep'}).default(true),
+		'no-dep': z
 			.boolean({description: 'opt out of npm installing the changelog package'})
 			.default(false),
 		origin: Git_Origin.describe('git origin to deploy to').default('origin'),
@@ -60,7 +60,7 @@ export const task: Task<Args> = {
 	run: async (ctx): Promise<void> => {
 		const {
 			invoke_task,
-			args: {_, minor, major, dir, access: access_arg, changelog, install, origin, changeset_cli},
+			args: {_, minor, major, dir, access: access_arg, changelog, dep, origin, changeset_cli},
 			log,
 			sveltekit_config,
 		} = ctx;
@@ -111,13 +111,13 @@ export const task: Task<Args> = {
 
 			await spawn('git', ['add', dir]);
 
-			if (install) {
+			if (dep) {
 				await spawn('npm', ['i', '-D', changelog]);
 			}
 		}
 
 		// TODO small problem here where generated files don't get committed
-		await invoke_task('sync'); // after the `npm i` above, and in all cases
+		await invoke_task('sync', {install: inited || !dep}); // after the `npm i` above, and in all cases
 
 		if (message) {
 			// TODO see the helper below, simplify this to CLI flags when support is added to Changesets
