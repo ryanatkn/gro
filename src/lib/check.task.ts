@@ -20,8 +20,10 @@ export const Args = z
 		'no-package_json': z.boolean({description: 'opt out of package.json check'}).default(false),
 		lint: z.boolean({description: 'dual of no-lint'}).default(true),
 		'no-lint': z.boolean({description: 'opt out of linting'}).default(false),
+		sync: z.boolean({description: 'dual of no-sync'}).default(true),
+		'no-sync': z.boolean({description: 'opt out of syncing'}).default(false),
 		workspace: z
-			.boolean({description: 'ensure a clean git workspace, useful for CI'})
+			.boolean({description: 'ensure a clean git workspace, useful for CI, also implies --no-sync'})
 			.default(false),
 	})
 	.strict();
@@ -31,15 +33,12 @@ export const task: Task<Args> = {
 	summary: 'check that everything is ready to commit',
 	Args,
 	run: async ({args, invoke_task, log, config}) => {
-		const {typecheck, test, gen, format, package_json, lint, workspace} = args;
+		const {typecheck, test, gen, format, package_json, lint, sync, workspace} = args;
 
-		// When checking the workspace, which was added for CI,
-		// don't sync, because the check will fail with misleading errors.
-		// For example it would cause the gen check to be a false negative,
-		// and then the workspace check would fail with the new files.
-		const sync = !workspace;
-		if (sync) {
-			await invoke_task('sync');
+		// When checking the workspace, which was added for CI, never sync.
+		// Setup like `npm i` and `sveltekit-sync` should be done in the CI setup.
+		if (sync && !workspace) {
+			await invoke_task('sync', {gen: false}); // never generate because `gro gen --check` runs below
 		}
 
 		if (typecheck) {
