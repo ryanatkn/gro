@@ -39,7 +39,7 @@ export const task: Task<Args> = {
 		// and then the workspace check would fail with the new files.
 		const sync = !workspace;
 		if (sync) {
-			await invoke_task('sync');
+			await invoke_task('sync', {gen: false});
 		}
 
 		if (typecheck) {
