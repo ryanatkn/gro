@@ -23,7 +23,7 @@ export const Args = z
 		sync: z.boolean({description: 'dual of no-sync'}).default(true),
 		'no-sync': z.boolean({description: 'opt out of syncing'}).default(false),
 		install: z.boolean({description: 'dual of no-install'}).default(true),
-		'no-install': z.boolean({description: 'opt out of npm install when syncing'}).default(false), // convenience, same as `gro check -- gro sync --no-install` but the latter takes precedence
+		'no-install': z.boolean({description: 'opt out of `npm install` when syncing'}).default(false), // convenience, same as `gro check -- gro sync --no-install` but the latter takes precedence
 		workspace: z
 			.boolean({description: 'ensure a clean git workspace, useful for CI, also implies --no-sync'})
 			.default(false),

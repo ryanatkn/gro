@@ -12,9 +12,9 @@ export const Args = z
 		package_json: z.boolean({description: 'dual of no-package_json'}).default(true),
 		'no-package_json': z.boolean({description: 'opt out of package.json sync'}).default(false),
 		gen: z.boolean({description: 'dual of no-gen'}).default(true),
-		'no-gen': z.boolean({description: 'opt out of gen sync'}).default(false),
+		'no-gen': z.boolean({description: 'opt out of running gen'}).default(false),
 		install: z.boolean({description: 'dual of no-install'}).default(true),
-		'no-install': z.boolean({description: 'opt out of npm install'}).default(false),
+		'no-install': z.boolean({description: 'opt out of `npm install`'}).default(false),
 	})
 	.strict();
 export type Args = z.infer<typeof Args>;

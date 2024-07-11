@@ -8,7 +8,7 @@ export const Args = z
 	.object({
 		install: z.boolean({description: 'dual of no-install'}).default(true),
 		'no-install': z // convenience, same as `gro build -- gro sync --no-install` but the latter takes precedence
-			.boolean({description: 'opt out of npm installing before building'})
+			.boolean({description: 'opt out of `npm install` before building'})
 			.default(false),
 	})
 	.strict();

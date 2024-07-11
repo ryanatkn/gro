@@ -15,6 +15,10 @@ export const Args = z
 			.default(false),
 		sync: z.boolean({description: 'dual of no-sync'}).default(true),
 		'no-sync': z.boolean({description: 'opt out of gro sync'}).default(false),
+		install: z.boolean({description: 'dual of no-install'}).default(true),
+		'no-install': z // convenience, same as `gro dev -- gro sync --no-install` but the latter takes precedence
+			.boolean({description: 'opt out of `npm install` before starting the dev server'})
+			.default(false),
 	})
 	.strict();
 export type Args = z.infer<typeof Args>;
@@ -26,12 +30,12 @@ export const task: Task<Args> = {
 	Args,
 	run: async (ctx) => {
 		const {args, invoke_task} = ctx;
-		const {watch, sync} = args;
+		const {watch, sync, install} = args;
 
 		await clean_fs({build_dev: true});
 
 		if (sync) {
-			await invoke_task('sync');
+			await invoke_task('sync', {install});
 		}
 
 		const plugins = await Plugins.create({...ctx, dev: true, watch});
