@@ -1,5 +1,16 @@
 # @ryanatkn/gro
 
+## 0.130.0
+
+### Minor Changes
+
+- install by default in `gro sync` ([#486](https://github.com/ryanatkn/gro/pull/486))
+- rename `gro changeset` arg `dep` from `install` ([#486](https://github.com/ryanatkn/gro/pull/486))
+
+### Patch Changes
+
+- add `install`/`no-install` args to `gro check` and `gro dev` ([#486](https://github.com/ryanatkn/gro/pull/486))
+
 ## 0.129.15
 
 ### Patch Changes
