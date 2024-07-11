@@ -68,7 +68,7 @@ export const task: Task<Args> = {
 		await spawn('npm', install_args);
 
 		// Sync in a new process to pick up any changes after installing, avoiding some errors.
-		await spawn_cli('gro', ['sync']);
+		await spawn_cli('gro', ['sync', '--no-install']); // don't install because we do above
 	},
 };
 
