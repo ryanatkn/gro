@@ -1,5 +1,11 @@
 # @ryanatkn/gro
 
+## 0.130.1
+
+### Patch Changes
+
+- build when publish is optional and there is no version change ([c93fb7b](https://github.com/ryanatkn/gro/commit/c93fb7b))
+
 ## 0.130.0
 
 ### Minor Changes
