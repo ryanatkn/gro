@@ -87,8 +87,8 @@ const to_deps = (package_json: Package_Json): Dep[] => {
 	return prod_deps.concat(dev_deps);
 };
 
-const EXACT_VERSION_MATCHER = /^..*@.+/u;
-const CUSTOM_TAG_MATCHER = /^[\^~><=]*.+-(.+)/u;
+const EXACT_VERSION_MATCHER = /^..*@.+/;
+const CUSTOM_TAG_MATCHER = /^[\^~><=]*.+-(.+)/;
 
 // TODO hacky and limited
 // TODO probably want to pass through exact deps as well, e.g. @foo/bar@1

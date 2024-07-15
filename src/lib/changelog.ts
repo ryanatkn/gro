@@ -37,7 +37,7 @@ type Parsed_Changelog = z.infer<typeof Parsed_Changelog>;
 const parse_changelog = (contents: string): Parsed_Changelog => contents.split('\n');
 const serialize_changelog = (parsed: Parsed_Changelog): string => parsed.join('\n');
 
-const LINE_WITH_SHA_MATCHER = /^- ([a-z0-9]{7,8}): /u;
+const LINE_WITH_SHA_MATCHER = /^- ([a-z0-9]{7,8}): /;
 
 const map_changelog = async (
 	parsed: Parsed_Changelog,

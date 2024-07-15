@@ -97,7 +97,7 @@ const default_map_package_json: Map_Package_Json = (package_json) => {
 	return package_json;
 };
 
-export const DEFAULT_EXPORTS_EXCLUDER = /(\.md|\.(test|ignore)\.|\/(test|fixtures|ignore)\/)/u;
+export const DEFAULT_EXPORTS_EXCLUDER = /(\.md|\.(test|ignore)\.|\/(test|fixtures|ignore)\/)/;
 
 /**
  * Transforms a `Raw_Gro_Config` to the more strict `Gro_Config`.

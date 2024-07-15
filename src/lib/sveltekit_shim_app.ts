@@ -1,8 +1,7 @@
 import type {Parsed_Sveltekit_Config} from './sveltekit_config.js';
 
-export const SVELTEKIT_SHIM_APP_PATHS_MATCHER = /\/util\/sveltekit_shim_app_paths\.js$/u;
-export const SVELTEKIT_SHIM_APP_ENVIRONMENT_MATCHER =
-	/\/util\/sveltekit_shim_app_environment\.js$/u;
+export const SVELTEKIT_SHIM_APP_PATHS_MATCHER = /\/util\/sveltekit_shim_app_paths\.js$/;
+export const SVELTEKIT_SHIM_APP_ENVIRONMENT_MATCHER = /\/util\/sveltekit_shim_app_environment\.js$/;
 
 /**
  * Maps SvelteKit `$app` specifiers to their Gro shims.

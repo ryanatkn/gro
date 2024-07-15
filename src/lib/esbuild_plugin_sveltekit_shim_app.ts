@@ -20,21 +20,21 @@ export const esbuild_plugin_sveltekit_shim_app = ({
 }: Options): esbuild.Plugin => ({
 	name: 'sveltekit_shim_app',
 	setup: (build) => {
-		build.onResolve({filter: /^\$app\/(forms|navigation|stores)$/u}, ({path, ...rest}) =>
+		build.onResolve({filter: /^\$app\/(forms|navigation|stores)$/}, ({path, ...rest}) =>
 			build.resolve(sveltekit_shim_app_specifiers.get(path)!, rest),
 		);
-		build.onResolve({filter: /^\$app\/paths$/u}, ({path}) => ({
+		build.onResolve({filter: /^\$app\/paths$/}, ({path}) => ({
 			path: sveltekit_shim_app_specifiers.get(path)!,
 			namespace: 'sveltekit_shim_app_paths',
 		}));
-		build.onLoad({filter: /.*/u, namespace: 'sveltekit_shim_app_paths'}, () => ({
+		build.onLoad({filter: /.*/, namespace: 'sveltekit_shim_app_paths'}, () => ({
 			contents: render_sveltekit_shim_app_paths(base_url, assets_url),
 		}));
-		build.onResolve({filter: /^\$app\/environment$/u}, ({path}) => ({
+		build.onResolve({filter: /^\$app\/environment$/}, ({path}) => ({
 			path: sveltekit_shim_app_specifiers.get(path)!,
 			namespace: 'sveltekit_shim_app_environment',
 		}));
-		build.onLoad({filter: /.*/u, namespace: 'sveltekit_shim_app_environment'}, () => ({
+		build.onLoad({filter: /.*/, namespace: 'sveltekit_shim_app_environment'}, () => ({
 			contents: render_sveltekit_shim_app_environment(dev),
 		}));
 	},

@@ -75,10 +75,10 @@ const final_ts_transform_options: esbuild.TransformOptions = {
 
 const aliases = Object.entries({$lib: 'src/lib', ...alias});
 
-const TS_MATCHER = /\.(ts|tsx|mts|cts)$/u;
-const JSON_MATCHER = /\.(json)$/u;
-const NOOP_MATCHER = /\.(css|svg)$/u; // TODO others? configurable?
-const ENV_MATCHER = /src\/lib\/\$env\/(static|dynamic)\/(public|private)$/u;
+const TS_MATCHER = /\.(ts|tsx|mts|cts)$/;
+const JSON_MATCHER = /\.(json)$/;
+const NOOP_MATCHER = /\.(css|svg)$/; // TODO others? configurable?
+const ENV_MATCHER = /src\/lib\/\$env\/(static|dynamic)\/(public|private)$/;
 const NODE_MODULES_MATCHER = new RegExp(escape_regexp('/' + NODE_MODULES_DIRNAME + '/'), 'u');
 
 const package_json_cache: Record<string, Package_Json> = {};

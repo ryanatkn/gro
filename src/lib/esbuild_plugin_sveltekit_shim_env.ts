@@ -22,9 +22,9 @@ export const esbuild_plugin_sveltekit_shim_env = ({
 	name: 'sveltekit_shim_env',
 	setup: (build) => {
 		const namespace = 'sveltekit_shim_env';
-		const filter = /^\$env\/(static|dynamic)\/(public|private)$/u;
+		const filter = /^\$env\/(static|dynamic)\/(public|private)$/;
 		build.onResolve({filter}, ({path}) => ({path, namespace}));
-		build.onLoad({filter: /.*/u, namespace}, ({path}) => {
+		build.onLoad({filter: /.*/, namespace}, ({path}) => {
 			const matches = filter.exec(path);
 			const mode = matches![1] as 'static' | 'dynamic';
 			const visibility = matches![2] as 'public' | 'private';
