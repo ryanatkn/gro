@@ -30,7 +30,7 @@ export type Raw_Input_Path = Flavored<z.infer<typeof Raw_Input_Path>, 'Raw_Input
  */
 export const to_input_path = (
 	raw_input_path: Raw_Input_Path,
-	root_path = process.cwd(), // TODO @multiple isn't passed in anywhere, maybe hoist to `invoke_task` and others
+	root_path = process.cwd(), // TODO @many isn't passed in anywhere, maybe hoist to `invoke_task` and others
 ): Input_Path => {
 	if (raw_input_path.startsWith(GRO_PACKAGE_DIR)) {
 		return GRO_DIST_DIR + strip_start(raw_input_path, GRO_PACKAGE_DIR);
@@ -42,7 +42,7 @@ export const to_input_path = (
 
 export const to_input_paths = (
 	raw_input_paths: Raw_Input_Path[],
-	root_path?: string, // TODO @multiple isn't passed in anywhere, maybe hoist to `invoke_task` and others
+	root_path?: string, // TODO @many isn't passed in anywhere, maybe hoist to `invoke_task` and others
 ): Input_Path[] => raw_input_paths.map((p) => to_input_path(p, root_path));
 
 export interface Possible_Path {

@@ -12,11 +12,11 @@ import {search_fs} from './search_fs.js';
 import {has_sveltekit_library} from './sveltekit_helpers.js';
 import {GITHUB_REPO_MATCHER} from './github.js';
 
-// TODO @multiple belongs elsewhere
+// TODO @many belongs elsewhere
 export const Url = z.string();
 export type Url = Flavored<z.infer<typeof Url>, 'Url'>;
 
-// TODO @multiple belongs elsewhere
+// TODO @many belongs elsewhere
 export const Email = z.string();
 export type Email = Flavored<z.infer<typeof Email>, 'Email'>;
 

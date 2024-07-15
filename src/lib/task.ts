@@ -206,7 +206,7 @@ export type Load_Tasks_Failure = Load_Modules_Failure<Task_Module_Meta>;
 
 export const load_tasks = async (
 	found_tasks: Found_Tasks,
-	root_path: Path_Id = process.cwd(), // TODO @multiple isn't passed in anywhere, maybe hoist to `invoke_task` and others
+	root_path: Path_Id = process.cwd(), // TODO @many isn't passed in anywhere, maybe hoist to `invoke_task` and others
 ): Promise<Load_Tasks_Result> => {
 	const loaded_modules = await load_modules(
 		found_tasks.resolved_input_files,
