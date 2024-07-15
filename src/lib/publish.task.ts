@@ -114,6 +114,7 @@ export const task: Task<Args> = {
 		}
 
 		let version!: string;
+		let optional_and_version_unchanged = false;
 
 		// Bump the version so the package.json is updated before building:
 		// TODO problem here is build may fail and put us in a bad state,
@@ -159,16 +160,24 @@ export const task: Task<Args> = {
 				// The version didn't change.
 				// For now this is the best detection we have for a no-op `changeset version`.
 				if (optional) {
-					return; // exit gracefully
+					optional_and_version_unchanged = true;
 				} else {
+					// Doesn't build if the version didn't change and publishing isn't optional.
 					throw new Task_Error(`\`${changeset_cli} version\` failed: are there any changes?`);
 				}
 			}
 		}
 
+		// Build after the version is bumped so the new version is in the build as needed.
 		if (build) {
 			await invoke_task('build');
 		}
+
+		// Return early if there are no changes and publishing is optional, but after building,
+		// so if callers want to optimize away building
+		// they need to do so manually like in `gro release`.
+		// TODO this could be cleaned up if tasks had a return value to callers, it could specifiy that it didn't build
+		if (optional_and_version_unchanged) return;
 
 		if (dry) {
 			log.info('publishing branch ' + branch);
