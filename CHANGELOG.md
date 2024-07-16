@@ -1,5 +1,11 @@
 # @ryanatkn/gro
 
+## 0.132.0
+
+### Minor Changes
+
+- rename `gro_config.ts` from `config.ts` ([#488](https://github.com/ryanatkn/gro/pull/488))
+
 ## 0.131.0
 
 ### Minor Changes
