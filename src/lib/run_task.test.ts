@@ -3,7 +3,7 @@ import * as assert from 'uvu/assert';
 import {Timings} from '@ryanatkn/belt/timings.js';
 
 import {run_task} from './run_task.js';
-import {load_config} from './config.js';
+import {load_gro_config} from './config.js';
 
 test('passes args and returns output', async () => {
 	const args = {a: 1, _: []};
@@ -19,7 +19,7 @@ test('passes args and returns output', async () => {
 		},
 		args,
 		() => Promise.resolve(),
-		await load_config(),
+		await load_gro_config(),
 		new Timings(),
 	);
 	assert.ok(result.ok);
@@ -49,7 +49,7 @@ test('invokes a sub task', async () => {
 			invoked_args = invoking_args;
 			return Promise.resolve();
 		},
-		await load_config(),
+		await load_gro_config(),
 		new Timings(),
 	);
 	assert.ok(result.ok);
@@ -75,7 +75,7 @@ test('failing task', async () => {
 		},
 		{_: []},
 		async () => {}, // eslint-disable-line @typescript-eslint/no-empty-function
-		await load_config(),
+		await load_gro_config(),
 		new Timings(),
 	);
 	assert.ok(!result.ok);

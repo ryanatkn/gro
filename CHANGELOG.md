@@ -1835,7 +1835,7 @@
   [#212](https://github.com/ryanatkn/gro/pull/212))
 - **break**: build configs now fail to validate if any input path strings do not exist
   ([#207](https://github.com/ryanatkn/gro/pull/207))
-- **break**: rename `load_config` from `loadGro_Config`
+- **break**: rename `load_config` from `loadGroConfig`
   ([#207](https://github.com/ryanatkn/gro/pull/207))
 - **break**: change `validate_build_configs` function signature
   ([#207](https://github.com/ryanatkn/gro/pull/207))
