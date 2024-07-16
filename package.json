@@ -158,10 +158,6 @@
       "types": "./dist/commit.task.d.ts",
       "default": "./dist/commit.task.js"
     },
-    "./config.js": {
-      "types": "./dist/config.d.ts",
-      "default": "./dist/config.js"
-    },
     "./deploy.task.js": {
       "types": "./dist/deploy.task.d.ts",
       "default": "./dist/deploy.task.js"
@@ -233,6 +229,10 @@
     "./github.js": {
       "types": "./dist/github.d.ts",
       "default": "./dist/github.js"
+    },
+    "./gro_config.js": {
+      "types": "./dist/gro_config.d.ts",
+      "default": "./dist/gro_config.js"
     },
     "./gro_helpers.js": {
       "types": "./dist/gro_helpers.d.ts",

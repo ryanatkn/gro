@@ -9,7 +9,7 @@ import {to_input_path, Raw_Input_Path} from './input_path.js';
 import {find_tasks, load_tasks} from './task.js';
 import {load_gro_package_json} from './package_json.js';
 import {log_tasks, log_error_reasons} from './task_logging.js';
-import type {Gro_Config} from './config.js';
+import type {Gro_Config} from './gro_config.js';
 
 /**
  * Invokes Gro tasks by name using the filesystem as the source.

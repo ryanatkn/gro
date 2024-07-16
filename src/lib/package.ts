@@ -107,7 +107,6 @@ export const package_json = {
 		'./clean.task.js': {types: './dist/clean.task.d.ts', default: './dist/clean.task.js'},
 		'./cli.js': {types: './dist/cli.d.ts', default: './dist/cli.js'},
 		'./commit.task.js': {types: './dist/commit.task.d.ts', default: './dist/commit.task.js'},
-		'./config.js': {types: './dist/config.d.ts', default: './dist/config.js'},
 		'./deploy.task.js': {types: './dist/deploy.task.d.ts', default: './dist/deploy.task.js'},
 		'./dev.task.js': {types: './dist/dev.task.d.ts', default: './dist/dev.task.js'},
 		'./env.js': {types: './dist/env.d.ts', default: './dist/env.js'},
@@ -150,6 +149,7 @@ export const package_json = {
 		'./gen.js': {types: './dist/gen.d.ts', default: './dist/gen.js'},
 		'./git.js': {types: './dist/git.d.ts', default: './dist/git.js'},
 		'./github.js': {types: './dist/github.d.ts', default: './dist/github.js'},
+		'./gro_config.js': {types: './dist/gro_config.d.ts', default: './dist/gro_config.js'},
 		'./gro_helpers.js': {types: './dist/gro_helpers.d.ts', default: './dist/gro_helpers.js'},
 		'./gro_plugin_gen.js': {
 			types: './dist/gro_plugin_gen.d.ts',
@@ -367,21 +367,6 @@ export const src_json = {
 				{name: 'task', kind: 'variable'},
 			],
 		},
-		'./config.js': {
-			path: 'config.ts',
-			declarations: [
-				{name: 'Gro_Config', kind: 'type'},
-				{name: 'Raw_Gro_Config', kind: 'type'},
-				{name: 'Create_Gro_Config', kind: 'type'},
-				{name: 'create_empty_gro_config', kind: 'function'},
-				{name: 'DEFAULT_SEARCH_EXCLUDER', kind: 'variable'},
-				{name: 'DEFAULT_EXPORTS_EXCLUDER', kind: 'variable'},
-				{name: 'normalize_gro_config', kind: 'function'},
-				{name: 'Gro_Config_Module', kind: 'type'},
-				{name: 'load_gro_config', kind: 'function'},
-				{name: 'validate_gro_config_module', kind: 'function'},
-			],
-		},
 		'./deploy.task.js': {
 			path: 'deploy.task.ts',
 			declarations: [
@@ -543,6 +528,21 @@ export const src_json = {
 				{name: 'GITHUB_REPO_MATCHER', kind: 'variable'},
 				{name: 'Github_Pull_Request', kind: 'variable'},
 				{name: 'github_fetch_commit_prs', kind: 'function'},
+			],
+		},
+		'./gro_config.js': {
+			path: 'gro_config.ts',
+			declarations: [
+				{name: 'Gro_Config', kind: 'type'},
+				{name: 'Raw_Gro_Config', kind: 'type'},
+				{name: 'Create_Gro_Config', kind: 'type'},
+				{name: 'create_empty_gro_config', kind: 'function'},
+				{name: 'DEFAULT_SEARCH_EXCLUDER', kind: 'variable'},
+				{name: 'DEFAULT_EXPORTS_EXCLUDER', kind: 'variable'},
+				{name: 'normalize_gro_config', kind: 'function'},
+				{name: 'Gro_Config_Module', kind: 'type'},
+				{name: 'load_gro_config', kind: 'function'},
+				{name: 'validate_gro_config_module', kind: 'function'},
 			],
 		},
 		'./gro_helpers.js': {

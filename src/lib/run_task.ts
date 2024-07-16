@@ -5,7 +5,7 @@ import type {Timings} from '@ryanatkn/belt/timings.js';
 import {parse_args, type Args} from './args.js';
 import type {invoke_task as base_invoke_task} from './invoke_task.js';
 import {log_task_help} from './task_logging.js';
-import type {Gro_Config} from './config.js';
+import type {Gro_Config} from './gro_config.js';
 import {Task_Error, type Task_Module_Meta} from './task.js';
 import {sveltekit_config_global} from './sveltekit_config_global.js';
 

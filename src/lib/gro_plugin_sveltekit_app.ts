@@ -8,7 +8,7 @@ import {serialize_package_json, type Map_Package_Json, load_package_json} from '
 import {Task_Error} from './task.js';
 import {find_cli, spawn_cli, spawn_cli_process} from './cli.js';
 import {type Map_Src_Json, serialize_src_json, create_src_json} from './src_json.js';
-import {DEFAULT_EXPORTS_EXCLUDER} from './config.js';
+import {DEFAULT_EXPORTS_EXCLUDER} from './gro_config.js';
 import {sveltekit_config_global} from './sveltekit_config_global.js';
 import {SOURCE_DIRNAME} from './path_constants.js';
 import {VITE_CLI} from './sveltekit_helpers.js';

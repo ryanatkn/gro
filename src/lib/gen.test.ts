@@ -4,7 +4,7 @@ import {resolve} from 'node:path';
 
 import {to_gen_result, find_genfiles, validate_gen_module} from './gen.js';
 import {paths} from './paths.js';
-import {create_empty_gro_config} from './config.js';
+import {create_empty_gro_config} from './gro_config.js';
 
 const origin_id = resolve('src/foo.gen.ts');
 
