@@ -65,7 +65,7 @@ import type {Create_Gro_Config} from '@ryanatkn/gro';
 import {gro_plugin_sveltekit_app} from '@ryanatkn/gro/gro_plugin_sveltekit_app.js';
 
 const config: Create_Gro_Config = async (cfg) => {
-	// `cfg`, which has type `Gro_Config` and is equal to `create_empty_config()`,
+	// `cfg`, which has type `Gro_Config` and is equal to `create_empty_gro_config()`,
 	// can be mutated or you can return your own.
 	// A return value is required to avoid potential errors and reduce ambiguity.
 
@@ -96,12 +96,12 @@ const config: Create_Gro_Config = async (cfg) => {
 export default config;
 ```
 
-You can also export a config object and use `create_empty_config` to get the defaults:
+You can also export a config object and use `create_empty_gro_config` to get the defaults:
 
 ```ts
-import {create_empty_config} from '@ryanatkn/gro/config.js';
+import {create_empty_gro_config} from '@ryanatkn/gro/config.js';
 
-const config = create_empty_config();
+const config = create_empty_gro_config();
 
 // config.plugins = ...;
 // config.map_package_json = ...;
