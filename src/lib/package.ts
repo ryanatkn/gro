@@ -376,10 +376,10 @@ export const src_json = {
 				{name: 'create_empty_config', kind: 'function'},
 				{name: 'DEFAULT_SEARCH_EXCLUDER', kind: 'variable'},
 				{name: 'DEFAULT_EXPORTS_EXCLUDER', kind: 'variable'},
-				{name: 'normalize_config', kind: 'function'},
+				{name: 'normalize_gro_config', kind: 'function'},
 				{name: 'Gro_Config_Module', kind: 'type'},
-				{name: 'load_config', kind: 'function'},
-				{name: 'validate_config_module', kind: 'function'},
+				{name: 'load_gro_config', kind: 'function'},
+				{name: 'validate_gro_config_module', kind: 'function'},
 			],
 		},
 		'./deploy.task.js': {
