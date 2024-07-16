@@ -44,7 +44,7 @@ export const package_json = {
 		'typescript',
 	],
 	dependencies: {
-		'@ryanatkn/belt': '^0.24.7',
+		'@ryanatkn/belt': '^0.24.9',
 		chokidar: '^3.6.0',
 		dotenv: '^16.4.5',
 		'es-module-lexer': '^1.5.4',
@@ -60,7 +60,7 @@ export const package_json = {
 	devDependencies: {
 		'@changesets/changelog-git': '^0.2.0',
 		'@changesets/types': '^6.0.0',
-		'@ryanatkn/eslint-config': '^0.4.1',
+		'@ryanatkn/eslint-config': '^0.4.2',
 		'@ryanatkn/fuz': '^0.110.4',
 		'@ryanatkn/moss': '^0.8.0',
 		'@sveltejs/adapter-static': '^3.0.2',

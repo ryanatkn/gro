@@ -1,4 +1,4 @@
-import {strip_start, strip_end} from '@ryanatkn/belt/string.js';
+import {strip_start, strip_end, ensure_end} from '@ryanatkn/belt/string.js';
 
 import type {Package_Json, Url} from './package_json.js';
 import type {Src_Json} from './src_json.js';
@@ -8,15 +8,17 @@ export interface Package_Meta {
 	url: Url;
 	package_json: Package_Json;
 	src_json: Src_Json;
-	name: string; // '@ryanatkn/fuz_library';
+	name: string; // '@ryanatkn/fuz_library'
 	repo_name: string; // fuz_library
-	repo_url: Url | null; // 'https://github.com/ryanatkn/fuz';
+	repo_url: Url | null; // 'https://github.com/ryanatkn/fuz'
 	/**
 	 * the is the github user/org, not npm
 	 */
-	owner_name: string | null; // 'fuz-dev';
-	homepage_url: Url | null; // 'https://www.fuz.dev/';
-	npm_url: Url | null; // 'https://npmjs.com/package/@ryanatkn/fuz_library';
+	owner_name: string | null; // 'fuz-dev'
+	homepage_url: Url | null; // 'https://www.fuz.dev/'
+	logo_url: Url | null; // 'https://www.fuz.dev/logo.svg' falling back to 'https://www.fuz.dev/favicon.png'
+	logo_alt: string; // 'icon for gro'
+	npm_url: Url | null; // 'https://npmjs.com/package/@ryanatkn/fuz_library'
 	changelog_url: Url | null;
 	published: boolean;
 }
@@ -56,6 +58,13 @@ export const parse_package_meta = (
 
 	const owner_name = repo_url ? strip_start(repo_url, 'https://github.com/').split('/')[0] : null;
 
+	const logo_url = homepage_url
+		? ensure_end(homepage_url, '/') +
+			(package_json.logo ? strip_start(package_json.logo, '/') : 'favicon.png')
+		: null;
+
+	const logo_alt = package_json.logo_alt ?? `logo for ${repo_name}`;
+
 	return {
 		url,
 		package_json,
@@ -65,6 +74,8 @@ export const parse_package_meta = (
 		repo_url,
 		owner_name,
 		homepage_url,
+		logo_url,
+		logo_alt,
 		npm_url,
 		changelog_url,
 		published,
