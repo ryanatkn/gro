@@ -1,5 +1,12 @@
 # @ryanatkn/gro
 
+## 0.130.2
+
+### Patch Changes
+
+- add `logo_url` and `logo_alt` to `package_meta` ([b3387d8](https://github.com/ryanatkn/gro/commit/b3387d8))
+- remove unicode flag from regexps ([ead9757](https://github.com/ryanatkn/gro/commit/ead9757))
+
 ## 0.130.1
 
 ### Patch Changes
