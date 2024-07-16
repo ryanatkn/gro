@@ -373,7 +373,7 @@ export const src_json = {
 				{name: 'Gro_Config', kind: 'type'},
 				{name: 'Raw_Gro_Config', kind: 'type'},
 				{name: 'Create_Gro_Config', kind: 'type'},
-				{name: 'create_empty_config', kind: 'function'},
+				{name: 'create_empty_gro_config', kind: 'function'},
 				{name: 'DEFAULT_SEARCH_EXCLUDER', kind: 'variable'},
 				{name: 'DEFAULT_EXPORTS_EXCLUDER', kind: 'variable'},
 				{name: 'normalize_gro_config', kind: 'function'},
