@@ -4,7 +4,7 @@ import {resolve} from 'node:path';
 
 import {is_task_path, to_task_name, validate_task_module, find_tasks, load_tasks} from './task.js';
 import * as actual_test_task_module from './test.task.js';
-import {create_empty_config} from './config.js';
+import {create_empty_gro_config} from './config.js';
 import {GRO_DIST_DIR} from './paths.js';
 
 test('is_task_path basic behavior', () => {
@@ -64,7 +64,7 @@ test('load_tasks basic behavior', async () => {
 	const found = find_tasks(
 		[resolve('src/lib/test'), resolve('src/lib/test.task.ts')],
 		[resolve('src/lib')],
-		create_empty_config(),
+		create_empty_gro_config(),
 	);
 	assert.ok(found.ok);
 	const result = await load_tasks(found.value);

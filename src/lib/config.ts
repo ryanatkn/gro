@@ -58,7 +58,7 @@ export type Create_Gro_Config = (
 	base_config: Gro_Config,
 ) => Raw_Gro_Config | Promise<Raw_Gro_Config>;
 
-export const create_empty_config = (): Gro_Config => ({
+export const create_empty_gro_config = (): Gro_Config => ({
 	plugins: () => [],
 	map_package_json: default_map_package_json,
 	task_root_dirs: [
@@ -104,7 +104,7 @@ export const DEFAULT_EXPORTS_EXCLUDER = /(\.md|\.(test|ignore)\.|\/(test|fixture
  * This allows users to provide a more relaxed config.
  */
 export const normalize_gro_config = (raw_config: Raw_Gro_Config): Gro_Config => {
-	const empty_config = create_empty_config();
+	const empty_config = create_empty_gro_config();
 	// All of the raw config properties are optional,
 	// so fall back to the empty values when `undefined`.
 	const {
@@ -130,7 +130,9 @@ export interface Gro_Config_Module {
 }
 
 export const load_gro_config = async (dir = paths.root): Promise<Gro_Config> => {
-	const default_config = normalize_gro_config(await create_default_config(create_empty_config()));
+	const default_config = normalize_gro_config(
+		await create_default_config(create_empty_gro_config()),
+	);
 	const config_path = join(dir, GRO_CONFIG_PATH);
 	if (!existsSync(config_path)) {
 		// No user config file found, so return the default.
