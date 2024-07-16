@@ -1,4 +1,4 @@
-import {create_empty_config} from './src/lib/config.js';
+import {create_empty_gro_config} from './src/lib/config.js';
 import {gro_plugin_sveltekit_library} from './src/lib/gro_plugin_sveltekit_library.js';
 import {gro_plugin_sveltekit_app} from './src/lib/gro_plugin_sveltekit_app.js';
 
@@ -8,7 +8,7 @@ import {gro_plugin_sveltekit_app} from './src/lib/gro_plugin_sveltekit_app.js';
  * The default should be referenced as an example implementation, not this one.
  * We use different patterns here for demonstration purposes.
  */
-const config = create_empty_config();
+const config = create_empty_gro_config();
 
 config.plugins = () => [
 	gro_plugin_sveltekit_library(),

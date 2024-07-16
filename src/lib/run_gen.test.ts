@@ -6,7 +6,7 @@ import {Timings} from '@ryanatkn/belt/timings.js';
 
 import type {Genfile_Module_Meta} from './gen.js';
 import {run_gen} from './run_gen.js';
-import {load_config} from './config.js';
+import {load_gro_config} from './config.js';
 
 const log = new Logger('test__gen'); // TODO test logger?
 
@@ -70,7 +70,7 @@ test__gen('basic behavior', async () => {
 	const gen_modules_by_input_path = [mod_a, mod_b, mod_c];
 	const gen_results = await run_gen(
 		gen_modules_by_input_path,
-		await load_config(),
+		await load_gro_config(),
 		log,
 		new Timings(),
 		(content, opts) =>
@@ -161,7 +161,7 @@ test__gen('failing gen function', async () => {
 	const gen_modules_by_input_path: Genfile_Module_Meta[] = [mod_a, mod_b];
 	const gen_results = await run_gen(
 		gen_modules_by_input_path,
-		await load_config(),
+		await load_gro_config(),
 		log,
 		new Timings(),
 	);

@@ -2,7 +2,7 @@ import {attach_process_error_handlers} from '@ryanatkn/belt/process.js';
 
 import {invoke_task} from './invoke_task.js';
 import {to_task_args} from './args.js';
-import {load_config} from './config.js';
+import {load_gro_config} from './config.js';
 import {sveltekit_sync_if_obviously_needed} from './sveltekit_helpers.js';
 
 /*
@@ -24,4 +24,4 @@ attach_process_error_handlers((err) =>
 await sveltekit_sync_if_obviously_needed();
 
 const {task_name, args} = to_task_args();
-await invoke_task(task_name, args, await load_config());
+await invoke_task(task_name, args, await load_gro_config());
