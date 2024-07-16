@@ -13,7 +13,7 @@ import {
 } from './gen.js';
 import {print_path} from './paths.js';
 import type {format_file as base_format_file} from './format_file.js';
-import type {Gro_Config} from './config.js';
+import type {Gro_Config} from './gro_config.js';
 import {sveltekit_config_global} from './sveltekit_config_global.js';
 
 export const GEN_NO_PROD_MESSAGE = 'gen runs only during development';

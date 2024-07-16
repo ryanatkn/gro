@@ -6,7 +6,7 @@ import {Timings} from '@ryanatkn/belt/timings.js';
 
 import type {Genfile_Module_Meta} from './gen.js';
 import {run_gen} from './run_gen.js';
-import {load_gro_config} from './config.js';
+import {load_gro_config} from './gro_config.js';
 
 const log = new Logger('test__gen'); // TODO test logger?
 

@@ -2,7 +2,7 @@ import {attach_process_error_handlers} from '@ryanatkn/belt/process.js';
 
 import {invoke_task} from './invoke_task.js';
 import {to_task_args} from './args.js';
-import {load_gro_config} from './config.js';
+import {load_gro_config} from './gro_config.js';
 import {sveltekit_sync_if_obviously_needed} from './sveltekit_helpers.js';
 
 /*

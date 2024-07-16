@@ -3,7 +3,7 @@ import * as assert from 'uvu/assert';
 import {Timings} from '@ryanatkn/belt/timings.js';
 
 import {run_task} from './run_task.js';
-import {load_gro_config} from './config.js';
+import {load_gro_config} from './gro_config.js';
 
 test('passes args and returns output', async () => {
 	const args = {a: 1, _: []};

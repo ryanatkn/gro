@@ -1,4 +1,4 @@
-import {create_empty_gro_config} from './src/lib/config.js';
+import {create_empty_gro_config} from './src/lib/gro_config.js';
 import {gro_plugin_sveltekit_library} from './src/lib/gro_plugin_sveltekit_library.js';
 import {gro_plugin_sveltekit_app} from './src/lib/gro_plugin_sveltekit_app.js';
 

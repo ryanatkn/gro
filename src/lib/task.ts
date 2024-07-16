@@ -8,7 +8,7 @@ import {isAbsolute, join, relative} from 'node:path';
 
 import type {Args} from './args.js';
 import type {Path_Id} from './path.js';
-import type {Gro_Config} from './config.js';
+import type {Gro_Config} from './gro_config.js';
 import type {Parsed_Sveltekit_Config} from './sveltekit_config.js';
 import {
 	resolve_input_files,

@@ -99,7 +99,7 @@ export default config;
 You can also export a config object and use `create_empty_gro_config` to get the defaults:
 
 ```ts
-import {create_empty_gro_config} from '@ryanatkn/gro/config.js';
+import {create_empty_gro_config} from '@ryanatkn/gro/gro_config.js';
 
 const config = create_empty_gro_config();
 
