@@ -12,7 +12,7 @@
 
 	// TODO add website, rewriting the markdown docs as Svelte
 
-	const pkg = parse_package_meta(package_json.homepage, package_json, src_json);
+	const pkg = parse_package_meta(package_json, src_json);
 
 	let show_detail = $state(false);
 </script>

@@ -5,12 +5,11 @@ import type {Src_Json} from './src_json.js';
 
 // TODO needs refactoring, more clarity
 export interface Package_Meta {
-	url: Url;
+	repo_url: Url; // 'https://github.com/ryanatkn/fuz'
 	package_json: Package_Json;
 	src_json: Src_Json;
 	name: string; // '@ryanatkn/fuz_library'
 	repo_name: string; // fuz_library
-	repo_url: Url | null; // 'https://github.com/ryanatkn/fuz'
 	/**
 	 * the is the github user/org, not npm
 	 */
@@ -24,7 +23,6 @@ export interface Package_Meta {
 }
 
 export const parse_package_meta = (
-	url: Url,
 	package_json: Package_Json,
 	src_json: Src_Json,
 ): Package_Meta => {
@@ -43,6 +41,9 @@ export const parse_package_meta = (
 				: package_json.repository.url
 			: null,
 	);
+	if (!repo_url) {
+		throw new Error('failed to parse package_meta - `repo_url` is required in package_json');
+	}
 
 	const homepage_url = package_json.homepage ?? null;
 
@@ -66,7 +67,6 @@ export const parse_package_meta = (
 	const logo_alt = package_json.logo_alt ?? `logo for ${repo_name}`;
 
 	return {
-		url,
 		package_json,
 		src_json,
 		name,

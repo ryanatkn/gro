@@ -7,7 +7,7 @@
 	import {parse_package_meta} from '$lib/package_meta.js';
 	import {package_json, src_json} from '$lib/package.js';
 
-	const pkg = parse_package_meta(package_json.homepage, package_json, src_json);
+	const pkg = parse_package_meta(package_json, src_json);
 
 	// TODO standardize
 </script>

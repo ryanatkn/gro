@@ -61,7 +61,7 @@ export const package_json = {
 		'@changesets/changelog-git': '^0.2.0',
 		'@changesets/types': '^6.0.0',
 		'@ryanatkn/eslint-config': '^0.4.2',
-		'@ryanatkn/fuz': '^0.111.0',
+		'@ryanatkn/fuz': '^0.113.0',
 		'@ryanatkn/moss': '^0.8.0',
 		'@sveltejs/adapter-static': '^3.0.2',
 		'@sveltejs/kit': '^2.5.18',
@@ -454,7 +454,7 @@ export const src_json = {
 				{name: 'task', kind: 'variable'},
 			],
 		},
-		'./fs.js': {path: 'fs.ts', declarations: [{name: 'clean_fs', kind: 'function'}]},
+		'./fs.js': {path: 'fs.ts', declarations: [{name: 'empty_dir', kind: 'function'}]},
 		'./gen.task.js': {
 			path: 'gen.task.ts',
 			declarations: [
@@ -628,7 +628,14 @@ export const src_json = {
 				{name: 'resolve', kind: 'function'},
 			],
 		},
-		'./module.js': {path: 'module.ts', declarations: []},
+		'./module.js': {
+			path: 'module.ts',
+			declarations: [
+				{name: 'MODULE_PATH_SRC_PREFIX', kind: 'variable'},
+				{name: 'MODULE_PATH_LIB_PREFIX', kind: 'variable'},
+				{name: 'is_external_module', kind: 'function'},
+			],
+		},
 		'./modules.js': {
 			path: 'modules.ts',
 			declarations: [
@@ -710,18 +717,12 @@ export const src_json = {
 		'./path.js': {
 			path: 'path.ts',
 			declarations: [
-				{name: 'Input_Path', kind: 'variable'},
-				{name: 'Raw_Input_Path', kind: 'variable'},
-				{name: 'to_input_path', kind: 'function'},
-				{name: 'to_input_paths', kind: 'function'},
-				{name: 'Possible_Path', kind: 'type'},
-				{name: 'get_possible_paths', kind: 'function'},
-				{name: 'Resolved_Input_Path', kind: 'type'},
-				{name: 'Resolved_Input_File', kind: 'type'},
-				{name: 'Resolved_Input_Paths', kind: 'type'},
-				{name: 'resolve_input_paths', kind: 'function'},
-				{name: 'Resolved_Input_Files', kind: 'type'},
-				{name: 'resolve_input_files', kind: 'function'},
+				{name: 'Path_Id', kind: 'type'},
+				{name: 'Path_Info', kind: 'type'},
+				{name: 'Resolved_Path', kind: 'type'},
+				{name: 'Path_Filter', kind: 'type'},
+				{name: 'File_Filter', kind: 'type'},
+				{name: 'to_file_path', kind: 'function'},
 			],
 		},
 		'./paths.js': {
@@ -926,16 +927,16 @@ export const src_json = {
 		'./sveltekit_shim_app.js': {
 			path: 'sveltekit_shim_app.ts',
 			declarations: [
-				{name: 'Options', kind: 'type'},
-				{name: 'esbuild_plugin_sveltekit_shim_app', kind: 'function'},
+				{name: 'SVELTEKIT_SHIM_APP_PATHS_MATCHER', kind: 'variable'},
+				{name: 'SVELTEKIT_SHIM_APP_ENVIRONMENT_MATCHER', kind: 'variable'},
+				{name: 'sveltekit_shim_app_specifiers', kind: 'variable'},
+				{name: 'render_sveltekit_shim_app_paths', kind: 'function'},
+				{name: 'render_sveltekit_shim_app_environment', kind: 'function'},
 			],
 		},
 		'./sveltekit_shim_env.js': {
 			path: 'sveltekit_shim_env.ts',
-			declarations: [
-				{name: 'Options', kind: 'type'},
-				{name: 'esbuild_plugin_sveltekit_shim_env', kind: 'function'},
-			],
+			declarations: [{name: 'render_env_shim_module', kind: 'function'}],
 		},
 		'./sync.task.js': {
 			path: 'sync.task.ts',
@@ -955,8 +956,26 @@ export const src_json = {
 		'./task.js': {
 			path: 'task.ts',
 			declarations: [
-				{name: 'Args', kind: 'variable'},
-				{name: 'task', kind: 'variable'},
+				{name: 'Task', kind: 'type'},
+				{name: 'Task_Context', kind: 'type'},
+				{name: 'TASK_FILE_SUFFIX_TS', kind: 'variable'},
+				{name: 'TASK_FILE_SUFFIX_JS', kind: 'variable'},
+				{name: 'TASK_FILE_SUFFIXES', kind: 'variable'},
+				{name: 'is_task_path', kind: 'function'},
+				{name: 'to_task_name', kind: 'function'},
+				{name: 'Task_Error', kind: 'class'},
+				{name: 'Found_Task', kind: 'type'},
+				{name: 'Found_Tasks', kind: 'type'},
+				{name: 'Find_Tasks_Result', kind: 'type'},
+				{name: 'Find_Modules_Failure', kind: 'type'},
+				{name: 'find_tasks', kind: 'function'},
+				{name: 'Loaded_Tasks', kind: 'type'},
+				{name: 'Task_Module', kind: 'type'},
+				{name: 'Task_Module_Meta', kind: 'type'},
+				{name: 'Load_Tasks_Result', kind: 'type'},
+				{name: 'Load_Tasks_Failure', kind: 'type'},
+				{name: 'load_tasks', kind: 'function'},
+				{name: 'validate_task_module', kind: 'function'},
 			],
 		},
 		'./test.task.js': {
