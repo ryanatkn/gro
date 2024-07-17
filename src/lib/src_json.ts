@@ -37,16 +37,13 @@ export type Src_Modules = z.infer<typeof Src_Modules>;
 /**
  * @see https://github.com/ryanatkn/gro/blob/main/src/docs/gro_plugin_sveltekit_app.md#well-known-src
  */
-export const Src_Json = z.intersection(
-	z.record(z.unknown()), // TODO is this what we want?
-	z
-		.object({
-			name: z.string(), // same as Package_Json
-			version: z.string(), // same as Package_Json
-			modules: Src_Modules.transform(transform_empty_object_to_undefined).optional(),
-		})
-		.passthrough(),
-);
+export const Src_Json = z
+	.object({
+		name: z.string(), // same as Package_Json
+		version: z.string(), // same as Package_Json
+		modules: Src_Modules.transform(transform_empty_object_to_undefined).optional(),
+	})
+	.passthrough();
 export type Src_Json = z.infer<typeof Src_Json>;
 
 export type Map_Src_Json = (src_json: Src_Json) => Src_Json | null | Promise<Src_Json | null>;
