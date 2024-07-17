@@ -14,7 +14,6 @@ test('to_package_modules', () => {
 				'fixtures/modules/some_test_ts.ts',
 				'fixtures/modules/some_test_json.json',
 			]),
-			undefined,
 			paths.source,
 		),
 		{
