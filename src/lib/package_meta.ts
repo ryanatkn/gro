@@ -5,7 +5,7 @@ import type {Src_Json} from './src_json.js';
 
 // TODO needs refactoring, more clarity
 export interface Package_Meta {
-	repo_url: Url | null; // 'https://github.com/ryanatkn/fuz'
+	repo_url: Url; // 'https://github.com/ryanatkn/fuz'
 	package_json: Package_Json;
 	src_json: Src_Json;
 	name: string; // '@ryanatkn/fuz_library'
