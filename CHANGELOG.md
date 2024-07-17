@@ -1,5 +1,15 @@
 # @ryanatkn/gro
 
+## 0.133.0
+
+### Minor Changes
+
+- remove `url` arg from `parse_package_meta` and require `package_json.homepage` ([#489](https://github.com/ryanatkn/gro/pull/489))
+
+### Patch Changes
+
+- fix bug with `create_src_json` and similarly named files ([#489](https://github.com/ryanatkn/gro/pull/489))
+
 ## 0.132.0
 
 ### Minor Changes
