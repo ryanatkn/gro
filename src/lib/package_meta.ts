@@ -67,7 +67,6 @@ export const parse_package_meta = (
 	const logo_alt = package_json.logo_alt ?? `logo for ${repo_name}`;
 
 	return {
-		url,
 		package_json,
 		src_json,
 		name,
