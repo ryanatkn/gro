@@ -80,6 +80,12 @@ export const to_task_name = (
  */
 export class Task_Error extends Error {}
 
+/**
+ * This is used to tell Gro to exit silently, usually still with with a non-zero exit code.
+ * Using it means error logging is handled by the code that threw it.
+ */
+export class Silent_Error extends Error {}
+
 export interface Found_Task {
 	input_path: Input_Path;
 	id: Path_Id;
