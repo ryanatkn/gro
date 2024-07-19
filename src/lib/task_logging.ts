@@ -35,7 +35,7 @@ export const log_tasks = (log: Logger, loaded_tasks: Loaded_Tasks, log_intro = t
 		for (const resolved_input_file of resolved_input_files) {
 			const meta = modules.find((m) => m.id === resolved_input_file.id)!;
 			logged.push(
-				'\n' + cyan(pad(meta.name, longest_task_name)),
+				'\n' + cyan(meta.name.padEnd(longest_task_name)),
 				'  ',
 				meta.mod.task.summary ?? '',
 			);
@@ -75,9 +75,9 @@ export const log_task_help = (log: Logger, meta: Task_Module_Meta): void => {
 		for (const property of properties) {
 			const name = property.name === '_' ? ARGS_PROPERTY_NAME : property.name;
 			logged.push(
-				`\n${green(pad(name, longest_task_name))} `,
-				gray(pad(property.schema.type, longest_type)) + ' ',
-				pad(print_value(property.schema.default), longest_default) + ' ',
+				`\n${green(name.padEnd(longest_task_name))} `,
+				gray(property.schema.type.padEnd(longest_type)) + ' ',
+				print_value(property.schema.default).padEnd(longest_default) + ' ',
 				property.schema.description || '(no description available)',
 			);
 		}
@@ -115,8 +115,6 @@ const to_arg_properties = (def: ZodTypeDef, meta: Task_Module_Meta): Arg_Schema_
 	return properties;
 };
 
-// quick n dirty padding logic
-const pad = (s: string, n: number): string => s + ' '.repeat(n - s.length);
 const to_max_length = <T>(items: T[], toString: (item: T) => string) =>
 	items.reduce((max, m) => Math.max(toString(m).length, max), 0);
 
