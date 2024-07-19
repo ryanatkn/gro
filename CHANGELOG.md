@@ -1,5 +1,11 @@
 # @ryanatkn/gro
 
+## 0.133.1
+
+### Patch Changes
+
+- fix `peerDependenciesMeta` type ([9b3c8eb](https://github.com/ryanatkn/gro/commit/9b3c8eb))
+
 ## 0.133.0
 
 ### Minor Changes
