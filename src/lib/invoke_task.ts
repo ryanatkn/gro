@@ -6,7 +6,7 @@ import {print_ms, print_timings} from '@ryanatkn/belt/print.js';
 import {to_forwarded_args, type Args} from './args.js';
 import {run_task} from './run_task.js';
 import {to_input_path, Raw_Input_Path} from './input_path.js';
-import {find_tasks, load_tasks} from './task.js';
+import {find_tasks, load_tasks, Silent_Error} from './task.js';
 import {load_gro_package_json} from './package_json.js';
 import {log_tasks, log_error_reasons} from './task_logging.js';
 import type {Gro_Config} from './gro_config.js';
@@ -69,7 +69,7 @@ export const invoke_task = async (
 	const found = find_tasks([input_path], task_root_dirs, config);
 	if (!found.ok) {
 		log_error_reasons(log, found.reasons);
-		process.exit(1);
+		throw new Silent_Error();
 	}
 
 	// Found a match either in the current working directory or Gro's directory.
@@ -80,7 +80,7 @@ export const invoke_task = async (
 	const loaded = await load_tasks(found_tasks);
 	if (!loaded.ok) {
 		log_error_reasons(log, loaded.reasons);
-		process.exit(1);
+		throw new Silent_Error();
 	}
 	const loaded_tasks = loaded.value;
 

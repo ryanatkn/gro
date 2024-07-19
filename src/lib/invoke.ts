@@ -17,14 +17,12 @@ and the rest of the args are forwarded to the task's `run` function.
 */
 
 // handle uncaught errors
-attach_process_error_handlers((err) => {
-	console.log(`>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>err`, err?.constructor?.name);
-	return err?.constructor?.name === 'Task_Error' ? 'Task_Error' : null;
-});
+attach_process_error_handlers(
+	(err) => (err?.constructor?.name === 'Task_Error' ? 'Task_Error' : null),
+	(err) => (err?.constructor?.name === 'Silent_Error' ? '' : null),
+);
 
 await sveltekit_sync_if_obviously_needed();
 
 const {task_name, args} = to_task_args();
 await invoke_task(task_name, args, await load_gro_config());
-
-const a: 5 = 34;
