@@ -44,7 +44,7 @@ export const package_json = {
 		'typescript',
 	],
 	dependencies: {
-		'@ryanatkn/belt': '^0.24.9',
+		'@ryanatkn/belt': '^0.24.10',
 		chokidar: '^3.6.0',
 		dotenv: '^16.4.5',
 		'es-module-lexer': '^1.5.4',
@@ -964,6 +964,7 @@ export const src_json = {
 				{name: 'is_task_path', kind: 'function'},
 				{name: 'to_task_name', kind: 'function'},
 				{name: 'Task_Error', kind: 'class'},
+				{name: 'Silent_Error', kind: 'class'},
 				{name: 'Found_Task', kind: 'type'},
 				{name: 'Found_Tasks', kind: 'type'},
 				{name: 'Find_Tasks_Result', kind: 'type'},
