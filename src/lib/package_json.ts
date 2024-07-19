@@ -125,7 +125,7 @@ export const Package_Json = z
 		dependencies: z.record(z.string()).optional(),
 		devDependencies: z.record(z.string()).optional(),
 		peerDependencies: z.record(z.string()).optional(),
-		peerDependenciesMeta: z.record(z.record(z.string())).optional(),
+		peerDependenciesMeta: z.record(z.object({optional: z.boolean()})).optional(),
 		optionalDependencies: z.record(z.string()).optional(),
 
 		bin: z.record(z.string()).optional(),

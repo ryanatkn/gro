@@ -49,6 +49,8 @@ export const resolve_gro_module_path = (path = ''): string => {
 	const gro_bin_path = resolve(NODE_MODULES_DIRNAME, '.bin/gro');
 	// case 1
 	// Prefer any locally installed version of Gro.
+	// This is really confusing if Gro is installed inside Gro itself,
+	// so avoid that when developing Gro.
 	if (existsSync(gro_bin_path)) {
 		return join(realpathSync(gro_bin_path), '..', path);
 	}
