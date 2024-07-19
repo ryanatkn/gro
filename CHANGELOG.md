@@ -1,5 +1,11 @@
 # @ryanatkn/gro
 
+## 0.133.2
+
+### Patch Changes
+
+- tweak error handling ([#490](https://github.com/ryanatkn/gro/pull/490))
+
 ## 0.133.1
 
 ### Patch Changes
