@@ -855,6 +855,7 @@ export const src_json = {
 				{name: 'load_sveltekit_config', kind: 'function'},
 				{name: 'Parsed_Sveltekit_Config', kind: 'type'},
 				{name: 'init_sveltekit_config', kind: 'function'},
+				{name: 'to_default_compile_module_options', kind: 'function'},
 				{name: 'default_sveltekit_config', kind: 'variable'},
 			],
 		},

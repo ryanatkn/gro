@@ -1,5 +1,5 @@
 import type {Config as SveltekitConfig} from '@sveltejs/kit';
-import type {CompileOptions, PreprocessorGroup} from 'svelte/compiler';
+import type {CompileOptions, ModuleCompileOptions, PreprocessorGroup} from 'svelte/compiler';
 import {join} from 'node:path';
 
 import {SVELTEKIT_CONFIG_FILENAME} from './path_constants.js';
@@ -57,6 +57,7 @@ export interface Parsed_Sveltekit_Config {
 	private_prefix: string | undefined;
 	public_prefix: string | undefined;
 	svelte_compile_options: CompileOptions;
+	svelte_compile_module_options: CompileOptions;
 	svelte_preprocessors: PreprocessorGroup | PreprocessorGroup[] | undefined;
 }
 
@@ -87,7 +88,8 @@ export const init_sveltekit_config = async (
 	const private_prefix = kit?.env?.privatePrefix;
 	const public_prefix = kit?.env?.publicPrefix;
 
-	const svelte_compile_options = sveltekit_config?.compilerOptions ?? {};
+	const svelte_compile_options: CompileOptions = sveltekit_config?.compilerOptions ?? {}; // TODO BLOCK generate: 'server' as the default?
+	const svelte_compile_module_options = to_default_compile_module_options(svelte_compile_options); // TODO will kit have these separately?
 	const svelte_preprocessors = sveltekit_config?.preprocess;
 
 	return {
@@ -102,9 +104,17 @@ export const init_sveltekit_config = async (
 		private_prefix,
 		public_prefix,
 		svelte_compile_options,
+		svelte_compile_module_options,
 		svelte_preprocessors,
 	};
 };
+
+export const to_default_compile_module_options = ({
+	dev,
+	generate,
+	filename,
+	rootDir,
+}: CompileOptions): ModuleCompileOptions => ({dev, generate, filename, rootDir});
 
 /**
  * The parsed SvelteKit config for the cwd, cached globally at the module level.

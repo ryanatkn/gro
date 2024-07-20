@@ -4,6 +4,7 @@ import {
 	compileModule,
 	preprocess,
 	type CompileOptions,
+	type ModuleCompileOptions,
 	type PreprocessorGroup,
 } from 'svelte/compiler';
 import {readFile} from 'node:fs/promises';
@@ -11,7 +12,11 @@ import {relative} from 'node:path';
 
 import {SVELTE_MATCHER, SVELTE_RUNES_MATCHER} from './svelte_helpers.js';
 import {to_define_import_meta_env, default_ts_transform_options} from './esbuild_helpers.js';
-import type {Parsed_Sveltekit_Config} from './sveltekit_config.js';
+import {
+	default_sveltekit_config,
+	to_default_compile_module_options,
+	type Parsed_Sveltekit_Config,
+} from './sveltekit_config.js';
 import {TS_MATCHER} from './path_constants.js';
 
 export interface Options {
@@ -19,6 +24,7 @@ export interface Options {
 	base_url: Parsed_Sveltekit_Config['base_url'];
 	dir?: string;
 	svelte_compile_options?: CompileOptions;
+	svelte_compile_module_options?: ModuleCompileOptions;
 	svelte_preprocessors?: PreprocessorGroup | PreprocessorGroup[];
 	ts_transform_options?: esbuild.TransformOptions;
 	is_ts?: (filename: string) => boolean;
@@ -29,7 +35,8 @@ export const esbuild_plugin_svelte = (options: Options): esbuild.Plugin => {
 		dev,
 		base_url,
 		dir = process.cwd(),
-		svelte_compile_options = {},
+		svelte_compile_options = default_sveltekit_config.svelte_compile_options,
+		svelte_compile_module_options = to_default_compile_module_options(svelte_compile_options),
 		svelte_preprocessors,
 		ts_transform_options = default_ts_transform_options,
 		is_ts = (f) => TS_MATCHER.test(f),
@@ -57,7 +64,7 @@ export const esbuild_plugin_svelte = (options: Options): esbuild.Plugin => {
 							).code // TODO @many use warnings? handle not-inline sourcemaps?
 						: source;
 					const {js, warnings} = compileModule(js_source, {
-						...svelte_compile_options,
+						...svelte_compile_module_options,
 						filename,
 					});
 					const contents = js.code + '//# sourceMappingURL=' + js.map.toUrl();
@@ -77,7 +84,7 @@ export const esbuild_plugin_svelte = (options: Options): esbuild.Plugin => {
 					const preprocessed = svelte_preprocessors
 						? await preprocess(source, svelte_preprocessors, {filename})
 						: null;
-					if (preprocessed?.code) source = preprocessed.code; // TODO @many use sourcemaps (and diagnostics?)
+					if (preprocessed?.code) source = preprocessed.code;
 					const {js, warnings} = compile(source, {...svelte_compile_options, filename});
 					const contents = js.code + '//# sourceMappingURL=' + js.map.toUrl();
 					return {

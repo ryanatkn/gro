@@ -2,7 +2,6 @@ import {test} from 'uvu';
 import * as assert from 'uvu/assert';
 import * as esbuild from 'esbuild';
 import {readFile, rm} from 'node:fs/promises';
-import {vitePreprocess} from '@sveltejs/vite-plugin-svelte';
 
 import {esbuild_plugin_svelte} from './esbuild_plugin_svelte.js';
 import {default_sveltekit_config} from './sveltekit_config.js';
@@ -13,13 +12,7 @@ test('build for the client', async () => {
 	const outfile = './src/fixtures/modules/some_test_server_bundle_DELETEME.js';
 	const built = await esbuild.build({
 		entryPoints: ['./src/fixtures/modules/some_test_server.ts'],
-		plugins: [
-			esbuild_plugin_svelte({
-				dev: true,
-				base_url: default_sveltekit_config.base_url,
-				svelte_preprocessors: vitePreprocess(),
-			}),
-		],
+		plugins: [esbuild_plugin_svelte({dev: true, base_url: default_sveltekit_config.base_url})],
 		outfile,
 		format: 'esm',
 		platform: 'node',
@@ -31,6 +24,7 @@ test('build for the client', async () => {
 	assert.is(built.warnings.length, 0);
 
 	const built_output = await readFile(outfile, 'utf8');
+	await rm(outfile); // TODO could be cleaner
 	assert.is(
 		built_output,
 		`// src/fixtures/modules/some_test_svelte_ts.svelte.ts
@@ -74,8 +68,6 @@ export {
 };
 `,
 	);
-
-	await rm(outfile); // TODO could be cleaner
 });
 
 test('build for the server', async () => {
@@ -100,6 +92,7 @@ test('build for the server', async () => {
 	assert.is(built.warnings.length, 0);
 
 	const built_output = await readFile(outfile, 'utf8');
+	await rm(outfile); // TODO could be cleaner
 	assert.is(
 		built_output,
 		`// src/fixtures/modules/some_test_svelte_ts.svelte.ts
@@ -131,8 +124,6 @@ export {
 };
 `,
 	);
-
-	await rm(outfile); // TODO could be cleaner
 });
 
 test.run();

@@ -142,12 +142,16 @@ export const gro_plugin_server = ({
 				private_prefix,
 				public_prefix,
 				svelte_compile_options,
+				svelte_compile_module_options,
 				svelte_preprocessors,
 			} = parsed_sveltekit_config;
 
 			// TODO hacky
 			if (svelte_compile_options.generate === undefined) {
 				svelte_compile_options.generate = 'server';
+			}
+			if (svelte_compile_module_options.generate === undefined) {
+				svelte_compile_module_options.generate = 'server';
 			}
 
 			const {outbase, outdir, outname} = outpaths(dev);
@@ -185,6 +189,7 @@ export const gro_plugin_server = ({
 						build_options,
 						dir,
 						svelte_compile_options,
+						svelte_compile_module_options,
 						svelte_preprocessors,
 						alias,
 						base_url,
@@ -195,7 +200,14 @@ export const gro_plugin_server = ({
 						ambient_env,
 						log,
 					}),
-					esbuild_plugin_svelte({dev, base_url, dir, svelte_compile_options, svelte_preprocessors}),
+					esbuild_plugin_svelte({
+						dev,
+						base_url,
+						dir,
+						svelte_compile_options,
+						svelte_compile_module_options,
+						svelte_preprocessors,
+					}),
 					esbuild_plugin_sveltekit_local_imports(),
 				],
 				define: to_define_import_meta_env(dev, base_url),
