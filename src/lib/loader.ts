@@ -97,7 +97,6 @@ export const load: LoadHook = async (url, context, nextLoad) => {
 		};
 	} else if (SVELTE_RUNES_MATCHER.test(url)) {
 		// Svelte runes in js/ts
-		// TODO BLOCK sourcemaps should work with esbuild, but what about Svelte - https://github.com/evanw/esbuild/issues/847#issuecomment-783069784
 		const loaded = await nextLoad(
 			url,
 			context.format === 'module' ? context : {...context, format: 'module'}, // TODO dunno why this is needed, specifically with tests

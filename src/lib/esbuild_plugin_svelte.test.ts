@@ -100,7 +100,6 @@ test('build for the server', async () => {
 	assert.is(built.warnings.length, 0);
 
 	const built_output = await readFile(outfile, 'utf8');
-	console.log(`built_output`, built_output);
 	assert.is(
 		built_output,
 		`// src/fixtures/modules/some_test_svelte_ts.svelte.ts
