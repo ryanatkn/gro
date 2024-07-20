@@ -63,7 +63,6 @@ const {
 	private_prefix,
 	public_prefix,
 	svelte_compile_options,
-	svelte_compile_module_options,
 	svelte_preprocessors,
 } = sveltekit_config_global;
 
@@ -111,7 +110,8 @@ export const load: LoadHook = async (url, context, nextLoad) => {
 			? (await esbuild.transform(source, {...final_ts_transform_options, sourcefile: url})).code // TODO use sourcemap or diagnostics?
 			: source;
 		const transformed = compileModule(js_source, {
-			...svelte_compile_module_options,
+			...svelte_compile_options,
+			dev,
 			filename,
 			generate: 'server',
 		});
@@ -142,6 +142,7 @@ export const load: LoadHook = async (url, context, nextLoad) => {
 		const source = preprocessed?.code ?? raw_source;
 		const transformed = compile(source, {
 			...svelte_compile_options,
+			dev,
 			filename,
 			generate: 'server',
 		});

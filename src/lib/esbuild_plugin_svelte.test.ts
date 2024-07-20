@@ -52,7 +52,7 @@ test('build for the server', async () => {
 	const outfile = './src/fixtures/modules/some_test_client_bundle_DELETEME.js';
 	const built = await esbuild.build({
 		entryPoints: ['./src/fixtures/modules/some_test_server.ts'],
-		plugins: [esbuild_plugin_svelte({svelte_compile_module_options: {generate: 'server'}})],
+		plugins: [esbuild_plugin_svelte({svelte_compile_options: {generate: 'server'}})],
 		outfile,
 		format: 'esm',
 		platform: 'node',

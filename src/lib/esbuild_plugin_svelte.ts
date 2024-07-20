@@ -4,7 +4,6 @@ import {
 	compileModule,
 	preprocess,
 	type CompileOptions,
-	type ModuleCompileOptions,
 	type PreprocessorGroup,
 } from 'svelte/compiler';
 import {readFile} from 'node:fs/promises';
@@ -15,17 +14,11 @@ import {SVELTE_MATCHER, SVELTE_RUNES_MATCHER} from './svelte_helpers.js';
 export interface Options {
 	dir?: string;
 	svelte_compile_options?: CompileOptions;
-	svelte_compile_module_options?: ModuleCompileOptions;
 	svelte_preprocessors?: PreprocessorGroup | PreprocessorGroup[];
 }
 
 export const esbuild_plugin_svelte = (options: Options = {}): esbuild.Plugin => {
-	const {
-		dir = process.cwd(),
-		svelte_compile_options = {},
-		svelte_compile_module_options = {},
-		svelte_preprocessors,
-	} = options;
+	const {dir = process.cwd(), svelte_compile_options = {}, svelte_preprocessors} = options;
 	return {
 		name: 'svelte',
 		setup: (build) => {
@@ -33,10 +26,7 @@ export const esbuild_plugin_svelte = (options: Options = {}): esbuild.Plugin => 
 				const source = await readFile(path, 'utf8');
 				try {
 					const filename = relative(dir, path);
-					const {js, warnings} = compileModule(source, {
-						filename,
-						...svelte_compile_module_options,
-					});
+					const {js, warnings} = compileModule(source, {filename, ...svelte_compile_options});
 					const contents = js.code + '//# sourceMappingURL=' + js.map.toUrl();
 					return {
 						contents,
@@ -55,10 +45,7 @@ export const esbuild_plugin_svelte = (options: Options = {}): esbuild.Plugin => 
 						: null;
 					// TODO handle preprocessor sourcemaps, same as in loader - merge?
 					if (preprocessed?.code) source = preprocessed.code;
-					const {js, warnings} = compile(source, {
-						filename,
-						...svelte_compile_options,
-					});
+					const {js, warnings} = compile(source, {filename, ...svelte_compile_options});
 					const contents = js.code + '//# sourceMappingURL=' + js.map.toUrl();
 					return {
 						contents,
