@@ -1,5 +1,12 @@
 # @ryanatkn/gro
 
+## 0.133.3
+
+### Patch Changes
+
+- add `sync` and `no-sync` args to `gro build` ([9df775c](https://github.com/ryanatkn/gro/commit/9df775c))
+- fix the loader for `.svelte.ts` modules ([#491](https://github.com/ryanatkn/gro/pull/491))
+
 ## 0.133.2
 
 ### Patch Changes
