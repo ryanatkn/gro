@@ -6,6 +6,8 @@ import {clean_fs} from './clean_fs.js';
 
 export const Args = z
 	.object({
+		sync: z.boolean({description: 'dual of no-sync'}).default(true),
+		'no-sync': z.boolean({description: 'opt out of gro sync'}).default(false),
 		install: z.boolean({description: 'dual of no-install'}).default(true),
 		'no-install': z // convenience, same as `gro build -- gro sync --no-install` but the latter takes precedence
 			.boolean({description: 'opt out of `npm install` before building'})
@@ -19,10 +21,11 @@ export const task: Task<Args> = {
 	Args,
 	run: async (ctx): Promise<void> => {
 		const {args, invoke_task} = ctx;
-		const {install} = args;
+		const {sync, install} = args;
 
-		// By default `gro build` installs, opposite of `gro sync`, so that arg needs special handling.
-		await invoke_task('sync', {install});
+		if (sync) {
+			await invoke_task('sync', {install});
+		}
 
 		// TODO possibly detect if the git workspace is clean, and ask for confirmation if not,
 		// because we're not doing things like `gro gen` here because that's a dev/CI concern
