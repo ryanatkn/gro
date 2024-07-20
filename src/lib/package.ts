@@ -216,10 +216,6 @@ export const package_json = {
 			types: './dist/svelte_helpers.d.ts',
 			default: './dist/svelte_helpers.js',
 		},
-		'./sveltekit_config_global.js': {
-			types: './dist/sveltekit_config_global.d.ts',
-			default: './dist/sveltekit_config_global.js',
-		},
 		'./sveltekit_config.js': {
 			types: './dist/sveltekit_config.d.ts',
 			default: './dist/sveltekit_config.js',
@@ -397,7 +393,7 @@ export const src_json = {
 			declarations: [
 				{name: 'print_build_result', kind: 'function'},
 				{name: 'to_define_import_meta_env', kind: 'function'},
-				{name: 'ts_transform_options', kind: 'variable'},
+				{name: 'default_ts_transform_options', kind: 'variable'},
 			],
 		},
 		'./esbuild_plugin_external_worker.js': {
@@ -712,6 +708,9 @@ export const src_json = {
 				{name: 'GITHUB_DIRNAME', kind: 'variable'},
 				{name: 'GIT_DIRNAME', kind: 'variable'},
 				{name: 'TSCONFIG_FILENAME', kind: 'variable'},
+				{name: 'TS_MATCHER', kind: 'variable'},
+				{name: 'JSON_MATCHER', kind: 'variable'},
+				{name: 'EVERYTHING_MATCHER', kind: 'variable'},
 			],
 		},
 		'./path.js': {
@@ -850,16 +849,14 @@ export const src_json = {
 				{name: 'SVELTE_RUNES_MATCHER', kind: 'variable'},
 			],
 		},
-		'./sveltekit_config_global.js': {
-			path: 'sveltekit_config_global.ts',
-			declarations: [{name: 'sveltekit_config_global', kind: 'variable'}],
-		},
 		'./sveltekit_config.js': {
 			path: 'sveltekit_config.ts',
 			declarations: [
 				{name: 'load_sveltekit_config', kind: 'function'},
 				{name: 'Parsed_Sveltekit_Config', kind: 'type'},
 				{name: 'init_sveltekit_config', kind: 'function'},
+				{name: 'to_default_compile_module_options', kind: 'function'},
+				{name: 'default_sveltekit_config', kind: 'variable'},
 			],
 		},
 		'./sveltekit_helpers.js': {
@@ -870,6 +867,7 @@ export const src_json = {
 				{name: 'SVELTE_PACKAGE_CLI', kind: 'variable'},
 				{name: 'SVELTE_PACKAGE_DEP_NAME', kind: 'variable'},
 				{name: 'VITE_CLI', kind: 'variable'},
+				{name: 'SVELTEKIT_ENV_MATCHER', kind: 'variable'},
 				{name: 'has_sveltekit_app', kind: 'function'},
 				{name: 'has_sveltekit_library', kind: 'function'},
 				{name: 'sveltekit_sync', kind: 'function'},

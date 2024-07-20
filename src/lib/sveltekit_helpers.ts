@@ -2,8 +2,7 @@ import type {Result} from '@ryanatkn/belt/result.js';
 import {existsSync} from 'node:fs';
 
 import {Package_Json, load_package_json} from './package_json.js';
-import {sveltekit_config_global} from './sveltekit_config_global.js';
-import type {Parsed_Sveltekit_Config} from './sveltekit_config.js';
+import {default_sveltekit_config, type Parsed_Sveltekit_Config} from './sveltekit_config.js';
 import {SVELTEKIT_CONFIG_FILENAME, SVELTEKIT_DEV_DIRNAME} from './path_constants.js';
 import {find_cli, spawn_cli, to_cli_name, type Cli} from './cli.js';
 import {Task_Error} from './task.js';
@@ -17,6 +16,8 @@ export const SVELTE_PACKAGE_DEP_NAME = '@sveltejs/package';
 
 export const VITE_CLI = 'vite';
 
+export const SVELTEKIT_ENV_MATCHER = /^\$env\/(static|dynamic)\/(public|private)$/;
+
 export const has_sveltekit_app = (): Result<object, {message: string}> => {
 	if (!existsSync(SVELTEKIT_CONFIG_FILENAME)) {
 		return {ok: false, message: `no SvelteKit config found at ${SVELTEKIT_CONFIG_FILENAME}`};
@@ -27,7 +28,7 @@ export const has_sveltekit_app = (): Result<object, {message: string}> => {
 
 export const has_sveltekit_library = (
 	package_json?: Package_Json,
-	sveltekit_config: Parsed_Sveltekit_Config = sveltekit_config_global,
+	sveltekit_config: Parsed_Sveltekit_Config = default_sveltekit_config,
 ): Result<object, {message: string}> => {
 	const has_sveltekit_app_result = has_sveltekit_app();
 	if (!has_sveltekit_app_result.ok) {

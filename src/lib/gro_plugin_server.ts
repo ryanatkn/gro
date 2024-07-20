@@ -12,7 +12,7 @@ import {base_path_to_path_id, LIB_DIRNAME, paths} from './paths.js';
 import type {Path_Id} from './path.js';
 import {GRO_DEV_DIRNAME, SERVER_DIST_PATH} from './path_constants.js';
 import {watch_dir, type Watch_Node_Fs} from './watch_dir.js';
-import {init_sveltekit_config} from './sveltekit_config.js';
+import {init_sveltekit_config, default_sveltekit_config} from './sveltekit_config.js';
 import {esbuild_plugin_sveltekit_shim_app} from './esbuild_plugin_sveltekit_shim_app.js';
 import {esbuild_plugin_sveltekit_shim_env} from './esbuild_plugin_sveltekit_shim_env.js';
 import {print_build_result, to_define_import_meta_env} from './esbuild_helpers.js';
@@ -21,7 +21,6 @@ import {esbuild_plugin_external_worker} from './esbuild_plugin_external_worker.j
 import {esbuild_plugin_sveltekit_local_imports} from './esbuild_plugin_sveltekit_local_imports.js';
 import {esbuild_plugin_svelte} from './esbuild_plugin_svelte.js';
 import {throttle} from './throttle.js';
-import {sveltekit_config_global} from './sveltekit_config_global.js';
 
 // TODO sourcemap as a hoisted option? disable for production by default - or like `outpaths`, passed a `dev` param
 
@@ -133,7 +132,7 @@ export const gro_plugin_server = ({
 		setup: async ({dev, watch, timings, log}) => {
 			const parsed_sveltekit_config =
 				!sveltekit_config && strip_end(dir, '/') === process.cwd()
-					? sveltekit_config_global
+					? default_sveltekit_config
 					: await init_sveltekit_config(sveltekit_config ?? dir);
 			const {
 				alias,
@@ -146,14 +145,6 @@ export const gro_plugin_server = ({
 				svelte_compile_module_options,
 				svelte_preprocessors,
 			} = parsed_sveltekit_config;
-
-			// TODO hacky
-			if (svelte_compile_options.generate === undefined) {
-				svelte_compile_options.generate = 'server';
-			}
-			if (svelte_compile_module_options.generate === undefined) {
-				svelte_compile_module_options.generate = 'server';
-			}
 
 			const {outbase, outdir, outname} = outpaths(dev);
 
@@ -202,6 +193,8 @@ export const gro_plugin_server = ({
 						log,
 					}),
 					esbuild_plugin_svelte({
+						dev,
+						base_url,
 						dir,
 						svelte_compile_options,
 						svelte_compile_module_options,

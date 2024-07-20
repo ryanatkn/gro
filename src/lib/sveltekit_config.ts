@@ -1,5 +1,5 @@
 import type {Config as SveltekitConfig} from '@sveltejs/kit';
-import type {CompileOptions, PreprocessorGroup, ModuleCompileOptions} from 'svelte/compiler';
+import type {CompileOptions, ModuleCompileOptions, PreprocessorGroup} from 'svelte/compiler';
 import {join} from 'node:path';
 
 import {SVELTEKIT_CONFIG_FILENAME} from './path_constants.js';
@@ -57,7 +57,7 @@ export interface Parsed_Sveltekit_Config {
 	private_prefix: string | undefined;
 	public_prefix: string | undefined;
 	svelte_compile_options: CompileOptions;
-	svelte_compile_module_options: ModuleCompileOptions;
+	svelte_compile_module_options: CompileOptions;
 	svelte_preprocessors: PreprocessorGroup | PreprocessorGroup[] | undefined;
 }
 
@@ -88,8 +88,13 @@ export const init_sveltekit_config = async (
 	const private_prefix = kit?.env?.privatePrefix;
 	const public_prefix = kit?.env?.publicPrefix;
 
-	const svelte_compile_options = sveltekit_config?.compilerOptions ?? {};
-	const svelte_compile_module_options = {}; // TODO from `kit`? or subset of `svelte_compile_options`?
+	const svelte_compile_options: CompileOptions = sveltekit_config?.compilerOptions ?? {};
+	// Change the default to `generate: 'server'`,
+	// because SvelteKit handles the client in the normal cases.
+	if (svelte_compile_options.generate === undefined) {
+		svelte_compile_options.generate = 'server';
+	}
+	const svelte_compile_module_options = to_default_compile_module_options(svelte_compile_options); // TODO will kit have these separately?
 	const svelte_preprocessors = sveltekit_config?.preprocess;
 
 	return {
@@ -108,3 +113,15 @@ export const init_sveltekit_config = async (
 		svelte_preprocessors,
 	};
 };
+
+export const to_default_compile_module_options = ({
+	dev,
+	generate,
+	filename,
+	rootDir,
+}: CompileOptions): ModuleCompileOptions => ({dev, generate, filename, rootDir});
+
+/**
+ * The parsed SvelteKit config for the cwd, cached globally at the module level.
+ */
+export const default_sveltekit_config = await init_sveltekit_config(); // always load it to keep things simple ahead

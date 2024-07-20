@@ -1,7 +1,7 @@
 import * as esbuild from 'esbuild';
 import type {Logger} from '@ryanatkn/belt/log.js';
 import {basename} from 'node:path';
-import type {CompileOptions, PreprocessorGroup, ModuleCompileOptions} from 'svelte/compiler';
+import type {CompileOptions, ModuleCompileOptions, PreprocessorGroup} from 'svelte/compiler';
 
 import {print_build_result, to_define_import_meta_env} from './esbuild_helpers.js';
 import {resolve_specifier} from './resolve_specifier.js';
@@ -36,8 +36,8 @@ export const esbuild_plugin_external_worker = ({
 	build_options,
 	dir = process.cwd(),
 	svelte_compile_options,
-	svelte_preprocessors,
 	svelte_compile_module_options,
+	svelte_preprocessors,
 	alias,
 	base_url,
 	assets_url,
@@ -67,6 +67,8 @@ export const esbuild_plugin_external_worker = ({
 					}),
 					esbuild_plugin_sveltekit_shim_alias({dir, alias}),
 					esbuild_plugin_svelte({
+						dev,
+						base_url,
 						dir,
 						svelte_compile_options,
 						svelte_compile_module_options,

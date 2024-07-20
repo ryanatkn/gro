@@ -14,7 +14,7 @@ import {
 import {print_path} from './paths.js';
 import type {format_file as base_format_file} from './format_file.js';
 import type {Gro_Config} from './gro_config.js';
-import {sveltekit_config_global} from './sveltekit_config_global.js';
+import {default_sveltekit_config} from './sveltekit_config.js';
 
 export const GEN_NO_PROD_MESSAGE = 'gen runs only during development';
 
@@ -37,7 +37,7 @@ export const run_gen = async (
 			// Perform code generation by calling `gen` on the module.
 			const gen_ctx: Gen_Context = {
 				config,
-				sveltekit_config: sveltekit_config_global,
+				sveltekit_config: default_sveltekit_config,
 				origin_id: id,
 				log,
 			};

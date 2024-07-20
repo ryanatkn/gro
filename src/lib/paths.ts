@@ -10,7 +10,7 @@ import {
 	SOURCE_DIR,
 	SVELTEKIT_DIST_DIRNAME,
 } from './path_constants.js';
-import {sveltekit_config_global} from './sveltekit_config_global.js';
+import {default_sveltekit_config} from './sveltekit_config.js';
 import type {Path_Id} from './path.js';
 
 /*
@@ -20,10 +20,10 @@ It's the same name that Rollup uses.
 
 */
 
-export const LIB_DIRNAME = basename(sveltekit_config_global.lib_path);
+export const LIB_DIRNAME = basename(default_sveltekit_config.lib_path);
 export const LIB_PATH = SOURCE_DIR + LIB_DIRNAME;
 export const LIB_DIR = LIB_PATH + '/';
-export const ROUTES_DIRNAME = basename(sveltekit_config_global.routes_path);
+export const ROUTES_DIRNAME = basename(default_sveltekit_config.routes_path);
 
 export interface Paths {
 	root: string;

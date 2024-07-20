@@ -13,11 +13,11 @@ import {
 	SVELTEKIT_SHIM_APP_PATHS_MATCHER,
 	sveltekit_shim_app_specifiers,
 } from './sveltekit_shim_app.js';
-import {sveltekit_config_global} from './sveltekit_config_global.js';
+import {default_sveltekit_config} from './sveltekit_config.js';
 import {SVELTE_MATCHER, SVELTE_RUNES_MATCHER} from './svelte_helpers.js';
 import {paths} from './paths.js';
-import {NODE_MODULES_DIRNAME} from './path_constants.js';
-import {to_define_import_meta_env, ts_transform_options} from './esbuild_helpers.js';
+import {JSON_MATCHER, NODE_MODULES_DIRNAME, TS_MATCHER} from './path_constants.js';
+import {to_define_import_meta_env, default_ts_transform_options} from './esbuild_helpers.js';
 import {resolve_specifier} from './resolve_specifier.js';
 import {resolve_node_specifier} from './resolve_node_specifier.js';
 import type {Package_Json} from './package_json.js';
@@ -65,18 +65,16 @@ const {
 	svelte_compile_options,
 	svelte_compile_module_options,
 	svelte_preprocessors,
-} = sveltekit_config_global;
+} = default_sveltekit_config;
 
-const final_ts_transform_options: esbuild.TransformOptions = {
-	...ts_transform_options,
+const ts_transform_options: esbuild.TransformOptions = {
+	...default_ts_transform_options,
 	define: to_define_import_meta_env(dev, base_url),
 	sourcemap: 'inline',
 };
 
 const aliases = Object.entries({$lib: 'src/lib', ...alias});
 
-const TS_MATCHER = /\.(ts|tsx|mts|cts)$/;
-const JSON_MATCHER = /\.(json)$/;
 const NOOP_MATCHER = /\.(css|svg)$/; // TODO others? configurable?
 const ENV_MATCHER = /src\/lib\/\$env\/(static|dynamic)\/(public|private)$/;
 const NODE_MODULES_MATCHER = new RegExp(escape_regexp('/' + NODE_MODULES_DIRNAME + '/'), 'u');
@@ -100,14 +98,16 @@ export const load: LoadHook = async (url, context, nextLoad) => {
 		};
 	} else if (SVELTE_RUNES_MATCHER.test(url)) {
 		// Svelte runes in js/ts
-		// TODO support sourcemaps
 		const loaded = await nextLoad(
 			url,
 			context.format === 'module' ? context : {...context, format: 'module'}, // TODO dunno why this is needed, specifically with tests
 		);
 		const filename = fileURLToPath(url);
 		const source = loaded.source!.toString(); // eslint-disable-line @typescript-eslint/no-base-to-string
-		const transformed = compileModule(source, {...svelte_compile_module_options, filename});
+		const js_source = TS_MATCHER.test(url)
+			? (await esbuild.transform(source, {...ts_transform_options, sourcefile: url})).code // TODO @many use warnings? handle not-inline sourcemaps?
+			: source;
+		const transformed = compileModule(js_source, {...svelte_compile_module_options, dev, filename});
 		return {format: 'module', shortCircuit: true, source: transformed.js.code};
 	} else if (TS_MATCHER.test(url)) {
 		// ts
@@ -115,10 +115,8 @@ export const load: LoadHook = async (url, context, nextLoad) => {
 			url,
 			context.format === 'module' ? context : {...context, format: 'module'}, // TODO dunno why this is needed, specifically with tests
 		);
-		const transformed = await esbuild.transform(
-			loaded.source!.toString(), // eslint-disable-line @typescript-eslint/no-base-to-string
-			{...final_ts_transform_options, sourcefile: url},
-		);
+		const source = loaded.source!.toString(); // eslint-disable-line @typescript-eslint/no-base-to-string
+		const transformed = await esbuild.transform(source, {...ts_transform_options, sourcefile: url}); // TODO @many use warnings? handle not-inline sourcemaps?
 		return {format: 'module', shortCircuit: true, source: transformed.code};
 	} else if (SVELTE_MATCHER.test(url)) {
 		// Svelte
@@ -129,11 +127,11 @@ export const load: LoadHook = async (url, context, nextLoad) => {
 		);
 		const filename = fileURLToPath(url);
 		const raw_source = loaded.source!.toString(); // eslint-disable-line @typescript-eslint/no-base-to-string
-		const preprocessed = svelte_preprocessors
+		const preprocessed = svelte_preprocessors // TODO @many use sourcemaps (and diagnostics?)
 			? await preprocess(raw_source, svelte_preprocessors, {filename})
 			: null;
 		const source = preprocessed?.code ?? raw_source;
-		const transformed = compile(source, {...svelte_compile_options, filename});
+		const transformed = compile(source, {...svelte_compile_options, dev, filename});
 		return {format: 'module', shortCircuit: true, source: transformed.js.code};
 	} else if (JSON_MATCHER.test(url)) {
 		// json
