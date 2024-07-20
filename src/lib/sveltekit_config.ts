@@ -105,3 +105,8 @@ export const init_sveltekit_config = async (
 		svelte_preprocessors,
 	};
 };
+
+/**
+ * The parsed SvelteKit config for the cwd, cached globally at the module level.
+ */
+export const default_sveltekit_config = await init_sveltekit_config(); // always load it to keep things simple ahead

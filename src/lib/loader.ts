@@ -13,11 +13,11 @@ import {
 	SVELTEKIT_SHIM_APP_PATHS_MATCHER,
 	sveltekit_shim_app_specifiers,
 } from './sveltekit_shim_app.js';
-import {sveltekit_config_global} from './sveltekit_config_global.js';
+import {default_sveltekit_config} from './sveltekit_config.js';
 import {SVELTE_MATCHER, SVELTE_RUNES_MATCHER} from './svelte_helpers.js';
 import {paths} from './paths.js';
 import {NODE_MODULES_DIRNAME} from './path_constants.js';
-import {to_define_import_meta_env, ts_transform_options} from './esbuild_helpers.js';
+import {to_define_import_meta_env, default_ts_transform_options} from './esbuild_helpers.js';
 import {resolve_specifier} from './resolve_specifier.js';
 import {resolve_node_specifier} from './resolve_node_specifier.js';
 import type {Package_Json} from './package_json.js';
@@ -64,10 +64,10 @@ const {
 	public_prefix,
 	svelte_compile_options,
 	svelte_preprocessors,
-} = sveltekit_config_global;
+} = default_sveltekit_config;
 
-const final_ts_transform_options: esbuild.TransformOptions = {
-	...ts_transform_options,
+const ts_transform_options: esbuild.TransformOptions = {
+	...default_ts_transform_options,
 	define: to_define_import_meta_env(dev, base_url),
 	sourcemap: 'inline',
 };
@@ -99,7 +99,7 @@ export const load: LoadHook = async (url, context, nextLoad) => {
 		};
 	} else if (SVELTE_RUNES_MATCHER.test(url)) {
 		// Svelte runes in js/ts
-		// TODO support sourcemaps
+		// TODO BLOCK sourcemaps should work with esbuild, but what about Svelte - https://github.com/evanw/esbuild/issues/847#issuecomment-783069784
 		const loaded = await nextLoad(
 			url,
 			context.format === 'module' ? context : {...context, format: 'module'}, // TODO dunno why this is needed, specifically with tests
@@ -107,7 +107,7 @@ export const load: LoadHook = async (url, context, nextLoad) => {
 		const filename = fileURLToPath(url);
 		const source = loaded.source!.toString(); // eslint-disable-line @typescript-eslint/no-base-to-string
 		const js_source = TS_MATCHER.test(url)
-			? (await esbuild.transform(source, {...final_ts_transform_options, sourcefile: url})).code // TODO use sourcemap or diagnostics?
+			? (await esbuild.transform(source, {...ts_transform_options, sourcefile: url})).code // TODO @many use sourcemaps (and diagnostics?)
 			: source;
 		const transformed = compileModule(js_source, {
 			...svelte_compile_options,
@@ -122,10 +122,8 @@ export const load: LoadHook = async (url, context, nextLoad) => {
 			url,
 			context.format === 'module' ? context : {...context, format: 'module'}, // TODO dunno why this is needed, specifically with tests
 		);
-		const transformed = await esbuild.transform(
-			loaded.source!.toString(), // eslint-disable-line @typescript-eslint/no-base-to-string
-			{...final_ts_transform_options, sourcefile: url},
-		); // TODO use sourcemap or diagnostics?
+		const source = loaded.source!.toString(); // eslint-disable-line @typescript-eslint/no-base-to-string
+		const transformed = await esbuild.transform(source, {...ts_transform_options, sourcefile: url}); // TODO @many use sourcemaps (and diagnostics?)
 		return {format: 'module', shortCircuit: true, source: transformed.code};
 	} else if (SVELTE_MATCHER.test(url)) {
 		// Svelte
@@ -136,7 +134,7 @@ export const load: LoadHook = async (url, context, nextLoad) => {
 		);
 		const filename = fileURLToPath(url);
 		const raw_source = loaded.source!.toString(); // eslint-disable-line @typescript-eslint/no-base-to-string
-		const preprocessed = svelte_preprocessors
+		const preprocessed = svelte_preprocessors // TODO @many use sourcemaps (and diagnostics?)
 			? await preprocess(raw_source, svelte_preprocessors, {filename})
 			: null;
 		const source = preprocessed?.code ?? raw_source;

@@ -41,7 +41,7 @@ export const to_define_import_meta_env = (
 	[import_meta_env + 'BASE_URL']: JSON.stringify(base_url || '/'), // eslint-disable-line @typescript-eslint/prefer-nullish-coalescing
 });
 
-export const ts_transform_options: esbuild.TransformOptions = {
+export const default_ts_transform_options: esbuild.TransformOptions = {
 	target: 'esnext',
 	format: 'esm',
 	loader: 'ts',

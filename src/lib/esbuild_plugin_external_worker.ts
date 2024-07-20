@@ -65,6 +65,8 @@ export const esbuild_plugin_external_worker = ({
 					}),
 					esbuild_plugin_sveltekit_shim_alias({dir, alias}),
 					esbuild_plugin_svelte({
+						dev,
+						base_url,
 						dir,
 						svelte_compile_options,
 						svelte_preprocessors,
