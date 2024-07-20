@@ -12,7 +12,13 @@ test('build for the client', async () => {
 	const outfile = './src/fixtures/modules/some_test_server_bundle_DELETEME.js';
 	const built = await esbuild.build({
 		entryPoints: ['./src/fixtures/modules/some_test_server.ts'],
-		plugins: [esbuild_plugin_svelte({dev: true, base_url: default_sveltekit_config.base_url})],
+		plugins: [
+			esbuild_plugin_svelte({
+				dev: true,
+				base_url: default_sveltekit_config.base_url,
+				svelte_compile_options: {generate: 'client'},
+			}),
+		],
 		outfile,
 		format: 'esm',
 		platform: 'node',
@@ -78,7 +84,6 @@ test('build for the server', async () => {
 			esbuild_plugin_svelte({
 				dev: true,
 				base_url: default_sveltekit_config.base_url,
-				svelte_compile_options: {generate: 'server'},
 			}),
 		],
 		outfile,

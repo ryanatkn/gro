@@ -89,6 +89,11 @@ export const init_sveltekit_config = async (
 	const public_prefix = kit?.env?.publicPrefix;
 
 	const svelte_compile_options: CompileOptions = sveltekit_config?.compilerOptions ?? {};
+	// Change the default to `generate: 'server'`,
+	// because SvelteKit handles the client in the normal cases.
+	if (svelte_compile_options.generate === undefined) {
+		svelte_compile_options.generate = 'server';
+	}
 	const svelte_compile_module_options = to_default_compile_module_options(svelte_compile_options); // TODO will kit have these separately?
 	const svelte_preprocessors = sveltekit_config?.preprocess;
 
