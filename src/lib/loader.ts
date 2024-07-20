@@ -16,7 +16,7 @@ import {
 import {default_sveltekit_config} from './sveltekit_config.js';
 import {SVELTE_MATCHER, SVELTE_RUNES_MATCHER} from './svelte_helpers.js';
 import {paths} from './paths.js';
-import {NODE_MODULES_DIRNAME} from './path_constants.js';
+import {JSON_MATCHER, NODE_MODULES_DIRNAME, TS_MATCHER} from './path_constants.js';
 import {to_define_import_meta_env, default_ts_transform_options} from './esbuild_helpers.js';
 import {resolve_specifier} from './resolve_specifier.js';
 import {resolve_node_specifier} from './resolve_node_specifier.js';
@@ -74,8 +74,6 @@ const ts_transform_options: esbuild.TransformOptions = {
 
 const aliases = Object.entries({$lib: 'src/lib', ...alias});
 
-const TS_MATCHER = /\.(ts|tsx|mts|cts)$/;
-const JSON_MATCHER = /\.(json)$/;
 const NOOP_MATCHER = /\.(css|svg)$/; // TODO others? configurable?
 const ENV_MATCHER = /src\/lib\/\$env\/(static|dynamic)\/(public|private)$/;
 const NODE_MODULES_MATCHER = new RegExp(escape_regexp('/' + NODE_MODULES_DIRNAME + '/'), 'u');
@@ -107,7 +105,7 @@ export const load: LoadHook = async (url, context, nextLoad) => {
 		const filename = fileURLToPath(url);
 		const source = loaded.source!.toString(); // eslint-disable-line @typescript-eslint/no-base-to-string
 		const js_source = TS_MATCHER.test(url)
-			? (await esbuild.transform(source, {...ts_transform_options, sourcefile: url})).code // TODO @many use sourcemaps (and diagnostics?)
+			? (await esbuild.transform(source, {...ts_transform_options, sourcefile: url})).code // TODO @many use warnings? handle not-inline sourcemaps?
 			: source;
 		const transformed = compileModule(js_source, {
 			...svelte_compile_options,
@@ -123,7 +121,7 @@ export const load: LoadHook = async (url, context, nextLoad) => {
 			context.format === 'module' ? context : {...context, format: 'module'}, // TODO dunno why this is needed, specifically with tests
 		);
 		const source = loaded.source!.toString(); // eslint-disable-line @typescript-eslint/no-base-to-string
-		const transformed = await esbuild.transform(source, {...ts_transform_options, sourcefile: url}); // TODO @many use sourcemaps (and diagnostics?)
+		const transformed = await esbuild.transform(source, {...ts_transform_options, sourcefile: url}); // TODO @many use warnings? handle not-inline sourcemaps?
 		return {format: 'module', shortCircuit: true, source: transformed.code};
 	} else if (SVELTE_MATCHER.test(url)) {
 		// Svelte

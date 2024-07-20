@@ -12,6 +12,7 @@ import {relative} from 'node:path';
 import {SVELTE_MATCHER, SVELTE_RUNES_MATCHER} from './svelte_helpers.js';
 import {to_define_import_meta_env, default_ts_transform_options} from './esbuild_helpers.js';
 import type {Parsed_Sveltekit_Config} from './sveltekit_config.js';
+import {TS_MATCHER} from './path_constants.js';
 
 export interface Options {
 	dev: boolean;
@@ -20,6 +21,7 @@ export interface Options {
 	svelte_compile_options?: CompileOptions;
 	svelte_preprocessors?: PreprocessorGroup | PreprocessorGroup[];
 	ts_transform_options?: esbuild.TransformOptions;
+	is_ts?: (filename: string) => boolean;
 }
 
 export const esbuild_plugin_svelte = (options: Options): esbuild.Plugin => {
@@ -30,6 +32,7 @@ export const esbuild_plugin_svelte = (options: Options): esbuild.Plugin => {
 		svelte_compile_options = {},
 		svelte_preprocessors,
 		ts_transform_options = default_ts_transform_options,
+		is_ts = (f) => TS_MATCHER.test(f),
 	} = options;
 
 	const final_ts_transform_options: esbuild.TransformOptions = {
@@ -42,19 +45,21 @@ export const esbuild_plugin_svelte = (options: Options): esbuild.Plugin => {
 		name: 'svelte',
 		setup: (build) => {
 			build.onLoad({filter: SVELTE_RUNES_MATCHER}, async ({path}) => {
-				console.log(`SVELTE_RUNES_MATCHER path`, path);
-				let source = await readFile(path, 'utf8');
+				const source = await readFile(path, 'utf8');
 				try {
 					const filename = relative(dir, path);
-					console.log(`source`, source);
-					const transformed = await esbuild.transform(source, {
-						...final_ts_transform_options,
-						sourcefile: filename,
+					const js_source = is_ts(filename)
+						? (
+								await esbuild.transform(source, {
+									...final_ts_transform_options,
+									sourcefile: filename,
+								})
+							).code // TODO @many use warnings? handle not-inline sourcemaps?
+						: source;
+					const {js, warnings} = compileModule(js_source, {
+						filename,
+						...svelte_compile_options,
 					});
-					console.log(`transformed`, transformed);
-					const js_contents = transformed.code + '//# sourceMappingURL=' + transformed.map;
-					console.log(`js_contents`, js_contents);
-					const {js, warnings} = compileModule(source, {filename, ...svelte_compile_options});
 					const contents = js.code + '//# sourceMappingURL=' + js.map.toUrl();
 					return {
 						contents,
@@ -66,7 +71,6 @@ export const esbuild_plugin_svelte = (options: Options): esbuild.Plugin => {
 			});
 
 			build.onLoad({filter: SVELTE_MATCHER}, async ({path}) => {
-				console.log(`SVELTE_MATCHER path`, path);
 				let source = await readFile(path, 'utf8');
 				try {
 					const filename = relative(dir, path);

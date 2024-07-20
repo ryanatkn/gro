@@ -28,3 +28,6 @@ export const SVELTEKIT_VITE_CACHE_PATH = NODE_MODULES_DIRNAME + '/.vite';
 export const GITHUB_DIRNAME = '.github';
 export const GIT_DIRNAME = '.git';
 export const TSCONFIG_FILENAME = 'tsconfig.json';
+
+export const TS_MATCHER = /\.(ts|tsx|mts|cts)$/;
+export const JSON_MATCHER = /\.(json)$/;

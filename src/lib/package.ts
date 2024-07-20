@@ -708,6 +708,8 @@ export const src_json = {
 				{name: 'GITHUB_DIRNAME', kind: 'variable'},
 				{name: 'GIT_DIRNAME', kind: 'variable'},
 				{name: 'TSCONFIG_FILENAME', kind: 'variable'},
+				{name: 'TS_MATCHER', kind: 'variable'},
+				{name: 'JSON_MATCHER', kind: 'variable'},
 			],
 		},
 		'./path.js': {
