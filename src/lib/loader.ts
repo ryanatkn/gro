@@ -107,7 +107,14 @@ export const load: LoadHook = async (url, context, nextLoad) => {
 		);
 		const filename = fileURLToPath(url);
 		const source = loaded.source!.toString(); // eslint-disable-line @typescript-eslint/no-base-to-string
-		const transformed = compileModule(source, {...svelte_compile_module_options, filename});
+		const js_source = TS_MATCHER.test(url)
+			? (await esbuild.transform(source, {...final_ts_transform_options, sourcefile: url})).code // TODO use sourcemap or diagnostics?
+			: source;
+		const transformed = compileModule(js_source, {
+			...svelte_compile_module_options,
+			filename,
+			generate: 'server',
+		});
 		return {format: 'module', shortCircuit: true, source: transformed.js.code};
 	} else if (TS_MATCHER.test(url)) {
 		// ts
@@ -118,7 +125,7 @@ export const load: LoadHook = async (url, context, nextLoad) => {
 		const transformed = await esbuild.transform(
 			loaded.source!.toString(), // eslint-disable-line @typescript-eslint/no-base-to-string
 			{...final_ts_transform_options, sourcefile: url},
-		);
+		); // TODO use sourcemap or diagnostics?
 		return {format: 'module', shortCircuit: true, source: transformed.code};
 	} else if (SVELTE_MATCHER.test(url)) {
 		// Svelte
@@ -133,7 +140,11 @@ export const load: LoadHook = async (url, context, nextLoad) => {
 			? await preprocess(raw_source, svelte_preprocessors, {filename})
 			: null;
 		const source = preprocessed?.code ?? raw_source;
-		const transformed = compile(source, {...svelte_compile_options, filename});
+		const transformed = compile(source, {
+			...svelte_compile_options,
+			filename,
+			generate: 'server',
+		});
 		return {format: 'module', shortCircuit: true, source: transformed.js.code};
 	} else if (JSON_MATCHER.test(url)) {
 		// json
