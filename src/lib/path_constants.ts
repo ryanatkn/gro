@@ -31,3 +31,4 @@ export const TSCONFIG_FILENAME = 'tsconfig.json';
 
 export const TS_MATCHER = /\.(ts|tsx|mts|cts)$/;
 export const JSON_MATCHER = /\.(json)$/;
+export const EVERYTHING_MATCHER = /.*/;

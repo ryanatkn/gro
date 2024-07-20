@@ -710,6 +710,7 @@ export const src_json = {
 				{name: 'TSCONFIG_FILENAME', kind: 'variable'},
 				{name: 'TS_MATCHER', kind: 'variable'},
 				{name: 'JSON_MATCHER', kind: 'variable'},
+				{name: 'EVERYTHING_MATCHER', kind: 'variable'},
 			],
 		},
 		'./path.js': {
@@ -865,6 +866,7 @@ export const src_json = {
 				{name: 'SVELTE_PACKAGE_CLI', kind: 'variable'},
 				{name: 'SVELTE_PACKAGE_DEP_NAME', kind: 'variable'},
 				{name: 'VITE_CLI', kind: 'variable'},
+				{name: 'SVELTEKIT_ENV_MATCHER', kind: 'variable'},
 				{name: 'has_sveltekit_app', kind: 'function'},
 				{name: 'has_sveltekit_library', kind: 'function'},
 				{name: 'sveltekit_sync', kind: 'function'},

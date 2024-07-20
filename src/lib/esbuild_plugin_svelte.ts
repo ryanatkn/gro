@@ -57,8 +57,8 @@ export const esbuild_plugin_svelte = (options: Options): esbuild.Plugin => {
 							).code // TODO @many use warnings? handle not-inline sourcemaps?
 						: source;
 					const {js, warnings} = compileModule(js_source, {
-						filename,
 						...svelte_compile_options,
+						filename,
 					});
 					const contents = js.code + '//# sourceMappingURL=' + js.map.toUrl();
 					return {
@@ -78,7 +78,7 @@ export const esbuild_plugin_svelte = (options: Options): esbuild.Plugin => {
 						? await preprocess(source, svelte_preprocessors, {filename})
 						: null;
 					if (preprocessed?.code) source = preprocessed.code; // TODO @many use sourcemaps (and diagnostics?)
-					const {js, warnings} = compile(source, {filename, ...svelte_compile_options});
+					const {js, warnings} = compile(source, {...svelte_compile_options, filename});
 					const contents = js.code + '//# sourceMappingURL=' + js.map.toUrl();
 					return {
 						contents,

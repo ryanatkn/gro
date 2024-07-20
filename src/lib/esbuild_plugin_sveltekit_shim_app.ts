@@ -6,6 +6,7 @@ import {
 	sveltekit_shim_app_specifiers,
 } from './sveltekit_shim_app.js';
 import type {Parsed_Sveltekit_Config} from './sveltekit_config.js';
+import {EVERYTHING_MATCHER} from './path_constants.js';
 
 export interface Options {
 	dev: boolean;
@@ -27,14 +28,14 @@ export const esbuild_plugin_sveltekit_shim_app = ({
 			path: sveltekit_shim_app_specifiers.get(path)!,
 			namespace: 'sveltekit_shim_app_paths',
 		}));
-		build.onLoad({filter: /.*/, namespace: 'sveltekit_shim_app_paths'}, () => ({
+		build.onLoad({filter: EVERYTHING_MATCHER, namespace: 'sveltekit_shim_app_paths'}, () => ({
 			contents: render_sveltekit_shim_app_paths(base_url, assets_url),
 		}));
 		build.onResolve({filter: /^\$app\/environment$/}, ({path}) => ({
 			path: sveltekit_shim_app_specifiers.get(path)!,
 			namespace: 'sveltekit_shim_app_environment',
 		}));
-		build.onLoad({filter: /.*/, namespace: 'sveltekit_shim_app_environment'}, () => ({
+		build.onLoad({filter: EVERYTHING_MATCHER, namespace: 'sveltekit_shim_app_environment'}, () => ({
 			contents: render_sveltekit_shim_app_environment(dev),
 		}));
 	},
