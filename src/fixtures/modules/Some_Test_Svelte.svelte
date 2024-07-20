@@ -3,7 +3,15 @@
 </script>
 
 <script lang="ts">
-	// ...
+	interface Props {
+		b: string;
+	}
+
+	const {b = 'ok'}: Props = $props();
 </script>
 
 Some_Test_Svelte.svelte contents
+
+{a}
+
+{b}
