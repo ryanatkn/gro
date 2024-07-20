@@ -2,4 +2,4 @@
 '@ryanatkn/gro': patch
 ---
 
-fix ts imports into `.svelte.ts` modules
+fix the loader for `.svelte.ts` modules
