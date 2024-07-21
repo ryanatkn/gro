@@ -1,5 +1,11 @@
 # @ryanatkn/gro
 
+## 0.133.4
+
+### Patch Changes
+
+- fix: upgrade belt to exit on uncaught exceptions ([e1d1e9d](https://github.com/ryanatkn/gro/commit/e1d1e9d))
+
 ## 0.133.3
 
 ### Patch Changes
