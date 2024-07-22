@@ -553,6 +553,7 @@ export const src_json = {
 			declarations: [
 				{name: 'Task_Args', kind: 'type'},
 				{name: 'plugin', kind: 'function'},
+				{name: 'filterDependents', kind: 'function'},
 			],
 		},
 		'./gro_plugin_server.js': {

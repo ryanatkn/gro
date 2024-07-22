@@ -76,7 +76,7 @@ export const plugin = (): Plugin<Plugin_Context<Task_Args>> => {
 				const dependent_gen_file_ids = filter_dependents(
 					source_file,
 					build_config,
-					filer.find_by_id as any, // cast because we can assume they're all `SourceFile`s
+					filer.find_by_id as any, // cast because we can assume they're all `Source_File`s
 					is_gen_path,
 				);
 				for (const dependent_gen_file_id of dependent_gen_file_ids) {
@@ -93,24 +93,31 @@ export const plugin = (): Plugin<Plugin_Context<Task_Args>> => {
 	};
 };
 
-export const filterDependents = (
-	sourceFile: SourceFile,
-	buildConfig: BuildConfig,
-	findFileById: (id: string) => SourceFile | undefined,
-	filter?: IdFilter | undefined,
+export const filter_dependents = (
+	source_file: Source_File,
+	build_config: Build_Config,
+	find_file_by_id: (id: string) => Source_File | undefined,
+	filter?: Id_Filter | undefined,
 	results: Set<string> = new Set(),
 	searched: Set<string> = new Set(),
 ): Set<string> => {
-	const dependentsForConfig = sourceFile.dependents?.get(buildConfig);
-	if (!dependentsForConfig) return results;
-	for (const dependentId of dependentsForConfig.keys()) {
-		if (searched.has(dependentId)) continue;
-		searched.add(dependentId);
-		if (!filter || filter(dependentId)) {
-			results.add(dependentId);
+	const dependents_for_config = source_file.dependents?.get(build_config);
+	if (!dependents_for_config) return results;
+	for (const dependent_id of dependents_for_config.keys()) {
+		if (searched.has(dependent_id)) continue;
+		searched.add(dependent_id);
+		if (!filter || filter(dependent_id)) {
+			results.add(dependent_id);
 		}
-		const dependentSourceFile = findFileById(dependentId)!;
-		filterDependents(dependentSourceFile, buildConfig, findFileById, filter, results, searched);
+		const dependent_source_File = find_file_by_id(dependent_id)!;
+		filter_dependents(
+			dependent_source_File,
+			build_config,
+			find_file_by_id,
+			filter,
+			results,
+			searched,
+		);
 	}
 	return results;
 };
