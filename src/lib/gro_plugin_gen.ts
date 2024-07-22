@@ -1,6 +1,5 @@
 // TODO this became unused with https://github.com/ryanatkn/gro/pull/382
 // because we no longer have a normal system build - replace with an esbuild plugin
-// @ts-nocheck
 
 import type {Plugin, Plugin_Context} from './plugin.js';
 import type {Args} from './args.js';
