@@ -92,3 +92,25 @@ export const plugin = (): Plugin<Plugin_Context<Task_Args>> => {
 		},
 	};
 };
+
+export const filterDependents = (
+	sourceFile: SourceFile,
+	buildConfig: BuildConfig,
+	findFileById: (id: string) => SourceFile | undefined,
+	filter?: IdFilter | undefined,
+	results: Set<string> = new Set(),
+	searched: Set<string> = new Set(),
+): Set<string> => {
+	const dependentsForConfig = sourceFile.dependents?.get(buildConfig);
+	if (!dependentsForConfig) return results;
+	for (const dependentId of dependentsForConfig.keys()) {
+		if (searched.has(dependentId)) continue;
+		searched.add(dependentId);
+		if (!filter || filter(dependentId)) {
+			results.add(dependentId);
+		}
+		const dependentSourceFile = findFileById(dependentId)!;
+		filterDependents(dependentSourceFile, buildConfig, findFileById, filter, results, searched);
+	}
+	return results;
+};
