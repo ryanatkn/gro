@@ -247,7 +247,7 @@ export const gro_plugin_server = ({
 				throw Error(`Node server failed to start due to missing file: ${server_outpath}`);
 			}
 
-			if (run ?? dev) {
+			if (run || dev) {
 				server_process = spawn_restartable_process(cli_command, [server_outpath]);
 			}
 		},
