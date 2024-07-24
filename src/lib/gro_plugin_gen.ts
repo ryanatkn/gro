@@ -7,7 +7,7 @@ import {path_id_to_base_path, paths} from './paths.js';
 import {find_genfiles, is_gen_path} from './gen.js';
 import {throttle} from './throttle.js';
 import {spawn_cli} from './cli.js';
-import type {File_Filter} from './path.js';
+import type {File_Filter, Path_Id} from './path.js';
 
 const FLUSH_DEBOUNCE_DELAY = 500;
 
@@ -67,16 +67,14 @@ export const plugin = (): Plugin<Plugin_Context<Task_Args>> => {
 
 			// When a file builds, check it and its tree of dependents
 			// for any `.gen.` files that need to run.
-			on_filer_build = ({source_file, build_config}) => {
+			on_filer_build = ({source_file}) => {
 				// TODO how to handle this now? the loader traces deps for us with `parentPath`,
 				// but we probably want to make this an esbuild plugin instead
-				// if (build_config.name !== 'system') return;
 				if (is_gen_path(source_file.id)) {
 					queue_gen(path_id_to_base_path(source_file.id));
 				}
 				const dependent_gen_file_ids = filter_dependents(
 					source_file,
-					build_config,
 					filer.find_by_id as any, // cast because we can assume they're all `Source_File`s
 					is_gen_path,
 				);
@@ -94,31 +92,27 @@ export const plugin = (): Plugin<Plugin_Context<Task_Args>> => {
 	};
 };
 
+interface Source_File {
+	id: Path_Id;
+	dependents: Map<Path_Id, Source_File>;
+}
+
 export const filter_dependents = (
 	source_file: Source_File,
-	build_config: Build_Config,
 	find_file_by_id: (id: string) => Source_File | undefined,
 	filter?: File_Filter | undefined,
 	results: Set<string> = new Set(),
 	searched: Set<string> = new Set(),
 ): Set<string> => {
-	const dependents_for_config = source_file.dependents?.get(build_config);
-	if (!dependents_for_config) return results;
-	for (const dependent_id of dependents_for_config.keys()) {
+	const {dependents} = source_file;
+	for (const dependent_id of dependents.keys()) {
 		if (searched.has(dependent_id)) continue;
 		searched.add(dependent_id);
 		if (!filter || filter(dependent_id)) {
 			results.add(dependent_id);
 		}
 		const dependent_source_File = find_file_by_id(dependent_id)!;
-		filter_dependents(
-			dependent_source_File,
-			build_config,
-			find_file_by_id,
-			filter,
-			results,
-			searched,
-		);
+		filter_dependents(dependent_source_File, find_file_by_id, filter, results, searched);
 	}
 	return results;
 };
