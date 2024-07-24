@@ -45,5 +45,12 @@ export const resolve_node_specifier = (
 	}
 	const path_id = join(package_dir, exported[exports_key]);
 
-	return {path_id, specifier, mapped_specifier, namespace: undefined, raw};
+	return {
+		path_id,
+		path_id_with_querystring: raw ? path_id + '?raw' : path_id,
+		raw,
+		specifier,
+		mapped_specifier,
+		namespace: undefined,
+	};
 };

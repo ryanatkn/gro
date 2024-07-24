@@ -5,7 +5,14 @@ import {replace_extension} from './paths.js';
 import type {Path_Id} from './path.js';
 
 export interface Resolved_Specifier {
+	/**
+	 * The resolved filesystem path for the specifier.
+	 */
 	path_id: Path_Id;
+	/**
+	 * Same as `path_id` but includes `?raw` and other modifiers. (currently none)
+	 */
+	path_id_with_querystring: string;
 	specifier: string;
 	mapped_specifier: string;
 	namespace: undefined | 'sveltekit_local_imports_ts' | 'sveltekit_local_imports_js';
@@ -61,5 +68,12 @@ export const resolve_specifier = (specifier: string, dir: string): Resolved_Spec
 	let mapped_specifier = relative(dir, mapped_path);
 	if (mapped_specifier[0] !== '.') mapped_specifier = './' + mapped_specifier;
 
-	return {path_id, specifier, mapped_specifier, namespace, raw};
+	return {
+		path_id,
+		path_id_with_querystring: raw ? path_id + '?raw' : path_id,
+		raw,
+		specifier,
+		mapped_specifier,
+		namespace,
+	};
 };

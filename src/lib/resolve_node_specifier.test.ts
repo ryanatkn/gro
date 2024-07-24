@@ -6,47 +6,55 @@ import {resolve_node_specifier} from './resolve_node_specifier.js';
 
 test('resolves a JS specifier', () => {
 	const specifier = '@ryanatkn/fuz/tome.js';
+	const path_id = resolve('node_modules/@ryanatkn/fuz/dist/tome.js');
 	assert.equal(resolve_node_specifier(specifier), {
-		path_id: resolve('node_modules/@ryanatkn/fuz/dist/tome.js'),
+		path_id,
+		path_id_with_querystring: path_id,
+		raw: false,
 		specifier,
 		mapped_specifier: specifier,
 		namespace: undefined,
-		raw: false,
 	});
 });
 
 test('resolves a raw JS specifier', () => {
 	const path = '@ryanatkn/fuz/tome.js';
 	const specifier = path + '?raw';
+	const path_id = resolve('node_modules/@ryanatkn/fuz/dist/tome.js');
 	assert.equal(resolve_node_specifier(specifier), {
-		path_id: resolve('node_modules/@ryanatkn/fuz/dist/tome.js'),
+		path_id,
+		path_id_with_querystring: path_id + '?raw',
+		raw: true,
 		specifier,
 		mapped_specifier: path,
 		namespace: undefined,
-		raw: true,
 	});
 });
 
 test('resolves a Svelte specifier', () => {
 	const specifier = '@ryanatkn/fuz/Library.svelte';
+	const path_id = resolve('node_modules/@ryanatkn/fuz/dist/Library.svelte');
 	assert.equal(resolve_node_specifier(specifier), {
-		path_id: resolve('node_modules/@ryanatkn/fuz/dist/Library.svelte'),
+		path_id,
+		path_id_with_querystring: path_id,
+		raw: false,
 		specifier,
 		mapped_specifier: specifier,
 		namespace: undefined,
-		raw: false,
 	});
 });
 
 test('resolves a raw Svelte specifier', () => {
 	const path = '@ryanatkn/fuz/Library.svelte';
 	const specifier = path + '?raw';
+	const path_id = resolve('node_modules/@ryanatkn/fuz/dist/Library.svelte');
 	assert.equal(resolve_node_specifier(specifier), {
-		path_id: resolve('node_modules/@ryanatkn/fuz/dist/Library.svelte'),
+		path_id,
+		path_id_with_querystring: path_id + '?raw',
+		raw: true,
 		specifier,
 		mapped_specifier: path,
 		namespace: undefined,
-		raw: true,
 	});
 });
 
