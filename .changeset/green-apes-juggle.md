@@ -2,4 +2,4 @@
 '@ryanatkn/gro': patch
 ---
 
-support `?raw` in the loader
+feat: support `?raw` imports in the loader
