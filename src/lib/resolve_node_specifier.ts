@@ -13,7 +13,7 @@ export const resolve_node_specifier = (
 	exports_key = specifier.endsWith('.svelte') ? 'svelte' : 'default',
 ): Resolved_Specifier => {
 	const raw = specifier.endsWith('?raw');
-	const mapped_specifier = raw ? specifier.substring(0, -4) : specifier;
+	const mapped_specifier = raw ? specifier.substring(0, specifier.length - 4) : specifier;
 
 	let idx!: number;
 	if (specifier[0] === '@') {

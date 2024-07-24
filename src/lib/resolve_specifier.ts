@@ -23,7 +23,7 @@ export interface Resolved_Specifier {
  */
 export const resolve_specifier = (specifier: string, dir: string): Resolved_Specifier => {
 	const raw = specifier.endsWith('?raw');
-	const final_specifier = raw ? specifier.substring(0, -4) : specifier;
+	const final_specifier = raw ? specifier.substring(0, specifier.length - 4) : specifier;
 	const absolute_path = isAbsolute(final_specifier) ? final_specifier : join(dir, final_specifier);
 
 	let mapped_path;
