@@ -184,6 +184,7 @@ export const package_json = {
 		'./package_meta.js': {types: './dist/package_meta.d.ts', default: './dist/package_meta.js'},
 		'./package.gen.js': {types: './dist/package.gen.d.ts', default: './dist/package.gen.js'},
 		'./package.js': {types: './dist/package.d.ts', default: './dist/package.js'},
+		'./parse_imports.js': {types: './dist/parse_imports.d.ts', default: './dist/parse_imports.js'},
 		'./path_constants.js': {
 			types: './dist/path_constants.d.ts',
 			default: './dist/path_constants.js',
@@ -683,6 +684,14 @@ export const src_json = {
 			declarations: [
 				{name: 'package_json', kind: 'variable'},
 				{name: 'src_json', kind: 'variable'},
+			],
+		},
+		'./parse_imports.js': {
+			path: 'parse_imports.ts',
+			declarations: [
+				{name: 'init_lexer', kind: 'function'},
+				{name: 'Import_Specifier', kind: 'type'},
+				{name: 'parse_imports', kind: 'function'},
 			],
 		},
 		'./path_constants.js': {

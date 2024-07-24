@@ -40,15 +40,19 @@ test('parse svelte imports', () => {
 	const parsed = parse_imports(
 		'a.svelte',
 		`
+      000
+
+      <!-- TS module script -->
       <script lang="ts" context="module">
         const a2: 5 = 5;
-        import {foo2} from 'static_import2';
-        await import('dynamic_import2');
+        import {foo2} from 'static_import_module_context';
+        await import('dynamic_import_module_context');
         const b2: {} = {};
       </script>
       
-      abc
+      111
       
+      <!-- TS script -->
       <script lang="ts">
         const a: 5 = 5;
         import {foo} from 'static_import';
@@ -56,26 +60,27 @@ test('parse svelte imports', () => {
         const b: {} = {};
       </script>
       
-      efg
-      
-      <script>
-        const a = 5;
-        import {foo3} from 'static_import3';
-        await import('dynamic_import3');
-        const b3 = {};
-      </script>
-      
-      hij
-  `,
+      222`,
 	);
 	assert.equal(parsed, [
-		'static_import2',
-		'dynamic_import2',
+		'static_import_module_context',
+		'dynamic_import_module_context',
 		'static_import',
 		'dynamic_import',
-		'static_import3',
-		'dynamic_import3',
 	]);
+});
+
+test('parse plain JS svelte imports', () => {
+	const parsed = parse_imports(
+		'a.svelte',
+		`<script>
+      const a = 5;
+      import {foo3} from 'static_import';
+      await import('dynamic_import');
+      const b3 = {};
+    </script>`,
+	);
+	assert.equal(parsed, ['static_import', 'dynamic_import']);
 });
 
 test.run();

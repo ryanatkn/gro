@@ -17,15 +17,11 @@ export const parse_imports = (id: Path_Id, contents: string): Import_Specifier[]
 	const specifiers = [];
 
 	if (id.endsWith('.svelte')) {
-		// TODO BLOCK svelte regexp extractor? get from Svelte
-
 		const matches = contents.matchAll(script_matcher);
 		// console.log(`all_script_matches`, Array.from(all_script_matches).length);
 		for (const m of matches) {
 			const e = m[1];
-			console.log(`e`, e);
 			const parsed = parse(e);
-			console.log(`parsed svelte`, parsed);
 			for (const p of parsed[0]) {
 				specifiers.push(p.n);
 			}
@@ -35,7 +31,6 @@ export const parse_imports = (id: Path_Id, contents: string): Import_Specifier[]
 		for (const p of parsed[0]) {
 			specifiers.push(p.n);
 		}
-		console.log(`parsed ts`, parsed);
 	}
 
 	return specifiers;
