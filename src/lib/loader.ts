@@ -213,7 +213,7 @@ export const resolve: ResolveHook = async (specifier, context, nextResolve) => {
 			parent_path ??= fileURLToPath(parent_url);
 			if (!parent_path.startsWith(dir)) {
 				// TODO BLOCK find the nearest sveltekit config and use that as the base?  and below, the nearest node_modules?
-				// TODO BLOCK also problem is the local sveltekit config may not be the one associated with this module!
+				// TODO BLOCK also problem is the local sveltekit config may not be the one associated with this cwd
 				final_dir;
 			}
 			console.log(`context`, context);
