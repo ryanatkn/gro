@@ -23,9 +23,11 @@ test('import raw .ts', async () => {
 });
 
 test('import .json', async () => {
-	const imported = await import(resolve('src/fixtures/modules/some_test_json.json'));
+	const path = resolve('src/fixtures/modules/some_test_json.json');
+	const imported = await import(path);
 	assert.ok(imported);
 	assert.is(imported.default.a, 'ok');
+	assert.equal(imported.default, JSON.parse(readFileSync(path, 'utf8')));
 });
 
 test('import raw .css', async () => {
