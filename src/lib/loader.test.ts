@@ -15,6 +15,13 @@ test('import ts', async () => {
 	assert.is(imported.a, 'ok');
 });
 
+test('import raw ts', async () => {
+	const path = resolve('src/fixtures/modules/some_test_ts.ts');
+	const imported = await import(path + '?raw');
+	assert.ok(imported);
+	assert.is(imported, readFileSync(path, 'utf8'));
+});
+
 test('import json', async () => {
 	const imported = await import(resolve('src/fixtures/modules/some_test_json.json'));
 	assert.ok(imported);
@@ -33,6 +40,13 @@ test('import svelte', async () => {
 	assert.is(imported.a, 'ok');
 });
 
+test('import raw svelte', async () => {
+	const path = resolve('src/fixtures/modules/Some_Test_Svelte.svelte');
+	const imported = await import(path + '?raw');
+	assert.ok(imported);
+	assert.is(imported.a, 'ok');
+});
+
 test('import svelte.js', async () => {
 	const imported = await import(resolve('src/fixtures/modules/some_test_svelte_js.svelte.js'));
 	assert.ok(imported.Some_Test_Svelte_Js);
@@ -45,13 +59,6 @@ test('import svelte.ts', async () => {
 	assert.ok(imported.Some_Test_Svelte_Ts);
 	const instance = new imported.Some_Test_Svelte_Ts();
 	assert.is(instance.a, 'ok');
-});
-
-test('import raw ts', async () => {
-	const path = resolve('src/fixtures/modules/some_test_ts.ts?raw');
-	const imported = await import(path);
-	assert.ok(imported);
-	assert.is(imported, readFileSync(path, 'utf8'));
 });
 
 test.run();

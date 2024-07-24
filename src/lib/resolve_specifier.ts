@@ -5,22 +5,26 @@ import {replace_extension} from './paths.js';
 import type {Path_Id} from './path.js';
 
 export interface Resolved_Specifier {
-	specifier: string;
 	path_id: Path_Id;
+	specifier: string;
+	mapped_specifier: string;
 	namespace: undefined | 'sveltekit_local_imports_ts' | 'sveltekit_local_imports_js';
+	raw: boolean;
 }
 
 /**
  * Maps a `path` import specifier relative to the `importer`,
  * and infer the correct extension following Vite conventions.
  * If no `.js` file is found for the `path` on the filesystem, it assumes `.ts`.
- * @param path
+ * @param specifier
  * @param dir - if defined, enables relative importers like from esbuild plugins
  * @param passthrough_extensions - used to support specifiers that have no file extention, which Vite supports, so we do our best effort
  * @returns
  */
-export const resolve_specifier = (path: string, dir: string): Resolved_Specifier => {
-	const absolute_path = isAbsolute(path) ? path : join(dir, path);
+export const resolve_specifier = (specifier: string, dir: string): Resolved_Specifier => {
+	const raw = specifier.endsWith('?raw');
+	const final_specifier = raw ? specifier.substring(0, -4) : specifier;
+	const absolute_path = isAbsolute(final_specifier) ? final_specifier : join(dir, final_specifier);
 
 	let mapped_path;
 	let path_id;
@@ -54,8 +58,8 @@ export const resolve_specifier = (path: string, dir: string): Resolved_Specifier
 		}
 	}
 
-	let specifier = relative(dir, mapped_path);
-	if (specifier[0] !== '.') specifier = './' + specifier;
+	let mapped_specifier = relative(dir, mapped_path);
+	if (mapped_specifier[0] !== '.') mapped_specifier = './' + mapped_specifier;
 
-	return {specifier, path_id, namespace};
+	return {path_id, specifier, mapped_specifier, namespace, raw};
 };
