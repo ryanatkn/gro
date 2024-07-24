@@ -10,7 +10,7 @@ export interface Resolved_Specifier {
 	 */
 	path_id: Path_Id;
 	/**
-	 * Same as `path_id` but includes `?raw` and other modifiers. (currently none)
+	 * Same as `path_id` but includes `?raw` and other querystrings. (currently none)
 	 */
 	path_id_with_querystring: string;
 	specifier: string;

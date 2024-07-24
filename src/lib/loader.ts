@@ -46,8 +46,7 @@ TODO how to improve that gnarly import line? was originally designed for the now
 
 */
 
-// TODO support `?raw` import variants
-// TODO sourcemaps for svelte and the svelte preprocessors
+// TODO sourcemaps for the svelte preprocessors
 // TODO `import.meta.resolve` wasn't available in loaders when this was first implemented, but might be now
 
 // dev is always true in the loader
@@ -120,7 +119,6 @@ export const load: LoadHook = async (url, context, nextLoad) => {
 		return {format: 'module', shortCircuit: true, source: transformed.code};
 	} else if (SVELTE_MATCHER.test(url)) {
 		// Svelte
-		// TODO support sourcemaps
 		const loaded = await nextLoad(
 			url,
 			context.format === 'module' ? context : {...context, format: 'module'}, // TODO dunno why this is needed, specifically with tests
