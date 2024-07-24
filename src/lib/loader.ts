@@ -82,7 +82,6 @@ const NODE_MODULES_MATCHER = new RegExp(escape_regexp('/' + NODE_MODULES_DIRNAME
 const package_json_cache: Record<string, Package_Json> = {};
 
 export const load: LoadHook = async (url, context, nextLoad) => {
-	console.log(`ENTER LOAD url`, url);
 	if (SVELTEKIT_SHIM_APP_PATHS_MATCHER.test(url)) {
 		// SvelteKit `$app/paths` shim
 		return {
