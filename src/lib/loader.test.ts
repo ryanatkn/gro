@@ -28,10 +28,11 @@ test('import .json', async () => {
 	assert.is(imported.default.a, 'ok');
 });
 
-test('import .css as a no-op', async () => {
-	const imported = await import(resolve('src/fixtures/modules/some_test_css.css'));
+test('import raw .css', async () => {
+	const path = resolve('src/fixtures/modules/some_test_css.css');
+	const imported = await import(path);
 	assert.is(typeof imported.default, 'string');
-	assert.ok(imported);
+	assert.equal(imported.default, readFileSync(path, 'utf8'));
 });
 
 test('import .svelte', async () => {
