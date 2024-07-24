@@ -1,13 +1,14 @@
 // TODO this became unused with https://github.com/ryanatkn/gro/pull/382
 // because we no longer have a normal system build - replace with an esbuild plugin
-// @ts-nocheck
 
 import type {Plugin, Plugin_Context} from './plugin.js';
 import type {Args} from './args.js';
-import {path_id_to_base_path} from './paths.js';
+import {path_id_to_base_path, paths} from './paths.js';
 import {find_genfiles, is_gen_path} from './gen.js';
-import {filter_dependents} from './build/source_file.js';
 import {throttle} from './throttle.js';
+import {spawn_cli} from './cli.js';
+import type {File_Filter, Path_Id} from './path.js';
+import {Filer, type Source_File} from './filer.js';
 
 const FLUSH_DEBOUNCE_DELAY = 500;
 
@@ -15,7 +16,15 @@ export interface Task_Args extends Args {
 	watch?: boolean;
 }
 
-export const plugin = (): Plugin<Plugin_Context<Task_Args>> => {
+export interface Options {
+	filer?: Filer;
+	root_dirs?: string[];
+}
+
+export const plugin = ({
+	filer: initial_filer,
+	root_dirs = [paths.source],
+}: Options): Plugin<Plugin_Context<Task_Args>> => {
 	let generating = false;
 	let regen = false;
 	let on_filer_build: ((e: Filer_Events['build']) => void) | undefined;
@@ -42,6 +51,8 @@ export const plugin = (): Plugin<Plugin_Context<Task_Args>> => {
 	}, FLUSH_DEBOUNCE_DELAY);
 	const gen = (files: string[] = []) => spawn_cli('gro', ['gen', ...files]);
 
+	let filer = initial_filer;
+
 	return {
 		name: 'gro_plugin_gen',
 		setup: async ({args: {watch}, dev, log, config}) => {
@@ -49,12 +60,16 @@ export const plugin = (): Plugin<Plugin_Context<Task_Args>> => {
 			// which should be checked by CI via `gro check` which calls `gro gen --check`.
 			if (!dev) return;
 
+			if (watch && !filer) {
+				filer = new Filer();
+			}
+
 			// Run `gen`, first checking if there are any modules to avoid a console error.
 			// Some parts of the build may have already happened,
 			// making us miss `build` events for gen dependencies,
 			// so we run `gen` here even if it's usually wasteful.
 			const found = find_genfiles([paths.source], root_dirs, config);
-			if (found.ok && found.value.resolved_input_files.size > 0) {
+			if (found.ok && found.value.resolved_input_files.length > 0) {
 				await gen();
 			}
 
@@ -67,17 +82,15 @@ export const plugin = (): Plugin<Plugin_Context<Task_Args>> => {
 
 			// When a file builds, check it and its tree of dependents
 			// for any `.gen.` files that need to run.
-			on_filer_build = ({source_file, build_config}) => {
+			on_filer_build = ({source_file}) => {
 				// TODO how to handle this now? the loader traces deps for us with `parentPath`,
 				// but we probably want to make this an esbuild plugin instead
-				// if (build_config.name !== 'system') return;
 				if (is_gen_path(source_file.id)) {
 					queue_gen(path_id_to_base_path(source_file.id));
 				}
 				const dependent_gen_file_ids = filter_dependents(
 					source_file,
-					build_config,
-					filer.find_by_id as any, // cast because we can assume they're all `SourceFile`s
+					filer!.get_by_id,
 					is_gen_path,
 				);
 				for (const dependent_gen_file_id of dependent_gen_file_ids) {
@@ -86,10 +99,30 @@ export const plugin = (): Plugin<Plugin_Context<Task_Args>> => {
 			};
 			filer.on('build', on_filer_build);
 		},
-		teardown: ({filer}) => {
+		teardown: () => {
 			if (on_filer_build && filer) {
 				filer.off('build', on_filer_build);
 			}
 		},
 	};
+};
+
+export const filter_dependents = (
+	source_file: Source_File,
+	get_by_id: (id: Path_Id) => Source_File | undefined,
+	filter?: File_Filter | undefined,
+	results: Set<string> = new Set(),
+	searched: Set<string> = new Set(),
+): Set<string> => {
+	const {dependents} = source_file;
+	for (const dependent_id of dependents.keys()) {
+		if (searched.has(dependent_id)) continue;
+		searched.add(dependent_id);
+		if (!filter || filter(dependent_id)) {
+			results.add(dependent_id);
+		}
+		const dependent_source_File = get_by_id(dependent_id)!;
+		filter_dependents(dependent_source_File, get_by_id, filter, results, searched);
+	}
+	return results;
 };
