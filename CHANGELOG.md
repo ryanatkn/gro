@@ -1,5 +1,11 @@
 # @ryanatkn/gro
 
+## 0.133.6
+
+### Patch Changes
+
+- feat: support `?raw` imports in the loader ([#494](https://github.com/ryanatkn/gro/pull/494))
+
 ## 0.133.5
 
 ### Patch Changes
