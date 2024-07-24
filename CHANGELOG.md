@@ -1,5 +1,12 @@
 # @ryanatkn/gro
 
+## 0.133.5
+
+### Patch Changes
+
+- add `origin_path` to gen context ([998f99a](https://github.com/ryanatkn/gro/commit/998f99a))
+- fix: spawn server in `gro_plugin_server.ts` correctly ([c7fcf8b](https://github.com/ryanatkn/gro/commit/c7fcf8b))
+
 ## 0.133.4
 
 ### Patch Changes
