@@ -5,7 +5,6 @@ import type {Plugin, Plugin_Context} from './plugin.js';
 import type {Args} from './args.js';
 import {path_id_to_base_path, paths} from './paths.js';
 import {find_genfiles, is_gen_path} from './gen.js';
-import {filter_dependents} from './build/source_file.js';
 import {throttle} from './throttle.js';
 import {spawn_cli} from './cli.js';
 import type {File_Filter} from './path.js';
