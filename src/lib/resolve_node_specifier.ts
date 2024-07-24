@@ -16,21 +16,21 @@ export const resolve_node_specifier = (
 	const mapped_specifier = raw ? specifier.substring(0, specifier.length - 4) : specifier;
 
 	let idx!: number;
-	if (specifier[0] === '@') {
+	if (mapped_specifier[0] === '@') {
 		// get the index of the second `/`
 		let count = 0;
-		for (let i = 0; i < specifier.length; i++) {
-			if (specifier[i] === '/') count++;
+		for (let i = 0; i < mapped_specifier.length; i++) {
+			if (mapped_specifier[i] === '/') count++;
 			if (count === 2) {
 				idx = i;
 				break;
 			}
 		}
 	} else {
-		idx = specifier.indexOf('/');
+		idx = mapped_specifier.indexOf('/');
 	}
-	const name = specifier.substring(0, idx);
-	const path = specifier.substring(idx + 1);
+	const name = mapped_specifier.substring(0, idx);
+	const path = mapped_specifier.substring(idx + 1);
 
 	const subpath = './' + path;
 	const package_dir = join(dir, NODE_MODULES_DIRNAME, name);

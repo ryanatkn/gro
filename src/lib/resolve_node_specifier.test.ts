@@ -16,11 +16,12 @@ test('resolves a JS specifier', () => {
 });
 
 test('resolves a raw JS specifier', () => {
-	const specifier = '@ryanatkn/fuz/tome.js?raw';
+	const path = '@ryanatkn/fuz/tome.js';
+	const specifier = path + '?raw';
 	assert.equal(resolve_node_specifier(specifier), {
 		path_id: resolve('node_modules/@ryanatkn/fuz/dist/tome.js'),
 		specifier,
-		mapped_specifier: specifier,
+		mapped_specifier: path,
 		namespace: undefined,
 		raw: true,
 	});
@@ -34,6 +35,18 @@ test('resolves a Svelte specifier', () => {
 		mapped_specifier: specifier,
 		namespace: undefined,
 		raw: false,
+	});
+});
+
+test('resolves a raw Svelte specifier', () => {
+	const path = '@ryanatkn/fuz/Library.svelte';
+	const specifier = path + '?raw';
+	assert.equal(resolve_node_specifier(specifier), {
+		path_id: resolve('node_modules/@ryanatkn/fuz/dist/Library.svelte'),
+		specifier,
+		mapped_specifier: path,
+		namespace: undefined,
+		raw: true,
 	});
 });
 
