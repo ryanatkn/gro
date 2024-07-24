@@ -29,7 +29,7 @@ test('resolves a TS specifier', () => {
 	});
 });
 
-test.only('resolves a `?raw` ts specifier', () => {
+test('resolves a `?raw` ts specifier', () => {
 	const path = join(dir, 'test_ts.ts');
 	const specifier = path + '?raw';
 	assert.equal(resolve_specifier(specifier, dir), {
