@@ -45,6 +45,10 @@ export interface Gen_Context {
 	 * Same as `import.meta.url` but in path form.
 	 */
 	origin_id: Path_Id;
+	/**
+	 * The `origin_id` relative to the root dir.
+	 */
+	origin_path: string;
 	log: Logger;
 }
 // TODO consider other return data - metadata? effects? non-file build artifacts?

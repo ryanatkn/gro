@@ -11,7 +11,7 @@ import {
 	to_gen_result,
 	type Raw_Gen_Result,
 } from './gen.js';
-import {print_path} from './paths.js';
+import {print_path, to_root_path} from './paths.js';
 import type {format_file as base_format_file} from './format_file.js';
 import type {Gro_Config} from './gro_config.js';
 import {default_sveltekit_config} from './sveltekit_config.js';
@@ -39,6 +39,7 @@ export const run_gen = async (
 				config,
 				sveltekit_config: default_sveltekit_config,
 				origin_id: id,
+				origin_path: to_root_path(id),
 				log,
 			};
 			let raw_gen_result: Raw_Gen_Result;
