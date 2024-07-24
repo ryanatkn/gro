@@ -15,7 +15,7 @@ test('import .ts', async () => {
 	assert.is(imported.a, 'ok');
 });
 
-test.only('import raw .ts', async () => {
+test('import raw .ts', async () => {
 	const path = resolve('src/fixtures/modules/some_test_ts.ts');
 	const imported = await import(path + '?raw');
 	assert.ok(imported);

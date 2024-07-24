@@ -4,6 +4,7 @@ import {fileURLToPath, pathToFileURL} from 'node:url';
 import {dirname, join} from 'node:path';
 import type {LoadHook, ResolveHook} from 'node:module';
 import {escape_regexp} from '@ryanatkn/belt/regexp.js';
+import {readFileSync, writeFileSync} from 'node:fs';
 
 import {render_env_shim_module} from './sveltekit_shim_env.js';
 import {
@@ -81,6 +82,7 @@ const NODE_MODULES_MATCHER = new RegExp(escape_regexp('/' + NODE_MODULES_DIRNAME
 const package_json_cache: Record<string, Package_Json> = {};
 
 export const load: LoadHook = async (url, context, nextLoad) => {
+	console.log(`ENTER LOAD url`, url);
 	if (SVELTEKIT_SHIM_APP_PATHS_MATCHER.test(url)) {
 		// SvelteKit `$app/paths` shim
 		return {
@@ -123,8 +125,8 @@ export const load: LoadHook = async (url, context, nextLoad) => {
 			url,
 			context.format === 'module' ? context : {...context, format: 'module'}, // TODO dunno why this is needed, specifically with tests
 		);
-		const filename = fileURLToPath(url);
 		const raw_source = loaded.source!.toString(); // eslint-disable-line @typescript-eslint/no-base-to-string
+		const filename = fileURLToPath(url);
 		const preprocessed = svelte_preprocessors // TODO @many use sourcemaps (and diagnostics?)
 			? await preprocess(raw_source, svelte_preprocessors, {filename})
 			: null;
@@ -140,9 +142,10 @@ export const load: LoadHook = async (url, context, nextLoad) => {
 		return {format: 'module', shortCircuit: true, source};
 	} else if (RAW_MATCHER.test(url)) {
 		// raw text imports like `?raw`, `.css`, `.svg`
-		const loaded = await nextLoad(url.endsWith('%3Fraw') ? url.substring(0, url.length - 6) : url);
-		const raw_source = loaded.source!.toString(); // eslint-disable-line @typescript-eslint/no-base-to-string
-		const source = `export default \`` + raw_source.replaceAll('`', '\\`') + `\`;`;
+		const filename = fileURLToPath(url.endsWith('%3Fraw') ? url.substring(0, url.length - 6) : url);
+		const raw_source = readFileSync(filename, 'utf8');
+		const source =
+			'export default `' + raw_source.replaceAll('\\', '\\\\').replaceAll('`', '\\`') + '`;';
 		return {format: 'module', shortCircuit: true, source};
 	} else {
 		const matched_env = ENV_MATCHER.exec(url);
