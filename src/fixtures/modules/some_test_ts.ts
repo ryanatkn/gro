@@ -13,3 +13,14 @@ export interface Some_Test_Interface {
 export class Some_Test_Class {
 	a = 1;
 }
+
+// `
+// ``
+// ```
+`backticks`;
+('`');
+('``');
+('```');
+`\``;
+`\`\``;
+`\`\`\``;

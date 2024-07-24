@@ -1,4 +1,6 @@
 {
 	"a": "ok",
+	"backtick": "`",
+	"backticks": "`back`ticks`",
 	"some_test_json": ".json"
 }

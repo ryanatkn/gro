@@ -781,11 +781,7 @@ export const src_json = {
 		},
 		'./resolve_node_specifier.js': {
 			path: 'resolve_node_specifier.ts',
-			declarations: [
-				{name: 'resolve_node_specifier', kind: 'function'},
-				{name: 'Parsed_Node_Specifier', kind: 'type'},
-				{name: 'parse_node_specifier', kind: 'function'},
-			],
+			declarations: [{name: 'resolve_node_specifier', kind: 'function'}],
 		},
 		'./resolve_specifier.js': {
 			path: 'resolve_specifier.ts',

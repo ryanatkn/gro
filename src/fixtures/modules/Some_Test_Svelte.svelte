@@ -8,6 +8,17 @@
 	}
 
 	const {b = 'ok'}: Props = $props();
+
+	// `
+	// ``
+	// ```
+	`backticks`;
+	('`');
+	('``');
+	('```');
+	`\``;
+	`\`\``;
+	`\`\`\``;
 </script>
 
 Some_Test_Svelte.svelte contents
@@ -15,3 +26,15 @@ Some_Test_Svelte.svelte contents
 {a}
 
 {b}
+
+` `` ```
+<!-- ` -->
+<!-- `` -->
+<!-- ``` -->
+{`backticks`}
+{'`'}
+{'``'}
+{'```'}
+{`\``}
+{`\`\``}
+{`\`\`\``}
