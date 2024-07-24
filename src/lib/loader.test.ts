@@ -1,6 +1,7 @@
 import {test} from 'uvu';
 import * as assert from 'uvu/assert';
 import {resolve} from 'node:path';
+import {readFileSync} from 'node:fs';
 
 test('import js', async () => {
 	const imported = await import(resolve('src/fixtures/modules/some_test_ts.js'));
@@ -44,6 +45,13 @@ test('import svelte.ts', async () => {
 	assert.ok(imported.Some_Test_Svelte_Ts);
 	const instance = new imported.Some_Test_Svelte_Ts();
 	assert.is(instance.a, 'ok');
+});
+
+test('import raw ts', async () => {
+	const path = resolve('src/fixtures/modules/some_test_ts.ts?raw');
+	const imported = await import(path);
+	assert.ok(imported);
+	assert.is(imported, readFileSync(path, 'utf8'));
 });
 
 test.run();
