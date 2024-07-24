@@ -83,4 +83,22 @@ test('parse plain JS svelte imports', () => {
 	assert.equal(parsed, ['static_import', 'dynamic_import']);
 });
 
+test('parse empty imports', () => {
+	const parsed = parse_imports(
+		'a.ts',
+		`
+    const a: 5 = 5;
+    type A = 123;
+    interface B {
+      b: 456;
+    }
+    import {foo} from '';
+    await import('');
+    const b: {} = {};
+    export type {G} from './g';
+  `,
+	);
+	assert.equal(parsed, []);
+});
+
 test.run();
