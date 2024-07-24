@@ -74,6 +74,11 @@ const ts_transform_options: esbuild.TransformOptions = {
 };
 
 const aliases = Object.entries({$lib: 'src/lib', ...alias});
+// When running scripts from other directories,
+// the `dir` is the cwd, not relative to the imported module,
+// so to support aliases we have to resolve against the `parentURL`.
+// This aliases cache normalizes
+// TODO BLOCK don't normalize if the root is the cwd
 
 const NOOP_MATCHER = /\.(css|svg)$/; // TODO others? configurable?
 const ENV_MATCHER = /src\/lib\/\$env\/(static|dynamic)\/(public|private)$/;
@@ -111,6 +116,7 @@ export const load: LoadHook = async (url, context, nextLoad) => {
 		return {format: 'module', shortCircuit: true, source: transformed.js.code};
 	} else if (TS_MATCHER.test(url)) {
 		// ts
+		console.log(`url`, url);
 		const loaded = await nextLoad(
 			url,
 			context.format === 'module' ? context : {...context, format: 'module'}, // TODO dunno why this is needed, specifically with tests
@@ -170,6 +176,7 @@ export const load: LoadHook = async (url, context, nextLoad) => {
 };
 
 export const resolve: ResolveHook = async (specifier, context, nextResolve) => {
+	console.log(`\n\nspecifier`, specifier);
 	if (
 		specifier === '$env/static/public' ||
 		specifier === '$env/static/private' ||
@@ -189,6 +196,7 @@ export const resolve: ResolveHook = async (specifier, context, nextResolve) => {
 	if (!parent_url || NODE_MODULES_MATCHER.test(parent_url)) {
 		return nextResolve(specifier, context);
 	}
+	console.log(`parent_url`, parent_url);
 
 	const shimmed = sveltekit_shim_app_specifiers.get(specifier);
 	if (shimmed !== undefined) {
@@ -198,12 +206,24 @@ export const resolve: ResolveHook = async (specifier, context, nextResolve) => {
 	let path = specifier;
 
 	// Map the path with the SvelteKit aliases.
+	let final_dir = dir;
+	let parent_path: string | undefined;
 	for (const [from, to] of aliases) {
 		if (path.startsWith(from)) {
-			path = join(dir, to, path.substring(from.length));
+			parent_path ??= fileURLToPath(parent_url);
+			if (!parent_path.startsWith(dir)) {
+				// TODO BLOCK find the nearest sveltekit config and use that as the base?  and below, the nearest node_modules?
+				final_dir;
+			}
+			console.log(`context`, context);
+			console.log(`from`, from);
+			console.log(`to`, to);
+			console.log(`final_dir`, final_dir);
+			path = join(final_dir, to, path.substring(from.length));
 			break;
 		}
 	}
+	console.log(`path`, path);
 
 	// The specifier `path` has now been mapped to its final form, so we can inspect it.
 	if (path[0] !== '.' && path[0] !== '/') {
@@ -211,14 +231,14 @@ export const resolve: ResolveHook = async (specifier, context, nextResolve) => {
 		if (SVELTE_MATCHER.test(path) || JSON_MATCHER.test(path)) {
 			// Match the behavior of Vite and esbuild for Svelte and JSON imports.
 			// TODO maybe `.ts` too
-			const path_id = resolve_node_specifier(path, dir, parent_url, package_json_cache);
+			const path_id = resolve_node_specifier(path, final_dir, parent_url, package_json_cache);
 			return {url: pathToFileURL(path_id).href, format: 'module', shortCircuit: true};
 		} else {
 			return nextResolve(path, context);
 		}
 	}
 
-	const {path_id} = resolve_specifier(path, dirname(fileURLToPath(parent_url)));
+	const {path_id} = resolve_specifier(path, dirname(parent_path ?? fileURLToPath(parent_url)));
 
 	return {url: pathToFileURL(path_id).href, format: 'module', shortCircuit: true};
 };

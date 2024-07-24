@@ -41,7 +41,7 @@ export const task: Task<Args> = {
 		const found_typescript_cli = find_cli(typescript_cli);
 		if (found_typescript_cli) {
 			const forwarded = to_forwarded_args(typescript_cli);
-			if (!forwarded.noEmit) forwarded.noEmit = true;
+			forwarded.noEmit = true;
 			const serialized = serialize_args(forwarded);
 			const svelte_check_result = await spawn_cli(found_typescript_cli, serialized, log);
 			if (!svelte_check_result?.ok) {

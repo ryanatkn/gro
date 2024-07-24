@@ -1,6 +1,6 @@
 import {join, extname, relative, basename} from 'node:path';
 import {fileURLToPath} from 'node:url';
-import {strip_end} from '@ryanatkn/belt/string.js';
+import {ensure_end, strip_end} from '@ryanatkn/belt/string.js';
 import {gray} from '@ryanatkn/belt/styletext.js';
 
 import {
@@ -36,7 +36,7 @@ export interface Paths {
 
 export const create_paths = (root_dir: string): Paths => {
 	// TODO remove reliance on trailing slash towards windows support
-	const root = strip_end(root_dir, '/') + '/';
+	const root = ensure_end(root_dir, '/');
 	return {
 		root,
 		source: root + SOURCE_DIR,
