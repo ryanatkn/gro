@@ -14,7 +14,7 @@ export type Import_Specifier = Flavored<string, 'Import_Specifier'>;
 const script_matcher = /<script.*?>(.*?)<\/script>/gimsu;
 
 export const parse_imports = (id: Path_Id, contents: string): Import_Specifier[] => {
-	const specifiers = [];
+	const specifiers: string[] = [];
 
 	if (id.endsWith('.svelte')) {
 		const matches = contents.matchAll(script_matcher);
@@ -23,13 +23,13 @@ export const parse_imports = (id: Path_Id, contents: string): Import_Specifier[]
 			const e = m[1];
 			const parsed = parse(e);
 			for (const p of parsed[0]) {
-				specifiers.push(p.n);
+				if (p.n) specifiers.push(p.n);
 			}
 		}
 	} else {
 		const parsed = parse(contents);
 		for (const p of parsed[0]) {
-			specifiers.push(p.n);
+			if (p.n) specifiers.push(p.n);
 		}
 	}
 
