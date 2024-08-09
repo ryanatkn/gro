@@ -188,7 +188,7 @@ export const task: Task<Args> = {
 		const npm_publish_result = await spawn_cli(found_changeset_cli, ['publish'], log);
 		if (!npm_publish_result?.ok) {
 			throw new Task_Error(
-				`\`${changeset_cli} publish\` failed - revert the version tag or run it again manually`,
+				`\`${changeset_cli} publish\` failed - continue manually or try again after running \`git reset --hard\``,
 			);
 		}
 
