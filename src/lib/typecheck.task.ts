@@ -4,7 +4,7 @@ import {z} from 'zod';
 import {Task_Error, type Task} from './task.js';
 import {serialize_args, to_forwarded_args} from './args.js';
 import {find_cli, spawn_cli} from './cli.js';
-import {SVELTE_CHECK_CLI, sveltekit_sync} from './sveltekit_helpers.js';
+import {SVELTE_CHECK_CLI, sveltekit_sync_if_available} from './sveltekit_helpers.js';
 
 export const Args = z
 	.object({
@@ -24,7 +24,7 @@ export const task: Task<Args> = {
 	run: async ({args, log}): Promise<void> => {
 		const {svelte_check_cli, typescript_cli} = args;
 
-		await sveltekit_sync();
+		await sveltekit_sync_if_available();
 
 		// Prefer svelte-check if available.
 		const found_svelte_check_cli = find_cli(svelte_check_cli);

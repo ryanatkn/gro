@@ -36,7 +36,7 @@ test('build for the client', async () => {
 		`// src/fixtures/modules/some_test_svelte_ts.svelte.ts
 import * as $ from "svelte/internal/client";
 var Some_Test_Svelte_Ts = class {
-  #a = $.source("ok");
+  #a = $.state("ok");
   get a() {
     return $.get(this.#a);
   }
@@ -48,7 +48,7 @@ var Some_Test_Svelte_Ts = class {
 // src/fixtures/modules/some_test_svelte_js.svelte.js
 import * as $2 from "svelte/internal/client";
 var Some_Test_Svelte_Js = class {
-  #a = $2.source("ok");
+  #a = $2.state("ok");
   get a() {
     return $2.get(this.#a);
   }
