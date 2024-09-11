@@ -1,5 +1,11 @@
 # @ryanatkn/gro
 
+## 0.133.8
+
+### Patch Changes
+
+- fix typechecking for non-SvelteKit projects ([5470bf4](https://github.com/ryanatkn/gro/commit/5470bf4))
+
 ## 0.133.7
 
 ### Patch Changes
