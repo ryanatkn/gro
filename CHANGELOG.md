@@ -1,5 +1,15 @@
 # @ryanatkn/gro
 
+## 0.134.0
+
+### Minor Changes
+
+- upgrade `chokidar@4` ([#496](https://github.com/ryanatkn/gro/pull/496))
+
+### Patch Changes
+
+- fix server plugin to set the node condition for `esm-env` ([#497](https://github.com/ryanatkn/gro/pull/497))
+
 ## 0.133.8
 
 ### Patch Changes
