@@ -74,7 +74,7 @@ export const package_json = {
 		'eslint-plugin-svelte': '^2.43.0',
 		svelte: '^5.0.0-next.245',
 		'svelte-check': '^4.0.2',
-		typescript: '^5.5.4',
+		typescript: '^5.6.2',
 		'typescript-eslint': '^8.5.0',
 		uvu: '^0.5.6',
 	},
