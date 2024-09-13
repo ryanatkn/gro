@@ -248,7 +248,14 @@ export const gro_plugin_server = ({
 			}
 
 			if (run || dev) {
-				server_process = spawn_restartable_process(cli_command, [server_outpath]);
+				console.log('RUNNN', process.env.NODE_ENV);
+				const cli_args = [];
+				if (process.env.NODE_ENV !== 'production') {
+					cli_args.push('-C', 'development'); // same as `--conditions`
+				}
+				cli_args.push(server_outpath);
+				console.log(`cli_args`, cli_args);
+				server_process = spawn_restartable_process(cli_command, cli_args);
 			}
 		},
 		teardown: async () => {
