@@ -27,7 +27,7 @@ export type Cli =
 export const find_cli = (
 	name: string,
 	cwd: string | URL = process.cwd(),
-	options?: SpawnOptions | undefined,
+	options?: SpawnOptions,
 ): Cli | null => {
 	const final_cwd = typeof cwd === 'string' ? cwd : fileURLToPath(cwd);
 	const local_id = join(final_cwd, NODE_MODULES_DIRNAME, `.bin/${name}`);
@@ -49,7 +49,7 @@ export const spawn_cli = async (
 	name_or_cli: string | Cli,
 	args: string[] = [],
 	log?: Logger,
-	options?: SpawnOptions | undefined,
+	options?: SpawnOptions,
 ): Promise<Spawn_Result | undefined> => {
 	const cli = resolve_cli(name_or_cli, args, options?.cwd, log, options);
 	if (!cli) return;
@@ -65,7 +65,7 @@ export const spawn_cli_process = (
 	name_or_cli: string | Cli,
 	args: string[] = [],
 	log?: Logger,
-	options?: SpawnOptions | undefined,
+	options?: SpawnOptions,
 ): Spawned_Process | undefined => {
 	const cli = resolve_cli(name_or_cli, args, options?.cwd, log, options);
 	if (!cli) return;
@@ -77,7 +77,7 @@ export const resolve_cli = (
 	args: string[] = [],
 	cwd: string | URL | undefined,
 	log?: Logger,
-	options?: SpawnOptions | undefined,
+	options?: SpawnOptions,
 ): Cli | undefined => {
 	let final_cli;
 	if (typeof name_or_cli === 'string') {
