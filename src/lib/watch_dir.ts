@@ -39,13 +39,13 @@ export const watch_dir = ({
 	on_change,
 	filter,
 	absolute = true,
-	chokidar: chokidar_options,
+	chokidar = {},
 }: Options): Watch_Node_Fs => {
 	let watcher: FSWatcher | undefined;
 
 	return {
 		init: async () => {
-			watcher = watch(dir, chokidar_options);
+			watcher = watch(dir, chokidar);
 			watcher.on('add', (path, s) => {
 				const stats = s ?? statSync(path);
 				const final_path = absolute ? path : relative(dir, path);
