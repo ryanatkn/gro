@@ -7,7 +7,7 @@ import {
 } from '@ryanatkn/belt/process.js';
 import {join} from 'node:path';
 import {existsSync} from 'node:fs';
-import {fileURLToPath} from 'node:url';
+import {fileURLToPath, type URL} from 'node:url';
 import type {Logger} from '@ryanatkn/belt/log.js';
 
 import {NODE_MODULES_DIRNAME} from './path_constants.js';
