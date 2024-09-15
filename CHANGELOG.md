@@ -1,5 +1,15 @@
 # @ryanatkn/gro
 
+## 0.135.0
+
+### Minor Changes
+
+- bump required node version to `20.17` ([#498](https://github.com/ryanatkn/gro/pull/498))
+
+### Patch Changes
+
+- use node's `styleText` directly instead of belt's re-exports ([#498](https://github.com/ryanatkn/gro/pull/498))
+
 ## 0.134.0
 
 ### Minor Changes
