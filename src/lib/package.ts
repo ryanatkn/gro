@@ -30,7 +30,7 @@ export const package_json = {
 		deploy: 'gro deploy',
 	},
 	type: 'module',
-	engines: {node: '>=20.12'},
+	engines: {node: '>=20.17'},
 	bin: {gro: 'dist/gro.js'},
 	keywords: [
 		'web',
