@@ -2,4 +2,4 @@
 '@ryanatkn/gro': patch
 ---
 
-use node's `styleText` directly instead of Belt's re-exports
+use node's `styleText` directly instead of belt's re-exports
