@@ -1,4 +1,4 @@
-import {cyan, red, gray} from '@ryanatkn/belt/styletext.js';
+import {styleText as st} from 'node:util';
 import {System_Logger, print_log_label} from '@ryanatkn/belt/log.js';
 import {create_stopwatch, Timings} from '@ryanatkn/belt/timings.js';
 import {print_ms, print_timings} from '@ryanatkn/belt/print.js';
@@ -40,7 +40,7 @@ export const invoke_task = async (
 	initial_timings: Timings | null = null,
 ): Promise<void> => {
 	const log = new System_Logger(print_log_label(task_name || 'gro'));
-	log.info('invoking', task_name ? cyan(task_name) : 'gro');
+	log.info('invoking', task_name ? st('cyan', task_name) : 'gro');
 
 	const timings = initial_timings ?? new Timings();
 
@@ -54,7 +54,7 @@ export const invoke_task = async (
 	// Check if the caller just wants to see the version.
 	if (!task_name && (args?.version || args?.v)) {
 		const gro_package_json = load_gro_package_json();
-		log.info(`${gray('v')}${cyan(gro_package_json.version)}`);
+		log.info(`${st('gray', 'v')}${st('cyan', gro_package_json.version)}`);
 		finish();
 		return;
 	}
@@ -94,7 +94,9 @@ export const invoke_task = async (
 	// The input path matches a file that's presumable a task, so load and run it.
 	if (loaded_tasks.modules.length !== 1) throw Error('expected one loaded task'); // run only one task at a time
 	const task = loaded_tasks.modules[0];
-	log.info(`→ ${cyan(task.name)} ${(task.mod.task.summary && gray(task.mod.task.summary)) ?? ''}`);
+	log.info(
+		`→ ${st('cyan', task.name)} ${(task.mod.task.summary && st('gray', task.mod.task.summary)) ?? ''}`,
+	);
 
 	const timing_to_run_task = timings.start('run task ' + task_name);
 	const result = await run_task(
@@ -106,11 +108,11 @@ export const invoke_task = async (
 	);
 	timing_to_run_task();
 	if (!result.ok) {
-		log.info(`${red('🞩')} ${cyan(task.name)}`);
+		log.info(`${st('red', '🞩')} ${st('cyan', task.name)}`);
 		log_error_reasons(log, [result.reason]);
 		throw result.error;
 	}
-	log.info(`✓ ${cyan(task.name)}`);
+	log.info(`✓ ${st('cyan', task.name)}`);
 
 	finish();
 };

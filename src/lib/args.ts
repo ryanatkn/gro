@@ -1,4 +1,4 @@
-import {gray, magenta} from '@ryanatkn/belt/styletext.js';
+import {styleText as st} from 'node:util';
 import mri from 'mri';
 import type {z} from 'zod';
 
@@ -166,4 +166,8 @@ export const to_forwarded_args_by_command = (
 };
 
 export const print_command_args = (serialized_args: string[]): string =>
-	gray('[') + magenta('running command') + gray(']') + ' ' + serialized_args.join(' ');
+	st('gray', '[') +
+	st('magenta', 'running command') +
+	st('gray', ']') +
+	' ' +
+	serialized_args.join(' ');

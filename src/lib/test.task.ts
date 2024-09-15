@@ -1,4 +1,4 @@
-import {yellow} from '@ryanatkn/belt/styletext.js';
+import {styleText as st} from 'node:util';
 import {z} from 'zod';
 
 import {Task_Error, type Task} from './task.js';
@@ -26,7 +26,7 @@ export const task: Task<Args> = {
 		const {_: patterns, bail, cwd, ignore} = args;
 
 		if (!find_cli('uvu')) {
-			log.warn(yellow('uvu is not installed, skipping tests'));
+			log.warn(st('yellow', 'uvu is not installed, skipping tests'));
 			return;
 		}
 

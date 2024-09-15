@@ -1,19 +1,16 @@
-import {suite} from 'uvu';
+import {test} from 'uvu';
 import * as assert from 'uvu/assert';
 import {resolve, join} from 'node:path';
-import {Logger} from '@ryanatkn/belt/log.js';
 import {Timings} from '@ryanatkn/belt/timings.js';
+import {Logger} from '@ryanatkn/belt/log.js';
 
 import type {Genfile_Module_Meta} from './gen.js';
 import {run_gen} from './run_gen.js';
 import {load_gro_config} from './gro_config.js';
 
-const log = new Logger('test__gen'); // TODO test logger?
+const log = new Logger('test__run_gen'); // TODO test logger?
 
-/* test__gen */
-const test__gen = suite('gen');
-
-test__gen('basic behavior', async () => {
+test('basic behavior', async () => {
 	const path_id_a = resolve('src/foo.gen.ts');
 	const path_id_bc = resolve('src/bar/bc');
 	let file_a: undefined | {filename: string; content: string};
@@ -128,7 +125,7 @@ test__gen('basic behavior', async () => {
 	]);
 });
 
-test__gen('failing gen function', async () => {
+test('failing gen function', async () => {
 	const path_id_a = resolve('src/foo.gen.ts');
 	const path_idB = resolve('src/bar/baz');
 	let file_b: undefined | {filename: string; content: string}; // no file_a because it's never generated
@@ -192,5 +189,4 @@ test__gen('failing gen function', async () => {
 	]);
 });
 
-test__gen.run();
-/* test__gen */
+test.run();
