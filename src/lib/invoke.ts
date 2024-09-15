@@ -1,4 +1,6 @@
 import {attach_process_error_handlers} from '@ryanatkn/belt/process.js';
+import {configure_log_colors} from '@ryanatkn/belt/log.js';
+import {styleText} from 'node:util';
 
 import {invoke_task} from './invoke_task.js';
 import {to_task_args} from './args.js';
@@ -21,6 +23,8 @@ attach_process_error_handlers(
 	(err) => (err.constructor.name === 'Task_Error' ? 'Task_Error' : null),
 	(err) => (err.constructor.name === 'Silent_Error' ? '' : null),
 );
+
+configure_log_colors(styleText);
 
 await sveltekit_sync_if_obviously_needed();
 

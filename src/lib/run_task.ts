@@ -1,5 +1,6 @@
 import {styleText as st} from 'node:util';
-import {print_log_label, System_Logger} from '@ryanatkn/belt/log.js';
+import {print_log_label} from '@ryanatkn/belt/print.js';
+import {System_Logger} from '@ryanatkn/belt/log.js';
 import type {Timings} from '@ryanatkn/belt/timings.js';
 
 import {parse_args, type Args} from './args.js';

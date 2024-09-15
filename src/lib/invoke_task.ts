@@ -1,7 +1,7 @@
 import {styleText as st} from 'node:util';
-import {System_Logger, print_log_label} from '@ryanatkn/belt/log.js';
+import {System_Logger} from '@ryanatkn/belt/log.js';
 import {create_stopwatch, Timings} from '@ryanatkn/belt/timings.js';
-import {print_ms, print_timings} from '@ryanatkn/belt/print.js';
+import {print_ms, print_timings, print_log_label} from '@ryanatkn/belt/print.js';
 
 import {to_forwarded_args, type Args} from './args.js';
 import {run_task} from './run_task.js';
