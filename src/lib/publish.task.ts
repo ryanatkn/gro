@@ -1,6 +1,6 @@
 import {spawn} from '@ryanatkn/belt/process.js';
 import {z} from 'zod';
-import {green, cyan} from '@ryanatkn/belt/styletext.js';
+import {styleText as st} from 'node:util';
 import {existsSync} from 'node:fs';
 
 import {Task_Error, type Task} from './task.js';
@@ -74,7 +74,7 @@ export const task: Task<Args> = {
 			changeset_cli,
 		} = args;
 		if (dry) {
-			log.info(green('dry run!'));
+			log.info(st('green', 'dry run!'));
 		}
 
 		const has_sveltekit_library_result = has_sveltekit_library();
@@ -181,7 +181,7 @@ export const task: Task<Args> = {
 
 		if (dry) {
 			log.info('publishing branch ' + branch);
-			log.info(green('dry run complete!'));
+			log.info(st('green', 'dry run complete!'));
 			return;
 		}
 
@@ -198,6 +198,6 @@ export const task: Task<Args> = {
 		await spawn('git', ['commit', '-a', '-m', `publish v${version}`]);
 		await spawn('git', ['push', '--follow-tags']);
 
-		log.info(green(`published to branch ${cyan(branch)}!`));
+		log.info(st('green', `published to branch ${st('cyan', branch)}!`));
 	},
 };

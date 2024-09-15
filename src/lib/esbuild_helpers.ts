@@ -1,4 +1,4 @@
-import {yellow, red} from '@ryanatkn/belt/styletext.js';
+import {styleText as st} from 'node:util';
 import type {Logger} from '@ryanatkn/belt/log.js';
 import type * as esbuild from 'esbuild';
 
@@ -6,10 +6,10 @@ import type {Parsed_Sveltekit_Config} from './sveltekit_config.js';
 
 export const print_build_result = (log: Logger, build_result: esbuild.BuildResult): void => {
 	for (const error of build_result.errors) {
-		log.error(red('esbuild error'), error);
+		log.error(st('red', 'esbuild error'), error);
 	}
 	for (const warning of build_result.warnings) {
-		log.warn(yellow('esbuild warning'), warning);
+		log.warn(st('yellow', 'esbuild warning'), warning);
 	}
 };
 

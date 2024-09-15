@@ -4,7 +4,7 @@ import {readFileSync, writeFileSync} from 'node:fs';
 import {count_graphemes, plural, strip_end} from '@ryanatkn/belt/string.js';
 import type {Logger} from '@ryanatkn/belt/log.js';
 import type {Flavored} from '@ryanatkn/belt/types.js';
-import {red} from '@ryanatkn/belt/styletext.js';
+import {styleText as st} from 'node:util';
 
 import {paths, gro_paths, IS_THIS_GRO, replace_extension} from './paths.js';
 import {SVELTEKIT_DIST_DIRNAME} from './path_constants.js';
@@ -320,9 +320,9 @@ const parse_or_throw_formatted_error = <T extends z.ZodTypeAny>(
 ): z.infer<T> => {
 	const parsed = schema.safeParse(value);
 	if (!parsed.success) {
-		let msg = red(`Failed to parse ${name}:\n`);
+		let msg = st('red', `Failed to parse ${name}:\n`);
 		for (const issue of parsed.error.issues) {
-			msg += red(`\n\t"${issue.path}" ${issue.message}\n`);
+			msg += st('red', `\n\t"${issue.path}" ${issue.message}\n`);
 		}
 		throw Error(msg);
 	}

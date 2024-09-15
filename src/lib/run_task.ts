@@ -1,5 +1,6 @@
-import {cyan, red} from '@ryanatkn/belt/styletext.js';
-import {print_log_label, System_Logger} from '@ryanatkn/belt/log.js';
+import {styleText as st} from 'node:util';
+import {print_log_label} from '@ryanatkn/belt/print.js';
+import {System_Logger} from '@ryanatkn/belt/log.js';
 import type {Timings} from '@ryanatkn/belt/timings.js';
 
 import {parse_args, type Args} from './args.js';
@@ -40,7 +41,7 @@ export const run_task = async (
 	if (task.Args) {
 		const parsed = parse_args(unparsed_args, task.Args);
 		if (!parsed.success) {
-			log.error(red(`Args validation failed:`), '\n', parsed.error.format());
+			log.error(st('red', `Args validation failed:`), '\n', parsed.error.format());
 			throw new Task_Error(`Task args failed validation`);
 		}
 		args = parsed.data;
@@ -61,10 +62,12 @@ export const run_task = async (
 	} catch (err) {
 		return {
 			ok: false,
-			reason: red(
+			reason: st(
+				'red',
 				err?.constructor?.name === 'Task_Error'
 					? (err.message as string)
-					: `Unexpected error running task ${cyan(
+					: `Unexpected error running task ${st(
+							'cyan',
 							task_meta.name,
 						)}. If this is unexpected try running \`npm i\` and \`gro clean\`.`,
 			),

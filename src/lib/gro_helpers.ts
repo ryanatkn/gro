@@ -94,7 +94,7 @@ export const spawn_with_loader = (
 			register("${loader_path}", pathToFileURL("./"));`,
 		'--enable-source-maps', // because TypeScript
 	];
-	// In almost all cases we want the exports condition to be `"development"`.
+	// In almost all cases we want the exports condition to be `"development"`. Needed for `esm-env`.
 	if (process.env.NODE_ENV !== 'production') {
 		args.push('-C', 'development'); // same as `--conditions`
 	}

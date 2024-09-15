@@ -1,4 +1,4 @@
-import {cyan, gray, green, red} from '@ryanatkn/belt/styletext.js';
+import {styleText as st} from 'node:util';
 import type {Logger} from '@ryanatkn/belt/log.js';
 import {plural} from '@ryanatkn/belt/string.js';
 import {print_value} from '@ryanatkn/belt/print.js';
@@ -15,8 +15,8 @@ export const log_tasks = (log: Logger, loaded_tasks: Loaded_Tasks, log_intro = t
 	const logged: string[] = [];
 	if (log_intro) {
 		logged.unshift(
-			`\n\n${gray('Run a task:')} gro [name]`,
-			`\n${gray('View help:')}  gro [name] --help`,
+			`\n\n${st('gray', 'Run a task:')} gro [name]`,
+			`\n${st('gray', 'View help:')}  gro [name] --help`,
 		);
 	}
 
@@ -35,7 +35,7 @@ export const log_tasks = (log: Logger, loaded_tasks: Loaded_Tasks, log_intro = t
 		for (const resolved_input_file of resolved_input_files) {
 			const meta = modules.find((m) => m.id === resolved_input_file.id)!;
 			logged.push(
-				'\n' + cyan(meta.name.padEnd(longest_task_name)),
+				'\n' + st('cyan', meta.name.padEnd(longest_task_name)),
 				'  ',
 				meta.mod.task.summary ?? '',
 			);
@@ -46,7 +46,7 @@ export const log_tasks = (log: Logger, loaded_tasks: Loaded_Tasks, log_intro = t
 
 export const log_error_reasons = (log: Logger, reasons: string[]): void => {
 	for (const reason of reasons) {
-		log.error(red(reason));
+		log.error(st('red', reason));
 	}
 };
 
@@ -59,9 +59,9 @@ export const log_task_help = (log: Logger, meta: Task_Module_Meta): void => {
 	} = meta;
 	const logged: string[] = [];
 	logged.push(
-		cyan(name),
+		st('cyan', name),
 		'help',
-		cyan(`\n\ngro ${name}`) + `: ${task.summary ?? '(no summary available)'}\n`,
+		st('cyan', `\n\ngro ${name}`) + `: ${task.summary ?? '(no summary available)'}\n`,
 	);
 	if (task.Args) {
 		const properties = to_arg_properties(task.Args._def, meta);
@@ -75,14 +75,14 @@ export const log_task_help = (log: Logger, meta: Task_Module_Meta): void => {
 		for (const property of properties) {
 			const name = property.name === '_' ? ARGS_PROPERTY_NAME : property.name;
 			logged.push(
-				`\n${green(name.padEnd(longest_task_name))} `,
-				gray(property.schema.type.padEnd(longest_type)) + ' ',
+				`\n${st('green', name.padEnd(longest_task_name))} `,
+				st('gray', property.schema.type.padEnd(longest_type)) + ' ',
 				print_value(property.schema.default).padEnd(longest_default) + ' ',
 				property.schema.description || '(no description available)',
 			);
 		}
 		if (!properties.length) {
-			logged.push('\n' + gray('this task has no args'));
+			logged.push('\n' + st('gray', 'this task has no args'));
 		}
 	}
 	log.info(...logged, '\n');

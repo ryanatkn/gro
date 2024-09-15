@@ -1,7 +1,7 @@
 import {join, extname, relative, basename} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {strip_end} from '@ryanatkn/belt/string.js';
-import {gray} from '@ryanatkn/belt/styletext.js';
+import {styleText as st} from 'node:util';
 
 import {
 	GRO_CONFIG_PATH,
@@ -68,7 +68,7 @@ export const print_path = (path: string, p = infer_paths(path)): string => {
 		strip_end(path, '/') === strip_end(GRO_DIST_DIR, '/') ? 'gro' : to_root_path(path, p);
 	final_path =
 		final_path === 'gro' ? final_path : final_path[0] === '.' ? final_path : './' + final_path;
-	return gray(final_path);
+	return st('gray', final_path);
 };
 
 export const replace_extension = (path: string, new_extension: string): string => {

@@ -1,4 +1,4 @@
-import {red, green, gray} from '@ryanatkn/belt/styletext.js';
+import {styleText as st} from 'node:util';
 import {print_ms, print_error} from '@ryanatkn/belt/print.js';
 import {plural} from '@ryanatkn/belt/string.js';
 import {z} from 'zod';
@@ -79,7 +79,8 @@ export const task: Task<Args> = {
 					if (!analyzed.has_changed) continue;
 					has_unexpected_changes = true;
 					log.error(
-						red(
+						st(
+							'red',
 							`Generated file ${print_path(analyzed.file.id)} via ${print_path(
 								analyzed.file.origin_id,
 							)} ${analyzed.is_new ? 'is new' : 'has changed'}.`,
@@ -106,18 +107,19 @@ export const task: Task<Args> = {
 		const new_count = analyzed_gen_results.filter((r) => r.is_new).length;
 		const changed_count = analyzed_gen_results.filter((r) => r.has_changed).length;
 		const unchanged_count = analyzed_gen_results.filter((r) => !r.is_new && !r.has_changed).length;
-		let log_result = green('gen results:');
-		log_result += `\n\t${new_count} ` + gray('new');
-		log_result += `\n\t${changed_count} ` + gray('changed');
-		log_result += `\n\t${unchanged_count} ` + gray('unchanged');
+		let log_result = st('green', 'gen results:');
+		log_result += `\n\t${new_count} ` + st('gray', 'new');
+		log_result += `\n\t${changed_count} ` + st('gray', 'changed');
+		log_result += `\n\t${unchanged_count} ` + st('gray', 'unchanged');
 		for (const result of gen_results.results) {
-			log_result += `\n\t${result.ok ? green('✓') : red('🞩')}  ${
+			log_result += `\n\t${result.ok ? st('green', '✓') : st('red', '🞩')}  ${
 				result.ok ? result.files.length : 0
-			} ${gray('in')} ${print_ms(result.elapsed)} ${gray('←')} ${print_path(result.id)}`;
+			} ${st('gray', 'in')} ${print_ms(result.elapsed)} ${st('gray', '←')} ${print_path(result.id)}`;
 		}
 		log.info(log_result);
 		log.info(
-			green(
+			st(
+				'green',
 				`generated ${gen_results.output_count} file${plural(gen_results.output_count)} from ${
 					gen_results.successes.length
 				} input file${plural(gen_results.successes.length)}`,
