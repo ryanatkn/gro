@@ -49,7 +49,7 @@
     "typescript"
   ],
   "dependencies": {
-    "@ryanatkn/belt": "^0.24.12",
+    "@ryanatkn/belt": "^0.25.0",
     "chokidar": "^4.0.0",
     "dotenv": "^16.4.5",
     "es-module-lexer": "^1.5.4",
