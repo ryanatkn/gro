@@ -1,5 +1,11 @@
 # @ryanatkn/gro
 
+## 0.135.1
+
+### Patch Changes
+
+- upgrade `chokidar@4.0.1` from `4.0.0` ([58e324c](https://github.com/ryanatkn/gro/commit/58e324c))
+
 ## 0.135.0
 
 ### Minor Changes
