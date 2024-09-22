@@ -39,7 +39,7 @@ export const watch_dir = ({
 	on_change,
 	filter,
 	absolute = true,
-	chokidar = {},
+	chokidar,
 }: Options): Watch_Node_Fs => {
 	let watcher: FSWatcher | undefined;
 
