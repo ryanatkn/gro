@@ -1,5 +1,11 @@
 # @ryanatkn/gro
 
+## 0.135.2
+
+### Patch Changes
+
+- clean up `search_fs` docs ([a4884bf](https://github.com/ryanatkn/gro/commit/a4884bf))
+
 ## 0.135.1
 
 ### Patch Changes
