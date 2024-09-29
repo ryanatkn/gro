@@ -42,6 +42,7 @@ export class Filer {
 	#listeners: Set<On_Filer_Change> = new Set();
 
 	on_change: Watcher_Change_Callback = (change) => {
+		console.log(`filer on_change`, change);
 		switch (change.type) {
 			case 'create':
 			case 'update': {
