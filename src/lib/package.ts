@@ -767,6 +767,7 @@ export const src_json = {
 				{name: 'IS_THIS_GRO', kind: 'variable'},
 				{name: 'gro_paths', kind: 'variable'},
 				{name: 'GRO_DIST_DIR', kind: 'variable'},
+				{name: 'default_file_filter', kind: 'function'},
 			],
 		},
 		'./plugin.js': {
