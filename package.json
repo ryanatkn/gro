@@ -198,6 +198,10 @@
       "types": "./dist/esbuild_plugin_sveltekit_shim_env.d.ts",
       "default": "./dist/esbuild_plugin_sveltekit_shim_env.js"
     },
+    "./filer.js": {
+      "types": "./dist/filer.d.ts",
+      "default": "./dist/filer.js"
+    },
     "./format_directory.js": {
       "types": "./dist/format_directory.d.ts",
       "default": "./dist/format_directory.js"

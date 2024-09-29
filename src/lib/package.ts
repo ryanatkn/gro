@@ -138,6 +138,7 @@ export const package_json = {
 			types: './dist/esbuild_plugin_sveltekit_shim_env.d.ts',
 			default: './dist/esbuild_plugin_sveltekit_shim_env.js',
 		},
+		'./filer.js': {types: './dist/filer.d.ts', default: './dist/filer.js'},
 		'./format_directory.js': {
 			types: './dist/format_directory.d.ts',
 			default: './dist/format_directory.js',
@@ -436,6 +437,13 @@ export const src_json = {
 				{name: 'esbuild_plugin_sveltekit_shim_env', kind: 'function'},
 			],
 		},
+		'./filer.js': {
+			path: 'filer.ts',
+			declarations: [
+				{name: 'Source_File', kind: 'type'},
+				{name: 'Filer', kind: 'class'},
+			],
+		},
 		'./format_directory.js': {
 			path: 'format_directory.ts',
 			declarations: [{name: 'format_directory', kind: 'function'}],
@@ -553,7 +561,8 @@ export const src_json = {
 			path: 'gro_plugin_gen.ts',
 			declarations: [
 				{name: 'Task_Args', kind: 'type'},
-				{name: 'plugin', kind: 'function'},
+				{name: 'Options', kind: 'type'},
+				{name: 'gro_plugin_gen', kind: 'function'},
 				{name: 'filter_dependents', kind: 'function'},
 			],
 		},
