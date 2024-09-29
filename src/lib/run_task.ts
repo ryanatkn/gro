@@ -50,7 +50,7 @@ export const run_task = async (
 	}
 
 	// Run the task.
-	let output: unknown;
+	let output: unknown; // TODO generic
 	try {
 		output = await task.run({
 			args,
