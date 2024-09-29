@@ -6,6 +6,8 @@ export interface Source_File {
 	dependents: Map<Path_Id, Source_File>; // TODO BLOCK dependents and dependencies?
 }
 
+// TODO BLOCK use `watch_dir` - maybe also `search_fs` for non-watch cases? do we have any of those?
+// TODO BLOCK lazy init - should be able to create the class without doing any significant work
 export class Filer {
 	files: Map<Path_Id, Source_File> = new Map();
 

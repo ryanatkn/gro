@@ -1,8 +1,8 @@
 import {watch, type ChokidarOptions, type FSWatcher} from 'chokidar';
 import {relative} from 'node:path';
+import {statSync} from 'node:fs';
 
 import type {Path_Filter} from './path.js';
-import {statSync} from 'node:fs';
 
 // TODO pretty hacky
 
