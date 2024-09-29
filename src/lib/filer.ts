@@ -7,6 +7,7 @@ import {
 	type Watcher_Change,
 	type Options as Watch_Dir_Options,
 } from './watch_dir.js';
+import {SOURCE_DIR} from './path_constants.js';
 
 export interface Source_File {
 	id: Path_Id;
@@ -39,7 +40,14 @@ export class Filer {
 	// TODO BLOCK rename?
 	#update_watcher() {
 		if (this.#watching) return;
-		this.#watching = watch_dir({...this.watch_dir_options, on_change: this.on_change}); // TODO maybe make `watch_dir` an option instead of accepting options?
+		this.#watching = watch_dir({
+			dir: SOURCE_DIR,
+			filter: (path, is_directory) => {
+				// TODO BLOCK filter ts/json/svelte like in zzz_wip
+			},
+			...this.watch_dir_options,
+			on_change: this.on_change,
+		}); // TODO maybe make `watch_dir` an option instead of accepting options?
 	}
 
 	get_by_id = (id: Path_Id): Source_File | undefined => {
