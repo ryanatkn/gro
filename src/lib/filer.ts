@@ -6,8 +6,10 @@ import {
 	type Watch_Node_Fs,
 	type Watcher_Change,
 	type Options as Watch_Dir_Options,
+	type Watcher_Change_Callback,
 } from './watch_dir.js';
 import {SOURCE_DIR} from './path_constants.js';
+import {default_file_filter} from './paths.js';
 
 export interface Source_File {
 	id: Path_Id;
@@ -28,7 +30,6 @@ export interface Options {
 export class Filer {
 	files: Map<Path_Id, Source_File> = new Map();
 
-	watcher: Watch_Node_Fs | undefined;
 	watch_dir_options: Partial<Watch_Dir_Options>;
 
 	constructor(options: Options = EMPTY_OBJECT) {
@@ -39,16 +40,30 @@ export class Filer {
 	#watching: Watch_Node_Fs | undefined;
 	// TODO BLOCK rename?
 	#update_watcher() {
-		if (this.#watching) return;
-		this.#watching = watch_dir({
-			dir: SOURCE_DIR,
-			filter: (path, is_directory) => {
-				// TODO BLOCK filter ts/json/svelte like in zzz_wip
-			},
-			...this.watch_dir_options,
-			on_change: this.on_change,
-		}); // TODO maybe make `watch_dir` an option instead of accepting options?
+		if (this.#listeners.size === 0) {
+			await this.close(); // TODO is this right? should `watch` be async?
+		} else {
+			if (this.#watching) return;
+			this.#watching = watch_dir({
+				dir: SOURCE_DIR,
+				filter: (path, is_directory) => (is_directory ? true : default_file_filter(path)),
+				...this.watch_dir_options,
+				on_change: this.on_change,
+			}); // TODO maybe make `watch_dir` an option instead of accepting options?
+		}
 	}
+
+	on_change: Watcher_Change_Callback = (change) => {
+		const source_file = this.get_by_id(change.path);
+		if (!source_file) {
+			console.log(`change`, change);
+			throw Error('TODO'); // TODO BLOCK ? benign return?
+			return;
+		}
+		for (const listener of this.#listeners) {
+			listener(change, source_file);
+		}
+	};
 
 	get_by_id = (id: Path_Id): Source_File | undefined => {
 		return this.files.get(id);
@@ -81,12 +96,12 @@ export class Filer {
 		this.#update_watcher();
 		return () => {
 			this.#listeners.delete(listener);
+			this.#update_watcher();
 		};
 	};
 
 	close = async (): Promise<void> => {
 		this.#listeners.clear();
-		await this.watcher?.close();
 		if (this.#watching) {
 			await this.#watching.close();
 			this.#watching = undefined;
