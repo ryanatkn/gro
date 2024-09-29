@@ -87,6 +87,7 @@ export const gro_plugin_gen = ({root_dirs = [paths.source]}: Options = EMPTY_OBJ
 							filer.get_by_id,
 							is_gen_path,
 						);
+						// TODO BLOCK need to check all of the last-generated files too, their imports may be different, but do this after regenerating above as needed
 						for (const dependent_gen_file_id of dependent_gen_file_ids) {
 							queue_gen(path_id_to_base_path(dependent_gen_file_id));
 						}

@@ -443,6 +443,7 @@ export const src_json = {
 				{name: 'Source_File', kind: 'type'},
 				{name: 'Cleanup_Watch', kind: 'type'},
 				{name: 'On_Filer_Change', kind: 'type'},
+				{name: 'Options', kind: 'type'},
 				{name: 'Filer', kind: 'class'},
 			],
 		},
