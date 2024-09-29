@@ -17,7 +17,7 @@ export interface Source_File {
 	dependents: Map<Path_Id, Source_File>; // TODO BLOCK dependents and dependencies?
 }
 
-export type Cleanup_Watch = () => void;
+export type Cleanup_Watch = () => Promise<void>;
 
 export type On_Filer_Change = (change: Watcher_Change, source_file: Source_File) => void;
 
@@ -38,20 +38,7 @@ export class Filer {
 
 	// TODO BLOCK program reactively? maybe as a followup?
 	#watching: Watch_Node_Fs | undefined;
-	// TODO BLOCK rename?
-	#update_watcher() {
-		if (this.#listeners.size === 0) {
-			await this.close(); // TODO is this right? should `watch` be async?
-		} else {
-			if (this.#watching) return;
-			this.#watching = watch_dir({
-				dir: SOURCE_DIR,
-				filter: (path, is_directory) => (is_directory ? true : default_file_filter(path)),
-				...this.watch_dir_options,
-				on_change: this.on_change,
-			}); // TODO maybe make `watch_dir` an option instead of accepting options?
-		}
-	}
+	#listeners: Set<On_Filer_Change> = new Set();
 
 	on_change: Watcher_Change_Callback = (change) => {
 		const source_file = this.get_by_id(change.path);
@@ -89,15 +76,27 @@ export class Filer {
 		return found;
 	};
 
-	#listeners: Set<On_Filer_Change> = new Set();
+	#add_listener(listener: On_Filer_Change): void {
+		this.#listeners.add(listener);
+		if (this.#watching) return;
+		this.#watching = watch_dir({
+			dir: SOURCE_DIR,
+			filter: (path, is_directory) => (is_directory ? true : default_file_filter(path)),
+			...this.watch_dir_options,
+			on_change: this.on_change,
+		}); // TODO maybe make `watch_dir` an option instead of accepting options?
+	}
+
+	async #remove_listener(listener: On_Filer_Change): Promise<void> {
+		this.#listeners.delete(listener);
+		if (this.#listeners.size === 0) {
+			await this.close(); // TODO is this right? should `watch` be async?
+		}
+	}
 
 	watch = (listener: On_Filer_Change): Cleanup_Watch => {
-		this.#listeners.add(listener);
-		this.#update_watcher();
-		return () => {
-			this.#listeners.delete(listener);
-			this.#update_watcher();
-		};
+		this.#add_listener(listener);
+		return () => this.#remove_listener(listener);
 	};
 
 	close = async (): Promise<void> => {
