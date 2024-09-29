@@ -8,6 +8,7 @@ import {throttle} from './throttle.js';
 import {spawn_cli} from './cli.js';
 import type {File_Filter, Path_Id} from './path.js';
 import type {Cleanup_Watch, Source_File} from './filer.js';
+import {Unreachable_Error} from '@ryanatkn/belt/error.js';
 
 const FLUSH_DEBOUNCE_DELAY = 500;
 
@@ -73,14 +74,30 @@ export const gro_plugin_gen = ({root_dirs = [paths.source]}: Options = EMPTY_OBJ
 			// When a file builds, check it and its tree of dependents
 			// for any `.gen.` files that need to run.
 			cleanup = filer.watch((change, source_file) => {
-				// TODO how to handle this now? the loader traces deps for us with `parentPath`,
-				// but we probably want to make this an esbuild plugin instead
-				if (is_gen_path(source_file.id)) {
-					queue_gen(path_id_to_base_path(source_file.id));
-				}
-				const dependent_gen_file_ids = filter_dependents(source_file, filer.get_by_id, is_gen_path);
-				for (const dependent_gen_file_id of dependent_gen_file_ids) {
-					queue_gen(path_id_to_base_path(dependent_gen_file_id));
+				switch (change.type) {
+					case 'create':
+					case 'update': {
+						// TODO how to handle this now? the loader traces deps for us with `parentPath`,
+						// but we probably want to make this an esbuild plugin instead
+						if (is_gen_path(source_file.id)) {
+							queue_gen(path_id_to_base_path(source_file.id));
+						}
+						const dependent_gen_file_ids = filter_dependents(
+							source_file,
+							filer.get_by_id,
+							is_gen_path,
+						);
+						for (const dependent_gen_file_id of dependent_gen_file_ids) {
+							queue_gen(path_id_to_base_path(dependent_gen_file_id));
+						}
+						break;
+					}
+					case 'delete': {
+						// TODO delete the generated file(s)? option?
+						break;
+					}
+					default:
+						throw new Unreachable_Error(change.type);
 				}
 			});
 		},

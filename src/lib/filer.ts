@@ -1,5 +1,5 @@
 import type {Path_Id} from './path.js';
-import type {Watch_Node_Fs} from './watch_dir.js';
+import type {Watch_Node_Fs, Watcher_Change} from './watch_dir.js';
 
 export interface Source_File {
 	id: Path_Id;
@@ -8,6 +8,8 @@ export interface Source_File {
 }
 
 export type Cleanup_Watch = () => void;
+
+export type On_Filer_Change = (change: Watcher_Change, source_file: Source_File) => void;
 
 // TODO BLOCK use `watch_dir` - maybe also `search_fs` for non-watch cases? do we have any of those?
 // TODO BLOCK lazy init - should be able to create the class without doing any significant work
@@ -40,9 +42,9 @@ export class Filer {
 		return found;
 	};
 
-	listeners: Set<Cleanup_Watch> = new Set();
+	listeners: Set<On_Filer_Change> = new Set();
 
-	watch = (listener: Cleanup_Watch): Cleanup_Watch => {
+	watch = (listener: On_Filer_Change): Cleanup_Watch => {
 		this.listeners.add(listener);
 		return () => {
 			this.listeners.delete(listener);
