@@ -106,7 +106,7 @@ export const invoke_task = async (
 		{...args, ...to_forwarded_args(`gro ${task.name}`)},
 		invoke_task,
 		config,
-		filer,
+		filer, // TODO somehow close this? maybe with a counter?
 		timings,
 	);
 	timing_to_run_task();
