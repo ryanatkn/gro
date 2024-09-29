@@ -102,9 +102,9 @@ export const gro_plugin_gen = ({root_dirs = [paths.source]}: Options = EMPTY_OBJ
 				}
 			});
 		},
-		teardown: () => {
+		teardown: async () => {
 			if (cleanup !== undefined) {
-				cleanup();
+				await cleanup();
 				cleanup = undefined;
 			}
 		},
