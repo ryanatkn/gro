@@ -74,7 +74,7 @@ export class Filer {
 		const source_file: Source_File = {
 			id,
 			contents,
-			dependents: new Map(),
+			dependents: new Map(), // TODO BLOCK use the lexer - maybe `dependencies` too?
 		};
 		this.files.set(id, source_file);
 		return source_file;
