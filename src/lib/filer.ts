@@ -56,7 +56,7 @@ export class Filer {
 				break;
 			}
 		}
-		// TODO BLOCK should this always be called wven with an undefined source file?
+		// TODO BLOCK should this always be called even with an `undefined` source file?
 		if (source_file) {
 			for (const listener of this.#listeners) {
 				listener(change, source_file);
