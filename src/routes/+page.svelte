@@ -34,7 +34,7 @@
 		<section class="panel mb_lg p_md w_100 relative">
 			<button
 				type="button"
-				class="toggle icon_button"
+				class="toggle icon_button deselectable"
 				class:selected={show_detail}
 				title={show_detail ? 'show package summary' : 'show package detail'}
 				onclick={() => (show_detail = !show_detail)}>🪜</button
