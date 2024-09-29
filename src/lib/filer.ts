@@ -43,26 +43,24 @@ export class Filer {
 
 	on_change: Watcher_Change_Callback = (change) => {
 		console.log(`filer on_change`, change);
+		let source_file: Source_File | undefined;
 		switch (change.type) {
 			case 'create':
 			case 'update': {
 				// TODO BLOCK add_or_update? check here or in the fn?
-				this.#add(change.path, readFileSync(change.path, 'utf8'));
+				source_file = this.#add(change.path, readFileSync(change.path, 'utf8'));
 				break;
 			}
 			case 'delete': {
-				this.#remove(change.path);
+				source_file = this.#remove(change.path);
 				break;
 			}
 		}
-		const source_file = this.get_by_id(change.path);
-		if (!source_file) {
-			console.log(`change`, change);
-			throw Error('TODO'); // TODO BLOCK ? benign return?
-			return;
-		}
-		for (const listener of this.#listeners) {
-			listener(change, source_file);
+		// TODO BLOCK should this always be called wven with an undefined source file?
+		if (source_file) {
+			for (const listener of this.#listeners) {
+				listener(change, source_file);
+			}
 		}
 	};
 
