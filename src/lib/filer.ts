@@ -10,6 +10,7 @@ import {
 } from './watch_dir.js';
 import {SOURCE_DIR} from './path_constants.js';
 import {default_file_filter} from './paths.js';
+import {readFileSync} from 'fs';
 
 export interface Source_File {
 	id: Path_Id;
@@ -41,6 +42,18 @@ export class Filer {
 	#listeners: Set<On_Filer_Change> = new Set();
 
 	on_change: Watcher_Change_Callback = (change) => {
+		switch (change.type) {
+			case 'create':
+			case 'update': {
+				// TODO BLOCK add_or_update? check here or in the fn?
+				this.#add(change.path, readFileSync(change.path, 'utf8'));
+				break;
+			}
+			case 'delete': {
+				this.#remove(change.path);
+				break;
+			}
+		}
 		const source_file = this.get_by_id(change.path);
 		if (!source_file) {
 			console.log(`change`, change);
@@ -56,7 +69,7 @@ export class Filer {
 		return this.files.get(id);
 	};
 
-	add = (id: Path_Id, contents: string): Source_File => {
+	#add(id: Path_Id, contents: string): Source_File {
 		// TODO BLOCK resolve specifiers - `resolve_specifier` and `resolve_node_specifier`
 		// TODO BLOCK handle existing?
 		const source_file: Source_File = {
@@ -66,15 +79,15 @@ export class Filer {
 		};
 		this.files.set(id, source_file);
 		return source_file;
-	};
+	}
 
-	remove = (id: Path_Id): Source_File | undefined => {
+	#remove(id: Path_Id): Source_File | undefined {
 		const found = this.get_by_id(id);
 		if (!found) return undefined;
 		// TODO BLOCK remove from dependents
 		this.files.delete(id);
 		return found;
-	};
+	}
 
 	#add_listener(listener: On_Filer_Change): void {
 		this.#listeners.add(listener);
