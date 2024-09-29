@@ -22,7 +22,6 @@ export interface Options {
 export const gro_plugin_gen = ({root_dirs = [paths.source]}: Options = EMPTY_OBJECT): Plugin => {
 	let generating = false;
 	let regen = false;
-	let on_filer_build: ((e: Filer_Events['build']) => void) | undefined;
 	const queued_files: Set<string> = new Set();
 	const queue_gen = (gen_file_name: string) => {
 		queued_files.add(gen_file_name);
@@ -45,6 +44,8 @@ export const gro_plugin_gen = ({root_dirs = [paths.source]}: Options = EMPTY_OBJ
 		}
 	}, FLUSH_DEBOUNCE_DELAY);
 	const gen = (files: string[] = []) => spawn_cli('gro', ['gen', ...files]);
+
+	let cleanup: (() => void) | undefined;
 
 	return {
 		name: 'gro_plugin_gen',
@@ -71,7 +72,7 @@ export const gro_plugin_gen = ({root_dirs = [paths.source]}: Options = EMPTY_OBJ
 
 			// When a file builds, check it and its tree of dependents
 			// for any `.gen.` files that need to run.
-			on_filer_build = ({source_file}) => {
+			cleanup = filer.watch((change, source_file) => {
 				// TODO how to handle this now? the loader traces deps for us with `parentPath`,
 				// but we probably want to make this an esbuild plugin instead
 				if (is_gen_path(source_file.id)) {
@@ -81,13 +82,10 @@ export const gro_plugin_gen = ({root_dirs = [paths.source]}: Options = EMPTY_OBJ
 				for (const dependent_gen_file_id of dependent_gen_file_ids) {
 					queue_gen(path_id_to_base_path(dependent_gen_file_id));
 				}
-			};
-			filer.on('build', on_filer_build);
+			});
 		},
-		teardown: ({filer}) => {
-			if (on_filer_build) {
-				filer.off('build', on_filer_build);
-			}
+		teardown: () => {
+			cleanup?.();
 		},
 	};
 };

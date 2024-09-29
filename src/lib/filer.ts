@@ -1,4 +1,5 @@
 import type {Path_Id} from './path.js';
+import type {Watch_Node_Fs} from './watch_dir.js';
 
 export interface Source_File {
 	id: Path_Id;
@@ -6,10 +7,14 @@ export interface Source_File {
 	dependents: Map<Path_Id, Source_File>; // TODO BLOCK dependents and dependencies?
 }
 
+export type Cleanup_Watch = () => void;
+
 // TODO BLOCK use `watch_dir` - maybe also `search_fs` for non-watch cases? do we have any of those?
 // TODO BLOCK lazy init - should be able to create the class without doing any significant work
 export class Filer {
 	files: Map<Path_Id, Source_File> = new Map();
+
+	watcher: Watch_Node_Fs | undefined;
 
 	get_by_id = (id: Path_Id): Source_File | undefined => {
 		return this.files.get(id);
@@ -33,5 +38,19 @@ export class Filer {
 		// TODO BLOCK remove from dependents
 		this.files.delete(id);
 		return found;
+	};
+
+	listeners: Set<Cleanup_Watch> = new Set();
+
+	watch = (listener: Cleanup_Watch): Cleanup_Watch => {
+		this.listeners.add(listener);
+		return () => {
+			this.listeners.delete(listener);
+		};
+	};
+
+	close = async (): Promise<void> => {
+		this.listeners.clear();
+		await this.watcher?.close();
 	};
 }
