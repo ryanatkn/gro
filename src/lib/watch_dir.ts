@@ -16,7 +16,7 @@ export interface Watcher_Change {
 	path: string;
 	is_directory: boolean;
 }
-export type Watcher_Change_Type = 'create' | 'update' | 'delete';
+export type Watcher_Change_Type = 'create' | 'update' | 'delete'; // TODO BLOCK `init` instead of `create`?
 export type Watcher_Change_Callback = (change: Watcher_Change) => void;
 
 export interface Options {
