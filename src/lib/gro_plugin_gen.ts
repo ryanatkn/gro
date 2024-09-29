@@ -7,7 +7,7 @@ import {find_genfiles, is_gen_path} from './gen.js';
 import {throttle} from './throttle.js';
 import {spawn_cli} from './cli.js';
 import type {File_Filter, Path_Id} from './path.js';
-import type {Source_File} from './filer.js';
+import type {Cleanup_Watch, Source_File} from './filer.js';
 
 const FLUSH_DEBOUNCE_DELAY = 500;
 
@@ -45,7 +45,7 @@ export const gro_plugin_gen = ({root_dirs = [paths.source]}: Options = EMPTY_OBJ
 	}, FLUSH_DEBOUNCE_DELAY);
 	const gen = (files: string[] = []) => spawn_cli('gro', ['gen', ...files]);
 
-	let cleanup: (() => void) | undefined;
+	let cleanup: Cleanup_Watch | undefined;
 
 	return {
 		name: 'gro_plugin_gen',
@@ -85,7 +85,10 @@ export const gro_plugin_gen = ({root_dirs = [paths.source]}: Options = EMPTY_OBJ
 			});
 		},
 		teardown: () => {
-			cleanup?.();
+			if (cleanup !== undefined) {
+				cleanup();
+				cleanup = undefined;
+			}
 		},
 	};
 };
