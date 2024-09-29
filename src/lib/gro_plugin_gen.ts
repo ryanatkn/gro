@@ -110,7 +110,7 @@ export const plugin = ({
 export const filter_dependents = (
 	source_file: Source_File,
 	get_by_id: (id: Path_Id) => Source_File | undefined,
-	filter?: File_Filter | undefined,
+	filter?: File_Filter,
 	results: Set<string> = new Set(),
 	searched: Set<string> = new Set(),
 ): Set<string> => {

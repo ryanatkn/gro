@@ -2,12 +2,7 @@ import {init, parse} from 'es-module-lexer';
 import type {Flavored} from '@ryanatkn/belt/types.js';
 import type {Path_Id} from './path.js';
 
-let initing: Promise<void> | undefined;
-
-export const init_lexer = (): Promise<void> => {
-	if (initing !== undefined) return initing;
-	return (initing = Promise.resolve().then(() => init));
-};
+export const init_lexer = (): Promise<void> => init;
 
 export type Import_Specifier = Flavored<string, 'Import_Specifier'>;
 
