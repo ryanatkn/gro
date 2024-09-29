@@ -48,7 +48,7 @@ export class Filer {
 			case 'create':
 			case 'update': {
 				// TODO BLOCK add_or_update? check here or in the fn?
-				source_file = this.#add(change.path, readFileSync(change.path, 'utf8'));
+				source_file = this.#update(change.path);
 				break;
 			}
 			case 'delete': {
@@ -68,7 +68,13 @@ export class Filer {
 		return this.files.get(id);
 	};
 
-	#add(id: Path_Id, contents: string): Source_File {
+	#update(id: Path_Id): Source_File {
+		const contents = readFileSync(id, 'utf8');
+		const existing = this.get_by_id(id);
+		if (existing) {
+			existing.contents = contents; // TODO BLOCK update dependencies (make `Source_File` a class?)
+			return existing;
+		}
 		// TODO BLOCK resolve specifiers - `resolve_specifier` and `resolve_node_specifier`
 		// TODO BLOCK handle existing?
 		const source_file: Source_File = {
