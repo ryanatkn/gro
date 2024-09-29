@@ -20,6 +20,7 @@ import {
 import {GRO_DIST_DIR, print_path} from './paths.js';
 import {search_fs} from './search_fs.js';
 import {load_modules, type Load_Modules_Failure, type Module_Meta} from './modules.js';
+import type {Filer} from './filer.js';
 
 export interface Task<
 	T_Args = Args, // same as `z.infer<typeof Args>`
@@ -35,6 +36,7 @@ export interface Task_Context<T_Args = object> {
 	args: T_Args;
 	config: Gro_Config;
 	sveltekit_config: Parsed_Sveltekit_Config;
+	filer: Filer;
 	// TODO should this go here or on `config` for convenience?
 	// sveltekit_config: Parsed_Sveltekit_Config;
 	log: Logger;

@@ -9,6 +9,7 @@ import {log_task_help} from './task_logging.js';
 import type {Gro_Config} from './gro_config.js';
 import {Task_Error, type Task_Module_Meta} from './task.js';
 import {default_sveltekit_config} from './sveltekit_config.js';
+import type {Filer} from './filer.js';
 
 export type Run_Task_Result =
 	| {
@@ -26,6 +27,7 @@ export const run_task = async (
 	unparsed_args: Args,
 	invoke_task: typeof base_invoke_task,
 	config: Gro_Config,
+	filer: Filer,
 	timings: Timings,
 ): Promise<Run_Task_Result> => {
 	const {task} = task_meta.mod;
@@ -54,10 +56,11 @@ export const run_task = async (
 			args,
 			config,
 			sveltekit_config: default_sveltekit_config,
+			filer,
 			log,
 			timings,
 			invoke_task: (invoked_task_name, invoked_args, invoked_config) =>
-				invoke_task(invoked_task_name, invoked_args, invoked_config ?? config, timings),
+				invoke_task(invoked_task_name, invoked_args, invoked_config ?? config, filer, timings),
 		});
 	} catch (err) {
 		return {

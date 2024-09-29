@@ -3,6 +3,7 @@ import {gro_plugin_sveltekit_library} from './gro_plugin_sveltekit_library.js';
 import {has_server, gro_plugin_server} from './gro_plugin_server.js';
 import {gro_plugin_sveltekit_app} from './gro_plugin_sveltekit_app.js';
 import {has_sveltekit_app, has_sveltekit_library} from './sveltekit_helpers.js';
+import {gro_plugin_gen} from './gro_plugin_gen.js';
 
 /**
  * This is the default config that's passed to `gro.config.ts`
@@ -23,9 +24,7 @@ const config: Create_Gro_Config = async (cfg) => {
 		has_sveltekit_app_result.ok
 			? gro_plugin_sveltekit_app({host_target: has_server_result.ok ? 'node' : 'github_pages'})
 			: null,
-		// TODO replace with an esbuild plugin, see the module for more
-		// import {gro_plugin_gen} from './gro_plugin_gen.js';
-		// gro_plugin_gen(),
+		gro_plugin_gen(),
 	];
 
 	return cfg;

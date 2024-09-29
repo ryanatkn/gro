@@ -1,14 +1,13 @@
-// TODO this became unused with https://github.com/ryanatkn/gro/pull/382
-// because we no longer have a normal system build - replace with an esbuild plugin
+import {EMPTY_OBJECT} from '@ryanatkn/belt/object.js';
 
-import type {Plugin, Plugin_Context} from './plugin.js';
+import type {Plugin} from './plugin.js';
 import type {Args} from './args.js';
 import {path_id_to_base_path, paths} from './paths.js';
 import {find_genfiles, is_gen_path} from './gen.js';
 import {throttle} from './throttle.js';
 import {spawn_cli} from './cli.js';
 import type {File_Filter, Path_Id} from './path.js';
-import {Filer, type Source_File} from './filer.js';
+import type {Source_File} from './filer.js';
 
 const FLUSH_DEBOUNCE_DELAY = 500;
 
@@ -17,14 +16,10 @@ export interface Task_Args extends Args {
 }
 
 export interface Options {
-	filer?: Filer;
 	root_dirs?: string[];
 }
 
-export const plugin = ({
-	filer: initial_filer,
-	root_dirs = [paths.source],
-}: Options): Plugin<Plugin_Context<Task_Args>> => {
+export const gro_plugin_gen = ({root_dirs = [paths.source]}: Options = EMPTY_OBJECT): Plugin => {
 	let generating = false;
 	let regen = false;
 	let on_filer_build: ((e: Filer_Events['build']) => void) | undefined;
@@ -51,18 +46,12 @@ export const plugin = ({
 	}, FLUSH_DEBOUNCE_DELAY);
 	const gen = (files: string[] = []) => spawn_cli('gro', ['gen', ...files]);
 
-	let filer = initial_filer;
-
 	return {
 		name: 'gro_plugin_gen',
-		setup: async ({args: {watch}, dev, log, config}) => {
+		setup: async ({watch, dev, log, config, filer}) => {
 			// For production builds, we assume `gen` is already fresh,
 			// which should be checked by CI via `gro check` which calls `gro gen --check`.
 			if (!dev) return;
-
-			if (watch && !filer) {
-				filer = new Filer();
-			}
 
 			// Run `gen`, first checking if there are any modules to avoid a console error.
 			// Some parts of the build may have already happened,
@@ -75,7 +64,7 @@ export const plugin = ({
 
 			// Do we need to just generate everything once and exit?
 			// TODO could we have an esbuild context here? problem is watching the right files, maybe a plugin that tracks deps
-			if (!filer || !watch) {
+			if (!watch) {
 				log.info('generating and exiting early');
 				return;
 			}
@@ -88,19 +77,15 @@ export const plugin = ({
 				if (is_gen_path(source_file.id)) {
 					queue_gen(path_id_to_base_path(source_file.id));
 				}
-				const dependent_gen_file_ids = filter_dependents(
-					source_file,
-					filer!.get_by_id,
-					is_gen_path,
-				);
+				const dependent_gen_file_ids = filter_dependents(source_file, filer.get_by_id, is_gen_path);
 				for (const dependent_gen_file_id of dependent_gen_file_ids) {
 					queue_gen(path_id_to_base_path(dependent_gen_file_id));
 				}
 			};
 			filer.on('build', on_filer_build);
 		},
-		teardown: () => {
-			if (on_filer_build && filer) {
+		teardown: ({filer}) => {
+			if (on_filer_build) {
 				filer.off('build', on_filer_build);
 			}
 		},

@@ -10,6 +10,7 @@ import {find_tasks, load_tasks, Silent_Error} from './task.js';
 import {load_gro_package_json} from './package_json.js';
 import {log_tasks, log_error_reasons} from './task_logging.js';
 import type {Gro_Config} from './gro_config.js';
+import {Filer} from './filer.js';
 
 /**
  * Invokes Gro tasks by name using the filesystem as the source.
@@ -37,6 +38,7 @@ export const invoke_task = async (
 	task_name: Raw_Input_Path,
 	args: Args | undefined,
 	config: Gro_Config,
+	filer = new Filer(),
 	initial_timings: Timings | null = null,
 ): Promise<void> => {
 	const log = new System_Logger(print_log_label(task_name || 'gro'));
@@ -104,6 +106,7 @@ export const invoke_task = async (
 		{...args, ...to_forwarded_args(`gro ${task.name}`)},
 		invoke_task,
 		config,
+		filer,
 		timings,
 	);
 	timing_to_run_task();
