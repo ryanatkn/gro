@@ -441,6 +441,8 @@ export const src_json = {
 			path: 'filer.ts',
 			declarations: [
 				{name: 'Source_File', kind: 'type'},
+				{name: 'Cleanup_Watch', kind: 'type'},
+				{name: 'On_Filer_Change', kind: 'type'},
 				{name: 'Filer', kind: 'class'},
 			],
 		},
