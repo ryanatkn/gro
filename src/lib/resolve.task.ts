@@ -1,5 +1,5 @@
 import {z} from 'zod';
-import {green, yellow} from '@ryanatkn/belt/styletext.js';
+import {styleText as st} from 'node:util';
 
 import {TASK_FILE_SUFFIXES, type Task} from './task.js';
 import {resolve_input_paths, to_input_paths} from './input_path.js';
@@ -33,11 +33,11 @@ export const task: Task<Args> = {
 		if (verbose) log.info('unmapped_input_paths:', unmapped_input_paths);
 
 		for (const p of resolved_input_paths) {
-			log.info('resolved:', green(p.id));
+			log.info('resolved:', st('green', p.id));
 		}
 
 		if (!resolved_input_paths.length) {
-			log.warn(yellow('no input paths were resolved'));
+			log.warn(st('yellow', 'no input paths were resolved'));
 		}
 	},
 };

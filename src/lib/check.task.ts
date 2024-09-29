@@ -1,6 +1,6 @@
 import {z} from 'zod';
 import {spawn} from '@ryanatkn/belt/process.js';
-import {red} from '@ryanatkn/belt/styletext.js';
+import {styleText as st} from 'node:util';
 
 import {Task_Error, type Task} from './task.js';
 import {git_check_clean_workspace} from './git.js';
@@ -78,7 +78,7 @@ export const task: Task<Args> = {
 		if (workspace) {
 			const error_message = await git_check_clean_workspace();
 			if (error_message) {
-				log.error(red('git status'));
+				log.error(st('red', 'git status'));
 				await spawn('git', ['status']);
 				throw new Task_Error(
 					'Failed check for git_check_clean_workspace:' +

@@ -1,6 +1,6 @@
 import {z} from 'zod';
 import {spawn} from '@ryanatkn/belt/process.js';
-import {red, blue} from '@ryanatkn/belt/styletext.js';
+import {styleText as st} from 'node:util';
 import type {WrittenConfig} from '@changesets/types';
 import {readFile, writeFile} from 'node:fs/promises';
 import {join} from 'node:path';
@@ -100,8 +100,8 @@ export const task: Task<Args> = {
 					? CHANGESET_RESTRICTED_ACCESS
 					: CHANGESET_PUBLIC_ACCESS;
 
-			const access_color = access === CHANGESET_RESTRICTED_ACCESS ? blue : red;
-			log.info('initing changeset with ' + access_color(access) + ' access');
+			const access_color = access === CHANGESET_RESTRICTED_ACCESS ? 'blue' : 'red';
+			log.info('initing changeset with ' + st(access_color, access) + ' access');
 			if (access !== CHANGESET_RESTRICTED_ACCESS) {
 				await update_changeset_config(path, (config) => {
 					const updated = {...config};

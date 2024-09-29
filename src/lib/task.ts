@@ -2,7 +2,7 @@ import type {Logger} from '@ryanatkn/belt/log.js';
 import {ensure_end, strip_end, strip_start} from '@ryanatkn/belt/string.js';
 import type {z} from 'zod';
 import type {Timings} from '@ryanatkn/belt/timings.js';
-import {red} from '@ryanatkn/belt/styletext.js';
+import {styleText as st} from 'node:util';
 import type {Result} from '@ryanatkn/belt/result.js';
 import {isAbsolute, join, relative} from 'node:path';
 
@@ -149,7 +149,7 @@ export const find_tasks = (
 			input_paths,
 			task_root_dirs,
 			reasons: unmapped_input_paths.map((input_path) =>
-				red(`Input path ${print_path(input_path)} cannot be mapped to a file or directory.`),
+				st('red', `Input path ${print_path(input_path)} cannot be mapped to a file or directory.`),
 			),
 		};
 	}
@@ -177,7 +177,7 @@ export const find_tasks = (
 			input_paths,
 			task_root_dirs,
 			reasons: input_directories_with_no_files.map((input_path) =>
-				red(`Input directory contains no matching files: ${print_path(input_path)}`),
+				st('red', `Input directory contains no matching files: ${print_path(input_path)}`),
 			),
 		};
 	}

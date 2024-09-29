@@ -1,6 +1,6 @@
 import {spawn} from '@ryanatkn/belt/process.js';
 import {print_error} from '@ryanatkn/belt/print.js';
-import {green, red} from '@ryanatkn/belt/styletext.js';
+import {styleText as st} from 'node:util';
 import {z} from 'zod';
 import {cp, mkdir, rm} from 'node:fs/promises';
 import {join, resolve} from 'node:path';
@@ -204,13 +204,18 @@ export const task: Task<Args> = {
 				await invoke_task('build');
 			}
 			if (!existsSync(build_dir)) {
-				log.error(red('directory to deploy does not exist after building:'), build_dir);
+				log.error(st('red', 'directory to deploy does not exist after building:'), build_dir);
 				return;
 			}
 		} catch (err) {
-			log.error(red('build failed'), 'but', green('no changes were made to git'), print_error(err));
+			log.error(
+				st('red', 'build failed'),
+				'but',
+				st('green', 'no changes were made to git'),
+				print_error(err),
+			);
 			if (dry) {
-				log.info(red('dry deploy failed'));
+				log.info(st('red', 'dry deploy failed'));
 			}
 			throw new Task_Error(`Deploy safely canceled due to build failure. See the error above.`);
 		}
@@ -224,7 +229,7 @@ export const task: Task<Args> = {
 
 		// At this point, `dist/` is ready to be committed and deployed!
 		if (dry) {
-			log.info(green('dry deploy complete:'), 'files at', print_path(resolved_deploy_dir));
+			log.info(st('green', 'dry deploy complete:'), 'files at', print_path(resolved_deploy_dir));
 			return;
 		}
 
@@ -234,10 +239,10 @@ export const task: Task<Args> = {
 			await spawn('git', ['commit', '-m', 'deployment'], target_spawn_options);
 			await spawn('git', ['push', origin, target, '-f'], target_spawn_options); // force push because we may be resetting the branch, see the checks above to make this safer
 		} catch (err) {
-			log.error(red('updating git failed:'), print_error(err));
+			log.error(st('red', 'updating git failed:'), print_error(err));
 			throw new Task_Error(`Deploy failed in a bad state: built but not pushed, see error above.`);
 		}
 
-		log.info(green('deployed')); // TODO log a different message if "Everything up-to-date"
+		log.info(st('green', 'deployed')); // TODO log a different message if "Everything up-to-date"
 	},
 };

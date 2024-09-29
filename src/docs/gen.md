@@ -114,9 +114,13 @@ export interface Gen_Context {
 	 * Same as `import.meta.url` but in path form.
 	 */
 	origin_id: Path_Id;
+	/**
+	 * The `origin_id` relative to the root dir.
+	 */
+	origin_path: string;
 	log: Logger;
 }
-// export const gen: Gen = ({config, origin_id, log}) => {
+// export const gen: Gen = ({config, sveltekit_config, origin_id, origin_path, log}) => {
 ```
 
 ### generate other filetypes

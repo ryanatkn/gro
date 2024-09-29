@@ -1,4 +1,4 @@
-import {red} from '@ryanatkn/belt/styletext.js';
+import {styleText as st} from 'node:util';
 import {print_error} from '@ryanatkn/belt/print.js';
 import type {Timings} from '@ryanatkn/belt/timings.js';
 import type {Logger} from '@ryanatkn/belt/log.js';
@@ -11,7 +11,7 @@ import {
 	to_gen_result,
 	type Raw_Gen_Result,
 } from './gen.js';
-import {print_path} from './paths.js';
+import {print_path, to_root_path} from './paths.js';
 import type {format_file as base_format_file} from './format_file.js';
 import type {Gro_Config} from './gro_config.js';
 import {default_sveltekit_config} from './sveltekit_config.js';
@@ -39,6 +39,7 @@ export const run_gen = async (
 				config,
 				sveltekit_config: default_sveltekit_config,
 				origin_id: id,
+				origin_path: to_root_path(id),
 				log,
 			};
 			let raw_gen_result: Raw_Gen_Result;
@@ -49,7 +50,7 @@ export const run_gen = async (
 					ok: false,
 					id,
 					error: err,
-					reason: red(`Error generating ${print_path(id)}`),
+					reason: st('red', `Error generating ${print_path(id)}`),
 					elapsed: timing_for_module(),
 				};
 			}
@@ -66,7 +67,7 @@ export const run_gen = async (
 								return {...file, content: await format_file(file.content, {filepath: file.id})};
 							} catch (err) {
 								log.error(
-									red(`Error formatting ${print_path(file.id)} via ${print_path(id)}`),
+									st('red', `Error formatting ${print_path(file.id)} via ${print_path(id)}`),
 									print_error(err),
 								);
 								return file;

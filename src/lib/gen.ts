@@ -4,7 +4,7 @@ import {mkdir, readFile, writeFile} from 'node:fs/promises';
 import {z} from 'zod';
 import type {Result} from '@ryanatkn/belt/result.js';
 import type {Timings} from '@ryanatkn/belt/timings.js';
-import {red} from '@ryanatkn/belt/styletext.js';
+import {styleText as st} from 'node:util';
 import {existsSync} from 'node:fs';
 
 import {print_path} from './paths.js';
@@ -45,6 +45,10 @@ export interface Gen_Context {
 	 * Same as `import.meta.url` but in path form.
 	 */
 	origin_id: Path_Id;
+	/**
+	 * The `origin_id` relative to the root dir.
+	 */
+	origin_path: string;
 	log: Logger;
 }
 // TODO consider other return data - metadata? effects? non-file build artifacts?
@@ -282,7 +286,7 @@ export const find_genfiles = (
 			unmapped_input_paths,
 			resolved_input_paths,
 			reasons: unmapped_input_paths.map((input_path) =>
-				red(`Input path ${print_path(input_path)} cannot be mapped to a file or directory.`),
+				st('red', `Input path ${print_path(input_path)} cannot be mapped to a file or directory.`),
 			),
 		};
 	}
@@ -308,7 +312,7 @@ export const find_genfiles = (
 			resolved_input_files_by_root_dir,
 			resolved_input_paths,
 			reasons: input_directories_with_no_files.map((input_path) =>
-				red(`Input directory contains no matching files: ${print_path(input_path)}`),
+				st('red', `Input directory contains no matching files: ${print_path(input_path)}`),
 			),
 		};
 	}

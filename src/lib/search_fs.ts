@@ -12,7 +12,7 @@ export interface Search_Fs_Options {
 	 */
 	filter?: Path_Filter | Path_Filter[];
 	/**
-	 * An array of file suffixes to include.
+	 * One or more file filter functions. Every filter must pass for a file to be included.
 	 */
 	file_filter?: File_Filter | File_Filter[];
 	/**
@@ -20,7 +20,7 @@ export interface Search_Fs_Options {
 	 */
 	sort?: boolean | null | ((a: Resolved_Path, b: Resolved_Path) => number);
 	/**
-	 * Set to `false` to include directories.
+	 * Set to `true` to include directories. Defaults to `false`.
 	 */
 	include_directories?: boolean;
 	/**
@@ -76,17 +76,16 @@ const crawl = (
 		const is_directory = dirent.isDirectory();
 		const id = parentPath + name;
 		const include = !filters || filters.every((f) => f(id, is_directory));
-		if (include) {
-			const path = base_dir === null ? name : base_dir + '/' + name;
-			if (is_directory) {
-				const dir_id = id + '/';
-				if (include_directories) {
-					paths.push({path, id: dir_id, is_directory: true});
-				}
-				crawl(dir_id, paths, filters, file_filter, include_directories, path);
-			} else if (!file_filter || file_filter.every((f) => f(id))) {
-				paths.push({path, id, is_directory: false});
+		if (!include) continue;
+		const path = base_dir === null ? name : base_dir + '/' + name;
+		if (is_directory) {
+			const dir_id = id + '/';
+			if (include_directories) {
+				paths.push({path, id: dir_id, is_directory: true});
 			}
+			crawl(dir_id, paths, filters, file_filter, include_directories, path);
+		} else if (!file_filter || file_filter.every((f) => f(id))) {
+			paths.push({path, id, is_directory: false});
 		}
 	}
 	return paths;

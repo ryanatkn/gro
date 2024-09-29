@@ -1,5 +1,5 @@
 import {z} from 'zod';
-import {green, cyan} from '@ryanatkn/belt/styletext.js';
+import {styleText as st} from 'node:util';
 import {existsSync} from 'node:fs';
 
 import {Task_Error, type Task} from './task.js';
@@ -23,7 +23,7 @@ export const task: Task<Args> = {
 		} = args;
 
 		if (!path) {
-			log.info(green('\n\nUsage: ') + cyan('gro run path/to/file.ts [...node_args]\n'));
+			log.info(st('green', '\n\nUsage: ') + st('cyan', 'gro run path/to/file.ts [...node_args]\n'));
 			return;
 		}
 

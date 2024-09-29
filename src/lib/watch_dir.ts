@@ -1,4 +1,4 @@
-import chokidar, {type WatchOptions} from 'chokidar';
+import {watch, type ChokidarOptions, type FSWatcher} from 'chokidar';
 import {relative} from 'node:path';
 
 import type {Path_Filter} from './path.js';
@@ -23,7 +23,7 @@ export interface Options {
 	dir: string;
 	on_change: Watcher_Change_Callback;
 	filter?: Path_Filter | null | undefined;
-	chokidar?: WatchOptions;
+	chokidar?: ChokidarOptions;
 	/**
 	 * When `false`, returns the `path` relative to `dir`.
 	 * @default true
@@ -39,13 +39,13 @@ export const watch_dir = ({
 	on_change,
 	filter,
 	absolute = true,
-	chokidar: chokidar_options,
+	chokidar,
 }: Options): Watch_Node_Fs => {
-	let watcher: chokidar.FSWatcher | undefined;
+	let watcher: FSWatcher | undefined;
 
 	return {
 		init: async () => {
-			watcher = chokidar.watch(dir, chokidar_options);
+			watcher = watch(dir, chokidar);
 			watcher.on('add', (path, s) => {
 				const stats = s ?? statSync(path);
 				const final_path = absolute ? path : relative(dir, path);

@@ -1,4 +1,4 @@
-import {fileURLToPath} from 'node:url';
+import {fileURLToPath, type URL} from 'node:url';
 import type {Flavored} from '@ryanatkn/belt/types.js';
 
 /**

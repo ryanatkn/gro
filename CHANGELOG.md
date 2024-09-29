@@ -1,5 +1,62 @@
 # @ryanatkn/gro
 
+## 0.135.2
+
+### Patch Changes
+
+- clean up `search_fs` docs ([a4884bf](https://github.com/ryanatkn/gro/commit/a4884bf))
+
+## 0.135.1
+
+### Patch Changes
+
+- upgrade `chokidar@4.0.1` from `4.0.0` ([58e324c](https://github.com/ryanatkn/gro/commit/58e324c))
+
+## 0.135.0
+
+### Minor Changes
+
+- bump required node version to `20.17` ([#498](https://github.com/ryanatkn/gro/pull/498))
+
+### Patch Changes
+
+- use node's `styleText` directly instead of belt's re-exports ([#498](https://github.com/ryanatkn/gro/pull/498))
+
+## 0.134.0
+
+### Minor Changes
+
+- upgrade `chokidar@4` ([#496](https://github.com/ryanatkn/gro/pull/496))
+
+### Patch Changes
+
+- fix server plugin to set the node condition for `esm-env` ([#497](https://github.com/ryanatkn/gro/pull/497))
+
+## 0.133.8
+
+### Patch Changes
+
+- fix typechecking for non-SvelteKit projects ([5470bf4](https://github.com/ryanatkn/gro/commit/5470bf4))
+
+## 0.133.7
+
+### Patch Changes
+
+- upgrade `@ryanatkn/belt@0.24.12` ([d1ae0e2](https://github.com/ryanatkn/gro/commit/d1ae0e2))
+
+## 0.133.6
+
+### Patch Changes
+
+- feat: support `?raw` imports in the loader ([#494](https://github.com/ryanatkn/gro/pull/494))
+
+## 0.133.5
+
+### Patch Changes
+
+- add `origin_path` to gen context ([998f99a](https://github.com/ryanatkn/gro/commit/998f99a))
+- fix: spawn server in `gro_plugin_server.ts` correctly ([c7fcf8b](https://github.com/ryanatkn/gro/commit/c7fcf8b))
+
 ## 0.133.4
 
 ### Patch Changes

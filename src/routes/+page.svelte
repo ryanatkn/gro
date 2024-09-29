@@ -3,7 +3,8 @@
 	import Library_Footer from '@ryanatkn/fuz/Library_Footer.svelte';
 	import Package_Detail from '@ryanatkn/fuz/Package_Detail.svelte';
 	import Package_Summary from '@ryanatkn/fuz/Package_Summary.svelte';
-	import Gro_Logo from '@ryanatkn/fuz/Gro_Logo.svelte';
+	import Svg from '@ryanatkn/fuz/Svg.svelte';
+	import {gro_logo} from '@ryanatkn/fuz/logos.js';
 	import {slide} from 'svelte/transition';
 	import Hidden_Personal_Links from '@ryanatkn/fuz/Hidden_Personal_Links.svelte';
 
@@ -22,7 +23,7 @@
 		<section class="box">
 			<h1>gro</h1>
 			<a class="panel p_md box mb_xl3" title="source repo" href="https://github.com/ryanatkn/gro">
-				<Gro_Logo size="var(--icon_size_lg)" />
+				<Svg data={gro_logo} size="var(--icon_size_lg)" />
 			</a>
 			<aside>
 				This website is a work in progress!<br />

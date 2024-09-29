@@ -65,6 +65,20 @@ export const sveltekit_sync = async (
 	}
 };
 
+// TODO maybe this shouldn't exist, instead error if `package.json` has SvelteKit but it's not found (with install message above)
+/**
+ * If the SvelteKit CLI is found and its `.svelte-kit` directory is not, run `svelte-kit sync`.
+ */
+export const sveltekit_sync_if_available = async (
+	sveltekit_cli: string | Cli = SVELTEKIT_CLI,
+): Promise<void> => {
+	const found_sveltekit_cli =
+		typeof sveltekit_cli === 'string' ? find_cli(sveltekit_cli) : sveltekit_cli;
+	if (found_sveltekit_cli) {
+		return sveltekit_sync(found_sveltekit_cli);
+	}
+};
+
 /**
  * If the SvelteKit CLI is found and its `.svelte-kit` directory is not, run `svelte-kit sync`.
  */

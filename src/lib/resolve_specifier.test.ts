@@ -8,68 +8,133 @@ import {paths} from './paths.js';
 const dir = paths.source + 'fixtures/';
 
 test('resolves a specifier to a file that exists with an unknown file extension', () => {
-	assert.equal(resolve_specifier(join(dir, 'test_file.other.ext'), dir), {
-		specifier: './test_file.other.ext',
-		path_id: join(dir, 'test_file.other.ext'),
+	const specifier = join(dir, 'test_file.other.ext');
+	const path_id = specifier;
+	assert.equal(resolve_specifier(specifier, dir), {
+		path_id,
+		path_id_with_querystring: path_id,
+		specifier,
+		mapped_specifier: './test_file.other.ext',
 		namespace: undefined,
+		raw: false,
 	});
 });
 
-test('resolves a ts specifier', () => {
-	assert.equal(resolve_specifier(join(dir, 'test_ts.ts'), dir), {
-		specifier: './test_ts.js',
-		path_id: join(dir, 'test_ts.ts'),
+test('resolves a TS specifier', () => {
+	const specifier = join(dir, 'test_ts.ts');
+	const path_id = specifier;
+	assert.equal(resolve_specifier(specifier, dir), {
+		path_id,
+		path_id_with_querystring: path_id,
+		specifier,
+		mapped_specifier: './test_ts.js',
 		namespace: 'sveltekit_local_imports_ts',
+		raw: false,
+	});
+});
+
+test('resolves a `?raw` ts specifier', () => {
+	const path = join(dir, 'test_ts.ts');
+	const specifier = path + '?raw';
+	const path_id = path;
+	assert.equal(resolve_specifier(specifier, dir), {
+		path_id,
+		path_id_with_querystring: path_id + '?raw',
+		specifier,
+		mapped_specifier: './test_ts.js',
+		namespace: 'sveltekit_local_imports_ts',
+		raw: true,
 	});
 });
 
 test('resolves relative ts specifiers', () => {
+	const path_id1 = join(dir, 'test_ts.ts');
 	assert.equal(resolve_specifier('./test_ts.ts', dir), {
-		specifier: './test_ts.js',
-		path_id: join(dir, 'test_ts.ts'),
+		path_id: path_id1,
+		path_id_with_querystring: path_id1,
+		specifier: './test_ts.ts',
+		mapped_specifier: './test_ts.js',
 		namespace: 'sveltekit_local_imports_ts',
+		raw: false,
 	});
+	const path_id2 = join(dir, 'a/b/test_ts.ts');
 	assert.equal(resolve_specifier('./a/b/test_ts.ts', dir), {
-		specifier: './a/b/test_ts.js',
-		path_id: join(dir, 'a/b/test_ts.ts'),
+		path_id: path_id2,
+		path_id_with_querystring: path_id2,
+		specifier: './a/b/test_ts.ts',
+		mapped_specifier: './a/b/test_ts.js',
 		namespace: 'sveltekit_local_imports_ts',
+		raw: false,
 	});
+	const path_id3 = join(dir, '../../test_ts.ts');
 	assert.equal(resolve_specifier('../../test_ts.ts', dir), {
-		specifier: '../../test_ts.js',
-		path_id: join(dir, '../../test_ts.ts'),
+		path_id: path_id3,
+		path_id_with_querystring: path_id3,
+		specifier: '../../test_ts.ts',
+		mapped_specifier: '../../test_ts.js',
 		namespace: 'sveltekit_local_imports_ts',
+		raw: false,
+	});
+	const path_id4 = join(dir, '../../test_ts.ts');
+	assert.equal(resolve_specifier('../../test_ts.ts?raw', dir), {
+		path_id: path_id4,
+		path_id_with_querystring: path_id4 + '?raw',
+		specifier: '../../test_ts.ts?raw',
+		mapped_specifier: '../../test_ts.js',
+		namespace: 'sveltekit_local_imports_ts',
+		raw: true,
 	});
 });
 
 test('resolves an extensionless specifier', () => {
-	assert.equal(resolve_specifier(join(dir, 'test_ts'), dir), {
-		specifier: './test_ts.js',
-		path_id: join(dir, 'test_ts.ts'),
+	const specifier = join(dir, 'test_ts');
+	const path_id = specifier + '.ts';
+	assert.equal(resolve_specifier(specifier, dir), {
+		path_id,
+		path_id_with_querystring: path_id,
+		specifier,
+		mapped_specifier: './test_ts.js',
 		namespace: 'sveltekit_local_imports_ts',
+		raw: false,
 	});
 });
 
 test('resolves a js specifier', () => {
-	assert.equal(resolve_specifier(join(dir, 'test_js.js'), dir), {
-		specifier: './test_js.js',
-		path_id: join(dir, 'test_js.js'),
+	const specifier = join(dir, 'test_js.js');
+	const path_id = specifier;
+	assert.equal(resolve_specifier(specifier, dir), {
+		path_id,
+		path_id_with_querystring: path_id,
+		specifier,
+		mapped_specifier: './test_js.js',
 		namespace: 'sveltekit_local_imports_js',
+		raw: false,
 	});
 });
 
 test('resolves a js specifier as ts for a file that does not exist', () => {
-	assert.equal(resolve_specifier(join(dir, 'test_missing.js'), dir), {
-		specifier: './test_missing.js',
-		path_id: join(dir, 'test_missing.ts'),
+	const specifier = join(dir, 'test_missing.js');
+	const path_id = join(dir, 'test_missing.ts');
+	assert.equal(resolve_specifier(specifier, dir), {
+		path_id,
+		path_id_with_querystring: path_id,
+		specifier,
+		mapped_specifier: './test_missing.js',
 		namespace: 'sveltekit_local_imports_ts',
+		raw: false,
 	});
 });
 
 test('resolves an extensionless specifier for a file that does not exist', () => {
-	assert.equal(resolve_specifier(join(dir, 'test_missing'), dir), {
-		specifier: './test_missing.js',
-		path_id: join(dir, 'test_missing.ts'),
+	const specifier = join(dir, 'test_missing');
+	const path_id = specifier + '.ts';
+	assert.equal(resolve_specifier(specifier, dir), {
+		path_id,
+		path_id_with_querystring: path_id,
+		specifier,
+		mapped_specifier: './test_missing.js',
 		namespace: 'sveltekit_local_imports_ts',
+		raw: false,
 	});
 });
 
