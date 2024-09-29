@@ -35,9 +35,9 @@
 			<button
 				type="button"
 				class="toggle icon_button"
+				class:selected={show_detail}
 				title={show_detail ? 'show package summary' : 'show package detail'}
-				onclick={() => (show_detail = !show_detail)}
-				>{#if show_detail}🪜{:else}🔨{/if}</button
+				onclick={() => (show_detail = !show_detail)}>🪜</button
 			>
 			{#if show_detail}
 				<div class="box w_100" transition:slide>
