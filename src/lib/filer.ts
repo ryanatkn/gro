@@ -41,29 +41,6 @@ export class Filer {
 	#watching: Watch_Node_Fs | undefined;
 	#listeners: Set<On_Filer_Change> = new Set();
 
-	on_change: Watcher_Change_Callback = (change) => {
-		console.log(`filer on_change`, change);
-		let source_file: Source_File | undefined;
-		switch (change.type) {
-			case 'create':
-			case 'update': {
-				// TODO BLOCK add_or_update? check here or in the fn?
-				source_file = this.#update(change.path);
-				break;
-			}
-			case 'delete': {
-				source_file = this.#remove(change.path);
-				break;
-			}
-		}
-		// TODO BLOCK should this always be called even with an `undefined` source file?
-		if (source_file) {
-			for (const listener of this.#listeners) {
-				listener(change, source_file);
-			}
-		}
-	};
-
 	get_by_id = (id: Path_Id): Source_File | undefined => {
 		return this.files.get(id);
 	};
@@ -101,7 +78,7 @@ export class Filer {
 			dir: SOURCE_DIR,
 			filter: (path, is_directory) => (is_directory ? true : default_file_filter(path)),
 			...this.watch_dir_options,
-			on_change: this.on_change,
+			on_change: this.#on_change,
 		}); // TODO maybe make `watch_dir` an option instead of accepting options?
 	}
 
@@ -111,6 +88,29 @@ export class Filer {
 			await this.close(); // TODO is this right? should `watch` be async?
 		}
 	}
+
+	#on_change: Watcher_Change_Callback = (change) => {
+		console.log(`filer on_change`, change);
+		let source_file: Source_File | undefined;
+		switch (change.type) {
+			case 'create':
+			case 'update': {
+				// TODO BLOCK add_or_update? check here or in the fn?
+				source_file = this.#update(change.path);
+				break;
+			}
+			case 'delete': {
+				source_file = this.#remove(change.path);
+				break;
+			}
+		}
+		// TODO BLOCK should this always be called even with an `undefined` source file?
+		if (source_file) {
+			for (const listener of this.#listeners) {
+				listener(change, source_file);
+			}
+		}
+	};
 
 	watch = (listener: On_Filer_Change): Cleanup_Watch => {
 		this.#add_listener(listener);
