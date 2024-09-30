@@ -1,6 +1,6 @@
 import {EMPTY_OBJECT} from '@ryanatkn/belt/object.js';
 import {readFileSync} from 'fs';
-import {join, resolve} from 'node:path';
+import {resolve} from 'node:path';
 
 import type {Path_Id} from './path.js';
 import {
@@ -10,8 +10,7 @@ import {
 	type Options as Watch_Dir_Options,
 	type Watcher_Change_Callback,
 } from './watch_dir.js';
-import {SOURCE_DIR} from './path_constants.js';
-import {default_file_filter} from './paths.js';
+import {default_file_filter, paths} from './paths.js';
 
 export interface Source_File {
 	id: Path_Id;
@@ -89,7 +88,7 @@ export class Filer {
 		this.#watching = watch_dir({
 			filter: (path, is_directory) => (is_directory ? true : default_file_filter(path)),
 			...this.watch_dir_options,
-			dir: resolve(this.watch_dir_options.dir ?? SOURCE_DIR), // TODO support multiple?
+			dir: resolve(this.watch_dir_options.dir ?? paths.source),
 			on_change: this.#on_change,
 		}); // TODO maybe make `watch_dir` an option instead of accepting options?
 		await this.#watching.init(); // TODO return?
