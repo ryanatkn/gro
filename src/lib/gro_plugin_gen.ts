@@ -18,9 +18,13 @@ export interface Task_Args extends Args {
 
 export interface Options {
 	root_dirs?: string[];
+	flush_debounce_delay?: number;
 }
 
-export const gro_plugin_gen = ({root_dirs = [paths.source]}: Options = EMPTY_OBJECT): Plugin => {
+export const gro_plugin_gen = ({
+	root_dirs = [paths.source],
+	flush_debounce_delay = FLUSH_DEBOUNCE_DELAY,
+}: Options = EMPTY_OBJECT): Plugin => {
 	let generating = false;
 	let regen = false;
 	const queued_files: Set<string> = new Set();
@@ -43,7 +47,7 @@ export const gro_plugin_gen = ({root_dirs = [paths.source]}: Options = EMPTY_OBJ
 			regen = false;
 			void flush_gen_queue();
 		}
-	}, FLUSH_DEBOUNCE_DELAY);
+	}, flush_debounce_delay);
 	const gen = (files: string[] = []) => spawn_cli('gro', ['gen', ...files]);
 
 	let cleanup: Cleanup_Watch | undefined;

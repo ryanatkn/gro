@@ -47,7 +47,6 @@ export const watch_dir = ({
 		init: async () => {
 			watcher = watch(dir, {...chokidar}); // cwd: chokidar?.cwd ?? process.cwd()
 			watcher.on('add', (path) => {
-				console.log(`path`, path);
 				const final_path = absolute ? path : relative(dir, path);
 				if (filter && !filter(final_path, false)) return;
 				on_change({type: 'add', path: final_path, is_directory: false});
