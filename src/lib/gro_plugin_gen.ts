@@ -76,14 +76,14 @@ export const gro_plugin_gen = ({root_dirs = [paths.source]}: Options = EMPTY_OBJ
 			console.log('CREATING WATCHER');
 			cleanup = await filer.watch((change, source_file) => {
 				console.log(
-					`[gro_plugin_gen] change, id, dependents.size`,
+					`[gro_plugin_gen]`,
 					change.type,
 					change.path,
 					source_file.id,
 					source_file.dependents.size,
 				);
 				switch (change.type) {
-					case 'create':
+					case 'add':
 					case 'update': {
 						// TODO how to handle this now? the loader traces deps for us with `parentPath`,
 						// but we probably want to make this an esbuild plugin instead

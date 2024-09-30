@@ -16,7 +16,7 @@ export interface Watcher_Change {
 	path: string;
 	is_directory: boolean;
 }
-export type Watcher_Change_Type = 'create' | 'update' | 'delete'; // TODO BLOCK `init` instead of `create`?
+export type Watcher_Change_Type = 'add' | 'update' | 'delete'; // TODO BLOCK `init` instead of `create`?
 export type Watcher_Change_Callback = (change: Watcher_Change) => void;
 
 export interface Options {
@@ -45,16 +45,17 @@ export const watch_dir = ({
 
 	return {
 		init: async () => {
-			watcher = watch(dir, chokidar);
+			watcher = watch(dir, {...chokidar}); // cwd: chokidar?.cwd ?? process.cwd()
 			watcher.on('add', (path) => {
+				console.log(`path`, path);
 				const final_path = absolute ? path : relative(dir, path);
 				if (filter && !filter(final_path, false)) return;
-				on_change({type: 'create', path: final_path, is_directory: false});
+				on_change({type: 'add', path: final_path, is_directory: false});
 			});
 			watcher.on('addDir', (path) => {
 				const final_path = absolute ? path : relative(dir, path);
 				if (filter && !filter(final_path, true)) return;
-				on_change({type: 'create', path: final_path, is_directory: true});
+				on_change({type: 'add', path: final_path, is_directory: true});
 			});
 			watcher.on('change', (path, s) => {
 				const stats = s ?? statSync(path);

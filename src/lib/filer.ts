@@ -45,6 +45,7 @@ export class Filer {
 		return this.files.get(id);
 	};
 
+	// TODO BLOCK this isn't an id, it's relative, same with `source_file.id` below
 	#update(id: Path_Id): Source_File {
 		const contents = readFileSync(id, 'utf8');
 		const existing = this.get_by_id(id);
@@ -97,7 +98,7 @@ export class Filer {
 		if (change.is_directory) return;
 		let source_file: Source_File | undefined;
 		switch (change.type) {
-			case 'create':
+			case 'add':
 			case 'update': {
 				// TODO BLOCK add_or_update? check here or in the fn?
 				source_file = this.#update(change.path);
