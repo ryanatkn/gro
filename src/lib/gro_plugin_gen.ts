@@ -28,10 +28,16 @@ export const gro_plugin_gen = ({
 	const input_path = paths.source; // TODO option?
 	let generating = false;
 	let regen = false;
+	let flushing_timeout: NodeJS.Timeout | undefined;
 	const queued_files: Set<string> = new Set();
 	const queue_gen = (gen_file_id: string) => {
 		queued_files.add(gen_file_id);
-		setTimeout(() => void flush_gen_queue()); // the timeout batches synchronously
+		if (flushing_timeout === undefined) {
+			flushing_timeout = setTimeout(() => {
+				flushing_timeout = undefined;
+				void flush_gen_queue();
+			}); // the timeout batches synchronously
+		}
 	};
 	const flush_gen_queue = throttle(async () => {
 		// hacky way to avoid concurrent `gro gen` calls
@@ -82,19 +88,12 @@ export const gro_plugin_gen = ({
 			// for any `.gen.` files that need to run.
 			console.log('CREATING WATCHER');
 			cleanup = await filer.watch((change, source_file) => {
-				console.log(
-					`[gro_plugin_gen]`,
-					change.type,
-					change.path,
-					source_file.id,
-					source_file.dependents.size,
-				);
+				console.log(`[gro_plugin_gen]`, change.type, source_file.id, source_file.dependents.size);
 				switch (change.type) {
 					case 'add':
 					case 'update': {
 						// TODO how to handle this now? the loader traces deps for us with `parentPath`,
 						// but we probably want to make this an esbuild plugin instead
-						console.log(`is_gen_path(source_file.id)`, change.path, is_gen_path(source_file.id));
 						if (is_gen_path(source_file.id)) {
 							queue_gen(source_file.id);
 						}
@@ -103,6 +102,7 @@ export const gro_plugin_gen = ({
 							filer.get_by_id,
 							is_gen_path,
 						);
+						console.log(`dependent_gen_file_ids`, dependent_gen_file_ids);
 						// TODO BLOCK need to check all of the last-generated files too, their imports may be different, but do this after regenerating above as needed
 						for (const dependent_gen_file_id of dependent_gen_file_ids) {
 							queue_gen(dependent_gen_file_id);
