@@ -73,10 +73,19 @@ export class Filer {
 		return found;
 	}
 
+	#notify(listener: On_Filer_Change): void {
+		for (const source_file of this.files.values()) {
+			listener({type: 'add', path: source_file.id, is_directory: false}, source_file);
+		}
+	}
+
 	async #add_listener(listener: On_Filer_Change): Promise<void> {
 		this.#listeners.add(listener);
-		// TODO BLOCK if already watching, call the listener for all existing files?
-		if (this.#watching) return;
+		if (this.#watching) {
+			// if already watching, call the listener for all existing files
+			this.#notify(listener);
+			return;
+		}
 		this.#watching = watch_dir({
 			filter: (path, is_directory) => (is_directory ? true : default_file_filter(path)),
 			...this.watch_dir_options,

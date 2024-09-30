@@ -38,11 +38,13 @@ export const invoke_task = async (
 	task_name: Raw_Input_Path,
 	args: Args | undefined,
 	config: Gro_Config,
-	filer = new Filer(),
-	initial_timings: Timings | null = null,
+	initial_filer?: Filer,
+	initial_timings?: Timings | null,
 ): Promise<void> => {
 	const log = new System_Logger(print_log_label(task_name || 'gro'));
 	log.info('invoking', task_name ? st('cyan', task_name) : 'gro');
+
+	const filer = initial_filer ?? new Filer();
 
 	const timings = initial_timings ?? new Timings();
 
@@ -106,7 +108,7 @@ export const invoke_task = async (
 		{...args, ...to_forwarded_args(`gro ${task.name}`)},
 		invoke_task,
 		config,
-		filer, // TODO somehow close this? maybe with a counter?
+		filer,
 		timings,
 	);
 	timing_to_run_task();
