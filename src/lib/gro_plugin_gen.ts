@@ -76,8 +76,9 @@ export const gro_plugin_gen = ({root_dirs = [paths.source]}: Options = EMPTY_OBJ
 			console.log('CREATING WATCHER');
 			cleanup = await filer.watch((change, source_file) => {
 				console.log(
-					`change, id, dependents.size`,
-					change,
+					`[gro_plugin_gen] change, id, dependents.size`,
+					change.type,
+					change.path,
 					source_file.id,
 					source_file.dependents.size,
 				);

@@ -93,16 +93,14 @@ export class Filer {
 	}
 
 	#on_change: Watcher_Change_Callback = (change) => {
+		if (this.watch_dir_options.on_change) throw Error('TODO'); // TODO BLOCK call into it? where? or exclude from the type?
 		if (change.is_directory) return;
-		console.log(`filer on_change`, change);
 		let source_file: Source_File | undefined;
 		switch (change.type) {
 			case 'create':
 			case 'update': {
 				// TODO BLOCK add_or_update? check here or in the fn?
-				if (!change.is_directory) {
-					source_file = this.#update(change.path);
-				}
+				source_file = this.#update(change.path);
 				break;
 			}
 			case 'delete': {
