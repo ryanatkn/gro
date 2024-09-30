@@ -1,11 +1,13 @@
 import type {Result} from '@ryanatkn/belt/result.js';
 import {existsSync} from 'node:fs';
+import type {Logger} from '@ryanatkn/belt/log.js';
 
 import {Package_Json, load_package_json} from './package_json.js';
 import {default_sveltekit_config, type Parsed_Sveltekit_Config} from './sveltekit_config.js';
 import {SVELTEKIT_CONFIG_FILENAME, SVELTEKIT_DEV_DIRNAME} from './path_constants.js';
 import {find_cli, spawn_cli, to_cli_name, type Cli} from './cli.js';
 import {Task_Error} from './task.js';
+import {serialize_args, to_forwarded_args} from './args.js';
 
 export const SVELTEKIT_CLI = 'svelte-kit';
 
@@ -145,3 +147,28 @@ export interface Svelte_Package_Options {
 	 */
 	tsconfig?: string;
 }
+
+export const run_svelte_package = async (
+	options: Svelte_Package_Options | undefined,
+	cli: string | Cli,
+	log: Logger,
+): Promise<void> => {
+	const has_sveltekit_library_result = has_sveltekit_library();
+	if (!has_sveltekit_library_result.ok) {
+		throw new Task_Error(
+			'Failed to find SvelteKit library: ' + has_sveltekit_library_result.message,
+		);
+	}
+	const cli_name = typeof cli === 'string' ? cli : cli.name;
+	const found_svelte_package_cli = cli === cli_name ? find_cli(cli) : (cli as Cli);
+	if (found_svelte_package_cli?.kind !== 'local') {
+		throw new Task_Error(
+			`Failed to find SvelteKit packaging CLI \`${cli_name}\`, do you need to run \`npm i\`?`,
+		);
+	}
+	const serialized_args = serialize_args({
+		...options,
+		...to_forwarded_args(cli_name),
+	});
+	await spawn_cli(found_svelte_package_cli, serialized_args, log);
+};
