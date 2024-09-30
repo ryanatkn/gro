@@ -73,6 +73,7 @@ export class Filer {
 
 	async #add_listener(listener: On_Filer_Change): Promise<void> {
 		this.#listeners.add(listener);
+		// TODO BLOCK if already watching, call the listener for all existing files?
 		if (this.#watching) return;
 		console.log('ADD LISTENER', SOURCE_DIR);
 		this.#watching = watch_dir({
