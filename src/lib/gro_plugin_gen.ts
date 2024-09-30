@@ -25,11 +25,12 @@ export const gro_plugin_gen = ({
 	root_dirs = [paths.source],
 	flush_debounce_delay = FLUSH_DEBOUNCE_DELAY,
 }: Options = EMPTY_OBJECT): Plugin => {
+	const input_path = paths.source; // TODO option?
 	let generating = false;
 	let regen = false;
 	const queued_files: Set<string> = new Set();
-	const queue_gen = (gen_file_name: string) => {
-		queued_files.add(gen_file_name);
+	const queue_gen = (gen_file_id: string) => {
+		queued_files.add(gen_file_id);
 		void flush_gen_queue();
 	};
 	const flush_gen_queue = throttle(async () => {
@@ -41,6 +42,7 @@ export const gro_plugin_gen = ({
 		generating = true;
 		const files = Array.from(queued_files);
 		queued_files.clear();
+		console.log(`gen(files)`, files);
 		await gen(files);
 		generating = false;
 		if (regen) {
@@ -63,7 +65,7 @@ export const gro_plugin_gen = ({
 			// Some parts of the build may have already happened,
 			// making us miss `build` events for gen dependencies,
 			// so we run `gen` here even if it's usually wasteful.
-			const found = find_genfiles([paths.source], root_dirs, config);
+			const found = find_genfiles([input_path], root_dirs, config);
 			if (found.ok && found.value.resolved_input_files.length > 0) {
 				await gen();
 			}
@@ -91,8 +93,9 @@ export const gro_plugin_gen = ({
 					case 'update': {
 						// TODO how to handle this now? the loader traces deps for us with `parentPath`,
 						// but we probably want to make this an esbuild plugin instead
+						console.log(`is_gen_path(source_file.id)`, change.path, is_gen_path(source_file.id));
 						if (is_gen_path(source_file.id)) {
-							queue_gen(path_id_to_base_path(source_file.id));
+							queue_gen(source_file.id);
 						}
 						const dependent_gen_file_ids = filter_dependents(
 							source_file,
@@ -101,7 +104,7 @@ export const gro_plugin_gen = ({
 						);
 						// TODO BLOCK need to check all of the last-generated files too, their imports may be different, but do this after regenerating above as needed
 						for (const dependent_gen_file_id of dependent_gen_file_ids) {
-							queue_gen(path_id_to_base_path(dependent_gen_file_id));
+							queue_gen(dependent_gen_file_id);
 						}
 						break;
 					}
