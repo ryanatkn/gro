@@ -74,7 +74,7 @@ export const watch_dir = ({
 			});
 			// wait until ready
 			let resolve: any;
-			const promise = new Promise((r) => (resolve = r));
+			const promise = new Promise((r) => (resolve = r)); // TODO `create_deferred`?
 			watcher.once('ready', () => resolve());
 			await promise;
 		},

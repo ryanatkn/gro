@@ -31,7 +31,7 @@ export const gro_plugin_gen = ({
 	const queued_files: Set<string> = new Set();
 	const queue_gen = (gen_file_id: string) => {
 		queued_files.add(gen_file_id);
-		void flush_gen_queue();
+		setTimeout(() => void flush_gen_queue()); // the timeout batches synchronously
 	};
 	const flush_gen_queue = throttle(async () => {
 		// hacky way to avoid concurrent `gro gen` calls
@@ -61,19 +61,20 @@ export const gro_plugin_gen = ({
 			// which should be checked by CI via `gro check` which calls `gro gen --check`.
 			if (!dev) return;
 
-			// Run `gen`, first checking if there are any modules to avoid a console error.
-			// Some parts of the build may have already happened,
-			// making us miss `build` events for gen dependencies,
-			// so we run `gen` here even if it's usually wasteful.
-			const found = find_genfiles([input_path], root_dirs, config);
-			if (found.ok && found.value.resolved_input_files.length > 0) {
-				await gen();
-			}
-
 			// Do we need to just generate everything once and exit?
 			// TODO could we have an esbuild context here? problem is watching the right files, maybe a plugin that tracks deps
 			if (!watch) {
 				log.info('generating and exiting early');
+
+				// Run `gen`, first checking if there are any modules to avoid a console error.
+				// Some parts of the build may have already happened,
+				// making us miss `build` events for gen dependencies,
+				// so we run `gen` here even if it's usually wasteful.
+				const found = find_genfiles([input_path], root_dirs, config);
+				if (found.ok && found.value.resolved_input_files.length > 0) {
+					await gen();
+				}
+
 				return;
 			}
 
