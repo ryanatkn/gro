@@ -73,7 +73,8 @@ export const gro_plugin_gen = ({root_dirs = [paths.source]}: Options = EMPTY_OBJ
 
 			// When a file builds, check it and its tree of dependents
 			// for any `.gen.` files that need to run.
-			cleanup = filer.watch((change, source_file) => {
+			console.log('CREATING WATCHER');
+			cleanup = await filer.watch((change, source_file) => {
 				console.log(
 					`change, id, dependents.size`,
 					change,

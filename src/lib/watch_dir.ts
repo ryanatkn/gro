@@ -46,17 +46,15 @@ export const watch_dir = ({
 	return {
 		init: async () => {
 			watcher = watch(dir, chokidar);
-			watcher.on('add', (path, s) => {
-				const stats = s ?? statSync(path);
+			watcher.on('add', (path) => {
 				const final_path = absolute ? path : relative(dir, path);
-				if (filter && !filter(final_path, stats.isDirectory())) return;
-				on_change({type: 'create', path: final_path, is_directory: stats.isDirectory()});
+				if (filter && !filter(final_path, false)) return;
+				on_change({type: 'create', path: final_path, is_directory: false});
 			});
-			watcher.on('addDir', (path, s) => {
-				const stats = s ?? statSync(path);
+			watcher.on('addDir', (path) => {
 				const final_path = absolute ? path : relative(dir, path);
-				if (filter && !filter(final_path, stats.isDirectory())) return;
-				on_change({type: 'create', path: final_path, is_directory: stats.isDirectory()});
+				if (filter && !filter(final_path, true)) return;
+				on_change({type: 'create', path: final_path, is_directory: true});
 			});
 			watcher.on('change', (path, s) => {
 				const stats = s ?? statSync(path);

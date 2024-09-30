@@ -71,15 +71,17 @@ export class Filer {
 		return found;
 	}
 
-	#add_listener(listener: On_Filer_Change): void {
+	async #add_listener(listener: On_Filer_Change): Promise<void> {
 		this.#listeners.add(listener);
 		if (this.#watching) return;
+		console.log('ADD LISTENER', SOURCE_DIR);
 		this.#watching = watch_dir({
-			dir: SOURCE_DIR,
+			dir: SOURCE_DIR, // TODO BLOCK option
 			filter: (path, is_directory) => (is_directory ? true : default_file_filter(path)),
 			...this.watch_dir_options,
 			on_change: this.#on_change,
 		}); // TODO maybe make `watch_dir` an option instead of accepting options?
+		await this.#watching.init(); // TODO return?
 	}
 
 	async #remove_listener(listener: On_Filer_Change): Promise<void> {
@@ -90,13 +92,16 @@ export class Filer {
 	}
 
 	#on_change: Watcher_Change_Callback = (change) => {
+		if (change.is_directory) return;
 		console.log(`filer on_change`, change);
 		let source_file: Source_File | undefined;
 		switch (change.type) {
 			case 'create':
 			case 'update': {
 				// TODO BLOCK add_or_update? check here or in the fn?
-				source_file = this.#update(change.path);
+				if (!change.is_directory) {
+					source_file = this.#update(change.path);
+				}
 				break;
 			}
 			case 'delete': {
@@ -112,12 +117,14 @@ export class Filer {
 		}
 	};
 
-	watch = (listener: On_Filer_Change): Cleanup_Watch => {
-		this.#add_listener(listener);
+	watch = async (listener: On_Filer_Change): Promise<Cleanup_Watch> => {
+		console.log('FILER WATCH');
+		await this.#add_listener(listener);
 		return () => this.#remove_listener(listener);
 	};
 
 	close = async (): Promise<void> => {
+		console.log('FILER CLOSE');
 		this.#listeners.clear();
 		if (this.#watching) {
 			await this.#watching.close();
