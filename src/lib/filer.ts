@@ -91,7 +91,8 @@ export class Filer {
 			dir: resolve(this.watch_dir_options.dir ?? paths.source),
 			on_change: this.#on_change,
 		}); // TODO maybe make `watch_dir` an option instead of accepting options?
-		await this.#watching.init(); // TODO return?
+		await this.#watching.init();
+		// TODO BLOCK here we need to now set up all dependencies now that all files exist
 	}
 
 	async #remove_listener(listener: On_Filer_Change): Promise<void> {
