@@ -42,10 +42,14 @@ export const watch_dir = ({
 	chokidar,
 }: Options): Watch_Node_Fs => {
 	let watcher: FSWatcher | undefined;
+	let initing: Promise<void> | undefined;
 
 	return {
 		init: async () => {
-			watcher = watch(dir, {...chokidar}); // cwd: chokidar?.cwd ?? process.cwd()
+			if (initing) return initing;
+			let resolve: any;
+			initing = new Promise((r) => (resolve = r)); // TODO `create_deferred`?// cwd: chokidar?.cwd ?? process.cwd()
+			watcher = watch(dir, {...chokidar});
 			watcher.on('add', (path) => {
 				const final_path = absolute ? path : relative(dir, path);
 				if (filter && !filter(final_path, false)) return;
@@ -73,12 +77,11 @@ export const watch_dir = ({
 				on_change({type: 'delete', path: final_path, is_directory: true});
 			});
 			// wait until ready
-			let resolve: any;
-			const promise = new Promise((r) => (resolve = r)); // TODO `create_deferred`?
 			watcher.once('ready', () => resolve());
-			await promise;
+			await initing;
 		},
 		close: async () => {
+			initing = undefined;
 			if (!watcher) return;
 			await watcher.close();
 		},

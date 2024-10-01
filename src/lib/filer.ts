@@ -1,6 +1,7 @@
 import {EMPTY_OBJECT} from '@ryanatkn/belt/object.js';
 import {readFileSync} from 'fs';
-import {resolve} from 'node:path';
+import {dirname, join, resolve} from 'node:path';
+import {parse} from 'es-module-lexer';
 
 import type {Path_Id} from './path.js';
 import {
@@ -11,11 +12,21 @@ import {
 	type Watcher_Change_Callback,
 } from './watch_dir.js';
 import {default_file_filter, paths} from './paths.js';
+import {TS_MATCHER} from './path_constants.js';
+import {SVELTE_MATCHER} from './svelte_helpers.js';
+import {parse_imports} from './parse_imports.js';
+import {resolve_specifier} from './resolve_specifier.js';
+import {default_sveltekit_config} from './sveltekit_config.js';
+import {map_sveltekit_aliases} from './sveltekit_helpers.js';
+
+// TODO BLOCK hacky
+const aliases = Object.entries({$lib: 'src/lib', ...default_sveltekit_config.alias});
 
 export interface Source_File {
 	id: Path_Id;
 	contents: string;
 	dependents: Map<Path_Id, Source_File>; // TODO BLOCK dependents and dependencies?
+	dependencies: Map<Path_Id, Source_File>; // TODO BLOCK dependents and dependencies?
 }
 
 export type Cleanup_Watch = () => Promise<void>;
@@ -51,17 +62,22 @@ export class Filer {
 		const existing = this.get_by_id(id);
 		if (existing) {
 			existing.contents = contents; // TODO BLOCK update dependencies (make `Source_File` a class?)
+			// TODO BLOCK update contents
 			return existing;
 		}
 		// TODO BLOCK resolve specifiers - `resolve_specifier` and `resolve_node_specifier`
 		// TODO BLOCK handle existing?
-		const source_file: Source_File = {
+		const file: Source_File = {
 			id,
 			contents,
-			dependents: new Map(), // TODO BLOCK use the lexer - maybe `dependencies` too?
+			dependents: new Map(), // TODO BLOCK use the lexer
+			dependencies: new Map(), // TODO BLOCK use the lexer
 		};
-		this.files.set(id, source_file);
-		return source_file;
+		this.files.set(id, file);
+		if (this.#ready) {
+			this.#sync_deps_for_file(file);
+		}
+		return file;
 	}
 
 	#remove(id: Path_Id): Source_File | undefined {
@@ -69,7 +85,48 @@ export class Filer {
 		if (!found) return undefined;
 		// TODO BLOCK remove from dependents
 		this.files.delete(id);
+		if (this.#ready) {
+			// TODO BLOCK different sync logic?
+		}
 		return found;
+	}
+
+	// syncs all deps, clearing as it goes
+	#sync_deps(): void {
+		for (const file of this.files.values()) {
+			this.#sync_deps_for_file(file);
+		}
+	}
+
+	#sync_deps_for_file(file: Source_File): void {
+		const dir = dirname(file.id);
+		// TODO BLOCK parse deps for TS/svelte
+		const imported = parse_imports(file.id, file.contents);
+		for (const specifier of imported) {
+			// TODO BLOCK duplicated from loader
+			const path = map_sveltekit_aliases(specifier, aliases);
+
+			// The specifier `path` has now been mapped to its final form, so we can inspect it.
+			if (path[0] === '.' || path[0] === '/') {
+				const resolved = resolve_specifier(path, dir);
+				const f = this.get_by_id(resolved.path_id);
+				if (!f) {
+					throw Error('expected to find ' + resolved.path_id);
+				}
+				file.dependencies.set(f.id, f);
+			}
+		}
+
+		// add the back refs
+		// TODO BLOCK remove existing back refs
+		for (const d of file.dependencies.values()) {
+			d.dependents.set(file.id, file);
+		}
+		// console.log(
+		// 	`file.dependencies, file.dependents`,
+		// 	Array.from(file.dependencies.keys()),
+		// 	Array.from(file.dependents.keys()),
+		// );
 	}
 
 	#notify(listener: On_Filer_Change): void {
@@ -78,10 +135,19 @@ export class Filer {
 		}
 	}
 
+	/**
+	 * File deps need to be initialized in a batch after all file references are ready.
+	 * This flag is set to `true` after all deps have been batch-synced.
+	 * When it's not ready, events do not need to modify deps, and indeed they shouldn't,
+	 * because any particular file objects may not be ready yet.
+	 */
+	#ready = false;
+
 	async #add_listener(listener: On_Filer_Change): Promise<void> {
 		this.#listeners.add(listener);
 		if (this.#watching) {
 			// if already watching, call the listener for all existing files
+			await this.#watching.init();
 			this.#notify(listener);
 			return;
 		}
@@ -92,6 +158,8 @@ export class Filer {
 			on_change: this.#on_change,
 		}); // TODO maybe make `watch_dir` an option instead of accepting options?
 		await this.#watching.init();
+		this.#sync_deps();
+		this.#ready = true;
 		// TODO BLOCK here we need to now set up all dependencies now that all files exist
 		console.log('[#add_listener] this.#watching.init() COMPLETED');
 	}
@@ -135,6 +203,7 @@ export class Filer {
 
 	close = async (): Promise<void> => {
 		console.log('FILER CLOSE');
+		this.#ready = false;
 		this.#listeners.clear();
 		if (this.#watching) {
 			await this.#watching.close();

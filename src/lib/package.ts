@@ -731,6 +731,7 @@ export const src_json = {
 				{name: 'GIT_DIRNAME', kind: 'variable'},
 				{name: 'TSCONFIG_FILENAME', kind: 'variable'},
 				{name: 'TS_MATCHER', kind: 'variable'},
+				{name: 'JS_MATCHER', kind: 'variable'},
 				{name: 'JSON_MATCHER', kind: 'variable'},
 				{name: 'EVERYTHING_MATCHER', kind: 'variable'},
 			],
@@ -894,6 +895,7 @@ export const src_json = {
 				{name: 'sveltekit_sync_if_obviously_needed', kind: 'function'},
 				{name: 'Svelte_Package_Options', kind: 'type'},
 				{name: 'run_svelte_package', kind: 'function'},
+				{name: 'map_sveltekit_aliases', kind: 'function'},
 			],
 		},
 		'./sveltekit_shim_app_environment.js': {

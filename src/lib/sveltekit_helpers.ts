@@ -1,6 +1,7 @@
 import type {Result} from '@ryanatkn/belt/result.js';
 import {existsSync} from 'node:fs';
 import type {Logger} from '@ryanatkn/belt/log.js';
+import {join} from 'node:path';
 
 import {Package_Json, load_package_json} from './package_json.js';
 import {default_sveltekit_config, type Parsed_Sveltekit_Config} from './sveltekit_config.js';
@@ -171,4 +172,22 @@ export const run_svelte_package = async (
 		...to_forwarded_args(cli_name),
 	});
 	await spawn_cli(found_svelte_package_cli, serialized_args, log);
+};
+
+//
+/**
+ * Map an import specifier with the SvelteKit aliases.
+ */
+export const map_sveltekit_aliases = (
+	specifier: string,
+	aliases: Array<[string, string]>,
+): string => {
+	let path = specifier;
+	for (const [from, to] of aliases) {
+		if (path.startsWith(from)) {
+			path = join(process.cwd(), to, path.substring(from.length));
+			break;
+		}
+	}
+	return path;
 };
