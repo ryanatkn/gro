@@ -93,6 +93,7 @@ export class Filer {
 		}); // TODO maybe make `watch_dir` an option instead of accepting options?
 		await this.#watching.init();
 		// TODO BLOCK here we need to now set up all dependencies now that all files exist
+		console.log('[#add_listener] this.#watching.init() COMPLETED');
 	}
 
 	async #remove_listener(listener: On_Filer_Change): Promise<void> {
