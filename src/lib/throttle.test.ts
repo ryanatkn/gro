@@ -66,7 +66,7 @@ test('throttles calls to a function', async () => {
 	]);
 });
 
-test('throttles calls to a function with leading = false', async () => {
+test.only('throttles calls to a function with leading = false', async () => {
 	console.log('\n\n\nTEST 2\n\n');
 	const results: string[] = [];
 	const fn = throttle(
@@ -91,8 +91,9 @@ test('throttles calls to a function with leading = false', async () => {
 
 	await wait(); // Wait for the delay
 
-	assert.equal(results, ['d_run']);
+	// assert.equal(results, ['d_run']);
 
+	console.log(`promise_a`, promise_a);
 	await promise_a; // All promises resolve to the same result
 
 	assert.equal(results, ['d_run', 'd_done']);

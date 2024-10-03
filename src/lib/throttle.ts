@@ -33,6 +33,7 @@ export const throttle = <T extends (...args: any[]) => Promise<void>>(
 		console.log(id, '[defer]');
 		next_args = args;
 		if (!next_promise) {
+			console.log(id, '[defer] creating promise');
 			next_promise = new Promise((resolve) => {
 				next_promise_resolve = resolve;
 			});
@@ -50,6 +51,7 @@ export const throttle = <T extends (...args: any[]) => Promise<void>>(
 		next_promise = null;
 		const resolve = next_promise_resolve;
 		next_promise_resolve = null;
+		console.log(id, '[flush] resolving');
 		resolve(result); // resolve last to prevent synchronous call issues
 	};
 
