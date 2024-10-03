@@ -217,6 +217,7 @@ export class Filer {
 				break;
 			}
 		}
+		// TODO BLOCK problem is notifying here on startup doesn't have all deps ready
 		// TODO BLOCK should this always be called even with an `undefined` source file?
 		if (source_file) {
 			for (const listener of this.#listeners) {
