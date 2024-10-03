@@ -58,6 +58,7 @@ export class Filer {
 
 	// TODO BLOCK this isn't an id, it's relative, same with `source_file.id` below
 	#update(id: Path_Id): Source_File {
+		console.log('[filer] #update', id);
 		const contents = readFileSync(id, 'utf8');
 		const existing = this.get_by_id(id);
 		if (existing) {
@@ -81,25 +82,40 @@ export class Filer {
 	}
 
 	#remove(id: Path_Id): Source_File | undefined {
+		console.log('[filer] #remove', id);
 		const found = this.get_by_id(id);
 		if (!found) return undefined;
 		// TODO BLOCK remove from dependents
 		this.files.delete(id);
 		if (this.#ready) {
-			// TODO BLOCK different sync logic?
+			this.#remove_references(id);
 		}
 		return found;
 	}
 
+	#remove_references(id: Path_Id): void {
+		console.log('[filer] #remove_references', id);
+		for (const file of this.files.values()) {
+			file.dependencies.delete(id);
+			file.dependents.delete(id);
+		}
+	}
+
 	// syncs all deps, clearing as it goes
 	#sync_deps(): void {
+		console.log(`[filer] #sync_deps`);
 		for (const file of this.files.values()) {
 			this.#sync_deps_for_file(file);
 		}
 	}
 
 	#sync_deps_for_file(file: Source_File): void {
+		console.log('[filer] #sync_deps_for_file', file.id);
 		const dir = dirname(file.id);
+
+		const dependencies_before = new Set(file.dependencies.keys());
+		const dependencies_removed = new Set(dependencies_before);
+
 		// TODO BLOCK parse deps for TS/svelte
 		const imported = parse_imports(file.id, file.contents);
 		for (const specifier of imported) {
@@ -108,23 +124,36 @@ export class Filer {
 
 			// The specifier `path` has now been mapped to its final form, so we can inspect it.
 			if (path[0] === '.' || path[0] === '/') {
-				const resolved = resolve_specifier(path, dir);
-				const f = this.get_by_id(resolved.path_id);
-				if (!f) {
-					throw Error('expected to find ' + resolved.path_id);
+				const {path_id} = resolve_specifier(path, dir);
+				dependencies_removed.delete(path_id);
+				if (!dependencies_before.has(path_id)) {
+					const f = this.get_by_id(path_id);
+					if (!f) {
+						throw Error('expected to find ' + path_id);
+					}
+					file.dependencies.set(f.id, f);
 				}
-				file.dependencies.set(f.id, f);
 			}
 		}
 
+		// TODO BLOCK remove deps
+		for (const dependency_removed of dependencies_removed) {
+			console.log(`dependency_removed`, dependency_removed);
+			const deleted1 = file.dependencies.delete(dependency_removed);
+			if (!deleted1) throw Error('expected to delete1 ' + file.id); // TODO probably remove
+			const dependency_removed_file = this.get_by_id(dependency_removed);
+			if (!dependency_removed_file) continue; // TODO ? can't expect? should they always just be strings then? or reference missing files, with a flag?
+			const deleted2 = dependency_removed_file.dependents.delete(file.id);
+			if (!deleted2) throw Error('expected to delete2 ' + file.id); // TODO probably remove
+		}
+
 		// add the back refs
-		// TODO BLOCK remove existing back refs
 		for (const d of file.dependencies.values()) {
 			d.dependents.set(file.id, file);
 		}
 
 		console.log(
-			`synced file id, dependencies, dependents`,
+			`[filer] synced file id, dependencies, dependents`,
 			file.id,
 			Array.from(file.dependencies.keys()),
 			Array.from(file.dependents.keys()),
@@ -137,6 +166,7 @@ export class Filer {
 	}
 
 	#notify(listener: On_Filer_Change): void {
+		console.log('[filer] #notify');
 		for (const source_file of this.files.values()) {
 			listener({type: 'add', path: source_file.id, is_directory: false}, source_file);
 		}
@@ -167,10 +197,11 @@ export class Filer {
 		await this.#watching.init();
 		this.#sync_deps();
 		this.#ready = true;
-		console.log('[#add_listener] READY');
+		console.log('[filer] [#add_listener] READY');
 	}
 
 	async #remove_listener(listener: On_Filer_Change): Promise<void> {
+		console.log('[filer] #remove_listener');
 		this.#listeners.delete(listener);
 		if (this.#listeners.size === 0) {
 			await this.close(); // TODO is this right? should `watch` be async?
@@ -180,6 +211,7 @@ export class Filer {
 	#on_change: Watcher_Change_Callback = (change) => {
 		if (this.watch_dir_options.on_change) throw Error('TODO'); // TODO BLOCK call into it? where? or exclude from the type?
 		if (change.is_directory) return;
+		console.log(`[filer] #on_change`, change);
 		let source_file: Source_File | undefined;
 		switch (change.type) {
 			case 'add':
@@ -201,19 +233,19 @@ export class Filer {
 		}
 	};
 
-	watch = async (listener: On_Filer_Change): Promise<Cleanup_Watch> => {
-		console.log('FILER WATCH');
+	async watch(listener: On_Filer_Change): Promise<Cleanup_Watch> {
+		console.log('[filer] watch');
 		await this.#add_listener(listener);
 		return () => this.#remove_listener(listener);
-	};
+	}
 
-	close = async (): Promise<void> => {
-		console.log('FILER CLOSE');
+	async close(): Promise<void> {
+		console.log('[filer] close');
 		this.#ready = false;
 		this.#listeners.clear();
 		if (this.#watching) {
 			await this.#watching.close();
 			this.#watching = undefined;
 		}
-	};
+	}
 }
