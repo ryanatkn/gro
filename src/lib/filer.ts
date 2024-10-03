@@ -201,7 +201,6 @@ export class Filer {
 	#on_change: Watcher_Change_Callback = (change) => {
 		if (change.is_directory) return;
 		console.log(`[filer] #on_change`, change);
-		// TODO BLOCK the init problem has an interesting angle, in that if the contents don't change on disk, we can ignore the change UNLESS it's initiing (maybe add `#ready` back?)
 		let source_file: Source_File | undefined;
 		switch (change.type) {
 			case 'add':
