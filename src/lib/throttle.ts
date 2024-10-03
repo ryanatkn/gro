@@ -28,6 +28,7 @@ export const throttle = <T extends (...args: any[]) => Promise<void>>(
 	let next_promise_resolve: ((value: any) => void) | null = null;
 
 	const defer = (args: any[]): Promise<void> => {
+		console.log('[defer]');
 		next_args = args;
 		if (!next_promise) {
 			next_promise = new Promise((resolve) => {
@@ -38,8 +39,11 @@ export const throttle = <T extends (...args: any[]) => Promise<void>>(
 	};
 
 	const flush = async (): Promise<void> => {
+		console.log('[flush]');
 		if (!next_promise_resolve) return;
+		console.log('[flush] calling');
 		const result = await call(next_args!);
+		console.log('[flush] called');
 		next_args = null;
 		next_promise = null;
 		const resolve = next_promise_resolve;
@@ -48,9 +52,12 @@ export const throttle = <T extends (...args: any[]) => Promise<void>>(
 	};
 
 	const call = (args: any[]): Promise<any> => {
+		console.log('[call]');
 		pending_promise = cb(...args);
 		void pending_promise.then(async () => {
+			console.log('[call] inside pending');
 			await wait(delay);
+			console.log('[call] inside pending after wait');
 			pending_promise = null;
 			await flush();
 		});
@@ -58,9 +65,11 @@ export const throttle = <T extends (...args: any[]) => Promise<void>>(
 	};
 
 	return ((...args) => {
-		if (pending_promise) {
+		if (pending_promise || !leading) {
+			console.log('cb defer');
 			return defer(args);
 		} else {
+			console.log('cb call');
 			return call(args);
 		}
 	}) as T;

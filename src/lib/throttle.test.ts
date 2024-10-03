@@ -67,6 +67,7 @@ test('throttles calls to a function', async () => {
 });
 
 test('throttles calls to a function with leading = false', async () => {
+	console.log('\n\n\nTESTING\n\n');
 	const results: string[] = [];
 	const fn = throttle(
 		async (name: string) => {
