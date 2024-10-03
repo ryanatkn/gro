@@ -82,40 +82,6 @@ export class Filer {
 		// TODO BLOCK resolve specifiers - `resolve_specifier` and `resolve_node_specifier`
 		// TODO BLOCK handle existing?
 
-		this.#sync_deps_for_file(file);
-
-		return file;
-	}
-
-	#remove(id: Path_Id): Source_File | undefined {
-		console.log('[filer] #remove', id);
-		const file = this.get_by_id(id);
-		if (!file) return; // this is safe because the object would exist if any other file referenced it as a dependency or dependent
-
-		console.log('[filer] #remove_references', file.id);
-		for (const d of file.dependencies.values()) {
-			const deleted = d.dependents.delete(file.id);
-			if (!deleted) throw Error('TODO expected deleted'); // TODO @many delete if correct
-		}
-		// TODO @many delete if correct
-		for (const d of this.files.values()) {
-			if (d.dependents.has(file.id)) throw Error('TODO should have cleaned up dependent');
-		}
-
-		let found = false;
-		for (const d of this.files.values()) {
-			if (d.dependencies.has(file.id)) {
-				found = true;
-				break;
-			}
-		}
-		console.log('found is ', found, found ? 'so not removing' : 'so removing');
-		if (!found) this.files.delete(id);
-
-		return file;
-	}
-
-	#sync_deps_for_file(file: Source_File): void {
 		console.log('[filer] #sync_deps_for_file', file.id);
 		const dir = dirname(file.id);
 
@@ -163,6 +129,36 @@ export class Filer {
 		// 	Array.from(file.dependencies.keys()),
 		// 	Array.from(file.dependents.keys()),
 		// );
+
+		return file;
+	}
+
+	#remove(id: Path_Id): Source_File | undefined {
+		console.log('[filer] #remove', id);
+		const file = this.get_by_id(id);
+		if (!file) return; // this is safe because the object would exist if any other file referenced it as a dependency or dependent
+
+		console.log('[filer] #remove_references', file.id);
+		for (const d of file.dependencies.values()) {
+			const deleted = d.dependents.delete(file.id);
+			if (!deleted) throw Error('TODO expected deleted'); // TODO @many delete if correct
+		}
+		// TODO @many delete if correct
+		for (const d of this.files.values()) {
+			if (d.dependents.has(file.id)) throw Error('TODO should have cleaned up dependent');
+		}
+
+		let found = false;
+		for (const d of this.files.values()) {
+			if (d.dependencies.has(file.id)) {
+				found = true;
+				break;
+			}
+		}
+		console.log('found is ', found, found ? 'so not removing' : 'so removing');
+		if (!found) this.files.delete(id);
+
+		return file;
 	}
 
 	#notify(listener: On_Filer_Change): void {
