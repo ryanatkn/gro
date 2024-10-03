@@ -1,6 +1,7 @@
 import {EMPTY_OBJECT} from '@ryanatkn/belt/object.js';
 import {existsSync, readFileSync} from 'node:fs';
 import {dirname, resolve} from 'node:path';
+import type {Omit_Strict} from '@ryanatkn/belt/types.js';
 
 import type {Path_Id} from './path.js';
 import {
@@ -36,7 +37,7 @@ export type On_Filer_Change = (change: Watcher_Change, source_file: Source_File)
 
 export interface Options {
 	watch_dir?: typeof watch_dir;
-	watch_dir_options?: Partial<Watch_Dir_Options>;
+	watch_dir_options?: Partial<Omit_Strict<Watch_Dir_Options, 'on_change'>>;
 }
 
 // TODO BLOCK use `watch_dir` - maybe also `search_fs` for non-watch cases? do we have any of those?
@@ -73,16 +74,12 @@ export class Filer {
 		return file;
 	};
 
-	// TODO BLOCK this isn't an id, it's relative, same with `source_file.id` below
 	#update(id: Path_Id): Source_File {
 		console.log('[filer] #update', id);
 		const file = this.get_or_create(id);
 		const new_contents = existsSync(id) ? readFileSync(id, 'utf8') : null;
 		const contents_changed = file.contents !== new_contents;
 		file.contents = new_contents;
-
-		// TODO BLOCK resolve specifiers - `resolve_specifier` and `resolve_node_specifier`
-		// TODO BLOCK handle existing?
 
 		if (contents_changed) {
 			console.log('[filer] #sync_deps_for_file', file.id);
@@ -190,7 +187,6 @@ export class Filer {
 	}
 
 	#on_change: Watcher_Change_Callback = (change) => {
-		if (this.#watch_dir_options.on_change) throw Error('TODO'); // TODO BLOCK call into it? where? or exclude from the type?
 		if (change.is_directory) return;
 		console.log(`[filer] #on_change`, change);
 		// TODO BLOCK the init problem has an interesting angle, in that if the contents don't change on disk, we can ignore the change UNLESS it's initiing (maybe add `#ready` back?)
