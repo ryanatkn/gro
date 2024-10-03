@@ -142,7 +142,7 @@ export class Filer {
 		console.log('[filer] #remove_references', file.id);
 		for (const d of file.dependencies.values()) {
 			const deleted = d.dependents.delete(file.id);
-			if (!deleted) throw Error('TODO expected deleted'); // TODO @many delete if correct
+			if (!deleted) throw Error('TODO expected deleted: ' + file.id + ' in ' + d.id); // TODO @many delete if correct
 		}
 		// TODO @many delete if correct
 		for (const d of this.files.values()) {
