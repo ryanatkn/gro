@@ -1,5 +1,11 @@
 # @ryanatkn/gro
 
+## 0.138.1
+
+### Patch Changes
+
+- add `leading` option to `throttle` ([#503](https://github.com/ryanatkn/gro/pull/503))
+
 ## 0.138.0
 
 ### Minor Changes
