@@ -1,7 +1,6 @@
 import {EMPTY_OBJECT} from '@ryanatkn/belt/object.js';
 import {readFileSync} from 'fs';
-import {dirname, join, resolve} from 'node:path';
-import {parse} from 'es-module-lexer';
+import {dirname, resolve} from 'node:path';
 
 import type {Path_Id} from './path.js';
 import {
@@ -12,8 +11,6 @@ import {
 	type Watcher_Change_Callback,
 } from './watch_dir.js';
 import {default_file_filter, paths} from './paths.js';
-import {TS_MATCHER} from './path_constants.js';
-import {SVELTE_MATCHER} from './svelte_helpers.js';
 import {parse_imports} from './parse_imports.js';
 import {resolve_specifier} from './resolve_specifier.js';
 import {default_sveltekit_config} from './sveltekit_config.js';
@@ -24,7 +21,7 @@ const aliases = Object.entries({$lib: 'src/lib', ...default_sveltekit_config.ali
 
 export interface Source_File {
 	id: Path_Id;
-	contents: string;
+	contents: string; // TODO BLOCK maybe `null` when it doesn't exist?
 	dependents: Map<Path_Id, Source_File>; // TODO BLOCK dependents and dependencies?
 	dependencies: Map<Path_Id, Source_File>; // TODO BLOCK dependents and dependencies?
 }
@@ -34,6 +31,7 @@ export type Cleanup_Watch = () => Promise<void>;
 export type On_Filer_Change = (change: Watcher_Change, source_file: Source_File) => void;
 
 export interface Options {
+	watch_dir?: typeof watch_dir;
 	watch_dir_options?: Partial<Watch_Dir_Options>;
 }
 
@@ -42,10 +40,12 @@ export interface Options {
 export class Filer {
 	files: Map<Path_Id, Source_File> = new Map();
 
-	watch_dir_options: Partial<Watch_Dir_Options>;
+	#watch_dir: typeof watch_dir;
+	#watch_dir_options: Partial<Watch_Dir_Options>;
 
 	constructor(options: Options = EMPTY_OBJECT) {
-		this.watch_dir_options = options.watch_dir_options ?? EMPTY_OBJECT;
+		this.#watch_dir = options.watch_dir ?? watch_dir;
+		this.#watch_dir_options = options.watch_dir_options ?? EMPTY_OBJECT;
 	}
 
 	// TODO BLOCK program reactively? maybe as a followup?
@@ -62,19 +62,18 @@ export class Filer {
 		const contents = readFileSync(id, 'utf8');
 		const existing = this.get_by_id(id);
 		if (existing) {
-			existing.contents = contents; // TODO BLOCK update dependencies (make `Source_File` a class?)
-			// TODO BLOCK update contents
-			return existing;
+			existing.contents = contents;
 		}
 		// TODO BLOCK resolve specifiers - `resolve_specifier` and `resolve_node_specifier`
 		// TODO BLOCK handle existing?
-		const file: Source_File = {
+		const file: Source_File = existing ?? {
 			id,
 			contents,
-			dependents: new Map(), // TODO BLOCK use the lexer
-			dependencies: new Map(), // TODO BLOCK use the lexer
+			dependents: new Map(),
+			dependencies: new Map(),
 		};
 		this.files.set(id, file);
+		console.log('UPDATE', this.#ready);
 		if (this.#ready) {
 			this.#sync_deps_for_file(file);
 		}
@@ -87,17 +86,23 @@ export class Filer {
 		if (!found) return undefined;
 		// TODO BLOCK remove from dependents
 		this.files.delete(id);
-		if (this.#ready) {
-			this.#remove_references(id);
-		}
+		if (!this.#ready) throw Error('expected to be ready'); // TODO @many delete if correct
+		this.#remove_references(found);
 		return found;
 	}
 
-	#remove_references(id: Path_Id): void {
-		console.log('[filer] #remove_references', id);
-		for (const file of this.files.values()) {
-			file.dependencies.delete(id);
-			file.dependents.delete(id);
+	#remove_references(file: Source_File): void {
+		console.log('[filer] #remove_references', file.id);
+		for (const dependent of file.dependents.values()) {
+			dependent.dependencies.delete(file.id);
+		}
+		for (const dependency of file.dependencies.values()) {
+			dependency.dependents.delete(file.id);
+		}
+		// TODO @many delete if correct
+		for (const d of this.files.values()) {
+			if (d.dependencies.has(file.id)) throw Error('TODO should have cleaned up dependency');
+			if (d.dependents.has(file.id)) throw Error('TODO should have cleaned up dependent');
 		}
 	}
 
@@ -127,11 +132,11 @@ export class Filer {
 				const {path_id} = resolve_specifier(path, dir);
 				dependencies_removed.delete(path_id);
 				if (!dependencies_before.has(path_id)) {
-					const f = this.get_by_id(path_id);
-					if (!f) {
-						throw Error('expected to find ' + path_id);
+					const d = this.get_by_id(path_id);
+					if (!d) {
+						throw Error('expected to find ' + path_id); // TODO @many delete if correct
 					}
-					file.dependencies.set(f.id, f);
+					file.dependencies.set(d.id, d);
 				}
 			}
 		}
@@ -140,11 +145,11 @@ export class Filer {
 		for (const dependency_removed of dependencies_removed) {
 			console.log(`dependency_removed`, dependency_removed);
 			const deleted1 = file.dependencies.delete(dependency_removed);
-			if (!deleted1) throw Error('expected to delete1 ' + file.id); // TODO probably remove
+			if (!deleted1) throw Error('expected to delete1 ' + file.id); // TODO @many delete if correct
 			const dependency_removed_file = this.get_by_id(dependency_removed);
 			if (!dependency_removed_file) continue; // TODO ? can't expect? should they always just be strings then? or reference missing files, with a flag?
 			const deleted2 = dependency_removed_file.dependents.delete(file.id);
-			if (!deleted2) throw Error('expected to delete2 ' + file.id); // TODO probably remove
+			if (!deleted2) throw Error('expected to delete2 ' + file.id); // TODO @many delete if correct
 		}
 
 		// add the back refs
@@ -188,10 +193,10 @@ export class Filer {
 			this.#notify(listener);
 			return;
 		}
-		this.#watching = watch_dir({
+		this.#watching = this.#watch_dir({
 			filter: (path, is_directory) => (is_directory ? true : default_file_filter(path)),
-			...this.watch_dir_options,
-			dir: resolve(this.watch_dir_options.dir ?? paths.source),
+			...this.#watch_dir_options,
+			dir: resolve(this.#watch_dir_options.dir ?? paths.source),
 			on_change: this.#on_change,
 		}); // TODO maybe make `watch_dir` an option instead of accepting options?
 		await this.#watching.init();
@@ -209,7 +214,7 @@ export class Filer {
 	}
 
 	#on_change: Watcher_Change_Callback = (change) => {
-		if (this.watch_dir_options.on_change) throw Error('TODO'); // TODO BLOCK call into it? where? or exclude from the type?
+		if (this.#watch_dir_options.on_change) throw Error('TODO'); // TODO BLOCK call into it? where? or exclude from the type?
 		if (change.is_directory) return;
 		console.log(`[filer] #on_change`, change);
 		let source_file: Source_File | undefined;

@@ -33,6 +33,19 @@ test('resolves a TS specifier', () => {
 	});
 });
 
+test('resolves a TS specifier that does not exist', () => {
+	const specifier = join(dir, 'this_test_ts_does_not_exist.ts');
+	const path_id = specifier;
+	assert.equal(resolve_specifier(specifier, dir), {
+		path_id,
+		path_id_with_querystring: path_id,
+		specifier,
+		mapped_specifier: './this_test_ts_does_not_exist.js',
+		namespace: 'sveltekit_local_imports_ts',
+		raw: false,
+	});
+});
+
 test('resolves a `?raw` ts specifier', () => {
 	const path = join(dir, 'test_ts.ts');
 	const specifier = path + '?raw';
