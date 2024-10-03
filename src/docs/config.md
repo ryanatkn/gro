@@ -88,6 +88,7 @@ const config: Create_Gro_Config = async (cfg) => {
 			// 'gro_plugin_sveltekit_app', // optional name if they don't match
 		);
 		return updated_plugins.concat(create_some_custom_plugin());
+		// `return get_base_plugins(ctx)` is the base behavior
 	};
 
 	return cfg; // return type is `Raw_Gro_Config`, which is a relaxed superset of `Gro_Config`
@@ -120,13 +121,9 @@ Read more about plugins and the `Plugin` in
 [plugin.md](plugin.md), [dev.md](dev.md#plugin), and [build.md](build.md#plugin).
 
 ```ts
-export interface Create_Config_Plugins<T_Plugin_Context extends Plugin_Context = Plugin_Context> {
-	(
-		ctx: T_Plugin_Context,
-	):
-		| (Plugin<T_Plugin_Context> | null | Array<Plugin<T_Plugin_Context> | null>)
-		| Promise<Plugin<T_Plugin_Context> | null | Array<Plugin<T_Plugin_Context> | null>>;
-}
+export type Create_Config_Plugins<T_Plugin_Context extends Plugin_Context = Plugin_Context> = (
+	ctx: T_Plugin_Context,
+) => Array<Plugin<T_Plugin_Context>> | Promise<Array<Plugin<T_Plugin_Context>>>;
 ```
 
 ## `map_package_json`

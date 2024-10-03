@@ -1,5 +1,3 @@
-import {to_array} from '@ryanatkn/belt/array.js';
-
 import type {Task_Context} from './task.js';
 
 /**
@@ -34,9 +32,7 @@ export class Plugins<T_Plugin_Context extends Plugin_Context> {
 	): Promise<Plugins<T_Plugin_Context>> {
 		const {timings} = ctx;
 		const timing_to_create = timings.start('plugins.create');
-		const instances: Plugin[] = to_array(await ctx.config.plugins(ctx)).filter(
-			(v) => v !== null,
-		) as Plugin[]; // TODO remove cast, should infer the type predicate? `Type '(Plugin<Plugin_Context<object>> | null)[]' is not assignable to type 'Plugin<Plugin_Context<object>>[]'.`
+		const instances: Plugin[] = await ctx.config.plugins(ctx);
 		const plugins = new Plugins(ctx, instances);
 		timing_to_create();
 		return plugins;
