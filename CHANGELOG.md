@@ -1,5 +1,11 @@
 # @ryanatkn/gro
 
+## 0.137.0
+
+### Minor Changes
+
+- notify `Filer` changes only for files whose contents have changed ([498d4a6](https://github.com/ryanatkn/gro/commit/498d4a6))
+
 ## 0.136.1
 
 ### Patch Changes

@@ -270,4 +270,4 @@ which is called during `gro publish`, and it's recommended in CI.
       opt out with `watch: false` for expensive gen use cases
 - [ ] change the exported `gen` function to an object with a `summary` and other properties like `watch`
 - [ ] support generating non-text files
-- [ ] think about how to handle gen file dependency graphs (generated files as inputs to gen files)
+- [x] think about how to handle gen file dependency graphs (generated files as inputs to gen files)
