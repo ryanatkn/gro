@@ -139,11 +139,10 @@ export class Filer {
 		const file = this.get_by_id(id);
 		if (!file) return; // this is safe because the object would exist if any other file referenced it as a dependency or dependent
 
-		console.log('[filer] #remove_references', file.id);
-		for (const d of file.dependencies.values()) {
-			const deleted = d.dependents.delete(file.id);
-			if (!deleted) throw Error('TODO expected deleted: ' + file.id + ' in ' + d.id); // TODO @many delete if correct
-		}
+		file.contents = null; // clear contents in case it gets re-added later, we want the change to be detected
+
+		console.log('[filer] #remove_references', file.id, Array.from(file.dependencies.keys()));
+
 		// TODO @many delete if correct
 		for (const d of this.files.values()) {
 			if (d.dependents.has(file.id)) throw Error('TODO should have cleaned up dependent');
