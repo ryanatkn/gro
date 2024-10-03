@@ -143,11 +143,6 @@ export class Filer {
 
 		console.log('[filer] #remove_references', file.id, Array.from(file.dependencies.keys()));
 
-		// TODO @many delete if correct
-		for (const d of this.files.values()) {
-			if (d.dependents.has(file.id)) throw Error('TODO should have cleaned up dependent');
-		}
-
 		let found = false;
 		for (const d of this.files.values()) {
 			if (d.dependencies.has(file.id)) {
