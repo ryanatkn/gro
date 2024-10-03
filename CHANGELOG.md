@@ -1,5 +1,11 @@
 # @ryanatkn/gro
 
+## 0.136.1
+
+### Patch Changes
+
+- add `input_paths` option to `gro_plugin_gen` ([2673241](https://github.com/ryanatkn/gro/commit/2673241))
+
 ## 0.136.0
 
 ### Minor Changes
