@@ -52,7 +52,6 @@ export const spawn_cli = async (
 	options?: SpawnOptions,
 ): Promise<Spawn_Result | undefined> => {
 	const cli = resolve_cli(name_or_cli, args, options?.cwd, log, options);
-	console.log(`spawn_cli`, name_or_cli, cli);
 	if (!cli) return;
 	return spawn(cli.id, args, options);
 };
