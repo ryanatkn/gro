@@ -17,15 +17,16 @@ export interface Task_Args extends Args {
 }
 
 export interface Options {
+	input_paths?: string[];
 	root_dirs?: string[];
 	flush_debounce_delay?: number;
 }
 
 export const gro_plugin_gen = ({
+	input_paths = [paths.source],
 	root_dirs = [paths.source],
 	flush_debounce_delay = FLUSH_DEBOUNCE_DELAY,
 }: Options = EMPTY_OBJECT): Plugin => {
-	const input_path = paths.source; // TODO option?
 	let generating = false;
 	let regen = false;
 	let flushing_timeout: NodeJS.Timeout | undefined;
@@ -67,7 +68,6 @@ export const gro_plugin_gen = ({
 			if (!dev) return;
 
 			// Do we need to just generate everything once and exit?
-			// TODO could we have an esbuild context here? problem is watching the right files, maybe a plugin that tracks deps
 			if (!watch) {
 				log.info('generating and exiting early');
 
@@ -75,7 +75,7 @@ export const gro_plugin_gen = ({
 				// Some parts of the build may have already happened,
 				// making us miss `build` events for gen dependencies,
 				// so we run `gen` here even if it's usually wasteful.
-				const found = find_genfiles([input_path], root_dirs, config);
+				const found = find_genfiles(input_paths, root_dirs, config);
 				if (found.ok && found.value.resolved_input_files.length > 0) {
 					await gen();
 				}
@@ -88,8 +88,6 @@ export const gro_plugin_gen = ({
 				switch (change.type) {
 					case 'add':
 					case 'update': {
-						// TODO how to handle this now? the loader traces deps for us with `parentPath`,
-						// but we probably want to make this an esbuild plugin instead
 						if (is_gen_path(source_file.id)) {
 							queue_gen(source_file.id);
 						}
