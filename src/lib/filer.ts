@@ -2,6 +2,7 @@ import {EMPTY_OBJECT} from '@ryanatkn/belt/object.js';
 import {existsSync, readFileSync} from 'node:fs';
 import {dirname, resolve} from 'node:path';
 import type {Omit_Strict} from '@ryanatkn/belt/types.js';
+import {wait} from '@ryanatkn/belt/async.js';
 
 import type {Path_Id} from './path.js';
 import {
@@ -53,6 +54,8 @@ export class Filer {
 
 	#watching: Watch_Node_Fs | undefined;
 	#listeners: Set<On_Filer_Change> = new Set();
+
+	#ready = false;
 
 	get_by_id = (id: Path_Id): Source_File | undefined => {
 		return this.files.get(id);
@@ -150,19 +153,29 @@ export class Filer {
 		return file;
 	}
 
-	#notify(listener: On_Filer_Change): void {
+	#notify_listener(listener: On_Filer_Change): void {
 		console.log('[filer] #notify');
+		if (!this.#ready) return;
 		for (const source_file of this.files.values()) {
 			listener({type: 'add', path: source_file.id, is_directory: false}, source_file);
+		}
+	}
+
+	#notify_change(change: Watcher_Change, source_file: Source_File): void {
+		console.log('[filer] #notify_change', change, source_file.id);
+		if (!this.#ready) return;
+		for (const listener of this.#listeners) {
+			listener(change, source_file);
 		}
 	}
 
 	async #add_listener(listener: On_Filer_Change): Promise<void> {
 		this.#listeners.add(listener);
 		if (this.#watching) {
-			// if already watching, call the listener for all existing files
+			// if already watching, call the listener for all existing files after init
 			await this.#watching.init();
-			this.#notify(listener);
+			await wait(); // wait a tick to ensure the `this.#ready` value is updated below first
+			this.#notify_listener(listener);
 			return;
 		}
 		this.#watching = this.#watch_dir({
@@ -170,8 +183,10 @@ export class Filer {
 			...this.#watch_dir_options,
 			dir: resolve(this.#watch_dir_options.dir ?? paths.source),
 			on_change: this.#on_change,
-		}); // TODO maybe make `watch_dir` an option instead of accepting options?
+		});
 		await this.#watching.init();
+		this.#ready = true;
+		this.#notify_listener(listener);
 		console.log('[filer] [#add_listener] READY');
 	}
 
@@ -201,11 +216,8 @@ export class Filer {
 			default:
 				throw new Unreachable_Error(change.type);
 		}
-		// TODO BLOCK problem is notifying here on startup doesn't have all deps ready
 		if (source_file) {
-			for (const listener of this.#listeners) {
-				listener(change, source_file);
-			}
+			this.#notify_change(change, source_file);
 		}
 	};
 
@@ -217,6 +229,7 @@ export class Filer {
 
 	async close(): Promise<void> {
 		console.log('[filer] close');
+		this.#ready = false;
 		this.#listeners.clear();
 		if (this.#watching) {
 			await this.#watching.close();
