@@ -1,7 +1,3 @@
-import {wait} from '@ryanatkn/belt/async.js';
-
-// TODO maybe support non-promise return values?
-
 /**
  * Throttles calls to a callback that returns a void promise.
  * Immediately invokes the callback on the first call.
@@ -11,13 +7,19 @@ import {wait} from '@ryanatkn/belt/async.js';
  * In other words, all calls and their args are discarded
  * during the pending window except for the most recent.
  * Unlike debouncing, this calls the throttled callback
- * both on the leading and trailing edges of the delay window.
+ * both on the leading and trailing edges of the delay window,
+ * and this can be customized by setting `leading` to `false`.
  * It also differs from a queue where every call to the throttled callback eventually runs.
  * @param cb - any function that returns a void promise
  * @param delay - delay this many milliseconds between the pending call finishing and the next starting
+ * @param leading - if `true`, the default, the callback is called immediately
  * @returns same as `cb`
  */
-export const throttle = <T extends (...args: any[]) => Promise<void>>(cb: T, delay = 0): T => {
+export const throttle = <T extends (...args: any[]) => Promise<void>>(
+	cb: T,
+	delay = 0,
+	leading = true,
+): T => {
 	let pending_promise: Promise<void> | null = null;
 	let next_args: any[] | null = null;
 	let next_promise: Promise<void> | null = null;
@@ -29,6 +31,7 @@ export const throttle = <T extends (...args: any[]) => Promise<void>>(cb: T, del
 			next_promise = new Promise((resolve) => {
 				next_promise_resolve = resolve;
 			});
+			setTimeout(flush, delay);
 		}
 		return next_promise;
 	};
@@ -45,16 +48,14 @@ export const throttle = <T extends (...args: any[]) => Promise<void>>(cb: T, del
 
 	const call = (args: any[]): Promise<any> => {
 		pending_promise = cb(...args);
-		void pending_promise.then(async () => {
-			await wait(delay);
+		void pending_promise.then(() => {
 			pending_promise = null;
-			await flush();
 		});
 		return pending_promise;
 	};
 
 	return ((...args) => {
-		if (pending_promise) {
+		if (pending_promise || !leading) {
 			return defer(args);
 		} else {
 			return call(args);
