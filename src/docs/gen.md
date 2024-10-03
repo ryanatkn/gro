@@ -266,8 +266,6 @@ which is called during `gro publish`, and it's recommended in CI.
 
 - [x] basic functionality
 - [x] format output with Prettier
-- [x] [watch mode and build integration](https://github.com/ryanatkn/gro/pull/283),
-      opt out with `watch: false` for expensive gen use cases
+- [x] watch mode and build integration - [#492](https://github.com/ryanatkn/gro/pull/492)
 - [ ] change the exported `gen` function to an object with a `summary` and other properties like `watch`
-- [ ] support generating non-text files
-- [x] think about how to handle gen file dependency graphs (generated files as inputs to gen files)
+- [ ] better support for generating non-text files
