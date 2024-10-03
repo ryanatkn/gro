@@ -38,7 +38,7 @@ test('replace_plugin', () => {
 test('replace_plugin without an array', () => {
 	const a = {name: 'a'};
 	const a2 = {name: 'a'};
-	const p = replace_plugin(a, a2);
+	const p = replace_plugin([a], a2);
 	assert.is(p[0], a2);
 });
 
