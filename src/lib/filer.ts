@@ -16,6 +16,7 @@ import {parse_imports} from './parse_imports.js';
 import {resolve_specifier} from './resolve_specifier.js';
 import {default_sveltekit_config} from './sveltekit_config.js';
 import {map_sveltekit_aliases} from './sveltekit_helpers.js';
+import {Unreachable_Error} from '@ryanatkn/belt/error.js';
 
 const aliases = Object.entries(default_sveltekit_config.alias);
 
@@ -50,7 +51,6 @@ export class Filer {
 		this.#watch_dir_options = options.watch_dir_options ?? EMPTY_OBJECT;
 	}
 
-	// TODO BLOCK program reactively? maybe as a followup?
 	#watching: Watch_Node_Fs | undefined;
 	#listeners: Set<On_Filer_Change> = new Set();
 
@@ -191,7 +191,6 @@ export class Filer {
 		switch (change.type) {
 			case 'add':
 			case 'update': {
-				// TODO BLOCK add_or_update? check here or in the fn?
 				source_file = this.#update(change.path);
 				break;
 			}
@@ -199,9 +198,10 @@ export class Filer {
 				source_file = this.#remove(change.path);
 				break;
 			}
+			default:
+				throw new Unreachable_Error(change.type);
 		}
 		// TODO BLOCK problem is notifying here on startup doesn't have all deps ready
-		// TODO BLOCK should this always be called even with an `undefined` source file?
 		if (source_file) {
 			for (const listener of this.#listeners) {
 				listener(change, source_file);
