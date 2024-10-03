@@ -75,14 +75,12 @@ export class Filer {
 	};
 
 	#update(id: Path_Id): Source_File {
-		console.log('[filer] #update', id);
 		const file = this.get_or_create(id);
 		const new_contents = existsSync(id) ? readFileSync(id, 'utf8') : null;
 		const contents_changed = file.contents !== new_contents;
 		file.contents = new_contents;
 
 		if (contents_changed) {
-			console.log('[filer] #sync_deps_for_file', file.id);
 			const dir = dirname(file.id);
 
 			const dependencies_before = new Set(file.dependencies.keys());
@@ -107,7 +105,6 @@ export class Filer {
 
 			// update any removed dependencies
 			for (const dependency_removed of dependencies_removed) {
-				console.log(`dependency_removed`, dependency_removed);
 				const deleted1 = file.dependencies.delete(dependency_removed);
 				if (!deleted1) throw Error('expected to delete1 ' + file.id); // TODO @many delete if correct
 				const dependency_removed_file = this.get_or_create(dependency_removed);
@@ -116,29 +113,14 @@ export class Filer {
 			}
 		}
 
-		console.log(
-			`[filer] synced file id, dependencies, dependents`,
-			file.id,
-			Array.from(file.dependencies.keys()),
-			Array.from(file.dependents.keys()),
-		);
-		// console.log(
-		// 	`file.dependencies, file.dependents`,
-		// 	Array.from(file.dependencies.keys()),
-		// 	Array.from(file.dependents.keys()),
-		// );
-
 		return file;
 	}
 
 	#remove(id: Path_Id): Source_File | undefined {
-		console.log('[filer] #remove', id);
 		const file = this.get_by_id(id);
 		if (!file) return; // this is safe because the object would exist if any other file referenced it as a dependency or dependent
 
 		file.contents = null; // clear contents in case it gets re-added later, we want the change to be detected
-
-		console.log('[filer] #remove_references', file.id, Array.from(file.dependencies.keys()));
 
 		let found = false;
 		for (const d of this.files.values()) {
@@ -147,14 +129,12 @@ export class Filer {
 				break;
 			}
 		}
-		console.log('found is ', found, found ? 'so not removing' : 'so removing');
 		if (!found) this.files.delete(id);
 
 		return file;
 	}
 
 	#notify_listener(listener: On_Filer_Change): void {
-		console.log('[filer] #notify');
 		if (!this.#ready) return;
 		for (const source_file of this.files.values()) {
 			listener({type: 'add', path: source_file.id, is_directory: false}, source_file);
@@ -162,7 +142,6 @@ export class Filer {
 	}
 
 	#notify_change(change: Watcher_Change, source_file: Source_File): void {
-		console.log('[filer] #notify_change', change, source_file.id);
 		if (!this.#ready) return;
 		for (const listener of this.#listeners) {
 			listener(change, source_file);
@@ -187,11 +166,9 @@ export class Filer {
 		await this.#watching.init();
 		this.#ready = true;
 		this.#notify_listener(listener);
-		console.log('[filer] [#add_listener] READY');
 	}
 
 	async #remove_listener(listener: On_Filer_Change): Promise<void> {
-		console.log('[filer] #remove_listener');
 		this.#listeners.delete(listener);
 		if (this.#listeners.size === 0) {
 			await this.close(); // TODO is this right? should `watch` be async?
@@ -200,7 +177,6 @@ export class Filer {
 
 	#on_change: Watcher_Change_Callback = (change) => {
 		if (change.is_directory) return;
-		console.log(`[filer] #on_change`, change);
 		let source_file: Source_File | undefined;
 		switch (change.type) {
 			case 'add':
@@ -221,13 +197,11 @@ export class Filer {
 	};
 
 	async watch(listener: On_Filer_Change): Promise<Cleanup_Watch> {
-		console.log('[filer] watch');
 		await this.#add_listener(listener);
 		return () => this.#remove_listener(listener);
 	}
 
 	async close(): Promise<void> {
-		console.log('[filer] close');
 		this.#ready = false;
 		this.#listeners.clear();
 		if (this.#watching) {

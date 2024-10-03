@@ -48,9 +48,7 @@ export const gro_plugin_gen = ({
 		generating = true;
 		const files = Array.from(queued_files);
 		queued_files.clear();
-		console.log(`gen(files)`, files);
 		await gen(files);
-		console.log('\n\n');
 		generating = false;
 		if (regen) {
 			regen = false;
@@ -87,7 +85,6 @@ export const gro_plugin_gen = ({
 			// When a file builds, check it and its tree of dependents
 			// for any `.gen.` files that need to run.
 			cleanup = await filer.watch((change, source_file) => {
-				console.log(`[gro_plugin_gen]`, change.type, source_file.id, source_file.dependents.size);
 				switch (change.type) {
 					case 'add':
 					case 'update': {
@@ -101,7 +98,6 @@ export const gro_plugin_gen = ({
 							filer.get_by_id,
 							is_gen_path,
 						);
-						console.log(`[gro_plugin_gen] dependent_gen_file_ids`, dependent_gen_file_ids);
 						for (const dependent_gen_file_id of dependent_gen_file_ids) {
 							queue_gen(dependent_gen_file_id);
 						}
