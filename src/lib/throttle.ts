@@ -17,7 +17,11 @@ import {wait} from '@ryanatkn/belt/async.js';
  * @param delay - delay this many milliseconds between the pending call finishing and the next starting
  * @returns same as `cb`
  */
-export const throttle = <T extends (...args: any[]) => Promise<void>>(cb: T, delay = 0): T => {
+export const throttle = <T extends (...args: any[]) => Promise<void>>(
+	cb: T,
+	delay = 0,
+	// leading = true,
+): T => {
 	let pending_promise: Promise<void> | null = null;
 	let next_args: any[] | null = null;
 	let next_promise: Promise<void> | null = null;
@@ -58,6 +62,17 @@ export const throttle = <T extends (...args: any[]) => Promise<void>>(cb: T, del
 			return defer(args);
 		} else {
 			return call(args);
+			// if (leading) {
+			// 	return call(args);
+			// } else {
+			// 	pending_promise = defer(args);
+			// 	void pending_promise.then(async () => {
+			// 		await wait(delay);
+			// 		pending_promise = null;
+			// 		await flush();
+			// 	});
+			// 	return pending_promise;
+			// }
 		}
 	}) as T;
 };
