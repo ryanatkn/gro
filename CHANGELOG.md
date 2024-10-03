@@ -1,5 +1,12 @@
 # @ryanatkn/gro
 
+## 0.135.3
+
+### Patch Changes
+
+- feat: watch gen in `gro dev` ([#492](https://github.com/ryanatkn/gro/pull/492))
+- add `parse_imports.ts` ([#492](https://github.com/ryanatkn/gro/pull/492))
+
 ## 0.135.2
 
 ### Patch Changes
