@@ -7,11 +7,15 @@ import {
 	GRO_CONFIG_PATH,
 	GRO_DEV_DIR,
 	GRO_DIR,
+	JS_MATCHER,
+	JSON_MATCHER,
 	SOURCE_DIR,
 	SVELTEKIT_DIST_DIRNAME,
+	TS_MATCHER,
 } from './path_constants.js';
 import {default_sveltekit_config} from './sveltekit_config.js';
-import type {Path_Id} from './path.js';
+import type {File_Filter, Path_Id} from './path.js';
+import {SVELTE_MATCHER} from './svelte_helpers.js';
 
 /*
 
@@ -99,3 +103,6 @@ export const IS_THIS_GRO = gro_package_dir_path === paths.root;
  */
 export const gro_paths = IS_THIS_GRO ? paths : create_paths(gro_package_dir_path);
 export const GRO_DIST_DIR = gro_paths.root + SVELTEKIT_DIST_DIRNAME + '/';
+
+export const default_file_filter: File_Filter = (p) =>
+	SVELTE_MATCHER.test(p) || JS_MATCHER.test(p) || TS_MATCHER.test(p) || JSON_MATCHER.test(p);

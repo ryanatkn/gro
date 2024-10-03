@@ -22,6 +22,7 @@ import {to_define_import_meta_env, default_ts_transform_options} from './esbuild
 import {resolve_specifier} from './resolve_specifier.js';
 import {resolve_node_specifier} from './resolve_node_specifier.js';
 import type {Package_Json} from './package_json.js';
+import {map_sveltekit_aliases} from './sveltekit_helpers.js';
 
 /*
 
@@ -73,7 +74,7 @@ const ts_transform_options: esbuild.TransformOptions = {
 	sourcemap: 'inline',
 };
 
-const aliases = Object.entries({$lib: 'src/lib', ...alias});
+const aliases = Object.entries(alias);
 
 const RAW_MATCHER = /(%3Fraw|\.css|\.svg)$/; // TODO others? configurable?
 const ENV_MATCHER = /src\/lib\/\$env\/(static|dynamic)\/(public|private)$/;
@@ -197,15 +198,7 @@ export const resolve: ResolveHook = async (specifier, context, nextResolve) => {
 		return nextResolve(shimmed, context);
 	}
 
-	let path = specifier;
-
-	// Map the path with the SvelteKit aliases.
-	for (const [from, to] of aliases) {
-		if (path.startsWith(from)) {
-			path = join(dir, to, path.substring(from.length));
-			break;
-		}
-	}
+	const path = map_sveltekit_aliases(specifier, aliases);
 
 	// The specifier `path` has now been mapped to its final form, so we can inspect it.
 	if (path[0] !== '.' && path[0] !== '/') {

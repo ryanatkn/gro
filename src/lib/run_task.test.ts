@@ -4,6 +4,7 @@ import {Timings} from '@ryanatkn/belt/timings.js';
 
 import {run_task} from './run_task.js';
 import {load_gro_config} from './gro_config.js';
+import {Filer} from './filer.js';
 
 test('passes args and returns output', async () => {
 	const args = {a: 1, _: []};
@@ -20,6 +21,7 @@ test('passes args and returns output', async () => {
 		args,
 		() => Promise.resolve(),
 		await load_gro_config(),
+		new Filer(),
 		new Timings(),
 	);
 	assert.ok(result.ok);
@@ -50,6 +52,7 @@ test('invokes a sub task', async () => {
 			return Promise.resolve();
 		},
 		await load_gro_config(),
+		new Filer(),
 		new Timings(),
 	);
 	assert.ok(result.ok);
@@ -76,6 +79,7 @@ test('failing task', async () => {
 		{_: []},
 		async () => {}, // eslint-disable-line @typescript-eslint/no-empty-function
 		await load_gro_config(),
+		new Filer(),
 		new Timings(),
 	);
 	assert.ok(!result.ok);

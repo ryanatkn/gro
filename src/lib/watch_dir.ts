@@ -1,8 +1,8 @@
 import {watch, type ChokidarOptions, type FSWatcher} from 'chokidar';
 import {relative} from 'node:path';
+import {statSync} from 'node:fs';
 
 import type {Path_Filter} from './path.js';
-import {statSync} from 'node:fs';
 
 // TODO pretty hacky
 
@@ -16,7 +16,7 @@ export interface Watcher_Change {
 	path: string;
 	is_directory: boolean;
 }
-export type Watcher_Change_Type = 'create' | 'update' | 'delete';
+export type Watcher_Change_Type = 'add' | 'update' | 'delete';
 export type Watcher_Change_Callback = (change: Watcher_Change) => void;
 
 export interface Options {
@@ -42,21 +42,23 @@ export const watch_dir = ({
 	chokidar,
 }: Options): Watch_Node_Fs => {
 	let watcher: FSWatcher | undefined;
+	let initing: Promise<void> | undefined;
 
 	return {
 		init: async () => {
-			watcher = watch(dir, chokidar);
-			watcher.on('add', (path, s) => {
-				const stats = s ?? statSync(path);
+			if (initing) return initing;
+			let resolve: any;
+			initing = new Promise((r) => (resolve = r)); // TODO `create_deferred`?// cwd: chokidar?.cwd ?? process.cwd()
+			watcher = watch(dir, {...chokidar});
+			watcher.on('add', (path) => {
 				const final_path = absolute ? path : relative(dir, path);
-				if (filter && !filter(final_path, stats.isDirectory())) return;
-				on_change({type: 'create', path: final_path, is_directory: stats.isDirectory()});
+				if (filter && !filter(final_path, false)) return;
+				on_change({type: 'add', path: final_path, is_directory: false});
 			});
-			watcher.on('addDir', (path, s) => {
-				const stats = s ?? statSync(path);
+			watcher.on('addDir', (path) => {
 				const final_path = absolute ? path : relative(dir, path);
-				if (filter && !filter(final_path, stats.isDirectory())) return;
-				on_change({type: 'create', path: final_path, is_directory: stats.isDirectory()});
+				if (filter && !filter(final_path, true)) return;
+				on_change({type: 'add', path: final_path, is_directory: true});
 			});
 			watcher.on('change', (path, s) => {
 				const stats = s ?? statSync(path);
@@ -75,12 +77,11 @@ export const watch_dir = ({
 				on_change({type: 'delete', path: final_path, is_directory: true});
 			});
 			// wait until ready
-			let resolve: any;
-			const promise = new Promise((r) => (resolve = r));
 			watcher.once('ready', () => resolve());
-			await promise;
+			await initing;
 		},
 		close: async () => {
+			initing = undefined;
 			if (!watcher) return;
 			await watcher.close();
 		},

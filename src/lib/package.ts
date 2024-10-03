@@ -51,7 +51,7 @@ export const package_json = {
 		'esm-env': '^1.0.0',
 		mri: '^1.2.0',
 		prettier: '^3.3.3',
-		'prettier-plugin-svelte': '^3.2.6',
+		'prettier-plugin-svelte': '^3.2.7',
 		'ts-morph': '^23.0.0',
 		tslib: '^2.7.0',
 		zod: '^3.23.8',
@@ -60,22 +60,22 @@ export const package_json = {
 	devDependencies: {
 		'@changesets/changelog-git': '^0.2.0',
 		'@changesets/types': '^6.0.0',
-		'@ryanatkn/eslint-config': '^0.5.3',
-		'@ryanatkn/fuz': '^0.127.0',
+		'@ryanatkn/eslint-config': '^0.5.4',
+		'@ryanatkn/fuz': '^0.129.0',
 		'@ryanatkn/moss': '^0.16.1',
 		'@sveltejs/adapter-static': '^3.0.5',
-		'@sveltejs/kit': '^2.5.28',
+		'@sveltejs/kit': '^2.6.1',
 		'@sveltejs/package': '^2.3.5',
 		'@sveltejs/vite-plugin-svelte': '^3.1.2',
 		'@types/fs-extra': '^11.0.4',
-		'@types/node': '^22.5.5',
+		'@types/node': '^22.7.4',
 		esbuild: '^0.21.5',
-		eslint: '^9.11.0',
-		'eslint-plugin-svelte': '^2.44.0',
-		svelte: '^5.0.0-next.257',
-		'svelte-check': '^4.0.2',
+		eslint: '^9.11.1',
+		'eslint-plugin-svelte': '^2.44.1',
+		svelte: '^5.0.0-next.260',
+		'svelte-check': '^4.0.4',
 		typescript: '^5.6.2',
-		'typescript-eslint': '^8.6.0',
+		'typescript-eslint': '^8.7.0',
 		uvu: '^0.5.6',
 	},
 	prettier: {
@@ -138,6 +138,7 @@ export const package_json = {
 			types: './dist/esbuild_plugin_sveltekit_shim_env.d.ts',
 			default: './dist/esbuild_plugin_sveltekit_shim_env.js',
 		},
+		'./filer.js': {types: './dist/filer.d.ts', default: './dist/filer.js'},
 		'./format_directory.js': {
 			types: './dist/format_directory.d.ts',
 			default: './dist/format_directory.js',
@@ -184,6 +185,7 @@ export const package_json = {
 		'./package_meta.js': {types: './dist/package_meta.d.ts', default: './dist/package_meta.js'},
 		'./package.gen.js': {types: './dist/package.gen.d.ts', default: './dist/package.gen.js'},
 		'./package.js': {types: './dist/package.d.ts', default: './dist/package.js'},
+		'./parse_imports.js': {types: './dist/parse_imports.d.ts', default: './dist/parse_imports.js'},
 		'./path_constants.js': {
 			types: './dist/path_constants.d.ts',
 			default: './dist/path_constants.js',
@@ -435,6 +437,16 @@ export const src_json = {
 				{name: 'esbuild_plugin_sveltekit_shim_env', kind: 'function'},
 			],
 		},
+		'./filer.js': {
+			path: 'filer.ts',
+			declarations: [
+				{name: 'Source_File', kind: 'type'},
+				{name: 'Cleanup_Watch', kind: 'type'},
+				{name: 'On_Filer_Change', kind: 'type'},
+				{name: 'Options', kind: 'type'},
+				{name: 'Filer', kind: 'class'},
+			],
+		},
 		'./format_directory.js': {
 			path: 'format_directory.ts',
 			declarations: [{name: 'format_directory', kind: 'function'}],
@@ -552,7 +564,9 @@ export const src_json = {
 			path: 'gro_plugin_gen.ts',
 			declarations: [
 				{name: 'Task_Args', kind: 'type'},
-				{name: 'plugin', kind: 'function'},
+				{name: 'Options', kind: 'type'},
+				{name: 'gro_plugin_gen', kind: 'function'},
+				{name: 'filter_dependents', kind: 'function'},
 			],
 		},
 		'./gro_plugin_server.js': {
@@ -684,6 +698,14 @@ export const src_json = {
 				{name: 'src_json', kind: 'variable'},
 			],
 		},
+		'./parse_imports.js': {
+			path: 'parse_imports.ts',
+			declarations: [
+				{name: 'init_lexer', kind: 'function'},
+				{name: 'Import_Specifier', kind: 'type'},
+				{name: 'parse_imports', kind: 'function'},
+			],
+		},
 		'./path_constants.js': {
 			path: 'path_constants.ts',
 			declarations: [
@@ -709,6 +731,7 @@ export const src_json = {
 				{name: 'GIT_DIRNAME', kind: 'variable'},
 				{name: 'TSCONFIG_FILENAME', kind: 'variable'},
 				{name: 'TS_MATCHER', kind: 'variable'},
+				{name: 'JS_MATCHER', kind: 'variable'},
 				{name: 'JSON_MATCHER', kind: 'variable'},
 				{name: 'EVERYTHING_MATCHER', kind: 'variable'},
 			],
@@ -745,6 +768,7 @@ export const src_json = {
 				{name: 'IS_THIS_GRO', kind: 'variable'},
 				{name: 'gro_paths', kind: 'variable'},
 				{name: 'GRO_DIST_DIR', kind: 'variable'},
+				{name: 'default_file_filter', kind: 'function'},
 			],
 		},
 		'./plugin.js': {
@@ -870,6 +894,8 @@ export const src_json = {
 				{name: 'sveltekit_sync_if_available', kind: 'function'},
 				{name: 'sveltekit_sync_if_obviously_needed', kind: 'function'},
 				{name: 'Svelte_Package_Options', kind: 'type'},
+				{name: 'run_svelte_package', kind: 'function'},
+				{name: 'map_sveltekit_aliases', kind: 'function'},
 			],
 		},
 		'./sveltekit_shim_app_environment.js': {
