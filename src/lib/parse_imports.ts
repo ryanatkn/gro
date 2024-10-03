@@ -9,7 +9,6 @@ export type Import_Specifier = Flavored<string, 'Import_Specifier'>;
 
 const script_matcher = /<script.*?>(.*?)<\/script>/gimsu;
 
-// TODO BLOCK ignore `import type` if it's that kind of form
 export const parse_imports = (
 	id: Path_Id,
 	contents: string,
@@ -32,7 +31,6 @@ export const parse_imports = (
 
 	if (id.endsWith('.svelte')) {
 		const matches = contents.matchAll(script_matcher);
-		// console.log(`all_script_matches`, Array.from(all_script_matches).length);
 		for (const m of matches) {
 			parse_from(m[1]);
 		}
