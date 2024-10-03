@@ -1,5 +1,11 @@
 # @ryanatkn/gro
 
+## 0.138.0
+
+### Minor Changes
+
+- improve config types making `plugins` more usable ([#502](https://github.com/ryanatkn/gro/pull/502))
+
 ## 0.137.0
 
 ### Minor Changes
