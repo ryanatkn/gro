@@ -89,7 +89,7 @@ test.only('throttles calls to a function with leading = false', async () => {
 	assert.is(promise_a, promise_d);
 	assert.equal(results, []); // No immediate execution
 
-	await wait(); // Wait for the delay
+	// await wait(); // Wait for the delay
 
 	// assert.equal(results, ['d_run']);
 
