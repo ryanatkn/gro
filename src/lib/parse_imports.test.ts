@@ -36,6 +36,29 @@ test('parse ts imports', () => {
 	assert.equal(parsed, ['static_import', 'dynamic_import']);
 });
 
+test('parse ts imports and omit types', () => {
+	const parsed = parse_imports(
+		'a.ts',
+		`
+    import type {foo} from 'static_import';
+    await import('dynamic_import');
+  `,
+	);
+	assert.equal(parsed, ['dynamic_import']);
+});
+
+test('parse ts imports and include types', () => {
+	const parsed = parse_imports(
+		'a.ts',
+		`
+    import type {foo} from 'static_import';
+    await import('dynamic_import');
+  `,
+		false,
+	);
+	assert.equal(parsed, ['static_import', 'dynamic_import']);
+});
+
 test('parse svelte imports', () => {
 	const parsed = parse_imports(
 		'a.svelte',
