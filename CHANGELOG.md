@@ -1,5 +1,11 @@
 # @ryanatkn/gro
 
+## 0.136.0
+
+### Minor Changes
+
+- bump minor ([79f5dfa](https://github.com/ryanatkn/gro/commit/79f5dfa))
+
 ## 0.135.3
 
 ### Patch Changes
