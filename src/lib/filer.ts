@@ -77,45 +77,46 @@ export class Filer {
 	#update(id: Path_Id): Source_File {
 		console.log('[filer] #update', id);
 		const file = this.get_or_create(id);
-		file.contents = existsSync(id) ? readFileSync(id, 'utf8') : null;
+		const new_contents = existsSync(id) ? readFileSync(id, 'utf8') : null;
+		const contents_changed = file.contents !== new_contents;
+		file.contents = new_contents;
 
 		// TODO BLOCK resolve specifiers - `resolve_specifier` and `resolve_node_specifier`
 		// TODO BLOCK handle existing?
 
-		console.log('[filer] #sync_deps_for_file', file.id);
-		const dir = dirname(file.id);
+		if (contents_changed) {
+			console.log('[filer] #sync_deps_for_file', file.id);
+			const dir = dirname(file.id);
 
-		const dependencies_before = new Set(file.dependencies.keys());
-		const dependencies_removed = new Set(dependencies_before);
+			const dependencies_before = new Set(file.dependencies.keys());
+			const dependencies_removed = new Set(dependencies_before);
 
-		const imported = file.contents ? parse_imports(file.id, file.contents) : [];
-		for (const specifier of imported) {
-			// TODO logic is duplicated from loader
-			const path = map_sveltekit_aliases(specifier, aliases);
+			const imported = file.contents ? parse_imports(file.id, file.contents) : [];
+			for (const specifier of imported) {
+				// TODO logic is duplicated from loader
+				const path = map_sveltekit_aliases(specifier, aliases);
 
-			// The specifier `path` has now been mapped to its final form, so we can inspect it.
-			if (path[0] === '.' || path[0] === '/') {
-				const {path_id} = resolve_specifier(path, dir);
-				dependencies_removed.delete(path_id);
-				if (!dependencies_before.has(path_id)) {
-					const d = this.get_or_create(path_id);
-					file.dependencies.set(d.id, d);
+				// The specifier `path` has now been mapped to its final form, so we can inspect it.
+				if (path[0] === '.' || path[0] === '/') {
+					const {path_id} = resolve_specifier(path, dir);
+					dependencies_removed.delete(path_id);
+					if (!dependencies_before.has(path_id)) {
+						const d = this.get_or_create(path_id);
+						file.dependencies.set(d.id, d);
+						d.dependents.set(file.id, file);
+					}
 				}
 			}
-		}
 
-		for (const dependency_removed of dependencies_removed) {
-			console.log(`dependency_removed`, dependency_removed);
-			const deleted1 = file.dependencies.delete(dependency_removed);
-			if (!deleted1) throw Error('expected to delete1 ' + file.id); // TODO @many delete if correct
-			const dependency_removed_file = this.get_or_create(dependency_removed);
-			const deleted2 = dependency_removed_file.dependents.delete(file.id);
-			if (!deleted2) throw Error('expected to delete2 ' + file.id); // TODO @many delete if correct
-		}
-
-		// add the back refs
-		for (const d of file.dependencies.values()) {
-			d.dependents.set(file.id, file);
+			// update any removed dependencies
+			for (const dependency_removed of dependencies_removed) {
+				console.log(`dependency_removed`, dependency_removed);
+				const deleted1 = file.dependencies.delete(dependency_removed);
+				if (!deleted1) throw Error('expected to delete1 ' + file.id); // TODO @many delete if correct
+				const dependency_removed_file = this.get_or_create(dependency_removed);
+				const deleted2 = dependency_removed_file.dependents.delete(file.id);
+				if (!deleted2) throw Error('expected to delete2 ' + file.id); // TODO @many delete if correct
+			}
 		}
 
 		console.log(
@@ -204,7 +205,6 @@ export class Filer {
 			case 'add':
 			case 'update': {
 				// TODO BLOCK add_or_update? check here or in the fn?
-				// TODO BLOCK check if content changed, efficient if not
 				source_file = this.#update(change.path);
 				break;
 			}
