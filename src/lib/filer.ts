@@ -74,51 +74,52 @@ export class Filer {
 		return file;
 	};
 
-	#update(id: Path_Id): Source_File {
+	#update(id: Path_Id): Source_File | null {
 		const file = this.get_or_create(id);
 		const new_contents = existsSync(id) ? readFileSync(id, 'utf8') : null;
-		const contents_changed = file.contents !== new_contents;
+		if (file.contents === new_contents) {
+			return null;
+		}
+
 		file.contents = new_contents;
 
-		if (contents_changed) {
-			const dir = dirname(file.id);
+		const dir = dirname(file.id);
 
-			const dependencies_before = new Set(file.dependencies.keys());
-			const dependencies_removed = new Set(dependencies_before);
+		const dependencies_before = new Set(file.dependencies.keys());
+		const dependencies_removed = new Set(dependencies_before);
 
-			const imported = file.contents ? parse_imports(file.id, file.contents) : [];
-			for (const specifier of imported) {
-				// TODO logic is duplicated from loader
-				const path = map_sveltekit_aliases(specifier, aliases);
+		const imported = file.contents ? parse_imports(file.id, file.contents) : [];
+		for (const specifier of imported) {
+			// TODO logic is duplicated from loader
+			const path = map_sveltekit_aliases(specifier, aliases);
 
-				// The specifier `path` has now been mapped to its final form, so we can inspect it.
-				if (path[0] === '.' || path[0] === '/') {
-					const {path_id} = resolve_specifier(path, dir);
-					dependencies_removed.delete(path_id);
-					if (!dependencies_before.has(path_id)) {
-						const d = this.get_or_create(path_id);
-						file.dependencies.set(d.id, d);
-						d.dependents.set(file.id, file);
-					}
+			// The specifier `path` has now been mapped to its final form, so we can inspect it.
+			if (path[0] === '.' || path[0] === '/') {
+				const {path_id} = resolve_specifier(path, dir);
+				dependencies_removed.delete(path_id);
+				if (!dependencies_before.has(path_id)) {
+					const d = this.get_or_create(path_id);
+					file.dependencies.set(d.id, d);
+					d.dependents.set(file.id, file);
 				}
 			}
+		}
 
-			// update any removed dependencies
-			for (const dependency_removed of dependencies_removed) {
-				const deleted1 = file.dependencies.delete(dependency_removed);
-				if (!deleted1) throw Error('expected to delete1 ' + file.id); // TODO @many delete if correct
-				const dependency_removed_file = this.get_or_create(dependency_removed);
-				const deleted2 = dependency_removed_file.dependents.delete(file.id);
-				if (!deleted2) throw Error('expected to delete2 ' + file.id); // TODO @many delete if correct
-			}
+		// update any removed dependencies
+		for (const dependency_removed of dependencies_removed) {
+			const deleted1 = file.dependencies.delete(dependency_removed);
+			if (!deleted1) throw Error('expected to delete1 ' + file.id); // TODO @many delete if correct
+			const dependency_removed_file = this.get_or_create(dependency_removed);
+			const deleted2 = dependency_removed_file.dependents.delete(file.id);
+			if (!deleted2) throw Error('expected to delete2 ' + file.id); // TODO @many delete if correct
 		}
 
 		return file;
 	}
 
-	#remove(id: Path_Id): Source_File | undefined {
+	#remove(id: Path_Id): Source_File | null {
 		const file = this.get_by_id(id);
-		if (!file) return; // this is safe because the object would exist if any other file referenced it as a dependency or dependent
+		if (!file) return null; // this is safe because the object would exist if any other file referenced it as a dependency or dependent
 
 		file.contents = null; // clear contents in case it gets re-added later, we want the change to be detected
 
@@ -177,7 +178,7 @@ export class Filer {
 
 	#on_change: Watcher_Change_Callback = (change) => {
 		if (change.is_directory) return;
-		let source_file: Source_File | undefined;
+		let source_file: Source_File | null;
 		switch (change.type) {
 			case 'add':
 			case 'update': {
