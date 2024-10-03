@@ -92,29 +92,27 @@ export class Filer {
 		const file = this.get_by_id(id);
 		if (!file) return; // this is safe because the object would exist if any other file referenced it as a dependency or dependent
 
-		// TODO BLOCK steps to reproduce - see `task_logging.ts` change on save, but then delete and recreate, doesn't pick up changes - does the source file exist still? it should right?
-		// problem is removing refs isn't correct, only the deps need to be created, and files with no `content` and no other references should be removed
-		this.#remove_references(file);
-		this.files.delete(id);
-
-		return file;
-	}
-
-	#remove_references(file: Source_File): void {
 		console.log('[filer] #remove_references', file.id);
-		for (const dependent of file.dependents.values()) {
-			const deleted = dependent.dependencies.delete(file.id);
-			if (!deleted) throw Error('TODO expected deleted'); // TODO @many delete if correct
-		}
-		for (const dependency of file.dependencies.values()) {
-			const deleted = dependency.dependents.delete(file.id);
+		for (const d of file.dependencies.values()) {
+			const deleted = d.dependents.delete(file.id);
 			if (!deleted) throw Error('TODO expected deleted'); // TODO @many delete if correct
 		}
 		// TODO @many delete if correct
 		for (const d of this.files.values()) {
-			if (d.dependencies.has(file.id)) throw Error('TODO should have cleaned up dependency');
 			if (d.dependents.has(file.id)) throw Error('TODO should have cleaned up dependent');
 		}
+
+		let found = false;
+		for (const d of this.files.values()) {
+			if (d.dependencies.has(file.id)) {
+				found = true;
+				break;
+			}
+		}
+		console.log('found is ', found, found ? 'so not removing' : 'so removing');
+		if (!found) this.files.delete(id);
+
+		return file;
 	}
 
 	#sync_deps_for_file(file: Source_File): void {
@@ -204,11 +202,13 @@ export class Filer {
 		if (this.#watch_dir_options.on_change) throw Error('TODO'); // TODO BLOCK call into it? where? or exclude from the type?
 		if (change.is_directory) return;
 		console.log(`[filer] #on_change`, change);
+		// TODO BLOCK the init problem has an interesting angle, in that if the contents don't change on disk, we can ignore the change UNLESS it's initiing (maybe add `#ready` back?)
 		let source_file: Source_File | undefined;
 		switch (change.type) {
 			case 'add':
 			case 'update': {
 				// TODO BLOCK add_or_update? check here or in the fn?
+				// TODO BLOCK check if content changed, efficient if not
 				source_file = this.#update(change.path);
 				break;
 			}
