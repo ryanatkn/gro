@@ -17,8 +17,7 @@ import {resolve_specifier} from './resolve_specifier.js';
 import {default_sveltekit_config} from './sveltekit_config.js';
 import {map_sveltekit_aliases} from './sveltekit_helpers.js';
 
-// TODO BLOCK hacky
-const aliases = Object.entries({$lib: 'src/lib', ...default_sveltekit_config.alias});
+const aliases = Object.entries(default_sveltekit_config.alias);
 
 export interface Source_File {
 	id: Path_Id;
@@ -40,8 +39,6 @@ export interface Options {
 	watch_dir_options?: Partial<Omit_Strict<Watch_Dir_Options, 'on_change'>>;
 }
 
-// TODO BLOCK use `watch_dir` - maybe also `search_fs` for non-watch cases? do we have any of those?
-// TODO BLOCK lazy init - should be able to create the class without doing any significant work
 export class Filer {
 	files: Map<Path_Id, Source_File> = new Map();
 

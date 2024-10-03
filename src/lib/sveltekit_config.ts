@@ -35,7 +35,7 @@ export const load_sveltekit_config = async (
 export interface Parsed_Sveltekit_Config {
 	// TODO probably fill these out with defaults
 	sveltekit_config: SveltekitConfig | null;
-	alias: Record<string, string> | undefined;
+	alias: Record<string, string>;
 	base_url: '' | `/${string}` | undefined;
 	assets_url: '' | `http://${string}` | `https://${string}` | undefined;
 
@@ -74,7 +74,7 @@ export const init_sveltekit_config = async (
 		typeof dir_or_config === 'string' ? await load_sveltekit_config(dir_or_config) : dir_or_config;
 	const kit = sveltekit_config?.kit;
 
-	const alias = kit?.alias;
+	const alias = {$lib: 'src/lib', ...kit?.alias};
 
 	const base_url = kit?.paths?.base;
 	const assets_url = kit?.paths?.assets;

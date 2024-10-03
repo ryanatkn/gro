@@ -74,7 +74,7 @@ const ts_transform_options: esbuild.TransformOptions = {
 	sourcemap: 'inline',
 };
 
-const aliases = Object.entries({$lib: 'src/lib', ...alias});
+const aliases = Object.entries(alias);
 
 const RAW_MATCHER = /(%3Fraw|\.css|\.svg)$/; // TODO others? configurable?
 const ENV_MATCHER = /src\/lib\/\$env\/(static|dynamic)\/(public|private)$/;
