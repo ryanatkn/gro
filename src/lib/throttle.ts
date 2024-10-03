@@ -20,7 +20,7 @@ import {wait} from '@ryanatkn/belt/async.js';
 export const throttle = <T extends (...args: any[]) => Promise<void>>(
 	cb: T,
 	delay = 0,
-	// leading = true,
+	leading = true,
 ): T => {
 	let pending_promise: Promise<void> | null = null;
 	let next_args: any[] | null = null;
@@ -62,17 +62,6 @@ export const throttle = <T extends (...args: any[]) => Promise<void>>(
 			return defer(args);
 		} else {
 			return call(args);
-			// if (leading) {
-			// 	return call(args);
-			// } else {
-			// 	pending_promise = defer(args);
-			// 	void pending_promise.then(async () => {
-			// 		await wait(delay);
-			// 		pending_promise = null;
-			// 		await flush();
-			// 	});
-			// 	return pending_promise;
-			// }
 		}
 	}) as T;
 };

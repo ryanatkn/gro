@@ -10,7 +10,7 @@ test('throttles calls to a function', async () => {
 		results.push(name + '_run');
 		await wait();
 		results.push(name + '_done');
-	});
+	}, 0);
 	const promise_a = fn('a');
 	const promise_b = fn('b'); // discarded
 	const promise_c = fn('c'); // discarded
@@ -66,47 +66,47 @@ test('throttles calls to a function', async () => {
 	]);
 });
 
-// test('throttles calls to a function with leading=false', async () => {
-// 	const results: string[] = [];
-// 	const fn = throttle(
-// 		async (name: string) => {
-// 			results.push(name + '_run');
-// 			await wait(10);
-// 			results.push(name + '_done');
-// 		},
-// 		50,
-// 		false,
-// 	);
+test('throttles calls to a function with leading = false', async () => {
+	const results: string[] = [];
+	const fn = throttle(
+		async (name: string) => {
+			results.push(name + '_run');
+			await wait();
+			results.push(name + '_done');
+		},
+		0,
+		false,
+	);
 
-// 	const promise_a = fn('a');
-// 	const promise_b = fn('b'); // deferred
-// 	const promise_c = fn('c'); // deferred
+	const promise_a = fn('a'); // discarded
+	const promise_b = fn('b'); // discarded
+	const promise_c = fn('c'); // discarded
+	const promise_d = fn('d');
 
-// 	assert.equal(results, [], 'No immediate execution due to leading=false');
+	assert.is(promise_a, promise_b);
+	assert.is(promise_a, promise_c);
+	assert.is(promise_a, promise_d);
+	assert.equal(results, []); // No immediate execution
 
-// 	await wait(60); // Wait for the delay to pass
+	await wait(); // Wait for the delay
 
-// 	assert.equal(results, [], 'First call not yet executed after initial delay');
+	assert.equal(results, ['d_run']);
 
-// 	await promise_a;
+	await promise_a; // All promises resolve to the same result
 
-// 	assert.equal(results, ['a_run', 'a_done'], 'First call completed after being triggered');
+	assert.equal(results, ['d_run', 'd_done']);
 
-// 	const promise_d = fn('d');
+	const promise_e = fn('e');
+	assert.ok(promise_a !== promise_e);
+	assert.equal(results, ['d_run', 'd_done']); // Delayed execution
 
-// 	assert.equal(results, ['a_run', 'a_done'], 'Next call not immediately executed');
+	await wait(); // Wait for the delay
 
-// 	await wait(60); // Wait for the delay again
+	assert.equal(results, ['d_run', 'd_done', 'e_run']);
 
-// 	assert.equal(results, ['a_run', 'a_done'], 'Next call not yet executed after delay');
+	await promise_e;
 
-// 	await promise_d;
-
-// 	assert.equal(results, ['a_run', 'a_done', 'd_run', 'd_done'], 'All calls completed');
-
-// 	assert.is(promise_b, promise_c, 'Intermediate calls return the same promise');
-// 	assert.ok(promise_a !== promise_b, 'Different execution cycles return different promises');
-// 	assert.ok(promise_c !== promise_d, 'Different execution cycles return different promises');
-// });
+	assert.equal(results, ['d_run', 'd_done', 'e_run', 'e_done']);
+});
 
 test.run();
