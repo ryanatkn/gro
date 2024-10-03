@@ -86,7 +86,6 @@ export const gro_plugin_gen = ({
 
 			// When a file builds, check it and its tree of dependents
 			// for any `.gen.` files that need to run.
-			console.log('CREATING WATCHER');
 			cleanup = await filer.watch((change, source_file) => {
 				console.log(`[gro_plugin_gen]`, change.type, source_file.id, source_file.dependents.size);
 				switch (change.type) {
@@ -102,8 +101,7 @@ export const gro_plugin_gen = ({
 							filer.get_by_id,
 							is_gen_path,
 						);
-						console.log(`dependent_gen_file_ids`, dependent_gen_file_ids);
-						// TODO BLOCK need to check all of the last-generated files too, their imports may be different, but do this after regenerating above as needed
+						console.log(`[gro_plugin_gen] dependent_gen_file_ids`, dependent_gen_file_ids);
 						for (const dependent_gen_file_id of dependent_gen_file_ids) {
 							queue_gen(dependent_gen_file_id);
 						}
