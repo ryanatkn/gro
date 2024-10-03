@@ -15,9 +15,7 @@ export interface Plugin<T_Plugin_Context extends Plugin_Context = Plugin_Context
 
 export type Create_Config_Plugins<T_Plugin_Context extends Plugin_Context = Plugin_Context> = (
 	ctx: T_Plugin_Context,
-) =>
-	| (Plugin<T_Plugin_Context> | null | Array<Plugin<T_Plugin_Context> | null>)
-	| Promise<Plugin<T_Plugin_Context> | null | Array<Plugin<T_Plugin_Context> | null>>;
+) => Array<Plugin<T_Plugin_Context>> | Promise<Array<Plugin<T_Plugin_Context>>>;
 
 export interface Plugin_Context<T_Args = object> extends Task_Context<T_Args> {
 	dev: boolean;
@@ -96,18 +94,14 @@ export class Plugins<T_Plugin_Context extends Plugin_Context> {
  * @param name - @default new_plugin.name
  * @returns `plugins` with `new_plugin` at the index of the plugin with `name`
  */
-export const replace_plugin = <
-	T_Plugins extends T_Plugin | null | Array<T_Plugin | null>,
-	T_Plugin extends Plugin,
->(
-	plugins: T_Plugins,
+export const replace_plugin = (
+	plugins: Plugin[],
 	new_plugin: Plugin,
 	name = new_plugin.name,
-): T_Plugin[] => {
-	const array = to_array(plugins).filter((v) => v !== null);
-	const index = array.findIndex((p) => p.name === name);
+): Plugin[] => {
+	const index = plugins.findIndex((p) => p.name === name);
 	if (index === -1) throw Error('Failed to find plugin to replace: ' + name);
-	const replaced = array.slice();
+	const replaced = plugins.slice();
 	replaced[index] = new_plugin;
-	return replaced as T_Plugin[];
+	return replaced;
 };

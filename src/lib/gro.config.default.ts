@@ -18,14 +18,15 @@ const config: Create_Gro_Config = async (cfg) => {
 	const [has_sveltekit_library_result, has_server_result, has_sveltekit_app_result] =
 		await Promise.all([has_sveltekit_library(), has_server(), has_sveltekit_app()]);
 
-	cfg.plugins = () => [
-		has_sveltekit_library_result.ok ? gro_plugin_sveltekit_library() : null,
-		has_server_result.ok ? gro_plugin_server() : null,
-		has_sveltekit_app_result.ok
-			? gro_plugin_sveltekit_app({host_target: has_server_result.ok ? 'node' : 'github_pages'})
-			: null,
-		gro_plugin_gen(),
-	];
+	cfg.plugins = () =>
+		[
+			has_sveltekit_library_result.ok ? gro_plugin_sveltekit_library() : null,
+			has_server_result.ok ? gro_plugin_server() : null,
+			has_sveltekit_app_result.ok
+				? gro_plugin_sveltekit_app({host_target: has_server_result.ok ? 'node' : 'github_pages'})
+				: null,
+			gro_plugin_gen(),
+		].filter((v) => v !== null);
 
 	return cfg;
 };
