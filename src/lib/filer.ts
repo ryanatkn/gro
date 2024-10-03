@@ -1,5 +1,5 @@
 import {EMPTY_OBJECT} from '@ryanatkn/belt/object.js';
-import {readFileSync} from 'fs';
+import {existsSync, readFileSync} from 'node:fs';
 import {dirname, resolve} from 'node:path';
 
 import type {Path_Id} from './path.js';
@@ -21,9 +21,13 @@ const aliases = Object.entries({$lib: 'src/lib', ...default_sveltekit_config.ali
 
 export interface Source_File {
 	id: Path_Id;
-	contents: string; // TODO BLOCK maybe `null` when it doesn't exist?
-	dependents: Map<Path_Id, Source_File>; // TODO BLOCK dependents and dependencies?
-	dependencies: Map<Path_Id, Source_File>; // TODO BLOCK dependents and dependencies?
+	/**
+	 * `null` contents means it doesn't exist.
+	 * We create the file in memory to track its dependents regardless of its existence on disk.
+	 */
+	contents: string | null;
+	dependents: Map<Path_Id, Source_File>;
+	dependencies: Map<Path_Id, Source_File>;
 }
 
 export type Cleanup_Watch = () => Promise<void>;
@@ -56,61 +60,60 @@ export class Filer {
 		return this.files.get(id);
 	};
 
-	// TODO BLOCK this isn't an id, it's relative, same with `source_file.id` below
-	#update(id: Path_Id): Source_File {
-		console.log('[filer] #update', id);
-		const contents = readFileSync(id, 'utf8');
+	get_or_create = (id: Path_Id): Source_File => {
 		const existing = this.get_by_id(id);
-		if (existing) {
-			existing.contents = contents;
-		}
-		// TODO BLOCK resolve specifiers - `resolve_specifier` and `resolve_node_specifier`
-		// TODO BLOCK handle existing?
-		const file: Source_File = existing ?? {
+		if (existing) return existing;
+		const file: Source_File = {
 			id,
-			contents,
+			contents: null,
 			dependents: new Map(),
 			dependencies: new Map(),
 		};
 		this.files.set(id, file);
-		console.log('UPDATE', this.#ready);
-		if (this.#ready) {
-			this.#sync_deps_for_file(file);
-		}
+		return file;
+	};
+
+	// TODO BLOCK this isn't an id, it's relative, same with `source_file.id` below
+	#update(id: Path_Id): Source_File {
+		console.log('[filer] #update', id);
+		const file = this.get_or_create(id);
+		file.contents = existsSync(id) ? readFileSync(id, 'utf8') : null;
+
+		// TODO BLOCK resolve specifiers - `resolve_specifier` and `resolve_node_specifier`
+		// TODO BLOCK handle existing?
+
+		this.#sync_deps_for_file(file);
+
 		return file;
 	}
 
 	#remove(id: Path_Id): Source_File | undefined {
 		console.log('[filer] #remove', id);
-		const found = this.get_by_id(id);
-		if (!found) return undefined;
-		// TODO BLOCK remove from dependents
+		const file = this.get_by_id(id);
+		if (!file) return; // this is safe because the object would exist if any other file referenced it as a dependency or dependent
+
+		// TODO BLOCK steps to reproduce - see `task_logging.ts` change on save, but then delete and recreate, doesn't pick up changes - does the source file exist still? it should right?
+		// problem is removing refs isn't correct, only the deps need to be created, and files with no `content` and no other references should be removed
+		this.#remove_references(file);
 		this.files.delete(id);
-		if (!this.#ready) throw Error('expected to be ready'); // TODO @many delete if correct
-		this.#remove_references(found);
-		return found;
+
+		return file;
 	}
 
 	#remove_references(file: Source_File): void {
 		console.log('[filer] #remove_references', file.id);
 		for (const dependent of file.dependents.values()) {
-			dependent.dependencies.delete(file.id);
+			const deleted = dependent.dependencies.delete(file.id);
+			if (!deleted) throw Error('TODO expected deleted'); // TODO @many delete if correct
 		}
 		for (const dependency of file.dependencies.values()) {
-			dependency.dependents.delete(file.id);
+			const deleted = dependency.dependents.delete(file.id);
+			if (!deleted) throw Error('TODO expected deleted'); // TODO @many delete if correct
 		}
 		// TODO @many delete if correct
 		for (const d of this.files.values()) {
 			if (d.dependencies.has(file.id)) throw Error('TODO should have cleaned up dependency');
 			if (d.dependents.has(file.id)) throw Error('TODO should have cleaned up dependent');
-		}
-	}
-
-	// syncs all deps, clearing as it goes
-	#sync_deps(): void {
-		console.log(`[filer] #sync_deps`);
-		for (const file of this.files.values()) {
-			this.#sync_deps_for_file(file);
 		}
 	}
 
@@ -121,10 +124,9 @@ export class Filer {
 		const dependencies_before = new Set(file.dependencies.keys());
 		const dependencies_removed = new Set(dependencies_before);
 
-		// TODO BLOCK parse deps for TS/svelte
-		const imported = parse_imports(file.id, file.contents);
+		const imported = file.contents ? parse_imports(file.id, file.contents) : [];
 		for (const specifier of imported) {
-			// TODO BLOCK duplicated from loader
+			// TODO logic is duplicated from loader
 			const path = map_sveltekit_aliases(specifier, aliases);
 
 			// The specifier `path` has now been mapped to its final form, so we can inspect it.
@@ -132,22 +134,17 @@ export class Filer {
 				const {path_id} = resolve_specifier(path, dir);
 				dependencies_removed.delete(path_id);
 				if (!dependencies_before.has(path_id)) {
-					const d = this.get_by_id(path_id);
-					if (!d) {
-						throw Error('expected to find ' + path_id); // TODO @many delete if correct
-					}
+					const d = this.get_or_create(path_id);
 					file.dependencies.set(d.id, d);
 				}
 			}
 		}
 
-		// TODO BLOCK remove deps
 		for (const dependency_removed of dependencies_removed) {
 			console.log(`dependency_removed`, dependency_removed);
 			const deleted1 = file.dependencies.delete(dependency_removed);
 			if (!deleted1) throw Error('expected to delete1 ' + file.id); // TODO @many delete if correct
-			const dependency_removed_file = this.get_by_id(dependency_removed);
-			if (!dependency_removed_file) continue; // TODO ? can't expect? should they always just be strings then? or reference missing files, with a flag?
+			const dependency_removed_file = this.get_or_create(dependency_removed);
 			const deleted2 = dependency_removed_file.dependents.delete(file.id);
 			if (!deleted2) throw Error('expected to delete2 ' + file.id); // TODO @many delete if correct
 		}
@@ -177,14 +174,6 @@ export class Filer {
 		}
 	}
 
-	/**
-	 * File deps need to be initialized in a batch after all file references are ready.
-	 * This flag is set to `true` after all deps have been batch-synced.
-	 * When it's not ready, events do not need to modify deps, and indeed they shouldn't,
-	 * because any particular file objects may not be ready yet.
-	 */
-	#ready = false;
-
 	async #add_listener(listener: On_Filer_Change): Promise<void> {
 		this.#listeners.add(listener);
 		if (this.#watching) {
@@ -200,8 +189,6 @@ export class Filer {
 			on_change: this.#on_change,
 		}); // TODO maybe make `watch_dir` an option instead of accepting options?
 		await this.#watching.init();
-		this.#sync_deps();
-		this.#ready = true;
 		console.log('[filer] [#add_listener] READY');
 	}
 
@@ -246,7 +233,6 @@ export class Filer {
 
 	async close(): Promise<void> {
 		console.log('[filer] close');
-		this.#ready = false;
 		this.#listeners.clear();
 		if (this.#watching) {
 			await this.#watching.close();
