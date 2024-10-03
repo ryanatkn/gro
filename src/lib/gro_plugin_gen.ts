@@ -50,6 +50,7 @@ export const gro_plugin_gen = ({
 		queued_files.clear();
 		console.log(`gen(files)`, files);
 		await gen(files);
+		console.log('\n\n');
 		generating = false;
 		if (regen) {
 			regen = false;
@@ -80,7 +81,6 @@ export const gro_plugin_gen = ({
 				if (found.ok && found.value.resolved_input_files.length > 0) {
 					await gen();
 				}
-
 				return;
 			}
 
