@@ -122,6 +122,13 @@ export class Filer {
 		for (const d of file.dependencies.values()) {
 			d.dependents.set(file.id, file);
 		}
+
+		console.log(
+			`synced file id, dependencies, dependents`,
+			file.id,
+			Array.from(file.dependencies.keys()),
+			Array.from(file.dependents.keys()),
+		);
 		// console.log(
 		// 	`file.dependencies, file.dependents`,
 		// 	Array.from(file.dependencies.keys()),
@@ -160,8 +167,7 @@ export class Filer {
 		await this.#watching.init();
 		this.#sync_deps();
 		this.#ready = true;
-		// TODO BLOCK here we need to now set up all dependencies now that all files exist
-		console.log('[#add_listener] this.#watching.init() COMPLETED');
+		console.log('[#add_listener] READY');
 	}
 
 	async #remove_listener(listener: On_Filer_Change): Promise<void> {

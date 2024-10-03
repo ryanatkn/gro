@@ -43,7 +43,7 @@ test('parse svelte imports', () => {
       000
 
       <!-- TS module script -->
-      <script lang="ts" context="module">
+      <script lang="ts" module>
         const a2: 5 = 5;
         import {foo2} from 'static_import_module_context';
         await import('dynamic_import_module_context');

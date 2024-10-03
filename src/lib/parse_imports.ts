@@ -1,5 +1,6 @@
 import {init, parse} from 'es-module-lexer';
 import type {Flavored} from '@ryanatkn/belt/types.js';
+
 import type {Path_Id} from './path.js';
 
 export const init_lexer = (): Promise<void> => init;
