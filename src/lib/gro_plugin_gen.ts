@@ -10,7 +10,7 @@ import type {File_Filter, Path_Id} from './path.js';
 import type {Cleanup_Watch, Source_File} from './filer.js';
 import {Unreachable_Error} from '@ryanatkn/belt/error.js';
 
-const FLUSH_DEBOUNCE_DELAY = 3000; // TODO BLOCK test this
+const FLUSH_DEBOUNCE_DELAY = 500;
 
 export interface Task_Args extends Args {
 	watch?: boolean;
