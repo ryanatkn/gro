@@ -1,5 +1,11 @@
 # @ryanatkn/gro
 
+## 0.138.2
+
+### Patch Changes
+
+- cleanup `gro_plugin_gen` ([#504](https://github.com/ryanatkn/gro/pull/504))
+
 ## 0.138.1
 
 ### Patch Changes
