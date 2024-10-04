@@ -27,8 +27,6 @@ export const gro_plugin_gen = ({
 	root_dirs = [paths.source],
 	flush_debounce_delay = FLUSH_DEBOUNCE_DELAY,
 }: Options = EMPTY_OBJECT): Plugin => {
-	let generating = false;
-	let regen = false;
 	let flushing_timeout: NodeJS.Timeout | undefined;
 	const queued_files: Set<string> = new Set();
 	const queue_gen = (gen_file_id: string) => {
@@ -41,20 +39,9 @@ export const gro_plugin_gen = ({
 		}
 	};
 	const flush_gen_queue = throttle(async () => {
-		// hacky way to avoid concurrent `gro gen` calls
-		if (generating) {
-			regen = true;
-			return;
-		}
-		generating = true;
 		const files = Array.from(queued_files);
 		queued_files.clear();
 		await gen(files);
-		generating = false;
-		if (regen) {
-			regen = false;
-			void flush_gen_queue();
-		}
 	}, flush_debounce_delay);
 	const gen = (files: string[] = []) => spawn_cli('gro', ['gen', ...files]);
 
