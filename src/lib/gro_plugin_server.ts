@@ -6,6 +6,7 @@ import {identity} from '@ryanatkn/belt/function.js';
 import {strip_before, strip_end} from '@ryanatkn/belt/string.js';
 import type {Result} from '@ryanatkn/belt/result.js';
 import {existsSync} from 'node:fs';
+import {throttle} from '@ryanatkn/belt/throttle.js';
 
 import type {Plugin} from './plugin.js';
 import {base_path_to_path_id, LIB_DIRNAME, paths} from './paths.js';
@@ -20,7 +21,6 @@ import {esbuild_plugin_sveltekit_shim_alias} from './esbuild_plugin_sveltekit_sh
 import {esbuild_plugin_external_worker} from './esbuild_plugin_external_worker.js';
 import {esbuild_plugin_sveltekit_local_imports} from './esbuild_plugin_sveltekit_local_imports.js';
 import {esbuild_plugin_svelte} from './esbuild_plugin_svelte.js';
-import {throttle} from './throttle.js';
 
 // TODO sourcemap as a hoisted option? disable for production by default - or like `outpaths`, passed a `dev` param
 

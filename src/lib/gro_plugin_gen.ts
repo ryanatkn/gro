@@ -1,10 +1,10 @@
 import {EMPTY_OBJECT} from '@ryanatkn/belt/object.js';
+import {throttle} from '@ryanatkn/belt/throttle.js';
 
 import type {Plugin} from './plugin.js';
 import type {Args} from './args.js';
 import {paths} from './paths.js';
 import {find_genfiles, is_gen_path} from './gen.js';
-import {throttle} from './throttle.js';
 import {spawn_cli} from './cli.js';
 import type {File_Filter, Path_Id} from './path.js';
 import type {Cleanup_Watch, Source_File} from './filer.js';
