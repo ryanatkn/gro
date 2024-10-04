@@ -1,6 +1,6 @@
 /**
  * Throttles calls to a callback that returns a void promise.
- * Immediately invokes the callback on the first call.
+ * Immediately invokes the callback on the first call unless `leading=false`.
  * If the throttled function is called while the promise is already pending,
  * the call is queued to run after the pending promise completes plus `delay`,
  * and only the last call is invoked.
@@ -18,7 +18,7 @@
 export const throttle = <T extends (...args: any[]) => Promise<void>>(
 	cb: T,
 	delay = 0,
-	leading = true,
+	leading = true, // TODO add a trailing option
 ): T => {
 	let pending_promise: Promise<void> | null = null;
 	let next_args: any[] | null = null;
@@ -29,7 +29,7 @@ export const throttle = <T extends (...args: any[]) => Promise<void>>(
 		next_args = args;
 		if (!next_promise) {
 			next_promise = new Promise((resolve) => {
-				next_promise_resolve = resolve;
+				next_promise_resolve = resolve; // TODO `create_deferred`
 			});
 			setTimeout(flush, delay);
 		}
@@ -47,8 +47,8 @@ export const throttle = <T extends (...args: any[]) => Promise<void>>(
 	};
 
 	const call = (args: any[]): Promise<any> => {
-		pending_promise = cb(...args);
-		void pending_promise.then(() => {
+		pending_promise = cb(...args); // TODO accept non-promise-returning functions?
+		void pending_promise.finally(() => {
 			pending_promise = null;
 		});
 		return pending_promise;
