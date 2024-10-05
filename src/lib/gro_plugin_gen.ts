@@ -38,11 +38,14 @@ export const gro_plugin_gen = ({
 			}); // the timeout batches synchronously
 		}
 	};
-	const flush_gen_queue = throttle(async () => {
-		const files = Array.from(queued_files);
-		queued_files.clear();
-		await gen(files);
-	}, flush_debounce_delay);
+	const flush_gen_queue = throttle(
+		async () => {
+			const files = Array.from(queued_files);
+			queued_files.clear();
+			await gen(files);
+		},
+		{delay: flush_debounce_delay},
+	);
 	const gen = (files: string[] = []) => spawn_cli('gro', ['gen', ...files]);
 
 	let cleanup: Cleanup_Watch | undefined;

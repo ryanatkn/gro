@@ -208,20 +208,23 @@ export const gro_plugin_server = ({
 
 			timing_to_esbuild_create_context();
 
-			const rebuild = throttle(async () => {
-				let build_result;
-				try {
-					build_result = await build_ctx!.rebuild();
-				} catch (err) {
-					log.error('[gro_plugin_server] build failed', err);
-					return;
-				}
-				const {metafile} = build_result;
-				if (!metafile) return;
-				print_build_result(log, build_result);
-				deps = parse_deps(metafile.inputs, dir);
-				server_process?.restart();
-			}, rebuild_throttle_delay);
+			const rebuild = throttle(
+				async () => {
+					let build_result;
+					try {
+						build_result = await build_ctx!.rebuild();
+					} catch (err) {
+						log.error('[gro_plugin_server] build failed', err);
+						return;
+					}
+					const {metafile} = build_result;
+					if (!metafile) return;
+					print_build_result(log, build_result);
+					deps = parse_deps(metafile.inputs, dir);
+					server_process?.restart();
+				},
+				{delay: rebuild_throttle_delay},
+			);
 
 			await rebuild();
 
