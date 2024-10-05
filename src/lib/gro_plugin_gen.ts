@@ -1,14 +1,14 @@
 import {EMPTY_OBJECT} from '@ryanatkn/belt/object.js';
+import {throttle} from '@ryanatkn/belt/throttle.js';
+import {Unreachable_Error} from '@ryanatkn/belt/error.js';
 
 import type {Plugin} from './plugin.js';
 import type {Args} from './args.js';
 import {paths} from './paths.js';
 import {find_genfiles, is_gen_path} from './gen.js';
-import {throttle} from './throttle.js';
 import {spawn_cli} from './cli.js';
 import type {File_Filter, Path_Id} from './path.js';
 import type {Cleanup_Watch, Source_File} from './filer.js';
-import {Unreachable_Error} from '@ryanatkn/belt/error.js';
 
 const FLUSH_DEBOUNCE_DELAY = 500;
 
@@ -38,11 +38,14 @@ export const gro_plugin_gen = ({
 			}); // the timeout batches synchronously
 		}
 	};
-	const flush_gen_queue = throttle(async () => {
-		const files = Array.from(queued_files);
-		queued_files.clear();
-		await gen(files);
-	}, flush_debounce_delay);
+	const flush_gen_queue = throttle(
+		async () => {
+			const files = Array.from(queued_files);
+			queued_files.clear();
+			await gen(files);
+		},
+		{delay: flush_debounce_delay},
+	);
 	const gen = (files: string[] = []) => spawn_cli('gro', ['gen', ...files]);
 
 	let cleanup: Cleanup_Watch | undefined;
