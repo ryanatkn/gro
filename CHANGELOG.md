@@ -1,5 +1,15 @@
 # @ryanatkn/gro
 
+## 0.139.0
+
+### Minor Changes
+
+- move `throttle` to `@ryanatkn/belt` and upgrade to `0.25.2` from `0.25.0` ([#505](https://github.com/ryanatkn/gro/pull/505))
+
+### Patch Changes
+
+- upgrade belt ([942b1c0](https://github.com/ryanatkn/gro/commit/942b1c0))
+
 ## 0.138.2
 
 ### Patch Changes
