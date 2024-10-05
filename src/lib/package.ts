@@ -44,7 +44,7 @@ export const package_json = {
 		'typescript',
 	],
 	dependencies: {
-		'@ryanatkn/belt': '^0.25.0',
+		'@ryanatkn/belt': '^0.25.1',
 		chokidar: '^4.0.1',
 		dotenv: '^16.4.5',
 		'es-module-lexer': '^1.5.4',
@@ -258,7 +258,6 @@ export const package_json = {
 		'./task_logging.js': {types: './dist/task_logging.d.ts', default: './dist/task_logging.js'},
 		'./task.js': {types: './dist/task.d.ts', default: './dist/task.js'},
 		'./test.task.js': {types: './dist/test.task.d.ts', default: './dist/test.task.js'},
-		'./throttle.js': {types: './dist/throttle.d.ts', default: './dist/throttle.js'},
 		'./typecheck.task.js': {
 			types: './dist/typecheck.task.d.ts',
 			default: './dist/typecheck.task.js',
@@ -1007,7 +1006,6 @@ export const src_json = {
 				{name: 'task', kind: 'variable'},
 			],
 		},
-		'./throttle.js': {path: 'throttle.ts', declarations: [{name: 'throttle', kind: 'function'}]},
 		'./typecheck.task.js': {
 			path: 'typecheck.task.ts',
 			declarations: [
