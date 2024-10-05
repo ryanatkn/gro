@@ -47,8 +47,8 @@ Ergonomics are key to unlocking codegen's full potential.
 It adds a layer of indirection between the code you write and run,
 and it's possible to tie yourself into knots with dependencies.
 Also, you could introduce security vulnerabilities
-if you fail to escape certain inputs,
-There's no support for sourcemaps yet, and I have no plans for them.
+if you fail to escape certain inputs.
+There's no support for sourcemaps and I have no plans for them.
 (I would accept contributions, but I think it's a hard problem to do well,
 and I don't know what the payoffs would be)
 
