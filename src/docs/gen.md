@@ -48,9 +48,6 @@ It adds a layer of indirection between the code you write and run,
 and it's possible to tie yourself into knots with dependencies.
 Also, you could introduce security vulnerabilities
 if you fail to escape certain inputs.
-There's no support for sourcemaps and I have no plans for them.
-(I would accept contributions, but I think it's a hard problem to do well,
-and I don't know what the payoffs would be)
 
 > ⚠️ Generated files should never be edited directly,
 > because the next time `gro gen` or `gro sync` runs,
@@ -269,3 +266,4 @@ which is called during `gro publish`, and it's recommended in CI.
 - [x] watch mode and build integration - [#492](https://github.com/ryanatkn/gro/pull/492)
 - [ ] change the exported `gen` function to an object with a `summary` and other properties like `watch`
 - [ ] better support for generating non-text files
+- [ ] better sourcemap support
