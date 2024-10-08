@@ -70,7 +70,6 @@
     "@changesets/types": "^6.0.0",
     "@ryanatkn/eslint-config": "^0.5.4",
     "@ryanatkn/fuz": "^0.129.0",
-    "@ryanatkn/gro": "^0.139.0",
     "@ryanatkn/moss": "^0.18.0",
     "@sveltejs/adapter-static": "^3.0.5",
     "@sveltejs/kit": "^2.6.1",
