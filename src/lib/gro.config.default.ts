@@ -28,8 +28,6 @@ const config: Create_Gro_Config = async (cfg) => {
 		load_moss_plugin(),
 	]);
 
-	console.log(`moss_plugin_result`, moss_plugin_result);
-
 	cfg.plugins = () =>
 		[
 			has_sveltekit_library_result.ok ? gro_plugin_sveltekit_library() : null,
@@ -37,7 +35,7 @@ const config: Create_Gro_Config = async (cfg) => {
 			has_sveltekit_app_result.ok
 				? gro_plugin_sveltekit_app({host_target: has_server_result.ok ? 'node' : 'github_pages'})
 				: null,
-			moss_plugin_result.ok ? moss_plugin_result.value : null,
+			moss_plugin_result.ok ? moss_plugin_result.gro_plugin_moss() : null,
 			gro_plugin_gen(),
 		].filter((v) => v !== null);
 

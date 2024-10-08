@@ -1,10 +1,7 @@
-import cg from './src/lib/gro.config.default.js'; // TODO BLOCK REMOVE
 import {create_empty_gro_config} from './src/lib/gro_config.js';
 import {gro_plugin_sveltekit_library} from './src/lib/gro_plugin_sveltekit_library.js';
 import {gro_plugin_sveltekit_app} from './src/lib/gro_plugin_sveltekit_app.js';
 import {gro_plugin_gen} from './src/lib/gro_plugin_gen.js';
-
-console.log(`cg`, cg); // TODO BLOCK REMOVE
 
 /**
  * This is the config for the Gro project itself.
