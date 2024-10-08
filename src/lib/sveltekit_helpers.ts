@@ -3,7 +3,7 @@ import {existsSync} from 'node:fs';
 import type {Logger} from '@ryanatkn/belt/log.js';
 import {join} from 'node:path';
 
-import {Package_Json, load_package_json} from './package_json.js';
+import {Package_Json, has_dep} from './package_json.js';
 import {default_sveltekit_config, type Parsed_Sveltekit_Config} from './sveltekit_config.js';
 import {SVELTEKIT_CONFIG_FILENAME, SVELTEKIT_DEV_DIRNAME} from './path_constants.js';
 import {find_cli, spawn_cli, to_cli_name, type Cli} from './cli.js';
@@ -32,6 +32,7 @@ export const has_sveltekit_app = (): Result<object, {message: string}> => {
 export const has_sveltekit_library = (
 	package_json?: Package_Json,
 	sveltekit_config: Parsed_Sveltekit_Config = default_sveltekit_config,
+	dep_name = SVELTE_PACKAGE_DEP_NAME,
 ): Result<object, {message: string}> => {
 	const has_sveltekit_app_result = has_sveltekit_app();
 	if (!has_sveltekit_app_result.ok) {
@@ -42,13 +43,10 @@ export const has_sveltekit_library = (
 		return {ok: false, message: `no SvelteKit lib directory found at ${sveltekit_config.lib_path}`};
 	}
 
-	const pkg = package_json ?? load_package_json();
-	if (
-		!(pkg.devDependencies?.[SVELTE_PACKAGE_DEP_NAME] || pkg.dependencies?.[SVELTE_PACKAGE_DEP_NAME])
-	) {
+	if (!has_dep(dep_name, package_json)) {
 		return {
 			ok: false,
-			message: `no dependency found in package.json for ${SVELTE_PACKAGE_DEP_NAME}, install it with \`npm i -D ${SVELTE_PACKAGE_DEP_NAME}\``,
+			message: `no dependency found in package.json for ${dep_name}, install it with \`npm i -D ${dep_name}\``,
 		};
 	}
 

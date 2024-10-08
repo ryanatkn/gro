@@ -2,7 +2,7 @@ import {spawn} from '@ryanatkn/belt/process.js';
 import {z} from 'zod';
 
 import {Task_Error, type Task} from './task.js';
-import {load_package_json, type Package_Json} from './package_json.js';
+import {extract_deps, load_package_json, type Package_Json_Dep} from './package_json.js';
 import {Git_Origin, git_pull} from './git.js';
 import {spawn_cli} from './cli.js';
 
@@ -41,15 +41,15 @@ export const task: Task<Args> = {
 
 		const package_json = load_package_json();
 
-		const all_deps = to_deps(package_json);
+		const all_deps = extract_deps(package_json);
 
 		const deps = only.length
-			? all_deps.filter((d) => only.includes(d.key))
-			: all_deps.filter((d) => !_.includes(d.key));
+			? all_deps.filter((d) => only.includes(d.name))
+			: all_deps.filter((d) => !_.includes(d.name));
 
 		if (only.length && only.length !== deps.length) {
 			throw new Task_Error(
-				`Some deps to upgrade were not found: ${only.filter((o) => !deps.find((d) => d.key === o)).join(', ')}`,
+				`Some deps to upgrade were not found: ${only.filter((o) => !deps.find((d) => d.name === o)).join(', ')}`,
 			);
 		}
 
@@ -72,34 +72,19 @@ export const task: Task<Args> = {
 	},
 };
 
-interface Dep {
-	key: string;
-	value: string;
-}
-
-const to_deps = (package_json: Package_Json): Dep[] => {
-	const prod_deps: Dep[] = package_json.dependencies
-		? Object.entries(package_json.dependencies).map(([key, value]) => ({key, value}))
-		: [];
-	const dev_deps: Dep[] = package_json.devDependencies
-		? Object.entries(package_json.devDependencies).map(([key, value]) => ({key, value}))
-		: [];
-	return prod_deps.concat(dev_deps);
-};
-
 const EXACT_VERSION_MATCHER = /^..*@.+/;
 const CUSTOM_TAG_MATCHER = /^[\^~><=]*.+-(.+)/;
 
 // TODO hacky and limited
 // TODO probably want to pass through exact deps as well, e.g. @foo/bar@1
-const to_upgrade_items = (deps: Dep[]): string[] =>
+const to_upgrade_items = (deps: Package_Json_Dep[]): string[] =>
 	deps.map((dep) => {
-		if (EXACT_VERSION_MATCHER.test(dep.key)) {
-			return dep.key;
+		if (EXACT_VERSION_MATCHER.test(dep.name)) {
+			return dep.name;
 		}
-		const custom_tag_matches = CUSTOM_TAG_MATCHER.exec(dep.value);
+		const custom_tag_matches = CUSTOM_TAG_MATCHER.exec(dep.version);
 		if (custom_tag_matches) {
-			return dep.key + '@' + custom_tag_matches[1].split('.')[0]; // I tried adding `\.?` to the end but doesn't work and I'm being lazy so I'm just splitting
+			return dep.name + '@' + custom_tag_matches[1].split('.')[0]; // I tried adding `\.?` to the end but doesn't work and I'm being lazy so I'm just splitting
 		}
-		return dep.key + '@latest';
+		return dep.name + '@latest';
 	});

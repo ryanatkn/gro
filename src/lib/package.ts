@@ -62,7 +62,8 @@ export const package_json = {
 		'@changesets/types': '^6.0.0',
 		'@ryanatkn/eslint-config': '^0.5.4',
 		'@ryanatkn/fuz': '^0.129.0',
-		'@ryanatkn/moss': '^0.16.1',
+		'@ryanatkn/gro': '^0.139.0',
+		'@ryanatkn/moss': '^0.18.0',
 		'@sveltejs/adapter-static': '^3.0.5',
 		'@sveltejs/kit': '^2.6.1',
 		'@sveltejs/package': '^2.3.5',
@@ -181,6 +182,7 @@ export const package_json = {
 		'./loader.js': {types: './dist/loader.d.ts', default: './dist/loader.js'},
 		'./module.js': {types: './dist/module.d.ts', default: './dist/module.js'},
 		'./modules.js': {types: './dist/modules.d.ts', default: './dist/modules.js'},
+		'./moss_helpers.js': {types: './dist/moss_helpers.d.ts', default: './dist/moss_helpers.js'},
 		'./package_json.js': {types: './dist/package_json.d.ts', default: './dist/package_json.js'},
 		'./package_meta.js': {types: './dist/package_meta.d.ts', default: './dist/package_meta.js'},
 		'./package.gen.js': {types: './dist/package.gen.d.ts', default: './dist/package.gen.js'},
@@ -657,6 +659,13 @@ export const src_json = {
 				{name: 'load_modules', kind: 'function'},
 			],
 		},
+		'./moss_helpers.js': {
+			path: 'moss_helpers.ts',
+			declarations: [
+				{name: 'MOSS_PACKAGE_DEP_NAME', kind: 'variable'},
+				{name: 'load_moss_plugin', kind: 'function'},
+			],
+		},
 		'./package_json.js': {
 			path: 'package_json.ts',
 			declarations: [
@@ -678,6 +687,9 @@ export const src_json = {
 				{name: 'update_package_json', kind: 'function'},
 				{name: 'to_package_exports', kind: 'function'},
 				{name: 'parse_repo_url', kind: 'function'},
+				{name: 'has_dep', kind: 'function'},
+				{name: 'Package_Json_Dep', kind: 'type'},
+				{name: 'extract_deps', kind: 'function'},
 			],
 		},
 		'./package_meta.js': {

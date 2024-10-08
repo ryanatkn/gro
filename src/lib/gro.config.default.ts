@@ -4,6 +4,7 @@ import {has_server, gro_plugin_server} from './gro_plugin_server.js';
 import {gro_plugin_sveltekit_app} from './gro_plugin_sveltekit_app.js';
 import {has_sveltekit_app, has_sveltekit_library} from './sveltekit_helpers.js';
 import {gro_plugin_gen} from './gro_plugin_gen.js';
+import {load_moss_plugin} from './moss_helpers.js';
 
 /**
  * This is the default config that's passed to `gro.config.ts`
@@ -15,11 +16,21 @@ import {gro_plugin_gen} from './gro_plugin_gen.js';
  * - if `src/lib/server/server.ts`, assumes a Node server
  */
 const config: Create_Gro_Config = async (cfg) => {
-	const [has_sveltekit_library_result, has_server_result, has_sveltekit_app_result] =
-		await Promise.all([has_sveltekit_library(), has_server(), has_sveltekit_app()]);
+	const [
+		moss_plugin_result,
+		has_sveltekit_library_result,
+		has_server_result,
+		has_sveltekit_app_result,
+	] = await Promise.all([
+		load_moss_plugin(),
+		has_sveltekit_library(),
+		has_server(),
+		has_sveltekit_app(),
+	]);
 
 	cfg.plugins = () =>
 		[
+			moss_plugin_result.ok ? moss_plugin_result.gro_plugin_moss() : null, // must go before SvelteKit for corner case where the file is not yet built
 			has_sveltekit_library_result.ok ? gro_plugin_sveltekit_library() : null,
 			has_server_result.ok ? gro_plugin_server() : null,
 			has_sveltekit_app_result.ok

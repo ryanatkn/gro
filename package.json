@@ -70,7 +70,8 @@
     "@changesets/types": "^6.0.0",
     "@ryanatkn/eslint-config": "^0.5.4",
     "@ryanatkn/fuz": "^0.129.0",
-    "@ryanatkn/moss": "^0.16.1",
+    "@ryanatkn/gro": "^0.139.0",
+    "@ryanatkn/moss": "^0.18.0",
     "@sveltejs/adapter-static": "^3.0.5",
     "@sveltejs/kit": "^2.6.1",
     "@sveltejs/package": "^2.3.5",
@@ -297,6 +298,10 @@
     "./modules.js": {
       "types": "./dist/modules.d.ts",
       "default": "./dist/modules.js"
+    },
+    "./moss_helpers.js": {
+      "types": "./dist/moss_helpers.d.ts",
+      "default": "./dist/moss_helpers.js"
     },
     "./package_json.js": {
       "types": "./dist/package_json.d.ts",
