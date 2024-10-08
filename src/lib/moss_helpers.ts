@@ -19,13 +19,15 @@ export const load_moss_plugin = async (
 		};
 	}
 
-	if (!existsSync(plugin_path)) {
+	const path = resolve(plugin_path);
+	if (!existsSync(path)) {
 		return {
 			ok: false,
-			message: `dependency on ${dep_name} detected but plugin not found at ${plugin_path}`,
+			// TODO warn?
+			message: `dependency on ${dep_name} detected but plugin not found at ${path}`,
 		};
 	}
 
-	const mod = await import(resolve(plugin_path));
+	const mod = await import(path);
 	return {ok: true, gro_plugin_moss: mod.gro_plugin_moss};
 };
