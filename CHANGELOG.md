@@ -1,5 +1,11 @@
 # @ryanatkn/gro
 
+## 0.139.1
+
+### Patch Changes
+
+- add moss plugin to default config ([#507](https://github.com/ryanatkn/gro/pull/507))
+
 ## 0.139.0
 
 ### Minor Changes
