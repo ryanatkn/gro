@@ -328,3 +328,33 @@ const parse_or_throw_formatted_error = <T extends z.ZodTypeAny>(
 	}
 	return parsed.data;
 };
+
+export const has_dep = (
+	dep_name: string,
+	package_json: Package_Json = load_package_json(),
+): boolean =>
+	!!package_json.devDependencies?.[dep_name] ||
+	!!package_json.dependencies?.[dep_name] ||
+	!!package_json.peerDependencies?.[dep_name];
+
+export interface Package_Json_Dep {
+	name: string;
+	version: string;
+}
+
+export const extract_deps = (package_json: Package_Json): Package_Json_Dep[] => {
+	const deps_by_name: Map<string, Package_Json_Dep> = new Map();
+	// Earlier versions override later ones, so peer deps goes last.
+	const add_deps = (deps: Record<string, string> | undefined) => {
+		if (!deps) return;
+		for (const [name, version] of Object.entries(deps)) {
+			if (!deps_by_name.has(name)) {
+				deps_by_name.set(name, {name, version});
+			}
+		}
+	};
+	add_deps(package_json.dependencies);
+	add_deps(package_json.devDependencies);
+	add_deps(package_json.peerDependencies);
+	return Array.from(deps_by_name.values());
+};
