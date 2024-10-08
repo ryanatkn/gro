@@ -15,11 +15,12 @@ import {gro_plugin_gen} from './src/lib/gro_plugin_gen.js';
 const config = create_empty_gro_config();
 
 config.plugins = () => [
-	gro_plugin_sveltekit_library(),
-	gro_plugin_sveltekit_app(),
 	// TODO how to do this? moss imports gro, so it needs to exist in node_modules,
 	// maybe the fix is to add an exception for gro in the loader if the project is gro?
-	// gro_plugin_moss() as any,
+	// would still need to hack the type I guess but that's fine?
+	// gro_plugin_moss(),
+	gro_plugin_sveltekit_library(),
+	gro_plugin_sveltekit_app(),
 	gro_plugin_gen(),
 ];
 

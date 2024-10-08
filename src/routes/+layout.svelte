@@ -1,6 +1,7 @@
 <script lang="ts">
 	import '@ryanatkn/moss/style.css';
 	import '@ryanatkn/moss/theme.css';
+	import '$routes/moss.css'; // TODO this is not being generated because of an issue with gro self imports (moss depends on it), see `gro.config.ts`
 
 	import Themed from '@ryanatkn/fuz/Themed.svelte';
 	import type {Snippet} from 'svelte';

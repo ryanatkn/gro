@@ -17,25 +17,25 @@ import {load_moss_plugin} from './moss_helpers.js';
  */
 const config: Create_Gro_Config = async (cfg) => {
 	const [
+		moss_plugin_result,
 		has_sveltekit_library_result,
 		has_server_result,
 		has_sveltekit_app_result,
-		moss_plugin_result,
 	] = await Promise.all([
+		load_moss_plugin(),
 		has_sveltekit_library(),
 		has_server(),
 		has_sveltekit_app(),
-		load_moss_plugin(),
 	]);
 
 	cfg.plugins = () =>
 		[
+			moss_plugin_result.ok ? moss_plugin_result.gro_plugin_moss() : null, // must go before SvelteKit for corner case where the file is not yet built
 			has_sveltekit_library_result.ok ? gro_plugin_sveltekit_library() : null,
 			has_server_result.ok ? gro_plugin_server() : null,
 			has_sveltekit_app_result.ok
 				? gro_plugin_sveltekit_app({host_target: has_server_result.ok ? 'node' : 'github_pages'})
 				: null,
-			moss_plugin_result.ok ? moss_plugin_result.gro_plugin_moss() : null,
 			gro_plugin_gen(),
 		].filter((v) => v !== null);
 
