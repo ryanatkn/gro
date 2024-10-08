@@ -299,6 +299,10 @@
       "types": "./dist/modules.d.ts",
       "default": "./dist/modules.js"
     },
+    "./moss_helpers.js": {
+      "types": "./dist/moss_helpers.d.ts",
+      "default": "./dist/moss_helpers.js"
+    },
     "./package_json.js": {
       "types": "./dist/package_json.d.ts",
       "default": "./dist/package_json.js"

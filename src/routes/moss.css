@@ -1,0 +1,51 @@
+.box {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+}
+
+/* TODO other button variants? */
+/* TODO this is slightly strange that it doesn't use --icon_size */
+/* These are used as modifiers to buttons, and so they use `:where` so they cascade.  */
+.icon_button {
+	width: var(--input_height);
+	height: var(--input_height);
+	min-width: var(--input_height);
+	min-height: var(--input_height);
+	flex-shrink: 0;
+	font-weight: 900;
+	padding: 0;
+}
+
+.mb_lg {
+	margin-bottom: var(--space_lg);
+}
+.mb_xl3 {
+	margin-bottom: var(--space_xl3);
+}
+.mb_xs {
+	margin-bottom: var(--space_xs);
+}
+.p_md {
+	padding: var(--space_md);
+}
+
+/* A panel is a box embedded into the page, useful for visually isolating content. */
+.panel {
+	border-radius: var(--radius_xs);
+	background-color: var(--panel_bg, var(--fg_1));
+}
+
+.relative {
+	position: relative;
+}
+.w_100 {
+	width: 100%;
+}
+
+/* TODO rename these? use to be columns, maybe should be? */
+.width_md {
+	width: 100%;
+	max-width: var(--width_md);
+}
