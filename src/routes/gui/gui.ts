@@ -1,35 +1,20 @@
-import type {Path_Id} from '../../../dist/path.js';
+import {SvelteMap} from 'svelte/reactivity';
+
 import type {Source_File} from '../../lib/filer.js';
-import type {Watcher_Change} from '../../lib/watch_dir.js';
+import type {Path_Id} from '../../lib/path.js';
+import type {Gui_Client} from './gui_client.js';
 
-export type Gui_Message =
-	| Gui_Echo_Message
-	| Gui_Load_Session
-	| Gui_Loaded_Session
-	| Gui_Filer_Change;
-
-export interface Base_Gui_Message {
-	type: string;
+export interface Options {
+	client: Gui_Client;
 }
 
-export interface Gui_Echo_Message extends Base_Gui_Message {
-	type: 'echo';
-	data: unknown;
-}
+export class Gui {
+	files_by_id: SvelteMap<Path_Id, Source_File> = new SvelteMap();
 
-export interface Gui_Load_Session extends Base_Gui_Message {
-	type: 'load_session';
-}
+	client: Gui_Client;
 
-export interface Gui_Loaded_Session extends Base_Gui_Message {
-	type: 'loaded_session'; // TODO req/res pair instead of separate message?
-	data: Array<[Path_Id, Source_File]>;
+	constructor(options: Options) {
+		console.log('[gui] creating');
+		this.client = options.client;
+	}
 }
-
-export interface Gui_Filer_Change extends Base_Gui_Message {
-	type: 'filer_change';
-	change: Watcher_Change;
-	source_file: Source_File;
-}
-
-export type Send_Gui_Message = (message: Gui_Message) => void;

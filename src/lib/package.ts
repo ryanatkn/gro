@@ -69,6 +69,7 @@ export const package_json = {
 		'@sveltejs/vite-plugin-svelte': '^3.1.2',
 		'@types/fs-extra': '^11.0.4',
 		'@types/node': '^22.7.4',
+		devalue: '^5.1.1',
 		esbuild: '^0.21.5',
 		eslint: '^9.11.1',
 		'eslint-plugin-svelte': '^2.44.1',

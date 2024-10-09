@@ -1,8 +1,9 @@
 import {Unreachable_Error} from '@ryanatkn/belt/error.js';
+import * as devalue from 'devalue';
 
 import {Filer, type Cleanup_Watch} from '../../lib/filer.js';
 
-import type {Gui_Message, Send_Gui_Message} from './gui.js';
+import type {Gui_Message, Send_Gui_Message} from './gui_message.js';
 
 export interface Options {
 	send: (message: Gui_Message) => void;
@@ -43,7 +44,10 @@ export class Gui_Server {
 		if (message.type === 'echo') {
 			this.send(message);
 		} else if (message.type === 'load_session') {
-			this.send({type: 'loaded_session', data: Array.from(this.filer.files.entries())});
+			this.send({
+				type: 'loaded_session',
+				data: devalue.stringify(Array.from(this.filer.files.values())),
+			});
 		}
 	}
 
