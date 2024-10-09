@@ -1,5 +1,11 @@
 # @ryanatkn/gro
 
+## 0.139.2
+
+### Patch Changes
+
+- rearrange default plugin to fix generated files with SvelteKit ([825908f](https://github.com/ryanatkn/gro/commit/825908f))
+
 ## 0.139.1
 
 ### Patch Changes
