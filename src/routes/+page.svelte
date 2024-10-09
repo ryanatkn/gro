@@ -8,6 +8,7 @@
 	import {gro_logo} from '@ryanatkn/fuz/logos.js';
 	import {slide} from 'svelte/transition';
 	import Hidden_Personal_Links from '@ryanatkn/fuz/Hidden_Personal_Links.svelte';
+	import {DEV} from 'esm-env';
 
 	import {parse_package_meta} from '$lib/package_meta.js';
 	import {package_json, src_json} from '$lib/package.js';
@@ -32,7 +33,9 @@
 				<a href="https://github.com/ryanatkn/gro">the source repo</a>
 			</aside>
 		</section>
-		<section><Card href="{base}/gui" icon="🪄">gui</Card></section>
+		{#if DEV}
+			<section><Card href="{base}/gui" icon="🪄">gui</Card></section>
+		{/if}
 		<section class="panel mb_lg p_md w_100 relative">
 			<button
 				type="button"

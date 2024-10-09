@@ -21,7 +21,6 @@
 				console.log(`[page] loaded_session`, message);
 				// TODO BLOCK @many is `Source_File[]` but without the circular references, use `devalue` or zts (de)serializers
 				for (const source_file of devalue.parse(message.data)) {
-					console.log(`source_file`, source_file);
 					gui.files_by_id.set(source_file.id, source_file);
 				}
 			}

@@ -1,5 +1,6 @@
 <script lang="ts">
 	import Details from '@ryanatkn/fuz/Details.svelte';
+	import Copy_To_Clipboard from '@ryanatkn/fuz/Copy_To_Clipboard.svelte';
 
 	import type {Source_File} from '../../lib/filer.js';
 
@@ -9,13 +10,13 @@
 	}
 
 	const {file}: Props = $props();
-	console.log(`file`, file);
 
 	const dependencies = $derived(Array.from(file.dependencies.values()));
 	const dependents = $derived(Array.from(file.dependents.values()));
 </script>
 
 <button type="button">{file.id}</button>
+<Copy_To_Clipboard text={file.contents} />
 <Details>
 	{#snippet summary()}contents {#if file.contents === null}
 			null
