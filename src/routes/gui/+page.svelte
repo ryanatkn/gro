@@ -1,14 +1,26 @@
 <script lang="ts">
+	import {Gui_Client} from './gui_client.js';
+
 	// interface Props {
 	// }
 
 	// const {}: Props = $props();
 
+	const gui = new Gui_Client({
+		send: (message) => {
+			console.log('gui_client_message', message);
+			import.meta.hot?.send('gro_server_message', message);
+		},
+	});
+
+	gui.send({type: 'echo', data: 'echo from client'});
+
 	const hello_server = () => {
-		import.meta.hot?.send('gro_server_message', {abc: 123});
+		gui.send({type: 'echo', data: 'hello server'});
 	};
-	import.meta.hot?.on('gro_client_message', (data) => {
-		console.log('gro_client_message', data);
+	import.meta.hot?.on('gro_client_message', (message) => {
+		console.log('gro_client_message', message);
+		gui.receive(message);
 	});
 </script>
 
