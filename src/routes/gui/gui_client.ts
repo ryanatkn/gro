@@ -8,7 +8,7 @@ export class Gui_Client {
 	#send: Send_Gui_Message;
 
 	constructor(options: Options) {
-		console.log('CREATE Gui');
+		console.log('[gui_client] creating');
 		this.#send = options.send;
 	}
 
@@ -17,6 +17,6 @@ export class Gui_Client {
 	}
 
 	receive(message: Gui_Message): void {
-		console.log(`message`, message);
+		console.log(`[gui_client] message`, message);
 	}
 }

@@ -8,8 +8,8 @@
 
 	const gui = new Gui_Client({
 		send: (message) => {
-			console.log('gui_client_message', message);
-			import.meta.hot?.send('gro_server_message', message);
+			console.log('[page] sending gui_client_message', message);
+			import.meta.hot?.send('[page] gro_server_message', message);
 		},
 	});
 
@@ -19,7 +19,7 @@
 		gui.send({type: 'echo', data: 'hello server'});
 	};
 	import.meta.hot?.on('gro_client_message', (message) => {
-		console.log('gro_client_message', message);
+		console.log('[page] receiving gro_client_message', message);
 		gui.receive(message);
 	});
 </script>

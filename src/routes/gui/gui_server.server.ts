@@ -17,6 +17,6 @@ export class Gui_Server {
 	}
 
 	receive(message: Gui_Message): void {
-		console.log(`message`, message);
+		console.log(`[gui_server] message`, message);
 	}
 }
