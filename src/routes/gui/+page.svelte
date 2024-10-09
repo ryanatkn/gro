@@ -27,5 +27,5 @@
 <h1>gro gui</h1>
 
 <section>
-	<button onclick={hello_server}>hello server</button>
+	<button type="button" onclick={hello_server}>hello server</button>
 </section>
