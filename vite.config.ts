@@ -1,7 +1,7 @@
 import {defineConfig} from 'vite';
 import {sveltekit} from '@sveltejs/kit/vite';
 
-import {create_gro_dev_vite_plugin} from './src/routes/ui/ui.js';
+import {create_gro_dev_vite_plugin} from './src/routes/gui/gui.js';
 
 export default defineConfig({
 	plugins: [sveltekit(), create_gro_dev_vite_plugin({})],
