@@ -1,6 +1,7 @@
 <script lang="ts">
 	import {base} from '$app/paths';
 	import Library_Footer from '@ryanatkn/fuz/Library_Footer.svelte';
+	import Card from '@ryanatkn/fuz/Card.svelte';
 	import Package_Detail from '@ryanatkn/fuz/Package_Detail.svelte';
 	import Package_Summary from '@ryanatkn/fuz/Package_Summary.svelte';
 	import Svg from '@ryanatkn/fuz/Svg.svelte';
@@ -16,13 +17,6 @@
 	const pkg = parse_package_meta(package_json, src_json);
 
 	let show_detail = $state(false);
-
-	const hello_server = () => {
-		import.meta.hot?.send('gro_server_message', {abc: 123});
-	};
-	import.meta.hot?.on('gro_client_message', (data) => {
-		console.log('gro_client_message', data);
-	});
 </script>
 
 <main class="box w_100">
@@ -38,9 +32,7 @@
 				<a href="https://github.com/ryanatkn/gro">the source repo</a>
 			</aside>
 		</section>
-		<section>
-			<button onclick={hello_server}>hello server</button>
-		</section>
+		<section><Card href="{base}/gui" icon="🪄">gui</Card></section>
 		<section class="panel mb_lg p_md w_100 relative">
 			<button
 				type="button"
