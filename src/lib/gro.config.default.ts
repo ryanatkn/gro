@@ -30,13 +30,14 @@ const config: Create_Gro_Config = async (cfg) => {
 
 	cfg.plugins = () =>
 		[
-			moss_plugin_result.ok ? moss_plugin_result.gro_plugin_moss() : null, // must go before SvelteKit for corner case where the file is not yet built
-			has_sveltekit_library_result.ok ? gro_plugin_sveltekit_library() : null,
+			// put things that generate files before SvelteKit so it can see them
+			moss_plugin_result.ok ? moss_plugin_result.gro_plugin_moss() : null,
+			gro_plugin_gen(),
 			has_server_result.ok ? gro_plugin_server() : null,
+			has_sveltekit_library_result.ok ? gro_plugin_sveltekit_library() : null,
 			has_sveltekit_app_result.ok
 				? gro_plugin_sveltekit_app({host_target: has_server_result.ok ? 'node' : 'github_pages'})
 				: null,
-			gro_plugin_gen(),
 		].filter((v) => v !== null);
 
 	return cfg;
