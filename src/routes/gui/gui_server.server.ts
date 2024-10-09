@@ -40,7 +40,9 @@ export class Gui_Server {
 
 	receive(message: Gui_Message): void {
 		console.log(`[gui_server.receive] message`, message, message.type === 'load_session');
-		if (message.type === 'load_session') {
+		if (message.type === 'echo') {
+			this.send(message);
+		} else if (message.type === 'load_session') {
 			this.send({type: 'loaded_session', data: Array.from(this.filer.files.entries())});
 		}
 	}
