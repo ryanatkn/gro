@@ -17,6 +17,7 @@ export const gen: Gen = async () => {
 		b.add_file(file);
 	}
 
+	// TODO think about how this could be shared across genfiles, maybe on the `ctx`?
 	const typecheck_result = await spawn_out('gro', ['typecheck']);
 	if (typecheck_result.stdout) {
 		const output = typecheck_result.stdout;

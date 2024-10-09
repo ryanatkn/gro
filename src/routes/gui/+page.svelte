@@ -9,11 +9,12 @@
 	const gui = new Gui_Client({
 		send: (message) => {
 			console.log('[page] sending gui_client_message', message);
-			import.meta.hot?.send('[page] gro_server_message', message);
+			import.meta.hot?.send('gro_server_message', message);
 		},
 	});
 
-	gui.send({type: 'echo', data: 'echo from client'});
+	// gui.send({type: 'echo', data: 'echo from client'});
+	gui.send({type: 'load_session'});
 
 	const hello_server = () => {
 		gui.send({type: 'echo', data: 'hello server'});
