@@ -16,6 +16,13 @@
 	const pkg = parse_package_meta(package_json, src_json);
 
 	let show_detail = $state(false);
+
+	const hello_server = () => {
+		import.meta.hot?.send('gro_server_message', {abc: 123});
+	};
+	import.meta.hot?.on('gro_client_message', (data) => {
+		console.log('gro_client_message', data);
+	});
 </script>
 
 <main class="box w_100">
@@ -30,6 +37,9 @@
 				For now, docs are in
 				<a href="https://github.com/ryanatkn/gro">the source repo</a>
 			</aside>
+		</section>
+		<section>
+			<button onclick={hello_server}>hello server</button>
 		</section>
 		<section class="panel mb_lg p_md w_100 relative">
 			<button
