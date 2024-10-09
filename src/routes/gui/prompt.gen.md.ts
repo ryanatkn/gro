@@ -1,16 +1,15 @@
 import type {Gen} from '@ryanatkn/gro/gen.js';
 import {spawn_out} from '@ryanatkn/belt/process.js';
-import {dirname} from 'node:path';
 
 import {Prompt_Builder} from '$lib/prompt.js';
 
-export const gen: Gen = async ({origin_id}) => {
+export const gen: Gen = async () => {
 	const b = new Prompt_Builder();
 
-	// TODO helper to
+	// TODO helper to add
 	const files = [
-		dirname(origin_id) + '/prompt_intro.md',
-		dirname(origin_id) + '/prompt_styleguide.md', // TODO BLOCK move this to a shared lib
+		import.meta.dirname + '/prompt_intro.md',
+		import.meta.dirname + '/prompt_styleguide.md', // TODO BLOCK move this to a shared lib
 		// 'src/lib/a.ts',
 	];
 
