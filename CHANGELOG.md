@@ -1,5 +1,11 @@
 # @ryanatkn/gro
 
+## 0.140.0
+
+### Minor Changes
+
+- upgrade `ts-morph@24.0.0` from `23.0.0` ([bf448d2](https://github.com/ryanatkn/gro/commit/bf448d2))
+
 ## 0.139.2
 
 ### Patch Changes
