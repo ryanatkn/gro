@@ -1,12 +1,14 @@
 <script lang="ts">
 	import {base} from '$app/paths';
 	import Library_Footer from '@ryanatkn/fuz/Library_Footer.svelte';
+	import Card from '@ryanatkn/fuz/Card.svelte';
 	import Package_Detail from '@ryanatkn/fuz/Package_Detail.svelte';
 	import Package_Summary from '@ryanatkn/fuz/Package_Summary.svelte';
 	import Svg from '@ryanatkn/fuz/Svg.svelte';
 	import {gro_logo} from '@ryanatkn/fuz/logos.js';
 	import {slide} from 'svelte/transition';
 	import Hidden_Personal_Links from '@ryanatkn/fuz/Hidden_Personal_Links.svelte';
+	import {DEV} from 'esm-env';
 
 	import {parse_package_meta} from '$lib/package_meta.js';
 	import {package_json, src_json} from '$lib/package.js';
@@ -31,6 +33,9 @@
 				<a href="https://github.com/ryanatkn/gro">the source repo</a>
 			</aside>
 		</section>
+		{#if DEV}
+			<section><Card href="{base}/gui" icon="🪄">gui</Card></section>
+		{/if}
 		<section class="panel mb_lg p_md w_100 relative">
 			<button
 				type="button"
