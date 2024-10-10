@@ -58,15 +58,14 @@ ${fence}
 	}
 
 	filter_text(text: string): string {
-		// fast path
-		if (!stack_matcher.test(text)) {
+		// TODO improve this filtering, the stack traces have too much noise
+		if (!text.includes(IGNORED_OUTPUT_PREFIX)) {
 			return text;
 		}
-		// filter each line
 		return text
 			.split('\n')
 			.filter((line) => {
-				if (stack_matcher.test(line) && !line.includes(paths.source)) {
+				if (line.startsWith(IGNORED_OUTPUT_PREFIX) && !line.includes(paths.source)) {
 					return false;
 				}
 				// TODO customization
@@ -76,7 +75,7 @@ ${fence}
 	}
 }
 
-const stack_matcher = /^\s* at /;
+const IGNORED_OUTPUT_PREFIX = '    at ';
 
 const detect_fence = (text: string): string => {
 	let fence = '```';
