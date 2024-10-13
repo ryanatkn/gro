@@ -1,5 +1,11 @@
 # @ryanatkn/gro
 
+## 0.140.3
+
+### Patch Changes
+
+- revert broken filer fix ([#511](https://github.com/ryanatkn/gro/pull/511))
+
 ## 0.140.2
 
 ### Patch Changes
