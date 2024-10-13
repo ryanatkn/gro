@@ -13,12 +13,16 @@ export class Gui {
 
 	client: Gui_Client;
 
+	pending_prompts = $state(false); // TODO refactor
+
 	constructor(options: Options) {
 		console.log('[gui] creating');
 		this.client = options.client;
 	}
 
 	send_prompt(text: string): void {
+		// TODO need ids, and then the response promise, tracking by text isn't robust to duplicates
 		this.client.send({type: 'send_prompt', text});
+		this.pending_prompt = true; // TODO
 	}
 }

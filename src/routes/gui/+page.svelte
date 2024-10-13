@@ -1,7 +1,7 @@
 <script lang="ts">
 	import * as devalue from 'devalue';
 
-	import {Gui} from './gui.js';
+	import {Gui} from './gui.svelte.js';
 	import {Gui_Client} from './gui_client.js';
 	import Gui_Dashboard from './Gui_Dashboard.svelte';
 

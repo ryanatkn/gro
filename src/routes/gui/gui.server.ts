@@ -69,7 +69,7 @@ export class Gui_Server {
 				});
 				console.log(`got Claude message`, msg);
 				// TODO maybe forward a message id?
-				this.send({type: 'prompt_response', data: msg});
+				this.send({type: 'prompt_response', data: msg, text}); // TODO @many sending the text again is wasteful, need ids
 				break;
 			}
 			default:

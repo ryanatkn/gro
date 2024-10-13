@@ -61,4 +61,5 @@ export interface Send_Prompt_Message extends Base_Message {
 export interface Prompt_Response_Message extends Base_Message {
 	type: 'prompt_response';
 	data: Anthropic.Messages.Message;
+	text: string; // TODO @many sending the text again is wasteful, need ids
 }
