@@ -1,9 +1,11 @@
 import {Unreachable_Error} from '@ryanatkn/belt/error.js';
 import * as devalue from 'devalue';
+import Anthropic from '@anthropic-ai/sdk';
 
 import {Filer, type Cleanup_Watch} from '../../lib/filer.js';
-
 import type {Client_Message, Server_Message} from './gui_message.js';
+
+const anthropic = new Anthropic();
 
 export interface Options {
 	send: (message: Server_Message) => void;
@@ -40,7 +42,7 @@ export class Gui_Server {
 	}
 
 	// TODO add an abstraction here, so the server isn't concerned with message content/types
-	receive(message: Client_Message): void {
+	async receive(message: Client_Message): Promise<void> {
 		console.log(`[gui_server.receive] message`, message, message.type === 'load_session');
 		switch (message.type) {
 			case 'echo': {
@@ -55,6 +57,16 @@ export class Gui_Server {
 				break;
 			}
 			case 'send_prompt': {
+				const {text} = message;
+				const msg = await anthropic.messages.create({
+					model: 'claude-3-5-sonnet-20240620',
+					max_tokens: 1000,
+					temperature: 0,
+					system: 'Respond only with short poems.',
+					messages: [{role: 'user', content: [{type: 'text', text}]}],
+				});
+				// TODO maybe forward a message id?
+				this.send({type: 'prompt_response', data: msg});
 				break;
 			}
 			default:
