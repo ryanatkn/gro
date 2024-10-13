@@ -5,8 +5,19 @@
 
 	const {onsubmit}: Props = $props();
 
-	let value = '';
+	let value = $state('');
+
+	let input_el: HTMLInputElement | undefined;
 </script>
 
-<input type="text" placeholder="prompt" bind:value />
-<button onclick={() => onsubmit(value)}>submit prompt</button>
+<input bind:this={input_el} type="text" placeholder="prompt" bind:value />
+<button
+	type="button"
+	onclick={() => {
+		if (!value) {
+			input_el?.focus();
+			return;
+		}
+		onsubmit(value);
+	}}>submit prompt</button
+>
