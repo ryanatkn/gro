@@ -9,7 +9,6 @@
 [Windows won't be supported](https://github.com/ryanatkn/gro/issues/319), I chose Bash instead.
 
 Feel free to open issues with anything you'd like to discuss or report.
-I also run [a Discord community](https://discord.gg/YU5tyeK72X) that includes channels for Gro.
 
 ## about
 
