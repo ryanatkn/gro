@@ -1,5 +1,11 @@
 # @ryanatkn/gro
 
+## 0.140.4
+
+### Patch Changes
+
+- revert fix again lol ([4531de9](https://github.com/ryanatkn/gro/commit/4531de9))
+
 ## 0.140.3
 
 ### Patch Changes
