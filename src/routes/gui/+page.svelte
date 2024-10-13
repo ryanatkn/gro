@@ -33,7 +33,7 @@
 					break;
 				}
 				case 'prompt_response': {
-					console.log('prompt_response', message.data);
+					gui.receive_prompt_response(message);
 					break;
 				}
 			}
