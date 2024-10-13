@@ -17,4 +17,8 @@ export class Gui {
 		console.log('[gui] creating');
 		this.client = options.client;
 	}
+
+	send_prompt(text: string): void {
+		this.client.send({type: 'send_prompt', text});
+	}
 }

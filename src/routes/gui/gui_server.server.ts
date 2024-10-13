@@ -3,15 +3,15 @@ import * as devalue from 'devalue';
 
 import {Filer, type Cleanup_Watch} from '../../lib/filer.js';
 
-import type {Gui_Message, Send_Gui_Message} from './gui_message.js';
+import type {Client_Message, Server_Message} from './gui_message.js';
 
 export interface Options {
-	send: (message: Gui_Message) => void;
+	send: (message: Server_Message) => void;
 	filer?: Filer;
 }
 
 export class Gui_Server {
-	#send: Send_Gui_Message;
+	#send: (message: Server_Message) => void;
 
 	filer: Filer;
 
@@ -35,19 +35,30 @@ export class Gui_Server {
 		});
 	}
 
-	send(message: Gui_Message): void {
+	send(message: Server_Message): void {
 		this.#send(message);
 	}
 
-	receive(message: Gui_Message): void {
+	// TODO add an abstraction here, so the server isn't concerned with message content/types
+	receive(message: Client_Message): void {
 		console.log(`[gui_server.receive] message`, message, message.type === 'load_session');
-		if (message.type === 'echo') {
-			this.send(message);
-		} else if (message.type === 'load_session') {
-			this.send({
-				type: 'loaded_session',
-				data: devalue.stringify(Array.from(this.filer.files.values())),
-			});
+		switch (message.type) {
+			case 'echo': {
+				this.send(message);
+				break;
+			}
+			case 'load_session': {
+				this.send({
+					type: 'loaded_session',
+					data: devalue.stringify(Array.from(this.filer.files.values())),
+				});
+				break;
+			}
+			case 'send_prompt': {
+				break;
+			}
+			default:
+				throw new Unreachable_Error(message);
 		}
 	}
 

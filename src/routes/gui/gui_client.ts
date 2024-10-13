@@ -1,13 +1,13 @@
-import type {Gui_Message, Receive_Gui_Message, Send_Gui_Message} from './gui_message.js';
+import type {Client_Message, Server_Message} from './gui_message.js';
 
 export interface Options {
-	send: Send_Gui_Message;
-	receive: (message: Gui_Message) => void;
+	send: (message: Client_Message) => void;
+	receive: (message: Server_Message) => void;
 }
 
 export class Gui_Client {
-	#send: Send_Gui_Message;
-	#receive: Receive_Gui_Message;
+	#send: (message: Client_Message) => void;
+	#receive: (message: Server_Message) => void;
 
 	constructor(options: Options) {
 		console.log('[gui_client] creating');
@@ -15,11 +15,11 @@ export class Gui_Client {
 		this.#receive = options.receive;
 	}
 
-	send(message: Gui_Message): void {
+	send(message: Client_Message): void {
 		this.#send(message);
 	}
 
-	receive(message: Gui_Message): void {
+	receive(message: Server_Message): void {
 		console.log(`[gui_client] message`, message);
 		this.#receive(message);
 	}
