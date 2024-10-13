@@ -5,7 +5,7 @@ import type {Src_Json} from './src_json.js';
 
 export const package_json = {
 	name: '@ryanatkn/gro',
-	version: '0.139.2',
+	version: '0.140.0',
 	description: 'task runner and toolkit extending SvelteKit',
 	motto: 'generate, run, optimize',
 	glyph: '🌰',
@@ -52,7 +52,7 @@ export const package_json = {
 		mri: '^1.2.0',
 		prettier: '^3.3.3',
 		'prettier-plugin-svelte': '^3.2.7',
-		'ts-morph': '^23.0.0',
+		'ts-morph': '^24.0.0',
 		tslib: '^2.7.0',
 		zod: '^3.23.8',
 	},
@@ -60,23 +60,22 @@ export const package_json = {
 	devDependencies: {
 		'@changesets/changelog-git': '^0.2.0',
 		'@changesets/types': '^6.0.0',
-		'@ryanatkn/eslint-config': '^0.5.4',
-		'@ryanatkn/fuz': '^0.129.0',
+		'@ryanatkn/eslint-config': '^0.5.5',
+		'@ryanatkn/fuz': '^0.129.2',
 		'@ryanatkn/moss': '^0.18.0',
 		'@sveltejs/adapter-static': '^3.0.5',
-		'@sveltejs/kit': '^2.7.0',
+		'@sveltejs/kit': '^2.6.4',
 		'@sveltejs/package': '^2.3.5',
 		'@sveltejs/vite-plugin-svelte': '^3.1.2',
 		'@types/fs-extra': '^11.0.4',
-		'@types/node': '^22.7.4',
-		devalue: '^5.1.1',
+		'@types/node': '^22.7.5',
 		esbuild: '^0.21.5',
-		eslint: '^9.11.1',
+		eslint: '^9.12.0',
 		'eslint-plugin-svelte': '^2.44.1',
 		svelte: '^5.0.0-next.264',
 		'svelte-check': '^4.0.4',
-		typescript: '^5.6.2',
-		'typescript-eslint': '^8.7.0',
+		typescript: '^5.6.3',
+		'typescript-eslint': '^8.8.1',
 		uvu: '^0.5.6',
 	},
 	prettier: {
@@ -195,7 +194,6 @@ export const package_json = {
 		'./path.js': {types: './dist/path.d.ts', default: './dist/path.js'},
 		'./paths.js': {types: './dist/paths.d.ts', default: './dist/paths.js'},
 		'./plugin.js': {types: './dist/plugin.d.ts', default: './dist/plugin.js'},
-		'./prompt.js': {types: './dist/prompt.d.ts', default: './dist/prompt.js'},
 		'./publish.task.js': {types: './dist/publish.task.d.ts', default: './dist/publish.task.js'},
 		'./register.js': {types: './dist/register.d.ts', default: './dist/register.js'},
 		'./reinstall.task.js': {
@@ -272,7 +270,7 @@ export const package_json = {
 
 export const src_json = {
 	name: '@ryanatkn/gro',
-	version: '0.139.2',
+	version: '0.140.0',
 	modules: {
 		'.': {
 			path: 'index.ts',
@@ -793,7 +791,6 @@ export const src_json = {
 				{name: 'replace_plugin', kind: 'function'},
 			],
 		},
-		'./prompt.js': {path: 'prompt.ts', declarations: [{name: 'Prompt_Builder', kind: 'class'}]},
 		'./publish.task.js': {
 			path: 'publish.task.ts',
 			declarations: [
