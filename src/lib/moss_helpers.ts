@@ -11,6 +11,7 @@ export const load_moss_plugin = async (
 	package_json?: Package_Json,
 	dep_name = MOSS_PACKAGE_DEP_NAME,
 	plugin_path = `node_modules/${dep_name}/dist/gro_plugin_moss.js`, // TODO maybe lookup from its `package_json.exports`? kinda unnecessary
+	local_plugin_path = 'src/lib/gro_plugin_moss.ts',
 ): Promise<Result<{gro_plugin_moss: any}, {message: string}>> => {
 	if (!has_dep(dep_name, package_json)) {
 		return {
@@ -19,13 +20,22 @@ export const load_moss_plugin = async (
 		};
 	}
 
-	const path = resolve(plugin_path);
-	if (!existsSync(path)) {
-		return {
-			ok: false,
-			// TODO warn?
-			message: `dependency on ${dep_name} detected but plugin not found at ${path}`,
-		};
+	let path: string | undefined = undefined;
+
+	const resolved_local_plugin_path = resolve(local_plugin_path);
+	if (existsSync(resolved_local_plugin_path)) {
+		path = resolved_local_plugin_path;
+	}
+
+	if (path === undefined) {
+		path = resolve(plugin_path);
+		if (!existsSync(path)) {
+			return {
+				ok: false,
+				// TODO warn?
+				message: `dependency on ${dep_name} detected but plugin not found at ${path}`,
+			};
+		}
 	}
 
 	const mod = await import(path);
