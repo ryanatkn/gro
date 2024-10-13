@@ -1,5 +1,12 @@
 # @ryanatkn/gro
 
+## 0.140.5
+
+### Patch Changes
+
+- revert filer bug to undo support for moss optimizer ([768954f](https://github.com/ryanatkn/gro/commit/768954f))
+- support a local moss plugin path ([5aa2bf7](https://github.com/ryanatkn/gro/commit/5aa2bf7))
+
 ## 0.140.4
 
 ### Patch Changes
