@@ -10,6 +10,12 @@
 
 	// const {}: Props = $props();
 
+	// user: "hey"
+	// Claude: "A greeting so brief,
+	// Like a whisper of leaf,
+	// "Hey" floats on the air,
+	// A connection to share."
+
 	const gui_client = new Gui_Client({
 		send: (message) => {
 			console.log('[page] sending gui_client_message', message);
@@ -17,11 +23,18 @@
 		},
 		receive: (message) => {
 			// TODO where does this mutation code live?
-			if (message.type === 'loaded_session') {
-				console.log(`[page] loaded_session`, message);
-				// TODO BLOCK @many is `Source_File[]` but without the circular references, use `devalue` or zts (de)serializers
-				for (const source_file of devalue.parse(message.data)) {
-					gui.files_by_id.set(source_file.id, source_file);
+			switch (message.type) {
+				case 'loaded_session': {
+					console.log(`[page] loaded_session`, message);
+					// TODO BLOCK @many is `Source_File[]` but without the circular references, use `devalue` or zts (de)serializers
+					for (const source_file of devalue.parse(message.data)) {
+						gui.files_by_id.set(source_file.id, source_file);
+					}
+					break;
+				}
+				case 'prompt_response': {
+					console.log('prompt_response', message.data);
+					break;
 				}
 			}
 		},

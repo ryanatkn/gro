@@ -1,6 +1,6 @@
 import type {Plugin} from 'vite';
 
-import {Gui_Server} from './gui_server.server.js';
+import {Gui_Server} from './gui.server.js';
 
 export interface Options {}
 

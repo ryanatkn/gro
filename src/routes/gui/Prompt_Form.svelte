@@ -7,17 +7,19 @@
 
 	let value = $state('');
 
-	let input_el: HTMLInputElement | undefined;
+	let textarea_el: HTMLTextAreaElement | undefined;
+
+	// TODO connect `Claude` to the server data in `src/routes/gui/gui.server.svelte`
 </script>
 
-<input bind:this={input_el} type="text" placeholder="prompt" bind:value />
+<textarea bind:this={textarea_el} placeholder="prompt" bind:value></textarea>
 <button
 	type="button"
 	onclick={() => {
 		if (!value) {
-			input_el?.focus();
+			textarea_el?.focus();
 			return;
 		}
 		onsubmit(value);
-	}}>submit prompt</button
+	}}>prompt Claude</button
 >

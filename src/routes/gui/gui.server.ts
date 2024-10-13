@@ -4,8 +4,9 @@ import Anthropic from '@anthropic-ai/sdk';
 
 import {Filer, type Cleanup_Watch} from '../../lib/filer.js';
 import type {Client_Message, Server_Message} from './gui_message.js';
+import {api_keys} from './api_keys.server.js';
 
-const anthropic = new Anthropic();
+const anthropic = new Anthropic({apiKey: api_keys.SECRET_ANTHROPIC_API_KEY});
 
 export interface Options {
 	send: (message: Server_Message) => void;
@@ -58,6 +59,7 @@ export class Gui_Server {
 			}
 			case 'send_prompt': {
 				const {text} = message;
+				console.log(`texting Claude`);
 				const msg = await anthropic.messages.create({
 					model: 'claude-3-5-sonnet-20240620',
 					max_tokens: 1000,
@@ -65,6 +67,7 @@ export class Gui_Server {
 					system: 'Respond only with short poems.',
 					messages: [{role: 'user', content: [{type: 'text', text}]}],
 				});
+				console.log(`got Claude message`, msg);
 				// TODO maybe forward a message id?
 				this.send({type: 'prompt_response', data: msg});
 				break;
