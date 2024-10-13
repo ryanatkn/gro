@@ -95,17 +95,14 @@ export class Filer {
 			const path = map_sveltekit_aliases(specifier, aliases);
 
 			// The specifier `path` has now been mapped to its final form, so we can inspect it.
-			const resolved =
-				path[0] === '.' || path[0] === '/'
-					? resolve_specifier(path, dir)
-					: resolve_node_specifier(path);
-			const {path_id} = resolved;
-
-			dependencies_removed.delete(path_id);
-			if (!dependencies_before.has(path_id)) {
-				const d = this.get_or_create(path_id);
-				file.dependencies.set(d.id, d);
-				d.dependents.set(file.id, file);
+			if (path[0] === '.' || path[0] === '/') {
+				const {path_id} = resolve_specifier(path, dir);
+				dependencies_removed.delete(path_id);
+				if (!dependencies_before.has(path_id)) {
+					const d = this.get_or_create(path_id);
+					file.dependencies.set(d.id, d);
+					d.dependents.set(file.id, file);
+				}
 			}
 		}
 
