@@ -1,5 +1,11 @@
 # @ryanatkn/gro
 
+## 0.140.2
+
+### Patch Changes
+
+- fix filer node_modules path resolution ([#510](https://github.com/ryanatkn/gro/pull/510))
+
 ## 0.140.1
 
 ### Patch Changes
