@@ -1,5 +1,11 @@
 # @ryanatkn/gro
 
+## 0.140.1
+
+### Patch Changes
+
+- fix filer to include node_modules ([#509](https://github.com/ryanatkn/gro/pull/509))
+
 ## 0.140.0
 
 ### Minor Changes
