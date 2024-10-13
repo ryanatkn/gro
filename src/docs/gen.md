@@ -57,8 +57,7 @@ if you fail to escape certain inputs.
 > and I don't want to nudge users towards a habit of always adding an override flag.
 > I can see one possible improvement that lets the user
 > opt into making gen write only to unchanged files for those workflows that don't mind it,
-> so if you would like to see that or something similar,
-> please open an issue or [share your thoughts on Discord](https://discord.gg/YU5tyeK72X).
+> so if you would like to see that or something similar please open an issue.
 
 Inspirations include Lisp macros, the
 [Svelte](https://github.com/sveltejs/svelte) compiler,
