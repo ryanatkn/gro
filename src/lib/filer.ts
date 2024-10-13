@@ -98,7 +98,7 @@ export class Filer {
 			const resolved =
 				path[0] === '.' || path[0] === '/'
 					? resolve_specifier(path, dir)
-					: resolve_node_specifier(path);
+					: resolve_node_specifier(path, dir);
 			const {path_id} = resolved;
 
 			dependencies_removed.delete(path_id);
