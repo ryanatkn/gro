@@ -2,4 +2,4 @@
 '@ryanatkn/gro': patch
 ---
 
-fix filer node path resolution
+fix filer node_modules path resolution
