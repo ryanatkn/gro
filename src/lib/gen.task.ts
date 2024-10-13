@@ -12,6 +12,8 @@ import {log_error_reasons} from './task_logging.js';
 import {write_gen_results, analyze_gen_results, find_genfiles, load_genfiles} from './gen.js';
 import {SOURCE_DIRNAME} from './path_constants.js';
 
+// TODO BLOCK think about using the filer here
+
 export const Args = z
 	.object({
 		_: z.array(Raw_Input_Path, {description: 'input paths to generate'}).default([SOURCE_DIRNAME]),

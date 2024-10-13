@@ -3,6 +3,7 @@ import {existsSync, readFileSync} from 'node:fs';
 import {dirname, resolve} from 'node:path';
 import type {Omit_Strict} from '@ryanatkn/belt/types.js';
 import {wait} from '@ryanatkn/belt/async.js';
+import {Unreachable_Error} from '@ryanatkn/belt/error.js';
 
 import type {Path_Id} from './path.js';
 import {
@@ -17,7 +18,6 @@ import {parse_imports} from './parse_imports.js';
 import {resolve_specifier} from './resolve_specifier.js';
 import {default_sveltekit_config} from './sveltekit_config.js';
 import {map_sveltekit_aliases} from './sveltekit_helpers.js';
-import {Unreachable_Error} from '@ryanatkn/belt/error.js';
 
 const aliases = Object.entries(default_sveltekit_config.alias);
 

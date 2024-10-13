@@ -5,7 +5,7 @@ import type {Src_Json} from './src_json.js';
 
 export const package_json = {
 	name: '@ryanatkn/gro',
-	version: '0.139.1',
+	version: '0.139.2',
 	description: 'task runner and toolkit extending SvelteKit',
 	motto: 'generate, run, optimize',
 	glyph: '🌰',
@@ -64,15 +64,16 @@ export const package_json = {
 		'@ryanatkn/fuz': '^0.129.0',
 		'@ryanatkn/moss': '^0.18.0',
 		'@sveltejs/adapter-static': '^3.0.5',
-		'@sveltejs/kit': '^2.6.1',
+		'@sveltejs/kit': '^2.7.0',
 		'@sveltejs/package': '^2.3.5',
 		'@sveltejs/vite-plugin-svelte': '^3.1.2',
 		'@types/fs-extra': '^11.0.4',
 		'@types/node': '^22.7.4',
+		devalue: '^5.1.1',
 		esbuild: '^0.21.5',
 		eslint: '^9.11.1',
 		'eslint-plugin-svelte': '^2.44.1',
-		svelte: '^5.0.0-next.260',
+		svelte: '^5.0.0-next.264',
 		'svelte-check': '^4.0.4',
 		typescript: '^5.6.2',
 		'typescript-eslint': '^8.7.0',
@@ -194,6 +195,7 @@ export const package_json = {
 		'./path.js': {types: './dist/path.d.ts', default: './dist/path.js'},
 		'./paths.js': {types: './dist/paths.d.ts', default: './dist/paths.js'},
 		'./plugin.js': {types: './dist/plugin.d.ts', default: './dist/plugin.js'},
+		'./prompt.js': {types: './dist/prompt.d.ts', default: './dist/prompt.js'},
 		'./publish.task.js': {types: './dist/publish.task.d.ts', default: './dist/publish.task.js'},
 		'./register.js': {types: './dist/register.d.ts', default: './dist/register.js'},
 		'./reinstall.task.js': {
@@ -270,7 +272,7 @@ export const package_json = {
 
 export const src_json = {
 	name: '@ryanatkn/gro',
-	version: '0.139.1',
+	version: '0.139.2',
 	modules: {
 		'.': {
 			path: 'index.ts',
@@ -791,6 +793,7 @@ export const src_json = {
 				{name: 'replace_plugin', kind: 'function'},
 			],
 		},
+		'./prompt.js': {path: 'prompt.ts', declarations: [{name: 'Prompt_Builder', kind: 'class'}]},
 		'./publish.task.js': {
 			path: 'publish.task.ts',
 			declarations: [
