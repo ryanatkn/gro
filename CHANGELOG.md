@@ -1,5 +1,23 @@
 # @ryanatkn/gro
 
+## 0.140.3
+
+### Patch Changes
+
+- revert broken filer fix ([#511](https://github.com/ryanatkn/gro/pull/511))
+
+## 0.140.2
+
+### Patch Changes
+
+- fix filer node_modules path resolution ([#510](https://github.com/ryanatkn/gro/pull/510))
+
+## 0.140.1
+
+### Patch Changes
+
+- fix filer to include node_modules ([#509](https://github.com/ryanatkn/gro/pull/509))
+
 ## 0.140.0
 
 ### Minor Changes
