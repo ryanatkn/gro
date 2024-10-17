@@ -3,7 +3,7 @@
 
 	import {Gui} from './gui.svelte.js';
 	import {Gui_Client} from './gui_client.js';
-	import Gui_Dashboard from './Gui_Dashboard.svelte';
+	import Gui_Hud from './Gui_Hud.svelte';
 
 	// interface Props {
 	// }
@@ -60,4 +60,4 @@
 	<button type="button" onclick={hello_server}>hello server</button>
 </section>
 
-<Gui_Dashboard {gui} />
+<Gui_Hud {gui} />

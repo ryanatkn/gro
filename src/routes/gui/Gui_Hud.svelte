@@ -22,7 +22,7 @@
 	<Prompt_Form
 		name="claude"
 		onsubmit={(text) => {
-			gui.send_prompt(text);
+			void gui.send_prompt(text);
 			claude_text = text;
 		}}
 		pending={pending_prompts.has(claude_text)}
@@ -30,7 +30,7 @@
 	<Prompt_Form
 		name="chatgpt"
 		onsubmit={(text) => {
-			gui.send_prompt(text);
+			void gui.send_prompt(text);
 			chatgpt_text = text;
 		}}
 		pending={pending_prompts.has(chatgpt_text)}
@@ -38,7 +38,7 @@
 	<Prompt_Form
 		name="gemini"
 		onsubmit={(text) => {
-			gui.send_prompt(text);
+			void gui.send_prompt(text);
 			gemini_text = text;
 		}}
 		pending={pending_prompts.has(gemini_text)}
