@@ -1,5 +1,11 @@
 # @ryanatkn/gro
 
+## 0.140.6
+
+### Patch Changes
+
+- add `root_dir` to `Filer` ([8374d05](https://github.com/ryanatkn/gro/commit/8374d05))
+
 ## 0.140.5
 
 ### Patch Changes
