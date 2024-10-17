@@ -1,5 +1,5 @@
 import {EMPTY_OBJECT} from '@ryanatkn/belt/object.js';
-import {existsSync, readFileSync} from 'node:fs';
+import {existsSync, readFileSync, statSync} from 'node:fs';
 import {dirname, resolve} from 'node:path';
 import type {Omit_Strict} from '@ryanatkn/belt/types.js';
 import {wait} from '@ryanatkn/belt/async.js';
@@ -31,6 +31,7 @@ export interface Source_File {
 	 * We create the file in memory to track its dependents regardless of its existence on disk.
 	 */
 	contents: string | null;
+	mtime: number | null;
 	dependents: Map<Path_Id, Source_File>;
 	dependencies: Map<Path_Id, Source_File>;
 }
@@ -73,6 +74,7 @@ export class Filer {
 		const file: Source_File = {
 			id,
 			contents: null,
+			mtime: null,
 			dependents: new Map(),
 			dependencies: new Map(),
 		};
@@ -82,7 +84,14 @@ export class Filer {
 
 	#update(id: Path_Id): Source_File | null {
 		const file = this.get_or_create(id);
-		const new_contents = existsSync(id) ? readFileSync(id, 'utf8') : null;
+
+		const stats = existsSync(id) ? statSync(id) : null;
+		// const mtime_prev = file.mtime;
+		// const mtime_changed = mtime_prev !== (stats?.mtimeMs ?? null);
+		file.mtime = stats?.mtimeMs ?? null;
+
+		const new_contents = stats ? readFileSync(id, 'utf8') : null;
+
 		if (file.contents === new_contents) {
 			return null;
 		}
