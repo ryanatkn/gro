@@ -25,6 +25,7 @@ const aliases = Object.entries(default_sveltekit_config.alias);
 
 export interface Source_File {
 	id: Path_Id;
+	// TODO add // mtime: number;
 	/**
 	 * `null` contents means it doesn't exist.
 	 * We create the file in memory to track its dependents regardless of its existence on disk.
@@ -44,7 +45,9 @@ export interface Options {
 }
 
 export class Filer {
-	files: Map<Path_Id, Source_File> = new Map();
+	readonly root_dir: Path_Id;
+
+	readonly files: Map<Path_Id, Source_File> = new Map();
 
 	#watch_dir: typeof watch_dir;
 	#watch_dir_options: Partial<Watch_Dir_Options>;
@@ -52,6 +55,7 @@ export class Filer {
 	constructor(options: Options = EMPTY_OBJECT) {
 		this.#watch_dir = options.watch_dir ?? watch_dir;
 		this.#watch_dir_options = options.watch_dir_options ?? EMPTY_OBJECT;
+		this.root_dir = resolve(options.watch_dir_options?.dir ?? paths.source);
 	}
 
 	#watching: Watch_Node_Fs | undefined;
@@ -175,7 +179,7 @@ export class Filer {
 		this.#watching = this.#watch_dir({
 			filter: (path, is_directory) => (is_directory ? true : default_file_filter(path)),
 			...this.#watch_dir_options,
-			dir: resolve(this.#watch_dir_options.dir ?? paths.source),
+			dir: this.root_dir,
 			on_change: this.#on_change,
 		});
 		await this.#watching.init();
