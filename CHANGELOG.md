@@ -1,5 +1,11 @@
 # @ryanatkn/gro
 
+## 0.141.1
+
+### Patch Changes
+
+- fix `parse_imports` for other file types ([c4c2fb0](https://github.com/ryanatkn/gro/commit/c4c2fb0))
+
 ## 0.141.0
 
 ### Minor Changes
