@@ -2,6 +2,8 @@ import {init, parse} from 'es-module-lexer';
 import type {Flavored} from '@ryanatkn/belt/types.js';
 
 import type {Path_Id} from './path.js';
+import {SVELTE_MATCHER} from './svelte_helpers.js';
+import {JS_MATCHER, TS_MATCHER} from './path_constants.js';
 
 export const init_lexer = (): Promise<void> => init;
 
@@ -29,12 +31,12 @@ export const parse_imports = (
 		}
 	};
 
-	if (id.endsWith('.svelte')) {
+	if (SVELTE_MATCHER.test(id)) {
 		const matches = contents.matchAll(script_matcher);
 		for (const m of matches) {
 			parse_from(m[1]);
 		}
-	} else {
+	} else if (TS_MATCHER.test(id) || JS_MATCHER.test(id)) {
 		parse_from(contents);
 	}
 
