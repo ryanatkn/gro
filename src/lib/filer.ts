@@ -12,7 +12,7 @@ import {
 	type Options as Watch_Dir_Options,
 	type Watcher_Change_Callback,
 } from './watch_dir.js';
-import {default_file_filter, paths} from './paths.js';
+import {paths} from './paths.js';
 import {parse_imports} from './parse_imports.js';
 import {resolve_specifier} from './resolve_specifier.js';
 import {default_sveltekit_config} from './sveltekit_config.js';
@@ -186,7 +186,6 @@ export class Filer {
 			return;
 		}
 		this.#watching = this.#watch_dir({
-			filter: (path, is_directory) => (is_directory ? true : default_file_filter(path)),
 			...this.#watch_dir_options,
 			dir: this.root_dir,
 			on_change: this.#on_change,
