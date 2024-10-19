@@ -1,5 +1,11 @@
 # @ryanatkn/gro
 
+## 0.141.0
+
+### Minor Changes
+
+- change `Filer` to default to matching all files ([2616239](https://github.com/ryanatkn/gro/commit/2616239))
+
 ## 0.140.7
 
 ### Patch Changes
