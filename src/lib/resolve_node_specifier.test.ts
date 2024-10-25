@@ -4,7 +4,7 @@ import {resolve} from 'node:path';
 
 import {resolve_node_specifier} from './resolve_node_specifier.js';
 
-test.only('resolves a root specifier', () => {
+test('resolves a root specifier', () => {
 	const specifier = 'svelte';
 	const path_id = resolve('node_modules/svelte/src/index-server.js');
 	assert.equal(resolve_node_specifier(specifier), {
@@ -17,7 +17,7 @@ test.only('resolves a root specifier', () => {
 	});
 });
 
-test.only('resolves a root specifier with a username', () => {
+test('resolves a root specifier with a username', () => {
 	const specifier = '@sveltejs/kit';
 	const path_id = resolve('node_modules/svelte/src/exports/index.js');
 	assert.equal(resolve_node_specifier(specifier), {

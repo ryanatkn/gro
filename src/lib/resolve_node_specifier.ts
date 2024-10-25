@@ -14,6 +14,7 @@ export const resolve_node_specifier = (
 ): Resolved_Specifier => {
 	const raw = specifier.endsWith('?raw');
 	const mapped_specifier = raw ? specifier.substring(0, specifier.length - 4) : specifier;
+	console.log(`\n\n\nmapped_specifier`, mapped_specifier);
 
 	let idx!: number;
 	if (mapped_specifier[0] === '@') {
@@ -29,11 +30,15 @@ export const resolve_node_specifier = (
 	} else {
 		idx = mapped_specifier.indexOf('/');
 	}
-	const name = mapped_specifier.substring(0, idx);
-	const path = mapped_specifier.substring(idx + 1);
+	console.log(`idx`, idx);
+	const pkg_name = mapped_specifier.substring(0, idx);
+	const module_path = mapped_specifier.substring(idx + 1);
+	console.log(`pkg_name`, pkg_name);
 
-	const subpath = './' + path;
-	const package_dir = join(dir, NODE_MODULES_DIRNAME, name);
+	const subpath = module_path ? './' + module_path : '.';
+	console.log(`subpath`, subpath);
+	const package_dir = join(dir, NODE_MODULES_DIRNAME, pkg_name);
+	console.log(`package_dir`, package_dir);
 	const package_json = load_package_json(package_dir, cache);
 	const exported = package_json.exports?.[subpath];
 	if (!exported) {
@@ -44,6 +49,7 @@ export const resolve_node_specifier = (
 		);
 	}
 	const path_id = join(package_dir, exported[exports_key]);
+	console.log(`path_id`, path_id);
 
 	return {
 		path_id,

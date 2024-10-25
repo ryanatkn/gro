@@ -199,13 +199,13 @@ export const resolve: ResolveHook = async (specifier, context, nextResolve) => {
 	}
 
 	const path = map_sveltekit_aliases(specifier, aliases);
+	console.log(`specifier`, specifier);
 
 	// The specifier `path` has now been mapped to its final form, so we can inspect it.
 	if (path[0] !== '.' && path[0] !== '/') {
 		// Resolve to `node_modules`.
 		if (SVELTE_MATCHER.test(path) || JSON_MATCHER.test(path)) {
 			// Match the behavior of Vite and esbuild for Svelte and JSON imports.
-			// TODO `.ts` too
 			const resolved = resolve_node_specifier(path, dir, parent_url, package_json_cache);
 			return {
 				url: pathToFileURL(resolved.path_id_with_querystring).href,
