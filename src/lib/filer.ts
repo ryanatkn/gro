@@ -18,6 +18,7 @@ import {resolve_specifier} from './resolve_specifier.js';
 import {default_sveltekit_config} from './sveltekit_config.js';
 import {map_sveltekit_aliases} from './sveltekit_helpers.js';
 import {Unreachable_Error} from '@ryanatkn/belt/error.js';
+import {resolve_node_specifier} from './resolve_node_specifier.js';
 // TODO see below
 // import {resolve_node_specifier} from './resolve_node_specifier.js';
 
@@ -118,7 +119,8 @@ export class Filer {
 					d.dependents.set(file.id, file);
 				}
 			}
-			// TODO this doesn't work
+			// TODO BLOCK should we have a filter for a subset of the node_modules so it doesn't load everything?
+			// TODO BLOCK this doesn't work
 			// const resolved =
 			// 	path[0] === '.' || path[0] === '/'
 			// 		? resolve_specifier(path, dir)
