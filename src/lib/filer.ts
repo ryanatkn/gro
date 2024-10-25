@@ -32,6 +32,7 @@ export interface Source_File {
 	 * We create the file in memory to track its dependents regardless of its existence on disk.
 	 */
 	contents: string | null;
+	ctime: number | null;
 	mtime: number | null;
 	dependents: Map<Path_Id, Source_File>;
 	dependencies: Map<Path_Id, Source_File>;
@@ -75,6 +76,7 @@ export class Filer {
 		const file: Source_File = {
 			id,
 			contents: null,
+			ctime: null,
 			mtime: null,
 			dependents: new Map(),
 			dependencies: new Map(),
@@ -89,6 +91,7 @@ export class Filer {
 		const stats = existsSync(id) ? statSync(id) : null;
 		// const mtime_prev = file.mtime;
 		// const mtime_changed = mtime_prev !== (stats?.mtimeMs ?? null);
+		file.ctime = stats?.ctimeMs ?? null;
 		file.mtime = stats?.mtimeMs ?? null;
 
 		const new_contents = stats ? readFileSync(id, 'utf8') : null;
@@ -120,6 +123,7 @@ export class Filer {
 				}
 			}
 			// TODO BLOCK should we have a filter for a subset of the node_modules so it doesn't load everything?
+			// TODO BLOCK include `external: true`
 			// TODO BLOCK this doesn't work
 			// const resolved =
 			// 	path[0] === '.' || path[0] === '/'
