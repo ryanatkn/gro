@@ -199,10 +199,8 @@ export const resolve: ResolveHook = async (specifier, context, nextResolve) => {
 
 	const parent_url = context.parentURL;
 	if (!parent_url || NODE_MODULES_MATCHER.test(parent_url)) {
-		if (s.includes('gro/')) console.log(`[loader.resolve] normal resolution`, s);
 		return nextResolve(s, context);
 	}
-	if (s.includes('gro/')) console.log(`[loader.resolve] custom resolution`, s);
 
 	const shimmed = sveltekit_shim_app_specifiers.get(s);
 	if (shimmed !== undefined) {
