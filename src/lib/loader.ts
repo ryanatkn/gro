@@ -16,7 +16,7 @@ import {
 } from './sveltekit_shim_app.js';
 import {default_sveltekit_config} from './sveltekit_config.js';
 import {SVELTE_MATCHER, SVELTE_RUNES_MATCHER} from './svelte_helpers.js';
-import {paths} from './paths.js';
+import {IS_THIS_GRO, paths} from './paths.js';
 import {JSON_MATCHER, NODE_MODULES_DIRNAME, TS_MATCHER} from './path_constants.js';
 import {to_define_import_meta_env, default_ts_transform_options} from './esbuild_helpers.js';
 import {resolve_specifier} from './resolve_specifier.js';
@@ -173,51 +173,61 @@ export const load: LoadHook = async (url, context, nextLoad) => {
 };
 
 export const resolve: ResolveHook = async (specifier, context, nextResolve) => {
+	let s = specifier;
+
+	// Support SvelteKit `$env` imports
 	if (
-		specifier === '$env/static/public' ||
-		specifier === '$env/static/private' ||
-		specifier === '$env/dynamic/public' ||
-		specifier === '$env/dynamic/private'
+		s === '$env/static/public' ||
+		s === '$env/static/private' ||
+		s === '$env/dynamic/public' ||
+		s === '$env/dynamic/private'
 	) {
 		// The returned `url` is validated before `load` is called,
 		// so we need a slightly roundabout strategy to pass through the specifier for virtual files.
 		return {
-			url: pathToFileURL(join(dir, 'src/lib', specifier)).href,
+			url: pathToFileURL(join(dir, 'src/lib', s)).href,
 			format: 'module',
 			shortCircuit: true,
 		};
 	}
 
-	const parent_url = context.parentURL;
-	if (!parent_url || NODE_MODULES_MATCHER.test(parent_url)) {
-		return nextResolve(specifier, context);
+	// Special case for Gro's dependencies that import into Gro.
+	// Without this, we'd need to add a dev dep to Gro for Gro, which causes problems.
+	if (IS_THIS_GRO && s.startsWith('@ryanatkn/gro')) {
+		s = join(dir, 'dist', s.substring(13));
 	}
 
-	const shimmed = sveltekit_shim_app_specifiers.get(specifier);
+	const parent_url = context.parentURL;
+	if (!parent_url || NODE_MODULES_MATCHER.test(parent_url)) {
+		if (s.includes('gro/')) console.log(`[loader.resolve] normal resolution`, s);
+		return nextResolve(s, context);
+	}
+	if (s.includes('gro/')) console.log(`[loader.resolve] custom resolution`, s);
+
+	const shimmed = sveltekit_shim_app_specifiers.get(s);
 	if (shimmed !== undefined) {
 		return nextResolve(shimmed, context);
 	}
 
-	const path = map_sveltekit_aliases(specifier, aliases);
-	console.log(`specifier`, specifier);
+	s = map_sveltekit_aliases(s, aliases);
 
-	// The specifier `path` has now been mapped to its final form, so we can inspect it.
-	if (path[0] !== '.' && path[0] !== '/') {
+	// The specifier has now been mapped to its final form, so we can inspect it.
+	if (s[0] !== '.' && s[0] !== '/') {
 		// Resolve to `node_modules`.
-		if (SVELTE_MATCHER.test(path) || JSON_MATCHER.test(path)) {
+		if (SVELTE_MATCHER.test(s) || JSON_MATCHER.test(s)) {
 			// Match the behavior of Vite and esbuild for Svelte and JSON imports.
-			const resolved = resolve_node_specifier(path, dir, parent_url, package_json_cache);
+			const resolved = resolve_node_specifier(s, dir, parent_url, package_json_cache);
 			return {
 				url: pathToFileURL(resolved.path_id_with_querystring).href,
 				format: 'module',
 				shortCircuit: true,
 			};
 		} else {
-			return nextResolve(path, context);
+			return nextResolve(s, context);
 		}
 	}
 
-	const resolved = resolve_specifier(path, dirname(fileURLToPath(parent_url)));
+	const resolved = resolve_specifier(s, dirname(fileURLToPath(parent_url)));
 
 	return {
 		url: pathToFileURL(resolved.path_id_with_querystring).href,
