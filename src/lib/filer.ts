@@ -92,6 +92,7 @@ export class Filer {
 			dependencies: new Map(),
 		};
 		this.files.set(id, file);
+		console.log(`created id`, id);
 		return file;
 	};
 
