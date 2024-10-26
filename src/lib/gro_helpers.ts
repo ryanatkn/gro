@@ -3,7 +3,7 @@ import {join, resolve} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {spawn, type Spawn_Result} from '@ryanatkn/belt/process.js';
 
-import {NODE_MODULES_DIRNAME, SVELTEKIT_DIST_DIRNAME} from './path_constants.js';
+import {JS_CLI_DEFAULT, NODE_MODULES_DIRNAME, SVELTEKIT_DIST_DIRNAME} from './constants.js';
 
 /*
 
@@ -84,6 +84,7 @@ export const spawn_with_loader = (
 	loader_path: string,
 	invoke_path: string,
 	argv: string[],
+	js_cli = JS_CLI_DEFAULT, // TODO source from config when possible
 ): Promise<Spawn_Result> => {
 	const args = [
 		'--import',
@@ -99,5 +100,5 @@ export const spawn_with_loader = (
 		args.push('-C', 'development'); // same as `--conditions`
 	}
 	args.push(invoke_path, ...argv);
-	return spawn('node', args);
+	return spawn(js_cli, args);
 };

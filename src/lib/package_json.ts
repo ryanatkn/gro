@@ -7,7 +7,7 @@ import type {Flavored} from '@ryanatkn/belt/types.js';
 import {styleText as st} from 'node:util';
 
 import {paths, gro_paths, IS_THIS_GRO, replace_extension} from './paths.js';
-import {SVELTEKIT_DIST_DIRNAME} from './path_constants.js';
+import {SVELTEKIT_DIST_DIRNAME} from './constants.js';
 import {search_fs} from './search_fs.js';
 import {has_sveltekit_library} from './sveltekit_helpers.js';
 import {GITHUB_REPO_MATCHER} from './github.js';
@@ -87,7 +87,7 @@ export const Package_Json = z
 		// according to the npm docs, `name` and `version` are the only required properties
 		name: z.string(),
 		version: z.string(),
-		private: z.boolean({description: 'disallow npm publish'}).optional(),
+		private: z.boolean({description: 'disallow publishing to the configured registry'}).optional(),
 		public: z
 			.boolean({
 				description:

@@ -9,14 +9,14 @@ import {
 	VITE_CONFIG_FILENAME,
 	TSCONFIG_FILENAME,
 	GRO_CONFIG_PATH,
-} from './path_constants.js';
+	PM_CLI_DEFAULT,
+	PRETTIER_CLI_DEFAULT,
+} from './constants.js';
 import {serialize_args, to_forwarded_args} from './args.js';
 import {spawn_cli, to_cli_name, type Cli} from './cli.js';
 
-const PRETTIER_CLI = 'prettier';
-
-const DEFAULT_EXTENSIONS = 'ts,js,json,svelte,html,css,md,yml';
-const DEFAULT_ROOT_PATHS = `${[
+const EXTENSIONS_DEFAULT = 'ts,js,json,svelte,html,css,md,yml';
+const ROOT_PATHS_DEFAULT = `${[
 	README_FILENAME,
 	GRO_CONFIG_PATH,
 	SVELTEKIT_CONFIG_FILENAME,
@@ -35,9 +35,10 @@ export const format_directory = async (
 	log: Logger,
 	dir: string,
 	check = false,
-	extensions = DEFAULT_EXTENSIONS,
-	root_paths = DEFAULT_ROOT_PATHS,
-	prettier_cli: string | Cli = PRETTIER_CLI,
+	extensions = EXTENSIONS_DEFAULT,
+	root_paths = ROOT_PATHS_DEFAULT,
+	prettier_cli: string | Cli = PRETTIER_CLI_DEFAULT,
+	pm_cli: string = PM_CLI_DEFAULT,
 ): Promise<Spawn_Result> => {
 	const forwarded_args = to_forwarded_args(to_cli_name(prettier_cli));
 	forwarded_args[check ? 'check' : 'write'] = true;
@@ -49,7 +50,7 @@ export const format_directory = async (
 	const spawned = await spawn_cli(prettier_cli, serialized_args, log);
 	if (!spawned)
 		throw new Error(
-			`failed to find \`${to_cli_name(prettier_cli)}\` CLI locally or globally, do you need to run \`npm i\`?`,
+			`failed to find \`${to_cli_name(prettier_cli)}\` CLI locally or globally, do you need to run \`${pm_cli} install\`?`,
 		);
 	return spawned;
 };

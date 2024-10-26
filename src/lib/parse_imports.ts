@@ -3,7 +3,7 @@ import type {Flavored} from '@ryanatkn/belt/types.js';
 
 import type {Path_Id} from './path.js';
 import {SVELTE_MATCHER} from './svelte_helpers.js';
-import {JS_MATCHER, TS_MATCHER} from './path_constants.js';
+import {JS_MATCHER, TS_MATCHER} from './constants.js';
 
 export const init_lexer = (): Promise<void> => init;
 

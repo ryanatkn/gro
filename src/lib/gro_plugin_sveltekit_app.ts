@@ -8,9 +8,9 @@ import {serialize_package_json, type Map_Package_Json, load_package_json} from '
 import {Task_Error} from './task.js';
 import {find_cli, spawn_cli, spawn_cli_process} from './cli.js';
 import {type Map_Src_Json, serialize_src_json, create_src_json} from './src_json.js';
-import {DEFAULT_EXPORTS_EXCLUDER} from './gro_config.js';
+import {EXPORTS_EXCLUDER_DEFAULT} from './gro_config.js';
 import {default_sveltekit_config} from './sveltekit_config.js';
-import {SOURCE_DIRNAME} from './path_constants.js';
+import {SOURCE_DIRNAME} from './constants.js';
 import {VITE_CLI} from './sveltekit_helpers.js';
 
 export interface Options {
@@ -57,10 +57,12 @@ export const gro_plugin_sveltekit_app = ({
 	let sveltekit_process: Spawned_Process | undefined = undefined;
 	return {
 		name: 'gro_plugin_sveltekit_app',
-		setup: async ({dev, watch, log}) => {
+		setup: async ({dev, watch, log, config}) => {
 			const found_vite_cli = find_cli(vite_cli);
 			if (!found_vite_cli)
-				throw new Error(`Failed to find Vite CLI \`${vite_cli}\`, do you need to run \`npm i\`?`);
+				throw new Error(
+					`Failed to find Vite CLI \`${vite_cli}\`, do you need to run \`${config.pm_cli} i\`?`,
+				);
 			if (dev) {
 				// `vite dev` in development mode
 				if (watch) {
@@ -123,7 +125,7 @@ export const gro_plugin_sveltekit_app = ({
 								assets_path,
 								'.well-known',
 								well_known_src_files === true
-									? (file_path) => !DEFAULT_EXPORTS_EXCLUDER.test(file_path)
+									? (file_path) => !EXPORTS_EXCLUDER_DEFAULT.test(file_path)
 									: well_known_src_files,
 							)
 						: null,

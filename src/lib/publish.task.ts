@@ -19,13 +19,6 @@ import {
 } from './git.js';
 import {CHANGESET_CLI} from './changeset_helpers.js';
 
-// publish.task.ts
-// - usage: `gro publish patch`
-// - forwards args to `npm version`: https://docs.npmjs.com/v6/commands/npm-version
-// - runs the production build
-// - publishes to npm from the `main` branch, configurable with `--branch`
-// - syncs commits and tags to the configured main branch
-
 export const Args = z
 	.object({
 		branch: Git_Branch.describe('branch to publish from').default('main'),
@@ -44,9 +37,7 @@ export const Args = z
 			.boolean({description: 'build and prepare to publish without actually publishing'})
 			.default(false),
 		check: z.boolean({description: 'dual of no-check'}).default(true),
-		'no-check': z
-			.boolean({description: 'opt out of npm checking before publishing'})
-			.default(false),
+		'no-check': z.boolean({description: 'opt out of checking before publishing'}).default(false),
 		build: z.boolean({description: 'dual of no-build'}).default(true),
 		'no-build': z.boolean({description: 'opt out of building'}).default(false),
 		pull: z.boolean({description: 'dual of no-pull'}).default(true),
@@ -57,7 +48,7 @@ export const Args = z
 export type Args = z.infer<typeof Args>;
 
 export const task: Task<Args> = {
-	summary: 'bump version, publish to npm, and git push',
+	summary: 'bump version, publish to the configured registry, and git push',
 	Args,
 	run: async ({args, log, invoke_task}): Promise<void> => {
 		const {
@@ -179,8 +170,8 @@ export const task: Task<Args> = {
 			return;
 		}
 
-		const npm_publish_result = await spawn_cli(found_changeset_cli, ['publish'], log);
-		if (!npm_publish_result?.ok) {
+		const changeset_publish_result = await spawn_cli(found_changeset_cli, ['publish'], log);
+		if (!changeset_publish_result?.ok) {
 			throw new Task_Error(
 				`\`${changeset_cli} publish\` failed - continue manually or try again after running \`git reset --hard\``,
 			);

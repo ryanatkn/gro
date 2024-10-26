@@ -37,7 +37,7 @@ export const Args = z
 			.default('@changesets/changelog-git'),
 		dep: z.boolean({description: 'dual of no-dep'}).default(true),
 		'no-dep': z
-			.boolean({description: 'opt out of npm installing the changelog package'})
+			.boolean({description: 'opt out of installing the changelog package'})
 			.default(false),
 		origin: Git_Origin.describe('git origin to deploy to').default('origin'),
 		changeset_cli: z.string({description: 'the changeset CLI to use'}).default(CHANGESET_CLI),
@@ -115,12 +115,12 @@ export const task: Task<Args> = {
 			await spawn('git', ['add', dir]);
 
 			if (dep) {
-				await spawn(config.pm_cli, ['i', '-D', changelog]);
+				await spawn(config.pm_cli, ['install', '-D', changelog]);
 			}
 		}
 
 		// TODO small problem here where generated files don't get committed
-		await invoke_task('sync', {install: inited || !dep}); // after the `npm i` above, and in all cases
+		await invoke_task('sync', {install: inited || !dep}); // after installing above, and in all cases
 
 		if (message) {
 			// TODO see the helper below, simplify this to CLI flags when support is added to Changesets

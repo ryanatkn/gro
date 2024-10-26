@@ -14,26 +14,26 @@ export const Args = z
 		gen: z.boolean({description: 'dual of no-gen'}).default(true),
 		'no-gen': z.boolean({description: 'opt out of running gen'}).default(false),
 		install: z.boolean({description: 'dual of no-install'}).default(true),
-		'no-install': z.boolean({description: 'opt out of `npm install`'}).default(false),
+		'no-install': z.boolean({description: 'opt out of installing packages'}).default(false),
 	})
 	.strict();
 export type Args = z.infer<typeof Args>;
 
 export const task: Task<Args> = {
-	summary: 'run `gro gen`, update `package.json`, and optionally `npm i` to sync up',
+	summary: 'run `gro gen`, update `package.json`, and optionally install packages to sync up',
 	Args,
 	run: async ({args, invoke_task, config, log}): Promise<void> => {
 		const {sveltekit, package_json, gen, install} = args;
 
 		if (install) {
-			const result = await spawn(config.pm_cli, ['i']);
+			const result = await spawn(config.pm_cli, ['install']);
 			if (!result.ok) {
-				throw new Task_Error('Failed npm install');
+				throw new Task_Error(`Failed \`${config.pm_cli} install\``);
 			}
 		}
 
 		if (sveltekit) {
-			await sveltekit_sync();
+			await sveltekit_sync(undefined, config.pm_cli);
 			log.info('synced SvelteKit');
 		}
 

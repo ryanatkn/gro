@@ -158,6 +158,10 @@
       "types": "./dist/commit.task.d.ts",
       "default": "./dist/commit.task.js"
     },
+    "./constants.js": {
+      "types": "./dist/constants.d.ts",
+      "default": "./dist/constants.js"
+    },
     "./deploy.task.js": {
       "types": "./dist/deploy.task.d.ts",
       "default": "./dist/deploy.task.js"
@@ -321,10 +325,6 @@
     "./parse_imports.js": {
       "types": "./dist/parse_imports.d.ts",
       "default": "./dist/parse_imports.js"
-    },
-    "./path_constants.js": {
-      "types": "./dist/path_constants.d.ts",
-      "default": "./dist/path_constants.js"
     },
     "./path.js": {
       "types": "./dist/path.d.ts",

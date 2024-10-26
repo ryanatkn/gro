@@ -9,7 +9,7 @@ import {
 	GRO_DIR,
 	SOURCE_DIR,
 	SVELTEKIT_DIST_DIRNAME,
-} from './path_constants.js';
+} from './constants.js';
 import {default_sveltekit_config} from './sveltekit_config.js';
 import type {Path_Id} from './path.js';
 
