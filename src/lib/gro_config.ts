@@ -5,6 +5,7 @@ import {GRO_DIST_DIR, IS_THIS_GRO, paths} from './paths.js';
 import {
 	GRO_CONFIG_PATH,
 	NODE_MODULES_DIRNAME,
+	PM_CLI_DEFAULT,
 	SERVER_DIST_PATH,
 	SVELTEKIT_BUILD_DIRNAME,
 	SVELTEKIT_DIST_DIRNAME,
@@ -75,8 +76,6 @@ export const create_empty_gro_config = (): Gro_Config => ({
 	search_filters: [(id) => !SEARCH_EXCLUDER_DEFAULT.test(id)],
 	pm_cli: PM_CLI_DEFAULT,
 });
-
-export const PM_CLI_DEFAULT = 'npm';
 
 /**
  * The regexp used by default to exclude directories and files

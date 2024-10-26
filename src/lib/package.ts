@@ -545,7 +545,6 @@ export const src_json = {
 				{name: 'Raw_Gro_Config', kind: 'type'},
 				{name: 'Create_Gro_Config', kind: 'type'},
 				{name: 'create_empty_gro_config', kind: 'function'},
-				{name: 'PM_CLI_DEFAULT', kind: 'variable'},
 				{name: 'SEARCH_EXCLUDER_DEFAULT', kind: 'variable'},
 				{name: 'EXPORTS_EXCLUDER_DEFAULT', kind: 'variable'},
 				{name: 'normalize_gro_config', kind: 'function'},
@@ -745,6 +744,7 @@ export const src_json = {
 				{name: 'JS_MATCHER', kind: 'variable'},
 				{name: 'JSON_MATCHER', kind: 'variable'},
 				{name: 'EVERYTHING_MATCHER', kind: 'variable'},
+				{name: 'PM_CLI_DEFAULT', kind: 'variable'},
 			],
 		},
 		'./path.js': {

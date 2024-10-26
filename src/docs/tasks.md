@@ -16,7 +16,7 @@ What is a `Task`? See [`task.md`](./task.md).
 - [format](../lib/format.task.ts) - format source files
 - [gen](../lib/gen.task.ts) - run code generation scripts
 - [lint](../lib/lint.task.ts) - run eslint
-- [publish](../lib/publish.task.ts) - bump version, publish to npm, and git push
+- [publish](../lib/publish.task.ts) - bump version, publish to the configured registry, and git push
 - [reinstall](../lib/reinstall.task.ts) - refreshes package-lock.json with the latest and cleanest deps
 - [release](../lib/release.task.ts) - publish and deploy
 - [resolve](../lib/resolve.task.ts) - diagnostic that logs resolved filesystem info for the given input paths

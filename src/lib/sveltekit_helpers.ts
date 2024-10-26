@@ -5,11 +5,14 @@ import {join} from 'node:path';
 
 import {Package_Json, has_dep} from './package_json.js';
 import {default_sveltekit_config, type Parsed_Sveltekit_Config} from './sveltekit_config.js';
-import {SVELTEKIT_CONFIG_FILENAME, SVELTEKIT_DEV_DIRNAME} from './path_constants.js';
+import {
+	SVELTEKIT_CONFIG_FILENAME,
+	SVELTEKIT_DEV_DIRNAME,
+	PM_CLI_DEFAULT,
+} from './path_constants.js';
 import {find_cli, spawn_cli, to_cli_name, type Cli} from './cli.js';
 import {Task_Error} from './task.js';
 import {serialize_args, to_forwarded_args} from './args.js';
-import {PM_CLI_DEFAULT} from './gro_config.js';
 
 export const SVELTEKIT_CLI = 'svelte-kit';
 

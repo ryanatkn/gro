@@ -33,3 +33,5 @@ export const TS_MATCHER = /\.(ts|tsx|mts|cts)$/;
 export const JS_MATCHER = /\.(js|jsx|mjs|cjs)$/;
 export const JSON_MATCHER = /\.json$/;
 export const EVERYTHING_MATCHER = /.*/;
+
+export const PM_CLI_DEFAULT = 'npm'; // TODO doesn't really belong here, but can't go in `gro_config.ts` because of circular dependency

@@ -9,10 +9,10 @@ import {
 	VITE_CONFIG_FILENAME,
 	TSCONFIG_FILENAME,
 	GRO_CONFIG_PATH,
+	PM_CLI_DEFAULT,
 } from './path_constants.js';
 import {serialize_args, to_forwarded_args} from './args.js';
 import {spawn_cli, to_cli_name, type Cli} from './cli.js';
-import {PM_CLI_DEFAULT} from './gro_config.js';
 
 const PRETTIER_CLI_DEFAULT = 'prettier';
 
