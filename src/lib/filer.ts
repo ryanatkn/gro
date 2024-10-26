@@ -33,6 +33,10 @@ export interface Source_File {
 	 * We create the file in memory to track its dependents regardless of its existence on disk.
 	 */
 	contents: string | null;
+	/**
+	 * Is the source file outside of the `root_dir` or excluded by `watch_dir_options.filter`?
+	 */
+	external: boolean;
 	ctime: number | null;
 	mtime: number | null;
 	dependents: Map<Path_Id, Source_File>;
@@ -78,10 +82,10 @@ export class Filer {
 	get_or_create = (id: Path_Id): Source_File => {
 		const existing = this.get_by_id(id);
 		if (existing) return existing;
-		console.log(`creating id`, id);
 		const file: Source_File = {
 			id,
 			contents: null,
+			external: this.#is_external(id),
 			ctime: null,
 			mtime: null,
 			dependents: new Map(),
@@ -95,8 +99,6 @@ export class Filer {
 		const file = this.get_or_create(id);
 
 		const stats = existsSync(id) ? statSync(id) : null;
-		// const mtime_prev = file.mtime;
-		// const mtime_changed = mtime_prev !== (stats?.mtimeMs ?? null);
 		file.ctime = stats?.ctimeMs ?? null;
 		file.mtime = stats?.mtimeMs ?? null;
 
@@ -118,8 +120,6 @@ export class Filer {
 			// TODO logic is duplicated from loader
 			const path = map_sveltekit_aliases(specifier, aliases);
 
-			// TODO BLOCK should we have a filter for a subset of the node_modules so it doesn't load everything?
-			// TODO BLOCK test this
 			// The specifier `path` has now been mapped to its final form, so we can inspect it.
 			const resolved =
 				path[0] === '.' || path[0] === '/'
@@ -129,7 +129,7 @@ export class Filer {
 			const {path_id} = resolved;
 			dependencies_removed.delete(path_id);
 			if (!dependencies_before.has(path_id)) {
-				const d = this.get_or_create(path_id); // TODO BLOCK include `external: true` when appropriate
+				const d = this.get_or_create(path_id);
 				file.dependencies.set(d.id, d);
 				d.dependents.set(file.id, file);
 			}
@@ -236,5 +236,10 @@ export class Filer {
 			await this.#watching.close();
 			this.#watching = undefined;
 		}
+	}
+
+	#is_external(id: string): boolean {
+		const {filter} = this.#watch_dir_options;
+		return !id.startsWith(this.root_dir + '/') || (!!filter && !filter(id, false));
 	}
 }
