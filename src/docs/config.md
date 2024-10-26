@@ -208,7 +208,7 @@ The Gro config option `search_filters` allows customizing
 how Gro searches for tasks and genfiles on the filesystem.
 Directories and files are included if they pass all of these filters.
 
-By default, it uses the `DEFAULT_SEARCH_EXCLUDER` to exclude
+By default, it uses the `SEARCH_EXCLUDER_DEFAULT` to exclude
 dot-prefixed directories, node_modules,
 and the build and dist directories for SvelteKit and Gro.
 

@@ -16,8 +16,8 @@ import {PM_CLI_DEFAULT} from './gro_config.js';
 
 const PRETTIER_CLI_DEFAULT = 'prettier';
 
-const DEFAULT_EXTENSIONS = 'ts,js,json,svelte,html,css,md,yml';
-const DEFAULT_ROOT_PATHS = `${[
+const EXTENSIONS_DEFAULT = 'ts,js,json,svelte,html,css,md,yml';
+const ROOT_PATHS_DEFAULT = `${[
 	README_FILENAME,
 	GRO_CONFIG_PATH,
 	SVELTEKIT_CONFIG_FILENAME,
@@ -36,8 +36,8 @@ export const format_directory = async (
 	log: Logger,
 	dir: string,
 	check = false,
-	extensions = DEFAULT_EXTENSIONS,
-	root_paths = DEFAULT_ROOT_PATHS,
+	extensions = EXTENSIONS_DEFAULT,
+	root_paths = ROOT_PATHS_DEFAULT,
 	prettier_cli: string | Cli = PRETTIER_CLI_DEFAULT,
 	pm_cli: string = PM_CLI_DEFAULT,
 ): Promise<Spawn_Result> => {

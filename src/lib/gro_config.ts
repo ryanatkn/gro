@@ -72,7 +72,7 @@ export const create_empty_gro_config = (): Gro_Config => ({
 		IS_THIS_GRO ? null : paths.root,
 		IS_THIS_GRO ? null : GRO_DIST_DIR,
 	].filter((v) => v !== null),
-	search_filters: [(id) => !DEFAULT_SEARCH_EXCLUDER.test(id)],
+	search_filters: [(id) => !SEARCH_EXCLUDER_DEFAULT.test(id)],
 	pm_cli: PM_CLI_DEFAULT,
 });
 
@@ -84,7 +84,7 @@ export const PM_CLI_DEFAULT = 'npm';
  * Customize via `search_filters` in the `Gro_Config`.
  * See the test cases for the exact behavior.
  */
-export const DEFAULT_SEARCH_EXCLUDER = new RegExp(
+export const SEARCH_EXCLUDER_DEFAULT = new RegExp(
 	`(${
 		'(^|/)\\.[^/]+' + // exclude all `.`-prefixed directories
 		// TODO probably change to `pkg.name` instead of this catch-all (also `gro` below)
@@ -99,13 +99,13 @@ export const DEFAULT_SEARCH_EXCLUDER = new RegExp(
 const default_map_package_json: Map_Package_Json = (package_json) => {
 	if (package_json.exports) {
 		package_json.exports = Object.fromEntries(
-			Object.entries(package_json.exports).filter(([k]) => !DEFAULT_EXPORTS_EXCLUDER.test(k)),
+			Object.entries(package_json.exports).filter(([k]) => !EXPORTS_EXCLUDER_DEFAULT.test(k)),
 		);
 	}
 	return package_json;
 };
 
-export const DEFAULT_EXPORTS_EXCLUDER = /(\.md|\.(test|ignore)\.|\/(test|fixtures|ignore)\/)/;
+export const EXPORTS_EXCLUDER_DEFAULT = /(\.md|\.(test|ignore)\.|\/(test|fixtures|ignore)\/)/;
 
 /**
  * Transforms a `Raw_Gro_Config` to the more strict `Gro_Config`.
