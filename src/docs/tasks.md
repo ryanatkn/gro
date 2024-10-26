@@ -21,7 +21,7 @@ What is a `Task`? See [`task.md`](./task.md).
 - [release](../lib/release.task.ts) - publish and deploy
 - [resolve](../lib/resolve.task.ts) - diagnostic that logs resolved filesystem info for the given input paths
 - [run](../lib/run.task.ts) - execute a file with the loader, like `node` but works for TypeScript
-- [sync](../lib/sync.task.ts) - run `gro gen`, update `package.json`, and optionally `npm i` to sync up
+- [sync](../lib/sync.task.ts) - run `gro gen`, update `package.json`, and optionally install packages to sync up
 - [test](../lib/test.task.ts) - run tests with uvu
 - [typecheck](../lib/typecheck.task.ts) - run tsc on the project without emitting any files
 - [upgrade](../lib/upgrade.task.ts) - upgrade deps
