@@ -1,5 +1,12 @@
 # @ryanatkn/gro
 
+## 0.143.0
+
+### Minor Changes
+
+- add partial support for configurable js CLIs ([#514](https://github.com/ryanatkn/gro/pull/514))
+- rename `constants.ts` from `path_constants.ts` ([#514](https://github.com/ryanatkn/gro/pull/514))
+
 ## 0.142.0
 
 ### Minor Changes
