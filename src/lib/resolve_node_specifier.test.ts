@@ -19,7 +19,7 @@ test('resolves a root specifier', () => {
 
 test('resolves a root specifier with a username', () => {
 	const specifier = '@sveltejs/kit';
-	const path_id = resolve('node_modules/svelte/src/exports/index.js');
+	const path_id = resolve('node_modules/@sveltejs/kit/src/exports/index.js');
 	assert.equal(resolve_node_specifier(specifier), {
 		path_id,
 		path_id_with_querystring: path_id,
