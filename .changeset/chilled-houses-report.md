@@ -1,5 +1,5 @@
 ---
-'@ryanatkn/gro': patch
+'@ryanatkn/gro': minor
 ---
 
 fix `Filer` to resolve node modules
