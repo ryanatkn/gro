@@ -113,7 +113,6 @@ export class Filer {
 			const path = map_sveltekit_aliases(specifier, aliases);
 
 			// TODO BLOCK should we have a filter for a subset of the node_modules so it doesn't load everything?
-			// TODO BLOCK include `external: true`
 			// TODO BLOCK test this
 			// The specifier `path` has now been mapped to its final form, so we can inspect it.
 			const resolved =
@@ -123,7 +122,7 @@ export class Filer {
 			const {path_id} = resolved;
 			dependencies_removed.delete(path_id);
 			if (!dependencies_before.has(path_id)) {
-				const d = this.get_or_create(path_id);
+				const d = this.get_or_create(path_id); // TODO BLOCK include `external: true` when appropriate
 				file.dependencies.set(d.id, d);
 				d.dependents.set(file.id, file);
 			}
@@ -131,11 +130,9 @@ export class Filer {
 
 		// update any removed dependencies
 		for (const dependency_removed of dependencies_removed) {
-			const deleted1 = file.dependencies.delete(dependency_removed);
-			if (!deleted1) throw Error('expected to delete1 ' + file.id); // TODO @many delete if correct
+			file.dependencies.delete(dependency_removed);
 			const dependency_removed_file = this.get_or_create(dependency_removed);
-			const deleted2 = dependency_removed_file.dependents.delete(file.id);
-			if (!deleted2) throw Error('expected to delete2 ' + file.id); // TODO @many delete if correct
+			dependency_removed_file.dependents.delete(file.id);
 		}
 
 		return file;
