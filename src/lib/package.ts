@@ -390,6 +390,7 @@ export const src_json = {
 				{name: 'JS_MATCHER', kind: 'variable'},
 				{name: 'JSON_MATCHER', kind: 'variable'},
 				{name: 'EVERYTHING_MATCHER', kind: 'variable'},
+				{name: 'JS_CLI_DEFAULT', kind: 'variable'},
 				{name: 'PM_CLI_DEFAULT', kind: 'variable'},
 				{name: 'PRETTIER_CLI_DEFAULT', kind: 'variable'},
 			],
