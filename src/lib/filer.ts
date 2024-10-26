@@ -73,6 +73,7 @@ export class Filer {
 	get_or_create = (id: Path_Id): Source_File => {
 		const existing = this.get_by_id(id);
 		if (existing) return existing;
+		console.log(`creating id`, id);
 		const file: Source_File = {
 			id,
 			contents: null,
