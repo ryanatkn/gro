@@ -124,7 +124,7 @@ export class Filer {
 			const resolved =
 				path[0] === '.' || path[0] === '/'
 					? resolve_specifier(path, dir)
-					: resolve_node_specifier(path, undefined, file.id, this.#package_json_cache, true);
+					: resolve_node_specifier(path, undefined, file.id, this.#package_json_cache, false);
 			if (!resolved) continue; // ignore any missing imports like Node identifiers
 			const {path_id} = resolved;
 			dependencies_removed.delete(path_id);
