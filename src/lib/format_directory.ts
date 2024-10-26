@@ -10,11 +10,10 @@ import {
 	TSCONFIG_FILENAME,
 	GRO_CONFIG_PATH,
 	PM_CLI_DEFAULT,
+	PRETTIER_CLI_DEFAULT,
 } from './path_constants.js';
 import {serialize_args, to_forwarded_args} from './args.js';
 import {spawn_cli, to_cli_name, type Cli} from './cli.js';
-
-const PRETTIER_CLI_DEFAULT = 'prettier';
 
 const EXTENSIONS_DEFAULT = 'ts,js,json,svelte,html,css,md,yml';
 const ROOT_PATHS_DEFAULT = `${[
