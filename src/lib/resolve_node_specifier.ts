@@ -8,10 +8,12 @@ import type {Resolved_Specifier} from './resolve_specifier.js';
 export const resolve_node_specifier = (
 	specifier: string,
 	dir = paths.root,
-	parent_url?: string,
+	parent_path?: string,
 	cache?: Record<string, Package_Json>,
-	exports_key = specifier.endsWith('.svelte') ? 'svelte' : 'default',
-): Resolved_Specifier => {
+	ignore_missing = false,
+): Resolved_Specifier | null => {
+	if (specifier.startsWith('node:')) return null; // ignore builtins
+
 	const raw = specifier.endsWith('?raw');
 	const mapped_specifier = raw ? specifier.substring(0, specifier.length - 4) : specifier;
 
@@ -34,14 +36,22 @@ export const resolve_node_specifier = (
 
 	const subpath = module_path ? './' + module_path : '.';
 	const package_dir = join(dir, NODE_MODULES_DIRNAME, pkg_name);
-	const package_json = load_package_json(package_dir, cache);
-	const exported = package_json.exports?.[subpath];
+	const package_json = load_package_json(package_dir, cache, false);
+	const exports_key = specifier.endsWith('.svelte') ? 'svelte' : 'default';
+	const exported =
+		subpath === '.' && !package_json.exports
+			? {[exports_key]: package_json.main}
+			: package_json.exports?.[subpath];
 	if (!exported) {
-		// same error message as Node
-		throw Error(
-			`[ERR_PACKAGE_PATH_NOT_EXPORTED]: Package subpath '${subpath}' is not defined by 'exports' in ${package_dir}/package.json` +
-				(parent_url ? ` imported from ${parent_url}` : ''),
-		);
+		if (ignore_missing) {
+			return null;
+		} else {
+			// same error message as Node
+			throw Error(
+				`[ERR_PACKAGE_PATH_NOT_EXPORTED]: Package subpath '${subpath}' is not defined by 'exports' in ${package_dir}/package.json` +
+					(parent_path ? ` imported from ${parent_path}` : ''),
+			);
+		}
 	}
 	let exported_value: string | undefined = exported[exports_key];
 	if (exported_value === undefined && exports_key === 'default') {
@@ -51,7 +61,7 @@ export const resolve_node_specifier = (
 	if (exported_value === undefined) {
 		throw Error(
 			`Package subpath '${subpath}' does not define the key '${exports_key}' in 'exports' in ${package_dir}/package.json` +
-				(parent_url ? ` imported from ${parent_url}` : ''),
+				(parent_path ? ` imported from ${parent_path}` : ''),
 		);
 	}
 	const path_id = join(package_dir, exported_value);

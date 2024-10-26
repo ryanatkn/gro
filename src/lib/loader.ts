@@ -214,7 +214,7 @@ export const resolve: ResolveHook = async (specifier, context, nextResolve) => {
 		// Resolve to `node_modules`.
 		if (SVELTE_MATCHER.test(s) || JSON_MATCHER.test(s)) {
 			// Match the behavior of Vite and esbuild for Svelte and JSON imports.
-			const resolved = resolve_node_specifier(s, dir, parent_url, package_json_cache);
+			const resolved = resolve_node_specifier(s, dir, parent_url, package_json_cache)!; // `node:` specifiers shouldn't reach this point, so the assertion is safe
 			return {
 				url: pathToFileURL(resolved.path_id_with_querystring).href,
 				format: 'module',

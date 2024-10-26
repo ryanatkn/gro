@@ -145,6 +145,7 @@ export const EMPTY_PACKAGE_JSON: Package_Json = {name: '', version: ''};
 export const load_package_json = (
 	dir = IS_THIS_GRO ? gro_paths.root : paths.root,
 	cache?: Record<string, Package_Json>,
+	parse = true, // TODO pass `false` here in more places, especially anything perf-sensitive like work on startup
 ): Package_Json => {
 	let package_json: Package_Json;
 	if (cache && dir in cache) {
@@ -155,8 +156,12 @@ export const load_package_json = (
 	} catch (_err) {
 		return EMPTY_PACKAGE_JSON;
 	}
-	package_json = parse_package_json(Package_Json, package_json);
-	if (cache) cache[dir] = package_json;
+	if (parse) {
+		package_json = parse_package_json(Package_Json, package_json);
+	}
+	if (cache) {
+		cache[dir] = package_json;
+	}
 	return package_json;
 };
 

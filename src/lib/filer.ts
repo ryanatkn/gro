@@ -19,6 +19,7 @@ import {default_sveltekit_config} from './sveltekit_config.js';
 import {map_sveltekit_aliases} from './sveltekit_helpers.js';
 import {Unreachable_Error} from '@ryanatkn/belt/error.js';
 import {resolve_node_specifier} from './resolve_node_specifier.js';
+import type {Package_Json} from './package_json.js';
 // TODO see below
 // import {resolve_node_specifier} from './resolve_node_specifier.js';
 
@@ -45,6 +46,7 @@ export type On_Filer_Change = (change: Watcher_Change, source_file: Source_File)
 export interface Options {
 	watch_dir?: typeof watch_dir;
 	watch_dir_options?: Partial<Omit_Strict<Watch_Dir_Options, 'on_change'>>;
+	package_json_cache?: Record<string, Package_Json>;
 }
 
 export class Filer {
@@ -55,10 +57,13 @@ export class Filer {
 	#watch_dir: typeof watch_dir;
 	#watch_dir_options: Partial<Watch_Dir_Options>;
 
+	#package_json_cache: Record<string, Package_Json> | undefined;
+
 	constructor(options: Options = EMPTY_OBJECT) {
 		this.#watch_dir = options.watch_dir ?? watch_dir;
 		this.#watch_dir_options = options.watch_dir_options ?? EMPTY_OBJECT;
 		this.root_dir = resolve(options.watch_dir_options?.dir ?? paths.source);
+		this.#package_json_cache = options.package_json_cache ?? {};
 	}
 
 	#watching: Watch_Node_Fs | undefined;
@@ -119,7 +124,8 @@ export class Filer {
 			const resolved =
 				path[0] === '.' || path[0] === '/'
 					? resolve_specifier(path, dir)
-					: resolve_node_specifier(path, dir);
+					: resolve_node_specifier(path, undefined, file.id, this.#package_json_cache, true);
+			if (!resolved) continue; // ignore any missing imports like Node identifiers
 			const {path_id} = resolved;
 			dependencies_removed.delete(path_id);
 			if (!dependencies_before.has(path_id)) {

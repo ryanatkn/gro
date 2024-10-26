@@ -30,6 +30,11 @@ test('resolves a Node specifier with a username', () => {
 	});
 });
 
+test('resolves a Node specifier to a builtin', () => {
+	const specifier = 'node:path';
+	assert.equal(resolve_node_specifier(specifier), null);
+});
+
 test('resolves a JS specifier', () => {
 	const specifier = '@ryanatkn/fuz/tome.js';
 	const path_id = resolve('node_modules/@ryanatkn/fuz/dist/tome.js');
