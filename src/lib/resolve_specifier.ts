@@ -20,13 +20,11 @@ export interface Resolved_Specifier {
 }
 
 /**
- * Maps a `path` import specifier relative to the `importer`,
+ * Maps an import `specifier` relative to `dir`,
  * and infer the correct extension following Vite conventions.
- * If no `.js` file is found for the `path` on the filesystem, it assumes `.ts`.
+ * If no `.js` file is found for the specifier on the filesystem, it assumes `.ts`.
  * @param specifier
- * @param dir - if defined, enables relative importers like from esbuild plugins
- * @param passthrough_extensions - used to support specifiers that have no file extention, which Vite supports, so we do our best effort
- * @returns
+ * @param dir
  */
 export const resolve_specifier = (specifier: string, dir: string): Resolved_Specifier => {
 	const raw = specifier.endsWith('?raw');
