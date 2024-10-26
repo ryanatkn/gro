@@ -2,4 +2,4 @@
 '@ryanatkn/gro': minor
 ---
 
-support configurable js CLIs
+add partial support for configurable js CLIs
