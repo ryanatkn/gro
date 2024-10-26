@@ -115,12 +115,12 @@ export const task: Task<Args> = {
 			await spawn('git', ['add', dir]);
 
 			if (dep) {
-				await spawn(config.pm_cli, ['i', '-D', changelog]);
+				await spawn(config.pm_cli, ['install', '-D', changelog]);
 			}
 		}
 
 		// TODO small problem here where generated files don't get committed
-		await invoke_task('sync', {install: inited || !dep}); // after the `npm i` above, and in all cases
+		await invoke_task('sync', {install: inited || !dep}); // after installing above, and in all cases
 
 		if (message) {
 			// TODO see the helper below, simplify this to CLI flags when support is added to Changesets

@@ -13,7 +13,7 @@ export const task: Task<Args> = {
 	Args,
 	run: async ({log, config}): Promise<void> => {
 		log.info('running the initial npm install');
-		const initial_install_result = await spawn(config.pm_cli, ['i']);
+		const initial_install_result = await spawn(config.pm_cli, ['install']);
 		if (!initial_install_result.ok) {
 			throw new Task_Error('Failed initial npm install');
 		}
@@ -23,7 +23,7 @@ export const task: Task<Args> = {
 		log.info(
 			`running npm install after deleting ${LOCKFILE_FILENAME} and ${NODE_MODULES_DIRNAME}, this can take a while...`,
 		);
-		const second_install_result = await spawn(config.pm_cli, ['i']);
+		const second_install_result = await spawn(config.pm_cli, ['install']);
 		if (!second_install_result.ok) {
 			throw new Task_Error(
 				`Failed npm install after deleting ${LOCKFILE_FILENAME} and ${NODE_MODULES_DIRNAME}`,
@@ -34,7 +34,7 @@ export const task: Task<Args> = {
 		// like esbuild's many packages for each platform.
 		await rm(LOCKFILE_FILENAME);
 		log.info(`running npm install one last time to clean ${LOCKFILE_FILENAME}`);
-		const final_install_result = await spawn(config.pm_cli, ['i']);
+		const final_install_result = await spawn(config.pm_cli, ['install']);
 		if (!final_install_result.ok) {
 			throw new Task_Error('Failed npm install');
 		}

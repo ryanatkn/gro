@@ -73,8 +73,10 @@ export const create_empty_gro_config = (): Gro_Config => ({
 		IS_THIS_GRO ? null : GRO_DIST_DIR,
 	].filter((v) => v !== null),
 	search_filters: [(id) => !DEFAULT_SEARCH_EXCLUDER.test(id)],
-	pm_cli: 'npm',
+	pm_cli: PM_CLI_DEFAULT,
 });
+
+export const PM_CLI_DEFAULT = 'npm';
 
 /**
  * The regexp used by default to exclude directories and files

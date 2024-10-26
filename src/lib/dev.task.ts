@@ -17,7 +17,7 @@ export const Args = z
 		'no-sync': z.boolean({description: 'opt out of gro sync'}).default(false),
 		install: z.boolean({description: 'dual of no-install'}).default(true),
 		'no-install': z // convenience, same as `gro dev -- gro sync --no-install` but the latter takes precedence
-			.boolean({description: 'opt out of `npm install` before starting the dev server'})
+			.boolean({description: 'opt out of installing packages before starting the dev server'})
 			.default(false),
 	})
 	.strict();

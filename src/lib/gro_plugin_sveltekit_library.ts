@@ -36,7 +36,7 @@ export const gro_plugin_sveltekit_library = ({
 		adapt: async ({log, timings, config}) => {
 			const package_json = load_package_json();
 
-			// `npm link`
+			// link the CLI binaries if they exist
 			if (package_json.bin) {
 				const timing_to_link = timings.start(`${config.pm_cli} link`);
 				await Promise.all(
