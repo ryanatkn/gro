@@ -92,8 +92,10 @@ export class Filer {
 			dependencies: new Map(),
 		};
 		this.files.set(id, file);
-		// TODO BLOCK probably want to call `#notify_change` with a synthetic `add` for external files, is sync ok?
-		console.log(`created id`, id);
+		// TODO this may need to be batched/deferred
+		if (file.external) {
+			this.#on_change({type: 'add', path: file.id, is_directory: false});
+		}
 		return file;
 	};
 

@@ -7,6 +7,23 @@
 	justify-content: center;
 }
 
+.chip {
+	font-weight: 600;
+	padding: var(--space_xs5) var(--space_sm); /* maybe different inside `p`? using `calc` with `--size`? */
+	background-color: var(--fg_1);
+	border-radius: var(--radius_xs);
+}
+a.chip {
+	font-weight: 700;
+}
+
+.flex {
+	display: flex;
+}
+.flex_1 {
+	flex: 1;
+}
+
 /* TODO other button variants? */
 /* TODO this is slightly strange that it doesn't use --icon_size */
 /* These are used as modifiers to buttons, and so they use `:where` so they cascade.  */
@@ -20,6 +37,9 @@
 	padding: 0;
 }
 
+.inline {
+	display: inline;
+}
 .mb_lg {
 	margin-bottom: var(--space_lg);
 }
@@ -28,6 +48,12 @@
 }
 .mb_xs {
 	margin-bottom: var(--space_xs);
+}
+.mt_0 {
+	margin-top: 0;
+}
+.p_lg {
+	padding: var(--space_lg);
 }
 .p_md {
 	padding: var(--space_md);
@@ -41,6 +67,21 @@
 
 .relative {
 	position: relative;
+}
+
+/* can be used to override the direction of a `.box` */
+.row {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+}
+
+.shadow_inset_xs {
+	box-shadow: var(--shadow_inset_xs)
+		color-mix(in hsl, var(--shadow_color) var(--shadow_alpha, var(--shadow_alpha_1)), transparent);
+}
+.text_align_center {
+	text-align: center;
 }
 .w_100 {
 	width: 100%;

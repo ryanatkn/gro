@@ -21,7 +21,7 @@ export const Email = z.string();
 export type Email = Flavored<z.infer<typeof Email>, 'Email'>;
 
 // TODO move this where?
-export const transform_empty_object_to_undefined = (val: any): any => {
+export const transform_empty_object_to_undefined = <T>(val: T): T | undefined => {
 	if (val && Object.keys(val).length === 0) {
 		return;
 	}
@@ -63,8 +63,19 @@ export const Package_Json_Funding = z.union([
 ]);
 export type Package_Json_Funding = z.infer<typeof Package_Json_Funding>;
 
+// exports: {
+// 	'./': './index.js',
+// 	'./record': {default: './record.js'},
+//  './export_condition': {default: {development: './ec1', default: './ec2.js'}},
+// }
 export const Package_Json_Exports = z.record(
-	z.union([z.string(), z.record(z.string())]).optional(),
+	z
+		.union([
+			z.string(),
+			z.record(z.string().optional()),
+			z.record(z.record(z.string().optional()).optional()),
+		])
+		.optional(),
 );
 export type Package_Json_Exports = z.infer<typeof Package_Json_Exports>;
 
@@ -131,6 +142,7 @@ export const Package_Json = z
 		bin: z.record(z.string()).optional(),
 		sideEffects: z.array(z.string()).optional(),
 		files: z.array(z.string()).optional(),
+		main: z.string().optional(),
 		exports: Package_Json_Exports.transform(transform_empty_object_to_undefined).optional(),
 	})
 	.passthrough();
