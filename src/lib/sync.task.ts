@@ -33,7 +33,7 @@ export const task: Task<Args> = {
 		}
 
 		if (sveltekit) {
-			await sveltekit_sync();
+			await sveltekit_sync(undefined, config.pm_cli);
 			log.info('synced SvelteKit');
 		}
 

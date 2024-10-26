@@ -19,13 +19,6 @@ import {
 } from './git.js';
 import {CHANGESET_CLI} from './changeset_helpers.js';
 
-// publish.task.ts
-// - usage: `gro publish patch`
-// - forwards args to `npm version`: https://docs.npmjs.com/v6/commands/npm-version
-// - runs the production build
-// - publishes to npm from the `main` branch, configurable with `--branch`
-// - syncs commits and tags to the configured main branch
-
 export const Args = z
 	.object({
 		branch: Git_Branch.describe('branch to publish from').default('main'),

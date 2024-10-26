@@ -28,9 +28,9 @@ export const gro_plugin_sveltekit_library = ({
 }: Options = {}): Plugin => {
 	return {
 		name: 'gro_plugin_sveltekit_library',
-		setup: async ({dev, log}) => {
+		setup: async ({dev, log, config}) => {
 			if (!dev) {
-				await run_svelte_package(svelte_package_options, svelte_package_cli, log);
+				await run_svelte_package(svelte_package_options, svelte_package_cli, log, config.pm_cli);
 			}
 		},
 		adapt: async ({log, timings, config}) => {
