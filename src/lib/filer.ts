@@ -61,7 +61,7 @@ export class Filer {
 	#watch_dir: typeof watch_dir;
 	#watch_dir_options: Partial<Watch_Dir_Options>;
 
-	#package_json_cache: Record<string, Package_Json> | undefined;
+	#package_json_cache: Record<string, Package_Json>;
 
 	constructor(options: Options = EMPTY_OBJECT) {
 		this.#watch_dir = options.watch_dir ?? watch_dir;
