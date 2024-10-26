@@ -33,7 +33,7 @@ export const gro_plugin_sveltekit_library = ({
 				await run_svelte_package(svelte_package_options, svelte_package_cli, log);
 			}
 		},
-		adapt: async ({log, timings}) => {
+		adapt: async ({log, timings, config}) => {
 			const package_json = load_package_json();
 
 			// `npm link`
@@ -47,7 +47,7 @@ export const gro_plugin_sveltekit_library = ({
 					}),
 				);
 				log.info(`linking`);
-				const link_result = await spawn('npm', ['link', '-f']); // TODO don't use `-f` unless necessary or at all?
+				const link_result = await spawn(config.pm_cli, ['link', '-f']); // TODO don't use `-f` unless necessary or at all?
 				if (!link_result.ok) {
 					throw new Task_Error(`Failed to link. ${print_spawn_result(link_result)}`);
 				}

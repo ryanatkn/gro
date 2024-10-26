@@ -63,6 +63,7 @@ export const task: Task<Args> = {
 			args: {_, minor, major, dir, access: access_arg, changelog, dep, origin, changeset_cli},
 			log,
 			sveltekit_config,
+			config,
 		} = ctx;
 
 		const message = _.join(' ');
@@ -114,7 +115,7 @@ export const task: Task<Args> = {
 			await spawn('git', ['add', dir]);
 
 			if (dep) {
-				await spawn('npm', ['i', '-D', changelog]);
+				await spawn(config.pm_cli, ['i', '-D', changelog]);
 			}
 		}
 

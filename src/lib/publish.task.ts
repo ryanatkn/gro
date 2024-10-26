@@ -6,7 +6,6 @@ import {existsSync} from 'node:fs';
 import {Task_Error, type Task} from './task.js';
 import {load_package_json, parse_repo_url} from './package_json.js';
 import {find_cli, spawn_cli} from './cli.js';
-import {IS_THIS_GRO} from './paths.js';
 import {has_sveltekit_library} from './sveltekit_helpers.js';
 import {update_changelog} from './changelog.js';
 import {load_from_env} from './env.js';
@@ -82,11 +81,6 @@ export const task: Task<Args> = {
 			throw new Task_Error(
 				'Failed to find SvelteKit library: ' + has_sveltekit_library_result.message,
 			);
-		}
-
-		// TODO hacky, ensures Gro bootstraps itself
-		if (IS_THIS_GRO) {
-			await spawn('npm', ['run', 'build']);
 		}
 
 		const changelog_exists = existsSync(changelog);
