@@ -9,7 +9,7 @@ import {
 	SVELTEKIT_BUILD_DIRNAME,
 	SVELTEKIT_VITE_CACHE_PATH,
 	SVELTEKIT_DIST_DIRNAME,
-} from './path_constants.js';
+} from './constants.js';
 
 export const clean_fs = async (
 	{

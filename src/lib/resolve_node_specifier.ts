@@ -4,7 +4,7 @@ import {DEV} from 'esm-env';
 
 import {Package_Json, Package_Json_Exports, load_package_json} from './package_json.js';
 import {paths} from './paths.js';
-import {NODE_MODULES_DIRNAME} from './path_constants.js';
+import {NODE_MODULES_DIRNAME} from './constants.js';
 import type {Resolved_Specifier} from './resolve_specifier.js';
 
 /**

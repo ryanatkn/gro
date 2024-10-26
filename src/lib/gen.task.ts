@@ -10,7 +10,7 @@ import {format_file} from './format_file.js';
 import {print_path} from './paths.js';
 import {log_error_reasons} from './task_logging.js';
 import {write_gen_results, analyze_gen_results, find_genfiles, load_genfiles} from './gen.js';
-import {SOURCE_DIRNAME} from './path_constants.js';
+import {SOURCE_DIRNAME} from './constants.js';
 
 export const Args = z
 	.object({

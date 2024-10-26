@@ -3,7 +3,7 @@ import {join, resolve} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {spawn, type Spawn_Result} from '@ryanatkn/belt/process.js';
 
-import {NODE_MODULES_DIRNAME, SVELTEKIT_DIST_DIRNAME} from './path_constants.js';
+import {NODE_MODULES_DIRNAME, SVELTEKIT_DIST_DIRNAME} from './constants.js';
 
 /*
 

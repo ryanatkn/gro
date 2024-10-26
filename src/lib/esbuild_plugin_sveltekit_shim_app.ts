@@ -6,7 +6,7 @@ import {
 	sveltekit_shim_app_specifiers,
 } from './sveltekit_shim_app.js';
 import type {Parsed_Sveltekit_Config} from './sveltekit_config.js';
-import {EVERYTHING_MATCHER} from './path_constants.js';
+import {EVERYTHING_MATCHER} from './constants.js';
 
 export interface Options {
 	dev: boolean;

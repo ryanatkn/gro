@@ -17,7 +17,7 @@ import {
 	to_default_compile_module_options,
 	type Parsed_Sveltekit_Config,
 } from './sveltekit_config.js';
-import {TS_MATCHER} from './path_constants.js';
+import {TS_MATCHER} from './constants.js';
 
 export interface Options {
 	dev: boolean;

@@ -17,7 +17,7 @@ import {
 import {default_sveltekit_config} from './sveltekit_config.js';
 import {SVELTE_MATCHER, SVELTE_RUNES_MATCHER} from './svelte_helpers.js';
 import {IS_THIS_GRO, paths} from './paths.js';
-import {JSON_MATCHER, NODE_MODULES_DIRNAME, TS_MATCHER} from './path_constants.js';
+import {JSON_MATCHER, NODE_MODULES_DIRNAME, TS_MATCHER} from './constants.js';
 import {to_define_import_meta_env, default_ts_transform_options} from './esbuild_helpers.js';
 import {resolve_specifier} from './resolve_specifier.js';
 import {resolve_node_specifier} from './resolve_node_specifier.js';

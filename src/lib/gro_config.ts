@@ -9,7 +9,7 @@ import {
 	SERVER_DIST_PATH,
 	SVELTEKIT_BUILD_DIRNAME,
 	SVELTEKIT_DIST_DIRNAME,
-} from './path_constants.js';
+} from './constants.js';
 import create_default_config from './gro.config.default.js';
 import type {Create_Config_Plugins} from './plugin.js';
 import type {Map_Package_Json} from './package_json.js';

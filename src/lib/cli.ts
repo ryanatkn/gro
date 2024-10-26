@@ -10,7 +10,7 @@ import {existsSync} from 'node:fs';
 import {fileURLToPath, type URL} from 'node:url';
 import type {Logger} from '@ryanatkn/belt/log.js';
 
-import {NODE_MODULES_DIRNAME} from './path_constants.js';
+import {NODE_MODULES_DIRNAME} from './constants.js';
 import type {Path_Id} from './path.js';
 import {print_command_args} from './args.js';
 

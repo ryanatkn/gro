@@ -3,7 +3,7 @@ import {readFile} from 'node:fs/promises';
 import {dirname} from 'node:path';
 
 import {resolve_specifier} from './resolve_specifier.js';
-import {EVERYTHING_MATCHER} from './path_constants.js';
+import {EVERYTHING_MATCHER} from './constants.js';
 
 /**
  * Adds support for imports to both `.ts` and `.js`,

@@ -1,7 +1,7 @@
 import type * as esbuild from 'esbuild';
 
 import {render_env_shim_module} from './sveltekit_shim_env.js';
-import {EVERYTHING_MATCHER} from './path_constants.js';
+import {EVERYTHING_MATCHER} from './constants.js';
 import {SVELTEKIT_ENV_MATCHER} from './sveltekit_helpers.js';
 
 export interface Options {

@@ -8,7 +8,7 @@ import {existsSync, readdirSync} from 'node:fs';
 
 import {Task_Error, type Task} from './task.js';
 import {print_path} from './paths.js';
-import {GRO_DIRNAME, GIT_DIRNAME, SVELTEKIT_BUILD_DIRNAME} from './path_constants.js';
+import {GRO_DIRNAME, GIT_DIRNAME, SVELTEKIT_BUILD_DIRNAME} from './constants.js';
 import {empty_dir} from './fs.js';
 import {
 	git_check_clean_workspace,

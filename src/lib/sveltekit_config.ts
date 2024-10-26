@@ -2,7 +2,7 @@ import type {Config as SveltekitConfig} from '@sveltejs/kit';
 import type {CompileOptions, ModuleCompileOptions, PreprocessorGroup} from 'svelte/compiler';
 import {join} from 'node:path';
 
-import {SVELTEKIT_CONFIG_FILENAME} from './path_constants.js';
+import {SVELTEKIT_CONFIG_FILENAME} from './constants.js';
 
 /*
 

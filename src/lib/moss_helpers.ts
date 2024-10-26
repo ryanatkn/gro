@@ -3,7 +3,7 @@ import {existsSync} from 'node:fs';
 import {resolve} from 'node:path';
 
 import {has_dep, type Package_Json} from './package_json.js';
-import {NODE_MODULES_DIRNAME, PM_CLI_DEFAULT} from './path_constants.js';
+import {NODE_MODULES_DIRNAME, PM_CLI_DEFAULT} from './constants.js';
 
 export const MOSS_PACKAGE_DEP_NAME = '@ryanatkn/moss';
 

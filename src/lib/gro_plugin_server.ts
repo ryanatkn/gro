@@ -11,7 +11,7 @@ import {throttle} from '@ryanatkn/belt/throttle.js';
 import type {Plugin} from './plugin.js';
 import {base_path_to_path_id, LIB_DIRNAME, paths} from './paths.js';
 import type {Path_Id} from './path.js';
-import {GRO_DEV_DIRNAME, SERVER_DIST_PATH} from './path_constants.js';
+import {GRO_DEV_DIRNAME, SERVER_DIST_PATH} from './constants.js';
 import {watch_dir, type Watch_Node_Fs} from './watch_dir.js';
 import {init_sveltekit_config, default_sveltekit_config} from './sveltekit_config.js';
 import {esbuild_plugin_sveltekit_shim_app} from './esbuild_plugin_sveltekit_shim_app.js';
