@@ -4,6 +4,7 @@ import {existsSync} from 'node:fs';
 import {GRO_DIST_DIR, IS_THIS_GRO, paths} from './paths.js';
 import {
 	GRO_CONFIG_PATH,
+	JS_CLI_DEFAULT,
 	NODE_MODULES_DIRNAME,
 	PM_CLI_DEFAULT,
 	SERVER_DIST_PATH,
@@ -42,6 +43,10 @@ export interface Gro_Config {
 	 */
 	search_filters: Path_Filter[];
 	/**
+	 * The CLI to use that's compatible with `node`.
+	 */
+	js_cli: string;
+	/**
 	 * The CLI to use that's compatible with `npm install` and `npm link`. Defaults to `'npm'`.
 	 */
 	pm_cli: string;
@@ -57,6 +62,7 @@ export interface Raw_Gro_Config {
 	map_package_json?: Map_Package_Json | null;
 	task_root_dirs?: string[];
 	search_filters?: Path_Filter | Path_Filter[] | null;
+	js_cli?: string;
 	pm_cli?: string;
 }
 
@@ -74,6 +80,7 @@ export const create_empty_gro_config = (): Gro_Config => ({
 		IS_THIS_GRO ? null : GRO_DIST_DIR,
 	].filter((v) => v !== null),
 	search_filters: [(id) => !SEARCH_EXCLUDER_DEFAULT.test(id)],
+	js_cli: JS_CLI_DEFAULT,
 	pm_cli: PM_CLI_DEFAULT,
 });
 
@@ -119,6 +126,7 @@ export const normalize_gro_config = (raw_config: Raw_Gro_Config): Gro_Config => 
 		map_package_json = empty_config.map_package_json,
 		task_root_dirs = empty_config.task_root_dirs,
 		search_filters = empty_config.search_filters,
+		js_cli = empty_config.js_cli,
 		pm_cli = empty_config.pm_cli,
 	} = raw_config;
 	return {
@@ -130,6 +138,7 @@ export const normalize_gro_config = (raw_config: Raw_Gro_Config): Gro_Config => 
 			: search_filters
 				? [search_filters]
 				: [],
+		js_cli,
 		pm_cli,
 	};
 };

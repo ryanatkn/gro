@@ -119,7 +119,7 @@ export const gro_plugin_server = ({
 	target = 'esnext',
 	esbuild_build_options = identity,
 	rebuild_throttle_delay = 1000,
-	cli_command = 'node',
+	cli_command,
 	run, // `dev` default is not available in this scope
 }: Options = {}): Plugin => {
 	let build_ctx: esbuild.BuildContext | null = null;
@@ -129,7 +129,7 @@ export const gro_plugin_server = ({
 
 	return {
 		name: 'gro_plugin_server',
-		setup: async ({dev, watch, timings, log}) => {
+		setup: async ({dev, watch, timings, log, config}) => {
 			const parsed_sveltekit_config =
 				!sveltekit_config && strip_end(dir, '/') === process.cwd()
 					? default_sveltekit_config
@@ -256,7 +256,7 @@ export const gro_plugin_server = ({
 					cli_args.push('-C', 'development'); // same as `--conditions`
 				}
 				cli_args.push(server_outpath);
-				server_process = spawn_restartable_process(cli_command, cli_args);
+				server_process = spawn_restartable_process(cli_command ?? config.js_cli, cli_args);
 			}
 		},
 		teardown: async () => {

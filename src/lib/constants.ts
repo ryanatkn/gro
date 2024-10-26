@@ -34,5 +34,6 @@ export const JS_MATCHER = /\.(js|jsx|mjs|cjs)$/;
 export const JSON_MATCHER = /\.json$/;
 export const EVERYTHING_MATCHER = /.*/;
 
+export const JS_CLI_DEFAULT = 'node';
 export const PM_CLI_DEFAULT = 'npm';
 export const PRETTIER_CLI_DEFAULT = 'prettier';
