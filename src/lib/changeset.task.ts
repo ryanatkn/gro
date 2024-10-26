@@ -37,7 +37,7 @@ export const Args = z
 			.default('@changesets/changelog-git'),
 		dep: z.boolean({description: 'dual of no-dep'}).default(true),
 		'no-dep': z
-			.boolean({description: 'opt out of npm installing the changelog package'})
+			.boolean({description: 'opt out of installing the changelog package'})
 			.default(false),
 		origin: Git_Origin.describe('git origin to deploy to').default('origin'),
 		changeset_cli: z.string({description: 'the changeset CLI to use'}).default(CHANGESET_CLI),

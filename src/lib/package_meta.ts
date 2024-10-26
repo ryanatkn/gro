@@ -11,7 +11,7 @@ export interface Package_Meta {
 	name: string; // '@ryanatkn/fuz_library'
 	repo_name: string; // fuz_library
 	/**
-	 * the is the github user/org, not npm
+	 * The github user/org.
 	 */
 	owner_name: string | null; // 'fuz-dev'
 	homepage_url: Url | null; // 'https://www.fuz.dev/'

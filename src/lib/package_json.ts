@@ -87,7 +87,7 @@ export const Package_Json = z
 		// according to the npm docs, `name` and `version` are the only required properties
 		name: z.string(),
 		version: z.string(),
-		private: z.boolean({description: 'disallow npm publish'}).optional(),
+		private: z.boolean({description: 'disallow publishing to the configured registry'}).optional(),
 		public: z
 			.boolean({
 				description:

@@ -28,7 +28,7 @@ export const task: Task<Args> = {
 		if (install) {
 			const result = await spawn(config.pm_cli, ['install']);
 			if (!result.ok) {
-				throw new Task_Error('Failed npm install');
+				throw new Task_Error(`Failed \`${config.pm_cli} install\``);
 			}
 		}
 

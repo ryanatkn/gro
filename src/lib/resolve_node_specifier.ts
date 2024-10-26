@@ -48,7 +48,7 @@ export const resolve_node_specifier = (
 	if (!existsSync(package_dir)) {
 		if (throw_on_missing_package) {
 			throw Error(
-				`Package not found at ${package_dir} for specifier ${specifier}, you may need to npm install or fix the path` +
+				`Package not found at ${package_dir} for specifier ${specifier}, you may need to install packages or fix the path` +
 					(parent_path ? ` imported from ${parent_path}` : ''),
 			);
 		} else {
