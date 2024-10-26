@@ -85,7 +85,7 @@ export class Filer {
 		const file: Source_File = {
 			id,
 			contents: null,
-			external: this.#is_external(id), // TODO BLOCK maybe filter external by default? the user needs to configure the filer then
+			external: this.#is_external(id), // TODO maybe filter externals by default? the user needs to configure the filer then
 			ctime: null,
 			mtime: null,
 			dependents: new Map(),
