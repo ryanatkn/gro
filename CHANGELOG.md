@@ -1,5 +1,15 @@
 # @ryanatkn/gro
 
+## 0.142.0
+
+### Minor Changes
+
+- fix `Filer` to resolve node modules ([#512](https://github.com/ryanatkn/gro/pull/512))
+
+### Patch Changes
+
+- add `pm_cli` config ([#513](https://github.com/ryanatkn/gro/pull/513))
+
 ## 0.141.1
 
 ### Patch Changes
