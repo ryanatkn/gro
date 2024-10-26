@@ -92,7 +92,7 @@ export class Filer {
 			dependencies: new Map(),
 		};
 		this.files.set(id, file);
-		// TODO BLOCK probably want to call `#notify_change` with a synthetic `add` for external files
+		// TODO BLOCK probably want to call `#notify_change` with a synthetic `add` for external files, is sync ok?
 		console.log(`created id`, id);
 		return file;
 	};
