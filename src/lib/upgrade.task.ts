@@ -5,6 +5,7 @@ import {Task_Error, type Task} from './task.js';
 import {extract_deps, load_package_json, type Package_Json_Dep} from './package_json.js';
 import {Git_Origin, git_pull} from './git.js';
 import {spawn_cli} from './cli.js';
+import {serialize_args, to_forwarded_args} from './args.js';
 
 export const Args = z
 	.object({
@@ -65,6 +66,7 @@ export const task: Task<Args> = {
 		if (force) {
 			install_args.push('--force');
 		}
+		install_args.push(...serialize_args(to_forwarded_args('npm')));
 		await spawn('npm', install_args);
 
 		// Sync in a new process to pick up any changes after installing, avoiding some errors.
