@@ -23,8 +23,6 @@ export interface Resolved_Specifier {
  * Maps an import `specifier` relative to `dir`,
  * and infer the correct extension following Vite conventions.
  * If no `.js` file is found for the specifier on the filesystem, it assumes `.ts`.
- * @param specifier
- * @param dir
  */
 export const resolve_specifier = (specifier: string, dir: string): Resolved_Specifier => {
 	const raw = specifier.endsWith('?raw');
