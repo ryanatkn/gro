@@ -18,6 +18,8 @@ import {resolve_specifier} from './resolve_specifier.js';
 import {default_sveltekit_config} from './sveltekit_config.js';
 import {map_sveltekit_aliases} from './sveltekit_helpers.js';
 import {Unreachable_Error} from '@ryanatkn/belt/error.js';
+import {resolve_node_specifier} from './resolve_node_specifier.js';
+import type {Package_Json} from './package_json.js';
 // TODO see below
 // import {resolve_node_specifier} from './resolve_node_specifier.js';
 
@@ -31,6 +33,11 @@ export interface Source_File {
 	 * We create the file in memory to track its dependents regardless of its existence on disk.
 	 */
 	contents: string | null;
+	/**
+	 * Is the source file outside of the `root_dir` or excluded by `watch_dir_options.filter`?
+	 */
+	external: boolean;
+	ctime: number | null;
 	mtime: number | null;
 	dependents: Map<Path_Id, Source_File>;
 	dependencies: Map<Path_Id, Source_File>;
@@ -43,6 +50,7 @@ export type On_Filer_Change = (change: Watcher_Change, source_file: Source_File)
 export interface Options {
 	watch_dir?: typeof watch_dir;
 	watch_dir_options?: Partial<Omit_Strict<Watch_Dir_Options, 'on_change'>>;
+	package_json_cache?: Record<string, Package_Json>;
 }
 
 export class Filer {
@@ -53,10 +61,13 @@ export class Filer {
 	#watch_dir: typeof watch_dir;
 	#watch_dir_options: Partial<Watch_Dir_Options>;
 
+	#package_json_cache: Record<string, Package_Json>;
+
 	constructor(options: Options = EMPTY_OBJECT) {
 		this.#watch_dir = options.watch_dir ?? watch_dir;
 		this.#watch_dir_options = options.watch_dir_options ?? EMPTY_OBJECT;
 		this.root_dir = resolve(options.watch_dir_options?.dir ?? paths.source);
+		this.#package_json_cache = options.package_json_cache ?? {};
 	}
 
 	#watching: Watch_Node_Fs | undefined;
@@ -74,11 +85,17 @@ export class Filer {
 		const file: Source_File = {
 			id,
 			contents: null,
+			external: this.#is_external(id), // TODO maybe filter externals by default? the user needs to configure the filer then
+			ctime: null,
 			mtime: null,
 			dependents: new Map(),
 			dependencies: new Map(),
 		};
 		this.files.set(id, file);
+		// TODO this may need to be batched/deferred
+		if (file.external) {
+			this.#on_change({type: 'add', path: file.id, is_directory: false});
+		}
 		return file;
 	};
 
@@ -86,8 +103,7 @@ export class Filer {
 		const file = this.get_or_create(id);
 
 		const stats = existsSync(id) ? statSync(id) : null;
-		// const mtime_prev = file.mtime;
-		// const mtime_changed = mtime_prev !== (stats?.mtimeMs ?? null);
+		file.ctime = stats?.ctimeMs ?? null;
 		file.mtime = stats?.mtimeMs ?? null;
 
 		const new_contents = stats ? readFileSync(id, 'utf8') : null;
@@ -109,36 +125,25 @@ export class Filer {
 			const path = map_sveltekit_aliases(specifier, aliases);
 
 			// The specifier `path` has now been mapped to its final form, so we can inspect it.
-			if (path[0] === '.' || path[0] === '/') {
-				const {path_id} = resolve_specifier(path, dir);
-				dependencies_removed.delete(path_id);
-				if (!dependencies_before.has(path_id)) {
-					const d = this.get_or_create(path_id);
-					file.dependencies.set(d.id, d);
-					d.dependents.set(file.id, file);
-				}
+			const resolved =
+				path[0] === '.' || path[0] === '/'
+					? resolve_specifier(path, dir)
+					: resolve_node_specifier(path, undefined, file.id, this.#package_json_cache, false);
+			if (!resolved) continue; // ignore any missing imports like Node identifiers
+			const {path_id} = resolved;
+			dependencies_removed.delete(path_id);
+			if (!dependencies_before.has(path_id)) {
+				const d = this.get_or_create(path_id);
+				file.dependencies.set(d.id, d);
+				d.dependents.set(file.id, file);
 			}
-			// TODO this doesn't work
-			// const resolved =
-			// 	path[0] === '.' || path[0] === '/'
-			// 		? resolve_specifier(path, dir)
-			// 		: resolve_node_specifier(path, dir);
-			// const {path_id} = resolved;
-			// dependencies_removed.delete(path_id);
-			// if (!dependencies_before.has(path_id)) {
-			// 	const d = this.get_or_create(path_id);
-			// 	file.dependencies.set(d.id, d);
-			// 	d.dependents.set(file.id, file);
-			// }
 		}
 
 		// update any removed dependencies
 		for (const dependency_removed of dependencies_removed) {
-			const deleted1 = file.dependencies.delete(dependency_removed);
-			if (!deleted1) throw Error('expected to delete1 ' + file.id); // TODO @many delete if correct
+			file.dependencies.delete(dependency_removed);
 			const dependency_removed_file = this.get_or_create(dependency_removed);
-			const deleted2 = dependency_removed_file.dependents.delete(file.id);
-			if (!deleted2) throw Error('expected to delete2 ' + file.id); // TODO @many delete if correct
+			dependency_removed_file.dependents.delete(file.id);
 		}
 
 		return file;
@@ -203,7 +208,7 @@ export class Filer {
 	}
 
 	#on_change: Watcher_Change_Callback = (change) => {
-		if (change.is_directory) return;
+		if (change.is_directory) return; // TODO manage directories?
 		let source_file: Source_File | null;
 		switch (change.type) {
 			case 'add':
@@ -235,5 +240,10 @@ export class Filer {
 			await this.#watching.close();
 			this.#watching = undefined;
 		}
+	}
+
+	#is_external(id: string): boolean {
+		const {filter} = this.#watch_dir_options;
+		return !id.startsWith(this.root_dir + '/') || (!!filter && !filter(id, false));
 	}
 }

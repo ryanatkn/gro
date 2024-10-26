@@ -21,7 +21,7 @@ export const Email = z.string();
 export type Email = Flavored<z.infer<typeof Email>, 'Email'>;
 
 // TODO move this where?
-export const transform_empty_object_to_undefined = (val: any): any => {
+export const transform_empty_object_to_undefined = <T>(val: T): T | undefined => {
 	if (val && Object.keys(val).length === 0) {
 		return;
 	}
@@ -63,8 +63,19 @@ export const Package_Json_Funding = z.union([
 ]);
 export type Package_Json_Funding = z.infer<typeof Package_Json_Funding>;
 
+// exports: {
+// 	'./': './index.js',
+// 	'./record': {default: './record.js'},
+//  './export_condition': {default: {development: './ec1', default: './ec2.js'}},
+// }
 export const Package_Json_Exports = z.record(
-	z.union([z.string(), z.record(z.string())]).optional(),
+	z
+		.union([
+			z.string(),
+			z.record(z.string().optional()),
+			z.record(z.record(z.string().optional()).optional()),
+		])
+		.optional(),
 );
 export type Package_Json_Exports = z.infer<typeof Package_Json_Exports>;
 
@@ -131,6 +142,7 @@ export const Package_Json = z
 		bin: z.record(z.string()).optional(),
 		sideEffects: z.array(z.string()).optional(),
 		files: z.array(z.string()).optional(),
+		main: z.string().optional(),
 		exports: Package_Json_Exports.transform(transform_empty_object_to_undefined).optional(),
 	})
 	.passthrough();
@@ -145,6 +157,7 @@ export const EMPTY_PACKAGE_JSON: Package_Json = {name: '', version: ''};
 export const load_package_json = (
 	dir = IS_THIS_GRO ? gro_paths.root : paths.root,
 	cache?: Record<string, Package_Json>,
+	parse = true, // TODO pass `false` here in more places, especially anything perf-sensitive like work on startup
 ): Package_Json => {
 	let package_json: Package_Json;
 	if (cache && dir in cache) {
@@ -155,8 +168,12 @@ export const load_package_json = (
 	} catch (_err) {
 		return EMPTY_PACKAGE_JSON;
 	}
-	package_json = parse_package_json(Package_Json, package_json);
-	if (cache) cache[dir] = package_json;
+	if (parse) {
+		package_json = parse_package_json(Package_Json, package_json);
+	}
+	if (cache) {
+		cache[dir] = package_json;
+	}
 	return package_json;
 };
 
