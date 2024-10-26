@@ -1,6 +1,7 @@
 import {watch, type ChokidarOptions, type FSWatcher} from 'chokidar';
 import {relative} from 'node:path';
 import {statSync} from 'node:fs';
+import {create_deferred, type Deferred} from '@ryanatkn/belt/async.js';
 
 import type {Path_Filter} from './path.js';
 
@@ -42,13 +43,12 @@ export const watch_dir = ({
 	chokidar,
 }: Options): Watch_Node_Fs => {
 	let watcher: FSWatcher | undefined;
-	let initing: Promise<void> | undefined;
+	let initing: Deferred<void> | undefined;
 
 	return {
 		init: async () => {
-			if (initing) return initing;
-			let resolve: any;
-			initing = new Promise((r) => (resolve = r)); // TODO `create_deferred`?// cwd: chokidar?.cwd ?? process.cwd()
+			if (initing) return initing.promise;
+			initing = create_deferred();
 			watcher = watch(dir, {...chokidar});
 			watcher.on('add', (path) => {
 				const final_path = absolute ? path : relative(dir, path);
@@ -77,8 +77,8 @@ export const watch_dir = ({
 				on_change({type: 'delete', path: final_path, is_directory: true});
 			});
 			// wait until ready
-			watcher.once('ready', () => resolve());
-			await initing;
+			watcher.once('ready', () => initing?.resolve());
+			await initing.promise;
 		},
 		close: async () => {
 			initing = undefined;

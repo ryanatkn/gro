@@ -205,7 +205,7 @@ export class Filer {
 	}
 
 	#on_change: Watcher_Change_Callback = (change) => {
-		if (change.is_directory) return;
+		if (change.is_directory) return; // TODO manage directories?
 		let source_file: Source_File | null;
 		switch (change.type) {
 			case 'add':
