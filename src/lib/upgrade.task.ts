@@ -28,7 +28,7 @@ export type Args = z.infer<typeof Args>;
 export const task: Task<Args> = {
 	summary: 'upgrade deps',
 	Args,
-	run: async ({args, log}): Promise<void> => {
+	run: async ({args, log, config}): Promise<void> => {
 		const {_, only, origin, force, pull, dry} = args;
 
 		if (_.length && only.length) {
@@ -66,8 +66,8 @@ export const task: Task<Args> = {
 		if (force) {
 			install_args.push('--force');
 		}
-		install_args.push(...serialize_args(to_forwarded_args('npm')));
-		await spawn('npm', install_args);
+		install_args.push(...serialize_args(to_forwarded_args(config.pm_cli)));
+		await spawn(config.pm_cli, install_args);
 
 		// Sync in a new process to pick up any changes after installing, avoiding some errors.
 		await spawn_cli('gro', ['sync', '--no-install']); // don't install because we do above

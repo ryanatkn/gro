@@ -47,6 +47,7 @@ export interface Gro_Config {
 	map_package_json: Map_Package_Json | null;
 	task_root_dirs: Path_Id[];
 	search_filters: Path_Filter[];
+	pm_cli: string;
 }
 
 // The relaxed variant that users can provide. Superset of `Gro_Config`.
@@ -55,6 +56,7 @@ export interface Raw_Gro_Config {
 	map_package_json?: Map_Package_Json | null;
 	task_root_dirs?: string[];
 	search_filters?: Path_Filter | Path_Filter[] | null;
+	pm_cli?: string;
 }
 ```
 
@@ -108,6 +110,7 @@ const config = create_empty_gro_config();
 // config.map_package_json = ...;
 // config.task_root_dirs = ...;
 // config.search_filters = ...;
+// config.pm_cli = ...;
 
 export default config;
 ```
@@ -208,3 +211,8 @@ Directories and files are included if they pass all of these filters.
 By default, it uses the `DEFAULT_SEARCH_EXCLUDER` to exclude
 dot-prefixed directories, node_modules,
 and the build and dist directories for SvelteKit and Gro.
+
+## `pm_cli`
+
+The CLI to use that's compatible with `npm install` and `npm link`.
+Defaults to `'npm'`.

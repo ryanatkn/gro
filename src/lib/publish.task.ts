@@ -6,7 +6,6 @@ import {existsSync} from 'node:fs';
 import {Task_Error, type Task} from './task.js';
 import {load_package_json, parse_repo_url} from './package_json.js';
 import {find_cli, spawn_cli} from './cli.js';
-import {IS_THIS_GRO} from './paths.js';
 import {has_sveltekit_library} from './sveltekit_helpers.js';
 import {update_changelog} from './changelog.js';
 import {load_from_env} from './env.js';
@@ -84,11 +83,6 @@ export const task: Task<Args> = {
 			);
 		}
 
-		// TODO hacky, ensures Gro bootstraps itself
-		if (IS_THIS_GRO) {
-			await spawn('npm', ['run', 'build']);
-		}
-
 		const changelog_exists = existsSync(changelog);
 
 		const found_changeset_cli = find_cli(changeset_cli);
@@ -139,9 +133,9 @@ export const task: Task<Args> = {
 
 			// This is the first line that alters the repo.
 
-			const npmVersionResult = await spawn_cli(found_changeset_cli, ['version'], log);
-			if (!npmVersionResult?.ok) {
-				throw Error('npm version failed: no commits were made: see the error above');
+			const changeset_ersion_result = await spawn_cli(found_changeset_cli, ['version'], log);
+			if (!changeset_ersion_result?.ok) {
+				throw Error('changeset version failed: no commits were made: see the error above');
 			}
 
 			if (!preserve_changelog) {
