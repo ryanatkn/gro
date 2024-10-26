@@ -38,7 +38,7 @@ export const gro_plugin_sveltekit_library = ({
 
 			// `npm link`
 			if (package_json.bin) {
-				const timing_to_npm_link = timings.start('npm link');
+				const timing_to_link = timings.start(`${config.pm_cli} link`);
 				await Promise.all(
 					Object.values(package_json.bin).map(async (bin_path) => {
 						const chmod_result = await spawn('chmod', ['+x', bin_path]);
@@ -51,7 +51,7 @@ export const gro_plugin_sveltekit_library = ({
 				if (!link_result.ok) {
 					throw new Task_Error(`Failed to link. ${print_spawn_result(link_result)}`);
 				}
-				timing_to_npm_link();
+				timing_to_link();
 			}
 		},
 	};

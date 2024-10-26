@@ -133,9 +133,9 @@ export const task: Task<Args> = {
 
 			// This is the first line that alters the repo.
 
-			const npmVersionResult = await spawn_cli(found_changeset_cli, ['version'], log);
-			if (!npmVersionResult?.ok) {
-				throw Error('npm version failed: no commits were made: see the error above');
+			const changeset_ersion_result = await spawn_cli(found_changeset_cli, ['version'], log);
+			if (!changeset_ersion_result?.ok) {
+				throw Error('changeset version failed: no commits were made: see the error above');
 			}
 
 			if (!preserve_changelog) {
