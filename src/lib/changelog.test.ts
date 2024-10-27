@@ -9,9 +9,9 @@ import {load_from_env} from './env.js';
 
 const log = new Logger();
 
-const token = load_from_env('GITHUB_TOKEN_SECRET');
+const token = load_from_env('SECRET_GITHUB_API_TOKEN');
 if (!token) {
-	log.warn('the env var GITHUB_TOKEN_SECRET was not found, so API calls with be unauthorized');
+	log.warn('the env var SECRET_GITHUB_API_TOKEN was not found, so API calls with be unauthorized');
 }
 
 const fixture_path = 'src/fixtures/changelog_example.md';

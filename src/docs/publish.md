@@ -96,7 +96,7 @@ The difference between Gro's version and `@changesets/changelog-github` is that 
 doesn't require a token for authorization for public repos,
 and Gro makes some different choices for usability.
 
-Gro calls the GitHub API using the environment variable `GITHUB_TOKEN_SECRET` for authorization,
+Gro calls the GitHub API using the environment variable `SECRET_GITHUB_API_TOKEN` for authorization,
 which is a [GitHub token](https://github.com/settings/tokens)
 (with "public access" for public repos, no options selected)
 in either `process.env`, a project-local `.env`, or the parent directory at `../.env`
