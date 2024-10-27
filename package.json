@@ -63,7 +63,7 @@
   },
   "peerDependencies": {
     "esbuild": "^0.21.0",
-    "svelte": "^5.0.0-next.0"
+    "svelte": "^5"
   },
   "devDependencies": {
     "@changesets/changelog-git": "^0.2.0",
