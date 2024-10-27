@@ -1,5 +1,11 @@
 # @ryanatkn/gro
 
+## 0.143.1
+
+### Patch Changes
+
+- fix Svelte peer dep to upgrade to 5 ([23d22a1](https://github.com/ryanatkn/gro/commit/23d22a1))
+
 ## 0.143.0
 
 ### Minor Changes
