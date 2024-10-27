@@ -1,5 +1,11 @@
 # @ryanatkn/gro
 
+## 0.143.2
+
+### Patch Changes
+
+- update to use SECRET_GITHUB_API_TOKEN ([706faf1](https://github.com/ryanatkn/gro/commit/706faf1))
+
 ## 0.143.1
 
 ### Patch Changes
