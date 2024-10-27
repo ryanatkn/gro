@@ -25,7 +25,10 @@ export const Args = z
 		/**
 		 * The optional rest args get joined with a space to form the `message`.
 		 */
-		_: z.array(z.string(), {description: 'the message for the changeset and commit'}).default([]),
+		_: z
+			.array(z.string(), {description: 'the message for the changeset and commit'})
+			.max(1)
+			.default([]),
 		minor: z.boolean({description: 'bump the minor version'}).default(false),
 		major: z.boolean({description: 'bump the major version'}).default(false),
 		dir: z.string({description: 'changeset dir'}).default(CHANGESET_DIR),
@@ -60,13 +63,21 @@ export const task: Task<Args> = {
 	run: async (ctx): Promise<void> => {
 		const {
 			invoke_task,
-			args: {_, minor, major, dir, access: access_arg, changelog, dep, origin, changeset_cli},
+			args: {
+				_: [message],
+				minor,
+				major,
+				dir,
+				access: access_arg,
+				changelog,
+				dep,
+				origin,
+				changeset_cli,
+			},
 			log,
 			sveltekit_config,
 			config,
 		} = ctx;
-
-		const message = _.join(' ');
 
 		if (!message && (minor || major)) throw new Task_Error('cannot bump version without a message');
 		if (minor && major) throw new Task_Error('cannot bump both minor and major');
