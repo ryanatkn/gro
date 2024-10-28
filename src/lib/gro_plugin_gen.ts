@@ -75,6 +75,7 @@ export const gro_plugin_gen = ({
 			// When a file builds, check it and its tree of dependents
 			// for any `.gen.` files that need to run.
 			cleanup = await filer.watch((change, source_file) => {
+				if (source_file.external) return;
 				switch (change.type) {
 					case 'add':
 					case 'update': {
