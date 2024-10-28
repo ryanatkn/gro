@@ -1,5 +1,12 @@
 # @ryanatkn/gro
 
+## 0.143.3
+
+### Patch Changes
+
+- change `gro changeset` to not join rest args ([2e835b3](https://github.com/ryanatkn/gro/commit/2e835b3))
+- fix gen plugin to ignore externals ([5398a32](https://github.com/ryanatkn/gro/commit/5398a32))
+
 ## 0.143.2
 
 ### Patch Changes
