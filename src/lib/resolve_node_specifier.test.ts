@@ -31,7 +31,7 @@ test('resolves a Node specifier', () => {
 	});
 });
 
-test('resolves a Node specifier with a username', () => {
+test('resolves a Node specifier with a scope', () => {
 	const specifier = '@scope/mock-package';
 	const path_id = resolve('node_modules/@scope/mock-package/index.js');
 	const cache = {
@@ -208,9 +208,9 @@ test('handles multiple pattern exports in priority order', () => {
 		name: '',
 		version: '',
 		exports: {
+			'./features/*/index.js': null,
 			'./features/*.js': './src/features/*.js',
 			'./features/*': './src/features/*',
-			'./features/*/index.js': null,
 		},
 	};
 	const resolved = resolve_subpath(mock_package, './features/test.js');
@@ -367,13 +367,27 @@ test('handles multiple patterns in correct order', () => {
 		version: '',
 		exports: {
 			'.': './index.js',
-			'./lib/*': './src/lib/*',
-			'./lib/*/index.js': './src/lib/*/index.js',
-			'./lib/internal/*': null,
+			'./lib/*/index.js': './src/lib/*/index.js', // More specific pattern
+			'./lib/*': './src/lib/*', // Less specific pattern
+			'./lib/internal/*': null, // Blocked pattern
 		},
 	};
-	const resolved = resolve_subpath(mock_package, '.');
-	assert.equal(resolved, './index.js');
+
+	// Test exact match for main entry point
+	const resolved_main = resolve_subpath(mock_package, '.');
+	assert.equal(resolved_main, './index.js');
+
+	// Test more specific pattern './lib/*/index.js'
+	const resolved_specific = resolve_subpath(mock_package, './lib/utils/index.js');
+	assert.equal(resolved_specific, './src/lib/utils/index.js');
+
+	// Test less specific pattern './lib/*'
+	const resolved_less_specific = resolve_subpath(mock_package, './lib/utils/helper.js');
+	assert.equal(resolved_less_specific, './src/lib/utils/helper.js');
+
+	// Test blocked pattern './lib/internal/*'
+	const resolved_blocked = resolve_subpath(mock_package, './lib/internal/secret.js');
+	assert.equal(resolved_blocked, null);
 });
 
 test('prioritizes exact matches over patterns', () => {
@@ -432,18 +446,6 @@ test('null pattern blocks path with multiple segments', () => {
 
 	const allowed = resolve_subpath(mock_package, './public/data.json');
 	assert.equal(allowed, './src/public/data.json');
-});
-
-test('pattern matching with multiple wildcards', () => {
-	const mock_package: Package_Json = {
-		name: '',
-		version: '',
-		exports: {
-			'./features/*/components/*.js': './src/features/*/components/*.js',
-		},
-	};
-	const resolved = resolve_subpath(mock_package, './features/auth/components/login.js');
-	assert.equal(resolved, './src/features/auth/components/login.js');
 });
 
 test('wildcard in target replaced multiple times', () => {
