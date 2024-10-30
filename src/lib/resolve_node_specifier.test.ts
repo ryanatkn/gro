@@ -584,49 +584,6 @@ test('falls back to main field when no exports field exists', () => {
 	assert.equal(result?.path_id, resolve(TEST_ROOT, 'node_modules/main-fallback/lib/index.js'));
 });
 
-test('handles self-referencing with exports field', () => {
-	const cache = {
-		'self-ref-pkg': {
-			name: 'self-ref-pkg',
-			version: '',
-			exports: {
-				'.': './index.js',
-				'./utils': './lib/utils.js',
-			},
-		},
-	};
-
-	const result = resolve_node_specifier(
-		'self-ref-pkg/utils',
-		TEST_ROOT,
-		resolve(TEST_ROOT, 'node_modules/self-ref-pkg/src/component.js'),
-		cache,
-	);
-
-	assert.equal(result?.path_id, resolve(TEST_ROOT, 'node_modules/self-ref-pkg/lib/utils.js'));
-});
-
-test('rejects self-referencing without exports field', () => {
-	const cache = {
-		'no-exports-self-ref': {
-			name: 'no-exports-self-ref',
-			version: '',
-			main: './index.js',
-		},
-	};
-
-	assert.throws(
-		() =>
-			resolve_node_specifier(
-				'no-exports-self-ref/utils',
-				TEST_ROOT,
-				resolve(TEST_ROOT, 'node_modules/no-exports-self-ref/src/component.js'),
-				cache,
-			),
-		/Self-referencing is only available if package.json has "exports" field/,
-	);
-});
-
 test('handles pattern exports', () => {
 	const cache = {
 		'pattern-test': {
@@ -1002,6 +959,267 @@ test('handles node-addons condition priority', () => {
 	assert.equal(result2?.path_id, resolve(TEST_ROOT, 'node_modules/addons-test/js/impl.js'));
 });
 
-// TODO resolve self-referencing
+test('handles self-referencing with exports field', () => {
+	const cache = {
+		'self-ref-pkg': {
+			name: 'self-ref-pkg',
+			version: '',
+			exports: {
+				'.': './index.js',
+				'./utils': './lib/utils.js',
+			},
+		},
+	};
+
+	const result = resolve_node_specifier(
+		'self-ref-pkg/utils',
+		TEST_ROOT,
+		resolve(TEST_ROOT, 'node_modules/self-ref-pkg/src/component.js'),
+		cache,
+	);
+
+	assert.equal(result?.path_id, resolve(TEST_ROOT, 'node_modules/self-ref-pkg/lib/utils.js'));
+});
+
+test('rejects self-referencing without exports field', () => {
+	const cache = {
+		'no-exports-self-ref': {
+			name: 'no-exports-self-ref',
+			version: '',
+			main: './index.js',
+		},
+	};
+
+	assert.throws(
+		() =>
+			resolve_node_specifier(
+				'no-exports-self-ref/utils',
+				TEST_ROOT,
+				resolve(TEST_ROOT, 'node_modules/no-exports-self-ref/src/component.js'),
+				cache,
+			),
+		/Self-referencing is only available if package.json has "exports" field/,
+	);
+});
+
+test('handles basic self-referencing in same package', () => {
+	const cache = {
+		'self-ref-basic': {
+			name: 'self-ref-basic',
+			version: '',
+			exports: {
+				'.': './index.js',
+				'./utils': './src/utils.js',
+			},
+		},
+	};
+
+	// Simulate importing from within the same package
+	const parent_path = resolve(TEST_ROOT, 'node_modules/self-ref-basic/src/component.js');
+
+	// Should resolve self-reference to main entry point
+	const result1 = resolve_node_specifier('self-ref-basic', TEST_ROOT, parent_path, cache);
+	assert.equal(result1?.path_id, resolve(TEST_ROOT, 'node_modules/self-ref-basic/index.js'));
+
+	// Should resolve self-reference to subpath
+	const result2 = resolve_node_specifier('self-ref-basic/utils', TEST_ROOT, parent_path, cache);
+	assert.equal(result2?.path_id, resolve(TEST_ROOT, 'node_modules/self-ref-basic/src/utils.js'));
+});
+
+test('handles scoped package self-referencing', () => {
+	const cache = {
+		'@scope/pkg': {
+			name: '@scope/pkg',
+			version: '',
+			exports: {
+				'.': './index.js',
+				'./feature': './lib/feature.js',
+			},
+		},
+	};
+
+	const parent_path = resolve(TEST_ROOT, 'node_modules/@scope/pkg/src/component.js');
+
+	// Should resolve scoped package self-reference
+	const result1 = resolve_node_specifier('@scope/pkg', TEST_ROOT, parent_path, cache);
+	assert.equal(result1?.path_id, resolve(TEST_ROOT, 'node_modules/@scope/pkg/index.js'));
+
+	// Should resolve scoped package subpath
+	const result2 = resolve_node_specifier('@scope/pkg/feature', TEST_ROOT, parent_path, cache);
+	assert.equal(result2?.path_id, resolve(TEST_ROOT, 'node_modules/@scope/pkg/lib/feature.js'));
+});
+
+test('rejects self-referencing when exports field is missing', () => {
+	const cache = {
+		'no-exports': {
+			name: 'no-exports',
+			version: '',
+			main: './index.js', // has main but no exports
+		},
+	};
+
+	const parent_path = resolve(TEST_ROOT, 'node_modules/no-exports/src/component.js');
+
+	// Should throw when attempting self-reference without exports
+	assert.throws(
+		() => resolve_node_specifier('no-exports', TEST_ROOT, parent_path, cache),
+		/Self-referencing is only available if package.json has "exports" field/,
+	);
+
+	// Should throw for subpaths too
+	assert.throws(
+		() => resolve_node_specifier('no-exports/utils', TEST_ROOT, parent_path, cache),
+		/Self-referencing is only available if package.json has "exports" field/,
+	);
+});
+
+test('handles self-referencing with pattern exports', () => {
+	const cache = {
+		'pattern-self-ref': {
+			name: 'pattern-self-ref',
+			version: '',
+			exports: {
+				'.': './index.js',
+				'./features/*': './src/features/*.js',
+				'./components/*': './src/components/*.js',
+			},
+		},
+	};
+
+	const parent_path = resolve(TEST_ROOT, 'node_modules/pattern-self-ref/src/features/auth.js');
+
+	// Should resolve pattern-based self-references
+	const result1 = resolve_node_specifier(
+		'pattern-self-ref/features/users',
+		TEST_ROOT,
+		parent_path,
+		cache,
+	);
+	assert.equal(
+		result1?.path_id,
+		resolve(TEST_ROOT, 'node_modules/pattern-self-ref/src/features/users.js'),
+	);
+
+	const result2 = resolve_node_specifier(
+		'pattern-self-ref/components/button',
+		TEST_ROOT,
+		parent_path,
+		cache,
+	);
+	assert.equal(
+		result2?.path_id,
+		resolve(TEST_ROOT, 'node_modules/pattern-self-ref/src/components/button.js'),
+	);
+});
+
+test('handles conditional self-referencing exports', () => {
+	const cache = {
+		'conditional-self-ref': {
+			name: 'conditional-self-ref',
+			version: '',
+			exports: {
+				'.': {
+					import: './esm/index.js',
+					require: './cjs/index.js',
+				},
+				'./utils': {
+					import: './esm/utils.js',
+					require: './cjs/utils.js',
+				},
+			},
+		},
+	};
+
+	const parent_path = resolve(TEST_ROOT, 'node_modules/conditional-self-ref/src/component.js');
+
+	// Should respect import condition
+	const result1 = resolve_node_specifier(
+		'conditional-self-ref',
+		TEST_ROOT,
+		parent_path,
+		cache,
+		true,
+		['import'],
+	);
+	assert.equal(
+		result1?.path_id,
+		resolve(TEST_ROOT, 'node_modules/conditional-self-ref/esm/index.js'),
+	);
+
+	// Should respect require condition
+	const result2 = resolve_node_specifier(
+		'conditional-self-ref',
+		TEST_ROOT,
+		parent_path,
+		cache,
+		true,
+		['require'],
+	);
+	assert.equal(
+		result2?.path_id,
+		resolve(TEST_ROOT, 'node_modules/conditional-self-ref/cjs/index.js'),
+	);
+});
+
+test('handles self-referencing with blocked subpaths', () => {
+	const cache = {
+		'blocked-self-ref': {
+			name: 'blocked-self-ref',
+			version: '',
+			exports: {
+				'.': './index.js',
+				'./public/*': './src/public/*.js',
+				'./internal/*': null, // blocked subpath
+			},
+		},
+	};
+
+	const parent_path = resolve(TEST_ROOT, 'node_modules/blocked-self-ref/src/public/component.js');
+
+	// Should allow public subpath
+	const result1 = resolve_node_specifier(
+		'blocked-self-ref/public/utils',
+		TEST_ROOT,
+		parent_path,
+		cache,
+	);
+	assert.equal(
+		result1?.path_id,
+		resolve(TEST_ROOT, 'node_modules/blocked-self-ref/src/public/utils.js'),
+	);
+
+	// Should block internal subpath
+	assert.throws(
+		() => resolve_node_specifier('blocked-self-ref/internal/secret', TEST_ROOT, parent_path, cache),
+		/ERR_PACKAGE_PATH_NOT_EXPORTED/,
+	);
+});
+
+test('self-referencing respects exports encapsulation', () => {
+	const cache = {
+		'encapsulated-self-ref': {
+			name: 'encapsulated-self-ref',
+			version: '',
+			exports: {
+				'.': './index.js',
+				'./lib/utils.js': './src/utils.js',
+			},
+		},
+	};
+
+	const parent_path = resolve(TEST_ROOT, 'node_modules/encapsulated-self-ref/src/component.js');
+
+	// Should block access to non-exported paths even from within package
+	assert.throws(
+		() =>
+			resolve_node_specifier(
+				'encapsulated-self-ref/src/internal.js',
+				TEST_ROOT,
+				parent_path,
+				cache,
+			),
+		/ERR_PACKAGE_PATH_NOT_EXPORTED/,
+	);
+});
 
 test.run();
