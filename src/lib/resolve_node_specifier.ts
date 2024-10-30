@@ -227,10 +227,14 @@ export const resolve_exported_value = (
 };
 
 const is_valid_condition = (condition: string): boolean => {
-	if (condition.length === 0) return false;
-	if (condition.startsWith('.')) return false;
-	if (condition.includes(',')) return false;
-	if (/^\d+$/.test(condition)) return false;
+	if (
+		condition.length === 0 ||
+		condition.startsWith('.') ||
+		condition.includes(',') ||
+		/^\d+$/.test(condition)
+	) {
+		return false;
+	}
 	return /^[a-zA-Z0-9:_\-=]+$/.test(condition);
 };
 
