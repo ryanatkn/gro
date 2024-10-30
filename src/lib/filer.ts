@@ -20,8 +20,6 @@ import {map_sveltekit_aliases} from './sveltekit_helpers.js';
 import {Unreachable_Error} from '@ryanatkn/belt/error.js';
 import {resolve_node_specifier} from './resolve_node_specifier.js';
 import type {Package_Json} from './package_json.js';
-// TODO see below
-// import {resolve_node_specifier} from './resolve_node_specifier.js';
 
 const aliases = Object.entries(default_sveltekit_config.alias);
 
