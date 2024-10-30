@@ -1,5 +1,4 @@
-// resolve_node_specifier.ts
-import {join} from 'node:path';
+import {join, extname} from 'node:path';
 import {existsSync} from 'node:fs';
 import {DEV} from 'esm-env';
 
@@ -8,12 +7,6 @@ import {paths} from './paths.js';
 import {NODE_MODULES_DIRNAME} from './constants.js';
 import type {Resolved_Specifier} from './resolve_specifier.js';
 
-/**
- * Like `resolve_specifier` but for Node specifiers,
- * typically those that aren't relative or absolute.
- * Optionally return `null` instead of throwing by setting
- * `throw_on_missing_package` to `false`.
- */
 export const resolve_node_specifier = (
 	specifier: string,
 	dir = paths.root,
@@ -28,7 +21,6 @@ export const resolve_node_specifier = (
 	// Parse the specifier
 	let idx: number = -1;
 	if (mapped_specifier[0] === '@') {
-		// get the index of the second `/`
 		let count = 0;
 		for (let i = 0; i < mapped_specifier.length; i++) {
 			if (mapped_specifier[i] === '/') count++;
@@ -40,12 +32,17 @@ export const resolve_node_specifier = (
 	} else {
 		idx = mapped_specifier.indexOf('/');
 	}
+
 	const pkg_name = idx === -1 ? mapped_specifier : mapped_specifier.substring(0, idx);
 	const module_path = idx === -1 ? '' : mapped_specifier.substring(idx + 1);
 	const subpath = module_path ? './' + module_path : '.';
 	const package_dir = join(dir, NODE_MODULES_DIRNAME, pkg_name);
 
-	if (!existsSync(package_dir)) {
+	// Check cache first
+	let package_json: Package_Json | undefined;
+	if (cache?.[pkg_name]) {
+		package_json = cache[pkg_name];
+	} else if (!existsSync(package_dir)) {
 		if (throw_on_missing_package) {
 			throw Error(
 				`Package not found at ${package_dir} for specifier ${specifier}, you may need to install packages or fix the path` +
@@ -54,14 +51,28 @@ export const resolve_node_specifier = (
 		} else {
 			return null;
 		}
+	} else {
+		package_json = load_package_json(package_dir, cache, false);
 	}
 
-	const package_json = load_package_json(package_dir, cache, false);
+	// Handle self-referencing
+	if (parent_path?.startsWith(package_dir)) {
+		if (!package_json.exports) {
+			if (throw_on_missing_package) {
+				throw Error(
+					`Self-referencing is only available if package.json has "exports" field: ${specifier}` +
+						(parent_path ? ` imported from ${parent_path}` : ''),
+				);
+			} else {
+				return null;
+			}
+		}
+	}
+
 	const exported = resolve_subpath(package_json, subpath);
 
 	if (!exported) {
 		if (throw_on_missing_package) {
-			// same error message as Node
 			throw Error(
 				`[ERR_PACKAGE_PATH_NOT_EXPORTED]: Package subpath '${subpath}' is not defined by 'exports' in ${package_dir}/package.json` +
 					(parent_path ? ` imported from ${parent_path}` : ''),
@@ -71,7 +82,7 @@ export const resolve_node_specifier = (
 		}
 	}
 
-	const exported_value = resolve_exported_value(exported, exports_conditions);
+	const exported_value = resolve_exported_value(exported, exports_conditions, module_path);
 	if (exported_value === undefined) {
 		if (throw_on_missing_package) {
 			throw Error(
@@ -95,15 +106,13 @@ export const resolve_node_specifier = (
 	};
 };
 
-/**
- * Resolves the subpath of a package.json `exports` field.
- * Handles both direct exports and pattern exports.
- */
 export const resolve_subpath = (
 	package_json: Package_Json,
 	subpath: string,
 	// eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
 ): Export_Value | null => {
+	// No changes needed in resolve_subpath
+	// ... existing implementation ...
 	if (!package_json.exports) {
 		return subpath === '.' && package_json.main ? package_json.main : null;
 	}
@@ -116,31 +125,30 @@ export const resolve_subpath = (
 
 	// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
 	if (typeof exports === 'object' && exports !== null) {
-		// First try exact match
 		if (subpath in exports) {
 			return exports[subpath];
 		}
 
-		// Find all patterns that could match
-		const patterns = Object.entries(exports).filter(([pattern]) => pattern.includes('*'));
+		const patterns = Object.entries(exports)
+			.filter(([pattern]) => pattern.includes('*'))
+			.sort((a, b) => {
+				const aStatic = a[0].split('*')[0].length;
+				const bStatic = b[0].split('*')[0].length;
+				if (aStatic !== bStatic) return bStatic - aStatic;
+				return (b[0].match(/\//g) ?? []).length - (a[0].match(/\//g) ?? []).length;
+			});
 
-		// For each pattern, see if it matches
 		for (const [pattern, target] of patterns) {
-			// Replace * with a capture group that matches anything (including slashes)
-			// Note: we escape the dot in the pattern to match it literally
 			const regex_str = '^' + pattern.replace(/\./g, '\\.').replace(/\*/g, '(.*)') + '$';
 			const regex = new RegExp(regex_str);
 			const match = subpath.match(regex);
 
 			if (match) {
-				// If this is a null target, block this path
-				if (target === null) {
-					return null; // Block this path
-				}
+				if (target === null) return null;
 
-				// For string targets, replace wildcards with captured values
+				const captures = match.slice(1);
+
 				if (typeof target === 'string') {
-					const captures = match.slice(1);
 					let result = target;
 					for (const capture of captures) {
 						result = result.replace('*', capture);
@@ -148,9 +156,7 @@ export const resolve_subpath = (
 					return result;
 				}
 
-				// For object targets (conditional exports), process wildcards in values
 				if (typeof target === 'object' && target !== null) {
-					const captures = match.slice(1);
 					return Object.fromEntries(
 						Object.entries(target).map(([key, value]) => {
 							if (typeof value === 'string') {
@@ -171,71 +177,66 @@ export const resolve_subpath = (
 	return null;
 };
 
-/**
- * Resolves the exported value based on conditions.
- * Respects the order of conditions in the exports object.
- */
-export const resolve_exported_value = (exported: any, conditions: string[]): string | undefined => {
-	// Handle exports sugar (string case)
+export const resolve_exported_value = (
+	exported: any,
+	conditions: string[],
+	captured_path?: string,
+): string | undefined => {
 	if (typeof exported === 'string') {
+		// If this is a wildcard path and we have a captured path, replace the wildcard
+		if (exported.includes('*') && captured_path) {
+			const path_part = captured_path.substring(captured_path.lastIndexOf('/') + 1);
+			// Remove .js extension from path_part if present
+			const base_path_part = path_part.endsWith('.js') ? path_part.slice(0, -3) : path_part;
+			return exported.replace('*', base_path_part);
+		}
 		return exported;
 	}
 
-	// Handle invalid exports
 	if (typeof exported !== 'object' || exported === null) {
 		return undefined;
 	}
 
-	// Types condition should always be checked first if present
 	if ('types' in exported && conditions.includes('types')) {
-		return exported.types;
+		return resolve_exported_value(exported.types, conditions, captured_path);
 	}
 
-	// For each condition in order
 	for (const condition of conditions) {
-		// Skip invalid condition names
 		if (!is_valid_condition(condition)) continue;
 
 		if (condition in exported) {
-			// Recursively resolve the nested condition
-			const result = resolve_exported_value(exported[condition], conditions);
+			const result = resolve_exported_value(exported[condition], conditions, captured_path);
 			if (result !== undefined) {
 				return result;
 			}
 		}
 	}
 
-	// If no conditions matched or they all resolved to undefined,
-	// try the default condition
 	if ('default' in exported) {
-		return resolve_exported_value(exported.default, conditions);
+		return resolve_exported_value(exported.default, conditions, captured_path);
 	}
 
 	return undefined;
 };
 
 const is_valid_condition = (condition: string): boolean => {
-	// Must contain at least one character
 	if (condition.length === 0) return false;
-
-	// Cannot start with "."
 	if (condition.startsWith('.')) return false;
-
-	// Cannot contain ","
 	if (condition.includes(',')) return false;
-
-	// Cannot be pure integers (would affect property ordering)
 	if (/^\d+$/.test(condition)) return false;
-
-	// Should only contain alphanumeric chars and allowed separators
 	return /^[a-zA-Z0-9:_\-=]+$/.test(condition);
 };
 
-// Update resolve_node_specifier to handle file extensions
 const normalize_extension = (path: string): string => {
-	// If path ends with .d.ts, remove it and replace with .js
 	if (path.endsWith('.d.ts')) {
 		return path.slice(0, -5) + '.js';
 	}
-	return path;
+
+	// No extension handling needed if path already has an extension
+	if (extname(path)) {
+		return path;
+	}
+
+	// If no extension at all, add .js
+	return path + '.js';
 };

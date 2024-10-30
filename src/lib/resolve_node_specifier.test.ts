@@ -1,6 +1,7 @@
 import {test} from 'uvu';
 import * as assert from 'uvu/assert';
 import {resolve} from 'node:path';
+import {fileURLToPath} from 'node:url';
 
 import {
 	resolve_exported_value,
@@ -8,6 +9,8 @@ import {
 	resolve_subpath,
 } from './resolve_node_specifier.js';
 import type {Package_Json} from './package_json.js';
+
+const TEST_ROOT = fileURLToPath(new URL('.', import.meta.url));
 
 test('resolves a Node specifier', () => {
 	const specifier = 'svelte';
@@ -565,6 +568,280 @@ test('respects condition evaluation order', () => {
 		'./node-browser.js',
 		'should evaluate conditions in different specified order',
 	);
+});
+
+test('falls back to main field when no exports field exists', () => {
+	const cache = {
+		'main-fallback': {
+			name: 'main-fallback',
+			version: '1.0.0',
+			main: './lib/index.js',
+		},
+	};
+
+	const result = resolve_node_specifier('main-fallback', TEST_ROOT, undefined, cache);
+
+	assert.equal(result?.path_id, resolve(TEST_ROOT, 'node_modules/main-fallback/lib/index.js'));
+});
+
+test('handles self-referencing with exports field', () => {
+	const cache = {
+		'self-ref-pkg': {
+			name: 'self-ref-pkg',
+			version: '1.0.0',
+			exports: {
+				'.': './index.js',
+				'./utils': './lib/utils.js',
+			},
+		},
+	};
+
+	const result = resolve_node_specifier(
+		'self-ref-pkg/utils',
+		TEST_ROOT,
+		resolve(TEST_ROOT, 'node_modules/self-ref-pkg/src/component.js'),
+		cache,
+	);
+
+	assert.equal(result?.path_id, resolve(TEST_ROOT, 'node_modules/self-ref-pkg/lib/utils.js'));
+});
+
+test('rejects self-referencing without exports field', () => {
+	const cache = {
+		'no-exports-self-ref': {
+			name: 'no-exports-self-ref',
+			version: '1.0.0',
+			main: './index.js',
+		},
+	};
+
+	assert.throws(
+		() =>
+			resolve_node_specifier(
+				'no-exports-self-ref/utils',
+				TEST_ROOT,
+				resolve(TEST_ROOT, 'node_modules/no-exports-self-ref/src/component.js'),
+				cache,
+			),
+		/Self-referencing is only available if package.json has "exports" field/,
+	);
+});
+
+test('handles pattern exports', () => {
+	const cache = {
+		'pattern-test': {
+			name: 'pattern-test',
+			version: '1.0.0',
+			exports: {
+				'./features/*.js': './src/features/*.js',
+				'./features/*/index.js': './src/features/*/index.js',
+				'./features/internal/*': null,
+			},
+		},
+	};
+
+	// Test successful pattern match
+	const result1 = resolve_node_specifier(
+		'pattern-test/features/auth.js',
+		TEST_ROOT,
+		undefined,
+		cache,
+	);
+	assert.equal(
+		result1?.path_id,
+		resolve(TEST_ROOT, 'node_modules/pattern-test/src/features/auth.js'),
+	);
+
+	// Test blocked pattern
+	assert.throws(
+		() =>
+			resolve_node_specifier(
+				'pattern-test/features/internal/secret.js',
+				TEST_ROOT,
+				undefined,
+				cache,
+			),
+		/ERR_PACKAGE_PATH_NOT_EXPORTED/,
+	);
+});
+
+test('handles exports with conditions', () => {
+	const cache = {
+		'conditions-test': {
+			name: 'conditions-test',
+			version: '1.0.0',
+			exports: {
+				'.': {
+					types: './index.d.ts',
+					import: './esm/index.js',
+					require: './cjs/index.js',
+					default: './index.js',
+				},
+			},
+		},
+	};
+
+	// Test types condition
+	const result1 = resolve_node_specifier('conditions-test', TEST_ROOT, undefined, cache, true, [
+		'types',
+		'import',
+	]);
+	assert.equal(result1?.path_id, resolve(TEST_ROOT, 'node_modules/conditions-test/index.js')); // Note: .d.ts gets transformed to .js
+
+	// Test import condition
+	const result2 = resolve_node_specifier('conditions-test', TEST_ROOT, undefined, cache, true, [
+		'import',
+	]);
+	assert.equal(result2?.path_id, resolve(TEST_ROOT, 'node_modules/conditions-test/esm/index.js'));
+});
+
+test('handles nested conditions with pattern exports', () => {
+	const cache = {
+		'nested-conditions': {
+			name: 'nested-conditions',
+			version: '1.0.0',
+			exports: {
+				'./components/*.js': {
+					types: './types/components/*.d.ts',
+					import: {
+						development: './dev/components/*.js',
+						production: './prod/components/*.js',
+					},
+					require: './cjs/components/*.js',
+				},
+			},
+		},
+	};
+
+	// Test development condition
+	const result1 = resolve_node_specifier(
+		'nested-conditions/components/button.js',
+		TEST_ROOT,
+		undefined,
+		cache,
+		true,
+		['import', 'development'],
+	);
+	assert.equal(
+		result1?.path_id,
+		resolve(TEST_ROOT, 'node_modules/nested-conditions/dev/components/button.js'),
+	);
+
+	// Test production condition
+	const result2 = resolve_node_specifier(
+		'nested-conditions/components/button.js',
+		TEST_ROOT,
+		undefined,
+		cache,
+		true,
+		['import', 'production'],
+	);
+	assert.equal(
+		result2?.path_id,
+		resolve(TEST_ROOT, 'node_modules/nested-conditions/prod/components/button.js'),
+	);
+});
+
+test('exports field takes precedence over main', () => {
+	const cache = {
+		'precedence-test': {
+			name: 'precedence-test',
+			version: '1.0.0',
+			main: './old-main.js',
+			exports: {
+				'.': './new-main.js',
+			},
+		},
+	};
+
+	const result = resolve_node_specifier('precedence-test', TEST_ROOT, undefined, cache);
+
+	assert.equal(result?.path_id, resolve(TEST_ROOT, 'node_modules/precedence-test/new-main.js'));
+});
+
+test('handles complex pattern matching precedence', () => {
+	const cache = {
+		'pattern-precedence': {
+			name: 'pattern-precedence',
+			version: '1.0.0',
+			exports: {
+				'./dist/exact.js': './built/exact.js', // exact match
+				'./dist/*/specific/*.js': './src/*/exact/*.js', // more specific pattern
+				'./dist/*/*.js': './src/*/*.js', // less specific pattern
+			},
+		},
+	};
+
+	// Test exact match
+	const result1 = resolve_node_specifier(
+		'pattern-precedence/dist/exact.js',
+		TEST_ROOT,
+		undefined,
+		cache,
+	);
+	assert.equal(
+		result1?.path_id,
+		resolve(TEST_ROOT, 'node_modules/pattern-precedence/built/exact.js'),
+	);
+
+	// Test specific pattern
+	const result2 = resolve_node_specifier(
+		'pattern-precedence/dist/auth/specific/login.js',
+		TEST_ROOT,
+		undefined,
+		cache,
+	);
+	assert.equal(
+		result2?.path_id,
+		resolve(TEST_ROOT, 'node_modules/pattern-precedence/src/auth/exact/login.js'),
+	);
+
+	// Test general pattern
+	const result3 = resolve_node_specifier(
+		'pattern-precedence/dist/utils/helpers.js',
+		TEST_ROOT,
+		undefined,
+		cache,
+	);
+	assert.equal(
+		result3?.path_id,
+		resolve(TEST_ROOT, 'node_modules/pattern-precedence/src/utils/helpers.js'),
+	);
+});
+
+test('handles extensionless imports', () => {
+	const cache = {
+		'extension-test': {
+			name: 'extension-test',
+			version: '1.0.0',
+			exports: {
+				'.': './index', // no extension
+				'./lib': './src/lib', // no extension
+			},
+		},
+	};
+
+	const result = resolve_node_specifier('extension-test', TEST_ROOT, undefined, cache);
+
+	// Should attempt to add .js extension
+	assert.equal(result?.path_id, resolve(TEST_ROOT, 'node_modules/extension-test/index.js'));
+});
+
+test('handles scoped package resolution', () => {
+	const cache = {
+		'@scope/package': {
+			name: '@scope/package',
+			version: '1.0.0',
+			exports: {
+				'.': './index.js',
+				'./feature': './lib/feature.js',
+			},
+		},
+	};
+
+	const result = resolve_node_specifier('@scope/package/feature', TEST_ROOT, undefined, cache);
+
+	assert.equal(result?.path_id, resolve(TEST_ROOT, 'node_modules/@scope/package/lib/feature.js'));
 });
 
 // TODO resolve self-referencing
