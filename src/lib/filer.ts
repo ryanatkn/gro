@@ -9,7 +9,7 @@ import {
 	watch_dir,
 	type Watch_Node_Fs,
 	type Watcher_Change,
-	type Watch_Dir_Options as Watch_Dir_Options,
+	type Watch_Dir_Options,
 	type Watcher_Change_Callback,
 } from './watch_dir.js';
 import {paths} from './paths.js';
