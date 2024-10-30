@@ -717,6 +717,8 @@ export const src_json = {
 				{name: 'Package_Json_Repository', kind: 'variable'},
 				{name: 'Package_Json_Author', kind: 'variable'},
 				{name: 'Package_Json_Funding', kind: 'variable'},
+				{name: 'Export_Value', kind: 'variable'},
+				{name: 'Export_Conditions', kind: 'variable'},
 				{name: 'Package_Json_Exports', kind: 'variable'},
 				{name: 'Package_Json', kind: 'variable'},
 				{name: 'Map_Package_Json', kind: 'type'},
@@ -827,7 +829,10 @@ export const src_json = {
 		},
 		'./resolve_node_specifier.js': {
 			path: 'resolve_node_specifier.ts',
-			declarations: [{name: 'resolve_node_specifier', kind: 'function'}],
+			declarations: [
+				{name: 'resolve_node_specifier', kind: 'function'},
+				{name: 'resolve_exported_value', kind: 'function'},
+			],
 		},
 		'./resolve_specifier.js': {
 			path: 'resolve_specifier.ts',

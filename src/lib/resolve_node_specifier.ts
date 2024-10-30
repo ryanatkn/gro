@@ -2,7 +2,12 @@ import {join} from 'node:path';
 import {existsSync} from 'node:fs';
 import {DEV} from 'esm-env';
 
-import {Package_Json, Package_Json_Exports, load_package_json} from './package_json.js';
+import {
+	Export_Value,
+	Package_Json,
+	Package_Json_Exports,
+	load_package_json,
+} from './package_json.js';
 import {paths} from './paths.js';
 import {NODE_MODULES_DIRNAME} from './constants.js';
 import type {Resolved_Specifier} from './resolve_specifier.js';
@@ -19,8 +24,7 @@ export const resolve_node_specifier = (
 	parent_path?: string,
 	cache?: Record<string, Package_Json>,
 	throw_on_missing_package = true,
-	// TODO this needs to use `--conditions`/`-C` to determine the correct key
-	exports_condition = DEV ? 'development' : 'default',
+	exports_conditions = DEV ? ['development', 'node', 'import'] : ['production', 'node', 'import'],
 ): Resolved_Specifier | null => {
 	const raw = specifier.endsWith('?raw');
 	const mapped_specifier = raw ? specifier.substring(0, specifier.length - 4) : specifier;
@@ -69,7 +73,7 @@ export const resolve_node_specifier = (
 			return null;
 		}
 	}
-	const exported_value = resolve_exported_value(exported, exports_key, exports_condition);
+	const exported_value = resolve_exported_value(exported, exports_key, exports_conditions);
 	if (exported_value === undefined) {
 		if (throw_on_missing_package) {
 			throw Error(
@@ -99,41 +103,78 @@ const resolve_subpath = (
 	package_json: Package_Json,
 	specifier: string,
 	subpath: string,
-): {exported: Package_Json_Exports[string]; exports_key: string} => {
+): {exported: Export_Value; exports_key: string} => {
 	const exports_key = specifier.endsWith('.svelte') ? 'svelte' : 'default';
 
-	const exported =
-		subpath === '.' && !package_json.exports
-			? {[exports_key]: package_json.main}
-			: package_json.exports?.[subpath];
+	let exported: Export_Value;
+
+	if (subpath === '.' && !package_json.exports && package_json.main) {
+		exported = {[exports_key]: package_json.main};
+	} else {
+		// Cast the exports lookup to the correct type
+		exported = (package_json.exports?.[subpath] ?? null) as Export_Value;
+	}
 
 	return {exported, exports_key};
 };
 
-// TODO BLOCK fix for node compat - https://nodejs.org/api/packages.html#resolving-user-conditions
 /**
  * Resolves the exported value based on the exports key and condition.
  */
 export const resolve_exported_value = (
 	exported: Exclude<Package_Json_Exports[string], undefined>,
 	exports_key: string,
-	exports_condition: string,
+	exports_conditions: string[],
 ): string | undefined => {
-	let exported_value = typeof exported === 'string' ? exported : exported[exports_key];
+	// Helper function to check if a value is a valid exports object
 
-	// TODO best effort fallback, support `default` but fall back to `import` or `node` as the exports key.
-	if (exported_value === undefined && typeof exported !== 'string' && exports_key === 'default') {
-		exported_value = exported.import ?? exported.node;
+	// Handle direct string or null exports
+	if (typeof exported === 'string') return exported;
+	if (!is_exports_object(exported)) return undefined;
+
+	// If we have a specific exports_key, try that first
+	if (exports_key !== 'default' && exports_key in exported) {
+		const result = resolve_conditions(exported[exports_key], exports_conditions);
+		if (result !== undefined) return result;
 	}
 
-	// Possibly resolve to conditional exports.
-	exported_value =
-		exported_value === undefined || typeof exported_value === 'string'
-			? exported_value
-			: (exported_value[exports_condition] ??
-				exported_value.default ??
-				exported_value.import ??
-				exported_value.node); // TODO this fallback has corner case bugs for off-spec exports
+	// Try resolving conditions directly on the object
+	const direct_result = resolve_conditions(exported, exports_conditions);
+	if (direct_result !== undefined) return direct_result;
 
-	return exported_value;
+	// For default key, try fallback resolution order
+	if (exports_key === 'default') {
+		for (const key of ['import', 'node', 'node-addons']) {
+			if (key in exported) {
+				const result = resolve_conditions(exported[key], exports_conditions);
+				if (result !== undefined) return result;
+			}
+		}
+	}
+
+	return undefined;
 };
+
+const resolve_conditions = (value: any, exports_conditions: string[]): string | undefined => {
+	// Direct string resolution
+	if (typeof value === 'string') return value;
+	if (!is_exports_object(value)) return undefined;
+
+	// First try the conditions in order
+	for (const condition of exports_conditions) {
+		if (condition in value) {
+			const result = resolve_conditions(value[condition], exports_conditions);
+			if (result !== undefined) return result;
+		}
+	}
+
+	// Then try default condition
+	if ('default' in value) {
+		return resolve_conditions(value.default, exports_conditions);
+	}
+
+	return undefined;
+};
+
+const is_exports_object = (value: any): value is Record<string, any> =>
+	value !== null && typeof value === 'object';
