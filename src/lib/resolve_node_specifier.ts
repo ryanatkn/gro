@@ -160,15 +160,15 @@ const resolve_conditions = (value: any, exports_conditions: string[]): string | 
 	if (typeof value === 'string') return value;
 	if (!is_exports_object(value)) return undefined;
 
-	// First try the conditions in order
+	// First try all non-default conditions in order
 	for (const condition of exports_conditions) {
-		if (condition in value) {
+		if (condition !== 'default' && condition in value) {
 			const result = resolve_conditions(value[condition], exports_conditions);
 			if (result !== undefined) return result;
 		}
 	}
 
-	// Then try default condition
+	// Only try default after all other conditions have been attempted
 	if ('default' in value) {
 		return resolve_conditions(value.default, exports_conditions);
 	}

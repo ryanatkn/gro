@@ -287,4 +287,86 @@ test('properly resolves module-sync condition', () => {
 	assert.equal(resolve_exported_value(exported, 'default', ['module-sync']), './sync.js');
 });
 
+test('respects node-addons as highest priority condition', () => {
+	const exported = {
+		'node-addons': './native.node',
+		node: './node.js',
+		import: './index.mjs',
+		default: './index.js',
+	};
+
+	assert.equal(
+		resolve_exported_value(exported, 'default', ['node-addons', 'node', 'import']),
+		'./native.node',
+	);
+
+	// Should fall back when node-addons is disabled
+	assert.equal(resolve_exported_value(exported, 'default', ['node', 'import']), './node.js');
+});
+
+test('import and require are mutually exclusive', () => {
+	const exported = {
+		import: './index.mjs',
+		require: './index.cjs',
+		default: './index.js',
+	};
+
+	// When import is in conditions, require should be ignored
+	assert.equal(resolve_exported_value(exported, 'default', ['import', 'require']), './index.mjs');
+
+	// When require is in conditions, import should be ignored
+	assert.equal(resolve_exported_value(exported, 'default', ['require', 'import']), './index.cjs');
+});
+
+test('handles pattern exports and blocked subpaths', () => {
+	const exported = {
+		'./features/*.js': './src/features/*.js',
+		'./features/private/*': null,
+	};
+
+	// Test pattern export value is preserved
+	assert.equal(
+		resolve_exported_value(exported['./features/*.js'], 'default', ['node']),
+		'./src/features/*.js',
+	);
+
+	// Test blocked subpath
+	assert.equal(
+		resolve_exported_value(exported['./features/private/*'], 'default', ['node']),
+		undefined,
+	);
+});
+
+test('default condition must be tried last', () => {
+	const exported = {
+		default: './default.js',
+		production: './prod.js',
+		node: './node.js',
+		import: './index.mjs',
+	};
+
+	// Even if default comes first in conditions, it should be tried last
+	assert.equal(resolve_exported_value(exported, 'default', ['default', 'node']), './node.js');
+});
+
+test('handles directory and subpath pattern exports', () => {
+	const exported = {
+		'./lib/': './src/lib/',
+		'./lib/*': './src/lib/*',
+		'./lib/*.js': './src/lib/*.js',
+	};
+
+	// Test directory mapping
+	assert.equal(resolve_exported_value(exported['./lib/'], 'default', ['node']), './src/lib/');
+
+	// Test wildcard pattern
+	assert.equal(resolve_exported_value(exported['./lib/*'], 'default', ['node']), './src/lib/*');
+
+	// Test extension pattern
+	assert.equal(
+		resolve_exported_value(exported['./lib/*.js'], 'default', ['node']),
+		'./src/lib/*.js',
+	);
+});
+
 test.run();
