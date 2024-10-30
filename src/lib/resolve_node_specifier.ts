@@ -114,7 +114,7 @@ const resolve_subpath = (
 /**
  * Resolves the exported value based on the exports key and condition.
  */
-const resolve_exported_value = (
+export const resolve_exported_value = (
 	exported: Exclude<Package_Json_Exports[string], undefined>,
 	exports_key: string,
 	exports_condition: string,
