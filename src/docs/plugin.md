@@ -25,7 +25,7 @@ Gro's builtin plugins:
 - [`@ryanatkn/gro_plugin_sveltekit_library`](../lib/gro_plugin_sveltekit_library.ts)
 - [`@ryanatkn/gro_plugin_sveltekit_app`](../lib/gro_plugin_sveltekit_app.ts)
 - [`@ryanatkn/gro_plugin_gen`](../lib/gro_plugin_gen.ts)
-  (currently disabled, will be replaced with an esbuild plugin)
+- [`@ryanatkn/gro_plugin_moss`](../lib/gro_plugin_moss.ts)
 
 Also see [`config.plugin` in the config docs](config.md#plugin)
 and usage in [the default config](../lib/gro.config.default.ts).
