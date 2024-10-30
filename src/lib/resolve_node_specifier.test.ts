@@ -12,9 +12,16 @@ import type {Package_Json} from './package_json.js';
 const TEST_ROOT = process.cwd();
 
 test('resolves a Node specifier', () => {
-	const specifier = 'svelte';
-	const path_id = resolve('node_modules/svelte/src/index-server.js');
-	assert.equal(resolve_node_specifier(specifier), {
+	const specifier = 'mock-package';
+	const path_id = resolve('node_modules/mock-package/index.js');
+	const cache = {
+		'mock-package': {
+			name: 'mock-package',
+			version: '',
+			main: './index.js',
+		},
+	};
+	assert.equal(resolve_node_specifier(specifier, TEST_ROOT, undefined, cache), {
 		path_id,
 		path_id_with_querystring: path_id,
 		raw: false,
@@ -25,9 +32,16 @@ test('resolves a Node specifier', () => {
 });
 
 test('resolves a Node specifier with a username', () => {
-	const specifier = '@sveltejs/kit';
-	const path_id = resolve('node_modules/@sveltejs/kit/src/exports/index.js');
-	assert.equal(resolve_node_specifier(specifier), {
+	const specifier = '@scope/mock-package';
+	const path_id = resolve('node_modules/@scope/mock-package/index.js');
+	const cache = {
+		'@scope/mock-package': {
+			name: '@scope/mock-package',
+			version: '',
+			main: './index.js',
+		},
+	};
+	assert.equal(resolve_node_specifier(specifier, TEST_ROOT, undefined, cache), {
 		path_id,
 		path_id_with_querystring: path_id,
 		raw: false,
@@ -37,10 +51,19 @@ test('resolves a Node specifier with a username', () => {
 	});
 });
 
-test('resolves a JS specifier', () => {
-	const specifier = '@ryanatkn/fuz/tome.js';
-	const path_id = resolve('node_modules/@ryanatkn/fuz/dist/tome.js');
-	assert.equal(resolve_node_specifier(specifier), {
+test('resolves a JS specifier with explicit export', () => {
+	const specifier = 'exported-package/utils.js';
+	const path_id = resolve('node_modules/exported-package/dist/utils.js');
+	const cache = {
+		'exported-package': {
+			name: 'exported-package',
+			version: '',
+			exports: {
+				'./utils.js': './dist/utils.js',
+			},
+		},
+	};
+	assert.equal(resolve_node_specifier(specifier, TEST_ROOT, undefined, cache), {
 		path_id,
 		path_id_with_querystring: path_id,
 		raw: false,
@@ -92,44 +115,52 @@ test('resolves a raw Svelte specifier', () => {
 });
 
 test('throws for an export that does not exist', () => {
-	assert.throws(() => resolve_node_specifier('@ryanatkn/fuz/this_export_does_not_exist'));
+	const cache = {
+		'exported-package': {
+			name: 'exported-package',
+			version: '',
+			exports: {
+				'./utils.js': './dist/utils.js',
+			},
+		},
+	};
+	assert.throws(() =>
+		resolve_node_specifier('exported-package/non-existent.js', TEST_ROOT, undefined, cache),
+	);
 });
 
 test('throws for a package that does not exist', () => {
-	assert.throws(() => resolve_node_specifier('@ryanatkn/this_package_does_not_exist'));
+	assert.throws(() => resolve_node_specifier('non-existent-package', TEST_ROOT));
 });
 
-test('throws for a Node specifier', () => {
+test('throws for a Node core module specifier', () => {
 	assert.throws(() => resolve_node_specifier('node:path'));
 });
 
 test('optionally returns null for an export that does not exist', () => {
+	const cache = {
+		'exported-package': {
+			name: 'exported-package',
+			version: '',
+			exports: {
+				'./utils.js': './dist/utils.js',
+			},
+		},
+	};
 	assert.is(
-		resolve_node_specifier(
-			'@ryanatkn/fuz/this_export_does_not_exist',
-			undefined,
-			undefined,
-			undefined,
-			false,
-		),
+		resolve_node_specifier('exported-package/non-existent.js', TEST_ROOT, undefined, cache, false),
 		null,
 	);
 });
 
 test('optionally returns null for a package that does not exist', () => {
 	assert.is(
-		resolve_node_specifier(
-			'@ryanatkn/this_package_does_not_exist',
-			undefined,
-			undefined,
-			undefined,
-			false,
-		),
+		resolve_node_specifier('non-existent-package', TEST_ROOT, undefined, undefined, false),
 		null,
 	);
 });
 
-test('optionally returns null for a Node specifier', () => {
+test('optionally returns null for a Node core module specifier', () => {
 	assert.is(resolve_node_specifier('node:path', undefined, undefined, undefined, false), null);
 });
 
