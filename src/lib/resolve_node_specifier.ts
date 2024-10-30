@@ -71,6 +71,13 @@ export const resolve_node_specifier = (
 
 	const exported = resolve_subpath(package_json, subpath);
 
+	if (typeof exported === 'string') {
+		const validated = validate_export_target(exported, throw_on_missing_package);
+		if (validated === null) {
+			return null;
+		}
+	}
+
 	if (!exported) {
 		if (throw_on_missing_package) {
 			throw Error(
@@ -300,4 +307,46 @@ const normalize_extension = (path: string): string => {
 
 	// If no extension at all, add .js
 	return path + '.js';
+};
+
+const validate_export_target = (target: string, throw_on_missing_package: boolean): void | null => {
+	// Must start with './'
+	if (!target.startsWith('./') && !target.startsWith('../')) {
+		if (throw_on_missing_package) {
+			throw new Error('ERR_INVALID_PACKAGE_TARGET: Export target must start with "./" or "../"');
+		} else {
+			return null;
+		}
+	}
+
+	// Can't contain node_modules
+	if (target.includes('node_modules')) {
+		if (throw_on_missing_package) {
+			throw new Error('ERR_INVALID_PACKAGE_TARGET: Export target cannot contain node_modules');
+		} else {
+			return null;
+		}
+	}
+
+	// Check for package boundary escape
+	const parts = target.split('/');
+	let depth = 0;
+
+	for (const part of parts) {
+		if (part === '..') {
+			depth--;
+			// If we go above root, it's escaping the package boundary
+			if (depth < 0) {
+				if (throw_on_missing_package) {
+					throw new Error(
+						'ERR_INVALID_PACKAGE_TARGET: Export target cannot escape package boundary',
+					);
+				} else {
+					return null;
+				}
+			}
+		} else if (part !== '.' && part !== '') {
+			depth++;
+		}
+	}
 };

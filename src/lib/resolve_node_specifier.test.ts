@@ -1654,4 +1654,134 @@ test('handles typescript definition files', () => {
 	assert.equal(result2?.path_id, resolve(TEST_ROOT, 'node_modules/types-handling/lib/utils.js'));
 });
 
+test('requires either main or exports for package resolution', () => {
+	const cache = {
+		'no-entry-package': {
+			name: 'no-entry-package',
+			version: '',
+			// No main or exports field
+		},
+	};
+
+	assert.throws(
+		() => resolve_node_specifier('no-entry-package', TEST_ROOT, undefined, cache),
+		/ERR_PACKAGE_PATH_NOT_EXPORTED/,
+	);
+});
+
+test('respects Node.js condition evaluation order', () => {
+	const cache = {
+		'condition-order': {
+			name: 'condition-order',
+			version: '',
+			exports: {
+				'.': {
+					'node-addons': './native.node',
+					node: './node.js',
+					'module-sync': './sync.js',
+					import: './module.mjs',
+					require: './require.cjs',
+					default: './index.js',
+				},
+			},
+		},
+	};
+
+	// Since import comes first in conditions, it should be selected
+	// regardless of other conditions present
+	const result = resolve_node_specifier('condition-order', TEST_ROOT, undefined, cache, true, [
+		'import',
+	]);
+	assert.equal(result?.path_id, resolve(TEST_ROOT, 'node_modules/condition-order/module.mjs'));
+});
+
+test('handles self-referencing with absolute paths', () => {
+	const cache = {
+		'self-ref': {
+			name: 'self-ref',
+			version: '',
+			exports: {
+				'.': './index.js',
+				'./lib/*': './src/lib/*',
+			},
+		},
+	};
+
+	// Should allow absolute path resolution within package
+	const absolutePath = resolve(TEST_ROOT, 'node_modules/self-ref/src/lib/util.js');
+	const result = resolve_node_specifier('self-ref/lib/util', TEST_ROOT, absolutePath, cache);
+	assert.equal(result?.path_id, resolve(TEST_ROOT, 'node_modules/self-ref/src/lib/util.js'));
+});
+
+test('forbids node_modules in exports targets', () => {
+	const cache = {
+		'invalid-exports': {
+			name: 'invalid-exports',
+			version: '',
+			exports: {
+				'.': './node_modules/some-package/index.js',
+			},
+		},
+	};
+
+	assert.throws(
+		() => resolve_node_specifier('invalid-exports', TEST_ROOT, undefined, cache),
+		/ERR_INVALID_PACKAGE_TARGET.*cannot contain node_modules/,
+	);
+});
+
+test('prevents package boundary escape in exports', () => {
+	const cache = {
+		'invalid-exports': {
+			name: 'invalid-exports',
+			version: '',
+			exports: {
+				'.': '../../../escape/bad.js',
+			},
+		},
+	};
+
+	assert.throws(
+		() => resolve_node_specifier('invalid-exports', TEST_ROOT, undefined, cache),
+		/ERR_INVALID_PACKAGE_TARGET.*cannot escape package boundary/,
+	);
+});
+
+test('properly handles extensionless patterns', () => {
+	const cache = {
+		'extension-patterns': {
+			name: 'extension-patterns',
+			version: '',
+			exports: {
+				'./lib/*': './src/lib/*',
+				'./components/*': './src/components/*.js',
+			},
+		},
+	};
+
+	// Should preserve extension in request
+	const result1 = resolve_node_specifier(
+		'extension-patterns/lib/util.js',
+		TEST_ROOT,
+		undefined,
+		cache,
+	);
+	assert.equal(
+		result1?.path_id,
+		resolve(TEST_ROOT, 'node_modules/extension-patterns/src/lib/util.js'),
+	);
+
+	// Should add extension when pattern includes it
+	const result2 = resolve_node_specifier(
+		'extension-patterns/components/button',
+		TEST_ROOT,
+		undefined,
+		cache,
+	);
+	assert.equal(
+		result2?.path_id,
+		resolve(TEST_ROOT, 'node_modules/extension-patterns/src/components/button.js'),
+	);
+});
+
 test.run();
