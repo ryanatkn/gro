@@ -13,7 +13,7 @@ import {esbuild_plugin_svelte} from './esbuild_plugin_svelte.js';
 import type {Parsed_Sveltekit_Config} from './sveltekit_config.js';
 import type {Path_Id} from './path.js';
 
-export interface Options {
+export interface Esbuild_Plugin_External_Worker_Options {
 	dev: boolean;
 	build_options: esbuild.BuildOptions;
 	dir?: string;
@@ -47,7 +47,7 @@ export const esbuild_plugin_external_worker = ({
 	env_files,
 	ambient_env,
 	log,
-}: Options): esbuild.Plugin => ({
+}: Esbuild_Plugin_External_Worker_Options): esbuild.Plugin => ({
 	name: 'external_worker',
 	setup: (build) => {
 		const builds: Map<string, Promise<esbuild.BuildResult>> = new Map();

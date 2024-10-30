@@ -4,7 +4,7 @@ import {render_env_shim_module} from './sveltekit_shim_env.js';
 import {EVERYTHING_MATCHER} from './constants.js';
 import {SVELTEKIT_ENV_MATCHER} from './sveltekit_helpers.js';
 
-export interface Options {
+export interface Esbuild_Plugin_Sveltekit_Shim_Env_Options {
 	dev: boolean;
 	public_prefix?: string;
 	private_prefix?: string;
@@ -22,7 +22,7 @@ export const esbuild_plugin_sveltekit_shim_env = ({
 	env_dir,
 	env_files,
 	ambient_env,
-}: Options): esbuild.Plugin => ({
+}: Esbuild_Plugin_Sveltekit_Shim_Env_Options): esbuild.Plugin => ({
 	name: 'sveltekit_shim_env',
 	setup: (build) => {
 		build.onResolve({filter: SVELTEKIT_ENV_MATCHER}, ({path}) => ({path, namespace}));

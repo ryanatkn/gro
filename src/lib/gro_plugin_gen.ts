@@ -16,7 +16,7 @@ export interface Task_Args extends Args {
 	watch?: boolean;
 }
 
-export interface Options {
+export interface Gro_Plugin_Gen_Options {
 	input_paths?: string[];
 	root_dirs?: string[];
 	flush_debounce_delay?: number;
@@ -26,7 +26,7 @@ export const gro_plugin_gen = ({
 	input_paths = [paths.source],
 	root_dirs = [paths.source],
 	flush_debounce_delay = FLUSH_DEBOUNCE_DELAY,
-}: Options = EMPTY_OBJECT): Plugin => {
+}: Gro_Plugin_Gen_Options = EMPTY_OBJECT): Plugin => {
 	let flushing_timeout: NodeJS.Timeout | undefined;
 	const queued_files: Set<string> = new Set();
 	const queue_gen = (gen_file_id: string) => {

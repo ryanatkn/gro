@@ -9,7 +9,7 @@ import {
 	watch_dir,
 	type Watch_Node_Fs,
 	type Watcher_Change,
-	type Options as Watch_Dir_Options,
+	type Watch_Dir_Options as Watch_Dir_Options,
 	type Watcher_Change_Callback,
 } from './watch_dir.js';
 import {paths} from './paths.js';
@@ -47,7 +47,7 @@ export type Cleanup_Watch = () => Promise<void>;
 
 export type On_Filer_Change = (change: Watcher_Change, source_file: Source_File) => void;
 
-export interface Options {
+export interface Filer_Options {
 	watch_dir?: typeof watch_dir;
 	watch_dir_options?: Partial<Omit_Strict<Watch_Dir_Options, 'on_change'>>;
 	package_json_cache?: Record<string, Package_Json>;
@@ -63,7 +63,7 @@ export class Filer {
 
 	#package_json_cache: Record<string, Package_Json>;
 
-	constructor(options: Options = EMPTY_OBJECT) {
+	constructor(options: Filer_Options = EMPTY_OBJECT) {
 		this.#watch_dir = options.watch_dir ?? watch_dir;
 		this.#watch_dir_options = options.watch_dir_options ?? EMPTY_OBJECT;
 		this.root_dir = resolve(options.watch_dir_options?.dir ?? paths.source);

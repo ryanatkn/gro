@@ -8,7 +8,7 @@ import {
 import type {Parsed_Sveltekit_Config} from './sveltekit_config.js';
 import {EVERYTHING_MATCHER} from './constants.js';
 
-export interface Options {
+export interface Esbuild_Plugin_Sveltekit_Shim_App_Options {
 	dev: boolean;
 	base_url: Parsed_Sveltekit_Config['base_url'];
 	assets_url: Parsed_Sveltekit_Config['assets_url'];
@@ -18,7 +18,7 @@ export const esbuild_plugin_sveltekit_shim_app = ({
 	dev,
 	base_url,
 	assets_url,
-}: Options): esbuild.Plugin => ({
+}: Esbuild_Plugin_Sveltekit_Shim_App_Options): esbuild.Plugin => ({
 	name: 'sveltekit_shim_app',
 	setup: (build) => {
 		build.onResolve({filter: /^\$app\/(forms|navigation|stores)$/}, ({path, ...rest}) =>

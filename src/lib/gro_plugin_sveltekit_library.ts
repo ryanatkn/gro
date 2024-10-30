@@ -9,7 +9,7 @@ import {
 	type Svelte_Package_Options,
 } from './sveltekit_helpers.js';
 
-export interface Options {
+export interface Gro_Plugin_Sveltekit_Library_Options {
 	/**
 	 * The options passed to the SvelteKit packaging CLI.
 	 * @see https://kit.svelte.dev/docs/packaging#options
@@ -25,7 +25,7 @@ export interface Options {
 export const gro_plugin_sveltekit_library = ({
 	svelte_package_options,
 	svelte_package_cli = SVELTE_PACKAGE_CLI,
-}: Options = {}): Plugin => {
+}: Gro_Plugin_Sveltekit_Library_Options = {}): Plugin => {
 	return {
 		name: 'gro_plugin_sveltekit_library',
 		setup: async ({dev, log, config}) => {
