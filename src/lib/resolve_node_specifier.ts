@@ -1,13 +1,9 @@
+// resolve_node_specifier.ts
 import {join} from 'node:path';
 import {existsSync} from 'node:fs';
 import {DEV} from 'esm-env';
 
-import {
-	Export_Value,
-	Package_Json,
-	Package_Json_Exports,
-	load_package_json,
-} from './package_json.js';
+import {Export_Value, Package_Json, load_package_json} from './package_json.js';
 import {paths} from './paths.js';
 import {NODE_MODULES_DIRNAME} from './constants.js';
 import type {Resolved_Specifier} from './resolve_specifier.js';
@@ -61,7 +57,8 @@ export const resolve_node_specifier = (
 	}
 
 	const package_json = load_package_json(package_dir, cache, false);
-	const {exported, exports_key} = resolve_subpath(package_json, specifier, subpath);
+	const exported = resolve_subpath(package_json, subpath);
+
 	if (!exported) {
 		if (throw_on_missing_package) {
 			// same error message as Node
@@ -73,18 +70,20 @@ export const resolve_node_specifier = (
 			return null;
 		}
 	}
-	const exported_value = resolve_exported_value(exported, exports_key, exports_conditions);
+
+	const exported_value = resolve_exported_value(exported, exports_conditions);
 	if (exported_value === undefined) {
 		if (throw_on_missing_package) {
 			throw Error(
-				`Package subpath '${subpath}' does not define the key '${exports_key}' in 'exports' in ${package_dir}/package.json` +
+				`No valid export found for subpath '${subpath}' in ${package_dir}/package.json with the following conditions: ${exports_conditions.join(', ')}` +
 					(parent_path ? ` imported from ${parent_path}` : ''),
 			);
 		} else {
 			return null;
 		}
 	}
-	const path_id = join(package_dir, exported_value);
+
+	const path_id = normalize_extension(join(package_dir, exported_value));
 
 	return {
 		path_id,
@@ -97,78 +96,138 @@ export const resolve_node_specifier = (
 };
 
 /**
- * Resolves the subpath of a package.json `exports` field based on the `specifier`.
+ * Resolves the subpath of a package.json `exports` field.
+ * Handles both direct exports and pattern exports.
  */
-const resolve_subpath = (
+export const resolve_subpath = (
 	package_json: Package_Json,
-	specifier: string,
 	subpath: string,
-): {exported: Export_Value; exports_key: string} => {
-	const exports_key = specifier.endsWith('.svelte') ? 'svelte' : 'default';
-
-	let exported: Export_Value;
-
-	if (subpath === '.' && !package_json.exports && package_json.main) {
-		exported = {[exports_key]: package_json.main};
-	} else {
-		// Cast the exports lookup to the correct type
-		exported = (package_json.exports?.[subpath] ?? null) as Export_Value;
+	// eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
+): Export_Value | null => {
+	if (!package_json.exports) {
+		return subpath === '.' && package_json.main ? package_json.main : null;
 	}
 
-	return {exported, exports_key};
+	const exports = package_json.exports;
+
+	if (typeof exports === 'string' && subpath === '.') {
+		return exports;
+	}
+
+	// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+	if (typeof exports === 'object' && exports !== null) {
+		// First try exact match
+		if (subpath in exports) {
+			return exports[subpath];
+		}
+
+		// Find all patterns that could match
+		const patterns = Object.entries(exports).filter(([pattern]) => pattern.includes('*'));
+
+		// For each pattern, see if it matches
+		for (const [pattern, target] of patterns) {
+			// Replace * with a capture group that matches anything (including slashes)
+			// Note: we escape the dot in the pattern to match it literally
+			const regex_str = '^' + pattern.replace(/\./g, '\\.').replace(/\*/g, '(.*)') + '$';
+			const regex = new RegExp(regex_str);
+			const match = subpath.match(regex);
+
+			if (match) {
+				// If this is a null target, block this path
+				if (target === null) {
+					return null; // Block this path
+				}
+
+				// For string targets, replace wildcards with captured values
+				if (typeof target === 'string') {
+					const captures = match.slice(1);
+					let result = target;
+					for (const capture of captures) {
+						result = result.replace('*', capture);
+					}
+					return result;
+				}
+
+				// For object targets (conditional exports), process wildcards in values
+				if (typeof target === 'object' && target !== null) {
+					const captures = match.slice(1);
+					return Object.fromEntries(
+						Object.entries(target).map(([key, value]) => {
+							if (typeof value === 'string') {
+								let result = value;
+								for (const capture of captures) {
+									result = result.replace('*', capture);
+								}
+								return [key, result];
+							}
+							return [key, value];
+						}),
+					);
+				}
+			}
+		}
+	}
+
+	return null;
 };
 
 /**
- * Resolves the exported value based on the exports key and condition.
+ * Resolves the exported value based on conditions.
+ * Respects the order of conditions in the exports object.
  */
 export const resolve_exported_value = (
-	exported: Exclude<Package_Json_Exports[string], undefined>,
-	exports_key: string,
+	exported: Export_Value,
 	exports_conditions: string[],
 ): string | undefined => {
-	// Helper function to check if a value is a valid exports object
-
-	// Handle direct string or null exports
-	if (typeof exported === 'string') return exported;
-	if (!is_exports_object(exported)) return undefined;
-
-	// If we have a specific exports_key, try that first
-	if (exports_key !== 'default' && exports_key in exported) {
-		const result = resolve_conditions(exported[exports_key], exports_conditions);
-		if (result !== undefined) return result;
+	if (typeof exported === 'string') {
+		return exported;
 	}
 
-	// Try resolving conditions directly on the object
-	const direct_result = resolve_conditions(exported, exports_conditions);
-	if (direct_result !== undefined) return direct_result;
+	if (!is_exports_object(exported)) {
+		return undefined;
+	}
 
-	// For default key, try fallback resolution order
-	if (exports_key === 'default') {
-		for (const key of ['import', 'node', 'node-addons']) {
-			if (key in exported) {
-				const result = resolve_conditions(exported[key], exports_conditions);
-				if (result !== undefined) return result;
+	// First try conditions in order
+	for (const condition of exports_conditions) {
+		if (condition in exported) {
+			const result = resolve_conditions(exported[condition], exports_conditions);
+			if (result !== undefined) {
+				return result;
 			}
 		}
+	}
+
+	// Then try default
+	if ('default' in exported) {
+		return resolve_conditions(exported.default, exports_conditions);
 	}
 
 	return undefined;
 };
 
-const resolve_conditions = (value: any, exports_conditions: string[]): string | undefined => {
-	// Direct string resolution
-	if (typeof value === 'string') return value;
-	if (!is_exports_object(value)) return undefined;
+const resolve_conditions = (
+	value: Export_Value,
+	exports_conditions: string[],
+): string | undefined => {
+	if (typeof value === 'string') {
+		return value;
+	}
 
-	// First try all non-default conditions in order
+	if (value === null || !is_exports_object(value)) {
+		return undefined;
+	}
+
+	// First try conditions in order
 	for (const condition of exports_conditions) {
-		if (condition !== 'default' && condition in value) {
+		if (condition in value) {
 			const result = resolve_conditions(value[condition], exports_conditions);
-			if (result !== undefined) return result;
+			if (result !== undefined) {
+				return result;
+			}
 		}
 	}
 
-	// Only try default after all other conditions have been attempted
+	// Then try default
 	if ('default' in value) {
 		return resolve_conditions(value.default, exports_conditions);
 	}
@@ -178,3 +237,12 @@ const resolve_conditions = (value: any, exports_conditions: string[]): string | 
 
 const is_exports_object = (value: any): value is Record<string, any> =>
 	value !== null && typeof value === 'object';
+
+// Update resolve_node_specifier to handle file extensions
+const normalize_extension = (path: string): string => {
+	// If path ends with .d.ts, remove it and replace with .js
+	if (path.endsWith('.d.ts')) {
+		return path.slice(0, -5) + '.js';
+	}
+	return path;
+};

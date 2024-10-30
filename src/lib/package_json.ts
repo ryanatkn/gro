@@ -63,25 +63,21 @@ export const Package_Json_Funding = z.union([
 ]);
 export type Package_Json_Funding = z.infer<typeof Package_Json_Funding>;
 
-// TODO improve this? type is inferred to `any`
-// Helper to create a recursive type that only allows strings, null, or nested objects
-const create_recursive_exports_schema = (): z.ZodType => {
-	return z.lazy(() => z.union([z.string(), z.null(), z.record(recursive_schema)]));
+// Helper to create a recursive type that represents export conditions and values
+const create_export_value_schema = (): z.ZodType => {
+	return z.lazy(() => z.union([z.string(), z.null(), z.record(z.lazy(() => export_value_schema))]));
 };
-const recursive_schema = create_recursive_exports_schema();
 
-// Export value can be a string, null, or a nested object with conditions
-export const Export_Value = recursive_schema;
-export type Export_Value = z.infer<typeof Export_Value>; // TODO unfortunately is `any`
+// The base export value schema that can be a string, null, or nested conditions
+const export_value_schema = create_export_value_schema();
+export const Export_Value = export_value_schema;
+export type Export_Value = z.infer<typeof Export_Value>;
 
-// Conditions object is a record of Export_Values
-export const Export_Conditions = z.record(Export_Value);
-export type Export_Conditions = z.infer<typeof Export_Conditions>;
-
-// The complete exports schema
-export const Package_Json_Exports = z.record(
-	z.union([z.string(), z.null(), Export_Conditions]).optional(),
-);
+// Package exports can be:
+// 1. A string (shorthand for main export)
+// 2. null (to block exports)
+// 3. A record of export conditions/paths
+export const Package_Json_Exports = z.union([z.string(), z.null(), z.record(export_value_schema)]);
 export type Package_Json_Exports = z.infer<typeof Package_Json_Exports>;
 
 /**

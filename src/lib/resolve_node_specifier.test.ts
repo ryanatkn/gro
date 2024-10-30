@@ -2,7 +2,12 @@ import {test} from 'uvu';
 import * as assert from 'uvu/assert';
 import {resolve} from 'node:path';
 
-import {resolve_exported_value, resolve_node_specifier} from './resolve_node_specifier.js';
+import {
+	resolve_exported_value,
+	resolve_node_specifier,
+	resolve_subpath,
+} from './resolve_node_specifier.js';
+import type {Package_Json} from './package_json.js';
 
 test('resolves a Node specifier', () => {
 	const specifier = 'svelte';
@@ -126,247 +131,278 @@ test('optionally returns null for a Node specifier', () => {
 	assert.is(resolve_node_specifier('node:path', undefined, undefined, undefined, false), null);
 });
 
-test('resolves nested condition exports', () => {
-	const exported = {
-		node: {
-			import: './feature-node.js',
-			require: './feature-node.cjs',
+// Pattern matching tests
+test('handles basic pattern exports', () => {
+	const mock_package: Package_Json = {
+		name: '',
+		version: '',
+		exports: {
+			'./features/*.js': './src/features/*.js',
 		},
-		default: './feature.js',
 	};
-
-	// This should now correctly resolve to './feature-node.js'
-	assert.equal(
-		resolve_exported_value(exported, 'default', ['node', 'import']),
-		'./feature-node.js',
-	);
+	const resolved = resolve_subpath(mock_package, './features/test.js');
+	assert.equal(resolved, './src/features/test.js');
 });
 
-test('handles non-string values correctly', () => {
-	const exported = {
-		development: true,
-		production: null,
-		node: './node.js',
-		default: './default.js',
-	};
-
-	// Should skip the boolean and null values and resolve to './node.js'
-	assert.equal(
-		resolve_exported_value(exported, 'default', ['development', 'production', 'node']),
-		'./node.js',
-	);
-});
-
-test('falls back to default in nested conditions', () => {
-	const exported = {
-		node: {
-			import: './feature-node.js',
-			require: './feature-node.cjs',
+test('handles multiple pattern exports in priority order', () => {
+	const mock_package: Package_Json = {
+		name: '',
+		version: '',
+		exports: {
+			'./features/*.js': './src/features/*.js',
+			'./features/*': './src/features/*',
+			'./features/*/index.js': null,
 		},
-		default: './feature.js',
 	};
-
-	assert.equal(resolve_exported_value(exported, 'default', ['browser']), './feature.js');
+	const resolved = resolve_subpath(mock_package, './features/test.js');
+	assert.equal(resolved, './src/features/test.js');
 });
 
-test('resolves deeply nested conditions', () => {
+test('handles null pattern exports as blockers', () => {
+	const mock_package: Package_Json = {
+		name: '',
+		version: '',
+		exports: {
+			'./internal/*': null,
+			'./*': './src/*',
+		},
+	};
+
+	// Test blocked path
+	const blocked = resolve_subpath(mock_package, './internal/secret.js');
+	assert.equal(blocked, null);
+
+	// Test allowed path
+	const allowed = resolve_subpath(mock_package, './public/file.js');
+	assert.equal(allowed, './src/public/file.js');
+});
+
+// Nested conditional exports tests
+test('handles deeply nested conditional exports', () => {
 	const exported = {
 		node: {
-			development: {
-				import: './dev-node.js',
-				require: './dev-node.cjs',
+			import: {
+				development: './dev-esm.js',
+				production: './prod-esm.js',
 			},
-			production: {
-				import: './prod-node.js',
-				require: './prod-node.cjs',
+			require: {
+				development: './dev-cjs.js',
+				production: './prod-cjs.js',
 			},
 		},
-		default: './feature.js',
-	};
-
-	assert.equal(
-		resolve_exported_value(exported, 'default', ['node', 'development', 'import']),
-		'./dev-node.js',
-	);
-});
-
-test('handles null exports', () => {
-	const exported = {
-		node: null,
-		default: './feature.js',
-	};
-
-	assert.equal(resolve_exported_value(exported, 'default', ['node']), './feature.js');
-});
-
-test('handles multiple valid conditions by priority', () => {
-	const exported = {
-		node: './node.js',
-		development: './dev.js',
-		default: './default.js',
-	};
-
-	assert.equal(resolve_exported_value(exported, 'default', ['development', 'node']), './dev.js');
-});
-
-test('respects condition order in nested structures', () => {
-	const exported = {
-		development: {
-			node: './dev-node.js',
-			browser: './dev-browser.js',
-		},
-		node: {
-			development: './node-dev.js',
-			production: './node-prod.js',
-		},
-	};
-
-	assert.equal(
-		resolve_exported_value(exported, 'default', ['development', 'node']),
-		'./dev-node.js',
-	);
-});
-
-test('falls back through multiple potential keys', () => {
-	const exported = {
-		// node: undefined,
-		import: './import.js',
-		require: './require.js',
-		default: './default.js',
-	};
-
-	assert.equal(resolve_exported_value(exported, 'default', ['node']), './default.js');
-});
-
-test('handles non-string non-null values appropriately', () => {
-	const exported = {
-		development: true,
-		default: './default.js',
-	};
-
-	assert.equal(resolve_exported_value(exported, 'default', ['development']), './default.js');
-});
-
-test('resolves nested exports with node and import conditions', () => {
-	const exported = {
-		node: {
-			import: './feature-node.js',
-			require: './feature-node.cjs',
-		},
-		default: './feature.js',
-	};
-
-	assert.equal(
-		resolve_exported_value(exported, 'default', ['node', 'import']),
-		'./feature-node.js',
-	);
-
-	// Test fallback
-	assert.equal(resolve_exported_value(exported, 'default', ['browser']), './feature.js');
-});
-
-test('follows condition priority strictly', () => {
-	const exported = {
-		development: './dev.js',
-		node: './node.js',
-		default: './default.js',
-	};
-
-	assert.equal(resolve_exported_value(exported, 'default', ['development', 'node']), './dev.js');
-
-	assert.equal(resolve_exported_value(exported, 'default', ['node', 'development']), './node.js');
-});
-
-test('properly resolves module-sync condition', () => {
-	const exported = {
-		'module-sync': './sync.js',
-		import: './async.js',
 		default: './fallback.js',
 	};
 
-	assert.equal(resolve_exported_value(exported, 'default', ['module-sync']), './sync.js');
+	assert.equal(resolve_exported_value(exported, ['node', 'import', 'development']), './dev-esm.js');
+
+	assert.equal(
+		resolve_exported_value(exported, ['node', 'require', 'production']),
+		'./prod-cjs.js',
+	);
 });
 
-test('respects node-addons as highest priority condition', () => {
+// Condition precedence tests
+test('respects condition order for mutually exclusive conditions', () => {
+	const exported = {
+		import: './esm.js',
+		require: './cjs.js',
+		default: './fallback.js',
+	};
+
+	// import and require are mutually exclusive
+	assert.equal(resolve_exported_value(exported, ['import', 'require']), './esm.js');
+
+	assert.equal(resolve_exported_value(exported, ['require', 'import']), './cjs.js');
+});
+
+test('respects node-addons condition priority', () => {
 	const exported = {
 		'node-addons': './native.node',
-		node: './node.js',
-		import: './index.mjs',
+		node: './pure.js',
+		default: './fallback.js',
+	};
+
+	assert.equal(resolve_exported_value(exported, ['node-addons', 'node']), './native.node');
+
+	// When node-addons is not in conditions, should fall back
+	assert.equal(resolve_exported_value(exported, ['node']), './pure.js');
+});
+
+// Complex pattern matching tests
+test('handles complex pattern exports with multiple wildcards', () => {
+	const mock_package: Package_Json = {
+		name: '',
+		version: '',
+		exports: {
+			'./features/*/components/*.js': './src/features/*/components/*.js',
+			'./features/*/*': './src/features/*/*',
+		},
+	};
+	const resolved = resolve_subpath(mock_package, './features/auth/components/login.js');
+	assert.equal(resolved, './src/features/auth/components/login.js');
+});
+
+test('handles conditional pattern exports', () => {
+	const mock_package: Package_Json = {
+		name: '',
+		version: '',
+		exports: {
+			'./lib/*.js': {
+				node: './node/lib/*.js',
+				default: './lib/*.js',
+			},
+		},
+	};
+	const subpath = resolve_subpath(mock_package, './lib/utils.js');
+	const resolved = resolve_exported_value(subpath, ['node']);
+	assert.equal(resolved, './node/lib/utils.js');
+});
+
+// Edge cases
+test('handles invalid exports values', () => {
+	const exported = {
+		development: true,
+		production: 123,
+		node: null,
+		browser: undefined,
 		default: './index.js',
 	};
 
 	assert.equal(
-		resolve_exported_value(exported, 'default', ['node-addons', 'node', 'import']),
-		'./native.node',
+		resolve_exported_value(exported, ['development', 'production', 'node', 'browser']),
+		'./index.js',
 	);
-
-	// Should fall back when node-addons is disabled
-	assert.equal(resolve_exported_value(exported, 'default', ['node', 'import']), './node.js');
 });
 
-test('import and require are mutually exclusive', () => {
+test('handles empty conditions array', () => {
 	const exported = {
-		import: './index.mjs',
-		require: './index.cjs',
+		node: './node.js',
+		default: './fallback.js',
+	};
+
+	assert.equal(resolve_exported_value(exported, []), './fallback.js');
+});
+
+test('handles missing default condition', () => {
+	const exported = {
+		node: './node.js',
+		browser: './browser.js',
+	};
+
+	assert.equal(resolve_exported_value(exported, ['deno']), undefined);
+});
+
+// Main entry point sugar tests
+test('handles exports sugar syntax', () => {
+	const exported = './index.js';
+
+	assert.equal(resolve_exported_value(exported, ['node']), './index.js');
+});
+
+test('handles condition object with only default', () => {
+	const exported = {
 		default: './index.js',
 	};
 
-	// When import is in conditions, require should be ignored
-	assert.equal(resolve_exported_value(exported, 'default', ['import', 'require']), './index.mjs');
-
-	// When require is in conditions, import should be ignored
-	assert.equal(resolve_exported_value(exported, 'default', ['require', 'import']), './index.cjs');
+	assert.equal(resolve_exported_value(exported, ['node']), './index.js');
 });
 
-test('handles pattern exports and blocked subpaths', () => {
-	const exported = {
-		'./features/*.js': './src/features/*.js',
-		'./features/private/*': null,
+// Add new tests to verify pattern matching behavior
+test('handles multiple patterns in correct order', () => {
+	const mock_package: Package_Json = {
+		name: '',
+		version: '',
+		exports: {
+			'.': './index.js',
+			'./lib/*': './src/lib/*',
+			'./lib/*/index.js': './src/lib/*/index.js',
+			'./lib/internal/*': null,
+		},
 	};
-
-	// Test pattern export value is preserved
-	assert.equal(
-		resolve_exported_value(exported['./features/*.js'], 'default', ['node']),
-		'./src/features/*.js',
-	);
-
-	// Test blocked subpath
-	assert.equal(
-		resolve_exported_value(exported['./features/private/*'], 'default', ['node']),
-		undefined,
-	);
+	const resolved = resolve_subpath(mock_package, '.');
+	assert.equal(resolved, './index.js');
 });
 
-test('default condition must be tried last', () => {
-	const exported = {
-		default: './default.js',
-		production: './prod.js',
-		node: './node.js',
-		import: './index.mjs',
+test('prioritizes exact matches over patterns', () => {
+	const mock_package: Package_Json = {
+		name: '',
+		version: '',
+		exports: {
+			'./utils/index.js': './dist/utils/index.js',
+			'./utils/*': './src/utils/*',
+		},
 	};
-
-	// Even if default comes first in conditions, it should be tried last
-	assert.equal(resolve_exported_value(exported, 'default', ['default', 'node']), './node.js');
+	const resolved = resolve_subpath(mock_package, './utils/index.js');
+	assert.equal(resolved, './dist/utils/index.js');
 });
 
-test('handles directory and subpath pattern exports', () => {
-	const exported = {
-		'./lib/': './src/lib/',
-		'./lib/*': './src/lib/*',
-		'./lib/*.js': './src/lib/*.js',
+test('handles nested conditions with patterns', () => {
+	const mock_package: Package_Json = {
+		name: '',
+		version: '',
+		exports: {
+			'./components/*.js': {
+				import: './esm/components/*.js',
+				require: './cjs/components/*.js',
+				default: './components/*.js',
+			},
+		},
 	};
+	const subpath = resolve_subpath(mock_package, './components/button.js');
+	const resolved = resolve_exported_value(subpath, ['import']);
+	assert.equal(resolved, './esm/components/button.js');
+});
 
-	// Test directory mapping
-	assert.equal(resolve_exported_value(exported['./lib/'], 'default', ['node']), './src/lib/');
+test('pattern matches with multiple path segments', () => {
+	const mock_package: Package_Json = {
+		name: '',
+		version: '',
+		exports: {
+			'./assets/*': './public/assets/*',
+		},
+	};
+	const resolved = resolve_subpath(mock_package, './assets/images/logo.png');
+	assert.equal(resolved, './public/assets/images/logo.png');
+});
 
-	// Test wildcard pattern
-	assert.equal(resolve_exported_value(exported['./lib/*'], 'default', ['node']), './src/lib/*');
+test('null pattern blocks path with multiple segments', () => {
+	const mock_package: Package_Json = {
+		name: '',
+		version: '',
+		exports: {
+			'./private/*': null,
+			'./*': './src/*',
+		},
+	};
+	const blocked = resolve_subpath(mock_package, './private/secret/data.json');
+	assert.equal(blocked, null);
 
-	// Test extension pattern
-	assert.equal(
-		resolve_exported_value(exported['./lib/*.js'], 'default', ['node']),
-		'./src/lib/*.js',
-	);
+	const allowed = resolve_subpath(mock_package, './public/data.json');
+	assert.equal(allowed, './src/public/data.json');
+});
+
+test('pattern matching with multiple wildcards', () => {
+	const mock_package: Package_Json = {
+		name: '',
+		version: '',
+		exports: {
+			'./features/*/components/*.js': './src/features/*/components/*.js',
+		},
+	};
+	const resolved = resolve_subpath(mock_package, './features/auth/components/login.js');
+	assert.equal(resolved, './src/features/auth/components/login.js');
+});
+
+test('wildcard in target replaced multiple times', () => {
+	const mock_package: Package_Json = {
+		name: '',
+		version: '',
+		exports: {
+			'./docs/*': './content/*/index.html',
+		},
+	};
+	const resolved = resolve_subpath(mock_package, './docs/getting-started');
+	assert.equal(resolved, './content/getting-started/index.html');
 });
 
 test.run();
