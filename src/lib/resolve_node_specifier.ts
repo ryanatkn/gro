@@ -2,11 +2,15 @@ import {join, extname} from 'node:path';
 import {existsSync} from 'node:fs';
 import {DEV} from 'esm-env';
 
-import {Export_Value, Package_Json, load_package_json} from './package_json.js';
+import {Package_Json, load_package_json} from './package_json.js';
 import {paths} from './paths.js';
 import {NODE_MODULES_DIRNAME} from './constants.js';
 import type {Resolved_Specifier} from './resolve_specifier.js';
+import {escape_regexp} from '@ryanatkn/belt/regexp.js';
 
+/**
+ * This likely has differences from Node - they should be fixed on a case-by-case basis.
+ */
 export const resolve_node_specifier = (
 	specifier: string,
 	dir = paths.root,
@@ -58,14 +62,10 @@ export const resolve_node_specifier = (
 	// Handle self-referencing
 	if (parent_path?.startsWith(package_dir)) {
 		if (!package_json.exports) {
-			if (throw_on_missing_package) {
-				throw Error(
-					`Self-referencing is only available if package.json has "exports" field: ${specifier}` +
-						(parent_path ? ` imported from ${parent_path}` : ''),
-				);
-			} else {
-				return null;
-			}
+			throw Error(
+				`Self-referencing is only available if package.json has "exports" field: ${specifier}` +
+					(parent_path ? ` imported from ${parent_path}` : ''),
+			);
 		}
 	}
 
@@ -82,7 +82,7 @@ export const resolve_node_specifier = (
 		}
 	}
 
-	const exported_value = resolve_exported_value(exported, exports_conditions, module_path);
+	const exported_value = resolve_exported_value(exported, exports_conditions);
 	if (exported_value === undefined) {
 		if (throw_on_missing_package) {
 			throw Error(
@@ -106,11 +106,18 @@ export const resolve_node_specifier = (
 	};
 };
 
-export const resolve_subpath = (
-	package_json: Package_Json,
-	subpath: string,
-	// eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
-): Export_Value | null => {
+const replace_wildcards = (pattern: string, wildcards: string[]): string => {
+	if (!pattern.includes('*')) return pattern;
+
+	let result = pattern;
+	let wildcard_index = 0;
+	while (result.includes('*') && wildcard_index < wildcards.length) {
+		result = result.replace('*', wildcards[wildcard_index++]);
+	}
+	return result;
+};
+
+export const resolve_subpath = (package_json: Package_Json, subpath: string): unknown => {
 	// If no exports field exists, fallback to main field for the root subpath
 	if (!package_json.exports) {
 		return subpath === '.' && package_json.main ? package_json.main : null;
@@ -119,8 +126,8 @@ export const resolve_subpath = (
 	const exports = package_json.exports;
 
 	// Handle exports sugar syntax
-	if (typeof exports === 'string' && subpath === '.') {
-		return exports;
+	if (typeof exports === 'string') {
+		return subpath === '.' ? exports : null;
 	}
 
 	// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
@@ -130,49 +137,95 @@ export const resolve_subpath = (
 			return exports[subpath];
 		}
 
-		// Then check patterns, sorted by specificity
+		// Sort patterns by specificity
 		const patterns = Object.entries(exports)
 			.filter(([pattern]) => pattern.includes('*'))
+			.map(([pattern, target]) => ({
+				pattern,
+				target,
+				static_prefix: pattern.split('*')[0],
+				segments: pattern.split('/').length,
+				wildcards: (pattern.match(/\*/g) ?? []).length,
+			}))
 			.sort((a, b) => {
 				// Sort by static prefix length first
-				const aStatic = a[0].split('*')[0].length;
-				const bStatic = b[0].split('*')[0].length;
-				if (aStatic !== bStatic) return bStatic - aStatic;
-				// Then by number of path segments
-				return (b[0].match(/\//g) ?? []).length - (a[0].match(/\//g) ?? []).length;
+				const prefix_diff = b.static_prefix.length - a.static_prefix.length;
+				if (prefix_diff !== 0) return prefix_diff;
+
+				// Then by number of segments
+				const segment_diff = b.segments - a.segments;
+				if (segment_diff !== 0) return segment_diff;
+
+				// Then by number of wildcards (fewer is more specific)
+				const wildcard_diff = a.wildcards - b.wildcards;
+				if (wildcard_diff !== 0) return wildcard_diff;
+
+				// Finally by total pattern length
+				return b.pattern.length - a.pattern.length;
 			});
 
-		for (const [pattern, target] of patterns) {
-			const regex_str = '^' + pattern.replace(/\./g, '\\.').replace(/\*/g, '(.*)') + '$';
-			const regex = new RegExp(regex_str);
+		// Track matched wildcards for later use
+		let matched_wildcards: string[] = [];
+
+		// Check patterns in order of specificity
+		for (const {pattern, target} of patterns) {
+			// Convert pattern to regex, handling path segments properly
+			const regex_pattern = pattern.split('*').map(escape_regexp).join('([^/]+)');
+			const regex = new RegExp(`^${regex_pattern}$`);
 			const match = subpath.match(regex);
 
 			if (match) {
+				// If this is a null pattern and it matches, block access
 				if (target === null) return null;
 
-				const captures = match.slice(1);
+				// Extract captured wildcards and store them
+				matched_wildcards = match.slice(1);
 
 				if (typeof target === 'string') {
-					let result = target;
-					for (const capture of captures) {
-						result = result.replace('*', capture);
-					}
-					return result;
+					return replace_wildcards(target, matched_wildcards);
 				}
 
 				if (typeof target === 'object' && target !== null) {
+					// For conditional exports, return an object with resolved wildcards
 					return Object.fromEntries(
 						Object.entries(target).map(([key, value]) => {
 							if (typeof value === 'string') {
-								let result = value;
-								for (const capture of captures) {
-									result = result.replace('*', capture);
-								}
-								return [key, result];
+								return [key, replace_wildcards(value, matched_wildcards)];
+							}
+							// Handle nested conditions
+							if (typeof value === 'object' && value !== null) {
+								return [
+									key,
+									Object.fromEntries(
+										Object.entries(value).map(([nested_key, nested_value]) => [
+											nested_key,
+											typeof nested_value === 'string'
+												? replace_wildcards(nested_value, matched_wildcards)
+												: nested_value,
+										]),
+									),
+								];
 							}
 							return [key, value];
 						}),
 					);
+				}
+			}
+		}
+
+		// Handle catch-all patterns for remaining cases
+		const catch_all_patterns = patterns.filter(
+			({pattern}) => pattern.endsWith('/*') || pattern === './*',
+		);
+
+		for (const {pattern, target} of catch_all_patterns) {
+			const base_pattern = pattern.slice(0, -1); // Remove trailing '*'
+			if (subpath.startsWith(base_pattern)) {
+				if (target === null) return null;
+
+				const remainder = subpath.slice(base_pattern.length);
+				if (typeof target === 'string') {
+					return target.slice(0, -1) + remainder;
 				}
 			}
 		}
@@ -182,18 +235,10 @@ export const resolve_subpath = (
 };
 
 export const resolve_exported_value = (
-	exported: any,
+	exported: unknown,
 	conditions: string[],
-	captured_path?: string,
 ): string | undefined => {
 	if (typeof exported === 'string') {
-		// If this is a wildcard path and we have a captured path, replace the wildcard
-		if (exported.includes('*') && captured_path) {
-			const path_part = captured_path.substring(captured_path.lastIndexOf('/') + 1);
-			// Remove .js extension from path_part if present
-			const base_path_part = path_part.endsWith('.js') ? path_part.slice(0, -3) : path_part;
-			return exported.replace('*', base_path_part);
-		}
 		return exported;
 	}
 
@@ -201,26 +246,31 @@ export const resolve_exported_value = (
 		return undefined;
 	}
 
-	// Handle types condition first if present
-	if ('types' in exported && conditions.includes('types')) {
-		return resolve_exported_value(exported.types, conditions, captured_path);
+	const exported_obj = exported as Record<string, unknown>;
+
+	// Handle "types" condition first if present
+	if ('types' in exported_obj && conditions.includes('types')) {
+		const resolved = resolve_exported_value(exported_obj.types, conditions);
+		if (resolved !== undefined) {
+			return resolved;
+		}
 	}
 
-	// Handle user-specified conditions in order
+	// Process conditions in user-provided order
 	for (const condition of conditions) {
 		if (!is_valid_condition(condition)) continue;
 
-		if (condition in exported) {
-			const result = resolve_exported_value(exported[condition], conditions, captured_path);
-			if (result !== undefined) {
-				return result;
+		if (condition in exported_obj) {
+			const resolved = resolve_exported_value(exported_obj[condition], conditions);
+			if (resolved !== undefined) {
+				return resolved;
 			}
 		}
 	}
 
 	// Finally, check default
-	if ('default' in exported) {
-		return resolve_exported_value(exported.default, conditions, captured_path);
+	if ('default' in exported_obj) {
+		return resolve_exported_value(exported_obj.default, conditions);
 	}
 
 	return undefined;
