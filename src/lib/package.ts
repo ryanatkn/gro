@@ -75,7 +75,7 @@ export const package_json = {
 		svelte: '^5.1.5',
 		'svelte-check': '^4.0.5',
 		typescript: '^5.6.3',
-		'typescript-eslint': '^8.12.2',
+		'typescript-eslint': '^8.12.1',
 		uvu: '^0.5.6',
 	},
 	prettier: {
