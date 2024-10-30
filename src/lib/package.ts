@@ -157,6 +157,10 @@ export const package_json = {
 			types: './dist/gro_plugin_gen.d.ts',
 			default: './dist/gro_plugin_gen.js',
 		},
+		'./gro_plugin_moss.js': {
+			types: './dist/gro_plugin_moss.d.ts',
+			default: './dist/gro_plugin_moss.js',
+		},
 		'./gro_plugin_server.js': {
 			types: './dist/gro_plugin_server.d.ts',
 			default: './dist/gro_plugin_server.js',
@@ -597,6 +601,15 @@ export const src_json = {
 				{name: 'Options', kind: 'type'},
 				{name: 'gro_plugin_gen', kind: 'function'},
 				{name: 'filter_dependents', kind: 'function'},
+			],
+		},
+		'./gro_plugin_moss.js': {
+			path: 'gro_plugin_moss.ts',
+			declarations: [
+				{name: 'generate_classes_css', kind: 'function'},
+				{name: 'Task_Args', kind: 'type'},
+				{name: 'Options', kind: 'type'},
+				{name: 'gro_plugin_moss', kind: 'function'},
 			],
 		},
 		'./gro_plugin_server.js': {

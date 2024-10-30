@@ -250,6 +250,10 @@
       "types": "./dist/gro_plugin_gen.d.ts",
       "default": "./dist/gro_plugin_gen.js"
     },
+    "./gro_plugin_moss.js": {
+      "types": "./dist/gro_plugin_moss.d.ts",
+      "default": "./dist/gro_plugin_moss.js"
+    },
     "./gro_plugin_server.js": {
       "types": "./dist/gro_plugin_server.d.ts",
       "default": "./dist/gro_plugin_server.js"
