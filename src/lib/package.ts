@@ -431,14 +431,14 @@ export const src_json = {
 		'./esbuild_plugin_external_worker.js': {
 			path: 'esbuild_plugin_external_worker.ts',
 			declarations: [
-				{name: 'Options', kind: 'type'},
+				{name: 'Esbuild_Plugin_External_Worker_Options', kind: 'type'},
 				{name: 'esbuild_plugin_external_worker', kind: 'function'},
 			],
 		},
 		'./esbuild_plugin_svelte.js': {
 			path: 'esbuild_plugin_svelte.ts',
 			declarations: [
-				{name: 'Options', kind: 'type'},
+				{name: 'Esbuild_Plugin_Svelte_Options', kind: 'type'},
 				{name: 'esbuild_plugin_svelte', kind: 'function'},
 			],
 		},
@@ -449,21 +449,21 @@ export const src_json = {
 		'./esbuild_plugin_sveltekit_shim_alias.js': {
 			path: 'esbuild_plugin_sveltekit_shim_alias.ts',
 			declarations: [
-				{name: 'Options', kind: 'type'},
+				{name: 'Esbuild_Plugin_Sveltekit_Shim_Alias_Options', kind: 'type'},
 				{name: 'esbuild_plugin_sveltekit_shim_alias', kind: 'function'},
 			],
 		},
 		'./esbuild_plugin_sveltekit_shim_app.js': {
 			path: 'esbuild_plugin_sveltekit_shim_app.ts',
 			declarations: [
-				{name: 'Options', kind: 'type'},
+				{name: 'Esbuild_Plugin_Sveltekit_Shim_App_Options', kind: 'type'},
 				{name: 'esbuild_plugin_sveltekit_shim_app', kind: 'function'},
 			],
 		},
 		'./esbuild_plugin_sveltekit_shim_env.js': {
 			path: 'esbuild_plugin_sveltekit_shim_env.ts',
 			declarations: [
-				{name: 'Options', kind: 'type'},
+				{name: 'Esbuild_Plugin_Sveltekit_Shim_Env_Options', kind: 'type'},
 				{name: 'esbuild_plugin_sveltekit_shim_env', kind: 'function'},
 			],
 		},
@@ -473,7 +473,7 @@ export const src_json = {
 				{name: 'Source_File', kind: 'type'},
 				{name: 'Cleanup_Watch', kind: 'type'},
 				{name: 'On_Filer_Change', kind: 'type'},
-				{name: 'Options', kind: 'type'},
+				{name: 'Filer_Options', kind: 'type'},
 				{name: 'Filer', kind: 'class'},
 			],
 		},
@@ -594,7 +594,7 @@ export const src_json = {
 			path: 'gro_plugin_gen.ts',
 			declarations: [
 				{name: 'Task_Args', kind: 'type'},
-				{name: 'Options', kind: 'type'},
+				{name: 'Gro_Plugin_Gen_Options', kind: 'type'},
 				{name: 'gro_plugin_gen', kind: 'function'},
 				{name: 'filter_dependents', kind: 'function'},
 			],
@@ -604,7 +604,7 @@ export const src_json = {
 			declarations: [
 				{name: 'SERVER_SOURCE_ID', kind: 'variable'},
 				{name: 'has_server', kind: 'function'},
-				{name: 'Options', kind: 'type'},
+				{name: 'Gro_Plugin_Server_Options', kind: 'type'},
 				{name: 'Outpaths', kind: 'type'},
 				{name: 'Create_Outpaths', kind: 'type'},
 				{name: 'gro_plugin_server', kind: 'function'},
@@ -613,7 +613,7 @@ export const src_json = {
 		'./gro_plugin_sveltekit_app.js': {
 			path: 'gro_plugin_sveltekit_app.ts',
 			declarations: [
-				{name: 'Options', kind: 'type'},
+				{name: 'Gro_Plugin_Sveltekit_App_Options', kind: 'type'},
 				{name: 'Host_Target', kind: 'type'},
 				{name: 'Copy_File_Filter', kind: 'type'},
 				{name: 'gro_plugin_sveltekit_app', kind: 'function'},
@@ -622,7 +622,7 @@ export const src_json = {
 		'./gro_plugin_sveltekit_library.js': {
 			path: 'gro_plugin_sveltekit_library.ts',
 			declarations: [
-				{name: 'Options', kind: 'type'},
+				{name: 'Gro_Plugin_Sveltekit_Library_Options', kind: 'type'},
 				{name: 'gro_plugin_sveltekit_library', kind: 'function'},
 			],
 		},
@@ -1037,7 +1037,7 @@ export const src_json = {
 				{name: 'Watcher_Change', kind: 'type'},
 				{name: 'Watcher_Change_Type', kind: 'type'},
 				{name: 'Watcher_Change_Callback', kind: 'type'},
-				{name: 'Options', kind: 'type'},
+				{name: 'Watch_Dir_Options', kind: 'type'},
 				{name: 'watch_dir', kind: 'function'},
 			],
 		},
