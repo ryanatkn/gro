@@ -2,4 +2,4 @@
 '@ryanatkn/gro': patch
 ---
 
-add moss plugin
+move moss plugin from moss
