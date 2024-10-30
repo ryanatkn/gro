@@ -574,7 +574,7 @@ test('falls back to main field when no exports field exists', () => {
 	const cache = {
 		'main-fallback': {
 			name: 'main-fallback',
-			version: '1.0.0',
+			version: '',
 			main: './lib/index.js',
 		},
 	};
@@ -588,7 +588,7 @@ test('handles self-referencing with exports field', () => {
 	const cache = {
 		'self-ref-pkg': {
 			name: 'self-ref-pkg',
-			version: '1.0.0',
+			version: '',
 			exports: {
 				'.': './index.js',
 				'./utils': './lib/utils.js',
@@ -610,7 +610,7 @@ test('rejects self-referencing without exports field', () => {
 	const cache = {
 		'no-exports-self-ref': {
 			name: 'no-exports-self-ref',
-			version: '1.0.0',
+			version: '',
 			main: './index.js',
 		},
 	};
@@ -631,7 +631,7 @@ test('handles pattern exports', () => {
 	const cache = {
 		'pattern-test': {
 			name: 'pattern-test',
-			version: '1.0.0',
+			version: '',
 			exports: {
 				'./features/*.js': './src/features/*.js',
 				'./features/*/index.js': './src/features/*/index.js',
@@ -669,7 +669,7 @@ test('handles exports with conditions', () => {
 	const cache = {
 		'conditions-test': {
 			name: 'conditions-test',
-			version: '1.0.0',
+			version: '',
 			exports: {
 				'.': {
 					types: './index.d.ts',
@@ -699,7 +699,7 @@ test('handles nested conditions with pattern exports', () => {
 	const cache = {
 		'nested-conditions': {
 			name: 'nested-conditions',
-			version: '1.0.0',
+			version: '',
 			exports: {
 				'./components/*.js': {
 					types: './types/components/*.d.ts',
@@ -746,7 +746,7 @@ test('exports field takes precedence over main', () => {
 	const cache = {
 		'precedence-test': {
 			name: 'precedence-test',
-			version: '1.0.0',
+			version: '',
 			main: './old-main.js',
 			exports: {
 				'.': './new-main.js',
@@ -763,7 +763,7 @@ test('handles complex pattern matching precedence', () => {
 	const cache = {
 		'pattern-precedence': {
 			name: 'pattern-precedence',
-			version: '1.0.0',
+			version: '',
 			exports: {
 				'./dist/exact.js': './built/exact.js', // exact match
 				'./dist/*/specific/*.js': './src/*/exact/*.js', // more specific pattern
@@ -813,7 +813,7 @@ test('handles extensionless imports', () => {
 	const cache = {
 		'extension-test': {
 			name: 'extension-test',
-			version: '1.0.0',
+			version: '',
 			exports: {
 				'.': './index', // no extension
 				'./lib': './src/lib', // no extension
@@ -831,7 +831,7 @@ test('handles scoped package resolution', () => {
 	const cache = {
 		'@scope/package': {
 			name: '@scope/package',
-			version: '1.0.0',
+			version: '',
 			exports: {
 				'.': './index.js',
 				'./feature': './lib/feature.js',
