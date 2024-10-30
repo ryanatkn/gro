@@ -19,7 +19,7 @@ import {
 } from './sveltekit_config.js';
 import {TS_MATCHER} from './constants.js';
 
-export interface Options {
+export interface Esbuild_Plugin_Svelte_Options {
 	dev: boolean;
 	base_url: Parsed_Sveltekit_Config['base_url'];
 	dir?: string;
@@ -30,7 +30,7 @@ export interface Options {
 	is_ts?: (filename: string) => boolean;
 }
 
-export const esbuild_plugin_svelte = (options: Options): esbuild.Plugin => {
+export const esbuild_plugin_svelte = (options: Esbuild_Plugin_Svelte_Options): esbuild.Plugin => {
 	const {
 		dev,
 		base_url,

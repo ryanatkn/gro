@@ -20,7 +20,7 @@ export interface Watcher_Change {
 export type Watcher_Change_Type = 'add' | 'update' | 'delete';
 export type Watcher_Change_Callback = (change: Watcher_Change) => void;
 
-export interface Options {
+export interface Watch_Dir_Options {
 	dir: string;
 	on_change: Watcher_Change_Callback;
 	filter?: Path_Filter | null | undefined;
@@ -41,7 +41,7 @@ export const watch_dir = ({
 	filter,
 	absolute = true,
 	chokidar,
-}: Options): Watch_Node_Fs => {
+}: Watch_Dir_Options): Watch_Node_Fs => {
 	let watcher: FSWatcher | undefined;
 	let initing: Deferred<void> | undefined;
 

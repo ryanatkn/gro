@@ -13,7 +13,7 @@ import {default_sveltekit_config} from './sveltekit_config.js';
 import {SOURCE_DIRNAME} from './constants.js';
 import {VITE_CLI} from './sveltekit_helpers.js';
 
-export interface Options {
+export interface Gro_Plugin_Sveltekit_App_Options {
 	/**
 	 * Used for finalizing a SvelteKit build like adding a `.nojekyll` file for GitHub Pages.
 	 * @default 'github_pages'
@@ -53,7 +53,7 @@ export const gro_plugin_sveltekit_app = ({
 	well_known_src_json,
 	well_known_src_files,
 	vite_cli = VITE_CLI,
-}: Options = {}): Plugin => {
+}: Gro_Plugin_Sveltekit_App_Options = {}): Plugin => {
 	let sveltekit_process: Spawned_Process | undefined = undefined;
 	return {
 		name: 'gro_plugin_sveltekit_app',

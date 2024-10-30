@@ -33,7 +33,7 @@ export const has_server = (path = SERVER_SOURCE_ID): Result<object, {message: st
 	return {ok: true};
 };
 
-export interface Options {
+export interface Gro_Plugin_Server_Options {
 	/**
 	 * same as esbuild's `entryPoints`
 	 */
@@ -121,7 +121,7 @@ export const gro_plugin_server = ({
 	rebuild_throttle_delay = 1000,
 	cli_command,
 	run, // `dev` default is not available in this scope
-}: Options = {}): Plugin => {
+}: Gro_Plugin_Server_Options = {}): Plugin => {
 	let build_ctx: esbuild.BuildContext | null = null;
 	let watcher: Watch_Node_Fs | null = null;
 	let server_process: Restartable_Process | null = null;

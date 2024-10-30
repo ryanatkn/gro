@@ -9,7 +9,7 @@ import {
 	watch_dir,
 	type Watch_Node_Fs,
 	type Watcher_Change,
-	type Options as Watch_Dir_Options,
+	type Watch_Dir_Options,
 	type Watcher_Change_Callback,
 } from './watch_dir.js';
 import {paths} from './paths.js';
@@ -20,14 +20,11 @@ import {map_sveltekit_aliases} from './sveltekit_helpers.js';
 import {Unreachable_Error} from '@ryanatkn/belt/error.js';
 import {resolve_node_specifier} from './resolve_node_specifier.js';
 import type {Package_Json} from './package_json.js';
-// TODO see below
-// import {resolve_node_specifier} from './resolve_node_specifier.js';
 
 const aliases = Object.entries(default_sveltekit_config.alias);
 
 export interface Source_File {
 	id: Path_Id;
-	// TODO add // mtime: number;
 	/**
 	 * `null` contents means it doesn't exist.
 	 * We create the file in memory to track its dependents regardless of its existence on disk.
@@ -47,7 +44,7 @@ export type Cleanup_Watch = () => Promise<void>;
 
 export type On_Filer_Change = (change: Watcher_Change, source_file: Source_File) => void;
 
-export interface Options {
+export interface Filer_Options {
 	watch_dir?: typeof watch_dir;
 	watch_dir_options?: Partial<Omit_Strict<Watch_Dir_Options, 'on_change'>>;
 	package_json_cache?: Record<string, Package_Json>;
@@ -63,7 +60,7 @@ export class Filer {
 
 	#package_json_cache: Record<string, Package_Json>;
 
-	constructor(options: Options = EMPTY_OBJECT) {
+	constructor(options: Filer_Options = EMPTY_OBJECT) {
 		this.#watch_dir = options.watch_dir ?? watch_dir;
 		this.#watch_dir_options = options.watch_dir_options ?? EMPTY_OBJECT;
 		this.root_dir = resolve(options.watch_dir_options?.dir ?? paths.source);
