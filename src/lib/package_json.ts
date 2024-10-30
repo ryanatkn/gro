@@ -63,17 +63,12 @@ export const Package_Json_Funding = z.union([
 ]);
 export type Package_Json_Funding = z.infer<typeof Package_Json_Funding>;
 
-// exports: {
-// 	'./': './index.js',
-// 	'./record': {default: './record.js'},
-//  './export_condition': {default: {development: './ec1', default: './ec2.js'}},
-// }
 export const Package_Json_Exports = z.record(
 	z
 		.union([
-			z.string(),
-			z.record(z.string().optional()),
-			z.record(z.record(z.string().optional()).optional()),
+			z.string(), // './': './index.js',
+			z.record(z.string().optional()), // './a': {default: './a.js'},
+			z.record(z.record(z.string().optional()).optional()), // './a': {default: {development: './a.js', default: './b.js'}},
 		])
 		.optional(),
 );
