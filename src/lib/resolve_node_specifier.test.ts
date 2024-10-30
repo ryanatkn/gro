@@ -844,6 +844,164 @@ test('handles scoped package resolution', () => {
 	assert.equal(result?.path_id, resolve(TEST_ROOT, 'node_modules/@scope/package/lib/feature.js'));
 });
 
+test('handles exports sugar syntax variants', () => {
+	const cache = {
+		'sugar-test': {
+			name: 'sugar-test',
+			version: '',
+			exports: './index.js',
+		},
+		'sugar-test-2': {
+			name: 'sugar-test-2',
+			version: '',
+			exports: {
+				'.': './index.js',
+			},
+		},
+	};
+
+	const result1 = resolve_node_specifier('sugar-test', TEST_ROOT, undefined, cache);
+	const result2 = resolve_node_specifier('sugar-test-2', TEST_ROOT, undefined, cache);
+
+	// Both forms should resolve identically
+	assert.equal(result1?.path_id, resolve(TEST_ROOT, 'node_modules/sugar-test/index.js'));
+	assert.equal(result2?.path_id, resolve(TEST_ROOT, 'node_modules/sugar-test-2/index.js'));
+});
+
+test('handles complete package exports encapsulation', () => {
+	const cache = {
+		'encapsulated-pkg': {
+			name: 'encapsulated-pkg',
+			version: '',
+			exports: {
+				'.': './index.js',
+				'./feature': './src/feature.js',
+			},
+		},
+	};
+
+	// Should allow listed exports
+	const result1 = resolve_node_specifier('encapsulated-pkg', TEST_ROOT, undefined, cache);
+	assert.equal(result1?.path_id, resolve(TEST_ROOT, 'node_modules/encapsulated-pkg/index.js'));
+
+	// Should block unlisted internal paths
+	assert.throws(
+		() => resolve_node_specifier('encapsulated-pkg/src/internal.js', TEST_ROOT, undefined, cache),
+		/ERR_PACKAGE_PATH_NOT_EXPORTED/,
+	);
+});
+
+test('handles multiple pattern wildcards in order of specificity', () => {
+	const cache = {
+		'pattern-specificity': {
+			name: 'pattern-specificity',
+			version: '',
+			exports: {
+				'./lib/*/components/*.js': './src/lib/*/components/*.js', // Most specific
+				'./lib/*/*.js': './src/lib/*/*.js', // Less specific
+				'./*': './src/*', // Least specific
+			},
+		},
+	};
+
+	// Most specific pattern should match
+	const result1 = resolve_node_specifier(
+		'pattern-specificity/lib/auth/components/login.js',
+		TEST_ROOT,
+		undefined,
+		cache,
+	);
+	assert.equal(
+		result1?.path_id,
+		resolve(TEST_ROOT, 'node_modules/pattern-specificity/src/lib/auth/components/login.js'),
+	);
+
+	// Less specific pattern should match
+	const result2 = resolve_node_specifier(
+		'pattern-specificity/lib/utils/helpers.js',
+		TEST_ROOT,
+		undefined,
+		cache,
+	);
+	assert.equal(
+		result2?.path_id,
+		resolve(TEST_ROOT, 'node_modules/pattern-specificity/src/lib/utils/helpers.js'),
+	);
+
+	// Least specific pattern should match
+	const result3 = resolve_node_specifier(
+		'pattern-specificity/styles/main.css',
+		TEST_ROOT,
+		undefined,
+		cache,
+	);
+	assert.equal(
+		result3?.path_id,
+		resolve(TEST_ROOT, 'node_modules/pattern-specificity/src/styles/main.css'),
+	);
+});
+
+test('handles module-sync with nested conditions', () => {
+	const cache = {
+		'module-sync-test': {
+			name: 'module-sync-test',
+			version: '',
+			exports: {
+				'.': {
+					'module-sync': {
+						import: './sync/esm.js',
+						require: './sync/cjs.js',
+					},
+					import: './async/esm.js',
+					require: './async/cjs.js',
+				},
+			},
+		},
+	};
+
+	// module-sync should take precedence
+	const result1 = resolve_node_specifier('module-sync-test', TEST_ROOT, undefined, cache, true, [
+		'module-sync',
+		'import',
+	]);
+	assert.equal(result1?.path_id, resolve(TEST_ROOT, 'node_modules/module-sync-test/sync/esm.js'));
+
+	// Without module-sync condition, should fall back to regular import
+	const result2 = resolve_node_specifier('module-sync-test', TEST_ROOT, undefined, cache, true, [
+		'import',
+	]);
+	assert.equal(result2?.path_id, resolve(TEST_ROOT, 'node_modules/module-sync-test/async/esm.js'));
+});
+
+test('handles node-addons condition priority', () => {
+	const cache = {
+		'addons-test': {
+			name: 'addons-test',
+			version: '',
+			exports: {
+				'.': {
+					'node-addons': './native/addon.node',
+					node: './js/impl.js',
+					default: './wasm/impl.js',
+				},
+			},
+		},
+	};
+
+	// node-addons should take precedence when present
+	const result1 = resolve_node_specifier('addons-test', TEST_ROOT, undefined, cache, true, [
+		'node-addons',
+		'node',
+	]);
+	assert.equal(result1?.path_id, resolve(TEST_ROOT, 'node_modules/addons-test/native/addon.node'));
+
+	// Should fall back to node when node-addons not in conditions
+	const result2 = resolve_node_specifier('addons-test', TEST_ROOT, undefined, cache, true, [
+		'node',
+	]);
+	assert.equal(result2?.path_id, resolve(TEST_ROOT, 'node_modules/addons-test/js/impl.js'));
+});
+
 // TODO resolve self-referencing
 
 test.run();

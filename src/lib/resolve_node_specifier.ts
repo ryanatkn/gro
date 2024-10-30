@@ -111,30 +111,34 @@ export const resolve_subpath = (
 	subpath: string,
 	// eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
 ): Export_Value | null => {
-	// No changes needed in resolve_subpath
-	// ... existing implementation ...
+	// If no exports field exists, fallback to main field for the root subpath
 	if (!package_json.exports) {
 		return subpath === '.' && package_json.main ? package_json.main : null;
 	}
 
 	const exports = package_json.exports;
 
+	// Handle exports sugar syntax
 	if (typeof exports === 'string' && subpath === '.') {
 		return exports;
 	}
 
 	// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
 	if (typeof exports === 'object' && exports !== null) {
+		// Check for exact match first
 		if (subpath in exports) {
 			return exports[subpath];
 		}
 
+		// Then check patterns, sorted by specificity
 		const patterns = Object.entries(exports)
 			.filter(([pattern]) => pattern.includes('*'))
 			.sort((a, b) => {
+				// Sort by static prefix length first
 				const aStatic = a[0].split('*')[0].length;
 				const bStatic = b[0].split('*')[0].length;
 				if (aStatic !== bStatic) return bStatic - aStatic;
+				// Then by number of path segments
 				return (b[0].match(/\//g) ?? []).length - (a[0].match(/\//g) ?? []).length;
 			});
 
@@ -197,10 +201,12 @@ export const resolve_exported_value = (
 		return undefined;
 	}
 
+	// Handle types condition first if present
 	if ('types' in exported && conditions.includes('types')) {
 		return resolve_exported_value(exported.types, conditions, captured_path);
 	}
 
+	// Handle user-specified conditions in order
 	for (const condition of conditions) {
 		if (!is_valid_condition(condition)) continue;
 
@@ -212,6 +218,7 @@ export const resolve_exported_value = (
 		}
 	}
 
+	// Finally, check default
 	if ('default' in exported) {
 		return resolve_exported_value(exported.default, conditions, captured_path);
 	}
