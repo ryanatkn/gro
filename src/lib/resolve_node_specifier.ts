@@ -110,6 +110,7 @@ const resolve_subpath = (
 	return {exported, exports_key};
 };
 
+// TODO BLOCK fix for node compat - https://nodejs.org/api/packages.html#resolving-user-conditions
 /**
  * Resolves the exported value based on the exports key and condition.
  */
