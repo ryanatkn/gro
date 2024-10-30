@@ -131,7 +131,6 @@ test('optionally returns null for a Node specifier', () => {
 	assert.is(resolve_node_specifier('node:path', undefined, undefined, undefined, false), null);
 });
 
-// Pattern matching tests
 test('handles basic pattern exports', () => {
 	const mock_package: Package_Json = {
 		name: '',
@@ -177,7 +176,6 @@ test('handles null pattern exports as blockers', () => {
 	assert.equal(allowed, './src/public/file.js');
 });
 
-// Nested conditional exports tests
 test('handles deeply nested conditional exports', () => {
 	const exported = {
 		node: {
@@ -201,7 +199,6 @@ test('handles deeply nested conditional exports', () => {
 	);
 });
 
-// Condition precedence tests
 test('respects condition order for mutually exclusive conditions', () => {
 	const exported = {
 		import: './esm.js',
@@ -228,7 +225,6 @@ test('respects node-addons condition priority', () => {
 	assert.equal(resolve_exported_value(exported, ['node']), './pure.js');
 });
 
-// Complex pattern matching tests
 test('handles complex pattern exports with multiple wildcards', () => {
 	const mock_package: Package_Json = {
 		name: '',
@@ -258,7 +254,6 @@ test('handles conditional pattern exports', () => {
 	assert.equal(resolved, './node/lib/utils.js');
 });
 
-// Edge cases
 test('handles invalid exports values', () => {
 	const exported = {
 		development: true,
@@ -292,7 +287,6 @@ test('handles missing default condition', () => {
 	assert.equal(resolve_exported_value(exported, ['deno']), undefined);
 });
 
-// Main entry point sugar tests
 test('handles exports sugar syntax', () => {
 	const exported = './index.js';
 
@@ -307,7 +301,6 @@ test('handles condition object with only default', () => {
 	assert.equal(resolve_exported_value(exported, ['node']), './index.js');
 });
 
-// Add new tests to verify pattern matching behavior
 test('handles multiple patterns in correct order', () => {
 	const mock_package: Package_Json = {
 		name: '',
@@ -404,5 +397,176 @@ test('wildcard in target replaced multiple times', () => {
 	const resolved = resolve_subpath(mock_package, './docs/getting-started');
 	assert.equal(resolved, './content/getting-started/index.html');
 });
+
+test('handles all community-defined conditions', () => {
+	const exported = {
+		types: './index.d.ts',
+		browser: './browser.js',
+		development: './dev.js',
+		production: './prod.js',
+		default: './index.js',
+	};
+
+	// Test types condition priority (should be first)
+	assert.equal(
+		resolve_exported_value(exported, ['browser', 'types']),
+		'./index.d.ts',
+		'types condition should take precedence',
+	);
+
+	// Test browser condition
+	assert.equal(resolve_exported_value(exported, ['browser']), './browser.js');
+
+	// Test development/production mutual exclusivity
+	assert.equal(
+		resolve_exported_value(exported, ['development', 'production']),
+		'./dev.js',
+		'development should be chosen when both present',
+	);
+});
+
+test('enforces custom user condition naming restrictions', () => {
+	const exported = {
+		'valid-condition': './valid.js',
+		'valid:condition': './valid2.js',
+		'valid=condition': './valid3.js',
+		'.invalid': './invalid1.js',
+		'invalid,name': './invalid2.js',
+		'10': './invalid3.js',
+		default: './default.js',
+	};
+
+	// Valid conditions should resolve
+	assert.equal(resolve_exported_value(exported, ['valid-condition']), './valid.js');
+	assert.equal(resolve_exported_value(exported, ['valid:condition']), './valid2.js');
+	assert.equal(resolve_exported_value(exported, ['valid=condition']), './valid3.js');
+
+	// Invalid conditions should fall through to default
+	assert.equal(
+		resolve_exported_value(exported, ['.invalid']),
+		'./default.js',
+		'conditions starting with . should be ignored',
+	);
+	assert.equal(
+		resolve_exported_value(exported, ['invalid,name']),
+		'./default.js',
+		'conditions containing , should be ignored',
+	);
+	assert.equal(
+		resolve_exported_value(exported, ['10']),
+		'./default.js',
+		'numeric conditions should be ignored',
+	);
+});
+
+test('handles module-sync condition with require/import interaction', () => {
+	const exported = {
+		'module-sync': {
+			import: './sync-module.mjs',
+			require: './sync-module.cjs',
+		},
+		import: './async-module.mjs',
+		require: './async-module.cjs',
+		default: './fallback.js',
+	};
+
+	// Should prioritize module-sync over import/require
+	assert.equal(resolve_exported_value(exported, ['module-sync', 'import']), './sync-module.mjs');
+
+	assert.equal(resolve_exported_value(exported, ['module-sync', 'require']), './sync-module.cjs');
+
+	// When module-sync not in conditions, should use import/require
+	assert.equal(resolve_exported_value(exported, ['import']), './async-module.mjs');
+
+	assert.equal(resolve_exported_value(exported, ['require']), './async-module.cjs');
+});
+
+test('resolves deeply nested conditional exports', () => {
+	const exported = {
+		types: './index.d.ts',
+		browser: {
+			node: {
+				development: './browser-node-dev.js',
+				default: './browser-node.js',
+			},
+			default: {
+				development: './browser-dev.js',
+				default: './browser.js',
+			},
+		},
+		default: {
+			node: {
+				development: './node-dev.js',
+				default: './node.js',
+			},
+			default: {
+				development: './dev.js',
+				default: './index.js',
+			},
+		},
+	};
+
+	// Test types precedence
+	assert.equal(
+		resolve_exported_value(exported, ['browser', 'node', 'types']),
+		'./index.d.ts',
+		'types should take precedence',
+	);
+
+	// Test nested resolution with all conditions present
+	assert.equal(
+		resolve_exported_value(exported, ['browser', 'node', 'development']),
+		'./browser-node-dev.js',
+		'should resolve most specific path',
+	);
+
+	// Test fallback to default at each level
+	assert.equal(
+		resolve_exported_value(exported, ['browser', 'node']),
+		'./browser-node.js',
+		'should fallback to default when condition missing',
+	);
+
+	assert.equal(
+		resolve_exported_value(exported, ['browser']),
+		'./browser.js',
+		'should fallback through multiple defaults',
+	);
+
+	// Test complete fallback
+	assert.equal(
+		resolve_exported_value(exported, ['deno']),
+		'./index.js',
+		'should fallback to ultimate default',
+	);
+});
+
+test('respects condition evaluation order', () => {
+	const exported = {
+		node: {
+			browser: './node-browser.js',
+			default: './node.js',
+		},
+		browser: {
+			node: './browser-node.js',
+			default: './browser.js',
+		},
+		default: './index.js',
+	};
+
+	assert.equal(
+		resolve_exported_value(exported, ['browser', 'node']),
+		'./browser-node.js',
+		'should evaluate conditions in specified order',
+	);
+
+	assert.equal(
+		resolve_exported_value(exported, ['node', 'browser']),
+		'./node-browser.js',
+		'should evaluate conditions in different specified order',
+	);
+});
+
+// TODO resolve self-referencing
 
 test.run();

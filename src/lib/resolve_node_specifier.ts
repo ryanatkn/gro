@@ -175,68 +175,61 @@ export const resolve_subpath = (
  * Resolves the exported value based on conditions.
  * Respects the order of conditions in the exports object.
  */
-export const resolve_exported_value = (
-	exported: Export_Value,
-	exports_conditions: string[],
-): string | undefined => {
+export const resolve_exported_value = (exported: any, conditions: string[]): string | undefined => {
+	// Handle exports sugar (string case)
 	if (typeof exported === 'string') {
 		return exported;
 	}
 
-	if (!is_exports_object(exported)) {
+	// Handle invalid exports
+	if (typeof exported !== 'object' || exported === null) {
 		return undefined;
 	}
 
-	// First try conditions in order
-	for (const condition of exports_conditions) {
+	// Types condition should always be checked first if present
+	if ('types' in exported && conditions.includes('types')) {
+		return exported.types;
+	}
+
+	// For each condition in order
+	for (const condition of conditions) {
+		// Skip invalid condition names
+		if (!is_valid_condition(condition)) continue;
+
 		if (condition in exported) {
-			const result = resolve_conditions(exported[condition], exports_conditions);
+			// Recursively resolve the nested condition
+			const result = resolve_exported_value(exported[condition], conditions);
 			if (result !== undefined) {
 				return result;
 			}
 		}
 	}
 
-	// Then try default
+	// If no conditions matched or they all resolved to undefined,
+	// try the default condition
 	if ('default' in exported) {
-		return resolve_conditions(exported.default, exports_conditions);
+		return resolve_exported_value(exported.default, conditions);
 	}
 
 	return undefined;
 };
 
-const resolve_conditions = (
-	value: Export_Value,
-	exports_conditions: string[],
-): string | undefined => {
-	if (typeof value === 'string') {
-		return value;
-	}
+const is_valid_condition = (condition: string): boolean => {
+	// Must contain at least one character
+	if (condition.length === 0) return false;
 
-	if (value === null || !is_exports_object(value)) {
-		return undefined;
-	}
+	// Cannot start with "."
+	if (condition.startsWith('.')) return false;
 
-	// First try conditions in order
-	for (const condition of exports_conditions) {
-		if (condition in value) {
-			const result = resolve_conditions(value[condition], exports_conditions);
-			if (result !== undefined) {
-				return result;
-			}
-		}
-	}
+	// Cannot contain ","
+	if (condition.includes(',')) return false;
 
-	// Then try default
-	if ('default' in value) {
-		return resolve_conditions(value.default, exports_conditions);
-	}
+	// Cannot be pure integers (would affect property ordering)
+	if (/^\d+$/.test(condition)) return false;
 
-	return undefined;
+	// Should only contain alphanumeric chars and allowed separators
+	return /^[a-zA-Z0-9:_\-=]+$/.test(condition);
 };
-
-const is_exports_object = (value: any): value is Record<string, any> =>
-	value !== null && typeof value === 'object';
 
 // Update resolve_node_specifier to handle file extensions
 const normalize_extension = (path: string): string => {
