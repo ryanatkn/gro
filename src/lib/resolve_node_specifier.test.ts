@@ -74,10 +74,19 @@ test('resolves a JS specifier with explicit export', () => {
 });
 
 test('resolves a raw JS specifier', () => {
-	const path = '@ryanatkn/fuz/tome.js';
+	const path = 'raw-import/file.js';
 	const specifier = path + '?raw';
-	const path_id = resolve('node_modules/@ryanatkn/fuz/dist/tome.js');
-	assert.equal(resolve_node_specifier(specifier), {
+	const path_id = resolve('node_modules/raw-import/dist/file.js');
+	const cache = {
+		'raw-import': {
+			name: 'raw-import',
+			version: '',
+			exports: {
+				'./file.js': './dist/file.js',
+			},
+		},
+	};
+	assert.equal(resolve_node_specifier(specifier, TEST_ROOT, undefined, cache), {
 		path_id,
 		path_id_with_querystring: path_id + '?raw',
 		raw: true,
@@ -88,9 +97,18 @@ test('resolves a raw JS specifier', () => {
 });
 
 test('resolves a Svelte specifier', () => {
-	const specifier = '@ryanatkn/fuz/Library.svelte';
-	const path_id = resolve('node_modules/@ryanatkn/fuz/dist/Library.svelte');
-	assert.equal(resolve_node_specifier(specifier), {
+	const specifier = 'svelte-package/Component.svelte';
+	const path_id = resolve('node_modules/svelte-package/dist/Component.svelte');
+	const cache = {
+		'svelte-package': {
+			name: 'svelte-package',
+			version: '',
+			exports: {
+				'./Component.svelte': './dist/Component.svelte',
+			},
+		},
+	};
+	assert.equal(resolve_node_specifier(specifier, TEST_ROOT, undefined, cache), {
 		path_id,
 		path_id_with_querystring: path_id,
 		raw: false,
@@ -101,10 +119,19 @@ test('resolves a Svelte specifier', () => {
 });
 
 test('resolves a raw Svelte specifier', () => {
-	const path = '@ryanatkn/fuz/Library.svelte';
+	const path = 'svelte-package/Component.svelte';
 	const specifier = path + '?raw';
-	const path_id = resolve('node_modules/@ryanatkn/fuz/dist/Library.svelte');
-	assert.equal(resolve_node_specifier(specifier), {
+	const path_id = resolve('node_modules/svelte-package/dist/Component.svelte');
+	const cache = {
+		'svelte-package': {
+			name: 'svelte-package',
+			version: '',
+			exports: {
+				'./Component.svelte': './dist/Component.svelte',
+			},
+		},
+	};
+	assert.equal(resolve_node_specifier(specifier, TEST_ROOT, undefined, cache), {
 		path_id,
 		path_id_with_querystring: path_id + '?raw',
 		raw: true,
