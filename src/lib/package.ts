@@ -828,11 +828,7 @@ export const src_json = {
 		},
 		'./resolve_node_specifier.js': {
 			path: 'resolve_node_specifier.ts',
-			declarations: [
-				{name: 'resolve_node_specifier', kind: 'function'},
-				{name: 'resolve_subpath', kind: 'function'},
-				{name: 'resolve_exported_value', kind: 'function'},
-			],
+			declarations: [{name: 'resolve_node_specifier', kind: 'function'}],
 		},
 		'./resolve_specifier.js': {
 			path: 'resolve_specifier.ts',
