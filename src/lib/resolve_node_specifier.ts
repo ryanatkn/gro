@@ -10,6 +10,8 @@ import {escape_regexp} from '@ryanatkn/belt/regexp.js';
 
 /**
  * This likely has differences from Node - they should be fixed on a case-by-case basis.
+ * Ideally Gro would just use `import.meta.resolve`, but it can't be used in custom loaders,
+ * which Gro relies on for TypeScript.
  */
 export const resolve_node_specifier = (
 	specifier: string,
