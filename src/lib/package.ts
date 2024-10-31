@@ -47,9 +47,9 @@ export const package_json = {
 		'@ryanatkn/belt': '^0.26.0',
 		chokidar: '^4.0.1',
 		dotenv: '^16.4.5',
-		'es-module-lexer': '^1.5.4',
 		'esm-env': '^1.1.4',
 		mri: '^1.2.0',
+		'oxc-parser': '^0.34.0',
 		prettier: '^3.3.3',
 		'prettier-plugin-svelte': '^3.2.7',
 		'ts-morph': '^24.0.0',
@@ -746,7 +746,6 @@ export const src_json = {
 		'./parse_imports.js': {
 			path: 'parse_imports.ts',
 			declarations: [
-				{name: 'init_lexer', kind: 'function'},
 				{name: 'Import_Specifier', kind: 'type'},
 				{name: 'parse_imports', kind: 'function'},
 			],
