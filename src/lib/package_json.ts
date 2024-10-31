@@ -63,20 +63,21 @@ export const Package_Json_Funding = z.union([
 ]);
 export type Package_Json_Funding = z.infer<typeof Package_Json_Funding>;
 
-// exports: {
-// 	'./': './index.js',
-// 	'./record': {default: './record.js'},
-//  './export_condition': {default: {development: './ec1', default: './ec2.js'}},
-// }
-export const Package_Json_Exports = z.record(
-	z
-		.union([
-			z.string(),
-			z.record(z.string().optional()),
-			z.record(z.record(z.string().optional()).optional()),
-		])
-		.optional(),
-);
+// Helper to create a recursive type that represents export conditions and values
+const create_export_value_schema = (): z.ZodType => {
+	return z.lazy(() => z.union([z.string(), z.null(), z.record(z.lazy(() => export_value_schema))]));
+};
+
+// The base export value schema that can be a string, null, or nested conditions
+const export_value_schema = create_export_value_schema();
+export const Export_Value = export_value_schema;
+export type Export_Value = z.infer<typeof Export_Value>;
+
+// Package exports can be:
+// 1. A string (shorthand for main export)
+// 2. null (to block exports)
+// 3. A record of export conditions/paths
+export const Package_Json_Exports = z.union([z.string(), z.null(), z.record(export_value_schema)]);
 export type Package_Json_Exports = z.infer<typeof Package_Json_Exports>;
 
 /**

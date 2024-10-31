@@ -28,7 +28,7 @@
 			<aside>
 				This website is a work in progress!<br />
 				For now, docs are in
-				<a href="https://github.com/ryanatkn/gro">the source repo</a>
+				<a href="https://github.com/ryanatkn/gro">the source repo</a>.
 			</aside>
 		</section>
 		<section class="panel mb_lg p_md w_100 relative">
