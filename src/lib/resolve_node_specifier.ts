@@ -15,7 +15,7 @@ export const resolve_node_specifier = (
 	specifier: string,
 	dir = paths.root,
 	parent_path?: string,
-	cache?: Record<string, Package_Json>,
+	package_json_cache?: Record<string, Package_Json>,
 	throw_on_missing_package = true,
 	exports_conditions = DEV ? ['development', 'node', 'import'] : ['production', 'node', 'import'],
 ): Resolved_Specifier | null => {
@@ -42,10 +42,10 @@ export const resolve_node_specifier = (
 	const subpath = module_path ? './' + module_path : '.';
 	const package_dir = join(dir, NODE_MODULES_DIRNAME, pkg_name);
 
-	// Check cache first
+	// Check package_json cache first
 	let package_json: Package_Json | undefined;
-	if (cache?.[pkg_name]) {
-		package_json = cache[pkg_name];
+	if (package_json_cache?.[pkg_name]) {
+		package_json = package_json_cache[pkg_name];
 	} else if (!existsSync(package_dir)) {
 		if (throw_on_missing_package) {
 			throw Error(
@@ -56,7 +56,7 @@ export const resolve_node_specifier = (
 			return null;
 		}
 	} else {
-		package_json = load_package_json(package_dir, cache, false);
+		package_json = load_package_json(package_dir, package_json_cache, false);
 	}
 
 	// Handle self-referencing

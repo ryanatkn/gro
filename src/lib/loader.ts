@@ -193,6 +193,7 @@ export const resolve: ResolveHook = async (specifier, context, nextResolve) => {
 
 	// Special case for Gro's dependencies that import into Gro.
 	// Without this, we'd need to add a dev dep to Gro for Gro, which causes problems.
+	// TODO maybe make this generic, checking `package_json.name` against `s` and map it, possibly need to export `resolve_exported_value`
 	if (IS_THIS_GRO && s.startsWith('@ryanatkn/gro')) {
 		s = join(dir, 'dist', s.substring(13));
 	}
