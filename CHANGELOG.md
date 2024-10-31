@@ -1,5 +1,15 @@
 # @ryanatkn/gro
 
+## 0.145.0
+
+### Minor Changes
+
+- make `package_json` required to some APIs ([8df8362](https://github.com/ryanatkn/gro/commit/8df8362))
+
+### Patch Changes
+
+- fix Moss change by removing `load_moss_plugin` ([6af4ecb](https://github.com/ryanatkn/gro/commit/6af4ecb))
+
 ## 0.144.1
 
 ### Patch Changes
