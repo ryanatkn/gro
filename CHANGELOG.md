@@ -1,5 +1,11 @@
 # @ryanatkn/gro
 
+## 0.144.1
+
+### Patch Changes
+
+- fix moss plugin ([852dab0](https://github.com/ryanatkn/gro/commit/852dab0))
+
 ## 0.144.0
 
 ### Minor Changes
