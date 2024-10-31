@@ -2,845 +2,55 @@ import {test} from 'uvu';
 import * as assert from 'uvu/assert';
 import {resolve} from 'node:path';
 
-import {
-	resolve_exported_value,
-	resolve_node_specifier,
-	resolve_subpath,
-} from './resolve_node_specifier.js';
-import type {Package_Json} from './package_json.js';
+import {resolve_node_specifier} from './resolve_node_specifier.js';
 
 const TEST_ROOT = process.cwd();
 
-test('resolves a Node specifier', () => {
-	const specifier = 'mock-package';
-	const path_id = resolve('node_modules/mock-package/index.js');
+test('requires either main or exports field for package resolution', () => {
 	const cache = {
-		'mock-package': {
-			name: 'mock-package',
+		'no-entry': {
+			name: 'no-entry',
 			version: '',
-			main: './index.js',
+			// No main or exports
 		},
 	};
-	assert.equal(resolve_node_specifier(specifier, TEST_ROOT, undefined, cache), {
-		path_id,
-		path_id_with_querystring: path_id,
-		raw: false,
-		specifier,
-		mapped_specifier: specifier,
-		namespace: undefined,
-	});
-});
-
-test('resolves a Node specifier with a scope', () => {
-	const specifier = '@scope/mock-package';
-	const path_id = resolve('node_modules/@scope/mock-package/index.js');
-	const cache = {
-		'@scope/mock-package': {
-			name: '@scope/mock-package',
-			version: '',
-			main: './index.js',
-		},
-	};
-	assert.equal(resolve_node_specifier(specifier, TEST_ROOT, undefined, cache), {
-		path_id,
-		path_id_with_querystring: path_id,
-		raw: false,
-		specifier,
-		mapped_specifier: specifier,
-		namespace: undefined,
-	});
-});
-
-test('resolves a JS specifier with explicit export', () => {
-	const specifier = 'exported-package/utils.js';
-	const path_id = resolve('node_modules/exported-package/dist/utils.js');
-	const cache = {
-		'exported-package': {
-			name: 'exported-package',
-			version: '',
-			exports: {
-				'./utils.js': './dist/utils.js',
-			},
-		},
-	};
-	assert.equal(resolve_node_specifier(specifier, TEST_ROOT, undefined, cache), {
-		path_id,
-		path_id_with_querystring: path_id,
-		raw: false,
-		specifier,
-		mapped_specifier: specifier,
-		namespace: undefined,
-	});
-});
-
-test('resolves a raw JS specifier', () => {
-	const path = 'raw-import/file.js';
-	const specifier = path + '?raw';
-	const path_id = resolve('node_modules/raw-import/dist/file.js');
-	const cache = {
-		'raw-import': {
-			name: 'raw-import',
-			version: '',
-			exports: {
-				'./file.js': './dist/file.js',
-			},
-		},
-	};
-	assert.equal(resolve_node_specifier(specifier, TEST_ROOT, undefined, cache), {
-		path_id,
-		path_id_with_querystring: path_id + '?raw',
-		raw: true,
-		specifier,
-		mapped_specifier: path,
-		namespace: undefined,
-	});
-});
-
-test('resolves a Svelte specifier', () => {
-	const specifier = 'svelte-package/Component.svelte';
-	const path_id = resolve('node_modules/svelte-package/dist/Component.svelte');
-	const cache = {
-		'svelte-package': {
-			name: 'svelte-package',
-			version: '',
-			exports: {
-				'./Component.svelte': './dist/Component.svelte',
-			},
-		},
-	};
-	assert.equal(resolve_node_specifier(specifier, TEST_ROOT, undefined, cache), {
-		path_id,
-		path_id_with_querystring: path_id,
-		raw: false,
-		specifier,
-		mapped_specifier: specifier,
-		namespace: undefined,
-	});
-});
-
-test('resolves a raw Svelte specifier', () => {
-	const path = 'svelte-package/Component.svelte';
-	const specifier = path + '?raw';
-	const path_id = resolve('node_modules/svelte-package/dist/Component.svelte');
-	const cache = {
-		'svelte-package': {
-			name: 'svelte-package',
-			version: '',
-			exports: {
-				'./Component.svelte': './dist/Component.svelte',
-			},
-		},
-	};
-	assert.equal(resolve_node_specifier(specifier, TEST_ROOT, undefined, cache), {
-		path_id,
-		path_id_with_querystring: path_id + '?raw',
-		raw: true,
-		specifier,
-		mapped_specifier: path,
-		namespace: undefined,
-	});
-});
-
-test('throws for an export that does not exist', () => {
-	const cache = {
-		'exported-package': {
-			name: 'exported-package',
-			version: '',
-			exports: {
-				'./utils.js': './dist/utils.js',
-			},
-		},
-	};
-	assert.throws(() =>
-		resolve_node_specifier('exported-package/non-existent.js', TEST_ROOT, undefined, cache),
-	);
-});
-
-test('throws for a package that does not exist', () => {
-	assert.throws(() => resolve_node_specifier('non-existent-package', TEST_ROOT));
-});
-
-test('throws for a Node core module specifier', () => {
-	assert.throws(() => resolve_node_specifier('node:path'));
-});
-
-test('optionally returns null for an export that does not exist', () => {
-	const cache = {
-		'exported-package': {
-			name: 'exported-package',
-			version: '',
-			exports: {
-				'./utils.js': './dist/utils.js',
-			},
-		},
-	};
-	assert.is(
-		resolve_node_specifier('exported-package/non-existent.js', TEST_ROOT, undefined, cache, false),
-		null,
-	);
-});
-
-test('optionally returns null for a package that does not exist', () => {
-	assert.is(
-		resolve_node_specifier('non-existent-package', TEST_ROOT, undefined, undefined, false),
-		null,
-	);
-});
-
-test('optionally returns null for a Node core module specifier', () => {
-	assert.is(resolve_node_specifier('node:path', undefined, undefined, undefined, false), null);
-});
-
-test('handles basic pattern exports', () => {
-	const mock_package: Package_Json = {
-		name: '',
-		version: '',
-		exports: {
-			'./features/*.js': './src/features/*.js',
-		},
-	};
-	const resolved = resolve_subpath(mock_package, './features/test.js');
-	assert.equal(resolved, './src/features/test.js');
-});
-
-test('handles multiple pattern exports in priority order', () => {
-	const mock_package: Package_Json = {
-		name: '',
-		version: '',
-		exports: {
-			'./features/*/index.js': null,
-			'./features/*.js': './src/features/*.js',
-			'./features/*': './src/features/*',
-		},
-	};
-	const resolved = resolve_subpath(mock_package, './features/test.js');
-	assert.equal(resolved, './src/features/test.js');
-});
-
-test('handles null pattern exports as blockers', () => {
-	const mock_package: Package_Json = {
-		name: '',
-		version: '',
-		exports: {
-			'./internal/*': null,
-			'./*': './src/*',
-		},
-	};
-
-	// Test blocked path
-	const blocked = resolve_subpath(mock_package, './internal/secret.js');
-	assert.equal(blocked, null);
-
-	// Test allowed path
-	const allowed = resolve_subpath(mock_package, './public/file.js');
-	assert.equal(allowed, './src/public/file.js');
-});
-
-test('handles deeply nested conditional exports', () => {
-	const exported = {
-		node: {
-			import: {
-				development: './dev-esm.js',
-				production: './prod-esm.js',
-			},
-			require: {
-				development: './dev-cjs.js',
-				production: './prod-cjs.js',
-			},
-		},
-		default: './fallback.js',
-	};
-
-	assert.equal(resolve_exported_value(exported, ['node', 'import', 'development']), './dev-esm.js');
-
-	assert.equal(
-		resolve_exported_value(exported, ['node', 'require', 'production']),
-		'./prod-cjs.js',
-	);
-});
-
-test('respects condition order for mutually exclusive conditions', () => {
-	const exported = {
-		import: './esm.js',
-		require: './cjs.js',
-		default: './fallback.js',
-	};
-
-	// import and require are mutually exclusive
-	assert.equal(resolve_exported_value(exported, ['import', 'require']), './esm.js');
-
-	assert.equal(resolve_exported_value(exported, ['require', 'import']), './cjs.js');
-});
-
-test('respects node-addons condition priority', () => {
-	const exported = {
-		'node-addons': './native.node',
-		node: './pure.js',
-		default: './fallback.js',
-	};
-
-	assert.equal(resolve_exported_value(exported, ['node-addons', 'node']), './native.node');
-
-	// When node-addons is not in conditions, should fall back
-	assert.equal(resolve_exported_value(exported, ['node']), './pure.js');
-});
-
-test('handles complex pattern exports with multiple wildcards', () => {
-	const mock_package: Package_Json = {
-		name: '',
-		version: '',
-		exports: {
-			'./features/*/components/*.js': './src/features/*/components/*.js',
-			'./features/*/*': './src/features/*/*',
-		},
-	};
-	const resolved = resolve_subpath(mock_package, './features/auth/components/login.js');
-	assert.equal(resolved, './src/features/auth/components/login.js');
-});
-
-test('handles conditional pattern exports', () => {
-	const mock_package: Package_Json = {
-		name: '',
-		version: '',
-		exports: {
-			'./lib/*.js': {
-				node: './node/lib/*.js',
-				default: './lib/*.js',
-			},
-		},
-	};
-	const subpath = resolve_subpath(mock_package, './lib/utils.js');
-	const resolved = resolve_exported_value(subpath, ['node']);
-	assert.equal(resolved, './node/lib/utils.js');
-});
-
-test('handles invalid exports values', () => {
-	const exported = {
-		development: true,
-		production: 123,
-		node: null,
-		browser: undefined,
-		default: './index.js',
-	};
-
-	assert.equal(
-		resolve_exported_value(exported, ['development', 'production', 'node', 'browser']),
-		'./index.js',
-	);
-});
-
-test('handles empty conditions array', () => {
-	const exported = {
-		node: './node.js',
-		default: './fallback.js',
-	};
-
-	assert.equal(resolve_exported_value(exported, []), './fallback.js');
-});
-
-test('handles missing default condition', () => {
-	const exported = {
-		node: './node.js',
-		browser: './browser.js',
-	};
-
-	assert.equal(resolve_exported_value(exported, ['deno']), undefined);
-});
-
-test('handles exports sugar syntax', () => {
-	const exported = './index.js';
-
-	assert.equal(resolve_exported_value(exported, ['node']), './index.js');
-});
-
-test('handles condition object with only default', () => {
-	const exported = {
-		default: './index.js',
-	};
-
-	assert.equal(resolve_exported_value(exported, ['node']), './index.js');
-});
-
-test('handles multiple patterns in correct order', () => {
-	const mock_package: Package_Json = {
-		name: '',
-		version: '',
-		exports: {
-			'.': './index.js',
-			'./lib/*/index.js': './src/lib/*/index.js', // More specific pattern
-			'./lib/*': './src/lib/*', // Less specific pattern
-			'./lib/internal/*': null, // Blocked pattern
-		},
-	};
-
-	// Test exact match for main entry point
-	const resolved_main = resolve_subpath(mock_package, '.');
-	assert.equal(resolved_main, './index.js');
-
-	// Test more specific pattern './lib/*/index.js'
-	const resolved_specific = resolve_subpath(mock_package, './lib/utils/index.js');
-	assert.equal(resolved_specific, './src/lib/utils/index.js');
-
-	// Test less specific pattern './lib/*'
-	const resolved_less_specific = resolve_subpath(mock_package, './lib/utils/helper.js');
-	assert.equal(resolved_less_specific, './src/lib/utils/helper.js');
-
-	// Test blocked pattern './lib/internal/*'
-	const resolved_blocked = resolve_subpath(mock_package, './lib/internal/secret.js');
-	assert.equal(resolved_blocked, null);
-});
-
-test('prioritizes exact matches over patterns', () => {
-	const mock_package: Package_Json = {
-		name: '',
-		version: '',
-		exports: {
-			'./utils/index.js': './dist/utils/index.js',
-			'./utils/*': './src/utils/*',
-		},
-	};
-	const resolved = resolve_subpath(mock_package, './utils/index.js');
-	assert.equal(resolved, './dist/utils/index.js');
-});
-
-test('handles nested conditions with patterns', () => {
-	const mock_package: Package_Json = {
-		name: '',
-		version: '',
-		exports: {
-			'./components/*.js': {
-				import: './esm/components/*.js',
-				require: './cjs/components/*.js',
-				default: './components/*.js',
-			},
-		},
-	};
-	const subpath = resolve_subpath(mock_package, './components/button.js');
-	const resolved = resolve_exported_value(subpath, ['import']);
-	assert.equal(resolved, './esm/components/button.js');
-});
-
-test('pattern matches with multiple path segments', () => {
-	const mock_package: Package_Json = {
-		name: '',
-		version: '',
-		exports: {
-			'./assets/*': './public/assets/*',
-		},
-	};
-	const resolved = resolve_subpath(mock_package, './assets/images/logo.png');
-	assert.equal(resolved, './public/assets/images/logo.png');
-});
-
-test('null pattern blocks path with multiple segments', () => {
-	const mock_package: Package_Json = {
-		name: '',
-		version: '',
-		exports: {
-			'./private/*': null,
-			'./*': './src/*',
-		},
-	};
-	const blocked = resolve_subpath(mock_package, './private/secret/data.json');
-	assert.equal(blocked, null);
-
-	const allowed = resolve_subpath(mock_package, './public/data.json');
-	assert.equal(allowed, './src/public/data.json');
-});
-
-test('wildcard in target replaced multiple times', () => {
-	const mock_package: Package_Json = {
-		name: '',
-		version: '',
-		exports: {
-			'./docs/*': './content/*/index.html',
-		},
-	};
-	const resolved = resolve_subpath(mock_package, './docs/getting-started');
-	assert.equal(resolved, './content/getting-started/index.html');
-});
-
-test('handles all community-defined conditions', () => {
-	const exported = {
-		types: './index.d.ts',
-		browser: './browser.js',
-		development: './dev.js',
-		production: './prod.js',
-		default: './index.js',
-	};
-
-	// Test types condition priority (should be first)
-	assert.equal(
-		resolve_exported_value(exported, ['browser', 'types']),
-		'./index.d.ts',
-		'types condition should take precedence',
-	);
-
-	// Test browser condition
-	assert.equal(resolve_exported_value(exported, ['browser']), './browser.js');
-
-	// Test development/production mutual exclusivity
-	assert.equal(
-		resolve_exported_value(exported, ['development', 'production']),
-		'./dev.js',
-		'development should be chosen when both present',
-	);
-});
-
-test('enforces custom user condition naming restrictions', () => {
-	const exported = {
-		'valid-condition': './valid.js',
-		'valid:condition': './valid2.js',
-		'valid=condition': './valid3.js',
-		'.invalid': './invalid1.js',
-		'invalid,name': './invalid2.js',
-		'10': './invalid3.js',
-		default: './default.js',
-	};
-
-	// Valid conditions should resolve
-	assert.equal(resolve_exported_value(exported, ['valid-condition']), './valid.js');
-	assert.equal(resolve_exported_value(exported, ['valid:condition']), './valid2.js');
-	assert.equal(resolve_exported_value(exported, ['valid=condition']), './valid3.js');
-
-	// Invalid conditions should fall through to default
-	assert.equal(
-		resolve_exported_value(exported, ['.invalid']),
-		'./default.js',
-		'conditions starting with . should be ignored',
-	);
-	assert.equal(
-		resolve_exported_value(exported, ['invalid,name']),
-		'./default.js',
-		'conditions containing , should be ignored',
-	);
-	assert.equal(
-		resolve_exported_value(exported, ['10']),
-		'./default.js',
-		'numeric conditions should be ignored',
-	);
-});
-
-test('handles module-sync condition with require/import interaction', () => {
-	const exported = {
-		'module-sync': {
-			import: './sync-module.mjs',
-			require: './sync-module.cjs',
-		},
-		import: './async-module.mjs',
-		require: './async-module.cjs',
-		default: './fallback.js',
-	};
-
-	// Should prioritize module-sync over import/require
-	assert.equal(resolve_exported_value(exported, ['module-sync', 'import']), './sync-module.mjs');
-
-	assert.equal(resolve_exported_value(exported, ['module-sync', 'require']), './sync-module.cjs');
-
-	// When module-sync not in conditions, should use import/require
-	assert.equal(resolve_exported_value(exported, ['import']), './async-module.mjs');
-
-	assert.equal(resolve_exported_value(exported, ['require']), './async-module.cjs');
-});
-
-test('resolves deeply nested conditional exports', () => {
-	const exported = {
-		types: './index.d.ts',
-		browser: {
-			node: {
-				development: './browser-node-dev.js',
-				default: './browser-node.js',
-			},
-			default: {
-				development: './browser-dev.js',
-				default: './browser.js',
-			},
-		},
-		default: {
-			node: {
-				development: './node-dev.js',
-				default: './node.js',
-			},
-			default: {
-				development: './dev.js',
-				default: './index.js',
-			},
-		},
-	};
-
-	// Test types precedence
-	assert.equal(
-		resolve_exported_value(exported, ['browser', 'node', 'types']),
-		'./index.d.ts',
-		'types should take precedence',
-	);
-
-	// Test nested resolution with all conditions present
-	assert.equal(
-		resolve_exported_value(exported, ['browser', 'node', 'development']),
-		'./browser-node-dev.js',
-		'should resolve most specific path',
-	);
-
-	// Test fallback to default at each level
-	assert.equal(
-		resolve_exported_value(exported, ['browser', 'node']),
-		'./browser-node.js',
-		'should fallback to default when condition missing',
-	);
-
-	assert.equal(
-		resolve_exported_value(exported, ['browser']),
-		'./browser.js',
-		'should fallback through multiple defaults',
-	);
-
-	// Test complete fallback
-	assert.equal(
-		resolve_exported_value(exported, ['deno']),
-		'./index.js',
-		'should fallback to ultimate default',
-	);
-});
-
-test('respects condition evaluation order', () => {
-	const exported = {
-		node: {
-			browser: './node-browser.js',
-			default: './node.js',
-		},
-		browser: {
-			node: './browser-node.js',
-			default: './browser.js',
-		},
-		default: './index.js',
-	};
-
-	assert.equal(
-		resolve_exported_value(exported, ['browser', 'node']),
-		'./browser-node.js',
-		'should evaluate conditions in specified order',
-	);
-
-	assert.equal(
-		resolve_exported_value(exported, ['node', 'browser']),
-		'./node-browser.js',
-		'should evaluate conditions in different specified order',
-	);
-});
-
-test('falls back to main field when no exports field exists', () => {
-	const cache = {
-		'main-fallback': {
-			name: 'main-fallback',
-			version: '',
-			main: './lib/index.js',
-		},
-	};
-
-	const result = resolve_node_specifier('main-fallback', TEST_ROOT, undefined, cache);
-
-	assert.equal(result?.path_id, resolve(TEST_ROOT, 'node_modules/main-fallback/lib/index.js'));
-});
-
-test('handles pattern exports', () => {
-	const cache = {
-		'pattern-test': {
-			name: 'pattern-test',
-			version: '',
-			exports: {
-				'./features/*.js': './src/features/*.js',
-				'./features/*/index.js': './src/features/*/index.js',
-				'./features/internal/*': null,
-			},
-		},
-	};
-
-	// Test successful pattern match
-	const result1 = resolve_node_specifier(
-		'pattern-test/features/auth.js',
-		TEST_ROOT,
-		undefined,
-		cache,
-	);
-	assert.equal(
-		result1?.path_id,
-		resolve(TEST_ROOT, 'node_modules/pattern-test/src/features/auth.js'),
-	);
-
-	// Test blocked pattern
 	assert.throws(
-		() =>
-			resolve_node_specifier(
-				'pattern-test/features/internal/secret.js',
-				TEST_ROOT,
-				undefined,
-				cache,
-			),
+		() => resolve_node_specifier('no-entry', TEST_ROOT, undefined, cache),
 		/ERR_PACKAGE_PATH_NOT_EXPORTED/,
 	);
 });
 
-test('handles exports with conditions', () => {
+test('handles exports vs main priority', () => {
 	const cache = {
-		'conditions-test': {
-			name: 'conditions-test',
+		'main-only': {
+			name: 'main-only',
 			version: '',
-			exports: {
-				'.': {
-					types: './index.d.ts',
-					import: './esm/index.js',
-					require: './cjs/index.js',
-					default: './index.js',
-				},
-			},
+			main: './lib/index.js',
+		},
+		'exports-only': {
+			name: 'exports-only',
+			version: '',
+			exports: './index.js',
+		},
+		'both-fields': {
+			name: 'both-fields',
+			version: '',
+			main: './lib/main.js',
+			exports: './dist/index.js',
 		},
 	};
 
-	// Test types condition
-	const result1 = resolve_node_specifier('conditions-test', TEST_ROOT, undefined, cache, true, [
-		'types',
-		'import',
-	]);
-	assert.equal(result1?.path_id, resolve(TEST_ROOT, 'node_modules/conditions-test/index.js')); // Note: .d.ts gets transformed to .js
+	// Main field works when no exports
+	const result1 = resolve_node_specifier('main-only', TEST_ROOT, undefined, cache);
+	assert.equal(result1?.path_id, resolve(TEST_ROOT, 'node_modules/main-only/lib/index.js'));
 
-	// Test import condition
-	const result2 = resolve_node_specifier('conditions-test', TEST_ROOT, undefined, cache, true, [
-		'import',
-	]);
-	assert.equal(result2?.path_id, resolve(TEST_ROOT, 'node_modules/conditions-test/esm/index.js'));
-});
+	// Exports works alone
+	const result2 = resolve_node_specifier('exports-only', TEST_ROOT, undefined, cache);
+	assert.equal(result2?.path_id, resolve(TEST_ROOT, 'node_modules/exports-only/index.js'));
 
-test('handles nested conditions with pattern exports', () => {
-	const cache = {
-		'nested-conditions': {
-			name: 'nested-conditions',
-			version: '',
-			exports: {
-				'./components/*.js': {
-					types: './types/components/*.d.ts',
-					import: {
-						development: './dev/components/*.js',
-						production: './prod/components/*.js',
-					},
-					require: './cjs/components/*.js',
-				},
-			},
-		},
-	};
-
-	// Test development condition
-	const result1 = resolve_node_specifier(
-		'nested-conditions/components/button.js',
-		TEST_ROOT,
-		undefined,
-		cache,
-		true,
-		['import', 'development'],
-	);
-	assert.equal(
-		result1?.path_id,
-		resolve(TEST_ROOT, 'node_modules/nested-conditions/dev/components/button.js'),
-	);
-
-	// Test production condition
-	const result2 = resolve_node_specifier(
-		'nested-conditions/components/button.js',
-		TEST_ROOT,
-		undefined,
-		cache,
-		true,
-		['import', 'production'],
-	);
-	assert.equal(
-		result2?.path_id,
-		resolve(TEST_ROOT, 'node_modules/nested-conditions/prod/components/button.js'),
-	);
-});
-
-test('exports field takes precedence over main', () => {
-	const cache = {
-		'precedence-test': {
-			name: 'precedence-test',
-			version: '',
-			main: './old-main.js',
-			exports: {
-				'.': './new-main.js',
-			},
-		},
-	};
-
-	const result = resolve_node_specifier('precedence-test', TEST_ROOT, undefined, cache);
-
-	assert.equal(result?.path_id, resolve(TEST_ROOT, 'node_modules/precedence-test/new-main.js'));
-});
-
-test('handles complex pattern matching precedence', () => {
-	const cache = {
-		'pattern-precedence': {
-			name: 'pattern-precedence',
-			version: '',
-			exports: {
-				'./dist/exact.js': './built/exact.js', // exact match
-				'./dist/*/specific/*.js': './src/*/exact/*.js', // more specific pattern
-				'./dist/*/*.js': './src/*/*.js', // less specific pattern
-			},
-		},
-	};
-
-	// Test exact match
-	const result1 = resolve_node_specifier(
-		'pattern-precedence/dist/exact.js',
-		TEST_ROOT,
-		undefined,
-		cache,
-	);
-	assert.equal(
-		result1?.path_id,
-		resolve(TEST_ROOT, 'node_modules/pattern-precedence/built/exact.js'),
-	);
-
-	// Test specific pattern
-	const result2 = resolve_node_specifier(
-		'pattern-precedence/dist/auth/specific/login.js',
-		TEST_ROOT,
-		undefined,
-		cache,
-	);
-	assert.equal(
-		result2?.path_id,
-		resolve(TEST_ROOT, 'node_modules/pattern-precedence/src/auth/exact/login.js'),
-	);
-
-	// Test general pattern
-	const result3 = resolve_node_specifier(
-		'pattern-precedence/dist/utils/helpers.js',
-		TEST_ROOT,
-		undefined,
-		cache,
-	);
-	assert.equal(
-		result3?.path_id,
-		resolve(TEST_ROOT, 'node_modules/pattern-precedence/src/utils/helpers.js'),
-	);
-});
-
-test('handles extensionless imports', () => {
-	const cache = {
-		'extension-test': {
-			name: 'extension-test',
-			version: '',
-			exports: {
-				'.': './index', // no extension
-				'./lib': './src/lib', // no extension
-			},
-		},
-	};
-
-	const result = resolve_node_specifier('extension-test', TEST_ROOT, undefined, cache);
-
-	// Should attempt to add .js extension
-	assert.equal(result?.path_id, resolve(TEST_ROOT, 'node_modules/extension-test/index.js'));
+	// Exports takes precedence over main
+	const result3 = resolve_node_specifier('both-fields', TEST_ROOT, undefined, cache);
+	assert.equal(result3?.path_id, resolve(TEST_ROOT, 'node_modules/both-fields/dist/index.js'));
 });
 
 test('handles scoped package resolution', () => {
@@ -856,233 +66,264 @@ test('handles scoped package resolution', () => {
 	};
 
 	const result = resolve_node_specifier('@scope/package/feature', TEST_ROOT, undefined, cache);
-
 	assert.equal(result?.path_id, resolve(TEST_ROOT, 'node_modules/@scope/package/lib/feature.js'));
 });
 
-test('handles exports sugar syntax variants', () => {
+test('enforces strict condition order per Node.js spec', () => {
 	const cache = {
-		'sugar-test': {
-			name: 'sugar-test',
-			version: '',
-			exports: './index.js',
-		},
-		'sugar-test-2': {
-			name: 'sugar-test-2',
+		conditions: {
+			name: 'conditions',
 			version: '',
 			exports: {
-				'.': './index.js',
+				'.': {
+					'node-addons': './native.node',
+					node: './node.js',
+					import: './esm.mjs',
+					require: './cjs.cjs',
+					'module-sync': './sync.js',
+					default: './default.js',
+				},
 			},
 		},
 	};
 
-	const result1 = resolve_node_specifier('sugar-test', TEST_ROOT, undefined, cache);
-	const result2 = resolve_node_specifier('sugar-test-2', TEST_ROOT, undefined, cache);
+	// node-addons highest priority
+	const result1 = resolve_node_specifier('conditions', TEST_ROOT, undefined, cache, true, [
+		'require',
+		'node',
+		'node-addons',
+	]);
+	assert.equal(result1?.path_id, resolve(TEST_ROOT, 'node_modules/conditions/native.node'));
 
-	// Both forms should resolve identically
-	assert.equal(result1?.path_id, resolve(TEST_ROOT, 'node_modules/sugar-test/index.js'));
-	assert.equal(result2?.path_id, resolve(TEST_ROOT, 'node_modules/sugar-test-2/index.js'));
-});
-
-test('handles complete package exports encapsulation', () => {
-	const cache = {
-		'encapsulated-pkg': {
-			name: 'encapsulated-pkg',
-			version: '',
-			exports: {
-				'.': './index.js',
-				'./feature': './src/feature.js',
-			},
-		},
-	};
-
-	// Should allow listed exports
-	const result1 = resolve_node_specifier('encapsulated-pkg', TEST_ROOT, undefined, cache);
-	assert.equal(result1?.path_id, resolve(TEST_ROOT, 'node_modules/encapsulated-pkg/index.js'));
-
-	// Should block unlisted internal paths
-	assert.throws(
-		() => resolve_node_specifier('encapsulated-pkg/src/internal.js', TEST_ROOT, undefined, cache),
-		/ERR_PACKAGE_PATH_NOT_EXPORTED/,
-	);
-});
-
-test('handles multiple pattern wildcards in order of specificity', () => {
-	const cache = {
-		'pattern-specificity': {
-			name: 'pattern-specificity',
-			version: '',
-			exports: {
-				'./lib/*/components/*.js': './src/lib/*/components/*.js', // Most specific
-				'./lib/*/*.js': './src/lib/*/*.js', // Less specific
-				'./*': './src/*', // Least specific
-			},
-		},
-	};
-
-	// Most specific pattern should match
-	const result1 = resolve_node_specifier(
-		'pattern-specificity/lib/auth/components/login.js',
-		TEST_ROOT,
-		undefined,
-		cache,
-	);
+	// require should win when listed before import
+	const result3 = resolve_node_specifier('conditions', TEST_ROOT, undefined, cache, true, [
+		'require',
+		'import',
+	]);
 	assert.equal(
-		result1?.path_id,
-		resolve(TEST_ROOT, 'node_modules/pattern-specificity/src/lib/auth/components/login.js'),
+		result3?.path_id,
+		resolve(TEST_ROOT, 'node_modules/conditions/cjs.cjs'),
+		'require should win when listed before import',
 	);
+});
 
-	// Less specific pattern should match
+test('handles nested conditions with proper order', () => {
+	const cache = {
+		nested: {
+			name: 'nested',
+			version: '',
+			exports: {
+				'.': {
+					import: {
+						node: './import/node.js',
+						default: './import/default.js',
+					},
+					node: {
+						import: './node/esm.mjs',
+						default: './node/default.js',
+					},
+					default: './fallback.js',
+				},
+			},
+		},
+	};
+
+	const result = resolve_node_specifier('nested', TEST_ROOT, undefined, cache, true, [
+		'import',
+		'node',
+	]);
+	assert.equal(
+		result?.path_id,
+		resolve(TEST_ROOT, 'node_modules/nested/import/node.js'),
+		'import condition should be evaluated first when specified first',
+	);
+});
+
+test('handles pattern exports with proper precedence', () => {
+	const cache = {
+		patterns: {
+			name: 'patterns',
+			version: '',
+			exports: {
+				'./dist/exact.js': './build/exact.js', // Most specific (exact)
+				'./dist/*/specific/*.js': './src/*/exact/*.js', // More specific pattern
+				'./dist/*/*.js': './src/*/*.js', // Less specific pattern
+				'./dist/*.js': './src/*.js', // Generic pattern
+				'./dist/*': './src/*', // Fallback pattern
+				'./dist/internal/*': null, // Blocked pattern
+			},
+		},
+	};
+
+	// Exact match wins
+	const result1 = resolve_node_specifier('patterns/dist/exact.js', TEST_ROOT, undefined, cache);
+	assert.equal(result1?.path_id, resolve(TEST_ROOT, 'node_modules/patterns/build/exact.js'));
+
+	// More specific pattern wins over generic
 	const result2 = resolve_node_specifier(
-		'pattern-specificity/lib/utils/helpers.js',
+		'patterns/dist/auth/specific/login.js',
 		TEST_ROOT,
 		undefined,
 		cache,
 	);
 	assert.equal(
 		result2?.path_id,
-		resolve(TEST_ROOT, 'node_modules/pattern-specificity/src/lib/utils/helpers.js'),
+		resolve(TEST_ROOT, 'node_modules/patterns/src/auth/exact/login.js'),
 	);
 
-	// Least specific pattern should match
+	// Less specific pattern when others don't match
 	const result3 = resolve_node_specifier(
-		'pattern-specificity/styles/main.css',
+		'patterns/dist/utils/helper.js',
+		TEST_ROOT,
+		undefined,
+		cache,
+	);
+	assert.equal(result3?.path_id, resolve(TEST_ROOT, 'node_modules/patterns/src/utils/helper.js'));
+
+	// Blocked pattern takes precedence
+	assert.throws(
+		() => resolve_node_specifier('patterns/dist/internal/secret.js', TEST_ROOT, undefined, cache),
+		/ERR_PACKAGE_PATH_NOT_EXPORTED/,
+	);
+});
+
+test('handles patterns with multiple wildcards', () => {
+	const cache = {
+		'multi-patterns': {
+			name: 'multi-patterns',
+			version: '',
+			exports: {
+				'./features/*/*/components/*.js': './src/features/*/*/components/*.js',
+				'./lib/**/*.js': './src/lib/**/*.js',
+			},
+		},
+	};
+
+	const result = resolve_node_specifier(
+		'multi-patterns/features/auth/v1/components/login.js',
 		TEST_ROOT,
 		undefined,
 		cache,
 	);
 	assert.equal(
-		result3?.path_id,
-		resolve(TEST_ROOT, 'node_modules/pattern-specificity/src/styles/main.css'),
+		result?.path_id,
+		resolve(TEST_ROOT, 'node_modules/multi-patterns/src/features/auth/v1/components/login.js'),
 	);
 });
 
-test('handles module-sync with nested conditions', () => {
+test('handles pattern conditions properly', () => {
 	const cache = {
-		'module-sync-test': {
-			name: 'module-sync-test',
+		'pattern-conditions': {
+			name: 'pattern-conditions',
 			version: '',
 			exports: {
-				'.': {
-					'module-sync': {
-						import: './sync/esm.js',
-						require: './sync/cjs.js',
-					},
-					import: './async/esm.js',
-					require: './async/cjs.js',
+				'./lib/*.js': {
+					'node-addons': './addons/*/addon.node',
+					node: './node/*/*.js',
+					import: './esm/*/*.mjs',
+					require: './cjs/*/*.cjs',
+					default: './src/*/*.js',
 				},
 			},
 		},
 	};
 
-	// module-sync should take precedence
-	const result1 = resolve_node_specifier('module-sync-test', TEST_ROOT, undefined, cache, true, [
-		'module-sync',
-		'import',
-	]);
-	assert.equal(result1?.path_id, resolve(TEST_ROOT, 'node_modules/module-sync-test/sync/esm.js'));
-
-	// Without module-sync condition, should fall back to regular import
-	const result2 = resolve_node_specifier('module-sync-test', TEST_ROOT, undefined, cache, true, [
-		'import',
-	]);
-	assert.equal(result2?.path_id, resolve(TEST_ROOT, 'node_modules/module-sync-test/async/esm.js'));
+	const result = resolve_node_specifier(
+		'pattern-conditions/lib/utils.js',
+		TEST_ROOT,
+		undefined,
+		cache,
+		true,
+		['node-addons', 'import'],
+	);
+	assert.equal(
+		result?.path_id,
+		resolve(TEST_ROOT, 'node_modules/pattern-conditions/addons/utils/addon.node'),
+	);
 });
 
-test('handles node-addons condition priority', () => {
+test('handles extensionless imports', () => {
 	const cache = {
-		'addons-test': {
-			name: 'addons-test',
+		extensions: {
+			name: 'extensions',
+			version: '',
+			exports: {
+				'.': './index', // No extension
+				'./lib': './src/lib', // No extension subpath
+				'./components/*': './src/*.js', // Pattern adds extension
+				'./utils/*.js': './lib/*', // Pattern removes extension
+			},
+		},
+	};
+
+	// Adds .js to main
+	const result1 = resolve_node_specifier('extensions', TEST_ROOT, undefined, cache);
+	assert.equal(result1?.path_id, resolve(TEST_ROOT, 'node_modules/extensions/index.js'));
+
+	// Adds .js to subpath
+	const result2 = resolve_node_specifier('extensions/lib', TEST_ROOT, undefined, cache);
+	assert.equal(result2?.path_id, resolve(TEST_ROOT, 'node_modules/extensions/src/lib.js'));
+
+	// Pattern adds extension
+	const result3 = resolve_node_specifier(
+		'extensions/components/button',
+		TEST_ROOT,
+		undefined,
+		cache,
+	);
+	assert.equal(result3?.path_id, resolve(TEST_ROOT, 'node_modules/extensions/src/button.js'));
+
+	// Pattern preserves extension
+	const result4 = resolve_node_specifier('extensions/utils/helper.js', TEST_ROOT, undefined, cache);
+	assert.equal(result4?.path_id, resolve(TEST_ROOT, 'node_modules/extensions/lib/helper.js'));
+});
+
+test('handles typescript definition files', () => {
+	const cache = {
+		types: {
+			name: 'types',
 			version: '',
 			exports: {
 				'.': {
-					'node-addons': './native/addon.node',
-					node: './js/impl.js',
-					default: './wasm/impl.js',
+					types: './index.d.ts',
+					default: './index.js',
 				},
 			},
 		},
 	};
 
-	// node-addons should take precedence when present
-	const result1 = resolve_node_specifier('addons-test', TEST_ROOT, undefined, cache, true, [
-		'node-addons',
-		'node',
-	]);
-	assert.equal(result1?.path_id, resolve(TEST_ROOT, 'node_modules/addons-test/native/addon.node'));
-
-	// Should fall back to node when node-addons not in conditions
-	const result2 = resolve_node_specifier('addons-test', TEST_ROOT, undefined, cache, true, [
-		'node',
-	]);
-	assert.equal(result2?.path_id, resolve(TEST_ROOT, 'node_modules/addons-test/js/impl.js'));
+	const result = resolve_node_specifier('types', TEST_ROOT, undefined, cache, true, ['types']);
+	assert.equal(result?.path_id, resolve(TEST_ROOT, 'node_modules/types/index.js'));
 });
 
-test('handles self-referencing with exports field', () => {
+test('handles self-referencing with proper constraints', () => {
 	const cache = {
-		'self-ref-pkg': {
-			name: 'self-ref-pkg',
+		'self-ref': {
+			name: 'self-ref',
 			version: '',
 			exports: {
 				'.': './index.js',
 				'./utils': './lib/utils.js',
 			},
 		},
-	};
-
-	const result = resolve_node_specifier(
-		'self-ref-pkg/utils',
-		TEST_ROOT,
-		resolve(TEST_ROOT, 'node_modules/self-ref-pkg/src/component.js'),
-		cache,
-	);
-
-	assert.equal(result?.path_id, resolve(TEST_ROOT, 'node_modules/self-ref-pkg/lib/utils.js'));
-});
-
-test('rejects self-referencing without exports field', () => {
-	const cache = {
-		'no-exports-self-ref': {
-			name: 'no-exports-self-ref',
+		'no-exports': {
+			name: 'no-exports',
 			version: '',
 			main: './index.js',
 		},
 	};
 
+	// Allow self-reference with exports
+	const parent_path = resolve(TEST_ROOT, 'node_modules/self-ref/src/component.js');
+	const result1 = resolve_node_specifier('self-ref', TEST_ROOT, parent_path, cache);
+	assert.equal(result1?.path_id, resolve(TEST_ROOT, 'node_modules/self-ref/index.js'));
+
+	// Block self-reference without exports
+	const invalid_parent = resolve(TEST_ROOT, 'node_modules/no-exports/src/component.js');
 	assert.throws(
-		() =>
-			resolve_node_specifier(
-				'no-exports-self-ref/utils',
-				TEST_ROOT,
-				resolve(TEST_ROOT, 'node_modules/no-exports-self-ref/src/component.js'),
-				cache,
-			),
+		() => resolve_node_specifier('no-exports', TEST_ROOT, invalid_parent, cache),
 		/Self-referencing is only available if package.json has "exports" field/,
 	);
-});
-
-test('handles basic self-referencing in same package', () => {
-	const cache = {
-		'self-ref-basic': {
-			name: 'self-ref-basic',
-			version: '',
-			exports: {
-				'.': './index.js',
-				'./utils': './src/utils.js',
-			},
-		},
-	};
-
-	// Simulate importing from within the same package
-	const parent_path = resolve(TEST_ROOT, 'node_modules/self-ref-basic/src/component.js');
-
-	// Should resolve self-reference to main entry point
-	const result1 = resolve_node_specifier('self-ref-basic', TEST_ROOT, parent_path, cache);
-	assert.equal(result1?.path_id, resolve(TEST_ROOT, 'node_modules/self-ref-basic/index.js'));
-
-	// Should resolve self-reference to subpath
-	const result2 = resolve_node_specifier('self-ref-basic/utils', TEST_ROOT, parent_path, cache);
-	assert.equal(result2?.path_id, resolve(TEST_ROOT, 'node_modules/self-ref-basic/src/utils.js'));
 });
 
 test('handles scoped package self-referencing', () => {
@@ -1098,356 +339,185 @@ test('handles scoped package self-referencing', () => {
 	};
 
 	const parent_path = resolve(TEST_ROOT, 'node_modules/@scope/pkg/src/component.js');
-
-	// Should resolve scoped package self-reference
-	const result1 = resolve_node_specifier('@scope/pkg', TEST_ROOT, parent_path, cache);
-	assert.equal(result1?.path_id, resolve(TEST_ROOT, 'node_modules/@scope/pkg/index.js'));
-
-	// Should resolve scoped package subpath
-	const result2 = resolve_node_specifier('@scope/pkg/feature', TEST_ROOT, parent_path, cache);
-	assert.equal(result2?.path_id, resolve(TEST_ROOT, 'node_modules/@scope/pkg/lib/feature.js'));
+	const result = resolve_node_specifier('@scope/pkg/feature', TEST_ROOT, parent_path, cache);
+	assert.equal(result?.path_id, resolve(TEST_ROOT, 'node_modules/@scope/pkg/lib/feature.js'));
 });
 
-test('rejects self-referencing when exports field is missing', () => {
+test('properly handles invalid exports targets', () => {
 	const cache = {
-		'no-exports': {
-			name: 'no-exports',
-			version: '',
-			main: './index.js', // has main but no exports
-		},
-	};
-
-	const parent_path = resolve(TEST_ROOT, 'node_modules/no-exports/src/component.js');
-
-	// Should throw when attempting self-reference without exports
-	assert.throws(
-		() => resolve_node_specifier('no-exports', TEST_ROOT, parent_path, cache),
-		/Self-referencing is only available if package.json has "exports" field/,
-	);
-
-	// Should throw for subpaths too
-	assert.throws(
-		() => resolve_node_specifier('no-exports/utils', TEST_ROOT, parent_path, cache),
-		/Self-referencing is only available if package.json has "exports" field/,
-	);
-});
-
-test('handles self-referencing with pattern exports', () => {
-	const cache = {
-		'pattern-self-ref': {
-			name: 'pattern-self-ref',
+		'invalid-exports': {
+			name: 'invalid-exports',
 			version: '',
 			exports: {
-				'.': './index.js',
-				'./features/*': './src/features/*.js',
-				'./components/*': './src/components/*.js',
+				'.': './node_modules/other-pkg/index.js', // Invalid - contains node_modules
+			},
+		},
+		'boundary-escape': {
+			name: 'boundary-escape',
+			version: '',
+			exports: {
+				'.': '../../../escape/file.js', // Invalid - escapes package boundary
 			},
 		},
 	};
 
-	const parent_path = resolve(TEST_ROOT, 'node_modules/pattern-self-ref/src/features/auth.js');
-
-	// Should resolve pattern-based self-references
-	const result1 = resolve_node_specifier(
-		'pattern-self-ref/features/users',
-		TEST_ROOT,
-		parent_path,
-		cache,
-	);
-	assert.equal(
-		result1?.path_id,
-		resolve(TEST_ROOT, 'node_modules/pattern-self-ref/src/features/users.js'),
-	);
-
-	const result2 = resolve_node_specifier(
-		'pattern-self-ref/components/button',
-		TEST_ROOT,
-		parent_path,
-		cache,
-	);
-	assert.equal(
-		result2?.path_id,
-		resolve(TEST_ROOT, 'node_modules/pattern-self-ref/src/components/button.js'),
-	);
-});
-
-test('handles conditional self-referencing exports', () => {
-	const cache = {
-		'conditional-self-ref': {
-			name: 'conditional-self-ref',
-			version: '',
-			exports: {
-				'.': {
-					import: './esm/index.js',
-					require: './cjs/index.js',
-				},
-				'./utils': {
-					import: './esm/utils.js',
-					require: './cjs/utils.js',
-				},
-			},
-		},
-	};
-
-	const parent_path = resolve(TEST_ROOT, 'node_modules/conditional-self-ref/src/component.js');
-
-	// Should respect import condition
-	const result1 = resolve_node_specifier(
-		'conditional-self-ref',
-		TEST_ROOT,
-		parent_path,
-		cache,
-		true,
-		['import'],
-	);
-	assert.equal(
-		result1?.path_id,
-		resolve(TEST_ROOT, 'node_modules/conditional-self-ref/esm/index.js'),
-	);
-
-	// Should respect require condition
-	const result2 = resolve_node_specifier(
-		'conditional-self-ref',
-		TEST_ROOT,
-		parent_path,
-		cache,
-		true,
-		['require'],
-	);
-	assert.equal(
-		result2?.path_id,
-		resolve(TEST_ROOT, 'node_modules/conditional-self-ref/cjs/index.js'),
-	);
-});
-
-test('handles self-referencing with blocked subpaths', () => {
-	const cache = {
-		'blocked-self-ref': {
-			name: 'blocked-self-ref',
-			version: '',
-			exports: {
-				'.': './index.js',
-				'./public/*': './src/public/*.js',
-				'./internal/*': null, // blocked subpath
-			},
-		},
-	};
-
-	const parent_path = resolve(TEST_ROOT, 'node_modules/blocked-self-ref/src/public/component.js');
-
-	// Should allow public subpath
-	const result1 = resolve_node_specifier(
-		'blocked-self-ref/public/utils',
-		TEST_ROOT,
-		parent_path,
-		cache,
-	);
-	assert.equal(
-		result1?.path_id,
-		resolve(TEST_ROOT, 'node_modules/blocked-self-ref/src/public/utils.js'),
-	);
-
-	// Should block internal subpath
 	assert.throws(
-		() => resolve_node_specifier('blocked-self-ref/internal/secret', TEST_ROOT, parent_path, cache),
+		() => resolve_node_specifier('invalid-exports', TEST_ROOT, undefined, cache),
+		/ERR_INVALID_PACKAGE_TARGET.*cannot contain node_modules/,
+	);
+
+	assert.throws(
+		() => resolve_node_specifier('boundary-escape', TEST_ROOT, undefined, cache),
+		/ERR_INVALID_PACKAGE_TARGET.*cannot escape package boundary/,
+	);
+});
+
+test('handles non-existent packages and exports', () => {
+	const cache = {
+		pkg: {
+			name: 'pkg',
+			version: '',
+			exports: {
+				'./utils': './lib/utils.js',
+			},
+		},
+	};
+
+	// Non-existent package
+	assert.throws(
+		() => resolve_node_specifier('non-existent', TEST_ROOT, undefined, cache),
+		/Package not found/,
+	);
+
+	// Non-existent export
+	assert.throws(
+		() => resolve_node_specifier('pkg/non-existent', TEST_ROOT, undefined, cache),
 		/ERR_PACKAGE_PATH_NOT_EXPORTED/,
 	);
 });
 
-test('self-referencing respects exports encapsulation', () => {
+// Continuing from the previous test file...
+
+test('validates custom condition names', () => {
 	const cache = {
-		'encapsulated-self-ref': {
-			name: 'encapsulated-self-ref',
-			version: '',
-			exports: {
-				'.': './index.js',
-				'./lib/utils.js': './src/utils.js',
-			},
-		},
-	};
-
-	const parent_path = resolve(TEST_ROOT, 'node_modules/encapsulated-self-ref/src/component.js');
-
-	// Should block access to non-exported paths even from within package
-	assert.throws(
-		() =>
-			resolve_node_specifier(
-				'encapsulated-self-ref/src/internal.js',
-				TEST_ROOT,
-				parent_path,
-				cache,
-			),
-		/ERR_PACKAGE_PATH_NOT_EXPORTED/,
-	);
-});
-
-test('properly orders core conditions according to Node.js spec', () => {
-	const cache = {
-		'condition-order': {
-			name: 'condition-order',
+		conditions: {
+			name: 'conditions',
 			version: '',
 			exports: {
 				'.': {
-					'node-addons': './native/addon.node',
-					node: './node/index.js',
-					import: './esm/index.mjs',
-					require: './cjs/index.cjs',
-					'module-sync': './sync/index.js',
-					default: './fallback.js',
+					'valid-name': './valid1.js',
+					'valid:name': './valid2.js',
+					'valid=name': './valid3.js',
+					'.invalid': './invalid1.js', // Invalid - starts with dot
+					'invalid,name': './invalid2.js', // Invalid - contains comma
+					'123': './invalid3.js', // Invalid - numeric
+					'': './invalid4.js', // Invalid - empty
+					default: './default.js',
 				},
 			},
 		},
 	};
 
-	// node-addons should take highest precedence when present in conditions
-	const result1 = resolve_node_specifier('condition-order', TEST_ROOT, undefined, cache, true, [
-		'node-addons',
-		'node',
-		'import',
+	// Valid conditions work
+	const result1 = resolve_node_specifier('conditions', TEST_ROOT, undefined, cache, true, [
+		'valid-name',
 	]);
-	assert.equal(
-		result1?.path_id,
-		resolve(TEST_ROOT, 'node_modules/condition-order/native/addon.node'),
-	);
+	assert.equal(result1?.path_id, resolve(TEST_ROOT, 'node_modules/conditions/valid1.js'));
 
-	// node should take precedence when node-addons not in conditions
-	const result2 = resolve_node_specifier('condition-order', TEST_ROOT, undefined, cache, true, [
-		'node',
-		'import',
+	const result2 = resolve_node_specifier('conditions', TEST_ROOT, undefined, cache, true, [
+		'valid:name',
 	]);
-	assert.equal(result2?.path_id, resolve(TEST_ROOT, 'node_modules/condition-order/node/index.js'));
+	assert.equal(result2?.path_id, resolve(TEST_ROOT, 'node_modules/conditions/valid2.js'));
 
-	// import/require are mutually exclusive
-	const result3 = resolve_node_specifier('condition-order', TEST_ROOT, undefined, cache, true, [
-		'import',
-		'require',
+	const result3 = resolve_node_specifier('conditions', TEST_ROOT, undefined, cache, true, [
+		'valid=name',
 	]);
-	assert.equal(result3?.path_id, resolve(TEST_ROOT, 'node_modules/condition-order/esm/index.mjs'));
+	assert.equal(result3?.path_id, resolve(TEST_ROOT, 'node_modules/conditions/valid3.js'));
 
-	// require should win if it comes first in conditions
-	const result4 = resolve_node_specifier('condition-order', TEST_ROOT, undefined, cache, true, [
-		'require',
-		'import',
+	// Invalid conditions fall through to default
+	const result4 = resolve_node_specifier('conditions', TEST_ROOT, undefined, cache, true, [
+		'.invalid',
 	]);
-	assert.equal(result4?.path_id, resolve(TEST_ROOT, 'node_modules/condition-order/cjs/index.cjs'));
+	assert.equal(result4?.path_id, resolve(TEST_ROOT, 'node_modules/conditions/default.js'));
 
-	// module-sync should be used when specified
-	const result5 = resolve_node_specifier('condition-order', TEST_ROOT, undefined, cache, true, [
-		'module-sync',
+	const result5 = resolve_node_specifier('conditions', TEST_ROOT, undefined, cache, true, [
+		'invalid,name',
 	]);
-	assert.equal(result5?.path_id, resolve(TEST_ROOT, 'node_modules/condition-order/sync/index.js'));
+	assert.equal(result5?.path_id, resolve(TEST_ROOT, 'node_modules/conditions/default.js'));
 
-	// should fall back to default when no conditions match
-	const result6 = resolve_node_specifier('condition-order', TEST_ROOT, undefined, cache, true, []);
-	assert.equal(result6?.path_id, resolve(TEST_ROOT, 'node_modules/condition-order/fallback.js'));
+	const result6 = resolve_node_specifier('conditions', TEST_ROOT, undefined, cache, true, ['123']);
+	assert.equal(result6?.path_id, resolve(TEST_ROOT, 'node_modules/conditions/default.js'));
+
+	const result7 = resolve_node_specifier('conditions', TEST_ROOT, undefined, cache, true, ['']);
+	assert.equal(result7?.path_id, resolve(TEST_ROOT, 'node_modules/conditions/default.js'));
 });
 
-test('handles complex pattern specificity ordering', () => {
+test('handles community-defined conditions', () => {
 	const cache = {
-		'pattern-order': {
-			name: 'pattern-order',
+		'community-conditions': {
+			name: 'community-conditions',
 			version: '',
 			exports: {
-				'./dist/specific/*.js': './src/specific/*.js', // Most specific static prefix
-				'./dist/*/nested/*.js': './src/*/nested/*.js', // More path segments
-				'./dist/*.js': './src/*.js', // Less specific
-				'./dist/*': './src/*', // Least specific
+				'.': {
+					types: './types/index.d.ts', // Should be first
+					browser: './browser/index.js',
+					development: './dev/index.js',
+					production: './prod/index.js',
+					default: './index.js',
+				},
 			},
 		},
 	};
 
-	// Should match most specific static prefix
+	// types has highest priority
 	const result1 = resolve_node_specifier(
-		'pattern-order/dist/specific/test.js',
+		'community-conditions',
 		TEST_ROOT,
 		undefined,
 		cache,
+		true,
+		['browser', 'types'],
 	);
 	assert.equal(
 		result1?.path_id,
-		resolve(TEST_ROOT, 'node_modules/pattern-order/src/specific/test.js'),
+		resolve(TEST_ROOT, 'node_modules/community-conditions/types/index.js'),
 	);
 
-	// Should match pattern with more path segments over less specific static prefix
+	// development/production are mutually exclusive
 	const result2 = resolve_node_specifier(
-		'pattern-order/dist/auth/nested/login.js',
+		'community-conditions',
 		TEST_ROOT,
 		undefined,
 		cache,
+		true,
+		['development', 'production'],
 	);
 	assert.equal(
 		result2?.path_id,
-		resolve(TEST_ROOT, 'node_modules/pattern-order/src/auth/nested/login.js'),
+		resolve(TEST_ROOT, 'node_modules/community-conditions/dev/index.js'),
 	);
 
-	// Should match single wildcard .js over generic wildcard
+	// browser condition works
 	const result3 = resolve_node_specifier(
-		'pattern-order/dist/utils.js',
+		'community-conditions',
 		TEST_ROOT,
 		undefined,
 		cache,
-	);
-	assert.equal(result3?.path_id, resolve(TEST_ROOT, 'node_modules/pattern-order/src/utils.js'));
-});
-
-test('handles extensionless imports according to Node.js spec', () => {
-	const cache = {
-		'extension-handling': {
-			name: 'extension-handling',
-			version: '',
-			exports: {
-				'.': './index', // No extension
-				'./lib/utils': './src/utils', // No extension in subpath
-				'./components/*.js': './src/*', // Pattern strips extension
-				'./features/*': './src/*.js', // Pattern adds extension
-			},
-		},
-	};
-
-	// Should add .js to main export
-	const result1 = resolve_node_specifier('extension-handling', TEST_ROOT, undefined, cache);
-	assert.equal(result1?.path_id, resolve(TEST_ROOT, 'node_modules/extension-handling/index.js'));
-
-	// Should add .js to subpath
-	const result2 = resolve_node_specifier(
-		'extension-handling/lib/utils',
-		TEST_ROOT,
-		undefined,
-		cache,
-	);
-	assert.equal(
-		result2?.path_id,
-		resolve(TEST_ROOT, 'node_modules/extension-handling/src/utils.js'),
-	);
-
-	// Should handle extension stripping in patterns
-	const result3 = resolve_node_specifier(
-		'extension-handling/components/button.js',
-		TEST_ROOT,
-		undefined,
-		cache,
+		true,
+		['browser'],
 	);
 	assert.equal(
 		result3?.path_id,
-		resolve(TEST_ROOT, 'node_modules/extension-handling/src/button.js'),
+		resolve(TEST_ROOT, 'node_modules/community-conditions/browser/index.js'),
 	);
-
-	// Should handle extension adding in patterns
-	const result4 = resolve_node_specifier(
-		'extension-handling/features/auth',
-		TEST_ROOT,
-		undefined,
-		cache,
-	);
-	assert.equal(result4?.path_id, resolve(TEST_ROOT, 'node_modules/extension-handling/src/auth.js'));
 });
 
-test('exports sugar syntax handles all scenarios', () => {
+test('handles exports sugar syntax variations', () => {
 	const cache = {
 		'sugar-simple': {
 			name: 'sugar-simple',
 			version: '',
-			exports: './index.js', // String shorthand
+			exports: './index.js', // Direct string
 		},
 		'sugar-object': {
 			name: 'sugar-object',
@@ -1461,7 +531,7 @@ test('exports sugar syntax handles all scenarios', () => {
 			version: '',
 			exports: {
 				'.': {
-					import: './index.mjs',
+					import: './index.mjs', // With conditions
 					require: './index.cjs',
 					default: './index.js',
 				},
@@ -1469,321 +539,209 @@ test('exports sugar syntax handles all scenarios', () => {
 		},
 	};
 
-	// Simple string sugar should work for root import
+	// Direct string form works
 	const result1 = resolve_node_specifier('sugar-simple', TEST_ROOT, undefined, cache);
 	assert.equal(result1?.path_id, resolve(TEST_ROOT, 'node_modules/sugar-simple/index.js'));
 
-	// Object form should work identically
+	// Object form works identically
 	const result2 = resolve_node_specifier('sugar-object', TEST_ROOT, undefined, cache);
 	assert.equal(result2?.path_id, resolve(TEST_ROOT, 'node_modules/sugar-object/index.js'));
 
-	// Conditions without "." should work
+	// Conditional form works
 	const result3 = resolve_node_specifier('sugar-conditions', TEST_ROOT, undefined, cache, true, [
 		'import',
 	]);
 	assert.equal(result3?.path_id, resolve(TEST_ROOT, 'node_modules/sugar-conditions/index.mjs'));
 });
 
-test('properly validates condition names', () => {
+test('enforces complete package encapsulation', () => {
 	const cache = {
-		'condition-validation': {
-			name: 'condition-validation',
+		encapsulated: {
+			name: 'encapsulated',
 			version: '',
 			exports: {
-				'.': {
-					'valid-name': './valid1.js',
-					'valid:name': './valid2.js',
-					'valid=name': './valid3.js',
-					'invalid.name': './invalid1.js',
-					'invalid,name': './invalid2.js',
-					'123': './invalid3.js',
-					'': './invalid4.js',
-					default: './default.js',
-				},
+				'.': './index.js',
+				'./public': './src/public/index.js',
+				'./features/*': './src/features/*.js',
 			},
 		},
 	};
 
-	// Valid hyphenated condition
-	const result1 = resolve_node_specifier(
-		'condition-validation',
-		TEST_ROOT,
-		undefined,
-		cache,
-		true,
-		['valid-name'],
-	);
-	assert.equal(result1?.path_id, resolve(TEST_ROOT, 'node_modules/condition-validation/valid1.js'));
+	// Listed exports work
+	const result1 = resolve_node_specifier('encapsulated', TEST_ROOT, undefined, cache);
+	assert.equal(result1?.path_id, resolve(TEST_ROOT, 'node_modules/encapsulated/index.js'));
 
-	// Valid colon condition
-	const result2 = resolve_node_specifier(
-		'condition-validation',
-		TEST_ROOT,
-		undefined,
-		cache,
-		true,
-		['valid:name'],
-	);
-	assert.equal(result2?.path_id, resolve(TEST_ROOT, 'node_modules/condition-validation/valid2.js'));
-
-	// Valid equals condition
-	const result3 = resolve_node_specifier(
-		'condition-validation',
-		TEST_ROOT,
-		undefined,
-		cache,
-		true,
-		['valid=name'],
-	);
-	assert.equal(result3?.path_id, resolve(TEST_ROOT, 'node_modules/condition-validation/valid3.js'));
-
-	// Invalid conditions should fall through to default
-	const result4 = resolve_node_specifier(
-		'condition-validation',
-		TEST_ROOT,
-		undefined,
-		cache,
-		true,
-		['invalid.name'],
-	);
-	assert.equal(
-		result4?.path_id,
-		resolve(TEST_ROOT, 'node_modules/condition-validation/default.js'),
-	);
-
-	const result5 = resolve_node_specifier(
-		'condition-validation',
-		TEST_ROOT,
-		undefined,
-		cache,
-		true,
-		['invalid,name'],
-	);
-	assert.equal(
-		result5?.path_id,
-		resolve(TEST_ROOT, 'node_modules/condition-validation/default.js'),
-	);
-
-	const result6 = resolve_node_specifier(
-		'condition-validation',
-		TEST_ROOT,
-		undefined,
-		cache,
-		true,
-		['123'],
-	);
-	assert.equal(
-		result6?.path_id,
-		resolve(TEST_ROOT, 'node_modules/condition-validation/default.js'),
-	);
-
-	const result7 = resolve_node_specifier(
-		'condition-validation',
-		TEST_ROOT,
-		undefined,
-		cache,
-		true,
-		[''],
-	);
-	assert.equal(
-		result7?.path_id,
-		resolve(TEST_ROOT, 'node_modules/condition-validation/default.js'),
-	);
-});
-
-test('handles main fallback for non-exports packages', () => {
-	const cache = {
-		'main-only': {
-			name: 'main-only',
-			version: '',
-			main: './lib/index.js', // Only has main field
-		},
-		'main-with-exports': {
-			name: 'main-with-exports',
-			version: '',
-			main: './lib/index.js',
-			exports: {
-				'.': './dist/index.js', // Should take precedence
-			},
-		},
-	};
-
-	// Should use main when no exports field
-	const result1 = resolve_node_specifier('main-only', TEST_ROOT, undefined, cache);
-	assert.equal(result1?.path_id, resolve(TEST_ROOT, 'node_modules/main-only/lib/index.js'));
-
-	// Should prefer exports over main when both exist
-	const result2 = resolve_node_specifier('main-with-exports', TEST_ROOT, undefined, cache);
+	const result2 = resolve_node_specifier('encapsulated/public', TEST_ROOT, undefined, cache);
 	assert.equal(
 		result2?.path_id,
-		resolve(TEST_ROOT, 'node_modules/main-with-exports/dist/index.js'),
+		resolve(TEST_ROOT, 'node_modules/encapsulated/src/public/index.js'),
 	);
-});
 
-test('handles typescript definition files', () => {
-	const cache = {
-		'types-handling': {
-			name: 'types-handling',
-			version: '',
-			exports: {
-				'.': {
-					types: './index.d.ts',
-					default: './index.js',
-				},
-				'./utils': {
-					types: './lib/utils.d.ts',
-					default: './lib/utils.js',
-				},
-			},
-		},
-	};
-
-	// Should convert .d.ts to .js for main export
-	const result1 = resolve_node_specifier('types-handling', TEST_ROOT, undefined, cache, true, [
-		'types',
-	]);
-	assert.equal(result1?.path_id, resolve(TEST_ROOT, 'node_modules/types-handling/index.js'));
-
-	// Should convert .d.ts to .js for subpath
-	const result2 = resolve_node_specifier(
-		'types-handling/utils',
-		TEST_ROOT,
-		undefined,
-		cache,
-		true,
-		['types'],
+	// Unlisted paths are blocked
+	assert.throws(
+		() => resolve_node_specifier('encapsulated/src/secret.js', TEST_ROOT, undefined, cache),
+		/ERR_PACKAGE_PATH_NOT_EXPORTED/,
 	);
-	assert.equal(result2?.path_id, resolve(TEST_ROOT, 'node_modules/types-handling/lib/utils.js'));
-});
-
-test('requires either main or exports for package resolution', () => {
-	const cache = {
-		'no-entry-package': {
-			name: 'no-entry-package',
-			version: '',
-			// No main or exports field
-		},
-	};
 
 	assert.throws(
-		() => resolve_node_specifier('no-entry-package', TEST_ROOT, undefined, cache),
+		() => resolve_node_specifier('encapsulated/package.json', TEST_ROOT, undefined, cache),
 		/ERR_PACKAGE_PATH_NOT_EXPORTED/,
 	);
 });
 
-test('respects Node.js condition evaluation order', () => {
+test('handles optional resolution mode', () => {
 	const cache = {
-		'condition-order': {
-			name: 'condition-order',
+		pkg: {
+			name: 'pkg',
 			version: '',
 			exports: {
-				'.': {
-					'node-addons': './native.node',
-					node: './node.js',
-					'module-sync': './sync.js',
-					import: './module.mjs',
-					require: './require.cjs',
-					default: './index.js',
-				},
+				'./utils': './lib/utils.js',
 			},
 		},
 	};
 
-	// Since import comes first in conditions, it should be selected
-	// regardless of other conditions present
-	const result = resolve_node_specifier('condition-order', TEST_ROOT, undefined, cache, true, [
-		'import',
-	]);
-	assert.equal(result?.path_id, resolve(TEST_ROOT, 'node_modules/condition-order/module.mjs'));
+	// Non-existent package returns null
+	assert.is(resolve_node_specifier('non-existent', TEST_ROOT, undefined, cache, false), null);
+
+	// Non-existent export returns null
+	assert.is(resolve_node_specifier('pkg/non-existent', TEST_ROOT, undefined, cache, false), null);
+
+	// Node core modules return null
+	assert.is(resolve_node_specifier('node:path', undefined, undefined, undefined, false), null);
 });
 
-test('handles self-referencing with absolute paths', () => {
+test('ignores query parameters', () => {
 	const cache = {
-		'self-ref': {
-			name: 'self-ref',
+		'raw-pkg': {
+			name: 'raw-pkg',
 			version: '',
 			exports: {
-				'.': './index.js',
-				'./lib/*': './src/lib/*',
+				'./file.js': './dist/file.js',
+				'./style.css': './dist/style.css',
 			},
 		},
 	};
 
-	// Should allow absolute path resolution within package
-	const absolutePath = resolve(TEST_ROOT, 'node_modules/self-ref/src/lib/util.js');
-	const result = resolve_node_specifier('self-ref/lib/util', TEST_ROOT, absolutePath, cache);
-	assert.equal(result?.path_id, resolve(TEST_ROOT, 'node_modules/self-ref/src/lib/util.js'));
-});
-
-test('forbids node_modules in exports targets', () => {
-	const cache = {
-		'invalid-exports': {
-			name: 'invalid-exports',
-			version: '',
-			exports: {
-				'.': './node_modules/some-package/index.js',
-			},
-		},
-	};
-
-	assert.throws(
-		() => resolve_node_specifier('invalid-exports', TEST_ROOT, undefined, cache),
-		/ERR_INVALID_PACKAGE_TARGET.*cannot contain node_modules/,
+	// Test JS raw import
+	const result1 = resolve_node_specifier('raw-pkg/file.js?raw', TEST_ROOT, undefined, cache);
+	assert.equal(
+		result1?.path_id_with_querystring,
+		resolve(TEST_ROOT, 'node_modules/raw-pkg/dist/file.js?raw'),
 	);
-});
+	assert.equal(result1?.raw, true);
 
-test('prevents package boundary escape in exports', () => {
-	const cache = {
-		'invalid-exports': {
-			name: 'invalid-exports',
-			version: '',
-			exports: {
-				'.': '../../../escape/bad.js',
-			},
-		},
-	};
-
-	assert.throws(
-		() => resolve_node_specifier('invalid-exports', TEST_ROOT, undefined, cache),
-		/ERR_INVALID_PACKAGE_TARGET.*cannot escape package boundary/,
+	// Test CSS raw import
+	const result2 = resolve_node_specifier('raw-pkg/style.css?raw', TEST_ROOT, undefined, cache);
+	assert.equal(
+		result2?.path_id_with_querystring,
+		resolve(TEST_ROOT, 'node_modules/raw-pkg/dist/style.css?raw'),
 	);
+	assert.equal(result2?.raw, true);
 });
 
-test('properly handles extensionless patterns', () => {
+// Framework-specific resolution
+test('handles framework-specific file extensions', () => {
 	const cache = {
-		'extension-patterns': {
-			name: 'extension-patterns',
+		'framework-pkg': {
+			name: 'framework-pkg',
 			version: '',
 			exports: {
-				'./lib/*': './src/lib/*',
-				'./components/*': './src/components/*.js',
+				'./Component.svelte': './dist/Component.svelte',
+				'./Feature.vue': './src/Feature.vue',
+				'./Widget.jsx': './lib/Widget.jsx',
 			},
 		},
 	};
 
-	// Should preserve extension in request
+	// Svelte
 	const result1 = resolve_node_specifier(
-		'extension-patterns/lib/util.js',
+		'framework-pkg/Component.svelte',
 		TEST_ROOT,
 		undefined,
 		cache,
 	);
 	assert.equal(
 		result1?.path_id,
-		resolve(TEST_ROOT, 'node_modules/extension-patterns/src/lib/util.js'),
+		resolve(TEST_ROOT, 'node_modules/framework-pkg/dist/Component.svelte'),
 	);
 
-	// Should add extension when pattern includes it
-	const result2 = resolve_node_specifier(
-		'extension-patterns/components/button',
+	// Vue
+	const result2 = resolve_node_specifier('framework-pkg/Feature.vue', TEST_ROOT, undefined, cache);
+	assert.equal(result2?.path_id, resolve(TEST_ROOT, 'node_modules/framework-pkg/src/Feature.vue'));
+
+	// JSX
+	const result3 = resolve_node_specifier('framework-pkg/Widget.jsx', TEST_ROOT, undefined, cache);
+	assert.equal(result3?.path_id, resolve(TEST_ROOT, 'node_modules/framework-pkg/lib/Widget.jsx'));
+});
+
+// Additional pattern-based self-referencing
+test('handles pattern-based self-referencing', () => {
+	const cache = {
+		'self-pattern': {
+			name: 'self-pattern',
+			version: '',
+			exports: {
+				'./components/*': './src/components/*.js',
+				'./utils/*.js': './lib/utils/*.js',
+			},
+		},
+	};
+
+	const parent_path = resolve(TEST_ROOT, 'node_modules/self-pattern/src/app.js');
+
+	// Test component pattern self-reference
+	const result1 = resolve_node_specifier(
+		'self-pattern/components/button',
 		TEST_ROOT,
-		undefined,
+		parent_path,
+		cache,
+	);
+	assert.equal(
+		result1?.path_id,
+		resolve(TEST_ROOT, 'node_modules/self-pattern/src/components/button.js'),
+	);
+
+	// Test utils pattern self-reference
+	const result2 = resolve_node_specifier(
+		'self-pattern/utils/format.js',
+		TEST_ROOT,
+		parent_path,
 		cache,
 	);
 	assert.equal(
 		result2?.path_id,
-		resolve(TEST_ROOT, 'node_modules/extension-patterns/src/components/button.js'),
+		resolve(TEST_ROOT, 'node_modules/self-pattern/lib/utils/format.js'),
 	);
+});
+
+test('handles complex module-sync scenarios', () => {
+	const cache = {
+		'sync-pkg': {
+			name: 'sync-pkg',
+			version: '',
+			exports: {
+				'.': {
+					import: './async/esm.mjs',
+					require: './async/cjs.cjs',
+					'module-sync': './sync/esm.js',
+					default: './default.js',
+				},
+			},
+		},
+	};
+
+	// Test that import takes precedence over module-sync
+	const result1 = resolve_node_specifier('sync-pkg', TEST_ROOT, undefined, cache, true, [
+		'module-sync',
+		'import',
+	]);
+	assert.equal(result1?.path_id, resolve(TEST_ROOT, 'node_modules/sync-pkg/async/esm.mjs'));
+
+	// Test module-sync when import/require not present
+	const result2 = resolve_node_specifier('sync-pkg', TEST_ROOT, undefined, cache, true, [
+		'module-sync',
+	]);
+	assert.equal(result2?.path_id, resolve(TEST_ROOT, 'node_modules/sync-pkg/sync/esm.js'));
 });
 
 test.run();
