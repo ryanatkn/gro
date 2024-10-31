@@ -2,7 +2,7 @@ import {join, extname} from 'node:path';
 import {existsSync} from 'node:fs';
 import {DEV} from 'esm-env';
 
-import {Package_Json, load_package_json} from './package_json.js';
+import {Export_Value, Package_Json, load_package_json} from './package_json.js';
 import {paths} from './paths.js';
 import {NODE_MODULES_DIRNAME} from './constants.js';
 import type {Resolved_Specifier} from './resolve_specifier.js';
@@ -124,7 +124,7 @@ const replace_wildcards = (pattern: string, wildcards: string[]): string => {
 	return result;
 };
 
-export const resolve_subpath = (package_json: Package_Json, subpath: string): unknown => {
+const resolve_subpath = (package_json: Package_Json, subpath: string): unknown => {
 	// If no exports field exists, fallback to main field for the root subpath
 	if (!package_json.exports) {
 		return subpath === '.' && package_json.main ? package_json.main : null;
@@ -241,18 +241,8 @@ export const resolve_subpath = (package_json: Package_Json, subpath: string): un
 	return null;
 };
 
-const CORE_CONDITIONS_PRIORITY = [
-	'types', // Community spec states this should be first
-	'node-addons',
-	'node',
-	'import',
-	'require',
-	'module-sync',
-	'default',
-];
-
-export const resolve_exported_value = (
-	exported: unknown,
+const resolve_exported_value = (
+	exported: Export_Value,
 	conditions: string[],
 ): string | undefined => {
 	if (typeof exported === 'string') {
@@ -265,73 +255,33 @@ export const resolve_exported_value = (
 
 	const exported_obj = exported as Record<string, unknown>;
 
-	// Handle core conditions in strict priority order
-	for (const condition of CORE_CONDITIONS_PRIORITY) {
-		// Special handling for import/require pair
-		if (condition === 'import' || condition === 'require') {
-			const module_condition = conditions.find((c) => c === 'import' || c === 'require');
-			if (module_condition && module_condition in exported_obj) {
-				const resolved = resolve_exported_value(exported_obj[module_condition], conditions);
-				if (resolved !== undefined) return resolved;
-			}
+	// eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
+	let default_value: Export_Value | undefined;
+
+	// For each key in exported_obj, in order
+	for (const [condition, value] of Object.entries(exported_obj)) {
+		// Skip invalid conditions
+		if (!is_valid_condition(condition)) {
 			continue;
 		}
 
-		if (conditions.includes(condition) && condition in exported_obj) {
-			const resolved = resolve_exported_value(exported_obj[condition], conditions);
-			if (resolved !== undefined) return resolved;
-		}
-	}
-
-	// Handle custom conditions in the order they appear
-	for (const condition of conditions) {
-		// Skip core conditions as they've been handled
-		if (CORE_CONDITIONS_PRIORITY.includes(condition)) continue;
-
-		// Validate custom condition names
-		if (!is_valid_condition(condition)) continue;
-
-		if (condition in exported_obj) {
-			const resolved = resolve_exported_value(exported_obj[condition], conditions);
-			if (resolved !== undefined) return resolved;
-		}
-	}
-
-	// Handle nested conditions now
-	const sorted_entries = Object.entries(exported_obj).sort(([a], [b]) => {
-		const a_idx = CORE_CONDITIONS_PRIORITY.indexOf(a);
-		const b_idx = CORE_CONDITIONS_PRIORITY.indexOf(b);
-
-		// Put core conditions first
-		if (a_idx !== -1 && b_idx === -1) return -1;
-		if (a_idx === -1 && b_idx !== -1) return 1;
-		if (a_idx !== -1 && b_idx !== -1) return a_idx - b_idx;
-
-		// Then sort by conditions array order
-		const a_condition_idx = conditions.indexOf(a);
-		const b_condition_idx = conditions.indexOf(b);
-		if (a_condition_idx !== -1 && b_condition_idx === -1) return -1;
-		if (a_condition_idx === -1 && b_condition_idx !== -1) return 1;
-		if (a_condition_idx !== -1 && b_condition_idx !== -1) return a_condition_idx - b_condition_idx;
-
-		return 0;
-	});
-
-	for (const [key, value] of sorted_entries) {
-		if (
-			typeof value === 'object' &&
-			value !== null &&
-			key !== 'default' &&
-			(!CORE_CONDITIONS_PRIORITY.includes(key) || conditions.includes(key))
-		) {
+		if (condition === 'default') {
+			// Store default value to try last
+			default_value = value;
+		} else if (conditions.includes(condition)) {
 			const resolved = resolve_exported_value(value, conditions);
-			if (resolved !== undefined) return resolved;
+			if (resolved !== undefined) {
+				return resolved;
+			}
 		}
 	}
 
-	// Check default last
-	if ('default' in exported_obj) {
-		return resolve_exported_value(exported_obj.default, conditions);
+	// If no conditions matched, try default
+	if (default_value !== undefined) {
+		const resolved = resolve_exported_value(default_value, conditions);
+		if (resolved !== undefined) {
+			return resolved;
+		}
 	}
 
 	return undefined;

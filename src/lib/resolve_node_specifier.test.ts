@@ -95,15 +95,15 @@ test('enforces strict condition order per Node.js spec', () => {
 	]);
 	assert.equal(result1?.path_id, resolve(TEST_ROOT, 'node_modules/conditions/native.node'));
 
-	// require should win when listed before import
+	// Since 'import' appears before 'require' in exports, 'import' should be matched first
 	const result3 = resolve_node_specifier('conditions', TEST_ROOT, undefined, cache, true, [
 		'require',
 		'import',
 	]);
 	assert.equal(
 		result3?.path_id,
-		resolve(TEST_ROOT, 'node_modules/conditions/cjs.cjs'),
-		'require should win when listed before import',
+		resolve(TEST_ROOT, 'node_modules/conditions/esm.mjs'),
+		'import should win when it appears before require in the exports',
 	);
 });
 
