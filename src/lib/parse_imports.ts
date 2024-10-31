@@ -1,11 +1,9 @@
-import {init, parse} from 'es-module-lexer';
+import {moduleLexerSync} from 'oxc-parser';
 import type {Flavored} from '@ryanatkn/belt/types.js';
 
 import type {Path_Id} from './path.js';
 import {SVELTE_MATCHER} from './svelte_helpers.js';
 import {JS_MATCHER, TS_MATCHER} from './constants.js';
-
-export const init_lexer = (): Promise<void> => init;
 
 export type Import_Specifier = Flavored<string, 'Import_Specifier'>;
 
@@ -18,9 +16,11 @@ export const parse_imports = (
 ): Import_Specifier[] => {
 	const specifiers: string[] = [];
 
+	const is_svelte = SVELTE_MATCHER.test(id);
+
 	const parse_from = (s: string): void => {
-		const parsed = parse(s);
-		for (const p of parsed[0]) {
+		const parsed = moduleLexerSync(s, {sourceFilename: is_svelte ? id + '.ts' : id});
+		for (const p of parsed.imports) {
 			if (ignore_types) {
 				const import_statement = s.slice(p.ss, p.se);
 				if (import_statement.startsWith('import type')) {
@@ -31,7 +31,7 @@ export const parse_imports = (
 		}
 	};
 
-	if (SVELTE_MATCHER.test(id)) {
+	if (is_svelte) {
 		const matches = contents.matchAll(script_matcher);
 		for (const m of matches) {
 			parse_from(m[1]);
