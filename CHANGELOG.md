@@ -1,5 +1,11 @@
 # @ryanatkn/gro
 
+## 0.146.1
+
+### Patch Changes
+
+- replace `es-module-lexer` with `oxc-parser` ([#518](https://github.com/ryanatkn/gro/pull/518))
+
 ## 0.146.0
 
 ### Minor Changes
