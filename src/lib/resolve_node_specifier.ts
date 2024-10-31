@@ -1,17 +1,17 @@
 import {join, extname} from 'node:path';
 import {existsSync} from 'node:fs';
 import {DEV} from 'esm-env';
+import {escape_regexp} from '@ryanatkn/belt/regexp.js';
 
 import {Export_Value, Package_Json, load_package_json} from './package_json.js';
 import {paths} from './paths.js';
 import {NODE_MODULES_DIRNAME} from './constants.js';
 import type {Resolved_Specifier} from './resolve_specifier.js';
-import {escape_regexp} from '@ryanatkn/belt/regexp.js';
 
 /**
- * This likely has differences from Node - they should be fixed on a case-by-case basis.
  * Ideally Gro would just use `import.meta.resolve`, but it can't be used in custom loaders,
  * which Gro relies on for TypeScript.
+ * This likely has differences from Node - they should be fixed on a case-by-case basis.
  */
 export const resolve_node_specifier = (
 	specifier: string,
@@ -24,23 +24,16 @@ export const resolve_node_specifier = (
 	const raw = specifier.endsWith('?raw');
 	const mapped_specifier = raw ? specifier.substring(0, specifier.length - 4) : specifier;
 
-	// Parse the specifier
-	let idx: number = -1;
-	if (mapped_specifier[0] === '@') {
-		let count = 0;
-		for (let i = 0; i < mapped_specifier.length; i++) {
-			if (mapped_specifier[i] === '/') count++;
-			if (count === 2) {
-				idx = i;
-				break;
-			}
-		}
-	} else {
-		idx = mapped_specifier.indexOf('/');
-	}
+	const specifier_slash_path_index = get_specifier_slash_path_index(mapped_specifier);
 
-	const pkg_name = idx === -1 ? mapped_specifier : mapped_specifier.substring(0, idx);
-	const module_path = idx === -1 ? '' : mapped_specifier.substring(idx + 1);
+	const pkg_name =
+		specifier_slash_path_index === -1
+			? mapped_specifier
+			: mapped_specifier.substring(0, specifier_slash_path_index);
+	const module_path =
+		specifier_slash_path_index === -1
+			? ''
+			: mapped_specifier.substring(specifier_slash_path_index + 1);
 	const subpath = module_path ? './' + module_path : '.';
 	const package_dir = join(dir, NODE_MODULES_DIRNAME, pkg_name);
 
@@ -146,6 +139,7 @@ const resolve_subpath = (package_json: Package_Json, subpath: string): unknown =
 			return exports[subpath];
 		}
 
+		// TODO some of this may be wrong, will just need to patch as we go
 		// Sort patterns by specificity
 		const patterns = Object.entries(exports)
 			.filter(([pattern]) => pattern.includes('*'))
@@ -257,8 +251,7 @@ const resolve_exported_value = (
 
 	const exported_obj = exported as Record<string, unknown>;
 
-	// eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
-	let default_value: Export_Value | undefined;
+	let default_value: Export_Value | undefined; // eslint-disable-line @typescript-eslint/no-redundant-type-constituents
 
 	// For each key in exported_obj, in order
 	for (const [condition, value] of Object.entries(exported_obj)) {
@@ -355,4 +348,22 @@ const validate_export_target = (target: string, throw_on_missing_package: boolea
 			depth++;
 		}
 	}
+};
+
+const get_specifier_slash_path_index = (mapped_specifier: string): number => {
+	let index: number = -1;
+	if (mapped_specifier[0] === '@') {
+		let count = 0;
+		for (let i = 0; i < mapped_specifier.length; i++) {
+			if (mapped_specifier[i] === '/') count++;
+			if (count === 2) {
+				index = i;
+				break;
+			}
+		}
+	} else {
+		index = mapped_specifier.indexOf('/');
+	}
+
+	return index;
 };

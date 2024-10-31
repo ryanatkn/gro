@@ -4,8 +4,7 @@ import {has_server, gro_plugin_server} from './gro_plugin_server.js';
 import {gro_plugin_sveltekit_app} from './gro_plugin_sveltekit_app.js';
 import {has_sveltekit_app, has_sveltekit_library} from './sveltekit_helpers.js';
 import {gro_plugin_gen} from './gro_plugin_gen.js';
-import {gro_plugin_moss, has_moss_dep} from './gro_plugin_moss.js';
-import {load_package_json} from './package_json.js';
+import {has_dep, load_package_json} from './package_json.js';
 
 /**
  * This is the default config that's passed to `gro.config.ts`
@@ -19,22 +18,18 @@ import {load_package_json} from './package_json.js';
 const config: Create_Gro_Config = async (cfg) => {
 	const package_json = load_package_json(); // TODO gets wastefully loaded by some plugins, maybe put in plugin/task context? how does that interact with `map_package_json`?
 
-	const [
-		moss_plugin_result,
-		has_server_result,
-		has_sveltekit_library_result,
-		has_sveltekit_app_result,
-	] = await Promise.all([
-		has_moss_dep(package_json),
-		has_server(),
-		has_sveltekit_library(package_json),
-		has_sveltekit_app(),
-	]);
+	const [has_moss_dep, has_server_result, has_sveltekit_library_result, has_sveltekit_app_result] =
+		await Promise.all([
+			has_dep('@ryanatkn/moss', package_json),
+			has_server(),
+			has_sveltekit_library(package_json),
+			has_sveltekit_app(),
+		]);
 
-	cfg.plugins = () =>
+	cfg.plugins = async () =>
 		[
 			// put things that generate files before SvelteKit so it can see them
-			moss_plugin_result.ok ? gro_plugin_moss() : null,
+			has_moss_dep ? (await import('./gro_plugin_moss.js')).gro_plugin_moss() : null, // lazy load to avoid errors if it's not installed
 			gro_plugin_gen(),
 			has_server_result.ok ? gro_plugin_server() : null,
 			has_sveltekit_library_result.ok ? gro_plugin_sveltekit_library() : null,
