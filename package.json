@@ -68,7 +68,7 @@
   "devDependencies": {
     "@changesets/changelog-git": "^0.2.0",
     "@changesets/types": "^6.0.0",
-    "@ryanatkn/eslint-config": "^0.5.5",
+    "@ryanatkn/eslint-config": "^0.5.6",
     "@ryanatkn/fuz": "^0.130.3",
     "@ryanatkn/moss": "^0.19.0",
     "@sveltejs/adapter-static": "^3.0.6",
@@ -83,7 +83,7 @@
     "svelte": "^5.1.5",
     "svelte-check": "^4.0.5",
     "typescript": "^5.6.3",
-    "typescript-eslint": "^8.12.1",
+    "typescript-eslint": "^8.12.2",
     "uvu": "^0.5.6"
   },
   "prettier": {
