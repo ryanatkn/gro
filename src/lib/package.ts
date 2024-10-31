@@ -186,7 +186,6 @@ export const package_json = {
 		'./loader.js': {types: './dist/loader.d.ts', default: './dist/loader.js'},
 		'./module.js': {types: './dist/module.d.ts', default: './dist/module.js'},
 		'./modules.js': {types: './dist/modules.d.ts', default: './dist/modules.js'},
-		'./moss_helpers.js': {types: './dist/moss_helpers.d.ts', default: './dist/moss_helpers.js'},
 		'./package_json.js': {types: './dist/package_json.d.ts', default: './dist/package_json.js'},
 		'./package_meta.js': {types: './dist/package_meta.d.ts', default: './dist/package_meta.js'},
 		'./package.gen.js': {types: './dist/package.gen.d.ts', default: './dist/package.gen.js'},
@@ -701,13 +700,6 @@ export const src_json = {
 				{name: 'Load_Modules_Failure', kind: 'type'},
 				{name: 'Load_Modules_Result', kind: 'type'},
 				{name: 'load_modules', kind: 'function'},
-			],
-		},
-		'./moss_helpers.js': {
-			path: 'moss_helpers.ts',
-			declarations: [
-				{name: 'MOSS_PACKAGE_DEP_NAME', kind: 'variable'},
-				{name: 'load_moss_plugin', kind: 'function'},
 			],
 		},
 		'./package_json.js': {
