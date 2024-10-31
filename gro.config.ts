@@ -1,9 +1,8 @@
-import {gro_plugin_moss} from '@ryanatkn/moss/gro_plugin_moss.js';
-
 import {create_empty_gro_config} from './src/lib/gro_config.js';
 import {gro_plugin_sveltekit_library} from './src/lib/gro_plugin_sveltekit_library.js';
 import {gro_plugin_sveltekit_app} from './src/lib/gro_plugin_sveltekit_app.js';
 import {gro_plugin_gen} from './src/lib/gro_plugin_gen.js';
+import {gro_plugin_moss} from './src/lib/gro_plugin_moss.js';
 
 /**
  * This is the config for the Gro project itself.
@@ -14,7 +13,7 @@ import {gro_plugin_gen} from './src/lib/gro_plugin_gen.js';
 const config = create_empty_gro_config();
 
 config.plugins = () => [
-	gro_plugin_moss() as any, // TODO hack around self imports, Moss is importing into Gro (maybe extract `format_file` etc)
+	gro_plugin_moss(),
 	gro_plugin_sveltekit_library(),
 	gro_plugin_sveltekit_app(),
 	gro_plugin_gen(),

@@ -4,12 +4,30 @@ import {Unreachable_Error} from '@ryanatkn/belt/error.js';
 import {writeFileSync} from 'node:fs';
 import {collect_css_classes, Css_Classes} from '@ryanatkn/moss/css_class_helpers.js';
 import {css_classes_by_name} from '@ryanatkn/moss/css_classes.js';
+import type {Result} from '@ryanatkn/belt/result.js';
 
 import type {Plugin} from './plugin.js';
 import type {Args} from './args.js';
 import type {Cleanup_Watch} from './filer.js';
 import {format_file} from './format_file.js';
 import type {File_Filter} from './path.js';
+import {has_dep, type Package_Json} from './package_json.js';
+
+export const MOSS_PACKAGE_DEP_NAME = '@ryanatkn/moss';
+
+export const has_moss_dep = (
+	package_json?: Package_Json,
+	dep_name = MOSS_PACKAGE_DEP_NAME,
+): Result<object, {message: string}> => {
+	if (!has_dep(dep_name, package_json)) {
+		return {
+			ok: false,
+			message: `no dependency found in package.json for ${dep_name}`,
+		};
+	}
+
+	return {ok: true};
+};
 
 export const generate_classes_css = (classes: Iterable<string>): string => {
 	let css = '';

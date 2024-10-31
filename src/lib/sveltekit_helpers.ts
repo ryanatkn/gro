@@ -33,7 +33,6 @@ export const has_sveltekit_library = (
 	package_json?: Package_Json,
 	sveltekit_config: Parsed_Sveltekit_Config = default_sveltekit_config,
 	dep_name = SVELTE_PACKAGE_DEP_NAME,
-	pm_cli = PM_CLI_DEFAULT, // TODO source from config when possible, is just needed for error messages
 ): Result<object, {message: string}> => {
 	const has_sveltekit_app_result = has_sveltekit_app();
 	if (!has_sveltekit_app_result.ok) {
@@ -47,7 +46,7 @@ export const has_sveltekit_library = (
 	if (!has_dep(dep_name, package_json)) {
 		return {
 			ok: false,
-			message: `no dependency found in package.json for ${dep_name}, install it with \`${pm_cli} install -D ${dep_name}\``,
+			message: `no dependency found in package.json for ${dep_name}`,
 		};
 	}
 

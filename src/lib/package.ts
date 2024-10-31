@@ -62,7 +62,7 @@ export const package_json = {
 		'@changesets/types': '^6.0.0',
 		'@ryanatkn/eslint-config': '^0.5.5',
 		'@ryanatkn/fuz': '^0.130.3',
-		'@ryanatkn/moss': '^0.18.2',
+		'@ryanatkn/moss': '^0.19.0',
 		'@sveltejs/adapter-static': '^3.0.6',
 		'@sveltejs/kit': '^2.7.3',
 		'@sveltejs/package': '^2.3.7',
@@ -606,6 +606,8 @@ export const src_json = {
 		'./gro_plugin_moss.js': {
 			path: 'gro_plugin_moss.ts',
 			declarations: [
+				{name: 'MOSS_PACKAGE_DEP_NAME', kind: 'variable'},
+				{name: 'has_moss_dep', kind: 'function'},
 				{name: 'generate_classes_css', kind: 'function'},
 				{name: 'Task_Args', kind: 'type'},
 				{name: 'Options', kind: 'type'},
