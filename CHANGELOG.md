@@ -1,5 +1,11 @@
 # @ryanatkn/gro
 
+## 0.146.0
+
+### Minor Changes
+
+- extract `moss_helpers.ts` and lazy load the Moss plugin ([9caa4a8](https://github.com/ryanatkn/gro/commit/9caa4a8))
+
 ## 0.145.0
 
 ### Minor Changes
