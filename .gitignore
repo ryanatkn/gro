@@ -5,8 +5,9 @@ node_modules
 /.svelte-kit
 /build
 /dist
-/.gro
 /dist_*
+/.gro
+/.zzz
 
 # Env
 .env
