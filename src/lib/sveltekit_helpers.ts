@@ -30,7 +30,7 @@ export const has_sveltekit_app = (): Result<object, {message: string}> => {
 };
 
 export const has_sveltekit_library = (
-	package_json?: Package_Json,
+	package_json: Package_Json,
 	sveltekit_config: Parsed_Sveltekit_Config = default_sveltekit_config,
 	dep_name = SVELTE_PACKAGE_DEP_NAME,
 ): Result<object, {message: string}> => {
@@ -149,12 +149,13 @@ export interface Svelte_Package_Options {
 }
 
 export const run_svelte_package = async (
+	package_json: Package_Json,
 	options: Svelte_Package_Options | undefined,
 	cli: string | Cli,
 	log: Logger,
 	pm_cli: string,
 ): Promise<void> => {
-	const has_sveltekit_library_result = has_sveltekit_library();
+	const has_sveltekit_library_result = has_sveltekit_library(package_json);
 	if (!has_sveltekit_library_result.ok) {
 		throw new Task_Error(
 			'Failed to find SvelteKit library: ' + has_sveltekit_library_result.message,

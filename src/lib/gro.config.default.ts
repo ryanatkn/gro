@@ -5,6 +5,7 @@ import {gro_plugin_sveltekit_app} from './gro_plugin_sveltekit_app.js';
 import {has_sveltekit_app, has_sveltekit_library} from './sveltekit_helpers.js';
 import {gro_plugin_gen} from './gro_plugin_gen.js';
 import {gro_plugin_moss, has_moss_dep} from './gro_plugin_moss.js';
+import {load_package_json} from './package_json.js';
 
 /**
  * This is the default config that's passed to `gro.config.ts`
@@ -16,15 +17,17 @@ import {gro_plugin_moss, has_moss_dep} from './gro_plugin_moss.js';
  * - if `src/lib/server/server.ts`, assumes a Node server
  */
 const config: Create_Gro_Config = async (cfg) => {
+	const package_json = load_package_json(); // TODO gets wastefully loaded by some plugins, maybe put in plugin/task context? how does that interact with `map_package_json`?
+
 	const [
 		moss_plugin_result,
 		has_server_result,
 		has_sveltekit_library_result,
 		has_sveltekit_app_result,
 	] = await Promise.all([
-		has_moss_dep(),
+		has_moss_dep(package_json),
 		has_server(),
-		has_sveltekit_library(),
+		has_sveltekit_library(package_json),
 		has_sveltekit_app(),
 	]);
 

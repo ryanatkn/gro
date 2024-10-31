@@ -26,16 +26,22 @@ export const gro_plugin_sveltekit_library = ({
 	svelte_package_options,
 	svelte_package_cli = SVELTE_PACKAGE_CLI,
 }: Gro_Plugin_Sveltekit_Library_Options = {}): Plugin => {
+	const package_json = load_package_json();
+
 	return {
 		name: 'gro_plugin_sveltekit_library',
 		setup: async ({dev, log, config}) => {
 			if (!dev) {
-				await run_svelte_package(svelte_package_options, svelte_package_cli, log, config.pm_cli);
+				await run_svelte_package(
+					package_json,
+					svelte_package_options,
+					svelte_package_cli,
+					log,
+					config.pm_cli,
+				);
 			}
 		},
 		adapt: async ({log, timings, config}) => {
-			const package_json = load_package_json();
-
 			// link the CLI binaries if they exist
 			if (package_json.bin) {
 				const timing_to_link = timings.start(`${config.pm_cli} link`);

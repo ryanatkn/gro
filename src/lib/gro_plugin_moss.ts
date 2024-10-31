@@ -16,7 +16,7 @@ import {has_dep, type Package_Json} from './package_json.js';
 export const MOSS_PACKAGE_DEP_NAME = '@ryanatkn/moss';
 
 export const has_moss_dep = (
-	package_json?: Package_Json,
+	package_json: Package_Json,
 	dep_name = MOSS_PACKAGE_DEP_NAME,
 ): Result<object, {message: string}> => {
 	if (!has_dep(dep_name, package_json)) {

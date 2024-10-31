@@ -67,7 +67,9 @@ export const task: Task<Args> = {
 			log.info(st('green', 'dry run!'));
 		}
 
-		const has_sveltekit_library_result = has_sveltekit_library();
+		const package_json = load_package_json();
+
+		const has_sveltekit_library_result = has_sveltekit_library(package_json);
 		if (!has_sveltekit_library_result.ok) {
 			throw new Task_Error(
 				'Failed to find SvelteKit library: ' + has_sveltekit_library_result.message,
@@ -109,11 +111,10 @@ export const task: Task<Args> = {
 		if (dry) {
 			log.info('dry run, skipping changeset version');
 		} else {
-			const package_json_before = load_package_json();
-			if (typeof package_json_before.version !== 'string') {
+			if (typeof package_json.version !== 'string') {
 				throw new Task_Error('Failed to find package.json version');
 			}
-			const parsed_repo_url = parse_repo_url(package_json_before);
+			const parsed_repo_url = parse_repo_url(package_json);
 			if (!parsed_repo_url) {
 				throw new Task_Error(
 					'package.json `repository` must contain a repo url (and GitHub only for now, sorry),' +
@@ -139,9 +140,9 @@ export const task: Task<Args> = {
 				await update_changelog(parsed_repo_url.owner, parsed_repo_url.repo, changelog, token, log);
 			}
 
-			const package_json_after = load_package_json();
-			version = package_json_after.version!;
-			if (package_json_before.version === version) {
+			const package_json_after_versioning = load_package_json();
+			version = package_json_after_versioning.version!;
+			if (package_json.version === version) {
 				// The version didn't change.
 				// For now this is the best detection we have for a no-op `changeset version`.
 				if (optional) {
