@@ -1,5 +1,11 @@
 # @ryanatkn/gro
 
+## 0.146.2
+
+### Patch Changes
+
+- upgrade `@ryanatkn/belt@0.26.1` from `0.26.0` and `tslib@2.8.1` from `2.8.0` ([a0764b6](https://github.com/ryanatkn/gro/commit/a0764b6))
+
 ## 0.146.1
 
 ### Patch Changes

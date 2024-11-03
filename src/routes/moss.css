@@ -26,7 +26,7 @@ a.chip {
 
 /* TODO other button variants? */
 /* TODO this is slightly strange that it doesn't use --icon_size */
-/* These are used as modifiers to buttons, and so they use `:where` so they cascade.  */
+/* These are used as modifiers to buttons, and so they use `:where` so they cascade. */
 .icon_button {
 	width: var(--input_height);
 	height: var(--input_height);
