@@ -7,6 +7,8 @@ import type {
 	enhance as base_enhance,
 } from '$app/forms';
 import {noop, noop_async} from '@ryanatkn/belt/function.js';
+// TODO better way todo this?
+// @ts-expect-error
 import * as devalue from 'devalue';
 
 export const applyAction: typeof base_applyAction = noop_async;
