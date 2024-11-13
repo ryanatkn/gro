@@ -201,10 +201,6 @@ export const package_json = {
 			default: './dist/reinstall.task.js',
 		},
 		'./release.task.js': {types: './dist/release.task.d.ts', default: './dist/release.task.js'},
-		'./resolve_node_specifier.js': {
-			types: './dist/resolve_node_specifier.d.ts',
-			default: './dist/resolve_node_specifier.js',
-		},
 		'./resolve_specifier.js': {
 			types: './dist/resolve_specifier.d.ts',
 			default: './dist/resolve_specifier.js',
@@ -815,10 +811,6 @@ export const src_json = {
 				{name: 'Args', kind: 'variable'},
 				{name: 'task', kind: 'variable'},
 			],
-		},
-		'./resolve_node_specifier.js': {
-			path: 'resolve_node_specifier.ts',
-			declarations: [{name: 'resolve_node_specifier', kind: 'function'}],
 		},
 		'./resolve_specifier.js': {
 			path: 'resolve_specifier.ts',
