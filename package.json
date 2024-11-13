@@ -354,10 +354,6 @@
       "types": "./dist/release.task.d.ts",
       "default": "./dist/release.task.js"
     },
-    "./resolve_node_specifier.js": {
-      "types": "./dist/resolve_node_specifier.d.ts",
-      "default": "./dist/resolve_node_specifier.js"
-    },
     "./resolve_specifier.js": {
       "types": "./dist/resolve_specifier.d.ts",
       "default": "./dist/resolve_specifier.js"

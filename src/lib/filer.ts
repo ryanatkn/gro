@@ -3,6 +3,9 @@ import {existsSync, readFileSync, statSync} from 'node:fs';
 import {dirname, resolve} from 'node:path';
 import type {Omit_Strict} from '@ryanatkn/belt/types.js';
 import {wait} from '@ryanatkn/belt/async.js';
+import {isBuiltin} from 'node:module';
+import {fileURLToPath} from 'node:url';
+import {Unreachable_Error} from '@ryanatkn/belt/error.js';
 
 import type {Path_Id} from './path.js';
 import {
@@ -17,8 +20,6 @@ import {parse_imports} from './parse_imports.js';
 import {resolve_specifier} from './resolve_specifier.js';
 import {default_sveltekit_config} from './sveltekit_config.js';
 import {map_sveltekit_aliases} from './sveltekit_helpers.js';
-import {Unreachable_Error} from '@ryanatkn/belt/error.js';
-import {resolve_node_specifier} from './resolve_node_specifier.js';
 import type {Package_Json} from './package_json.js';
 
 const aliases = Object.entries(default_sveltekit_config.alias);
@@ -58,13 +59,10 @@ export class Filer {
 	#watch_dir: typeof watch_dir;
 	#watch_dir_options: Partial<Watch_Dir_Options>;
 
-	#package_json_cache: Record<string, Package_Json>;
-
 	constructor(options: Filer_Options = EMPTY_OBJECT) {
 		this.#watch_dir = options.watch_dir ?? watch_dir;
 		this.#watch_dir_options = options.watch_dir_options ?? EMPTY_OBJECT;
 		this.root_dir = resolve(options.watch_dir_options?.dir ?? paths.source);
-		this.#package_json_cache = options.package_json_cache ?? {};
 	}
 
 	#watching: Watch_Node_Fs | undefined;
@@ -118,16 +116,24 @@ export class Filer {
 
 		const imported = file.contents ? parse_imports(file.id, file.contents) : [];
 		for (const specifier of imported) {
-			// TODO logic is duplicated from loader
 			const path = map_sveltekit_aliases(specifier, aliases);
 
-			// The specifier `path` has now been mapped to its final form, so we can inspect it.
-			const resolved =
-				path[0] === '.' || path[0] === '/'
-					? resolve_specifier(path, dir)
-					: resolve_node_specifier(path, undefined, file.id, this.#package_json_cache, false);
-			if (!resolved) continue; // ignore any missing imports like Node identifiers
-			const {path_id} = resolved;
+			let path_id;
+			if (path[0] === '.' || path[0] === '/') {
+				const resolved = resolve_specifier(path, dir);
+				path_id = resolved.path_id;
+			} else {
+				if (isBuiltin(path)) continue;
+				try {
+					path_id = fileURLToPath(import.meta.resolve(path, file.id));
+				} catch (error) {
+					// If it's imported from an external module, ignore any import errors.
+					if (error.code === 'ERR_MODULE_NOT_FOUND' && file.external) {
+						continue;
+					}
+					throw error;
+				}
+			}
 			dependencies_removed.delete(path_id);
 			if (!dependencies_before.has(path_id)) {
 				const d = this.get_or_create(path_id);
