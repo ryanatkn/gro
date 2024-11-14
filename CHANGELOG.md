@@ -1,5 +1,11 @@
 # @ryanatkn/gro
 
+## 0.147.0
+
+### Minor Changes
+
+- simplify module resolution to use Node builtins instead of custom Vite-like behavior ([#519](https://github.com/ryanatkn/gro/pull/519))
+
 ## 0.146.2
 
 ### Patch Changes
