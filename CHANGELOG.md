@@ -1,5 +1,11 @@
 # @ryanatkn/gro
 
+## 0.147.1
+
+### Patch Changes
+
+- fix `Filer` imports to `$app` and `$env` and add `SVELTEKIT_GLOBAL_SPECIFIER` ([9acc3c9](https://github.com/ryanatkn/gro/commit/9acc3c9))
+
 ## 0.147.0
 
 ### Minor Changes
