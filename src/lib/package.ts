@@ -893,6 +893,7 @@ export const src_json = {
 				{name: 'SVELTE_PACKAGE_DEP_NAME', kind: 'variable'},
 				{name: 'VITE_CLI', kind: 'variable'},
 				{name: 'SVELTEKIT_ENV_MATCHER', kind: 'variable'},
+				{name: 'SVELTEKIT_GLOBAL_SPECIFIER', kind: 'variable'},
 				{name: 'has_sveltekit_app', kind: 'function'},
 				{name: 'has_sveltekit_library', kind: 'function'},
 				{name: 'sveltekit_sync', kind: 'function'},

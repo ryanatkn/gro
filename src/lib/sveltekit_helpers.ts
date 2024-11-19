@@ -20,6 +20,7 @@ export const SVELTE_PACKAGE_DEP_NAME = '@sveltejs/package';
 export const VITE_CLI = 'vite';
 
 export const SVELTEKIT_ENV_MATCHER = /^\$env\/(static|dynamic)\/(public|private)$/;
+export const SVELTEKIT_GLOBAL_SPECIFIER = /^\$(env|app)\//;
 
 export const has_sveltekit_app = (): Result<object, {message: string}> => {
 	if (!existsSync(SVELTEKIT_CONFIG_FILENAME)) {

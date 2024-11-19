@@ -19,7 +19,7 @@ import {paths} from './paths.js';
 import {parse_imports} from './parse_imports.js';
 import {resolve_specifier} from './resolve_specifier.js';
 import {default_sveltekit_config} from './sveltekit_config.js';
-import {map_sveltekit_aliases} from './sveltekit_helpers.js';
+import {map_sveltekit_aliases, SVELTEKIT_GLOBAL_SPECIFIER} from './sveltekit_helpers.js';
 import type {Package_Json} from './package_json.js';
 
 const aliases = Object.entries(default_sveltekit_config.alias);
@@ -116,6 +116,7 @@ export class Filer {
 
 		const imported = file.contents ? parse_imports(file.id, file.contents) : [];
 		for (const specifier of imported) {
+			if (SVELTEKIT_GLOBAL_SPECIFIER.test(specifier)) continue;
 			const path = map_sveltekit_aliases(specifier, aliases);
 
 			let path_id;
