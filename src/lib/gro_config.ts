@@ -21,7 +21,7 @@ import type {Path_Filter, Path_Id} from './path.js';
  * This is exposed to users in places like tasks and genfiles.
  * @see https://github.com/ryanatkn/gro/blob/main/src/docs/config.md
  */
-export interface Gro_Config {
+export interface Gro_Config extends Raw_Gro_Config {
 	/**
 	 * @see https://github.com/ryanatkn/gro/blob/main/src/docs/plugin.md
 	 */

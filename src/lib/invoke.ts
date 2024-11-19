@@ -1,5 +1,6 @@
 import {attach_process_error_handlers} from '@ryanatkn/belt/process.js';
 import {configure_log_colors} from '@ryanatkn/belt/log.js';
+import {set_colors} from '@ryanatkn/belt/print.js';
 import {styleText} from 'node:util';
 
 import {invoke_task} from './invoke_task.js';
@@ -25,6 +26,7 @@ attach_process_error_handlers(
 );
 
 configure_log_colors(styleText);
+set_colors(styleText);
 
 await sveltekit_sync_if_obviously_needed();
 

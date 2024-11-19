@@ -4,7 +4,8 @@ Gro supports SvelteKit apps, Node libraries, and Node servers with minimal abstr
 with the help of an optional config file that lives at the root `gro.config.ts`.
 If a project does not define a config, Gro imports a default config from
 [`src/lib/gro.config.default.ts`](/src/lib/gro.config.default.ts),
-which looks at your project for the familiar patterns and tries to do the right thing.
+which looks at your project for the familiar patterns and tries to do the right thing,
+without required deps.
 
 > The [default config](/src/lib/gro.config.default.ts)
 > detects three types of projects that can coexist in one repo:
@@ -42,7 +43,7 @@ export interface Create_Gro_Config {
 }
 
 // The strict variant that's used internally and exposed to users in tasks and elsewhere.
-export interface Gro_Config {
+export interface Gro_Config extends Raw_Gro_Config {
 	plugins: Create_Config_Plugins;
 	map_package_json: Map_Package_Json | null;
 	task_root_dirs: Path_Id[];
