@@ -8,7 +8,9 @@
 
 [Windows won't be supported](https://github.com/ryanatkn/gro/issues/319), I chose Bash instead.
 
-Feel free to open issues with anything you'd like to discuss or report.
+Need help or want to share thoughts? See the
+[issues](https://github.com/ryanatkn/gro/issues) and
+[discussions](https://github.com/ryanatkn/gro/discussions).
 
 ## about
 
