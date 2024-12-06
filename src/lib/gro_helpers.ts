@@ -83,7 +83,7 @@ export const resolve_gro_module_path = (path = ''): string => {
 export const spawn_with_loader = (
 	loader_path: string,
 	invoke_path: string,
-	argv: string[],
+	argv: Array<string>,
 	js_cli = JS_CLI_DEFAULT, // TODO source from config when possible
 ): Promise<Spawn_Result> => {
 	const args = [

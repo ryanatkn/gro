@@ -155,7 +155,7 @@ test('failing gen function', async () => {
 			},
 		},
 	};
-	const gen_modules_by_input_path: Genfile_Module_Meta[] = [mod_a, mod_b];
+	const gen_modules_by_input_path: Array<Genfile_Module_Meta> = [mod_a, mod_b];
 	const gen_results = await run_gen(
 		gen_modules_by_input_path,
 		await load_gro_config(),

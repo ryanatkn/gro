@@ -12,7 +12,7 @@ export const render_env_shim_module = (
 	public_prefix = 'PUBLIC_',
 	private_prefix = '',
 	env_dir?: string,
-	env_files?: string[],
+	env_files?: Array<string>,
 	ambient_env?: Record<string, string | undefined>,
 ): string => {
 	const env = load_env(

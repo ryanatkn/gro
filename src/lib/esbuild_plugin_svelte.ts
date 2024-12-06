@@ -25,7 +25,7 @@ export interface Esbuild_Plugin_Svelte_Options {
 	dir?: string;
 	svelte_compile_options?: CompileOptions;
 	svelte_compile_module_options?: ModuleCompileOptions;
-	svelte_preprocessors?: PreprocessorGroup | PreprocessorGroup[];
+	svelte_preprocessors?: PreprocessorGroup | Array<PreprocessorGroup>;
 	ts_transform_options?: esbuild.TransformOptions;
 	is_ts?: (filename: string) => boolean;
 }

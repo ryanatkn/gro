@@ -95,40 +95,40 @@ export interface Found_Task {
 }
 
 export interface Found_Tasks {
-	resolved_input_files: Resolved_Input_File[];
-	resolved_input_files_by_root_dir: Map<Path_Id, Resolved_Input_File[]>;
-	resolved_input_paths: Resolved_Input_Path[];
-	input_paths: Input_Path[];
-	task_root_dirs: Path_Id[];
+	resolved_input_files: Array<Resolved_Input_File>;
+	resolved_input_files_by_root_dir: Map<Path_Id, Array<Resolved_Input_File>>;
+	resolved_input_paths: Array<Resolved_Input_Path>;
+	input_paths: Array<Input_Path>;
+	task_root_dirs: Array<Path_Id>;
 }
 
 export type Find_Tasks_Result = Result<{value: Found_Tasks}, Find_Modules_Failure>;
 export type Find_Modules_Failure =
 	| {
 			type: 'unmapped_input_paths';
-			unmapped_input_paths: Input_Path[];
-			resolved_input_paths: Resolved_Input_Path[];
-			input_paths: Input_Path[];
-			task_root_dirs: Path_Id[];
-			reasons: string[];
+			unmapped_input_paths: Array<Input_Path>;
+			resolved_input_paths: Array<Resolved_Input_Path>;
+			input_paths: Array<Input_Path>;
+			task_root_dirs: Array<Path_Id>;
+			reasons: Array<string>;
 	  }
 	| {
 			type: 'input_directories_with_no_files';
-			input_directories_with_no_files: Input_Path[];
-			resolved_input_files: Resolved_Input_File[];
-			resolved_input_files_by_root_dir: Map<Path_Id, Resolved_Input_File[]>;
-			resolved_input_paths: Resolved_Input_Path[];
-			input_paths: Input_Path[];
-			task_root_dirs: Path_Id[];
-			reasons: string[];
+			input_directories_with_no_files: Array<Input_Path>;
+			resolved_input_files: Array<Resolved_Input_File>;
+			resolved_input_files_by_root_dir: Map<Path_Id, Array<Resolved_Input_File>>;
+			resolved_input_paths: Array<Resolved_Input_Path>;
+			input_paths: Array<Input_Path>;
+			task_root_dirs: Array<Path_Id>;
+			reasons: Array<string>;
 	  };
 
 /**
  * Finds modules from input paths. (see `src/lib/input_path.ts` for more)
  */
 export const find_tasks = (
-	input_paths: Input_Path[],
-	task_root_dirs: Path_Id[],
+	input_paths: Array<Input_Path>,
+	task_root_dirs: Array<Path_Id>,
 	config: Gro_Config,
 	timings?: Timings,
 ): Find_Tasks_Result => {
@@ -197,7 +197,7 @@ export const find_tasks = (
 };
 
 export interface Loaded_Tasks {
-	modules: Task_Module_Meta[];
+	modules: Array<Task_Module_Meta>;
 	found_tasks: Found_Tasks;
 }
 

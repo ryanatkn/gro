@@ -109,7 +109,7 @@ export const gro_plugin_sveltekit_app = ({
 				// copy files to `static` before building, in such a way
 				// that's non-destructive to existing files and dirs and easy to clean up
 				const {assets_path} = default_sveltekit_config;
-				const cleanups: Cleanup[] = [
+				const cleanups: Array<Cleanup> = [
 					serialized_package_json
 						? create_temporarily(
 								join(assets_path, '.well-known/package.json'),

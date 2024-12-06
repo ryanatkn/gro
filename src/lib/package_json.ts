@@ -250,7 +250,7 @@ export const update_package_json = async (
 
 const is_index = (path: string): boolean => path === 'index.ts' || path === 'index.js';
 
-export const to_package_exports = (paths: string[]): Package_Json_Exports => {
+export const to_package_exports = (paths: Array<string>): Package_Json_Exports => {
 	const sorted = paths
 		.slice()
 		.sort((a, b) => (is_index(a) ? -1 : is_index(b) ? 1 : a.localeCompare(b)));
@@ -360,7 +360,7 @@ export interface Package_Json_Dep {
 	version: string;
 }
 
-export const extract_deps = (package_json: Package_Json): Package_Json_Dep[] => {
+export const extract_deps = (package_json: Package_Json): Array<Package_Json_Dep> => {
 	const deps_by_name: Map<string, Package_Json_Dep> = new Map();
 	// Earlier versions override later ones, so peer deps goes last.
 	const add_deps = (deps: Record<string, string> | undefined) => {

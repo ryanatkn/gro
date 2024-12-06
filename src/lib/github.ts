@@ -30,12 +30,12 @@ export const github_fetch_commit_prs = async (
 	log?: Logger,
 	cache?: Fetch_Value_Cache,
 	api_version?: string,
-): Promise<Github_Pull_Request[] | null> => {
+): Promise<Array<Github_Pull_Request> | null> => {
 	const headers = api_version ? new Headers({'x-github-api-version': api_version}) : undefined;
 	const url = `https://api.github.com/repos/${owner}/${repo}/commits/${commit_sha}/pulls`;
 	const fetched = await fetch_value(url, {
 		request: {headers},
-		parse: (v: any[]) => v.map((p) => Github_Pull_Request.parse(p)),
+		parse: (v: Array<any>) => v.map((p) => Github_Pull_Request.parse(p)),
 		token,
 		cache,
 		return_early_from_cache: true,

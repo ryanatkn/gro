@@ -24,7 +24,7 @@ export class Plugins<T_Plugin_Context extends Plugin_Context> {
 	/* prefer `Plugins.create` to the constructor */
 	constructor(
 		private ctx: T_Plugin_Context,
-		private instances: Plugin[],
+		private instances: Array<Plugin>,
 	) {}
 
 	static async create<T_Plugin_Context extends Plugin_Context>(
@@ -32,7 +32,7 @@ export class Plugins<T_Plugin_Context extends Plugin_Context> {
 	): Promise<Plugins<T_Plugin_Context>> {
 		const {timings} = ctx;
 		const timing_to_create = timings.start('plugins.create');
-		const instances: Plugin[] = await ctx.config.plugins(ctx);
+		const instances: Array<Plugin> = await ctx.config.plugins(ctx);
 		const plugins = new Plugins(ctx, instances);
 		timing_to_create();
 		return plugins;
@@ -91,10 +91,10 @@ export class Plugins<T_Plugin_Context extends Plugin_Context> {
  * @returns `plugins` with `new_plugin` at the index of the plugin with `name`
  */
 export const replace_plugin = (
-	plugins: Plugin[],
+	plugins: Array<Plugin>,
 	new_plugin: Plugin,
 	name = new_plugin.name,
-): Plugin[] => {
+): Array<Plugin> => {
 	const index = plugins.findIndex((p) => p.name === name);
 	if (index === -1) throw Error('Failed to find plugin to replace: ' + name);
 	const replaced = plugins.slice();

@@ -115,7 +115,7 @@ test('get_possible_paths implied to be a directory by trailing slash', () => {
 });
 
 test('resolve_input_files', () => {
-	const test_files: Record<string, Resolved_Path[]> = {
+	const test_files: Record<string, Array<Resolved_Path>> = {
 		'fake/test1.ext.ts': [
 			{id: 'fake/test1.ext.ts', path: 'fake/test1.ext.ts', is_directory: false},
 		],
@@ -198,7 +198,7 @@ test('resolve_input_files', () => {
 		root_dir: process.cwd(),
 	};
 	const result = resolve_input_files([a, b, c, d, e, f, g, h, i], (dir) => test_files[dir]);
-	const resolved_input_files: Resolved_Input_File[] = [
+	const resolved_input_files: Array<Resolved_Input_File> = [
 		{id: a.id, input_path: a.input_path, resolved_input_path: a},
 		{id: b.id, input_path: b.input_path, resolved_input_path: b},
 		{id: 'fake/test3/a.ts', input_path: c.input_path, resolved_input_path: c},

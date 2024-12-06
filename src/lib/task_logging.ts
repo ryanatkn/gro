@@ -12,7 +12,7 @@ export const log_tasks = (log: Logger, loaded_tasks: Loaded_Tasks, log_intro = t
 	const {modules, found_tasks} = loaded_tasks;
 	const {resolved_input_files_by_root_dir} = found_tasks;
 
-	const logged: string[] = [];
+	const logged: Array<string> = [];
 	if (log_intro) {
 		logged.unshift(
 			`\n\n${st('gray', 'Run a task:')} gro [name]`,
@@ -44,7 +44,7 @@ export const log_tasks = (log: Logger, loaded_tasks: Loaded_Tasks, log_intro = t
 	log[log_intro ? 'info' : 'plain'](logged.join('') + '\n');
 };
 
-export const log_error_reasons = (log: Logger, reasons: string[]): void => {
+export const log_error_reasons = (log: Logger, reasons: Array<string>): void => {
 	for (const reason of reasons) {
 		log.error(st('red', reason));
 	}
@@ -57,7 +57,7 @@ export const log_task_help = (log: Logger, meta: Task_Module_Meta): void => {
 		name,
 		mod: {task},
 	} = meta;
-	const logged: string[] = [];
+	const logged: Array<string> = [];
 	logged.push(
 		st('cyan', name),
 		'help',
@@ -93,7 +93,7 @@ interface Arg_Schema_Property {
 	schema: Arg_Schema;
 }
 
-const to_arg_properties = (def: ZodTypeDef, meta: Task_Module_Meta): Arg_Schema_Property[] => {
+const to_arg_properties = (def: ZodTypeDef, meta: Task_Module_Meta): Array<Arg_Schema_Property> => {
 	const type_name = to_type_name(def);
 	if (type_name !== ZodFirstPartyTypeKind.ZodObject) {
 		throw Error(
@@ -101,7 +101,7 @@ const to_arg_properties = (def: ZodTypeDef, meta: Task_Module_Meta): Arg_Schema_
 		);
 	}
 	const shape = (def as ZodObjectDef).shape();
-	const properties: Arg_Schema_Property[] = [];
+	const properties: Array<Arg_Schema_Property> = [];
 	for (const name in shape) {
 		if ('no-' + name in shape) continue;
 		const s = shape[name];
@@ -115,7 +115,7 @@ const to_arg_properties = (def: ZodTypeDef, meta: Task_Module_Meta): Arg_Schema_
 	return properties;
 };
 
-const to_max_length = <T>(items: T[], toString: (item: T) => string) =>
+const to_max_length = <T>(items: Array<T>, toString: (item: T) => string) =>
 	items.reduce((max, m) => Math.max(toString(m).length, max), 0);
 
 // The following Zod helpers only need to support single-depth schemas for CLI args,

@@ -44,15 +44,15 @@ export const load_module = async <T_Module extends Record<string, any>>(
 
 export interface Load_Modules_Failure<T_Module_Meta extends Module_Meta> {
 	type: 'load_module_failures';
-	load_module_failures: Load_Module_Failure[];
-	reasons: string[];
+	load_module_failures: Array<Load_Module_Failure>;
+	reasons: Array<string>;
 	// still return the modules and timings, deferring to the caller
-	modules: T_Module_Meta[];
+	modules: Array<T_Module_Meta>;
 }
 
 export type Load_Modules_Result<T_Module_Meta extends Module_Meta> = Result<
 	{
-		modules: T_Module_Meta[];
+		modules: Array<T_Module_Meta>;
 	},
 	Load_Modules_Failure<T_Module_Meta>
 >;
@@ -62,15 +62,15 @@ export const load_modules = async <
 	T_Module extends Record<string, any>,
 	T_Module_Meta extends Module_Meta<T_Module>,
 >(
-	resolved_input_files: Resolved_Input_File[],
+	resolved_input_files: Array<Resolved_Input_File>,
 	validate: (mod: any) => mod is T_Module,
 	map_module_meta: (resolved_input_file: Resolved_Input_File, mod: T_Module) => T_Module_Meta,
 	timings?: Timings,
 ): Promise<Load_Modules_Result<T_Module_Meta>> => {
 	const timing_to_load_modules = timings?.start('load modules');
-	const modules: T_Module_Meta[] = [];
-	const load_module_failures: Load_Module_Failure[] = [];
-	const reasons: string[] = [];
+	const modules: Array<T_Module_Meta> = [];
+	const load_module_failures: Array<Load_Module_Failure> = [];
+	const reasons: Array<string> = [];
 	for (const resolved_input_file of resolved_input_files.values()) {
 		const {id, input_path} = resolved_input_file;
 		const result = await load_module(id, validate); // eslint-disable-line no-await-in-loop

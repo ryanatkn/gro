@@ -58,7 +58,7 @@ export interface Parsed_Sveltekit_Config {
 	public_prefix: string | undefined;
 	svelte_compile_options: CompileOptions;
 	svelte_compile_module_options: ModuleCompileOptions;
-	svelte_preprocessors: PreprocessorGroup | PreprocessorGroup[] | undefined;
+	svelte_preprocessors: PreprocessorGroup | Array<PreprocessorGroup> | undefined;
 }
 
 // TODO currently incomplete and hack - maybe rethink

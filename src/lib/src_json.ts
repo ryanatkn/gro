@@ -88,7 +88,7 @@ export const to_src_modules = (
 				);
 			}
 
-			const declarations: Src_Module_Declaration[] = [];
+			const declarations: Array<Src_Module_Declaration> = [];
 
 			const source_file = project.getSourceFile(source_file_id);
 			if (source_file) {

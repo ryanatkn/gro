@@ -19,7 +19,7 @@ import {default_sveltekit_config} from './sveltekit_config.js';
 export const GEN_NO_PROD_MESSAGE = 'gen runs only during development';
 
 export const run_gen = async (
-	gen_modules: Genfile_Module_Meta[],
+	gen_modules: Array<Genfile_Module_Meta>,
 	config: Gro_Config,
 	log: Logger,
 	timings: Timings,

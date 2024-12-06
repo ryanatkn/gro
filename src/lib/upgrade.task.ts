@@ -79,7 +79,7 @@ const CUSTOM_TAG_MATCHER = /^[\^~><=]*.+-(.+)/;
 
 // TODO hacky and limited
 // TODO probably want to pass through exact deps as well, e.g. @foo/bar@1
-const to_upgrade_items = (deps: Package_Json_Dep[]): string[] =>
+const to_upgrade_items = (deps: Array<Package_Json_Dep>): Array<string> =>
 	deps.map((dep) => {
 		if (EXACT_VERSION_MATCHER.test(dep.name)) {
 			return dep.name;

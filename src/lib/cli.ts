@@ -47,7 +47,7 @@ export const find_cli = (
  */
 export const spawn_cli = async (
 	name_or_cli: string | Cli,
-	args: string[] = [],
+	args: Array<string> = [],
 	log?: Logger,
 	options?: SpawnOptions,
 ): Promise<Spawn_Result | undefined> => {
@@ -63,7 +63,7 @@ export const spawn_cli = async (
  */
 export const spawn_cli_process = (
 	name_or_cli: string | Cli,
-	args: string[] = [],
+	args: Array<string> = [],
 	log?: Logger,
 	options?: SpawnOptions,
 ): Spawned_Process | undefined => {
@@ -74,7 +74,7 @@ export const spawn_cli_process = (
 
 export const resolve_cli = (
 	name_or_cli: string | Cli,
-	args: string[] = [],
+	args: Array<string> = [],
 	cwd: string | URL | undefined,
 	log?: Logger,
 	options?: SpawnOptions,
