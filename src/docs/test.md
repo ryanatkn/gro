@@ -24,10 +24,10 @@ outputs:
 
 ```
 gro test: run tests
-[...args]  string[]           ["\\.test\\.ts$"]  file patterns to test
-bail       boolean            false              the bail option to uvu run, exit immediately on failure
-cwd        string             undefined          the cwd option to uvu parse
-ignore     string | string[]  undefined          the ignore option to uvu parse
+[...args]  Array<string>           ["\\.test\\.ts$"]  file patterns to test
+bail       boolean                 false              the bail option to uvu run, exit immediately on failure
+cwd        string                  undefined          the cwd option to uvu parse
+ignore     string | Array<string>  undefined          the ignore option to uvu parse
 ```
 
 [`gro test`](/src/lib/test.task.ts) runs all `*.test.ts`

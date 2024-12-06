@@ -46,8 +46,8 @@ export interface Create_Gro_Config {
 export interface Gro_Config extends Raw_Gro_Config {
 	plugins: Create_Config_Plugins;
 	map_package_json: Map_Package_Json | null;
-	task_root_dirs: Path_Id[];
-	search_filters: Path_Filter[];
+	task_root_dirs: Array<Path_Id>;
+	search_filters: Array<Path_Filter>;
 	js_cli: string;
 	pm_cli: string;
 }
@@ -56,8 +56,8 @@ export interface Gro_Config extends Raw_Gro_Config {
 export interface Raw_Gro_Config {
 	plugins?: Create_Config_Plugins;
 	map_package_json?: Map_Package_Json | null;
-	task_root_dirs?: string[];
-	search_filters?: Path_Filter | Path_Filter[] | null;
+	task_root_dirs?: Array<string>;
+	search_filters?: Path_Filter | Array<Path_Filter> | null;
 	js_cli?: string;
 	pm_cli?: string;
 }

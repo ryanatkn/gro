@@ -1479,7 +1479,7 @@
 ## 0.75.5
 
 - upgrade `@ryanatkn/json-schema-to-typescript` dep,
-  changing `tsImport` type from `string` to `string | string[]`
+  changing `tsImport` type from `string` to `string | Array<string>`
   ([commit](https://github.com/ryanatkn/gro/commit/ff088ae789486fb1348d894078c3a1c2bbb2974a))
 
 ## 0.75.4

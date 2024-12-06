@@ -277,7 +277,7 @@ export type Args = z.infer<typeof Args>;
 export const task: Task<Args> = {
 	Args,
 	run: async ({args}) => {
-		args._; // string[]
+		args._; // Array<string>
 		args.yepyep; // string
 		args.okcool; // number
 		args.maybee; // boolean | undefined
