@@ -13,7 +13,7 @@
 </script>
 
 <main class="width_md">
-	<section>
+	<section class="mt_xl3">
 		<header class="box">
 			<h1>{pkg.repo_name}</h1>
 		</header>
