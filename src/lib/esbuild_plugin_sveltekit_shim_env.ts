@@ -9,7 +9,7 @@ export interface Esbuild_Plugin_Sveltekit_Shim_Env_Options {
 	public_prefix?: string;
 	private_prefix?: string;
 	env_dir?: string;
-	env_files?: string[];
+	env_files?: Array<string>;
 	ambient_env?: Record<string, string>;
 }
 

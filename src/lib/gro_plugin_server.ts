@@ -37,7 +37,7 @@ export interface Gro_Plugin_Server_Options {
 	/**
 	 * same as esbuild's `entryPoints`
 	 */
-	entry_points?: string[];
+	entry_points?: Array<string>;
 	/**
 	 * @default cwd
 	 */
@@ -51,7 +51,7 @@ export interface Gro_Plugin_Server_Options {
 	/**
 	 * @default SvelteKit's `.env`, `.env.development`, and `.env.production`
 	 */
-	env_files?: string[];
+	env_files?: Array<string>;
 	/**
 	 * @default process.env
 	 */

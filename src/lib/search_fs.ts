@@ -10,11 +10,11 @@ export interface Search_Fs_Options {
 	/**
 	 * One or more filter functions, any of which can short-circuit the search by returning `false`.
 	 */
-	filter?: Path_Filter | Path_Filter[];
+	filter?: Path_Filter | Array<Path_Filter>;
 	/**
 	 * One or more file filter functions. Every filter must pass for a file to be included.
 	 */
-	file_filter?: File_Filter | File_Filter[];
+	file_filter?: File_Filter | Array<File_Filter>;
 	/**
 	 * Pass `null` or `false` to speed things up at the cost of volatile ordering.
 	 */
@@ -32,7 +32,7 @@ export interface Search_Fs_Options {
 export const search_fs = (
 	dir: string,
 	options: Search_Fs_Options = EMPTY_OBJECT,
-): Resolved_Path[] => {
+): Array<Resolved_Path> => {
 	const {
 		filter,
 		file_filter,
@@ -52,7 +52,7 @@ export const search_fs = (
 
 	if (!existsSync(final_dir)) return [];
 
-	const paths: Resolved_Path[] = [];
+	const paths: Array<Resolved_Path> = [];
 	crawl(final_dir, paths, filters, file_filters, include_directories, null);
 
 	return sort ? paths.sort(typeof sort === 'boolean' ? default_sort : sort) : paths;
@@ -62,12 +62,12 @@ const default_sort = (a: Resolved_Path, b: Resolved_Path): number => a.path.loca
 
 const crawl = (
 	dir: string,
-	paths: Resolved_Path[],
-	filters: Path_Filter[] | undefined,
-	file_filter: File_Filter[] | undefined,
+	paths: Array<Resolved_Path>,
+	filters: Array<Path_Filter> | undefined,
+	file_filter: Array<File_Filter> | undefined,
 	include_directories: boolean,
 	base_dir: string | null,
-): Resolved_Path[] => {
+): Array<Resolved_Path> => {
 	// This sync version is significantly faster than using the `fs/promises` version -
 	// it doesn't parallelize but that's not the common case in Gro.
 	const dirents = readdirSync(dir, {withFileTypes: true});

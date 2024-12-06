@@ -13,8 +13,8 @@ export const parse_imports = (
 	id: Path_Id,
 	contents: string,
 	ignore_types = true,
-): Import_Specifier[] => {
-	const specifiers: string[] = [];
+): Array<Import_Specifier> => {
+	const specifiers: Array<string> = [];
 
 	const is_svelte = SVELTE_MATCHER.test(id);
 

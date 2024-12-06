@@ -19,14 +19,14 @@ export interface Esbuild_Plugin_External_Worker_Options {
 	dir?: string;
 	svelte_compile_options?: CompileOptions;
 	svelte_compile_module_options?: ModuleCompileOptions;
-	svelte_preprocessors?: PreprocessorGroup | PreprocessorGroup[];
+	svelte_preprocessors?: PreprocessorGroup | Array<PreprocessorGroup>;
 	alias?: Record<string, string>;
 	base_url?: Parsed_Sveltekit_Config['base_url'];
 	assets_url?: Parsed_Sveltekit_Config['assets_url'];
 	public_prefix?: string;
 	private_prefix?: string;
 	env_dir?: string;
-	env_files?: string[];
+	env_files?: Array<string>;
 	ambient_env?: Record<string, string>;
 	log?: Logger;
 }

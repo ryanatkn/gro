@@ -28,7 +28,7 @@ export const is_gen_path = (path: string): boolean => path.includes(GEN_FILE_PAT
 
 export interface Gen_Result {
 	origin_id: Path_Id;
-	files: Gen_File[];
+	files: Array<Gen_File>;
 }
 export interface Gen_File {
 	id: Path_Id;
@@ -52,7 +52,7 @@ export interface Gen_Context {
 	log: Logger;
 }
 // TODO consider other return data - metadata? effects? non-file build artifacts?
-export type Raw_Gen_Result = string | Raw_Gen_File | null | Raw_Gen_Result[];
+export type Raw_Gen_Result = string | Raw_Gen_File | null | Array<Raw_Gen_Result>;
 export interface Raw_Gen_File {
 	content: string;
 	// Defaults to file name without the `.gen`, and can be a relative path.
@@ -67,9 +67,9 @@ export const Gen_Config = z.object({
 export type Gen_Config = z.infer<typeof Gen_Config>;
 
 export interface Gen_Results {
-	results: Genfile_Module_Result[];
-	successes: Genfile_Module_Result_Success[];
-	failures: Genfile_Module_Result_Failure[];
+	results: Array<Genfile_Module_Result>;
+	successes: Array<Genfile_Module_Result_Success>;
+	failures: Array<Genfile_Module_Result_Failure>;
 	input_count: number;
 	output_count: number;
 	elapsed: number;
@@ -78,7 +78,7 @@ export type Genfile_Module_Result = Genfile_Module_Result_Success | Genfile_Modu
 export interface Genfile_Module_Result_Success {
 	ok: true;
 	id: Path_Id;
-	files: Gen_File[];
+	files: Array<Gen_File>;
 	elapsed: number;
 }
 export interface Genfile_Module_Result_Failure {
@@ -96,7 +96,7 @@ export const to_gen_result = (origin_id: Path_Id, raw_result: Raw_Gen_Result): G
 	};
 };
 
-const to_gen_files = (origin_id: Path_Id, raw_result: Raw_Gen_Result): Gen_File[] => {
+const to_gen_files = (origin_id: Path_Id, raw_result: Raw_Gen_Result): Array<Gen_File> => {
 	if (raw_result === null) {
 		return [];
 	} else if (typeof raw_result === 'string') {
@@ -147,7 +147,7 @@ export const to_output_file_name = (filename: string): string => {
 			`Invalid gen file name - only one additional extension is allowed to follow '${GEN_FILE_PATTERN}' in '${filename}'`,
 		);
 	}
-	const final_parts: string[] = [];
+	const final_parts: Array<string> = [];
 	const has_different_ext = gen_pattern_index === parts.length - 3;
 	const length = has_different_ext ? parts.length - 1 : parts.length;
 	for (let i = 0; i < length; i++) {
@@ -158,7 +158,7 @@ export const to_output_file_name = (filename: string): string => {
 	return final_parts.join('.');
 };
 
-const validate_gen_files = (files: Gen_File[]) => {
+const validate_gen_files = (files: Array<Gen_File>) => {
 	const ids = new Set();
 	for (const file of files) {
 		if (ids.has(file.id)) {
@@ -182,7 +182,9 @@ export type Analyzed_Gen_Result =
 			has_changed: true;
 	  };
 
-export const analyze_gen_results = (gen_results: Gen_Results): Promise<Analyzed_Gen_Result[]> =>
+export const analyze_gen_results = (
+	gen_results: Gen_Results,
+): Promise<Array<Analyzed_Gen_Result>> =>
 	Promise.all(
 		gen_results.successes
 			.map((result) => result.files.map((file) => analyze_gen_result(file)))
@@ -209,7 +211,7 @@ export const analyze_gen_result = async (file: Gen_File): Promise<Analyzed_Gen_R
 
 export const write_gen_results = async (
 	gen_results: Gen_Results,
-	analyzed_gen_results: Analyzed_Gen_Result[],
+	analyzed_gen_results: Array<Analyzed_Gen_Result>,
 	log: Logger,
 ): Promise<void> => {
 	await Promise.all(
@@ -236,38 +238,38 @@ export const write_gen_results = async (
 };
 
 export interface Found_Genfiles {
-	resolved_input_files: Resolved_Input_File[];
-	resolved_input_files_by_root_dir: Map<Path_Id, Resolved_Input_File[]>;
-	resolved_input_paths: Resolved_Input_Path[];
+	resolved_input_files: Array<Resolved_Input_File>;
+	resolved_input_files_by_root_dir: Map<Path_Id, Array<Resolved_Input_File>>;
+	resolved_input_paths: Array<Resolved_Input_Path>;
 }
 
 export type Find_Genfiles_Result = Result<{value: Found_Genfiles}, Find_Genfiles_Failure>;
 export type Find_Genfiles_Failure =
 	| {
 			type: 'unmapped_input_paths';
-			unmapped_input_paths: Input_Path[];
-			resolved_input_paths: Resolved_Input_Path[];
-			reasons: string[];
+			unmapped_input_paths: Array<Input_Path>;
+			resolved_input_paths: Array<Resolved_Input_Path>;
+			reasons: Array<string>;
 	  }
 	| {
 			type: 'input_directories_with_no_files';
-			input_directories_with_no_files: Input_Path[];
-			resolved_input_files: Resolved_Input_File[];
-			resolved_input_files_by_root_dir: Map<Path_Id, Resolved_Input_File[]>;
-			resolved_input_paths: Resolved_Input_Path[];
-			reasons: string[];
+			input_directories_with_no_files: Array<Input_Path>;
+			resolved_input_files: Array<Resolved_Input_File>;
+			resolved_input_files_by_root_dir: Map<Path_Id, Array<Resolved_Input_File>>;
+			resolved_input_paths: Array<Resolved_Input_Path>;
+			reasons: Array<string>;
 	  };
 
 /**
  * Finds modules from input paths. (see `src/lib/input_path.ts` for more)
  */
 export const find_genfiles = (
-	input_paths: Input_Path[],
-	root_dirs: Path_Id[],
+	input_paths: Array<Input_Path>,
+	root_dirs: Array<Path_Id>,
 	config: Gro_Config,
 	timings?: Timings,
 ): Find_Genfiles_Result => {
-	const extensions: string[] = [GEN_FILE_PATTERN];
+	const extensions: Array<string> = [GEN_FILE_PATTERN];
 
 	// Check which extension variation works - if it's a directory, prefer others first!
 	const timing_to_resolve_input_paths = timings?.start('resolve input paths');
@@ -334,7 +336,7 @@ export interface Genfile_Module {
 export type Genfile_Module_Meta = Module_Meta<Genfile_Module>;
 
 export interface Loaded_Genfiles {
-	modules: Genfile_Module_Meta[];
+	modules: Array<Genfile_Module_Meta>;
 	found_genfiles: Found_Genfiles;
 }
 

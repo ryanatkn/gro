@@ -17,8 +17,8 @@ export interface Task_Args extends Args {
 }
 
 export interface Gro_Plugin_Gen_Options {
-	input_paths?: string[];
-	root_dirs?: string[];
+	input_paths?: Array<string>;
+	root_dirs?: Array<string>;
 	flush_debounce_delay?: number;
 }
 
@@ -46,7 +46,7 @@ export const gro_plugin_gen = ({
 		},
 		{delay: flush_debounce_delay},
 	);
-	const gen = (files: string[] = []) => spawn_cli('gro', ['gen', ...files]);
+	const gen = (files: Array<string> = []) => spawn_cli('gro', ['gen', ...files]);
 
 	let cleanup: Cleanup_Watch | undefined;
 

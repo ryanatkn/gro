@@ -22,7 +22,7 @@ export interface Task_Args extends Args {
 }
 
 export interface Gro_Plugin_Moss_Options {
-	include_classes?: string[] | Set<string> | null;
+	include_classes?: Array<string> | Set<string> | null;
 	outfile?: string;
 	filter_file?: File_Filter | null;
 	flush_debounce_delay?: number;

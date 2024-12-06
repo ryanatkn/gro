@@ -12,7 +12,7 @@ import type {z} from 'zod';
  * The raw CLI ares are handled by `mri` - https://github.com/lukeed/mri
  */
 export interface Args {
-	_?: string[];
+	_?: Array<string>;
 	help?: boolean;
 	[key: string]: Arg_Value;
 }
@@ -65,8 +65,8 @@ export const parse_args = <
 /**
  * Serializes parsed `Args` for CLI commands.
  */
-export const serialize_args = (args: Args): string[] => {
-	const result: string[] = [];
+export const serialize_args = (args: Args): Array<string> => {
+	const result: Array<string> = [];
 	const add_value = (name: string, value: string | number | boolean | undefined): void => {
 		if (value === undefined) return;
 		result.push(name);
@@ -74,10 +74,10 @@ export const serialize_args = (args: Args): string[] => {
 			result.push(value + '');
 		}
 	};
-	let _: string[] | null = null;
+	let _: Array<string> | null = null;
 	for (const [key, value] of Object.entries(args)) {
 		if (key === '_') {
-			_ = value ? (value as any[]).map((v) => (v === undefined ? '' : v + '')) : [];
+			_ = value ? (value as Array<any>).map((v) => (v === undefined ? '' : v + '')) : [];
 		} else {
 			const name = `${key.length === 1 ? '-' : '--'}${key}`;
 			if (Array.isArray(value)) {
@@ -105,7 +105,7 @@ export const to_task_args = (argv = process.argv): {task_name: string; args: Arg
 /**
  * Gets the array of raw string args starting with the first `--`, if any.
  */
-export const to_raw_rest_args = (argv = process.argv): string[] => {
+export const to_raw_rest_args = (argv = process.argv): Array<string> => {
 	const forwarded_index = argv.indexOf('--');
 	return forwarded_index === -1 ? [] : argv.slice(forwarded_index);
 };
@@ -118,7 +118,7 @@ export const to_raw_rest_args = (argv = process.argv): string[] => {
  */
 export const to_forwarded_args = (
 	command: string,
-	raw_rest_args?: string[],
+	raw_rest_args?: Array<string>,
 	cache = to_forwarded_args_by_command(raw_rest_args),
 ): Args => cache[command] ?? {};
 
@@ -126,8 +126,8 @@ export const to_forwarded_args_by_command = (
 	raw_rest_args = to_raw_rest_args(),
 ): Record<string, Args | undefined> => {
 	// Parse each segment of `argv` separated by `--`.
-	const argvs: string[][] = [];
-	let arr: string[] | undefined;
+	const argvs: Array<Array<string>> = [];
+	let arr: Array<string> | undefined;
 	for (const arg of raw_rest_args) {
 		if (arg === '--') {
 			if (arr?.length) argvs.push(arr);
@@ -165,7 +165,7 @@ export const to_forwarded_args_by_command = (
 	return forwarded_args_by_command;
 };
 
-export const print_command_args = (serialized_args: string[]): string =>
+export const print_command_args = (serialized_args: Array<string>): string =>
 	st('gray', '[') +
 	st('magenta', 'running command') +
 	st('gray', ']') +

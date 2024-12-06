@@ -36,12 +36,12 @@ export interface Gro_Config extends Raw_Gro_Config {
 	 * The root directories to search for tasks given implicit relative input paths.
 	 * Defaults to `./src/lib`, then the cwd, then the Gro package dist.
 	 */
-	task_root_dirs: Path_Id[];
+	task_root_dirs: Array<Path_Id>;
 	/**
 	 * When searching the filsystem for tasks and genfiles,
 	 * directories and files are included if they pass all of these filters.
 	 */
-	search_filters: Path_Filter[];
+	search_filters: Array<Path_Filter>;
 	/**
 	 * The CLI to use that's compatible with `node`.
 	 */
@@ -60,8 +60,8 @@ export interface Gro_Config extends Raw_Gro_Config {
 export interface Raw_Gro_Config {
 	plugins?: Create_Config_Plugins;
 	map_package_json?: Map_Package_Json | null;
-	task_root_dirs?: string[];
-	search_filters?: Path_Filter | Path_Filter[] | null;
+	task_root_dirs?: Array<string>;
+	search_filters?: Path_Filter | Array<Path_Filter> | null;
 	js_cli?: string;
 	pm_cli?: string;
 }
