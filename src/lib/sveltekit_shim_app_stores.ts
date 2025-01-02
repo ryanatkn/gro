@@ -1,6 +1,9 @@
 // shim for $app/stores
 // @see https://github.com/sveltejs/kit/issues/1485
 
+// TODO support `$app/state`
+/* eslint-disable @typescript-eslint/no-deprecated */
+
 import type {
 	getStores as base_getStores,
 	navigating as base_navigating,
