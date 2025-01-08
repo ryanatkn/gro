@@ -1,4 +1,4 @@
-import {moduleLexerSync} from 'oxc-parser';
+import {parseSync} from 'oxc-parser'; // TODO see https://github.com/oxc-project/oxc/issues/7788 and https://github.com/oxc-project/oxc/blob/main/napi/parser/test/__snapshots__/esm.test.ts.snap
 import type {Flavored} from '@ryanatkn/belt/types.js';
 
 import type {Path_Id} from './path.js';
@@ -19,15 +19,17 @@ export const parse_imports = (
 	const is_svelte = SVELTE_MATCHER.test(id);
 
 	const parse_from = (s: string): void => {
-		const parsed = moduleLexerSync(s, {sourceFilename: is_svelte ? id + '.ts' : id});
-		for (const p of parsed.imports) {
+		const parsed = parseSync(is_svelte ? id + '.ts' : id, s);
+		console.log(`parsed.module`, parsed.module);
+
+		for (const p of parsed.module.staticImports) {
 			if (ignore_types) {
-				const import_statement = s.slice(p.ss, p.se);
+				const import_statement = s.slice(p.start, p.end);
 				if (import_statement.startsWith('import type')) {
 					continue;
 				}
 			}
-			if (p.n) specifiers.push(p.n);
+			if (p.moduleRequest.value) specifiers.push(p.moduleRequest.value);
 		}
 	};
 

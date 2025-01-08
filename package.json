@@ -54,7 +54,7 @@
     "dotenv": "^16.4.5",
     "esm-env": "^1.1.4",
     "mri": "^1.2.0",
-    "oxc-parser": "^0.36.0",
+    "oxc-parser": "^0.44.0",
     "prettier": "^3.3.3",
     "prettier-plugin-svelte": "^3.2.8",
     "ts-morph": "^24.0.0",

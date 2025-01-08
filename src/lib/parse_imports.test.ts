@@ -34,6 +34,8 @@ test('parse ts imports', () => {
 	assert.equal(parsed, ['static_import', 'dynamic_import', 'exported_import']);
 });
 
+// TODO BLOCK include inline `type` import test case (not `import type {foo` but `import {type foo`)
+
 test('parse ts imports and omit types', () => {
 	const parsed = parse_imports(
 		'a.ts',
