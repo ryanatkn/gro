@@ -1,5 +1,6 @@
 import {print_spawn_result} from '@ryanatkn/belt/process.js';
 import {z} from 'zod';
+import {type ChildProcess} from 'node:child_process';
 
 import {Task_Error, type Task} from './task.js';
 import {serialize_args, to_forwarded_args} from './args.js';
@@ -14,6 +15,9 @@ export const Args = z
 		typescript_cli: z
 			.string({description: 'the TypeScript CLI to use as a fallback to svelte-check'})
 			.default('tsc'),
+		path_replacement: z
+			.string({description: 'replacement string for current working directory in output'})
+			.default('.'),
 	})
 	.strict();
 export type Args = z.infer<typeof Args>;
@@ -22,7 +26,7 @@ export const task: Task<Args> = {
 	summary: 'run tsc on the project without emitting any files',
 	Args,
 	run: async ({args, log}): Promise<void> => {
-		const {svelte_check_cli, typescript_cli} = args;
+		const {svelte_check_cli, typescript_cli, path_replacement} = args;
 
 		await sveltekit_sync_if_available();
 
@@ -31,30 +35,15 @@ export const task: Task<Args> = {
 		if (found_svelte_check_cli) {
 			const serialized = serialize_args(to_forwarded_args(svelte_check_cli));
 			const spawned = spawn_cli_process(found_svelte_check_cli, serialized, undefined, {
-				stdio: ['inherit', 'pipe', 'pipe'], // TODO could maybe make a logger instead of this
+				stdio: ['inherit', 'pipe', 'pipe'],
 			});
 			const svelte_check_process = spawned?.child;
 			if (svelte_check_process) {
-				// TODO Store accumulated output?
-				// let stdout = '';
-				// let stderr = '';
-
-				// Process stdout to filter out the current working directory
-				if (svelte_check_process.stdout) {
-					svelte_check_process.stdout.on('data', (data) => {
-						const filtered = data.toString().replace(new RegExp(process.cwd(), 'g'), '.');
-						// stdout += filtered;
-						console.log(filtered); // eslint-disable-line no-console
-					});
-				}
-
-				if (svelte_check_process.stderr) {
-					svelte_check_process.stderr.on('data', (data) => {
-						const filtered = data.toString().replace(new RegExp(process.cwd(), 'g'), '.');
-						// stderr += filtered;
-						console.error(filtered); // eslint-disable-line no-console
-					});
-				}
+				// Configure process output with path replacement while preserving colors
+				configure_colored_output_with_path_replacement(svelte_check_process, {
+					cwd: process.cwd(),
+					replacement: path_replacement,
+				});
 
 				const svelte_check_result = await spawned.closed;
 
@@ -87,3 +76,47 @@ export const task: Task<Args> = {
 		);
 	},
 };
+
+/**
+ * Configures process output handling with path replacements while preserving ANSI colors
+ * @param childProcess - The child process whose output to handle
+ * @param options - Configuration options
+ */
+function configure_colored_output_with_path_replacement(
+	childProcess: ChildProcess,
+	options: {
+		cwd?: string; // Directory path to replace, defaults to process.cwd()
+		replacement?: string; // Replacement string, defaults to '.'
+		stdout?: (data: Buffer) => void; // Custom stdout handler
+		stderr?: (data: Buffer) => void; // Custom stderr handler
+	} = {},
+): void {
+	const cwd = options.cwd || process.cwd();
+	const replacement = options.replacement || '.';
+	// Escape special characters in the cwd for regex safety
+	const cwdEscaped = cwd.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+	const cwdRegExp = new RegExp(cwdEscaped, 'g');
+
+	// Use write to process.stdout/stderr directly to preserve colors
+	const handleStdout =
+		options.stdout ||
+		((data: Buffer) => {
+			const filtered = Buffer.from(data.toString().replace(cwdRegExp, replacement));
+			process.stdout.write(filtered);
+		});
+
+	const handleStderr =
+		options.stderr ||
+		((data: Buffer) => {
+			const filtered = Buffer.from(data.toString().replace(cwdRegExp, replacement));
+			process.stderr.write(filtered);
+		});
+
+	if (childProcess.stdout) {
+		childProcess.stdout.on('data', handleStdout);
+	}
+
+	if (childProcess.stderr) {
+		childProcess.stderr.on('data', handleStderr);
+	}
+}
