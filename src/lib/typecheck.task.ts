@@ -3,8 +3,10 @@ import {z} from 'zod';
 
 import {Task_Error, type Task} from './task.js';
 import {serialize_args, to_forwarded_args} from './args.js';
-import {find_cli, spawn_cli} from './cli.js';
+import {find_cli, spawn_cli, spawn_cli_process} from './cli.js';
 import {SVELTE_CHECK_CLI, sveltekit_sync_if_available} from './sveltekit_helpers.js';
+import {configure_colored_output_with_path_replacement} from './child_process_logging.js';
+import {paths} from './paths.js';
 
 export const Args = z
 	.object({
@@ -14,6 +16,10 @@ export const Args = z
 		typescript_cli: z
 			.string({description: 'the TypeScript CLI to use as a fallback to svelte-check'})
 			.default('tsc'),
+		path_replacement: z
+			.string({description: 'replacement string for current working directory in output'})
+			.default('.'),
+		cwd: z.string({description: 'current working directory'}).default(paths.root),
 	})
 	.strict();
 export type Args = z.infer<typeof Args>;
@@ -22,7 +28,7 @@ export const task: Task<Args> = {
 	summary: 'run tsc on the project without emitting any files',
 	Args,
 	run: async ({args, log}): Promise<void> => {
-		const {svelte_check_cli, typescript_cli} = args;
+		const {svelte_check_cli, typescript_cli, path_replacement, cwd} = args;
 
 		await sveltekit_sync_if_available();
 
@@ -30,10 +36,23 @@ export const task: Task<Args> = {
 		const found_svelte_check_cli = find_cli(svelte_check_cli);
 		if (found_svelte_check_cli) {
 			const serialized = serialize_args(to_forwarded_args(svelte_check_cli));
-			const svelte_check_result = await spawn_cli(found_svelte_check_cli, serialized, log);
-			if (!svelte_check_result?.ok) {
-				throw new Task_Error(`Failed to typecheck. ${print_spawn_result(svelte_check_result!)}`);
+			const spawned = spawn_cli_process(found_svelte_check_cli, serialized, undefined, {
+				stdio: ['inherit', 'pipe', 'pipe'],
+				env: {...process.env, FORCE_COLOR: '1'}, // Needed for colors (maybe make an option)
+			});
+
+			const svelte_check_process = spawned?.child;
+			if (svelte_check_process) {
+				// Configure process output with path replacement while preserving colors
+				configure_colored_output_with_path_replacement(svelte_check_process, path_replacement, cwd);
+
+				const svelte_check_result = await spawned.closed;
+
+				if (!svelte_check_result.ok) {
+					throw new Task_Error(`Failed to typecheck. ${print_spawn_result(svelte_check_result)}`);
+				}
 			}
+
 			return;
 		}
 

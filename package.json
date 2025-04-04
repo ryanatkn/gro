@@ -141,6 +141,10 @@
       "types": "./dist/check.task.d.ts",
       "default": "./dist/check.task.js"
     },
+    "./child_process_logging.js": {
+      "types": "./dist/child_process_logging.d.ts",
+      "default": "./dist/child_process_logging.js"
+    },
     "./clean_fs.js": {
       "types": "./dist/clean_fs.d.ts",
       "default": "./dist/clean_fs.js"
