@@ -32,6 +32,8 @@ export const TSCONFIG_FILENAME = 'tsconfig.json';
 export const TS_MATCHER = /\.(ts|tsx|mts|cts)$/;
 export const JS_MATCHER = /\.(js|jsx|mjs|cjs)$/;
 export const JSON_MATCHER = /\.json$/;
+/** Extracts the script content from Svelte files. */
+export const SVELTE_SCRIPT_MATCHER = /<script(?:\s+[^>]*)?>([\s\S]*?)<\/script>/gim; // TODO maybe this shouldnt be global? or make a getter?
 export const EVERYTHING_MATCHER = /.*/;
 
 export const JS_CLI_DEFAULT = 'node';
