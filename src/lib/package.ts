@@ -102,6 +102,10 @@ export const package_json = {
 			default: './dist/changeset.task.js',
 		},
 		'./check.task.js': {types: './dist/check.task.d.ts', default: './dist/check.task.js'},
+		'./child_process_logging.js': {
+			types: './dist/child_process_logging.d.ts',
+			default: './dist/child_process_logging.js',
+		},
 		'./clean_fs.js': {types: './dist/clean_fs.d.ts', default: './dist/clean_fs.js'},
 		'./clean.task.js': {types: './dist/clean.task.d.ts', default: './dist/clean.task.js'},
 		'./cli.js': {types: './dist/cli.d.ts', default: './dist/cli.js'},
@@ -332,6 +336,13 @@ export const src_json = {
 			declarations: [
 				{name: 'Args', kind: 'variable'},
 				{name: 'task', kind: 'variable'},
+			],
+		},
+		'./child_process_logging.js': {
+			path: 'child_process_logging.ts',
+			declarations: [
+				{name: 'map_child_process_output', kind: 'function'},
+				{name: 'configure_colored_output_with_path_replacement', kind: 'function'},
 			],
 		},
 		'./clean_fs.js': {path: 'clean_fs.ts', declarations: [{name: 'clean_fs', kind: 'function'}]},
