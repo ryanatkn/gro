@@ -41,7 +41,7 @@ var Some_Test_Svelte_Ts = class {
     return $.get(this.#a);
   }
   set a(value) {
-    $.set(this.#a, $.proxy(value));
+    $.set(this.#a, value, true);
   }
 };
 
@@ -53,7 +53,7 @@ var Some_Test_Svelte_Js = class {
     return $2.get(this.#a);
   }
   set a(value) {
-    $2.set(this.#a, $2.proxy(value));
+    $2.set(this.#a, value, true);
   }
 };
 
