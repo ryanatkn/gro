@@ -1,6 +1,6 @@
 {
   "name": "@ryanatkn/gro",
-  "version": "0.148.0",
+  "version": "0.149.0",
   "modules": {
     ".": {
       "path": "index.ts",
@@ -173,6 +173,19 @@
         }
       ]
     },
+    "./child_process_logging.js": {
+      "path": "child_process_logging.ts",
+      "declarations": [
+        {
+          "name": "map_child_process_output",
+          "kind": "function"
+        },
+        {
+          "name": "configure_colored_output_with_path_replacement",
+          "kind": "function"
+        }
+      ]
+    },
     "./clean_fs.js": {
       "path": "clean_fs.ts",
       "declarations": [
@@ -334,6 +347,10 @@
         },
         {
           "name": "JSON_MATCHER",
+          "kind": "variable"
+        },
+        {
+          "name": "SVELTE_SCRIPT_MATCHER",
           "kind": "variable"
         },
         {
