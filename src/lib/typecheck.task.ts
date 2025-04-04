@@ -1,11 +1,12 @@
 import {print_spawn_result} from '@ryanatkn/belt/process.js';
 import {z} from 'zod';
-import {type ChildProcess} from 'node:child_process';
 
 import {Task_Error, type Task} from './task.js';
 import {serialize_args, to_forwarded_args} from './args.js';
 import {find_cli, spawn_cli, spawn_cli_process} from './cli.js';
 import {SVELTE_CHECK_CLI, sveltekit_sync_if_available} from './sveltekit_helpers.js';
+import {configure_colored_output_with_path_replacement} from './child_process_logging.js';
+import {paths} from './paths.js';
 
 export const Args = z
 	.object({
@@ -18,6 +19,7 @@ export const Args = z
 		path_replacement: z
 			.string({description: 'replacement string for current working directory in output'})
 			.default('.'),
+		cwd: z.string({description: 'current working directory'}).default(paths.root),
 	})
 	.strict();
 export type Args = z.infer<typeof Args>;
@@ -26,7 +28,7 @@ export const task: Task<Args> = {
 	summary: 'run tsc on the project without emitting any files',
 	Args,
 	run: async ({args, log}): Promise<void> => {
-		const {svelte_check_cli, typescript_cli, path_replacement} = args;
+		const {svelte_check_cli, typescript_cli, path_replacement, cwd} = args;
 
 		await sveltekit_sync_if_available();
 
@@ -45,10 +47,7 @@ export const task: Task<Args> = {
 			const svelte_check_process = spawned?.child;
 			if (svelte_check_process) {
 				// Configure process output with path replacement while preserving colors
-				configure_colored_output_with_path_replacement(svelte_check_process, {
-					cwd: process.cwd(),
-					replacement: path_replacement,
-				});
+				configure_colored_output_with_path_replacement(svelte_check_process, path_replacement, cwd);
 
 				const svelte_check_result = await spawned.closed;
 
@@ -56,9 +55,6 @@ export const task: Task<Args> = {
 					throw new Task_Error(`Failed to typecheck. ${print_spawn_result(svelte_check_result)}`);
 				}
 			}
-
-			type A = 13;
-			const a: A = '13';
 
 			return;
 		}
@@ -81,36 +77,3 @@ export const task: Task<Args> = {
 		);
 	},
 };
-
-/**
- * Configures process output handling with path replacements while preserving ANSI colors
- * @param childProcess - The child process whose output to handle
- * @param options - Configuration options
- */
-function configure_colored_output_with_path_replacement(
-	childProcess: ChildProcess,
-	options: {
-		cwd?: string;
-		replacement?: string;
-	} = {},
-): void {
-	const cwd = options.cwd || process.cwd();
-	const replacement = options.replacement || '.';
-	// Escape special characters in the cwd for regex safety
-	const cwdEscaped = cwd.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-	const cwdRegExp = new RegExp(cwdEscaped, 'g');
-
-	if (childProcess.stdout) {
-		childProcess.stdout.on('data', (data) => {
-			const replaced = data.toString().replace(cwdRegExp, replacement);
-			process.stdout.write(replaced);
-		});
-	}
-
-	if (childProcess.stderr) {
-		childProcess.stderr.on('data', (data) => {
-			const replaced = data.toString().replace(cwdRegExp, replacement);
-			process.stderr.write(replaced);
-		});
-	}
-}
