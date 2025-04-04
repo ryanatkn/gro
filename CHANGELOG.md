@@ -1,5 +1,17 @@
 # @ryanatkn/gro
 
+## 0.149.0
+
+### Minor Changes
+
+- upgrade deps ([#528](https://github.com/ryanatkn/gro/pull/528))
+- require node >=22.11 ([#528](https://github.com/ryanatkn/gro/pull/528))
+- upgrade oxc-parser@0.62 from 0.36 ([#523](https://github.com/ryanatkn/gro/pull/523))
+
+### Patch Changes
+
+- map `svelte-check` output paths to be relative to the cwd ([#526](https://github.com/ryanatkn/gro/pull/526))
+
 ## 0.148.0
 
 ### Minor Changes
