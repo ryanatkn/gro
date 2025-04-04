@@ -31,7 +31,7 @@ test('parse ts imports', () => {
       export type {G} from 'exported_import';
     `,
 	);
-	assert.equal(parsed, ['static_import', 'dynamic_import', 'exported_import']);
+	assert.equal(parsed, ['static_import', 'dynamic_import']);
 });
 
 // TODO BLOCK include inline `type` import test case (not `import type {foo` but `import {type foo`)
@@ -53,10 +53,11 @@ test('parse ts imports and include types', () => {
 		`
       import type {foo} from 'static_import';
       await import('dynamic_import');
+      export type {G} from 'exported_import';
     `,
 		false,
 	);
-	assert.equal(parsed, ['static_import', 'dynamic_import']);
+	assert.equal(parsed, ['static_import', 'dynamic_import', 'exported_import']);
 });
 
 test('parse svelte imports', () => {
