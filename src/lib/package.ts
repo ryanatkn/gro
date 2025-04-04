@@ -60,7 +60,7 @@ export const package_json = {
 	devDependencies: {
 		'@changesets/changelog-git': '^0.2.1',
 		'@changesets/types': '^6.1.0',
-		'@ryanatkn/eslint-config': '^0.7.0',
+		'@ryanatkn/eslint-config': '^0.8.0',
 		'@ryanatkn/fuz': '^0.135.0',
 		'@ryanatkn/moss': '^0.24.2',
 		'@sveltejs/adapter-static': '^3.0.8',
