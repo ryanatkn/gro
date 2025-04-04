@@ -21,5 +21,5 @@ const loader_path = join(invoke_path, '../loader.js');
 
 const spawned = await spawn_with_loader(loader_path, invoke_path, process.argv.slice(2));
 if (!spawned.ok) {
-	process.exitCode = spawned.code || 1; // eslint-disable-line @typescript-eslint/prefer-nullish-coalescing
+	process.exitCode = spawned.code || 1;
 }

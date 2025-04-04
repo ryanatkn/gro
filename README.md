@@ -120,12 +120,12 @@ dev        start SvelteKit and other dev plugins
 format     format source files
 gen        run code generation scripts
 lint       run eslint
-publish    bump version, publish to npm, and git push
+publish    bump version, publish to the configured registry, and git push
 reinstall  refreshes package-lock.json with the latest and cleanest deps
 release    publish and deploy
 resolve    diagnostic that logs resolved filesystem info for the given input paths
 run        execute a file with the loader, like `node` but works for TypeScript
-sync       run `gro gen`, update `package.json`, and optionally `npm i` to sync up
+sync       run `gro gen`, update `package.json`, and optionally install packages to sync up
 test       run tests with uvu
 typecheck  run tsc on the project without emitting any files
 upgrade    upgrade deps
