@@ -32,7 +32,7 @@
   },
   "type": "module",
   "engines": {
-    "node": ">=20.17"
+    "node": ">=22.11"
   },
   "bin": {
     "gro": "dist/gro.js"
