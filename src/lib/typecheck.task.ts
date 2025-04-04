@@ -41,7 +41,6 @@ export const task: Task<Args> = {
 			const serialized = serialize_args(to_forwarded_args(svelte_check_cli));
 			const spawned = spawn_cli_process(found_svelte_check_cli, serialized, undefined, {
 				stdio: ['inherit', 'pipe', 'pipe'],
-				env: {...process.env, FORCE_COLOR: '1'},
 			});
 
 			const svelte_check_process = spawned?.child;
