@@ -62,7 +62,7 @@
     "zod": "^3.24.2"
   },
   "peerDependencies": {
-    "esbuild": "^0.25.2",
+    "esbuild": "^0.25",
     "svelte": "^5"
   },
   "devDependencies": {
