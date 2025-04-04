@@ -8,6 +8,8 @@ import {JS_MATCHER, TS_MATCHER, SVELTE_SCRIPT_MATCHER} from './constants.js';
 
 export type Import_Specifier = Flavored<string, 'Import_Specifier'>;
 
+// TODO this is probably way more complicated that it should be, maybe report the issues upstream unless I made a mistake here
+
 /**
  * Extracts the string value from a module request, handling different quote styles.
  * Returns null if the value is not a valid string literal.
