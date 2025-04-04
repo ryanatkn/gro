@@ -2,4 +2,4 @@
 '@ryanatkn/gro': patch
 ---
 
-map typecheck paths to cwd
+map `svelte-check` output paths to be relative to the cwd
