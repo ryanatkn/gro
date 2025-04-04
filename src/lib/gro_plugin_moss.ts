@@ -53,7 +53,7 @@ export const gro_plugin_moss = ({
 	};
 	const flush_gen_queue = throttle(
 		async () => {
-			const css = generate_classes_css(css_classes.get_sorted_array(), css_classes_by_name);
+			const css = generate_classes_css(css_classes.get(), css_classes_by_name);
 			const contents = `/* ${banner} */\n\n${css}\n\n/* ${banner} */`;
 			const output = await format_file(contents, {filepath: outfile});
 			// TODO think about using gen to implement this, would have some nice benefits like automatic change detection

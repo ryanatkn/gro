@@ -1,5 +1,7 @@
 <script lang="ts" module>
 	export const a = 'ok';
+
+	/* eslint-disable svelte/no-useless-mustaches */
 </script>
 
 <script lang="ts">
