@@ -1,5 +1,11 @@
 # @ryanatkn/gro
 
+## 0.149.2
+
+### Patch Changes
+
+- fix sveltekit shim regexp ([37900e5](https://github.com/ryanatkn/gro/commit/37900e5))
+
 ## 0.149.1
 
 ### Patch Changes
