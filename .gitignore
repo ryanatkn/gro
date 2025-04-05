@@ -33,5 +33,5 @@ ignore
 .DS_Store
 Thumbs.db
 
-# temp
+# GitHub
 .github/copilot-instructions.md
