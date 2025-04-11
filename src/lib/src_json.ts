@@ -84,6 +84,7 @@ export const to_src_modules = (
 			const source_file_id = join(lib_path, source_file_path);
 			if (!existsSync(source_file_id)) {
 				throw Error(
+					// TODO BLOCK
 					`Failed to infer source file from package.json export path ${k} - the inferred file ${source_file_id} does not exist`,
 				);
 			}
