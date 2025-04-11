@@ -7,7 +7,8 @@ import {Git_Origin, git_current_branch_name, git_push} from './git.js';
 export const Args = z
 	.interface({
 		_: z
-			.array(z.string(), {
+			.array(z.string())
+			.meta({
 				description: 'the git commit message, the same as git commit -m or --message',
 			})
 			.default([]),

@@ -11,15 +11,18 @@ import {paths} from './paths.js';
 export const Args = z
 	.interface({
 		svelte_check_cli: z
-			.string({description: 'the svelte-check CLI to use'})
+			.string()
+			.meta({description: 'the svelte-check CLI to use'})
 			.default(SVELTE_CHECK_CLI),
 		typescript_cli: z
-			.string({description: 'the TypeScript CLI to use as a fallback to svelte-check'})
+			.string()
+			.meta({description: 'the TypeScript CLI to use as a fallback to svelte-check'})
 			.default('tsc'),
 		path_replacement: z
-			.string({description: 'replacement string for current working directory in output'})
+			.string()
+			.meta({description: 'replacement string for current working directory in output'})
 			.default('.'),
-		cwd: z.string({description: 'current working directory'}).default(paths.root),
+		cwd: z.string().meta({description: 'current working directory'}).default(paths.root),
 	})
 	.strict();
 export type Args = z.infer<typeof Args>;

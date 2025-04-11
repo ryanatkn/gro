@@ -9,8 +9,8 @@ const ESLINT_CLI = 'eslint';
 
 export const Args = z
 	.interface({
-		_: z.array(z.string(), {description: 'paths to serve'}).default([]),
-		eslint_cli: z.string({description: 'the ESLint CLI to use'}).default(ESLINT_CLI),
+		_: z.array(z.string()).meta({description: 'paths to serve'}).default([]),
+		eslint_cli: z.string().meta({description: 'the ESLint CLI to use'}).default(ESLINT_CLI),
 	})
 	.strict();
 export type Args = z.infer<typeof Args>;

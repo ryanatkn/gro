@@ -88,32 +88,40 @@ export const Package_Json = z
 		// according to the npm docs, `name` and `version` are the only required properties
 		name: z.string(),
 		version: z.string(),
-		private: z.boolean({description: 'disallow publishing to the configured registry'}).optional(),
+		private: z
+			.boolean()
+			.meta({description: 'disallow publishing to the configured registry'})
+			.optional(),
 		public: z
-			.boolean({
+			.boolean()
+			.meta({
 				description:
 					'a Gro extension that enables publishing `.well-known/package.json` and `.well-known/src`',
 			})
 			.optional(),
 		description: z.string().optional(),
 		motto: z
-			.string({description: "a Gro extension that's a short phrase that represents this project"})
+			.string()
+			.meta({description: "a Gro extension that's a short phrase that represents this project"})
 			.optional(),
 		glyph: z
-			.string({
+			.string()
+			.meta({
 				description:
 					"a Gro extension that's a single unicode character that represents this project",
 			})
 			.refine((v) => count_graphemes(v) === 1, 'must be a single unicode character')
 			.optional(),
 		logo: z
-			.string({
+			.string()
+			.meta({
 				description:
 					"a Gro extension that's a link relative to the `homepage` to an image that represents this project",
 			})
 			.optional(),
 		logo_alt: z
-			.string({description: "a Gro extension that's the alt text for the `logo`"})
+			.string()
+			.meta({description: "a Gro extension that's the alt text for the `logo`"})
 			.optional(),
 		license: z.string().optional(),
 		scripts: z.record(z.string()).optional(),

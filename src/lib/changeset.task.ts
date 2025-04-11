@@ -26,24 +26,30 @@ export const Args = z
 		 * The optional rest args get joined with a space to form the `message`.
 		 */
 		_: z
-			.array(z.string(), {description: 'the message for the changeset and commit'})
+			.array(z.string())
+			.meta({description: 'the message for the changeset and commit'})
 			.max(1)
 			.default([]),
-		minor: z.boolean({description: 'bump the minor version'}).default(false),
-		major: z.boolean({description: 'bump the major version'}).default(false),
-		dir: z.string({description: 'changeset dir'}).default(CHANGESET_DIR),
+		minor: z.boolean().meta({description: 'bump the minor version'}).default(false),
+		major: z.boolean().meta({description: 'bump the major version'}).default(false),
+		dir: z.string().meta({description: 'changeset dir'}).default(CHANGESET_DIR),
 		access: Changeset_Access.describe(
 			"changeset 'access' config value, the default depends on package.json#private",
 		).optional(),
 		changelog: z
-			.string({description: 'changelog dep package name, used as changeset\'s "changelog" config'})
+			.string()
+			.meta({description: 'changelog dep package name, used as changeset\'s "changelog" config'})
 			.default('@changesets/changelog-git'),
-		dep: z.boolean({description: 'dual of no-dep'}).default(true),
+		dep: z.boolean().meta({description: 'dual of no-dep'}).default(true),
 		'no-dep': z
-			.boolean({description: 'opt out of installing the changelog package'})
+			.boolean()
+			.meta({description: 'opt out of installing the changelog package'})
 			.default(false),
 		origin: Git_Origin.describe('git origin to deploy to').default('origin'),
-		changeset_cli: z.string({description: 'the changeset CLI to use'}).default(CHANGESET_CLI),
+		changeset_cli: z
+			.string()
+			.meta({description: 'the changeset CLI to use'})
+			.default(CHANGESET_CLI),
 	})
 	.strict();
 export type Args = z.infer<typeof Args>;

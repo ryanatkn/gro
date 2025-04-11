@@ -7,14 +7,22 @@ import {Git_Origin} from './git.js';
 
 export const Args = z
 	.interface({
-		build_dev: z.boolean({description: 'delete the Gro build dev directory'}).default(false),
-		build_dist: z.boolean({description: 'delete the Gro build dist directory'}).default(false),
-		sveltekit: z
-			.boolean({description: 'delete the SvelteKit directory and Vite cache'})
+		build_dev: z.boolean().meta({description: 'delete the Gro build dev directory'}).default(false),
+		build_dist: z
+			.boolean()
+			.meta({description: 'delete the Gro build dist directory'})
 			.default(false),
-		nodemodules: z.boolean({description: 'delete the node_modules directory'}).default(false),
+		sveltekit: z
+			.boolean()
+			.meta({description: 'delete the SvelteKit directory and Vite cache'})
+			.default(false),
+		nodemodules: z
+			.boolean()
+			.meta({description: 'delete the node_modules directory'})
+			.default(false),
 		git: z
-			.boolean({
+			.boolean()
+			.meta({
 				description:
 					'run "git remote prune" to delete local branches referencing nonexistent remote branches',
 			})

@@ -47,28 +47,33 @@ export const Args = z
 		),
 		target: Git_Branch.describe('git target branch to deploy to').default(TARGET_BRANCH),
 		origin: Git_Origin.describe('git origin to deploy to').default('origin'),
-		deploy_dir: z.string({description: 'the deploy output directory'}).default(DEPLOY_DIR),
+		deploy_dir: z.string().meta({description: 'the deploy output directory'}).default(DEPLOY_DIR),
 		build_dir: z
-			.string({description: 'the SvelteKit build directory'})
+			.string()
+			.meta({description: 'the SvelteKit build directory'})
 			.default(SVELTEKIT_BUILD_DIRNAME),
 		dry: z
-			.boolean({
+			.boolean()
+			.meta({
 				description: 'build and prepare to deploy without actually deploying',
 			})
 			.default(false),
 		force: z
-			.boolean({description: 'caution!! destroys the target branch both locally and remotely'})
+			.boolean()
+			.meta({description: 'caution!! destroys the target branch both locally and remotely'})
 			.default(false),
 		dangerous: z
-			.boolean({description: 'caution!! enables destruction of branches like main and master'})
+			.boolean()
+			.meta({description: 'caution!! enables destruction of branches like main and master'})
 			.default(false),
 		reset: z
-			.boolean({
+			.boolean()
+			.meta({
 				description: 'if true, resets the target branch back to the first commit before deploying',
 			})
 			.default(false),
-		build: z.boolean({description: 'dual of no-build'}).default(true),
-		'no-build': z.boolean({description: 'opt out of building'}).default(false),
+		build: z.boolean().meta({description: 'dual of no-build'}).default(true),
+		'no-build': z.boolean().meta({description: 'opt out of building'}).default(false),
 	})
 	.strict();
 export type Args = z.infer<typeof Args>;

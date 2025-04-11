@@ -8,7 +8,8 @@ import {paths} from './paths.js';
 export const Args = z
 	.interface({
 		check: z
-			.boolean({description: 'exit with a nonzero code if any files are unformatted'})
+			.boolean()
+			.meta({description: 'exit with a nonzero code if any files are unformatted'})
 			.default(false),
 	})
 	.strict();

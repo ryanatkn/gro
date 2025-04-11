@@ -7,7 +7,7 @@ import {resolve_input_paths, to_input_paths} from './input_path.js';
 export const Args = z
 	.interface({
 		_: z.array(z.string(), {description: 'the input paths to resolve'}).default(['']),
-		verbose: z.boolean({description: 'log diagnostics'}).default(false),
+		verbose: z.boolean().meta({description: 'log diagnostics'}).default(false),
 	})
 	.strict();
 export type Args = z.infer<typeof Args>;

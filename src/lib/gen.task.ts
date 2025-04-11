@@ -14,12 +14,17 @@ import {SOURCE_DIRNAME} from './constants.js';
 
 export const Args = z
 	.interface({
-		_: z.array(Raw_Input_Path, {description: 'input paths to generate'}).default([SOURCE_DIRNAME]),
+		_: z
+			.array(Raw_Input_Path)
+			.meta({description: 'input paths to generate'})
+			.default([SOURCE_DIRNAME]),
 		root_dirs: z
-			.array(z.string(), {description: 'root directories to resolve input paths against'}) // TODO `Path_Id` schema
+			.array(z.string())
+			.meta({description: 'root directories to resolve input paths against'}) // TODO `Path_Id` schema
 			.default([process.cwd()]),
 		check: z
-			.boolean({description: 'exit with a nonzero code if any files need to be generated'})
+			.boolean()
+			.meta({description: 'exit with a nonzero code if any files need to be generated'})
 			.default(false),
 	})
 	.strict();
