@@ -19,44 +19,39 @@ import {
 } from './git.js';
 import {CHANGESET_CLI} from './changeset_helpers.js';
 
-export const Args = z
-	.interface({
-		branch: Git_Branch.describe('branch to publish from').default('main'),
-		origin: Git_Origin.describe('git origin to publish from').default('origin'),
-		changelog: z
-			.string()
-			.meta({description: 'file name and path of the changelog'})
-			.default('CHANGELOG.md'),
-		preserve_changelog: z
-			.boolean()
-			.meta({
-				description:
-					'opt out of linkifying and formatting the changelog from @changesets/changelog-git',
-			})
-			.default(false),
-		optional: z
-			.boolean()
-			.meta({description: 'exit gracefully if there are no changesets'})
-			.default(false),
-		dry: z
-			.boolean()
-			.meta({description: 'build and prepare to publish without actually publishing'})
-			.default(false),
-		check: z.boolean().meta({description: 'dual of no-check'}).default(true),
-		'no-check': z
-			.boolean()
-			.meta({description: 'opt out of checking before publishing'})
-			.default(false),
-		build: z.boolean().meta({description: 'dual of no-build'}).default(true),
-		'no-build': z.boolean().meta({description: 'opt out of building'}).default(false),
-		pull: z.boolean().meta({description: 'dual of no-pull'}).default(true),
-		'no-pull': z.boolean().meta({description: 'opt out of git pull'}).default(false),
-		changeset_cli: z
-			.string()
-			.meta({description: 'the changeset CLI to use'})
-			.default(CHANGESET_CLI),
-	})
-	.strict();
+export const Args = z.strictInterface({
+	branch: Git_Branch.describe('branch to publish from').default('main'),
+	origin: Git_Origin.describe('git origin to publish from').default('origin'),
+	changelog: z
+		.string()
+		.meta({description: 'file name and path of the changelog'})
+		.default('CHANGELOG.md'),
+	preserve_changelog: z
+		.boolean()
+		.meta({
+			description:
+				'opt out of linkifying and formatting the changelog from @changesets/changelog-git',
+		})
+		.default(false),
+	optional: z
+		.boolean()
+		.meta({description: 'exit gracefully if there are no changesets'})
+		.default(false),
+	dry: z
+		.boolean()
+		.meta({description: 'build and prepare to publish without actually publishing'})
+		.default(false),
+	check: z.boolean().meta({description: 'dual of no-check'}).default(true),
+	'no-check': z
+		.boolean()
+		.meta({description: 'opt out of checking before publishing'})
+		.default(false),
+	build: z.boolean().meta({description: 'dual of no-build'}).default(true),
+	'no-build': z.boolean().meta({description: 'opt out of building'}).default(false),
+	pull: z.boolean().meta({description: 'dual of no-pull'}).default(true),
+	'no-pull': z.boolean().meta({description: 'opt out of git pull'}).default(false),
+	changeset_cli: z.string().meta({description: 'the changeset CLI to use'}).default(CHANGESET_CLI),
+});
 export type Args = z.infer<typeof Args>;
 
 export const task: Task<Args> = {

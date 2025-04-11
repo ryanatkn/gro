@@ -7,29 +7,24 @@ import {Git_Origin, git_pull} from './git.js';
 import {spawn_cli} from './cli.js';
 import {serialize_args, to_forwarded_args} from './args.js';
 
-export const Args = z
-	.interface({
-		_: z
-			.array(z.string())
-			.meta({description: 'names of deps to exclude from the upgrade'})
-			.default([]),
-		only: z
-			.union([z.string(), z.array(z.string())])
-			.meta({
-				description: 'names of deps to include in the upgrade',
-			})
-			.default([])
-			.transform((v) => (Array.isArray(v) ? v : [v])),
-		origin: Git_Origin.describe('git origin to deploy to').default('origin'),
-		force: z
-			.boolean()
-			.meta({description: 'if true, print out the planned upgrades'})
-			.default(false),
-		pull: z.boolean().meta({description: 'dual of no-pull'}).default(true),
-		'no-pull': z.boolean().meta({description: 'opt out of git pull'}).default(false),
-		dry: z.boolean().meta({description: 'if true, print out the planned upgrades'}).default(false),
-	})
-	.strict();
+export const Args = z.strictInterface({
+	_: z
+		.array(z.string())
+		.meta({description: 'names of deps to exclude from the upgrade'})
+		.default([]),
+	only: z
+		.union([z.string(), z.array(z.string())])
+		.meta({
+			description: 'names of deps to include in the upgrade',
+		})
+		.default([])
+		.transform((v) => (Array.isArray(v) ? v : [v])),
+	origin: Git_Origin.describe('git origin to deploy to').default('origin'),
+	force: z.boolean().meta({description: 'if true, print out the planned upgrades'}).default(false),
+	pull: z.boolean().meta({description: 'dual of no-pull'}).default(true),
+	'no-pull': z.boolean().meta({description: 'opt out of git pull'}).default(false),
+	dry: z.boolean().meta({description: 'if true, print out the planned upgrades'}).default(false),
+});
 export type Args = z.infer<typeof Args>;
 
 export const task: Task<Args> = {

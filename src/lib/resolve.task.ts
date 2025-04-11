@@ -4,12 +4,10 @@ import {styleText as st} from 'node:util';
 import {TASK_FILE_SUFFIXES, type Task} from './task.js';
 import {resolve_input_paths, to_input_paths} from './input_path.js';
 
-export const Args = z
-	.interface({
-		_: z.array(z.string(), {description: 'the input paths to resolve'}).default(['']),
-		verbose: z.boolean().meta({description: 'log diagnostics'}).default(false),
-	})
-	.strict();
+export const Args = z.strictInterface({
+	_: z.array(z.string(), {description: 'the input paths to resolve'}).default(['']),
+	verbose: z.boolean().meta({description: 'log diagnostics'}).default(false),
+});
 export type Args = z.infer<typeof Args>;
 
 export const task: Task<Args> = {

@@ -5,21 +5,16 @@ import {Task_Error, type Task} from './task.js';
 import {sync_package_json} from './package_json.js';
 import {sveltekit_sync} from './sveltekit_helpers.js';
 
-export const Args = z
-	.interface({
-		sveltekit: z.boolean().meta({description: 'dual of no-sveltekit'}).default(true),
-		'no-sveltekit': z.boolean().meta({description: 'opt out of svelte-kit sync'}).default(false),
-		package_json: z.boolean().meta({description: 'dual of no-package_json'}).default(true),
-		'no-package_json': z
-			.boolean()
-			.meta({description: 'opt out of package.json sync'})
-			.default(false),
-		gen: z.boolean().meta({description: 'dual of no-gen'}).default(true),
-		'no-gen': z.boolean().meta({description: 'opt out of running gen'}).default(false),
-		install: z.boolean().meta({description: 'dual of no-install'}).default(true),
-		'no-install': z.boolean().meta({description: 'opt out of installing packages'}).default(false),
-	})
-	.strict();
+export const Args = z.strictInterface({
+	sveltekit: z.boolean().meta({description: 'dual of no-sveltekit'}).default(true),
+	'no-sveltekit': z.boolean().meta({description: 'opt out of svelte-kit sync'}).default(false),
+	package_json: z.boolean().meta({description: 'dual of no-package_json'}).default(true),
+	'no-package_json': z.boolean().meta({description: 'opt out of package.json sync'}).default(false),
+	gen: z.boolean().meta({description: 'dual of no-gen'}).default(true),
+	'no-gen': z.boolean().meta({description: 'opt out of running gen'}).default(false),
+	install: z.boolean().meta({description: 'dual of no-install'}).default(true),
+	'no-install': z.boolean().meta({description: 'opt out of installing packages'}).default(false),
+});
 export type Args = z.infer<typeof Args>;
 
 export const task: Task<Args> = {

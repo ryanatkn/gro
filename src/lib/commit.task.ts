@@ -4,17 +4,15 @@ import {z} from 'zod';
 import type {Task} from './task.js';
 import {Git_Origin, git_current_branch_name, git_push} from './git.js';
 
-export const Args = z
-	.interface({
-		_: z
-			.array(z.string())
-			.meta({
-				description: 'the git commit message, the same as git commit -m or --message',
-			})
-			.default([]),
-		origin: Git_Origin.describe('git origin to commit to').default('origin'),
-	})
-	.strict();
+export const Args = z.strictInterface({
+	_: z
+		.array(z.string())
+		.meta({
+			description: 'the git commit message, the same as git commit -m or --message',
+		})
+		.default([]),
+	origin: Git_Origin.describe('git origin to commit to').default('origin'),
+});
 export type Args = z.infer<typeof Args>;
 
 export const task: Task<Args> = {
