@@ -61,7 +61,7 @@ export interface Raw_Gen_File {
 	format?: boolean; // defaults to `true`
 }
 
-export const Gen_Config = z.object({
+export const Gen_Config = z.interface({
 	imports: z.record(z.string(), z.string()).default({}),
 });
 export type Gen_Config = z.infer<typeof Gen_Config>;
