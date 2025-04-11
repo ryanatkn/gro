@@ -30,7 +30,7 @@ export const Src_Module = z
 	.passthrough();
 export type Src_Module = z.infer<typeof Src_Module>;
 
-export const Src_Modules = z.record(Src_Module);
+export const Src_Modules = z.record(z.string(), Src_Module);
 export type Src_Modules = z.infer<typeof Src_Modules>;
 
 /**

@@ -63,9 +63,19 @@ export const Package_Json_Funding = z.union([
 ]);
 export type Package_Json_Funding = z.infer<typeof Package_Json_Funding>;
 
+// TODO BLOCK remove recursive schema workarounds
 // Helper to create a recursive type that represents export conditions and values
 const create_export_value_schema = (): z.ZodType => {
-	return z.lazy(() => z.union([z.string(), z.null(), z.record(z.lazy(() => export_value_schema))]));
+	return z.lazy(() =>
+		z.union([
+			z.string(),
+			z.null(),
+			z.record(
+				z.string(),
+				z.lazy(() => export_value_schema),
+			),
+		]),
+	);
 };
 
 // The base export value schema that can be a string, null, or nested conditions
@@ -77,7 +87,11 @@ export type Export_Value = z.infer<typeof Export_Value>;
 // 1. A string (shorthand for main export)
 // 2. null (to block exports)
 // 3. A record of export conditions/paths
-export const Package_Json_Exports = z.union([z.string(), z.null(), z.record(export_value_schema)]);
+export const Package_Json_Exports = z.union([
+	z.string(),
+	z.null(),
+	z.record(z.string(), export_value_schema),
+]);
 export type Package_Json_Exports = z.infer<typeof Package_Json_Exports>;
 
 /**
@@ -124,7 +138,7 @@ export const Package_Json = z
 			.meta({description: "a Gro extension that's the alt text for the `logo`"})
 			.optional(),
 		license: z.string().optional(),
-		scripts: z.record(z.string()).optional(),
+		scripts: z.record(z.string(), z.string()).optional(),
 		homepage: Url.optional(),
 		author: z.union([z.string(), Package_Json_Author.optional()]),
 		repository: z.union([z.string(), Url, Package_Json_Repository]).optional(),
@@ -141,17 +155,17 @@ export const Package_Json = z
 		keywords: z.array(z.string()).optional(),
 
 		type: z.string().optional(),
-		engines: z.record(z.string()).optional(),
+		engines: z.record(z.string(), z.string()).optional(),
 		os: z.array(z.string()).optional(),
 		cpu: z.array(z.string()).optional(),
 
-		dependencies: z.record(z.string()).optional(),
-		devDependencies: z.record(z.string()).optional(),
-		peerDependencies: z.record(z.string()).optional(),
-		peerDependenciesMeta: z.record(z.interface({optional: z.boolean()})).optional(),
-		optionalDependencies: z.record(z.string()).optional(),
+		dependencies: z.record(z.string(), z.string()).optional(),
+		devDependencies: z.record(z.string(), z.string()).optional(),
+		peerDependencies: z.record(z.string(), z.string()).optional(),
+		peerDependenciesMeta: z.record(z.string(), z.interface({optional: z.boolean()})).optional(),
+		optionalDependencies: z.record(z.string(), z.string()).optional(),
 
-		bin: z.record(z.string()).optional(),
+		bin: z.record(z.string(), z.string()).optional(),
 		sideEffects: z.array(z.string()).optional(),
 		files: z.array(z.string()).optional(),
 		main: z.string().optional(),
