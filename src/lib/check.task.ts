@@ -7,7 +7,7 @@ import {git_check_clean_workspace} from './git.js';
 import {sync_package_json} from './package_json.js';
 
 export const Args = z
-	.object({
+	.interface({
 		typecheck: z.boolean({description: 'dual of no-typecheck'}).default(true),
 		'no-typecheck': z.boolean({description: 'opt out of typechecking'}).default(false),
 		test: z.boolean({description: 'dual of no-test'}).default(true),

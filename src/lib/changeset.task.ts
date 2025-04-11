@@ -21,7 +21,7 @@ import {
 import {load_package_json} from './package_json.js';
 
 export const Args = z
-	.object({
+	.interface({
 		/**
 		 * The optional rest args get joined with a space to form the `message`.
 		 */

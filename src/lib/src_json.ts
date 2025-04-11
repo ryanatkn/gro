@@ -12,7 +12,7 @@ import {
 } from './package_json.js';
 
 export const Src_Module_Declaration = z
-	.object({
+	.interface({
 		name: z.string(), // the export identifier
 		// TODO these are poorly named, and they're somewhat redundant with `kind`,
 		// they were added to distinguish `VariableDeclaration` functions and non-functions
@@ -23,7 +23,7 @@ export const Src_Module_Declaration = z
 export type Src_Module_Declaration = z.infer<typeof Src_Module_Declaration>;
 
 export const Src_Module = z
-	.object({
+	.interface({
 		path: z.string(),
 		declarations: z.array(Src_Module_Declaration),
 	})
@@ -37,7 +37,7 @@ export type Src_Modules = z.infer<typeof Src_Modules>;
  * @see https://github.com/ryanatkn/gro/blob/main/src/docs/gro_plugin_sveltekit_app.md#well-known-src
  */
 export const Src_Json = z
-	.object({
+	.interface({
 		name: z.string(), // same as Package_Json
 		version: z.string(), // same as Package_Json
 		modules: Src_Modules.transform(transform_empty_object_to_undefined).optional(),

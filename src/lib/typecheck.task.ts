@@ -9,7 +9,7 @@ import {configure_colored_output_with_path_replacement} from './child_process_lo
 import {paths} from './paths.js';
 
 export const Args = z
-	.object({
+	.interface({
 		svelte_check_cli: z
 			.string({description: 'the svelte-check CLI to use'})
 			.default(SVELTE_CHECK_CLI),

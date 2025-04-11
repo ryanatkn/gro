@@ -8,7 +8,7 @@ import {find_cli, spawn_cli} from './cli.js';
 const ESLINT_CLI = 'eslint';
 
 export const Args = z
-	.object({
+	.interface({
 		_: z.array(z.string(), {description: 'paths to serve'}).default([]),
 		eslint_cli: z.string({description: 'the ESLint CLI to use'}).default(ESLINT_CLI),
 	})

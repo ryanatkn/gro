@@ -20,7 +20,7 @@ import {
 import {CHANGESET_CLI} from './changeset_helpers.js';
 
 export const Args = z
-	.object({
+	.interface({
 		branch: Git_Branch.describe('branch to publish from').default('main'),
 		origin: Git_Origin.describe('git origin to publish from').default('origin'),
 		changelog: z

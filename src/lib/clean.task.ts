@@ -6,7 +6,7 @@ import {clean_fs} from './clean_fs.js';
 import {Git_Origin} from './git.js';
 
 export const Args = z
-	.object({
+	.interface({
 		build_dev: z.boolean({description: 'delete the Gro build dev directory'}).default(false),
 		build_dist: z.boolean({description: 'delete the Gro build dist directory'}).default(false),
 		sveltekit: z

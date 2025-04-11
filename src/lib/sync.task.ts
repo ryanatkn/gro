@@ -6,7 +6,7 @@ import {sync_package_json} from './package_json.js';
 import {sveltekit_sync} from './sveltekit_helpers.js';
 
 export const Args = z
-	.object({
+	.interface({
 		sveltekit: z.boolean({description: 'dual of no-sveltekit'}).default(true),
 		'no-sveltekit': z.boolean({description: 'opt out of svelte-kit sync'}).default(false),
 		package_json: z.boolean({description: 'dual of no-package_json'}).default(true),

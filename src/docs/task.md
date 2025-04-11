@@ -124,7 +124,7 @@ import type {Task} from '@ryanatkn/gro';
 import {z} from 'zod';
 
 export const Args = z
-	.object({
+	.interface({
 		arg: z.number({description: 'example number arg'}).default(2),
 	})
 	.strict();
@@ -265,7 +265,7 @@ import type {Task} from '@ryanatkn/gro';
 import type {z} from 'zod';
 
 export const Args = z
-	.object({
+	.interface({
 		_: z.array(z.string(), {description: 'rest args'}).default([]),
 		yepyep: z.string({description: 'helpful info'}).default('ya'),
 		okcool: z.number({description: 'that prints to the CLI'}).default(1234),

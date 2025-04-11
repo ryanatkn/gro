@@ -13,7 +13,7 @@ import {write_gen_results, analyze_gen_results, find_genfiles, load_genfiles} fr
 import {SOURCE_DIRNAME} from './constants.js';
 
 export const Args = z
-	.object({
+	.interface({
 		_: z.array(Raw_Input_Path, {description: 'input paths to generate'}).default([SOURCE_DIRNAME]),
 		root_dirs: z
 			.array(z.string(), {description: 'root directories to resolve input paths against'}) // TODO `Path_Id` schema

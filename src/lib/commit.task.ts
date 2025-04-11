@@ -5,7 +5,7 @@ import type {Task} from './task.js';
 import {Git_Origin, git_current_branch_name, git_push} from './git.js';
 
 export const Args = z
-	.object({
+	.interface({
 		_: z
 			.array(z.string(), {
 				description: 'the git commit message, the same as git commit -m or --message',

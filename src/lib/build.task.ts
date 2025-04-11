@@ -5,7 +5,7 @@ import {Plugins} from './plugin.js';
 import {clean_fs} from './clean_fs.js';
 
 export const Args = z
-	.object({
+	.interface({
 		sync: z.boolean({description: 'dual of no-sync'}).default(true),
 		'no-sync': z.boolean({description: 'opt out of gro sync'}).default(false),
 		install: z.boolean({description: 'dual of no-install'}).default(true),

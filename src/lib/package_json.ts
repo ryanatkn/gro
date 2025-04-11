@@ -31,7 +31,7 @@ export const transform_empty_object_to_undefined = <T>(val: T): T | undefined =>
 export const Package_Json_Repository = z.union([
 	z.string(),
 	z
-		.object({
+		.interface({
 			type: z.string(),
 			url: Url,
 			directory: z.string().optional(),
@@ -43,7 +43,7 @@ export type Package_Json_Repository = z.infer<typeof Package_Json_Repository>;
 export const Package_Json_Author = z.union([
 	z.string(),
 	z
-		.object({
+		.interface({
 			name: z.string(),
 			email: Email.optional(),
 			url: Url.optional(),
@@ -55,7 +55,7 @@ export type Package_Json_Author = z.infer<typeof Package_Json_Author>;
 export const Package_Json_Funding = z.union([
 	z.string(),
 	z
-		.object({
+		.interface({
 			type: z.string(),
 			url: Url,
 		})
@@ -84,7 +84,7 @@ export type Package_Json_Exports = z.infer<typeof Package_Json_Exports>;
  * @see https://docs.npmjs.com/cli/v10/configuring-npm/package-json
  */
 export const Package_Json = z
-	.object({
+	.interface({
 		// according to the npm docs, `name` and `version` are the only required properties
 		name: z.string(),
 		version: z.string(),
@@ -122,7 +122,10 @@ export const Package_Json = z
 		repository: z.union([z.string(), Url, Package_Json_Repository]).optional(),
 		contributors: z.array(z.union([z.string(), Package_Json_Author])).optional(),
 		bugs: z
-			.union([z.string(), z.object({url: Url.optional(), email: Email.optional()}).passthrough()])
+			.union([
+				z.string(),
+				z.interface({url: Url.optional(), email: Email.optional()}).passthrough(),
+			])
 			.optional(),
 		funding: z
 			.union([Url, Package_Json_Funding, z.array(z.union([Url, Package_Json_Funding]))])
@@ -137,7 +140,7 @@ export const Package_Json = z
 		dependencies: z.record(z.string()).optional(),
 		devDependencies: z.record(z.string()).optional(),
 		peerDependencies: z.record(z.string()).optional(),
-		peerDependenciesMeta: z.record(z.object({optional: z.boolean()})).optional(),
+		peerDependenciesMeta: z.record(z.interface({optional: z.boolean()})).optional(),
 		optionalDependencies: z.record(z.string()).optional(),
 
 		bin: z.record(z.string()).optional(),

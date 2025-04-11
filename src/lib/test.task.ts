@@ -6,7 +6,7 @@ import {paths} from './paths.js';
 import {find_cli} from './cli.js';
 
 export const Args = z
-	.object({
+	.interface({
 		_: z.array(z.string(), {description: 'file patterns to test'}).default([`\\.test\\.ts$`]), // TODO maybe use uvu's default instead of being restrictive?
 		bail: z
 			.boolean({description: 'the bail option to uvu run, exit immediately on failure'})

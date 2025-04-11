@@ -41,7 +41,7 @@ const TARGET_BRANCH = 'deploy';
 const DANGEROUS_BRANCHES = [SOURCE_BRANCH, 'master'];
 
 export const Args = z
-	.object({
+	.interface({
 		source: Git_Branch.describe('git source branch to build and deploy from').default(
 			SOURCE_BRANCH,
 		),

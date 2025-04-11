@@ -5,7 +5,7 @@ import {TASK_FILE_SUFFIXES, type Task} from './task.js';
 import {resolve_input_paths, to_input_paths} from './input_path.js';
 
 export const Args = z
-	.object({
+	.interface({
 		_: z.array(z.string(), {description: 'the input paths to resolve'}).default(['']),
 		verbose: z.boolean({description: 'log diagnostics'}).default(false),
 	})

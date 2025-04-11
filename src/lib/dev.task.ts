@@ -5,7 +5,7 @@ import {Plugins, type Plugin_Context} from './plugin.js';
 import {clean_fs} from './clean_fs.js';
 
 export const Args = z
-	.object({
+	.interface({
 		watch: z.boolean({description: 'dual of no-watch'}).default(true),
 		'no-watch': z
 			.boolean({

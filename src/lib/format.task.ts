@@ -6,7 +6,7 @@ import {format_directory} from './format_directory.js';
 import {paths} from './paths.js';
 
 export const Args = z
-	.object({
+	.interface({
 		check: z
 			.boolean({description: 'exit with a nonzero code if any files are unformatted'})
 			.default(false),

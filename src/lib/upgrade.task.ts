@@ -8,7 +8,7 @@ import {spawn_cli} from './cli.js';
 import {serialize_args, to_forwarded_args} from './args.js';
 
 export const Args = z
-	.object({
+	.interface({
 		_: z.array(z.string(), {description: 'names of deps to exclude from the upgrade'}).default([]),
 		only: z
 			.union([z.string(), z.array(z.string())], {

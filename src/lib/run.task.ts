@@ -6,7 +6,7 @@ import {Task_Error, type Task} from './task.js';
 import {resolve_gro_module_path, spawn_with_loader} from './gro_helpers.js';
 
 export const Args = z
-	.object({
+	.interface({
 		_: z
 			.array(z.string(), {description: 'the file path to run and other node CLI args'})
 			.default([]),
