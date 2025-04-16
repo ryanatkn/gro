@@ -1,5 +1,17 @@
 # @ryanatkn/gro
 
+## 0.150.1
+
+### Patch Changes
+
+- upgrade @ryanatkn/belt@0.30.2 from 0.30.1 ([bb285d6](https://github.com/ryanatkn/gro/commit/bb285d6))
+
+## 0.150.0
+
+### Minor Changes
+
+- upgrade oxc-parser@0.63 from 0.62 ([#532](https://github.com/ryanatkn/gro/pull/532))
+
 ## 0.149.2
 
 ### Patch Changes
