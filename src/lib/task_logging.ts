@@ -2,7 +2,7 @@ import {styleText as st} from 'node:util';
 import type {Logger} from '@ryanatkn/belt/log.js';
 import {plural} from '@ryanatkn/belt/string.js';
 import {print_value} from '@ryanatkn/belt/print.js';
-import {ZodFirstPartyTypeKind, type ZodObjectDef, type ZodTypeAny, type ZodTypeDef} from 'zod';
+import {ZodFirstPartyTypeKind, type ZodObjectDef, type ZodType, type ZodTypeDef} from 'zod';
 
 import type {Arg_Schema} from './args.js';
 import type {Loaded_Tasks, Task_Module_Meta} from './task.js';
@@ -121,7 +121,7 @@ const to_max_length = <T>(items: Array<T>, toString: (item: T) => string) =>
 // The following Zod helpers only need to support single-depth schemas for CLI args,
 // but there's generic recursion to handle things like `ZodOptional` and `ZodDefault`.
 const to_type_name = (def: ZodTypeDef): ZodFirstPartyTypeKind => (def as any).typeName;
-const to_args_schema_type = ({_def}: ZodTypeAny): Arg_Schema['type'] => {
+const to_args_schema_type = ({_def}: ZodType): Arg_Schema['type'] => {
 	const t = to_type_name(_def);
 	switch (t) {
 		case ZodFirstPartyTypeKind.ZodBoolean:
@@ -146,7 +146,7 @@ const to_args_schema_type = ({_def}: ZodTypeAny): Arg_Schema['type'] => {
 		}
 	}
 };
-const to_args_schema_description = ({_def}: ZodTypeAny): string => {
+const to_args_schema_description = ({_def}: ZodType): string => {
 	if (_def.description) {
 		return _def.description;
 	}
@@ -156,7 +156,7 @@ const to_args_schema_description = ({_def}: ZodTypeAny): string => {
 	}
 	return '';
 };
-const to_args_schema_default = ({_def}: ZodTypeAny): any => {
+const to_args_schema_default = ({_def}: ZodType): any => {
 	if (_def.defaultValue) {
 		return _def.defaultValue();
 	}
@@ -166,7 +166,7 @@ const to_args_schema_default = ({_def}: ZodTypeAny): any => {
 	}
 };
 
-const to_subschema = (_def: any): ZodTypeAny | undefined => {
+const to_subschema = (_def: any): ZodType | undefined => {
 	if ('type' in _def) {
 		return _def.type;
 	} else if ('innerType' in _def) {

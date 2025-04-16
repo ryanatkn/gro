@@ -11,38 +11,32 @@ import {
 	type Package_Json_Exports,
 } from './package_json.js';
 
-export const Src_Module_Declaration = z
-	.object({
-		name: z.string(), // the export identifier
-		// TODO these are poorly named, and they're somewhat redundant with `kind`,
-		// they were added to distinguish `VariableDeclaration` functions and non-functions
-		kind: z.enum(['type', 'function', 'variable', 'class']).nullable(),
-		// code: z.string(), // TODO experiment with `getType().getText()`, some of them return the same as `name`
-	})
-	.passthrough();
+export const Src_Module_Declaration = z.looseInterface({
+	name: z.string(), // the export identifier
+	// TODO these are poorly named, and they're somewhat redundant with `kind`,
+	// they were added to distinguish `VariableDeclaration` functions and non-functions
+	kind: z.enum(['type', 'function', 'variable', 'class']).nullable(),
+	// code: z.string(), // TODO experiment with `getType().getText()`, some of them return the same as `name`
+});
 export type Src_Module_Declaration = z.infer<typeof Src_Module_Declaration>;
 
-export const Src_Module = z
-	.object({
-		path: z.string(),
-		declarations: z.array(Src_Module_Declaration),
-	})
-	.passthrough();
+export const Src_Module = z.looseInterface({
+	path: z.string(),
+	declarations: z.array(Src_Module_Declaration),
+});
 export type Src_Module = z.infer<typeof Src_Module>;
 
-export const Src_Modules = z.record(Src_Module);
+export const Src_Modules = z.record(z.string(), Src_Module);
 export type Src_Modules = z.infer<typeof Src_Modules>;
 
 /**
  * @see https://github.com/ryanatkn/gro/blob/main/src/docs/gro_plugin_sveltekit_app.md#well-known-src
  */
-export const Src_Json = z
-	.object({
-		name: z.string(), // same as Package_Json
-		version: z.string(), // same as Package_Json
-		modules: Src_Modules.transform(transform_empty_object_to_undefined).optional(),
-	})
-	.passthrough();
+export const Src_Json = z.looseInterface({
+	name: z.string(), // same as Package_Json
+	version: z.string(), // same as Package_Json
+	modules: Src_Modules.transform(transform_empty_object_to_undefined).optional(),
+});
 export type Src_Json = z.infer<typeof Src_Json>;
 
 export type Map_Src_Json = (src_json: Src_Json) => Src_Json | null | Promise<Src_Json | null>;
@@ -84,6 +78,7 @@ export const to_src_modules = (
 			const source_file_id = join(lib_path, source_file_path);
 			if (!existsSync(source_file_id)) {
 				throw Error(
+					// TODO BLOCK
 					`Failed to infer source file from package.json export path ${k} - the inferred file ${source_file_id} does not exist`,
 				);
 			}
