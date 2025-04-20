@@ -124,7 +124,8 @@ export const filter_dependents = (
 		if (!filter || filter(dependent_id)) {
 			results.add(dependent_id);
 		}
-		const dependent_source_File = get_by_id(dependent_id)!;
+		const dependent_source_File = get_by_id(dependent_id);
+		if (!dependent_source_File) continue;
 		filter_dependents(dependent_source_File, get_by_id, filter, results, searched);
 	}
 	return results;
