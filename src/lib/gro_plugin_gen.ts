@@ -85,6 +85,9 @@ export const gro_plugin_gen = ({
 							source_file,
 							filer.get_by_id,
 							is_gen_path,
+							undefined,
+							undefined,
+							log,
 						);
 						for (const dependent_gen_file_id of dependent_gen_file_ids) {
 							queue_gen(dependent_gen_file_id);

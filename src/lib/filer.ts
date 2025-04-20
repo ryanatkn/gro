@@ -6,6 +6,7 @@ import {wait} from '@ryanatkn/belt/async.js';
 import {isBuiltin} from 'node:module';
 import {fileURLToPath} from 'node:url';
 import {Unreachable_Error} from '@ryanatkn/belt/error.js';
+import type {Logger} from '@ryanatkn/belt/log.js';
 
 import type {File_Filter, Path_Id} from './path.js';
 import {
@@ -259,6 +260,7 @@ export const filter_dependents = (
 	filter?: File_Filter,
 	results: Set<string> = new Set(),
 	searched: Set<string> = new Set(),
+	log?: Logger,
 ): Set<string> => {
 	const {dependents} = source_file;
 	for (const dependent_id of dependents.keys()) {
@@ -268,7 +270,12 @@ export const filter_dependents = (
 			results.add(dependent_id);
 		}
 		const dependent_source_file = get_by_id(dependent_id);
-		if (!dependent_source_file) continue;
+		if (!dependent_source_file) {
+			log?.warn(
+				`[filer.filter_dependents]: dependent source file ${dependent_id} not found for ${source_file.id}`,
+			);
+			continue;
+		}
 		filter_dependents(dependent_source_file, get_by_id, filter, results, searched);
 	}
 	return results;
