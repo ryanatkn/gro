@@ -1,5 +1,13 @@
 # @ryanatkn/gro
 
+## 0.151.0
+
+### Minor Changes
+
+- fix `Filer` bug with missing source files ([#535](https://github.com/ryanatkn/gro/pull/535))
+
+  - **break**: move `filter_dependents` to `filer.ts` from `gro_plugin_gen.ts`
+
 ## 0.150.1
 
 ### Patch Changes
