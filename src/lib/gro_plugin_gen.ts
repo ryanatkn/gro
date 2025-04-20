@@ -7,8 +7,7 @@ import type {Args} from './args.js';
 import {paths} from './paths.js';
 import {find_genfiles, is_gen_path} from './gen.js';
 import {spawn_cli} from './cli.js';
-import type {File_Filter, Path_Id} from './path.js';
-import type {Cleanup_Watch, Source_File} from './filer.js';
+import {filter_dependents, type Cleanup_Watch} from './filer.js';
 
 const FLUSH_DEBOUNCE_DELAY = 500;
 
@@ -86,6 +85,9 @@ export const gro_plugin_gen = ({
 							source_file,
 							filer.get_by_id,
 							is_gen_path,
+							undefined,
+							undefined,
+							log,
 						);
 						for (const dependent_gen_file_id of dependent_gen_file_ids) {
 							queue_gen(dependent_gen_file_id);
@@ -108,24 +110,4 @@ export const gro_plugin_gen = ({
 			}
 		},
 	};
-};
-
-export const filter_dependents = (
-	source_file: Source_File,
-	get_by_id: (id: Path_Id) => Source_File | undefined,
-	filter?: File_Filter,
-	results: Set<string> = new Set(),
-	searched: Set<string> = new Set(),
-): Set<string> => {
-	const {dependents} = source_file;
-	for (const dependent_id of dependents.keys()) {
-		if (searched.has(dependent_id)) continue;
-		searched.add(dependent_id);
-		if (!filter || filter(dependent_id)) {
-			results.add(dependent_id);
-		}
-		const dependent_source_File = get_by_id(dependent_id)!;
-		filter_dependents(dependent_source_File, get_by_id, filter, results, searched);
-	}
-	return results;
 };
