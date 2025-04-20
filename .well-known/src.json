@@ -1,6 +1,6 @@
 {
   "name": "@ryanatkn/gro",
-  "version": "0.150.1",
+  "version": "0.151.0",
   "modules": {
     ".": {
       "path": "index.ts",
@@ -539,6 +539,10 @@
         {
           "name": "Filer",
           "kind": "class"
+        },
+        {
+          "name": "filter_dependents",
+          "kind": "function"
         }
       ]
     },
@@ -893,10 +897,6 @@
         },
         {
           "name": "gro_plugin_gen",
-          "kind": "function"
-        },
-        {
-          "name": "filter_dependents",
           "kind": "function"
         }
       ]
