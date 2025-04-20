@@ -7,7 +7,7 @@ import {isBuiltin} from 'node:module';
 import {fileURLToPath} from 'node:url';
 import {Unreachable_Error} from '@ryanatkn/belt/error.js';
 
-import type {Path_Id} from './path.js';
+import type {File_Filter, Path_Id} from './path.js';
 import {
 	watch_dir,
 	type Watch_Node_Fs,
@@ -251,3 +251,25 @@ export class Filer {
 		return !id.startsWith(this.root_dir + '/') || (!!filter && !filter(id, false));
 	}
 }
+
+// TODO maybe `Source_File` class?
+export const filter_dependents = (
+	source_file: Source_File,
+	get_by_id: (id: Path_Id) => Source_File | undefined,
+	filter?: File_Filter,
+	results: Set<string> = new Set(),
+	searched: Set<string> = new Set(),
+): Set<string> => {
+	const {dependents} = source_file;
+	for (const dependent_id of dependents.keys()) {
+		if (searched.has(dependent_id)) continue;
+		searched.add(dependent_id);
+		if (!filter || filter(dependent_id)) {
+			results.add(dependent_id);
+		}
+		const dependent_source_File = get_by_id(dependent_id);
+		if (!dependent_source_File) continue;
+		filter_dependents(dependent_source_File, get_by_id, filter, results, searched);
+	}
+	return results;
+};
