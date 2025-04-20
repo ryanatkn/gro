@@ -485,6 +485,7 @@ export const src_json = {
 				{name: 'On_Filer_Change', kind: 'type'},
 				{name: 'Filer_Options', kind: 'type'},
 				{name: 'Filer', kind: 'class'},
+				{name: 'filter_dependents', kind: 'function'},
 			],
 		},
 		'./format_directory.js': {
@@ -606,7 +607,6 @@ export const src_json = {
 				{name: 'Task_Args', kind: 'type'},
 				{name: 'Gro_Plugin_Gen_Options', kind: 'type'},
 				{name: 'gro_plugin_gen', kind: 'function'},
-				{name: 'filter_dependents', kind: 'function'},
 			],
 		},
 		'./gro_plugin_moss.js': {
