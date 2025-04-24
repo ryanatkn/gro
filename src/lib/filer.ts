@@ -27,6 +27,7 @@ const aliases = Object.entries(default_sveltekit_config.alias);
 
 export interface Source_File {
 	id: Path_Id;
+	// TODO figure out the best API that makes this lazy
 	/**
 	 * `null` contents means it doesn't exist.
 	 * We create the file in memory to track its dependents regardless of its existence on disk.
