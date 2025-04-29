@@ -1,6 +1,6 @@
 <script lang="ts">
 	import {base} from '$app/paths';
-	import Library_Footer from '@ryanatkn/fuz/Library_Footer.svelte';
+	import Docs_Footer from '@ryanatkn/fuz/Docs_Footer.svelte';
 	import Package_Detail from '@ryanatkn/fuz/Package_Detail.svelte';
 	import Package_Summary from '@ryanatkn/fuz/Package_Summary.svelte';
 	import Svg from '@ryanatkn/fuz/Svg.svelte';
@@ -50,10 +50,10 @@
 			{/if}
 		</section>
 		<section>
-			<Library_Footer {pkg}>
+			<Docs_Footer {pkg}>
 				{#snippet logo_header()}<a href="{base}/about" class="mb_xs">about</a>{/snippet}
 				<Hidden_Personal_Links />
-			</Library_Footer>
+			</Docs_Footer>
 		</section>
 	</div>
 </main>
