@@ -62,7 +62,7 @@ export const package_json = {
 		'@changesets/types': '^6.1.0',
 		'@ryanatkn/eslint-config': '^0.8.0',
 		'@ryanatkn/fuz': '^0.139.0',
-		'@ryanatkn/moss': '^0.25.0',
+		'@ryanatkn/moss': '^0.26.0',
 		'@sveltejs/adapter-static': '^3.0.8',
 		'@sveltejs/kit': '^2.20.7',
 		'@sveltejs/package': '^2.3.11',
@@ -77,6 +77,7 @@ export const package_json = {
 		'typescript-eslint': '^8.30.1',
 		uvu: '^0.5.6',
 	},
+	optionalDependencies: {'@ryanatkn/moss': '^0.26.0'},
 	prettier: {
 		plugins: ['prettier-plugin-svelte'],
 		useTabs: true,
@@ -159,10 +160,6 @@ export const package_json = {
 		'./gro_plugin_gen.js': {
 			types: './dist/gro_plugin_gen.d.ts',
 			default: './dist/gro_plugin_gen.js',
-		},
-		'./gro_plugin_moss.js': {
-			types: './dist/gro_plugin_moss.d.ts',
-			default: './dist/gro_plugin_moss.js',
 		},
 		'./gro_plugin_server.js': {
 			types: './dist/gro_plugin_server.d.ts',
@@ -607,14 +604,6 @@ export const src_json = {
 				{name: 'Task_Args', kind: 'type'},
 				{name: 'Gro_Plugin_Gen_Options', kind: 'type'},
 				{name: 'gro_plugin_gen', kind: 'function'},
-			],
-		},
-		'./gro_plugin_moss.js': {
-			path: 'gro_plugin_moss.ts',
-			declarations: [
-				{name: 'Task_Args', kind: 'type'},
-				{name: 'Gro_Plugin_Moss_Options', kind: 'type'},
-				{name: 'gro_plugin_moss', kind: 'function'},
 			],
 		},
 		'./gro_plugin_server.js': {
