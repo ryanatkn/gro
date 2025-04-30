@@ -7,6 +7,9 @@ import {Git_Origin, git_pull} from './git.js';
 import {spawn_cli} from './cli.js';
 import {serialize_args, to_forwarded_args} from './args.js';
 
+// TODO BLOCK --delete_node_modules
+// TODO BLOCK --delete_lockfile
+
 export const Args = z
 	.object({
 		_: z.array(z.string(), {description: 'names of deps to exclude from the upgrade'}).default([]),
