@@ -128,13 +128,17 @@ export class Filer {
 			} else {
 				if (isBuiltin(path)) continue;
 				try {
+					console.log(`cwd, path, file.id`, process.cwd(), path, file.id);
 					path_id = fileURLToPath(import.meta.resolve(path, file.id));
+					console.log(`path_id`, path_id);
 				} catch (error) {
 					// If it's imported from an external module, ignore any import errors.
 					if (error.code === 'ERR_MODULE_NOT_FOUND' && file.external) {
 						continue;
 					}
+					// TODO BLOCK must throw
 					throw error;
+					continue;
 				}
 			}
 			dependencies_removed.delete(path_id);

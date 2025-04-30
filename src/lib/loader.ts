@@ -197,6 +197,8 @@ export const resolve: ResolveHook = async (specifier, context, nextResolve) => {
 	}
 
 	const parent_url = context.parentURL;
+	const DEBUGGING = !!parent_url?.startsWith('file:///home/ryan/dev/gro/');
+	if (DEBUGGING) console.log(`resolving`, s, `with parent_url:`, parent_url);
 	if (!parent_url || NODE_MODULES_MATCHER.test(parent_url)) {
 		return nextResolve(s, context);
 	}
@@ -216,6 +218,7 @@ export const resolve: ResolveHook = async (specifier, context, nextResolve) => {
 	}
 
 	const resolved = resolve_specifier(s, dirname(fileURLToPath(parent_url)));
+	if (DEBUGGING) console.log(`resolved`, resolved);
 
 	return {
 		url: pathToFileURL(resolved.path_id_with_querystring).href,

@@ -20,8 +20,8 @@ export interface Plugin_Context<T_Args = object> extends Task_Context<T_Args> {
 	watch: boolean;
 }
 
+/** See `Plugins.create` for a usage example. */
 export class Plugins<T_Plugin_Context extends Plugin_Context> {
-	/* prefer `Plugins.create` to the constructor */
 	constructor(
 		private ctx: T_Plugin_Context,
 		private instances: Array<Plugin>,
