@@ -1,6 +1,6 @@
 {
   "name": "@ryanatkn/gro",
-  "version": "0.151.1",
+  "version": "0.151.2",
   "modules": {
     ".": {
       "path": "index.ts",
@@ -897,23 +897,6 @@
         },
         {
           "name": "gro_plugin_gen",
-          "kind": "function"
-        }
-      ]
-    },
-    "./gro_plugin_moss.js": {
-      "path": "gro_plugin_moss.ts",
-      "declarations": [
-        {
-          "name": "Task_Args",
-          "kind": "type"
-        },
-        {
-          "name": "Gro_Plugin_Moss_Options",
-          "kind": "type"
-        },
-        {
-          "name": "gro_plugin_moss",
           "kind": "function"
         }
       ]
