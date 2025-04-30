@@ -1,6 +1,6 @@
 {
   "name": "@ryanatkn/gro",
-  "version": "0.151.0",
+  "version": "0.151.1",
   "modules": {
     ".": {
       "path": "index.ts",
@@ -1222,6 +1222,10 @@
         },
         {
           "name": "parse_repo_url",
+          "kind": "function"
+        },
+        {
+          "name": "is_dep",
           "kind": "function"
         },
         {
