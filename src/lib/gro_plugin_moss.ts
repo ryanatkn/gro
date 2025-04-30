@@ -96,7 +96,6 @@ export const gro_plugin_moss = ({
 			queue_gen();
 		},
 		teardown: async () => {
-			clearTimeout(flushing_timeout);
 			if (cleanup !== undefined) {
 				await cleanup();
 				cleanup = undefined;
