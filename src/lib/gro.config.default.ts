@@ -29,9 +29,8 @@ const config: Create_Gro_Config = async (cfg) => {
 	cfg.plugins = async () =>
 		[
 			// put things that generate files before SvelteKit so it can see them
-			// TODO BLOCK add optional dep? remove cast?
 			has_moss_dep
-				? ((await import('@ryanatkn/moss/gro_plugin_moss.js')) as any).gro_plugin_moss() // eslint-disable-line @typescript-eslint/no-unnecessary-type-assertion
+				? ((await import('@ryanatkn/moss/gro_plugin_moss.js')) as any).gro_plugin_moss()
 				: null, // lazy load to avoid errors if it's not installed
 			gro_plugin_gen(),
 			has_server_result.ok ? gro_plugin_server() : null,
