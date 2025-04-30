@@ -72,12 +72,14 @@ export const gro_plugin_moss = ({
 	return {
 		name: 'gro_plugin_moss',
 		setup: async ({filer}) => {
+			console.log('SETUP');
 			// When a file builds, check it and its tree of dependents
 			// for any `.gen.` files that need to run.
 			cleanup = await filer.watch((change, source_file) => {
 				if (filter_file && !filter_file(source_file.id)) {
 					return;
 				}
+				console.log('change', change.type, source_file.id);
 				switch (change.type) {
 					case 'add':
 					case 'update': {

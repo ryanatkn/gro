@@ -103,7 +103,7 @@ export class Filer {
 		file.ctime = stats?.ctimeMs ?? null;
 		file.mtime = stats?.mtimeMs ?? null;
 
-		const new_contents = stats ? readFileSync(id, 'utf8') : null;
+		const new_contents = stats ? readFileSync(id, 'utf8') : null; // TODO need to lazily load contents, probably turn `Source_File` into a class
 
 		if (file.contents === new_contents) {
 			return null;
