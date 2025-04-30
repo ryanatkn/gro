@@ -22,6 +22,8 @@ import {to_define_import_meta_env, default_ts_transform_options} from './esbuild
 import {resolve_specifier} from './resolve_specifier.js';
 import {map_sveltekit_aliases} from './sveltekit_helpers.js';
 
+// TODO get out of the loader business, starting with https://nodejs.org/api/typescript.html#type-stripping
+
 /*
 
 Usage via `$lib/register.ts`:
