@@ -728,6 +728,7 @@ export const src_json = {
 				{name: 'update_package_json', kind: 'function'},
 				{name: 'to_package_exports', kind: 'function'},
 				{name: 'parse_repo_url', kind: 'function'},
+				{name: 'is_dep', kind: 'function'},
 				{name: 'has_dep', kind: 'function'},
 				{name: 'Package_Json_Dep', kind: 'type'},
 				{name: 'extract_deps', kind: 'function'},
