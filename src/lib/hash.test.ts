@@ -4,7 +4,6 @@ import {webcrypto} from 'node:crypto';
 
 import {to_hash} from './hash.js';
 
-/* test__to_hash */
 const test__to_hash = suite('to_hash');
 
 test__to_hash('turns a buffer into a string', async () => {
@@ -21,7 +20,6 @@ test__to_hash('checks against an implementation copied from MDN', async () => {
 });
 
 test__to_hash.run();
-/* test__to_hash */
 
 /**
  * Copied from https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto/digest

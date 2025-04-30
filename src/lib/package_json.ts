@@ -347,6 +347,11 @@ const parse_or_throw_formatted_error = <T extends z.ZodTypeAny>(
 	return parsed.data;
 };
 
+export const is_dep = (
+	dep_name: string,
+	package_json: Package_Json = load_package_json(),
+): boolean => package_json.name === dep_name;
+
 export const has_dep = (
 	dep_name: string,
 	package_json: Package_Json = load_package_json(),

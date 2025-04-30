@@ -12,7 +12,6 @@ import {
 	base_path_to_path_id,
 } from './paths.js';
 
-/* test__create_paths */
 const test__create_paths = suite('create_paths');
 
 test__create_paths('basic behavior', () => {
@@ -27,9 +26,7 @@ test__create_paths('paths object has the same identity as the gro_paths object',
 });
 
 test__create_paths.run();
-/* test__create_paths */
 
-/* test__is_gro_id */
 const test__is_gro_id = suite('is_gro_id');
 
 test__is_gro_id('basic behavior', () => {
@@ -38,9 +35,7 @@ test__is_gro_id('basic behavior', () => {
 });
 
 test__is_gro_id.run();
-/* test__is_gro_id */
 
-/* test__to_root_path */
 const test__to_root_path = suite('to_root_path');
 
 test__to_root_path('basic behavior', () => {
@@ -50,9 +45,7 @@ test__to_root_path('basic behavior', () => {
 });
 
 test__to_root_path.run();
-/* test__to_root_path */
 
-/* test__path_id_to_base_path */
 const test__path_id_to_base_path = suite('path_id_to_base_path');
 
 test__path_id_to_base_path('basic behavior', () => {
@@ -60,9 +53,7 @@ test__path_id_to_base_path('basic behavior', () => {
 });
 
 test__path_id_to_base_path.run();
-/* test__path_id_to_base_path */
 
-/* test__base_path_to_path_id */
 const test__base_path_to_path_id = suite('base_path_to_path_id');
 
 test__base_path_to_path_id('basic behavior', () => {
@@ -74,4 +65,3 @@ test__base_path_to_path_id('does not change extension', () => {
 });
 
 test__base_path_to_path_id.run();
-/* test__base_path_to_path_id */

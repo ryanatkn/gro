@@ -22,6 +22,8 @@ import {to_define_import_meta_env, default_ts_transform_options} from './esbuild
 import {resolve_specifier} from './resolve_specifier.js';
 import {map_sveltekit_aliases} from './sveltekit_helpers.js';
 
+// TODO get out of the loader business, starting with https://nodejs.org/api/typescript.html#type-stripping
+
 /*
 
 Usage via `$lib/register.ts`:
@@ -39,7 +41,7 @@ gro run foo.ts
 Direct usage without register (see also `$lib/gro.ts`):
 
 ```bash
-node --import 'data:text/javascript,import {register} from "node:module"; import {pathToFileURL} from "node:url"; register("@ryanatkn/gro/loader.js", pathToFileURL("./"));' --enable-source-maps' foo.ts
+node --import 'data:text/javascript,import {register} from "node:module"; import {pathToFileURL} from "node:url"; register("@ryanatkn/gro/loader.js", pathToFileURL("./"));' --experimental-import-meta-resolve --enable-source-maps' foo.ts
 ```
 
 TODO how to improve that gnarly import line? was originally designed for the now-deprecated `--loader`
