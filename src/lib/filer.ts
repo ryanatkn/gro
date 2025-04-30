@@ -64,6 +64,7 @@ export class Filer {
 		this.#watch_dir = options.watch_dir ?? watch_dir;
 		this.#watch_dir_options = options.watch_dir_options ?? EMPTY_OBJECT;
 		this.root_dir = resolve(options.watch_dir_options?.dir ?? paths.source);
+		console.log(`this.root_dir`, this.root_dir);
 	}
 
 	#watching: Watch_Node_Fs | undefined;
