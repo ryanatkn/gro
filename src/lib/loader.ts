@@ -41,7 +41,7 @@ gro run foo.ts
 Direct usage without register (see also `$lib/gro.ts`):
 
 ```bash
-node --import 'data:text/javascript,import {register} from "node:module"; import {pathToFileURL} from "node:url"; register("@ryanatkn/gro/loader.js", pathToFileURL("./"));' --enable-source-maps' foo.ts
+node --import 'data:text/javascript,import {register} from "node:module"; import {pathToFileURL} from "node:url"; register("@ryanatkn/gro/loader.js", pathToFileURL("./"));' --experimental-import-meta-resolve --enable-source-maps' foo.ts
 ```
 
 TODO how to improve that gnarly import line? was originally designed for the now-deprecated `--loader`
@@ -197,8 +197,6 @@ export const resolve: ResolveHook = async (specifier, context, nextResolve) => {
 	}
 
 	const parent_url = context.parentURL;
-	const DEBUGGING = !!parent_url?.startsWith('file:///home/ryan/dev/gro/');
-	if (DEBUGGING) console.log(`resolving`, s, `with parent_url:`, parent_url);
 	if (!parent_url || NODE_MODULES_MATCHER.test(parent_url)) {
 		return nextResolve(s, context);
 	}
@@ -218,7 +216,6 @@ export const resolve: ResolveHook = async (specifier, context, nextResolve) => {
 	}
 
 	const resolved = resolve_specifier(s, dirname(fileURLToPath(parent_url)));
-	if (DEBUGGING) console.log(`resolved`, resolved);
 
 	return {
 		url: pathToFileURL(resolved.path_id_with_querystring).href,

@@ -4,7 +4,7 @@ import {dirname, resolve} from 'node:path';
 import type {Omit_Strict} from '@ryanatkn/belt/types.js';
 import {wait} from '@ryanatkn/belt/async.js';
 import {isBuiltin} from 'node:module';
-import {fileURLToPath} from 'node:url';
+import {fileURLToPath, pathToFileURL} from 'node:url';
 import {Unreachable_Error} from '@ryanatkn/belt/error.js';
 import type {Logger} from '@ryanatkn/belt/log.js';
 
@@ -64,7 +64,6 @@ export class Filer {
 		this.#watch_dir = options.watch_dir ?? watch_dir;
 		this.#watch_dir_options = options.watch_dir_options ?? EMPTY_OBJECT;
 		this.root_dir = resolve(options.watch_dir_options?.dir ?? paths.source);
-		console.log(`this.root_dir`, this.root_dir);
 	}
 
 	#watching: Watch_Node_Fs | undefined;
@@ -128,17 +127,14 @@ export class Filer {
 			} else {
 				if (isBuiltin(path)) continue;
 				try {
-					console.log(`cwd, path, file.id`, process.cwd(), path, file.id);
-					path_id = fileURLToPath(import.meta.resolve(path, file.id));
-					console.log(`path_id`, path_id);
+					const file_url = pathToFileURL(file.id);
+					path_id = fileURLToPath(import.meta.resolve(path, file_url.href));
 				} catch (error) {
 					// If it's imported from an external module, ignore any import errors.
 					if (error.code === 'ERR_MODULE_NOT_FOUND' && file.external) {
 						continue;
 					}
-					// TODO BLOCK must throw
 					throw error;
-					continue;
 				}
 			}
 			dependencies_removed.delete(path_id);

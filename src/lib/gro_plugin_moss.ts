@@ -53,10 +53,7 @@ export const gro_plugin_moss = ({
 	};
 	const flush_gen_queue = throttle(
 		async () => {
-			console.log(`css_classes.get()`, css_classes.get());
-			console.log(`css_classes_by_name`, css_classes_by_name);
 			const css = generate_classes_css(css_classes.get(), css_classes_by_name);
-			console.log(`css`, css);
 			const contents = `/* ${banner} */\n\n${css}\n\n/* ${banner} */`;
 			const output = await format_file(contents, {filepath: outfile});
 			// TODO think about using gen to implement this, would have some nice benefits like automatic change detection
@@ -72,14 +69,12 @@ export const gro_plugin_moss = ({
 	return {
 		name: 'gro_plugin_moss',
 		setup: async ({filer}) => {
-			console.log('SETUP');
 			// When a file builds, check it and its tree of dependents
 			// for any `.gen.` files that need to run.
 			cleanup = await filer.watch((change, source_file) => {
 				if (filter_file && !filter_file(source_file.id)) {
 					return;
 				}
-				console.log('change', change.type, source_file.id);
 				switch (change.type) {
 					case 'add':
 					case 'update': {
