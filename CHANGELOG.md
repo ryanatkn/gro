@@ -1,5 +1,11 @@
 # @ryanatkn/gro
 
+## 0.151.2
+
+### Patch Changes
+
+- add moss optional dep ([#539](https://github.com/ryanatkn/gro/pull/539))
+
 ## 0.151.1
 
 ### Patch Changes
