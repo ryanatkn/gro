@@ -1,5 +1,11 @@
 # @ryanatkn/gro
 
+## 0.151.1
+
+### Patch Changes
+
+- fix module resolution in the filer for arbitrary dirs ([#537](https://github.com/ryanatkn/gro/pull/537))
+
 ## 0.151.0
 
 ### Minor Changes
