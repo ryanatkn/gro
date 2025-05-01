@@ -378,7 +378,7 @@ export const src_json = {
 				{name: 'GRO_DEV_DIR', kind: 'variable'},
 				{name: 'GRO_CONFIG_PATH', kind: 'variable'},
 				{name: 'README_FILENAME', kind: 'variable'},
-				{name: 'SVELTEKIT_CONFIG_FILENAME', kind: 'variable'},
+				{name: 'SVELTE_CONFIG_FILENAME', kind: 'variable'},
 				{name: 'VITE_CONFIG_FILENAME', kind: 'variable'},
 				{name: 'NODE_MODULES_DIRNAME', kind: 'variable'},
 				{name: 'LOCKFILE_FILENAME', kind: 'variable'},

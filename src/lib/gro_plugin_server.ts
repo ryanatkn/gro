@@ -1,6 +1,6 @@
 import {spawn_restartable_process, type Restartable_Process} from '@ryanatkn/belt/process.js';
 import * as esbuild from 'esbuild';
-import type {Config as SvelteKitConfig} from '@sveltejs/kit';
+import type {Config as SvelteConfig} from '@sveltejs/kit';
 import {join, resolve} from 'node:path';
 import {identity} from '@ryanatkn/belt/function.js';
 import {strip_before, strip_end} from '@ryanatkn/belt/string.js';
@@ -49,7 +49,7 @@ export interface Gro_Plugin_Server_Options {
 	 */
 	outpaths?: Create_Outpaths;
 	/**
-	 * @default SvelteKit's `.env`, `.env.development`, and `.env.production`
+	 * @default ```SvelteKit's `.env`, `.env.development`, and `.env.production````
 	 */
 	env_files?: Array<string>;
 	/**
@@ -57,9 +57,9 @@ export interface Gro_Plugin_Server_Options {
 	 */
 	ambient_env?: Record<string, string>;
 	/**
-	 * @default loaded from `${cwd}/${SVELTEKIT_CONFIG_FILENAME}`
+	 * @default ```loaded from `${cwd}/${SVELTE_CONFIG_FILENAME}````
 	 */
-	svelte_config?: SvelteKitConfig;
+	svelte_config?: SvelteConfig;
 	/**
 	 * @default 'esnext'
 	 */
@@ -133,7 +133,10 @@ export const gro_plugin_server = ({
 			const parsed_svelte_config =
 				!svelte_config && strip_end(dir, '/') === process.cwd()
 					? default_svelte_config
-					: await parse_svelte_config(svelte_config ?? dir);
+					: await parse_svelte_config({
+							dir_or_config: svelte_config ?? dir,
+							config_filename: config.svelte_config_filename,
+						});
 			const {
 				alias,
 				base_url,

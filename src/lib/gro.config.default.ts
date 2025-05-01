@@ -24,9 +24,9 @@ const config: Create_Gro_Config = async (cfg, svelte_config) => {
 	const [has_moss_dep, has_server_result, has_sveltekit_library_result, has_sveltekit_app_result] =
 		await Promise.all([
 			has_dep('@ryanatkn/moss', package_json),
-			has_server(cfg.server),
+			has_server(),
 			has_sveltekit_library(package_json, svelte_config),
-			has_sveltekit_app(svelte_config),
+			has_sveltekit_app(),
 		]);
 
 	const local_moss_plugin_path = find_first_existing_file([

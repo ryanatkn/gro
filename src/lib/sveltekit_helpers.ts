@@ -5,7 +5,7 @@ import {join} from 'node:path';
 
 import {Package_Json, has_dep} from './package_json.js';
 import {default_svelte_config, type Parsed_Svelte_Config} from './svelte_config.js';
-import {SVELTEKIT_CONFIG_FILENAME, SVELTEKIT_DEV_DIRNAME, PM_CLI_DEFAULT} from './constants.js';
+import {SVELTE_CONFIG_FILENAME, SVELTEKIT_DEV_DIRNAME, PM_CLI_DEFAULT} from './constants.js';
 import {find_cli, spawn_cli, to_cli_name, type Cli} from './cli.js';
 import {Task_Error} from './task.js';
 import {serialize_args, to_forwarded_args} from './args.js';
@@ -23,10 +23,10 @@ export const SVELTEKIT_ENV_MATCHER = /^\$env\/(static|dynamic)\/(public|private)
 export const SVELTEKIT_GLOBAL_SPECIFIER = /^\$(env|app)\//;
 
 export const has_sveltekit_app = (
-	svelte_config_path: string = SVELTEKIT_CONFIG_FILENAME,
+	svelte_config_path: string = SVELTE_CONFIG_FILENAME,
 ): Result<object, {message: string}> => {
 	if (!existsSync(svelte_config_path)) {
-		return {ok: false, message: `no SvelteKit config found at ${SVELTEKIT_CONFIG_FILENAME}`};
+		return {ok: false, message: `no SvelteKit config found at ${SVELTE_CONFIG_FILENAME}`};
 	}
 	// TODO check for routes?
 	return {ok: true};

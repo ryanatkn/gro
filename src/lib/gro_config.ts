@@ -51,6 +51,8 @@ export interface Gro_Config extends Raw_Gro_Config {
 	 * The CLI to use that's compatible with `npm install` and `npm link`. Defaults to `'npm'`.
 	 */
 	pm_cli: string;
+	/** @default SVELTE_CONFIG_FILENAME */
+	svelte_config_filename?: string;
 }
 
 /**
@@ -65,7 +67,6 @@ export interface Raw_Gro_Config {
 	search_filters?: Path_Filter | Array<Path_Filter> | null;
 	js_cli?: string;
 	pm_cli?: string;
-	server?;
 }
 
 export type Create_Gro_Config = (

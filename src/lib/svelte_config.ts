@@ -1,8 +1,9 @@
-import type {Config} from '@sveltejs/kit';
+import type {Config as SvelteConfig} from '@sveltejs/kit';
 import type {CompileOptions, ModuleCompileOptions, PreprocessorGroup} from 'svelte/compiler';
 import {join} from 'node:path';
+import {EMPTY_OBJECT} from '@ryanatkn/belt/object.js';
 
-import {SVELTEKIT_CONFIG_FILENAME} from './constants.js';
+import {SVELTE_CONFIG_FILENAME} from './constants.js';
 
 /*
 
@@ -14,9 +15,12 @@ This module is intended to have minimal dependencies to avoid over-imports in th
  * Loads a SvelteKit config at `dir`.
  * @returns `null` if no config is found
  */
-export const load_svelte_config = async (dir: string = process.cwd()): Promise<Config | null> => {
+export const load_svelte_config = async ({
+	dir = process.cwd(),
+	config_filename = SVELTE_CONFIG_FILENAME,
+}: {dir?: string; config_filename?: string} = EMPTY_OBJECT): Promise<SvelteConfig | null> => {
 	try {
-		return (await import(join(dir, SVELTEKIT_CONFIG_FILENAME))).default;
+		return (await import(join(dir, config_filename))).default;
 	} catch (_err) {
 		return null;
 	}
@@ -32,7 +36,7 @@ export const load_svelte_config = async (dir: string = process.cwd()): Promise<C
  */
 export interface Parsed_Svelte_Config {
 	// TODO probably fill these out with defaults
-	svelte_config: Config | null;
+	svelte_config: SvelteConfig | null;
 	alias: Record<string, string>;
 	base_url: '' | `/${string}` | undefined;
 	assets_url: '' | `http://${string}` | `https://${string}` | undefined;
@@ -65,11 +69,17 @@ export interface Parsed_Svelte_Config {
  * as a convenience wrapper around `load_svelte_config`.
  * Needed because SvelteKit doesn't expose its config resolver.
  */
-export const parse_svelte_config = async (
-	dir_or_config: string | Config = process.cwd(),
-): Promise<Parsed_Svelte_Config> => {
+export const parse_svelte_config = async ({
+	dir_or_config = process.cwd(), // TODO maybe not the best API, maybe a type union? `({svelte_config} | {dir}) & {config_filename}`
+	config_filename = SVELTE_CONFIG_FILENAME,
+}: {
+	dir_or_config?: string | SvelteConfig;
+	config_filename?: string;
+} = EMPTY_OBJECT): Promise<Parsed_Svelte_Config> => {
 	const svelte_config =
-		typeof dir_or_config === 'string' ? await load_svelte_config(dir_or_config) : dir_or_config;
+		typeof dir_or_config === 'string'
+			? await load_svelte_config({dir: dir_or_config, config_filename})
+			: dir_or_config;
 
 	const kit = svelte_config?.kit;
 
