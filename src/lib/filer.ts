@@ -1,6 +1,6 @@
 import {EMPTY_OBJECT} from '@ryanatkn/belt/object.js';
 import {existsSync, readFileSync, statSync} from 'node:fs';
-import {dirname, resolve} from 'node:path';
+import {resolve} from 'node:path';
 import type {Omit_Strict} from '@ryanatkn/belt/types.js';
 import {wait} from '@ryanatkn/belt/async.js';
 import {isBuiltin} from 'node:module';
@@ -18,7 +18,6 @@ import {
 } from './watch_dir.js';
 import {paths} from './paths.js';
 import {parse_imports} from './parse_imports.js';
-import {resolve_specifier} from './resolve_specifier.js';
 import {default_sveltekit_config} from './sveltekit_config.js';
 import {map_sveltekit_aliases, SVELTEKIT_GLOBAL_SPECIFIER} from './sveltekit_helpers.js';
 import type {Package_Json} from './package_json.js';
@@ -115,8 +114,6 @@ export class Filer {
 
 		file.contents = new_contents;
 
-		const dir = dirname(file.id);
-
 		const dependencies_before = new Set(file.dependencies.keys());
 		const dependencies_removed = new Set(dependencies_before);
 
@@ -126,20 +123,14 @@ export class Filer {
 			const path = map_sveltekit_aliases(specifier, aliases);
 
 			let path_id;
-			// TODO can we replace `resolve_specifier` with `import.meta.resolve` completely now outside of esbuild plugins?
-			if (path[0] === '.' || path[0] === '/') {
-				const resolved = resolve_specifier(path, dir);
-				path_id = resolved.path_id;
-			} else {
-				if (isBuiltin(path)) continue;
-				const file_url = pathToFileURL(file.id);
-				try {
-					path_id = fileURLToPath(import.meta.resolve(path, file_url.href));
-				} catch (error) {
-					// if resolving fails for any reason, just log and ignore it
-					this.#log?.error('[filer] failed to resolve path', path, file_url.href, error);
-					continue;
-				}
+			if (isBuiltin(path)) continue;
+			const file_url = pathToFileURL(file.id);
+			try {
+				path_id = fileURLToPath(import.meta.resolve(path, file_url.href));
+			} catch (error) {
+				// if resolving fails for any reason, just log and ignore it
+				this.#log?.error('[filer] failed to resolve path', path, file_url.href, error);
+				continue;
 			}
 			dependencies_removed.delete(path_id);
 			if (!dependencies_before.has(path_id)) {

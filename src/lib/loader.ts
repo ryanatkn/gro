@@ -1,9 +1,8 @@
 import * as esbuild from 'esbuild';
 import {compile, compileModule, preprocess} from 'svelte/compiler';
 import {fileURLToPath, pathToFileURL} from 'node:url';
-import {dirname, join} from 'node:path';
+import {join} from 'node:path';
 import type {LoadHook, ResolveHook} from 'node:module';
-import {escape_regexp} from '@ryanatkn/belt/regexp.js';
 import {readFileSync} from 'node:fs';
 
 import {render_env_shim_module} from './sveltekit_shim_env.js';
@@ -17,9 +16,8 @@ import {
 import {default_sveltekit_config} from './sveltekit_config.js';
 import {SVELTE_MATCHER, SVELTE_RUNES_MATCHER} from './svelte_helpers.js';
 import {IS_THIS_GRO, paths} from './paths.js';
-import {JSON_MATCHER, NODE_MODULES_DIRNAME, TS_MATCHER} from './constants.js';
+import {JSON_MATCHER, TS_MATCHER} from './constants.js';
 import {to_define_import_meta_env, default_ts_transform_options} from './esbuild_helpers.js';
-import {resolve_specifier} from './resolve_specifier.js';
 import {map_sveltekit_aliases} from './sveltekit_helpers.js';
 
 // TODO get out of the loader business, starting with https://nodejs.org/api/typescript.html#type-stripping
@@ -78,7 +76,6 @@ const aliases = Object.entries(alias);
 
 const RAW_MATCHER = /(%3Fraw|\.css|\.svg)$/; // TODO others? configurable?
 const ENV_MATCHER = /src\/lib\/\$env\/(static|dynamic)\/(public|private)$/;
-const NODE_MODULES_MATCHER = new RegExp(escape_regexp('/' + NODE_MODULES_DIRNAME + '/'), 'u');
 
 export const load: LoadHook = async (url, context, nextLoad) => {
 	if (SVELTEKIT_SHIM_APP_PATHS_MATCHER.test(url)) {
@@ -192,14 +189,9 @@ export const resolve: ResolveHook = async (specifier, context, nextResolve) => {
 	// Special case for Gro's dependencies that import into Gro.
 	// Without this, we'd need to add a dev dep to Gro for Gro, which causes problems.
 	// TODO maybe make this generic, checking `package_json.name` against `s` and map it, possibly need to export `resolve_exported_value`
-	if (IS_THIS_GRO && s.startsWith('@ryanatkn/gro')) {
-		s = join(dir, 'dist', s.substring(13));
-	}
-
-	const parent_url = context.parentURL;
-	if (!parent_url || NODE_MODULES_MATCHER.test(parent_url)) {
-		return nextResolve(s, context);
-	}
+	// if (IS_THIS_GRO && s.startsWith('@ryanatkn/gro')) {
+	// 	s = join(dir, 'dist', s.substring(13));
+	// }
 
 	const shimmed = sveltekit_shim_app_specifiers.get(s);
 	if (shimmed !== undefined) {
@@ -208,18 +200,6 @@ export const resolve: ResolveHook = async (specifier, context, nextResolve) => {
 
 	s = map_sveltekit_aliases(s, aliases);
 
-	// The specifier has now been mapped to its final form, so we can inspect it.
-
-	// Imports into `node_modules` use the default algorithm, and the rest use use Vite conventions.
-	if (s[0] !== '.' && s[0] !== '/') {
-		return nextResolve(s, context);
-	}
-
-	const resolved = resolve_specifier(s, dirname(fileURLToPath(parent_url)));
-
-	return {
-		url: pathToFileURL(resolved.path_id_with_querystring).href,
-		format: 'module',
-		shortCircuit: true,
-	};
+	// The specifier has now been mapped to its final form, so pass it through
+	return nextResolve(s, context);
 };
