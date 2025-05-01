@@ -215,9 +215,9 @@ export const package_json = {
 			types: './dist/svelte_helpers.d.ts',
 			default: './dist/svelte_helpers.js',
 		},
-		'./sveltekit_config.js': {
-			types: './dist/sveltekit_config.d.ts',
-			default: './dist/sveltekit_config.js',
+		'./svelte_config.js': {
+			types: './dist/svelte_config.d.ts',
+			default: './dist/svelte_config.js',
 		},
 		'./sveltekit_helpers.js': {
 			types: './dist/sveltekit_helpers.d.ts',
@@ -875,14 +875,14 @@ export const src_json = {
 				{name: 'SVELTE_RUNES_MATCHER', kind: 'variable'},
 			],
 		},
-		'./sveltekit_config.js': {
-			path: 'sveltekit_config.ts',
+		'./svelte_config.js': {
+			path: 'svelte_config.ts',
 			declarations: [
-				{name: 'load_sveltekit_config', kind: 'function'},
-				{name: 'Parsed_Sveltekit_Config', kind: 'type'},
-				{name: 'init_sveltekit_config', kind: 'function'},
+				{name: 'load_svelte_config', kind: 'function'},
+				{name: 'Parsed_Svelte_Config', kind: 'type'},
+				{name: 'parse_svelte_config', kind: 'function'},
 				{name: 'to_default_compile_module_options', kind: 'function'},
-				{name: 'default_sveltekit_config', kind: 'variable'},
+				{name: 'default_svelte_config', kind: 'variable'},
 			],
 		},
 		'./sveltekit_helpers.js': {

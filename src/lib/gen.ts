@@ -10,7 +10,7 @@ import {existsSync} from 'node:fs';
 import {print_path} from './paths.js';
 import type {Path_Id} from './path.js';
 import type {Gro_Config} from './gro_config.js';
-import type {Parsed_Sveltekit_Config} from './sveltekit_config.js';
+import type {Parsed_Svelte_Config} from './svelte_config.js';
 import {load_modules, type Load_Modules_Failure, type Module_Meta} from './modules.js';
 import {
 	Input_Path,
@@ -40,7 +40,7 @@ export interface Gen_File {
 export type Gen = (ctx: Gen_Context) => Raw_Gen_Result | Promise<Raw_Gen_Result>;
 export interface Gen_Context {
 	config: Gro_Config;
-	sveltekit_config: Parsed_Sveltekit_Config;
+	svelte_config: Parsed_Svelte_Config;
 	/**
 	 * Same as `import.meta.url` but in path form.
 	 */

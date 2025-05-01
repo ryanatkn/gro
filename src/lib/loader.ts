@@ -14,7 +14,7 @@ import {
 	SVELTEKIT_SHIM_APP_PATHS_MATCHER,
 	sveltekit_shim_app_specifiers,
 } from './sveltekit_shim_app.js';
-import {default_sveltekit_config} from './sveltekit_config.js';
+import {default_svelte_config} from './svelte_config.js';
 import {SVELTE_MATCHER, SVELTE_RUNES_MATCHER} from './svelte_helpers.js';
 import {IS_THIS_GRO, paths} from './paths.js';
 import {JSON_MATCHER, NODE_MODULES_DIRNAME, TS_MATCHER} from './constants.js';
@@ -66,7 +66,7 @@ const {
 	svelte_compile_options,
 	svelte_compile_module_options,
 	svelte_preprocessors,
-} = default_sveltekit_config;
+} = default_svelte_config;
 
 const ts_transform_options: esbuild.TransformOptions = {
 	...default_ts_transform_options,
