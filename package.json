@@ -1,6 +1,6 @@
 {
   "name": "@ryanatkn/gro",
-  "version": "0.151.2",
+  "version": "0.152.0",
   "description": "task runner and toolkit extending SvelteKit",
   "motto": "generate, run, optimize",
   "glyph": "🌰",
@@ -412,9 +412,9 @@
       "types": "./dist/sveltekit_shim_app_paths.d.ts",
       "default": "./dist/sveltekit_shim_app_paths.js"
     },
-    "./sveltekit_shim_app_stores.js": {
-      "types": "./dist/sveltekit_shim_app_stores.d.ts",
-      "default": "./dist/sveltekit_shim_app_stores.js"
+    "./sveltekit_shim_app_state.js": {
+      "types": "./dist/sveltekit_shim_app_state.d.ts",
+      "default": "./dist/sveltekit_shim_app_state.js"
     },
     "./sveltekit_shim_app.js": {
       "types": "./dist/sveltekit_shim_app.d.ts",
