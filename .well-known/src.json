@@ -1,6 +1,6 @@
 {
   "name": "@ryanatkn/gro",
-  "version": "0.151.2",
+  "version": "0.152.0",
   "modules": {
     ".": {
       "path": "index.ts",
@@ -1765,13 +1765,9 @@
         }
       ]
     },
-    "./sveltekit_shim_app_stores.js": {
-      "path": "sveltekit_shim_app_stores.ts",
+    "./sveltekit_shim_app_state.js": {
+      "path": "sveltekit_shim_app_state.ts",
       "declarations": [
-        {
-          "name": "getStores",
-          "kind": "function"
-        },
         {
           "name": "navigating",
           "kind": "variable"
