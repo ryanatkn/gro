@@ -12,7 +12,7 @@ export const sveltekit_shim_app_specifiers = new Map([
 	['$app/forms', '@ryanatkn/gro/sveltekit_shim_app_forms.js'],
 	['$app/navigation', '@ryanatkn/gro/sveltekit_shim_app_navigation.js'],
 	['$app/paths', '@ryanatkn/gro/sveltekit_shim_app_paths.js'],
-	['$app/stores', '@ryanatkn/gro/sveltekit_shim_app_stores.js'],
+	['$app/state', '@ryanatkn/gro/sveltekit_shim_app_state.js'],
 ]);
 
 export const render_sveltekit_shim_app_paths = (
