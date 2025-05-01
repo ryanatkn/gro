@@ -239,9 +239,9 @@ export const package_json = {
 			types: './dist/sveltekit_shim_app_paths.d.ts',
 			default: './dist/sveltekit_shim_app_paths.js',
 		},
-		'./sveltekit_shim_app_stores.js': {
-			types: './dist/sveltekit_shim_app_stores.d.ts',
-			default: './dist/sveltekit_shim_app_stores.js',
+		'./sveltekit_shim_app_state.js': {
+			types: './dist/sveltekit_shim_app_state.d.ts',
+			default: './dist/sveltekit_shim_app_state.js',
 		},
 		'./sveltekit_shim_app.js': {
 			types: './dist/sveltekit_shim_app.d.ts',
@@ -943,10 +943,9 @@ export const src_json = {
 				{name: 'resolveRoute', kind: 'function'},
 			],
 		},
-		'./sveltekit_shim_app_stores.js': {
-			path: 'sveltekit_shim_app_stores.ts',
+		'./sveltekit_shim_app_state.js': {
+			path: 'sveltekit_shim_app_state.ts',
 			declarations: [
-				{name: 'getStores', kind: 'function'},
 				{name: 'navigating', kind: 'variable'},
 				{name: 'page', kind: 'variable'},
 				{name: 'updated', kind: 'variable'},
