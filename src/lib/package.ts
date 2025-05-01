@@ -71,7 +71,7 @@ export const package_json = {
 		esbuild: '^0.25.3',
 		eslint: '^9.25.1',
 		'eslint-plugin-svelte': '^3.5.1',
-		svelte: '5.27.1',
+		svelte: '^5.28.2',
 		'svelte-check': '^4.1.6',
 		typescript: '^5.8.3',
 		'typescript-eslint': '^8.31.1',
