@@ -1,5 +1,17 @@
 # @ryanatkn/gro
 
+## 0.152.0
+
+### Minor Changes
+
+- shim $app/state and remove the shim for $app/stores ([#541](https://github.com/ryanatkn/gro/pull/541))
+- upgrade oxc-parser@0.67.0 from 0.63.0 ([#540](https://github.com/ryanatkn/gro/pull/540))
+
+### Patch Changes
+
+- dont throw on failed module resolution in the filer ([#536](https://github.com/ryanatkn/gro/pull/536))
+- add `gro upgrade` options `delete_node_modules`/`node_modules_path` and `delete_lockfile`/`lockfile_path` ([#540](https://github.com/ryanatkn/gro/pull/540))
+
 ## 0.151.2
 
 ### Patch Changes
