@@ -9,7 +9,6 @@ import {
 	to_raw_rest_args,
 } from './args.js';
 
-/* test__serialize_args */
 const test__serialize_args = suite('serialize_args');
 
 test__serialize_args('basic behavior', () => {
@@ -21,9 +20,7 @@ test__serialize_args('basic behavior', () => {
 });
 
 test__serialize_args.run();
-/* test__serialize_args */
 
-/* test__to_forwarded_args_by_command */
 const test__to_forwarded_args_by_command = suite('to_forwarded_args_by_command');
 
 test__to_forwarded_args_by_command('basic behavior', () => {
@@ -56,4 +53,3 @@ test__to_forwarded_args_by_command('basic behavior', () => {
 });
 
 test__to_forwarded_args_by_command.run();
-/* test__to_forwarded_args_by_command */

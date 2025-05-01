@@ -3,7 +3,6 @@ import * as assert from 'uvu/assert';
 
 import {is_external_module} from './module.js';
 
-/* test__is_external_module */
 const test__is_external_module = suite('is_external_module');
 
 test__is_external_module('internal browser module patterns', () => {
@@ -43,4 +42,3 @@ test__is_external_module('external browser module patterns', () => {
 });
 
 test__is_external_module.run();
-/* test__is_external_module */

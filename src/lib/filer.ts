@@ -4,7 +4,7 @@ import {dirname, resolve} from 'node:path';
 import type {Omit_Strict} from '@ryanatkn/belt/types.js';
 import {wait} from '@ryanatkn/belt/async.js';
 import {isBuiltin} from 'node:module';
-import {fileURLToPath} from 'node:url';
+import {fileURLToPath, pathToFileURL} from 'node:url';
 import {Unreachable_Error} from '@ryanatkn/belt/error.js';
 import type {Logger} from '@ryanatkn/belt/log.js';
 
@@ -103,7 +103,7 @@ export class Filer {
 		file.ctime = stats?.ctimeMs ?? null;
 		file.mtime = stats?.mtimeMs ?? null;
 
-		const new_contents = stats ? readFileSync(id, 'utf8') : null;
+		const new_contents = stats ? readFileSync(id, 'utf8') : null; // TODO need to lazily load contents, probably turn `Source_File` into a class
 
 		if (file.contents === new_contents) {
 			return null;
@@ -128,7 +128,8 @@ export class Filer {
 			} else {
 				if (isBuiltin(path)) continue;
 				try {
-					path_id = fileURLToPath(import.meta.resolve(path, file.id));
+					const file_url = pathToFileURL(file.id);
+					path_id = fileURLToPath(import.meta.resolve(path, file_url.href));
 				} catch (error) {
 					// If it's imported from an external module, ignore any import errors.
 					if (error.code === 'ERR_MODULE_NOT_FOUND' && file.external) {

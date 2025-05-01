@@ -5,7 +5,7 @@ import type {Src_Json} from './src_json.js';
 
 export const package_json = {
 	name: '@ryanatkn/gro',
-	version: '0.151.0',
+	version: '0.151.2',
 	description: 'task runner and toolkit extending SvelteKit',
 	motto: 'generate, run, optimize',
 	glyph: '🌰',
@@ -49,7 +49,7 @@ export const package_json = {
 		dotenv: '^16.5.0',
 		'esm-env': '^1.2.2',
 		mri: '^1.2.0',
-		'oxc-parser': '^0.66.0',
+		'oxc-parser': '^0.67.0',
 		prettier: '^3.5.3',
 		'prettier-plugin-svelte': '^3.3.3',
 		'ts-morph': '^25.0.1',
@@ -61,22 +61,23 @@ export const package_json = {
 		'@changesets/changelog-git': '^0.2.1',
 		'@changesets/types': '^6.1.0',
 		'@ryanatkn/eslint-config': '^0.8.0',
-		'@ryanatkn/fuz': '^0.136.2',
-		'@ryanatkn/moss': '^0.25.0',
+		'@ryanatkn/fuz': '^0.139.1',
+		'@ryanatkn/moss': '^0.26.0',
 		'@sveltejs/adapter-static': '^3.0.8',
-		'@sveltejs/kit': '^2.20.7',
+		'@sveltejs/kit': '^2.20.8',
 		'@sveltejs/package': '^2.3.11',
 		'@sveltejs/vite-plugin-svelte': '^5.0.3',
-		'@types/node': '^22.15.0',
+		'@types/node': '^22.15.3',
 		esbuild: '^0.25.3',
 		eslint: '^9.25.1',
 		'eslint-plugin-svelte': '^3.5.1',
-		svelte: '^5.28.2',
+		svelte: '5.27.1',
 		'svelte-check': '^4.1.6',
 		typescript: '^5.8.3',
-		'typescript-eslint': '^8.31.0',
+		'typescript-eslint': '^8.31.1',
 		uvu: '^0.5.6',
 	},
+	optionalDependencies: {'@ryanatkn/moss': '^0.26.0'},
 	prettier: {
 		plugins: ['prettier-plugin-svelte'],
 		useTabs: true,
@@ -159,10 +160,6 @@ export const package_json = {
 		'./gro_plugin_gen.js': {
 			types: './dist/gro_plugin_gen.d.ts',
 			default: './dist/gro_plugin_gen.js',
-		},
-		'./gro_plugin_moss.js': {
-			types: './dist/gro_plugin_moss.d.ts',
-			default: './dist/gro_plugin_moss.js',
 		},
 		'./gro_plugin_server.js': {
 			types: './dist/gro_plugin_server.d.ts',
@@ -269,7 +266,7 @@ export const package_json = {
 
 export const src_json = {
 	name: '@ryanatkn/gro',
-	version: '0.151.0',
+	version: '0.151.2',
 	modules: {
 		'.': {
 			path: 'index.ts',
@@ -609,14 +606,6 @@ export const src_json = {
 				{name: 'gro_plugin_gen', kind: 'function'},
 			],
 		},
-		'./gro_plugin_moss.js': {
-			path: 'gro_plugin_moss.ts',
-			declarations: [
-				{name: 'Task_Args', kind: 'type'},
-				{name: 'Gro_Plugin_Moss_Options', kind: 'type'},
-				{name: 'gro_plugin_moss', kind: 'function'},
-			],
-		},
 		'./gro_plugin_server.js': {
 			path: 'gro_plugin_server.ts',
 			declarations: [
@@ -728,6 +717,7 @@ export const src_json = {
 				{name: 'update_package_json', kind: 'function'},
 				{name: 'to_package_exports', kind: 'function'},
 				{name: 'parse_repo_url', kind: 'function'},
+				{name: 'is_dep', kind: 'function'},
 				{name: 'has_dep', kind: 'function'},
 				{name: 'Package_Json_Dep', kind: 'type'},
 				{name: 'extract_deps', kind: 'function'},

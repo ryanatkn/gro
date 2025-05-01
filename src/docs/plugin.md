@@ -21,14 +21,14 @@ Maybe let you map the array of each method batch. (is that possible with those?)
 
 Gro's builtin plugins:
 
-- [`@ryanatkn/gro_plugin_server`](../lib/gro_plugin_server.ts) - Node server support
-- [`@ryanatkn/gro_plugin_sveltekit_library`](../lib/gro_plugin_sveltekit_library.ts) -
+- [`@ryanatkn/gro/gro_plugin_server.js`](../lib/gro_plugin_server.ts) - Node server support
+- [`@ryanatkn/gro/gro_plugin_sveltekit_library.js`](../lib/gro_plugin_sveltekit_library.ts) -
   for publishing from `$lib/` with [`svelte-package`](https://svelte.dev/docs/kit/packaging)
-- [`@ryanatkn/gro_plugin_sveltekit_app`](../lib/gro_plugin_sveltekit_app.ts) -
+- [`@ryanatkn/gro/gro_plugin_sveltekit_app.js`](../lib/gro_plugin_sveltekit_app.ts) -
   see [the docs](./gro_plugin_sveltekit_app.md)
-- [`@ryanatkn/gro_plugin_gen`](../lib/gro_plugin_gen.ts) - watch `src/`
+- [`@ryanatkn/gro/gro_plugin_gen.js`](../lib/gro_plugin_gen.ts) - watch `src/`
   and efficiently run `gen` when genfiles or their deps change
-- [`@ryanatkn/gro_plugin_moss`](../lib/gro_plugin_moss.ts) - generate the optimized
+- [`@ryanatkn/moss/gro_plugin_moss.js`](https://github.com/ryanatkn/moss/tree/main/src/lib/gro_plugin_moss.ts) - generate the optimized
   [Moss](https://moss.ryanatkn.com/) classes file `$routes/moss.css`,
   efficiently watching `src/` and the deps
 
