@@ -137,7 +137,7 @@ export class Filer {
 					path_id = fileURLToPath(import.meta.resolve(path, file_url.href));
 				} catch (error) {
 					// if resolving fails for any reason, just log and ignore it
-					this.#log?.error('failed to resolve path', path, file_url.href, error);
+					this.#log?.error('[filer] failed to resolve path', path, file_url.href, error);
 					continue;
 				}
 			}
@@ -277,7 +277,7 @@ export const filter_dependents = (
 		const dependent_source_file = get_by_id(dependent_id);
 		if (!dependent_source_file) {
 			log?.warn(
-				`[filer.filter_dependents]: dependent source file ${dependent_id} not found for ${source_file.id}`,
+				`[filer.filter_dependents] dependent source file ${dependent_id} not found for ${source_file.id}`,
 			);
 			continue;
 		}
