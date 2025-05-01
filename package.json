@@ -384,13 +384,13 @@
       "types": "./dist/src_json.d.ts",
       "default": "./dist/src_json.js"
     },
-    "./svelte_helpers.js": {
-      "types": "./dist/svelte_helpers.d.ts",
-      "default": "./dist/svelte_helpers.js"
-    },
     "./svelte_config.js": {
       "types": "./dist/svelte_config.d.ts",
       "default": "./dist/svelte_config.js"
+    },
+    "./svelte_helpers.js": {
+      "types": "./dist/svelte_helpers.d.ts",
+      "default": "./dist/svelte_helpers.js"
     },
     "./sveltekit_helpers.js": {
       "types": "./dist/sveltekit_helpers.d.ts",
