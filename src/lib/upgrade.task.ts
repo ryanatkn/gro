@@ -1,11 +1,13 @@
 import {spawn} from '@ryanatkn/belt/process.js';
 import {z} from 'zod';
+import {rmSync} from 'node:fs';
 
 import {Task_Error, type Task} from './task.js';
 import {extract_deps, load_package_json, type Package_Json_Dep} from './package_json.js';
 import {Git_Origin, git_pull} from './git.js';
 import {spawn_cli} from './cli.js';
 import {serialize_args, to_forwarded_args} from './args.js';
+import {NODE_MODULES_DIRNAME} from './constants.js';
 
 // TODO BLOCK --delete_node_modules
 // TODO BLOCK --delete_lockfile
@@ -23,6 +25,18 @@ export const Args = z
 		force: z.boolean({description: 'if true, print out the planned upgrades'}).default(false),
 		pull: z.boolean({description: 'dual of no-pull'}).default(true),
 		'no-pull': z.boolean({description: 'opt out of git pull'}).default(false),
+		delete_node_modules: z
+			.boolean({description: 'if true, deletes node_modules before upgrading'})
+			.default(false),
+		node_modules_path: z // TODO maybe configured globally instead
+			.string({description: 'path to modules directory to delete'})
+			.default(NODE_MODULES_DIRNAME),
+		delete_lockfile: z
+			.boolean({description: 'if true, deletes the lockfile before upgrading'})
+			.default(false),
+		lockfile_path: z
+			.string({description: 'path to the lockfile to delete'})
+			.default('package-lock.json'),
 		dry: z.boolean({description: 'if true, print out the planned upgrades'}).default(false),
 	})
 	.strict();
@@ -32,7 +46,18 @@ export const task: Task<Args> = {
 	summary: 'upgrade deps',
 	Args,
 	run: async ({args, log, config}): Promise<void> => {
-		const {_, only, origin, force, pull, dry} = args;
+		const {
+			_,
+			only,
+			origin,
+			force,
+			pull,
+			delete_node_modules,
+			node_modules_path,
+			delete_lockfile,
+			lockfile_path,
+			dry,
+		} = args;
 
 		if (_.length && only.length) {
 			throw new Task_Error('Cannot call `gro upgrade` with both rest args and --only.');
@@ -41,6 +66,14 @@ export const task: Task<Args> = {
 		// TODO maybe a different task that pulls and does other things, like `gro ready`
 		if (pull) {
 			await git_pull(origin);
+		}
+
+		if (delete_node_modules) {
+			rmSync(node_modules_path, {recursive: true, force: true});
+		}
+
+		if (delete_lockfile) {
+			rmSync(lockfile_path, {force: true});
 		}
 
 		const package_json = load_package_json();
