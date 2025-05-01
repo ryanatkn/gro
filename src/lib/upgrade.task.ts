@@ -66,10 +66,12 @@ export const task: Task<Args> = {
 		}
 
 		if (delete_node_modules) {
+			log.info(`deleting node_modules at `, node_modules_path);
 			rmSync(node_modules_path, {recursive: true, force: true});
 		}
 
 		if (delete_lockfile) {
+			log.info(`deleting lockfile at`, lockfile_path);
 			rmSync(lockfile_path, {force: true});
 		}
 
@@ -101,6 +103,13 @@ export const task: Task<Args> = {
 		}
 		install_args.push(...serialize_args(to_forwarded_args(config.pm_cli)));
 		await spawn(config.pm_cli, install_args);
+
+		// If we deleted the lockfile or node modules, `npm install` again
+		// to fix a recurring npm bug getting the lockfile to its final state.
+		if (!dry && (delete_node_modules || delete_lockfile)) {
+			log.info(`installing again to fix npm lockfile bugs`);
+			await spawn(config.pm_cli, ['install']);
+		}
 
 		// Sync in a new process to pick up any changes after installing, avoiding some errors.
 		await spawn_cli('gro', ['sync', '--no-install']); // don't install because we do above
