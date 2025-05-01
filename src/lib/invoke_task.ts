@@ -44,7 +44,7 @@ export const invoke_task = async (
 	const log = new System_Logger(print_log_label(task_name || 'gro'));
 	log.info('invoking', task_name ? st('cyan', task_name) : 'gro');
 
-	const filer = initial_filer ?? new Filer();
+	const filer = initial_filer ?? new Filer({log});
 
 	const timings = initial_timings ?? new Timings();
 

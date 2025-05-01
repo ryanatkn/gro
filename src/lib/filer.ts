@@ -27,6 +27,7 @@ const aliases = Object.entries(default_sveltekit_config.alias);
 
 export interface Source_File {
 	id: Path_Id;
+	// TODO figure out the best API that makes this lazy
 	/**
 	 * `null` contents means it doesn't exist.
 	 * We create the file in memory to track its dependents regardless of its existence on disk.
@@ -50,6 +51,7 @@ export interface Filer_Options {
 	watch_dir?: typeof watch_dir;
 	watch_dir_options?: Partial<Omit_Strict<Watch_Dir_Options, 'on_change'>>;
 	package_json_cache?: Record<string, Package_Json>;
+	log?: Logger;
 }
 
 export class Filer {
@@ -60,10 +62,13 @@ export class Filer {
 	#watch_dir: typeof watch_dir;
 	#watch_dir_options: Partial<Watch_Dir_Options>;
 
+	#log?: Logger;
+
 	constructor(options: Filer_Options = EMPTY_OBJECT) {
 		this.#watch_dir = options.watch_dir ?? watch_dir;
 		this.#watch_dir_options = options.watch_dir_options ?? EMPTY_OBJECT;
 		this.root_dir = resolve(options.watch_dir_options?.dir ?? paths.source);
+		this.#log = options.log;
 	}
 
 	#watching: Watch_Node_Fs | undefined;
@@ -121,20 +126,19 @@ export class Filer {
 			const path = map_sveltekit_aliases(specifier, aliases);
 
 			let path_id;
+			// TODO can we replace `resolve_specifier` with `import.meta.resolve` completely now outside of esbuild plugins?
 			if (path[0] === '.' || path[0] === '/') {
 				const resolved = resolve_specifier(path, dir);
 				path_id = resolved.path_id;
 			} else {
 				if (isBuiltin(path)) continue;
+				const file_url = pathToFileURL(file.id);
 				try {
-					const file_url = pathToFileURL(file.id);
 					path_id = fileURLToPath(import.meta.resolve(path, file_url.href));
 				} catch (error) {
-					// If it's imported from an external module, ignore any import errors.
-					if (error.code === 'ERR_MODULE_NOT_FOUND' && file.external) {
-						continue;
-					}
-					throw error;
+					// if resolving fails for any reason, just log and ignore it
+					this.#log?.error('[filer] failed to resolve path', path, file_url.href, error);
+					continue;
 				}
 			}
 			dependencies_removed.delete(path_id);
@@ -273,7 +277,7 @@ export const filter_dependents = (
 		const dependent_source_file = get_by_id(dependent_id);
 		if (!dependent_source_file) {
 			log?.warn(
-				`[filer.filter_dependents]: dependent source file ${dependent_id} not found for ${source_file.id}`,
+				`[filer.filter_dependents] dependent source file ${dependent_id} not found for ${source_file.id}`,
 			);
 			continue;
 		}
