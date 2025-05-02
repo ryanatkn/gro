@@ -86,7 +86,7 @@
     "uvu": "^0.5.6"
   },
   "optionalDependencies": {
-    "@ryanatkn/moss": "^0.26.0"
+    "@ryanatkn/moss": "^0.27.0"
   },
   "prettier": {
     "plugins": [
