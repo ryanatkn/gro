@@ -2,16 +2,17 @@ import {spawn, spawn_out} from '@ryanatkn/belt/process.js';
 import type {SpawnOptions} from 'node:child_process';
 import {z} from 'zod';
 import {existsSync} from 'node:fs';
+import type {Flavored} from '@ryanatkn/belt/types.js';
 
 import {to_file_path} from './path.js';
 
 // TODO maybe extract to `util-git`
 
-export const Git_Origin = z.string().brand('Git_Origin');
-export type Git_Origin = z.infer<typeof Git_Origin>;
+export const Git_Origin = z.string();
+export type Git_Origin = Flavored<string, 'Git_Origin'>;
 
-export const Git_Branch = z.string().brand('Git_Branch');
-export type Git_Branch = z.infer<typeof Git_Branch>;
+export const Git_Branch = z.string();
+export type Git_Branch = Flavored<string, 'Git_Branch'>;
 
 /**
  * Returns the current git branch name or throws if something goes wrong.
