@@ -211,13 +211,10 @@ export const package_json = {
 		'./run.task.js': {types: './dist/run.task.d.ts', default: './dist/run.task.js'},
 		'./search_fs.js': {types: './dist/search_fs.d.ts', default: './dist/search_fs.js'},
 		'./src_json.js': {types: './dist/src_json.d.ts', default: './dist/src_json.js'},
+		'./svelte_config.js': {types: './dist/svelte_config.d.ts', default: './dist/svelte_config.js'},
 		'./svelte_helpers.js': {
 			types: './dist/svelte_helpers.d.ts',
 			default: './dist/svelte_helpers.js',
-		},
-		'./sveltekit_config.js': {
-			types: './dist/sveltekit_config.d.ts',
-			default: './dist/sveltekit_config.js',
 		},
 		'./sveltekit_helpers.js': {
 			types: './dist/sveltekit_helpers.d.ts',
@@ -381,7 +378,7 @@ export const src_json = {
 				{name: 'GRO_DEV_DIR', kind: 'variable'},
 				{name: 'GRO_CONFIG_PATH', kind: 'variable'},
 				{name: 'README_FILENAME', kind: 'variable'},
-				{name: 'SVELTEKIT_CONFIG_FILENAME', kind: 'variable'},
+				{name: 'SVELTE_CONFIG_FILENAME', kind: 'variable'},
 				{name: 'VITE_CONFIG_FILENAME', kind: 'variable'},
 				{name: 'NODE_MODULES_DIRNAME', kind: 'variable'},
 				{name: 'LOCKFILE_FILENAME', kind: 'variable'},
@@ -717,7 +714,6 @@ export const src_json = {
 				{name: 'update_package_json', kind: 'function'},
 				{name: 'to_package_exports', kind: 'function'},
 				{name: 'parse_repo_url', kind: 'function'},
-				{name: 'is_dep', kind: 'function'},
 				{name: 'has_dep', kind: 'function'},
 				{name: 'Package_Json_Dep', kind: 'type'},
 				{name: 'extract_deps', kind: 'function'},
@@ -853,6 +849,7 @@ export const src_json = {
 			declarations: [
 				{name: 'Search_Fs_Options', kind: 'type'},
 				{name: 'search_fs', kind: 'function'},
+				{name: 'find_first_existing_file', kind: 'function'},
 			],
 		},
 		'./src_json.js': {
@@ -868,21 +865,21 @@ export const src_json = {
 				{name: 'to_src_modules', kind: 'function'},
 			],
 		},
+		'./svelte_config.js': {
+			path: 'svelte_config.ts',
+			declarations: [
+				{name: 'load_svelte_config', kind: 'function'},
+				{name: 'Parsed_Svelte_Config', kind: 'type'},
+				{name: 'parse_svelte_config', kind: 'function'},
+				{name: 'to_default_compile_module_options', kind: 'function'},
+				{name: 'default_svelte_config', kind: 'variable'},
+			],
+		},
 		'./svelte_helpers.js': {
 			path: 'svelte_helpers.ts',
 			declarations: [
 				{name: 'SVELTE_MATCHER', kind: 'variable'},
 				{name: 'SVELTE_RUNES_MATCHER', kind: 'variable'},
-			],
-		},
-		'./sveltekit_config.js': {
-			path: 'sveltekit_config.ts',
-			declarations: [
-				{name: 'load_sveltekit_config', kind: 'function'},
-				{name: 'Parsed_Sveltekit_Config', kind: 'type'},
-				{name: 'init_sveltekit_config', kind: 'function'},
-				{name: 'to_default_compile_module_options', kind: 'function'},
-				{name: 'default_sveltekit_config', kind: 'variable'},
 			],
 		},
 		'./sveltekit_helpers.js': {

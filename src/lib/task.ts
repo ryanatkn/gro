@@ -9,7 +9,7 @@ import {isAbsolute, join, relative} from 'node:path';
 import type {Args} from './args.js';
 import type {Path_Id} from './path.js';
 import type {Gro_Config} from './gro_config.js';
-import type {Parsed_Sveltekit_Config} from './sveltekit_config.js';
+import type {Parsed_Svelte_Config} from './svelte_config.js';
 import {
 	resolve_input_files,
 	resolve_input_paths,
@@ -35,10 +35,10 @@ export interface Task<
 export interface Task_Context<T_Args = object> {
 	args: T_Args;
 	config: Gro_Config;
-	sveltekit_config: Parsed_Sveltekit_Config;
+	svelte_config: Parsed_Svelte_Config;
 	filer: Filer;
 	// TODO should this go here or on `config` for convenience?
-	// sveltekit_config: Parsed_Sveltekit_Config;
+	// svelte_config: Parsed_Svelte_Config;
 	log: Logger;
 	timings: Timings;
 	invoke_task: (task_name: string, args?: Args, config?: Gro_Config) => Promise<void>;

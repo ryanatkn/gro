@@ -2,7 +2,7 @@ import {styleText as st} from 'node:util';
 import type {Logger} from '@ryanatkn/belt/log.js';
 import type * as esbuild from 'esbuild';
 
-import type {Parsed_Sveltekit_Config} from './sveltekit_config.js';
+import type {Parsed_Svelte_Config} from './svelte_config.js';
 
 export const print_build_result = (log: Logger, build_result: esbuild.BuildResult): void => {
 	for (const error of build_result.errors) {
@@ -28,7 +28,7 @@ const import_meta_env = 'import.' + 'meta.env.'; // eslint-disable-line no-usele
  */
 export const to_define_import_meta_env = (
 	dev: boolean,
-	base_url: Parsed_Sveltekit_Config['base_url'],
+	base_url: Parsed_Svelte_Config['base_url'],
 	ssr = true,
 	mode = dev ? 'development' : 'production',
 ): Record<string, string> => ({

@@ -15,6 +15,7 @@ import create_default_config from './gro.config.default.js';
 import type {Create_Config_Plugins} from './plugin.js';
 import type {Map_Package_Json} from './package_json.js';
 import type {Path_Filter, Path_Id} from './path.js';
+import type {Parsed_Svelte_Config} from './svelte_config.js';
 
 /**
  * The config that users can extend via `gro.config.ts`.
@@ -50,6 +51,8 @@ export interface Gro_Config extends Raw_Gro_Config {
 	 * The CLI to use that's compatible with `npm install` and `npm link`. Defaults to `'npm'`.
 	 */
 	pm_cli: string;
+	/** @default SVELTE_CONFIG_FILENAME */
+	svelte_config_filename?: string;
 }
 
 /**
@@ -68,6 +71,7 @@ export interface Raw_Gro_Config {
 
 export type Create_Gro_Config = (
 	base_config: Gro_Config,
+	svelte_config?: Parsed_Svelte_Config,
 ) => Raw_Gro_Config | Promise<Raw_Gro_Config>;
 
 export const create_empty_gro_config = (): Gro_Config => ({

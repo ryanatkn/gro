@@ -10,7 +10,7 @@ import {esbuild_plugin_sveltekit_shim_env} from './esbuild_plugin_sveltekit_shim
 import {esbuild_plugin_sveltekit_shim_app} from './esbuild_plugin_sveltekit_shim_app.js';
 import {esbuild_plugin_sveltekit_local_imports} from './esbuild_plugin_sveltekit_local_imports.js';
 import {esbuild_plugin_svelte} from './esbuild_plugin_svelte.js';
-import type {Parsed_Sveltekit_Config} from './sveltekit_config.js';
+import type {Parsed_Svelte_Config} from './svelte_config.js';
 import type {Path_Id} from './path.js';
 
 export interface Esbuild_Plugin_External_Worker_Options {
@@ -21,8 +21,8 @@ export interface Esbuild_Plugin_External_Worker_Options {
 	svelte_compile_module_options?: ModuleCompileOptions;
 	svelte_preprocessors?: PreprocessorGroup | Array<PreprocessorGroup>;
 	alias?: Record<string, string>;
-	base_url?: Parsed_Sveltekit_Config['base_url'];
-	assets_url?: Parsed_Sveltekit_Config['assets_url'];
+	base_url?: Parsed_Svelte_Config['base_url'];
+	assets_url?: Parsed_Svelte_Config['assets_url'];
 	public_prefix?: string;
 	private_prefix?: string;
 	env_dir?: string;

@@ -4,7 +4,7 @@ import * as esbuild from 'esbuild';
 import {readFile, rm} from 'node:fs/promises';
 
 import {esbuild_plugin_svelte} from './esbuild_plugin_svelte.js';
-import {default_sveltekit_config} from './sveltekit_config.js';
+import {default_svelte_config} from './svelte_config.js';
 
 // TODO improve these tests to have automatic caching
 
@@ -15,7 +15,7 @@ test('build for the client', async () => {
 		plugins: [
 			esbuild_plugin_svelte({
 				dev: true,
-				base_url: default_sveltekit_config.base_url,
+				base_url: default_svelte_config.base_url,
 				svelte_compile_options: {generate: 'client'},
 			}),
 		],
@@ -83,7 +83,7 @@ test('build for the server', async () => {
 		plugins: [
 			esbuild_plugin_svelte({
 				dev: true,
-				base_url: default_sveltekit_config.base_url,
+				base_url: default_svelte_config.base_url,
 			}),
 		],
 		outfile,

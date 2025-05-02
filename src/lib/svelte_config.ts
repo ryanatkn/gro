@@ -1,8 +1,9 @@
-import type {Config as SveltekitConfig} from '@sveltejs/kit';
+import type {Config as SvelteConfig} from '@sveltejs/kit';
 import type {CompileOptions, ModuleCompileOptions, PreprocessorGroup} from 'svelte/compiler';
 import {join} from 'node:path';
+import {EMPTY_OBJECT} from '@ryanatkn/belt/object.js';
 
-import {SVELTEKIT_CONFIG_FILENAME} from './constants.js';
+import {SVELTE_CONFIG_FILENAME} from './constants.js';
 
 /*
 
@@ -14,11 +15,12 @@ This module is intended to have minimal dependencies to avoid over-imports in th
  * Loads a SvelteKit config at `dir`.
  * @returns `null` if no config is found
  */
-export const load_sveltekit_config = async (
-	dir: string = process.cwd(),
-): Promise<SveltekitConfig | null> => {
+export const load_svelte_config = async ({
+	dir = process.cwd(),
+	config_filename = SVELTE_CONFIG_FILENAME,
+}: {dir?: string; config_filename?: string} = EMPTY_OBJECT): Promise<SvelteConfig | null> => {
 	try {
-		return (await import(join(dir, SVELTEKIT_CONFIG_FILENAME))).default;
+		return (await import(join(dir, config_filename))).default;
 	} catch (_err) {
 		return null;
 	}
@@ -28,13 +30,13 @@ export const load_sveltekit_config = async (
  * A subset of SvelteKit's config in a form that Gro uses
  * because SvelteKit doesn't expose its config resolver.
  * Flattens things out to keep them simple and easy to pass around,
- * and doesn't deal with most properties.
+ * and doesn't deal with most properties, but includes the full `svelte_config`.
  * The `base` and `assets` in particular are renamed for clarity with Gro's internal systems,
  * so these properties become first-class vocabulary inside Gro.
  */
-export interface Parsed_Sveltekit_Config {
+export interface Parsed_Svelte_Config {
 	// TODO probably fill these out with defaults
-	sveltekit_config: SveltekitConfig | null;
+	svelte_config: SvelteConfig | null;
 	alias: Record<string, string>;
 	base_url: '' | `/${string}` | undefined;
 	assets_url: '' | `http://${string}` | `https://${string}` | undefined;
@@ -64,15 +66,22 @@ export interface Parsed_Sveltekit_Config {
 // TODO currently incomplete and hack - maybe rethink
 /**
  * Returns Gro-relevant properties of a SvelteKit config
- * as a convenience wrapper around `load_sveltekit_config`.
+ * as a convenience wrapper around `load_svelte_config`.
  * Needed because SvelteKit doesn't expose its config resolver.
  */
-export const init_sveltekit_config = async (
-	dir_or_config: string | SveltekitConfig = process.cwd(),
-): Promise<Parsed_Sveltekit_Config> => {
-	const sveltekit_config =
-		typeof dir_or_config === 'string' ? await load_sveltekit_config(dir_or_config) : dir_or_config;
-	const kit = sveltekit_config?.kit;
+export const parse_svelte_config = async ({
+	dir_or_config = process.cwd(), // TODO maybe not the best API, maybe a type union? `({svelte_config} | {dir}) & {config_filename}`
+	config_filename = SVELTE_CONFIG_FILENAME,
+}: {
+	dir_or_config?: string | SvelteConfig;
+	config_filename?: string;
+} = EMPTY_OBJECT): Promise<Parsed_Svelte_Config> => {
+	const svelte_config =
+		typeof dir_or_config === 'string'
+			? await load_svelte_config({dir: dir_or_config, config_filename})
+			: dir_or_config;
+
+	const kit = svelte_config?.kit;
 
 	const alias = {$lib: 'src/lib', ...kit?.alias};
 
@@ -88,17 +97,17 @@ export const init_sveltekit_config = async (
 	const private_prefix = kit?.env?.privatePrefix;
 	const public_prefix = kit?.env?.publicPrefix;
 
-	const svelte_compile_options: CompileOptions = sveltekit_config?.compilerOptions ?? {};
+	const svelte_compile_options: CompileOptions = svelte_config?.compilerOptions ?? {};
 	// Change the default to `generate: 'server'`,
 	// because SvelteKit handles the client in the normal cases.
 	if (svelte_compile_options.generate === undefined) {
 		svelte_compile_options.generate = 'server';
 	}
 	const svelte_compile_module_options = to_default_compile_module_options(svelte_compile_options); // TODO will kit have these separately?
-	const svelte_preprocessors = sveltekit_config?.preprocess;
+	const svelte_preprocessors = svelte_config?.preprocess;
 
 	return {
-		sveltekit_config,
+		svelte_config,
 		alias,
 		base_url,
 		assets_url,
@@ -119,9 +128,10 @@ export const to_default_compile_module_options = ({
 	generate,
 	filename,
 	rootDir,
-}: CompileOptions): ModuleCompileOptions => ({dev, generate, filename, rootDir});
+	warningFilter,
+}: CompileOptions): ModuleCompileOptions => ({dev, generate, filename, rootDir, warningFilter});
 
 /**
  * The parsed SvelteKit config for the cwd, cached globally at the module level.
  */
-export const default_sveltekit_config = await init_sveltekit_config(); // always load it to keep things simple ahead
+export const default_svelte_config = await parse_svelte_config(); // always load it to keep things simple ahead

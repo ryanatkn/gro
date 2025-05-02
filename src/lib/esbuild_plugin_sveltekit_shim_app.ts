@@ -5,13 +5,13 @@ import {
 	render_sveltekit_shim_app_paths,
 	sveltekit_shim_app_specifiers,
 } from './sveltekit_shim_app.js';
-import type {Parsed_Sveltekit_Config} from './sveltekit_config.js';
+import type {Parsed_Svelte_Config} from './svelte_config.js';
 import {EVERYTHING_MATCHER} from './constants.js';
 
 export interface Esbuild_Plugin_Sveltekit_Shim_App_Options {
 	dev: boolean;
-	base_url: Parsed_Sveltekit_Config['base_url'];
-	assets_url: Parsed_Sveltekit_Config['assets_url'];
+	base_url: Parsed_Svelte_Config['base_url'];
+	assets_url: Parsed_Svelte_Config['assets_url'];
 }
 
 export const esbuild_plugin_sveltekit_shim_app = ({

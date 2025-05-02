@@ -4,8 +4,8 @@ import type {Logger} from '@ryanatkn/belt/log.js';
 import {join} from 'node:path';
 
 import {Package_Json, has_dep} from './package_json.js';
-import {default_sveltekit_config, type Parsed_Sveltekit_Config} from './sveltekit_config.js';
-import {SVELTEKIT_CONFIG_FILENAME, SVELTEKIT_DEV_DIRNAME, PM_CLI_DEFAULT} from './constants.js';
+import {default_svelte_config, type Parsed_Svelte_Config} from './svelte_config.js';
+import {SVELTE_CONFIG_FILENAME, SVELTEKIT_DEV_DIRNAME, PM_CLI_DEFAULT} from './constants.js';
 import {find_cli, spawn_cli, to_cli_name, type Cli} from './cli.js';
 import {Task_Error} from './task.js';
 import {serialize_args, to_forwarded_args} from './args.js';
@@ -22,9 +22,11 @@ export const VITE_CLI = 'vite';
 export const SVELTEKIT_ENV_MATCHER = /^\$env\/(static|dynamic)\/(public|private)$/;
 export const SVELTEKIT_GLOBAL_SPECIFIER = /^\$(env|app)\//;
 
-export const has_sveltekit_app = (): Result<object, {message: string}> => {
-	if (!existsSync(SVELTEKIT_CONFIG_FILENAME)) {
-		return {ok: false, message: `no SvelteKit config found at ${SVELTEKIT_CONFIG_FILENAME}`};
+export const has_sveltekit_app = (
+	svelte_config_path: string = SVELTE_CONFIG_FILENAME,
+): Result<object, {message: string}> => {
+	if (!existsSync(svelte_config_path)) {
+		return {ok: false, message: `no SvelteKit config found at ${SVELTE_CONFIG_FILENAME}`};
 	}
 	// TODO check for routes?
 	return {ok: true};
@@ -32,7 +34,7 @@ export const has_sveltekit_app = (): Result<object, {message: string}> => {
 
 export const has_sveltekit_library = (
 	package_json: Package_Json,
-	sveltekit_config: Parsed_Sveltekit_Config = default_sveltekit_config,
+	svelte_config: Parsed_Svelte_Config = default_svelte_config,
 	dep_name = SVELTE_PACKAGE_DEP_NAME,
 ): Result<object, {message: string}> => {
 	const has_sveltekit_app_result = has_sveltekit_app();
@@ -40,8 +42,8 @@ export const has_sveltekit_library = (
 		return has_sveltekit_app_result;
 	}
 
-	if (!existsSync(sveltekit_config.lib_path)) {
-		return {ok: false, message: `no SvelteKit lib directory found at ${sveltekit_config.lib_path}`};
+	if (!existsSync(svelte_config.lib_path)) {
+		return {ok: false, message: `no SvelteKit lib directory found at ${svelte_config.lib_path}`};
 	}
 
 	if (!has_dep(dep_name, package_json)) {

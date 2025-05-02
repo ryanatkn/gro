@@ -19,11 +19,11 @@ import {
 import {paths} from './paths.js';
 import {parse_imports} from './parse_imports.js';
 import {resolve_specifier} from './resolve_specifier.js';
-import {default_sveltekit_config} from './sveltekit_config.js';
+import {default_svelte_config} from './svelte_config.js';
 import {map_sveltekit_aliases, SVELTEKIT_GLOBAL_SPECIFIER} from './sveltekit_helpers.js';
 import type {Package_Json} from './package_json.js';
 
-const aliases = Object.entries(default_sveltekit_config.alias);
+const aliases = Object.entries(default_svelte_config.alias);
 
 export interface Source_File {
 	id: Path_Id;

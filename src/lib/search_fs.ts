@@ -90,3 +90,12 @@ const crawl = (
 	}
 	return paths;
 };
+
+export const find_first_existing_file = (paths: Array<string>): string | null => {
+	for (const path of paths) {
+		if (existsSync(path)) {
+			return path;
+		}
+	}
+	return null;
+};

@@ -13,15 +13,15 @@ import {relative} from 'node:path';
 import {SVELTE_MATCHER, SVELTE_RUNES_MATCHER} from './svelte_helpers.js';
 import {to_define_import_meta_env, default_ts_transform_options} from './esbuild_helpers.js';
 import {
-	default_sveltekit_config,
+	default_svelte_config,
 	to_default_compile_module_options,
-	type Parsed_Sveltekit_Config,
-} from './sveltekit_config.js';
+	type Parsed_Svelte_Config,
+} from './svelte_config.js';
 import {TS_MATCHER} from './constants.js';
 
 export interface Esbuild_Plugin_Svelte_Options {
 	dev: boolean;
-	base_url: Parsed_Sveltekit_Config['base_url'];
+	base_url: Parsed_Svelte_Config['base_url'];
 	dir?: string;
 	svelte_compile_options?: CompileOptions;
 	svelte_compile_module_options?: ModuleCompileOptions;
@@ -35,7 +35,7 @@ export const esbuild_plugin_svelte = (options: Esbuild_Plugin_Svelte_Options): e
 		dev,
 		base_url,
 		dir = process.cwd(),
-		svelte_compile_options = default_sveltekit_config.svelte_compile_options,
+		svelte_compile_options = default_svelte_config.svelte_compile_options,
 		svelte_compile_module_options = to_default_compile_module_options(svelte_compile_options),
 		svelte_preprocessors,
 		ts_transform_options = default_ts_transform_options,

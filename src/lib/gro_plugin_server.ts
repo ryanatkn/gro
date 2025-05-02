@@ -1,6 +1,6 @@
 import {spawn_restartable_process, type Restartable_Process} from '@ryanatkn/belt/process.js';
 import * as esbuild from 'esbuild';
-import type {Config as SvelteKitConfig} from '@sveltejs/kit';
+import type {Config as SvelteConfig} from '@sveltejs/kit';
 import {join, resolve} from 'node:path';
 import {identity} from '@ryanatkn/belt/function.js';
 import {strip_before, strip_end} from '@ryanatkn/belt/string.js';
@@ -13,7 +13,7 @@ import {base_path_to_path_id, LIB_DIRNAME, paths} from './paths.js';
 import type {Path_Id} from './path.js';
 import {GRO_DEV_DIRNAME, SERVER_DIST_PATH} from './constants.js';
 import {watch_dir, type Watch_Node_Fs} from './watch_dir.js';
-import {init_sveltekit_config, default_sveltekit_config} from './sveltekit_config.js';
+import {parse_svelte_config, default_svelte_config} from './svelte_config.js';
 import {esbuild_plugin_sveltekit_shim_app} from './esbuild_plugin_sveltekit_shim_app.js';
 import {esbuild_plugin_sveltekit_shim_env} from './esbuild_plugin_sveltekit_shim_env.js';
 import {print_build_result, to_define_import_meta_env} from './esbuild_helpers.js';
@@ -49,7 +49,7 @@ export interface Gro_Plugin_Server_Options {
 	 */
 	outpaths?: Create_Outpaths;
 	/**
-	 * @default SvelteKit's `.env`, `.env.development`, and `.env.production`
+	 * @default ```SvelteKit's `.env`, `.env.development`, and `.env.production````
 	 */
 	env_files?: Array<string>;
 	/**
@@ -57,9 +57,9 @@ export interface Gro_Plugin_Server_Options {
 	 */
 	ambient_env?: Record<string, string>;
 	/**
-	 * @default loaded from `${cwd}/${SVELTEKIT_CONFIG_FILENAME}`
+	 * @default ```loaded from `${cwd}/${SVELTE_CONFIG_FILENAME}````
 	 */
-	sveltekit_config?: SvelteKitConfig;
+	svelte_config?: SvelteConfig;
 	/**
 	 * @default 'esnext'
 	 */
@@ -115,7 +115,7 @@ export const gro_plugin_server = ({
 	}),
 	env_files,
 	ambient_env,
-	sveltekit_config,
+	svelte_config,
 	target = 'esnext',
 	esbuild_build_options = identity,
 	rebuild_throttle_delay = 1000,
@@ -130,10 +130,13 @@ export const gro_plugin_server = ({
 	return {
 		name: 'gro_plugin_server',
 		setup: async ({dev, watch, timings, log, config}) => {
-			const parsed_sveltekit_config =
-				!sveltekit_config && strip_end(dir, '/') === process.cwd()
-					? default_sveltekit_config
-					: await init_sveltekit_config(sveltekit_config ?? dir);
+			const parsed_svelte_config =
+				!svelte_config && strip_end(dir, '/') === process.cwd()
+					? default_svelte_config
+					: await parse_svelte_config({
+							dir_or_config: svelte_config ?? dir,
+							config_filename: config.svelte_config_filename,
+						});
 			const {
 				alias,
 				base_url,
@@ -144,7 +147,7 @@ export const gro_plugin_server = ({
 				svelte_compile_options,
 				svelte_compile_module_options,
 				svelte_preprocessors,
-			} = parsed_sveltekit_config;
+			} = parsed_svelte_config;
 
 			const {outbase, outdir, outname} = outpaths(dev);
 
