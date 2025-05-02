@@ -1,5 +1,11 @@
 # @ryanatkn/gro
 
+## 0.153.2
+
+### Patch Changes
+
+- use flavored instead of Zod brand for git origin and branch types ([ea0a768](https://github.com/ryanatkn/gro/commit/ea0a768))
+
 ## 0.153.1
 
 ### Patch Changes
