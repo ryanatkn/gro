@@ -1,5 +1,20 @@
 # @ryanatkn/gro
 
+## 0.153.0
+
+### Minor Changes
+
+- rework some of the config impl and extend the options ([#543](https://github.com/ryanatkn/gro/pull/543))
+
+  - rename "SvelteKitConfig" to "SvelteConfig"
+    - `svelte_config` from `sveltekit_config`
+    - `SVELTE_CONFIG_FILENAME` from `SVELTEKIT_CONFIG_FILENAME`
+
+### Patch Changes
+
+- fix npm lockfile bug in `gro upgrade` ([2b98bd4](https://github.com/ryanatkn/gro/commit/2b98bd4))
+- fix moss plugin default ([#543](https://github.com/ryanatkn/gro/pull/543))
+
 ## 0.152.0
 
 ### Minor Changes

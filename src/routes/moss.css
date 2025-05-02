@@ -16,7 +16,7 @@
 
 .width_md {
 	width: 100%;
-	max-width: var(--distance_md);
+	max-width: var(--width_md);
 }
 
 /* A panel is a box embedded into the page, useful for visually isolating content. */
