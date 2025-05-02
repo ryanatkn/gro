@@ -1,3 +1,5 @@
+import {resolve} from 'node:path';
+
 import type {Create_Gro_Config} from './gro_config.js';
 import {gro_plugin_sveltekit_library} from './gro_plugin_sveltekit_library.js';
 import {has_server, gro_plugin_server} from './gro_plugin_server.js';
@@ -39,7 +41,7 @@ const config: Create_Gro_Config = async (cfg, svelte_config) => {
 		[
 			// TODO probably belongs in the gen system
 			local_moss_plugin_path
-				? (await import(local_moss_plugin_path)).gro_plugin_moss()
+				? (await import(resolve(local_moss_plugin_path))).gro_plugin_moss()
 				: has_moss_dep
 					? (await import('@ryanatkn/moss/gro_plugin_moss.js')).gro_plugin_moss()
 					: null, // lazy load to avoid errors if it's not installed
