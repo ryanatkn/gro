@@ -16,7 +16,7 @@
 
 .width_md {
 	width: 100%;
-	max-width: var(--width_md);
+	max-width: var(--distance_md);
 }
 
 /* A panel is a box embedded into the page, useful for visually isolating content. */
@@ -52,7 +52,8 @@
 
 .chip {
 	font-weight: 600;
-	padding: var(--space_xs5) var(--space_sm); /* maybe different inside `p`? using `calc` with `--size`? */
+	padding-left: var(--space_xs);
+	padding-right: var(--space_xs);
 	background-color: var(--fg_1);
 	border-radius: var(--radius_xs);
 }
