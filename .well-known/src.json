@@ -1,6 +1,6 @@
 {
   "name": "@ryanatkn/gro",
-  "version": "0.152.0",
+  "version": "0.153.0",
   "modules": {
     ".": {
       "path": "index.ts",
@@ -294,7 +294,7 @@
           "kind": "variable"
         },
         {
-          "name": "SVELTEKIT_CONFIG_FILENAME",
+          "name": "SVELTE_CONFIG_FILENAME",
           "kind": "variable"
         },
         {
@@ -1208,10 +1208,6 @@
           "kind": "function"
         },
         {
-          "name": "is_dep",
-          "kind": "function"
-        },
-        {
           "name": "has_dep",
           "kind": "function"
         },
@@ -1530,6 +1526,10 @@
         {
           "name": "search_fs",
           "kind": "function"
+        },
+        {
+          "name": "find_first_existing_file",
+          "kind": "function"
         }
       ]
     },
@@ -1570,6 +1570,31 @@
         }
       ]
     },
+    "./svelte_config.js": {
+      "path": "svelte_config.ts",
+      "declarations": [
+        {
+          "name": "load_svelte_config",
+          "kind": "function"
+        },
+        {
+          "name": "Parsed_Svelte_Config",
+          "kind": "type"
+        },
+        {
+          "name": "parse_svelte_config",
+          "kind": "function"
+        },
+        {
+          "name": "to_default_compile_module_options",
+          "kind": "function"
+        },
+        {
+          "name": "default_svelte_config",
+          "kind": "variable"
+        }
+      ]
+    },
     "./svelte_helpers.js": {
       "path": "svelte_helpers.ts",
       "declarations": [
@@ -1579,31 +1604,6 @@
         },
         {
           "name": "SVELTE_RUNES_MATCHER",
-          "kind": "variable"
-        }
-      ]
-    },
-    "./sveltekit_config.js": {
-      "path": "sveltekit_config.ts",
-      "declarations": [
-        {
-          "name": "load_sveltekit_config",
-          "kind": "function"
-        },
-        {
-          "name": "Parsed_Sveltekit_Config",
-          "kind": "type"
-        },
-        {
-          "name": "init_sveltekit_config",
-          "kind": "function"
-        },
-        {
-          "name": "to_default_compile_module_options",
-          "kind": "function"
-        },
-        {
-          "name": "default_sveltekit_config",
           "kind": "variable"
         }
       ]

@@ -1,6 +1,6 @@
 {
   "name": "@ryanatkn/gro",
-  "version": "0.152.0",
+  "version": "0.153.0",
   "description": "task runner and toolkit extending SvelteKit",
   "motto": "generate, run, optimize",
   "glyph": "🌰",
@@ -384,13 +384,13 @@
       "types": "./dist/src_json.d.ts",
       "default": "./dist/src_json.js"
     },
+    "./svelte_config.js": {
+      "types": "./dist/svelte_config.d.ts",
+      "default": "./dist/svelte_config.js"
+    },
     "./svelte_helpers.js": {
       "types": "./dist/svelte_helpers.d.ts",
       "default": "./dist/svelte_helpers.js"
-    },
-    "./sveltekit_config.js": {
-      "types": "./dist/sveltekit_config.d.ts",
-      "default": "./dist/sveltekit_config.js"
     },
     "./sveltekit_helpers.js": {
       "types": "./dist/sveltekit_helpers.d.ts",
