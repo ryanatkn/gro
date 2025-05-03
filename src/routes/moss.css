@@ -64,6 +64,14 @@ a.chip {
 .relative {
 	position: relative;
 }
+/** Same as `display: inline flow-root`. */
+.display_inline_block {
+	display: inline-block;
+}
+/** Same as `display: block flex`. */
+.display_flex {
+	display: flex;
+}
 .flex_1 {
 	flex: 1;
 }
