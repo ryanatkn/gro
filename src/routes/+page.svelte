@@ -72,7 +72,7 @@
 		position: absolute;
 		top: var(--space_sm);
 		right: var(--space_sm);
-		font-size: var(--size_xl);
+		font-size: var(--font_size_xl);
 		z-index: 1;
 	}
 </style>

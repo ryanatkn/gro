@@ -11,6 +11,7 @@ import {
 	type Package_Json_Exports,
 } from './package_json.js';
 
+// TODO @many rename to prefix with `Src_Json_`?
 export const Src_Module_Declaration = z
 	.object({
 		name: z.string(), // the export identifier
@@ -22,6 +23,7 @@ export const Src_Module_Declaration = z
 	.passthrough();
 export type Src_Module_Declaration = z.infer<typeof Src_Module_Declaration>;
 
+// TODO @many rename to prefix with `Src_Json_`?
 export const Src_Module = z
 	.object({
 		path: z.string(),
@@ -30,6 +32,7 @@ export const Src_Module = z
 	.passthrough();
 export type Src_Module = z.infer<typeof Src_Module>;
 
+// TODO @many rename to prefix with `Src_Json_`?
 export const Src_Modules = z.record(Src_Module);
 export type Src_Modules = z.infer<typeof Src_Modules>;
 

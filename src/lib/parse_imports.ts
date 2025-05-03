@@ -170,8 +170,8 @@ export const parse_imports = (
 		}
 
 		// Process all the collected script blocks
-		for (const block of script_blocks) {
-			parse_from(block.content);
+		for (const script_block of script_blocks) {
+			parse_from(script_block.content);
 		}
 	} else if (TS_MATCHER.test(id) || JS_MATCHER.test(id)) {
 		parse_from(contents);
