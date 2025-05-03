@@ -1,5 +1,11 @@
 # @ryanatkn/gro
 
+## 0.154.0
+
+### Minor Changes
+
+- bump moss@0.28 from 0.27 ([c8fabed](https://github.com/ryanatkn/gro/commit/c8fabed))
+
 ## 0.153.2
 
 ### Patch Changes

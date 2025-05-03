@@ -64,9 +64,6 @@ a.chip {
 .relative {
 	position: relative;
 }
-.flex {
-	display: flex;
-}
 .flex_1 {
 	flex: 1;
 }
