@@ -117,8 +117,9 @@ export const load: LoadHook = async (url, context, nextLoad) => {
 		const source = loaded.source!.toString(); // eslint-disable-line @typescript-eslint/no-base-to-string
 		const transformed = await esbuild.transform(source, {...ts_transform_options, sourcefile: url}); // TODO @many use warnings? handle not-inline sourcemaps?
 		return {format: 'module', shortCircuit: true, source: transformed.code};
-		// TODO implement
+		// TODO BLOCK implement
 		// TS uses Node's type stripping - https://nodejs.org/api/typescript.html#type-stripping
+		// console.log(`url`, url);
 		// return nextLoad(url, context);
 	} else if (SVELTE_MATCHER.test(url)) {
 		// Svelte
