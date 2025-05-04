@@ -4,8 +4,8 @@
 	import Community_Links_Panel from '@ryanatkn/fuz/Community_Links_Panel.svelte';
 	import Breadcrumb from '@ryanatkn/fuz/Breadcrumb.svelte';
 
-	import {parse_package_meta} from '$lib/package_meta.js';
-	import {package_json, src_json} from '$lib/package.js';
+	import {parse_package_meta} from '../../lib/package_meta.ts';
+	import {package_json, src_json} from '../../lib/package.ts';
 
 	const pkg = parse_package_meta(package_json, src_json);
 
