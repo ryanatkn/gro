@@ -1,6 +1,6 @@
 {
   "name": "@ryanatkn/gro",
-  "version": "0.155.0",
+  "version": "0.156.0",
   "modules": {
     ".": {
       "path": "index.ts",
@@ -343,10 +343,6 @@
         },
         {
           "name": "JS_MATCHER",
-          "kind": "variable"
-        },
-        {
-          "name": "JSON_MATCHER",
           "kind": "variable"
         },
         {
