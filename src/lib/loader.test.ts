@@ -3,6 +3,8 @@ import * as assert from 'uvu/assert';
 import {resolve} from 'node:path';
 import {readFileSync} from 'node:fs';
 
+const JSON_FIXTURE = 'src/fixtures/modules/some_test_json.json';
+
 test('import .js', async () => {
 	const imported = await import(resolve('src/fixtures/modules/some_test_ts.js'));
 	assert.ok(imported);
@@ -23,11 +25,23 @@ test('import raw .ts', async () => {
 });
 
 test('import .json', async () => {
-	const path = resolve('src/fixtures/modules/some_test_json.json');
-	const imported = await import(path);
+	const path = resolve(JSON_FIXTURE);
+	const imported = await import(path, {with: {type: 'json'}}); // import attribute is required
 	assert.ok(imported);
 	assert.is(imported.default.a, 'ok');
 	assert.equal(imported.default, JSON.parse(readFileSync(path, 'utf8')));
+});
+
+test('fail to import .json without the import attribute', async () => {
+	let imported;
+	let err;
+	try {
+		imported = await import(resolve(JSON_FIXTURE)); // intentionally missing the import attribute and expecting failure
+	} catch (error) {
+		err = error;
+	}
+	assert.ok(err);
+	assert.not.ok(imported);
 });
 
 test('import raw .css', async () => {

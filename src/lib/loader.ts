@@ -116,11 +116,12 @@ export const load: LoadHook = async (url, context, nextLoad) => {
 		const source = preprocessed?.code ?? raw_source;
 		const transformed = compile(source, {...svelte_compile_options, dev, filename});
 		return {format: 'module', shortCircuit: true, source: transformed.js.code};
-	} else if (JSON_MATCHER.test(url)) {
-		// TODO probably require import attrs: `JSON_MATCHER.test(url) && context.importAttributes.type === 'json'`
-		// json
+	} else if (JSON_MATCHER.test(url) && context.importAttributes.type === 'json') {
+		// json - any file extension
 		// TODO probably follow esbuild and also export every top-level property for objects from the module for good treeshaking - https://esbuild.github.io/content-types/#json (type generation?)
-		const loaded = await nextLoad(url, context);
+		console.log(`url, context`, url, context);
+		// TODO why is removing the importAttributes needed? `Module "file:///home/user/dev/repo/foo.json" is not of type "json"`
+		const loaded = await nextLoad(url, {...context, importAttributes: undefined});
 		const raw_source = loaded.source?.toString(); // eslint-disable-line @typescript-eslint/no-base-to-string
 		if (raw_source == null) throw new Error(`Failed to load ${url}`);
 		const source = `export default ` + raw_source;
