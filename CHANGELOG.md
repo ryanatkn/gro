@@ -1,5 +1,15 @@
 # @ryanatkn/gro
 
+## 0.155.0
+
+### Minor Changes
+
+- use Node's builtin type stripping ([#544](https://github.com/ryanatkn/gro/pull/544))
+
+  - bump node@22.15 from 22.11
+  - add `ts-blank-space` dep to preprocess `.svelte.ts` modules
+  - internally use `.ts` extensions
+
 ## 0.154.0
 
 ### Minor Changes
