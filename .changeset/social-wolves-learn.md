@@ -2,4 +2,4 @@
 '@ryanatkn/gro': minor
 ---
 
-require import attr for json
+require import attr for json, `with { type: "json" }`
