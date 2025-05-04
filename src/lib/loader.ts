@@ -93,7 +93,7 @@ export const load: LoadHook = async (url, context, nextLoad) => {
 		const filename = fileURLToPath(url);
 		const loaded = await nextLoad(url, {...context, format: 'module-typescript'});
 		const raw_source = loaded.source?.toString(); // eslint-disable-line @typescript-eslint/no-base-to-string
-		if (raw_source == null) throw new Error(`Failed to load ${url}`);
+		if (raw_source == null) throw Error(`Failed to load ${url}`);
 		// TODO should be nice if we could use Node's builtin amaro transform, but I couldn't find a way after digging into the source, AFAICT it's internal and not exposed
 		const source = ts_blank_space(raw_source); // TODO was using oxc-transform and probably should, but this doesn't require sourcemaps, and it's still alpha as of May 2025
 		const transformed = compileModule(source, {
@@ -123,7 +123,7 @@ export const load: LoadHook = async (url, context, nextLoad) => {
 		// TODO why is removing the importAttributes needed? `Module "file:///home/user/dev/repo/foo.json" is not of type "json"`
 		const loaded = await nextLoad(url, {...context, importAttributes: undefined});
 		const raw_source = loaded.source?.toString(); // eslint-disable-line @typescript-eslint/no-base-to-string
-		if (raw_source == null) throw new Error(`Failed to load ${url}`);
+		if (raw_source == null) throw Error(`Failed to load ${url}`);
 		const source = `export default ` + raw_source;
 		return {format: 'module', shortCircuit: true, source};
 	} else if (RAW_MATCHER.test(url)) {
@@ -161,7 +161,7 @@ export const load: LoadHook = async (url, context, nextLoad) => {
 					break;
 				}
 				default: {
-					throw new Error(`Unknown $env import: ${context.importAttributes.virtual}`);
+					throw Error(`Unknown $env import: ${context.importAttributes.virtual}`);
 				}
 			}
 			const source = render_env_shim_module(
