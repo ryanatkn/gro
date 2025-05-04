@@ -1,14 +1,15 @@
 import {test} from 'uvu';
 import * as assert from 'uvu/assert';
-
-import {init_test_env} from '../fixtures/test_helpers.ts';
+import {resolve} from 'node:path';
 
 const VALUE = 'SOME_PUBLIC_ENV_VAR';
 
-init_test_env();
+test.before(async () => {
+	(await import(resolve('../fixtures/test_helpers.ts'))).init_test_env();
+});
 
 test('shims static SvelteKit $env imports', async () => {
-	const mod = await import('../fixtures/test_sveltekit_env.ts');
+	const mod = await import(resolve('../fixtures/test_sveltekit_env.ts'));
 	assert.is(mod.exported_env_static_public, VALUE);
 });
 
