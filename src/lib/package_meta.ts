@@ -42,7 +42,7 @@ export const parse_package_meta = (
 			: null,
 	);
 	if (!repo_url) {
-		throw new Error('failed to parse package_meta - `repo_url` is required in package_json');
+		throw Error('failed to parse package_meta - `repo_url` is required in package_json');
 	}
 
 	const homepage_url = package_json.homepage ?? null;

@@ -49,7 +49,7 @@ export const format_directory = async (
 	}
 	const spawned = await spawn_cli(prettier_cli, serialized_args, log);
 	if (!spawned)
-		throw new Error(
+		throw Error(
 			`failed to find \`${to_cli_name(prettier_cli)}\` CLI locally or globally, do you need to run \`${pm_cli} install\`?`,
 		);
 	return spawned;

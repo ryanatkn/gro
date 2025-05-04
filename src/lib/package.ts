@@ -50,6 +50,7 @@ export const package_json = {
 		'esm-env': '^1.2.2',
 		mri: '^1.2.0',
 		'oxc-parser': '^0.67.0',
+		'oxc-transform': '^0.68.0',
 		prettier: '^3.5.3',
 		'prettier-plugin-svelte': '^3.3.3',
 		'ts-morph': '^25.0.1',
@@ -430,6 +431,7 @@ export const src_json = {
 				{name: 'print_build_result', kind: 'function'},
 				{name: 'to_define_import_meta_env', kind: 'function'},
 				{name: 'default_ts_transform_options', kind: 'variable'},
+				{name: 'default_ts_transform_options_oxc', kind: 'variable'},
 			],
 		},
 		'./esbuild_plugin_external_worker.js': {

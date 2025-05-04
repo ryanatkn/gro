@@ -1,10 +1,10 @@
-import * as esbuild from 'esbuild';
 import {compile, compileModule, preprocess} from 'svelte/compiler';
 import {fileURLToPath, pathToFileURL} from 'node:url';
 import {dirname, join} from 'node:path';
 import type {LoadHook, ResolveHook} from 'node:module';
 import {escape_regexp} from '@ryanatkn/belt/regexp.js';
 import {readFileSync} from 'node:fs';
+import {transform, type TransformOptions} from 'oxc-transform';
 
 import {render_env_shim_module} from './sveltekit_shim_env.ts';
 import {
@@ -18,7 +18,7 @@ import {default_svelte_config} from './svelte_config.ts';
 import {SVELTE_MATCHER, SVELTE_RUNES_MATCHER} from './svelte_helpers.ts';
 import {IS_THIS_GRO, paths} from './paths.ts';
 import {JSON_MATCHER, NODE_MODULES_DIRNAME, TS_MATCHER} from './constants.ts';
-import {to_define_import_meta_env, default_ts_transform_options} from './esbuild_helpers.ts';
+import {to_define_import_meta_env, default_ts_transform_options_oxc} from './esbuild_helpers.ts';
 import {resolve_specifier} from './resolve_specifier.ts';
 import {map_sveltekit_aliases} from './sveltekit_helpers.ts';
 
@@ -68,10 +68,10 @@ const {
 	svelte_preprocessors,
 } = default_svelte_config;
 
-const ts_transform_options: esbuild.TransformOptions = {
-	...default_ts_transform_options,
+const ts_transform_options: TransformOptions = {
+	...default_ts_transform_options_oxc,
+	// sourcemap: true, // TODO probably do this and add them inline
 	define: to_define_import_meta_env(dev, base_url),
-	sourcemap: 'inline',
 };
 
 const aliases = Object.entries(alias);
@@ -98,19 +98,17 @@ export const load: LoadHook = async (url, context, nextLoad) => {
 		};
 	} else if (SVELTE_RUNES_MATCHER.test(url)) {
 		// Svelte runes in js/ts, `.svelte.ts`
-		const loaded = await nextLoad(
-			url,
-			context.format === 'module' ? context : {...context, format: 'module'}, // TODO dunno why this is needed, specifically with tests
-		);
-		const path = fileURLToPath(url);
-		const source = loaded.source!.toString(); // eslint-disable-line @typescript-eslint/no-base-to-string
-		const js_source = TS_MATCHER.test(url)
-			? (await esbuild.transform(source, {...ts_transform_options, sourcefile: url})).code // TODO @many use warnings? handle not-inline sourcemaps?
-			: source;
-		const transformed = compileModule(js_source, {
+		const filename = fileURLToPath(url);
+		const loaded = await nextLoad(url, {...context, format: 'module-typescript'});
+		const raw_source = loaded.source?.toString(); // eslint-disable-line @typescript-eslint/no-base-to-string
+		if (!raw_source) {
+			throw new Error(`Failed to load ${url}`);
+		}
+		const source = transform(filename, raw_source, ts_transform_options);
+		const transformed = compileModule(source.code, {
 			...svelte_compile_module_options,
 			dev,
-			filename: path,
+			filename,
 		});
 		return {format: 'module', shortCircuit: true, source: transformed.js.code};
 	} else if (TS_MATCHER.test(url)) {
@@ -118,10 +116,7 @@ export const load: LoadHook = async (url, context, nextLoad) => {
 		return nextLoad(url, {...context, format: 'module-typescript'});
 	} else if (SVELTE_MATCHER.test(url)) {
 		// Svelte, `.svelte`
-		const loaded = await nextLoad(
-			url,
-			context.format === 'module' ? context : {...context, format: 'module'}, // TODO dunno why this is needed, specifically with tests
-		);
+		const loaded = await nextLoad(url, {...context, format: 'module'});
 		const raw_source = loaded.source!.toString(); // eslint-disable-line @typescript-eslint/no-base-to-string
 		const filename = fileURLToPath(url);
 		const preprocessed = svelte_preprocessors // TODO @many use sourcemaps (and diagnostics?)
@@ -133,8 +128,8 @@ export const load: LoadHook = async (url, context, nextLoad) => {
 	} else if (JSON_MATCHER.test(url)) {
 		// TODO probably require import attrs: `JSON_MATCHER.test(url) && context.importAttributes.type === 'json'`
 		// json
-		// TODO probably follow esbuild and also export every top-level property for objects from the module - https://esbuild.github.io/content-types/#json (type generation?)
-		const loaded = await nextLoad(url);
+		// TODO probably follow esbuild and also export every top-level property for objects from the module for good treeshaking - https://esbuild.github.io/content-types/#json (type generation?)
+		const loaded = await nextLoad(url, context);
 		const raw_source = loaded.source!.toString(); // eslint-disable-line @typescript-eslint/no-base-to-string
 		const source = `export default ` + raw_source;
 		return {format: 'module', shortCircuit: true, source};

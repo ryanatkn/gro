@@ -30,6 +30,6 @@ export const page: typeof base_page = {
 export const updated: typeof base_updated = {
 	current: false,
 	check: () => {
-		throw new Error('Can only call updated.check() in the browser');
+		throw Error('Can only call updated.check() in the browser');
 	},
 };
