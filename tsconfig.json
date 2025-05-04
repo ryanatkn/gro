@@ -2,8 +2,8 @@
 	"extends": "./.svelte-kit/tsconfig.json",
 	"compilerOptions": {
 		"types": ["@sveltejs/kit"],
-		"module": "NodeNext",
-		"moduleResolution": "NodeNext",
+		"module": "nodenext",
+		"moduleResolution": "nodenext",
 		"strict": true,
 		"useUnknownInCatchVariables": false,
 		"exactOptionalPropertyTypes": false,
@@ -21,8 +21,10 @@
 		"importHelpers": true,
 		"skipLibCheck": true,
 		"allowJs": true,
-		"allowImportingTsExtensions": false,
-		"checkJs": true
+		"checkJs": true,
+		"erasableSyntaxOnly": true,
+		"allowImportingTsExtensions": true,
+		"rewriteRelativeImportExtensions": true
 	},
 	"include": [
 		"*.js",

@@ -8,20 +8,20 @@ import {fileURLToPath, pathToFileURL} from 'node:url';
 import {Unreachable_Error} from '@ryanatkn/belt/error.js';
 import type {Logger} from '@ryanatkn/belt/log.js';
 
-import type {File_Filter, Path_Id} from './path.js';
+import type {File_Filter, Path_Id} from './path.ts';
 import {
 	watch_dir,
 	type Watch_Node_Fs,
 	type Watcher_Change,
 	type Watch_Dir_Options,
 	type Watcher_Change_Callback,
-} from './watch_dir.js';
-import {paths} from './paths.js';
-import {parse_imports} from './parse_imports.js';
-import {resolve_specifier} from './resolve_specifier.js';
-import {default_svelte_config} from './svelte_config.js';
-import {map_sveltekit_aliases, SVELTEKIT_GLOBAL_SPECIFIER} from './sveltekit_helpers.js';
-import type {Package_Json} from './package_json.js';
+} from './watch_dir.ts';
+import {paths} from './paths.ts';
+import {parse_imports} from './parse_imports.ts';
+import {resolve_specifier} from './resolve_specifier.ts';
+import {default_svelte_config} from './svelte_config.ts';
+import {map_sveltekit_aliases, SVELTEKIT_GLOBAL_SPECIFIER} from './sveltekit_helpers.ts';
+import type {Package_Json} from './package_json.ts';
 
 const aliases = Object.entries(default_svelte_config.alias);
 

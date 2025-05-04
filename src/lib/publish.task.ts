@@ -3,12 +3,12 @@ import {z} from 'zod';
 import {styleText as st} from 'node:util';
 import {existsSync} from 'node:fs';
 
-import {Task_Error, type Task} from './task.js';
-import {load_package_json, parse_repo_url} from './package_json.js';
-import {find_cli, spawn_cli} from './cli.js';
-import {has_sveltekit_library} from './sveltekit_helpers.js';
-import {update_changelog} from './changelog.js';
-import {load_from_env} from './env.js';
+import {Task_Error, type Task} from './task.ts';
+import {load_package_json, parse_repo_url} from './package_json.ts';
+import {find_cli, spawn_cli} from './cli.ts';
+import {has_sveltekit_library} from './sveltekit_helpers.ts';
+import {update_changelog} from './changelog.ts';
+import {load_from_env} from './env.ts';
 import {
 	Git_Branch,
 	Git_Origin,
@@ -16,8 +16,8 @@ import {
 	git_checkout,
 	git_fetch,
 	git_pull,
-} from './git.js';
-import {CHANGESET_CLI} from './changeset_helpers.js';
+} from './git.ts';
+import {CHANGESET_CLI} from './changeset_helpers.ts';
 
 export const Args = z
 	.object({

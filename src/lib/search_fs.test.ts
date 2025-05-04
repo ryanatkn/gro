@@ -2,7 +2,7 @@ import {test} from 'uvu';
 import * as assert from 'uvu/assert';
 import {resolve} from 'node:path';
 
-import {search_fs} from './search_fs.js';
+import {search_fs} from './search_fs.ts';
 
 test('search_fs basic behavior', () => {
 	const ignored_path = 'test1.foo.ts';
@@ -19,8 +19,10 @@ test('search_fs basic behavior', () => {
 		'test2.foo.ts',
 		'test_ts.ts',
 		'test_task_module.task_fixture.ts',
+		'test_sveltekit_env.ts',
 		'test_js.js',
 		'test_invalid_task_module.ts',
+		'test_helpers.ts',
 		'test_file.other.ext',
 		'test_failing_task_module.ts',
 		'some_test_side_effect.ts',

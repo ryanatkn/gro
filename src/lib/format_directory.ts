@@ -1,7 +1,7 @@
 import type {Spawn_Result} from '@ryanatkn/belt/process.js';
 import type {Logger} from '@ryanatkn/belt/log.js';
 
-import {paths} from './paths.js';
+import {paths} from './paths.ts';
 import {
 	GITHUB_DIRNAME,
 	README_FILENAME,
@@ -11,9 +11,9 @@ import {
 	GRO_CONFIG_PATH,
 	PM_CLI_DEFAULT,
 	PRETTIER_CLI_DEFAULT,
-} from './constants.js';
-import {serialize_args, to_forwarded_args} from './args.js';
-import {spawn_cli, to_cli_name, type Cli} from './cli.js';
+} from './constants.ts';
+import {serialize_args, to_forwarded_args} from './args.ts';
+import {spawn_cli, to_cli_name, type Cli} from './cli.ts';
 
 const EXTENSIONS_DEFAULT = 'ts,js,json,svelte,html,css,md,yml';
 const ROOT_PATHS_DEFAULT = `${[
@@ -49,7 +49,7 @@ export const format_directory = async (
 	}
 	const spawned = await spawn_cli(prettier_cli, serialized_args, log);
 	if (!spawned)
-		throw new Error(
+		throw Error(
 			`failed to find \`${to_cli_name(prettier_cli)}\` CLI locally or globally, do you need to run \`${pm_cli} install\`?`,
 		);
 	return spawned;

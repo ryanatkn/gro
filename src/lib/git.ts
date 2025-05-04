@@ -4,7 +4,7 @@ import {z} from 'zod';
 import {existsSync} from 'node:fs';
 import type {Flavored} from '@ryanatkn/belt/types.js';
 
-import {to_file_path} from './path.js';
+import {to_file_path} from './path.ts';
 
 // TODO maybe extract to `util-git`
 

@@ -6,10 +6,10 @@ import {readFile, writeFile} from 'node:fs/promises';
 import {join} from 'node:path';
 import {existsSync, readdirSync} from 'node:fs';
 
-import {Task_Error, type Task} from './task.js';
-import {find_cli, spawn_cli} from './cli.js';
-import {Git_Origin, git_check_fully_staged_workspace, git_push_to_create} from './git.js';
-import {has_sveltekit_library} from './sveltekit_helpers.js';
+import {Task_Error, type Task} from './task.ts';
+import {find_cli, spawn_cli} from './cli.ts';
+import {Git_Origin, git_check_fully_staged_workspace, git_push_to_create} from './git.ts';
+import {has_sveltekit_library} from './sveltekit_helpers.ts';
 import {
 	CHANGESET_CLI,
 	CHANGESET_DIR,
@@ -17,8 +17,8 @@ import {
 	Changeset_Bump,
 	CHANGESET_PUBLIC_ACCESS,
 	CHANGESET_RESTRICTED_ACCESS,
-} from './changeset_helpers.js';
-import {load_package_json} from './package_json.js';
+} from './changeset_helpers.ts';
+import {load_package_json} from './package_json.ts';
 
 export const Args = z
 	.object({

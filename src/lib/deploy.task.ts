@@ -6,10 +6,10 @@ import {cp, mkdir, rm} from 'node:fs/promises';
 import {join, resolve} from 'node:path';
 import {existsSync, readdirSync} from 'node:fs';
 
-import {Task_Error, type Task} from './task.js';
-import {print_path} from './paths.js';
-import {GRO_DIRNAME, GIT_DIRNAME, SVELTEKIT_BUILD_DIRNAME} from './constants.js';
-import {empty_dir} from './fs.js';
+import {Task_Error, type Task} from './task.ts';
+import {print_path} from './paths.ts';
+import {GRO_DIRNAME, GIT_DIRNAME, SVELTEKIT_BUILD_DIRNAME} from './constants.ts';
+import {empty_dir} from './fs.ts';
 import {
 	git_check_clean_workspace,
 	git_checkout,
@@ -25,7 +25,7 @@ import {
 	git_check_setting_pull_rebase,
 	git_clone_locally,
 	git_current_branch_name,
-} from './git.js';
+} from './git.ts';
 
 // docs at ./docs/deploy.md
 

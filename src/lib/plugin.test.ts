@@ -1,7 +1,7 @@
 import {test} from 'uvu';
 import * as assert from 'uvu/assert';
 
-import {replace_plugin} from './plugin.js';
+import {replace_plugin} from './plugin.ts';
 
 test('replace_plugin', () => {
 	const a = {name: 'a'};

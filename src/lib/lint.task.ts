@@ -1,9 +1,9 @@
 import {print_spawn_result} from '@ryanatkn/belt/process.js';
 import {z} from 'zod';
 
-import {Task_Error, type Task} from './task.js';
-import {serialize_args, to_forwarded_args} from './args.js';
-import {find_cli, spawn_cli} from './cli.js';
+import {Task_Error, type Task} from './task.ts';
+import {serialize_args, to_forwarded_args} from './args.ts';
+import {find_cli, spawn_cli} from './cli.ts';
 
 const ESLINT_CLI = 'eslint';
 

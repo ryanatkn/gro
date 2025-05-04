@@ -4,12 +4,12 @@ import {strip_start} from '@ryanatkn/belt/string.js';
 import {Project} from 'ts-morph';
 import {existsSync} from 'node:fs';
 
-import {paths, replace_extension} from './paths.js';
+import {paths, replace_extension} from './paths.ts';
 import {
 	transform_empty_object_to_undefined,
 	type Package_Json,
 	type Package_Json_Exports,
-} from './package_json.js';
+} from './package_json.ts';
 
 // TODO @many rename to prefix with `Src_Json_`?
 export const Src_Module_Declaration = z

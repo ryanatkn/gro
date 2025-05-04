@@ -3,8 +3,8 @@ import * as assert from 'uvu/assert';
 import * as esbuild from 'esbuild';
 import {readFile, rm} from 'node:fs/promises';
 
-import {esbuild_plugin_svelte} from './esbuild_plugin_svelte.js';
-import {default_svelte_config} from './svelte_config.js';
+import {esbuild_plugin_svelte} from './esbuild_plugin_svelte.ts';
+import {default_svelte_config} from './svelte_config.ts';
 
 // TODO improve these tests to have automatic caching
 

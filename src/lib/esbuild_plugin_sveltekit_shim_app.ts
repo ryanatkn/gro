@@ -4,9 +4,9 @@ import {
 	render_sveltekit_shim_app_environment,
 	render_sveltekit_shim_app_paths,
 	sveltekit_shim_app_specifiers,
-} from './sveltekit_shim_app.js';
-import type {Parsed_Svelte_Config} from './svelte_config.js';
-import {EVERYTHING_MATCHER} from './constants.js';
+} from './sveltekit_shim_app.ts';
+import type {Parsed_Svelte_Config} from './svelte_config.ts';
+import {EVERYTHING_MATCHER} from './constants.ts';
 
 export interface Esbuild_Plugin_Sveltekit_Shim_App_Options {
 	dev: boolean;

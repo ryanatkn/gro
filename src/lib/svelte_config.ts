@@ -3,7 +3,7 @@ import type {CompileOptions, ModuleCompileOptions, PreprocessorGroup} from 'svel
 import {join} from 'node:path';
 import {EMPTY_OBJECT} from '@ryanatkn/belt/object.js';
 
-import {SVELTE_CONFIG_FILENAME} from './constants.js';
+import {SVELTE_CONFIG_FILENAME} from './constants.ts';
 
 /*
 

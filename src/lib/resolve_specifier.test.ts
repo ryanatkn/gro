@@ -2,8 +2,8 @@ import {test} from 'uvu';
 import * as assert from 'uvu/assert';
 import {join} from 'node:path';
 
-import {resolve_specifier} from './resolve_specifier.js';
-import {paths} from './paths.js';
+import {resolve_specifier} from './resolve_specifier.ts';
+import {paths} from './paths.ts';
 
 const dir = paths.source + 'fixtures/';
 

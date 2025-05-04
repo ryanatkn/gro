@@ -3,7 +3,7 @@ import {relative} from 'node:path';
 import {statSync} from 'node:fs';
 import {create_deferred, type Deferred} from '@ryanatkn/belt/async.js';
 
-import type {Path_Filter} from './path.js';
+import type {Path_Filter} from './path.ts';
 
 // TODO pretty hacky
 

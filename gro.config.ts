@@ -1,9 +1,9 @@
 import {gro_plugin_moss} from '@ryanatkn/moss/gro_plugin_moss.js';
 
-import {create_empty_gro_config} from './src/lib/gro_config.js';
-import {gro_plugin_sveltekit_library} from './src/lib/gro_plugin_sveltekit_library.js';
-import {gro_plugin_sveltekit_app} from './src/lib/gro_plugin_sveltekit_app.js';
-import {gro_plugin_gen} from './src/lib/gro_plugin_gen.js';
+import {create_empty_gro_config} from './src/lib/gro_config.ts';
+import {gro_plugin_sveltekit_library} from './src/lib/gro_plugin_sveltekit_library.ts';
+import {gro_plugin_sveltekit_app} from './src/lib/gro_plugin_sveltekit_app.ts';
+import {gro_plugin_gen} from './src/lib/gro_plugin_gen.ts';
 
 /**
  * This is the config for the Gro project itself.

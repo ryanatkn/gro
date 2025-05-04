@@ -10,11 +10,11 @@ import {
 	type Genfile_Module_Meta,
 	to_gen_result,
 	type Raw_Gen_Result,
-} from './gen.js';
-import {print_path, to_root_path} from './paths.js';
-import type {format_file as base_format_file} from './format_file.js';
-import type {Gro_Config} from './gro_config.js';
-import {default_svelte_config} from './svelte_config.js';
+} from './gen.ts';
+import {print_path, to_root_path} from './paths.ts';
+import type {format_file as base_format_file} from './format_file.ts';
+import type {Gro_Config} from './gro_config.ts';
+import {default_svelte_config} from './svelte_config.ts';
 
 export const GEN_NO_PROD_MESSAGE = 'gen runs only during development';
 

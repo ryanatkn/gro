@@ -2,12 +2,12 @@ import {EMPTY_OBJECT} from '@ryanatkn/belt/object.js';
 import {throttle} from '@ryanatkn/belt/throttle.js';
 import {Unreachable_Error} from '@ryanatkn/belt/error.js';
 
-import type {Plugin} from './plugin.js';
-import type {Args} from './args.js';
-import {paths} from './paths.js';
-import {find_genfiles, is_gen_path} from './gen.js';
-import {spawn_cli} from './cli.js';
-import {filter_dependents, type Cleanup_Watch} from './filer.js';
+import type {Plugin} from './plugin.ts';
+import type {Args} from './args.ts';
+import {paths} from './paths.ts';
+import {find_genfiles, is_gen_path} from './gen.ts';
+import {spawn_cli} from './cli.ts';
+import {filter_dependents, type Cleanup_Watch} from './filer.ts';
 
 const FLUSH_DEBOUNCE_DELAY = 500;
 

@@ -3,13 +3,13 @@ import {print_log_label} from '@ryanatkn/belt/print.js';
 import {System_Logger} from '@ryanatkn/belt/log.js';
 import type {Timings} from '@ryanatkn/belt/timings.js';
 
-import {parse_args, type Args} from './args.js';
-import type {invoke_task as base_invoke_task} from './invoke_task.js';
-import {log_task_help} from './task_logging.js';
-import type {Gro_Config} from './gro_config.js';
-import {Task_Error, type Task_Module_Meta} from './task.js';
-import {default_svelte_config} from './svelte_config.js';
-import type {Filer} from './filer.js';
+import {parse_args, type Args} from './args.ts';
+import type {invoke_task as base_invoke_task} from './invoke_task.ts';
+import {log_task_help} from './task_logging.ts';
+import type {Gro_Config} from './gro_config.ts';
+import {Task_Error, type Task_Module_Meta} from './task.ts';
+import {default_svelte_config} from './svelte_config.ts';
+import type {Filer} from './filer.ts';
 
 export type Run_Task_Result =
 	| {

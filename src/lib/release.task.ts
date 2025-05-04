@@ -1,8 +1,8 @@
 import {z} from 'zod';
 
-import type {Task} from './task.js';
-import {has_sveltekit_library, has_sveltekit_app} from './sveltekit_helpers.js';
-import {load_package_json} from './package_json.js';
+import type {Task} from './task.ts';
+import {has_sveltekit_library, has_sveltekit_app} from './sveltekit_helpers.ts';
+import {load_package_json} from './package_json.ts';
 
 export const Args = z.object({}).strict();
 export type Args = z.infer<typeof Args>;

@@ -8,8 +8,8 @@
 	import {slide} from 'svelte/transition';
 	import Hidden_Personal_Links from '@ryanatkn/fuz/Hidden_Personal_Links.svelte';
 
-	import {parse_package_meta} from '$lib/package_meta.js';
-	import {package_json, src_json} from '$lib/package.js';
+	import {parse_package_meta} from '../lib/package_meta.ts';
+	import {package_json, src_json} from '../lib/package.ts';
 
 	// TODO add website, rewriting the markdown docs as Svelte
 

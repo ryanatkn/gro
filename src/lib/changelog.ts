@@ -3,7 +3,7 @@ import {z} from 'zod';
 import type {Logger} from '@ryanatkn/belt/log.js';
 import type {Fetch_Value_Cache} from '@ryanatkn/belt/fetch.js';
 
-import {github_fetch_commit_prs} from './github.js';
+import {github_fetch_commit_prs} from './github.ts';
 
 /**
  * Updates a changelog produced by `@changesets/changelog-git` with better links and formatting.

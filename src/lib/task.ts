@@ -6,21 +6,21 @@ import {styleText as st} from 'node:util';
 import type {Result} from '@ryanatkn/belt/result.js';
 import {isAbsolute, join, relative} from 'node:path';
 
-import type {Args} from './args.js';
-import type {Path_Id} from './path.js';
-import type {Gro_Config} from './gro_config.js';
-import type {Parsed_Svelte_Config} from './svelte_config.js';
+import type {Args} from './args.ts';
+import type {Path_Id} from './path.ts';
+import type {Gro_Config} from './gro_config.ts';
+import type {Parsed_Svelte_Config} from './svelte_config.ts';
 import {
 	resolve_input_files,
 	resolve_input_paths,
 	type Input_Path,
 	type Resolved_Input_File,
 	type Resolved_Input_Path,
-} from './input_path.js';
-import {GRO_DIST_DIR, print_path} from './paths.js';
-import {search_fs} from './search_fs.js';
-import {load_modules, type Load_Modules_Failure, type Module_Meta} from './modules.js';
-import type {Filer} from './filer.js';
+} from './input_path.ts';
+import {GRO_DIST_DIR, print_path} from './paths.ts';
+import {search_fs} from './search_fs.ts';
+import {load_modules, type Load_Modules_Failure, type Module_Meta} from './modules.ts';
+import type {Filer} from './filer.ts';
 
 export interface Task<
 	T_Args = Args, // same as `z.infer<typeof Args>`

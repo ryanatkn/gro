@@ -1,7 +1,7 @@
 import {rm} from 'node:fs/promises';
 import {readdirSync, type RmOptions} from 'node:fs';
 
-import {paths} from './paths.js';
+import {paths} from './paths.ts';
 import {
 	NODE_MODULES_DIRNAME,
 	GRO_DIST_PREFIX,
@@ -9,7 +9,7 @@ import {
 	SVELTEKIT_BUILD_DIRNAME,
 	SVELTEKIT_VITE_CACHE_PATH,
 	SVELTEKIT_DIST_DIRNAME,
-} from './constants.js';
+} from './constants.ts';
 
 export const clean_fs = async (
 	{

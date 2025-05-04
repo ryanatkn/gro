@@ -2,8 +2,8 @@ import type * as esbuild from 'esbuild';
 import {readFile} from 'node:fs/promises';
 import {dirname} from 'node:path';
 
-import {resolve_specifier} from './resolve_specifier.js';
-import {EVERYTHING_MATCHER} from './constants.js';
+import {resolve_specifier} from './resolve_specifier.ts';
+import {EVERYTHING_MATCHER} from './constants.ts';
 
 /**
  * Adds support for imports to both `.ts` and `.js`,

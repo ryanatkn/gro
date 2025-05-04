@@ -1,8 +1,8 @@
 import {extname, isAbsolute, join, relative} from 'node:path';
 import {existsSync} from 'node:fs';
 
-import {replace_extension} from './paths.js';
-import type {Path_Id} from './path.js';
+import {replace_extension} from './paths.ts';
+import type {Path_Id} from './path.ts';
 
 export interface Resolved_Specifier {
 	/**

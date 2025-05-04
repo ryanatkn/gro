@@ -2,12 +2,12 @@ import {spawn} from '@ryanatkn/belt/process.js';
 import {z} from 'zod';
 import {rmSync} from 'node:fs';
 
-import {Task_Error, type Task} from './task.js';
-import {extract_deps, load_package_json, type Package_Json_Dep} from './package_json.js';
-import {Git_Origin, git_pull} from './git.js';
-import {spawn_cli} from './cli.js';
-import {serialize_args, to_forwarded_args} from './args.js';
-import {NODE_MODULES_DIRNAME} from './constants.js';
+import {Task_Error, type Task} from './task.ts';
+import {extract_deps, load_package_json, type Package_Json_Dep} from './package_json.ts';
+import {Git_Origin, git_pull} from './git.ts';
+import {spawn_cli} from './cli.ts';
+import {serialize_args, to_forwarded_args} from './args.ts';
+import {NODE_MODULES_DIRNAME} from './constants.ts';
 
 export const Args = z
 	.object({

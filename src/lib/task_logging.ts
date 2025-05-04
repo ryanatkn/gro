@@ -4,9 +4,9 @@ import {plural} from '@ryanatkn/belt/string.js';
 import {print_value} from '@ryanatkn/belt/print.js';
 import {ZodFirstPartyTypeKind, type ZodObjectDef, type ZodTypeAny, type ZodTypeDef} from 'zod';
 
-import type {Arg_Schema} from './args.js';
-import type {Loaded_Tasks, Task_Module_Meta} from './task.js';
-import {print_path} from './paths.js';
+import type {Arg_Schema} from './args.ts';
+import type {Loaded_Tasks, Task_Module_Meta} from './task.ts';
+import {print_path} from './paths.ts';
 
 export const log_tasks = (log: Logger, loaded_tasks: Loaded_Tasks, log_intro = true): void => {
 	const {modules, found_tasks} = loaded_tasks;

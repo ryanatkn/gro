@@ -3,14 +3,14 @@ import {System_Logger} from '@ryanatkn/belt/log.js';
 import {create_stopwatch, Timings} from '@ryanatkn/belt/timings.js';
 import {print_ms, print_timings, print_log_label} from '@ryanatkn/belt/print.js';
 
-import {to_forwarded_args, type Args} from './args.js';
-import {run_task} from './run_task.js';
-import {to_input_path, Raw_Input_Path} from './input_path.js';
-import {find_tasks, load_tasks, Silent_Error} from './task.js';
-import {load_gro_package_json} from './package_json.js';
-import {log_tasks, log_error_reasons} from './task_logging.js';
-import type {Gro_Config} from './gro_config.js';
-import {Filer} from './filer.js';
+import {to_forwarded_args, type Args} from './args.ts';
+import {run_task} from './run_task.ts';
+import {to_input_path, Raw_Input_Path} from './input_path.ts';
+import {find_tasks, load_tasks, Silent_Error} from './task.ts';
+import {load_gro_package_json} from './package_json.ts';
+import {log_tasks, log_error_reasons} from './task_logging.ts';
+import type {Gro_Config} from './gro_config.ts';
+import {Filer} from './filer.ts';
 
 /**
  * Invokes Gro tasks by name using the filesystem as the source.

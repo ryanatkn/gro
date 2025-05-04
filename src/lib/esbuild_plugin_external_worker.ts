@@ -3,15 +3,15 @@ import type {Logger} from '@ryanatkn/belt/log.js';
 import {basename} from 'node:path';
 import type {CompileOptions, ModuleCompileOptions, PreprocessorGroup} from 'svelte/compiler';
 
-import {print_build_result, to_define_import_meta_env} from './esbuild_helpers.js';
-import {resolve_specifier} from './resolve_specifier.js';
-import {esbuild_plugin_sveltekit_shim_alias} from './esbuild_plugin_sveltekit_shim_alias.js';
-import {esbuild_plugin_sveltekit_shim_env} from './esbuild_plugin_sveltekit_shim_env.js';
-import {esbuild_plugin_sveltekit_shim_app} from './esbuild_plugin_sveltekit_shim_app.js';
-import {esbuild_plugin_sveltekit_local_imports} from './esbuild_plugin_sveltekit_local_imports.js';
-import {esbuild_plugin_svelte} from './esbuild_plugin_svelte.js';
-import type {Parsed_Svelte_Config} from './svelte_config.js';
-import type {Path_Id} from './path.js';
+import {print_build_result, to_define_import_meta_env} from './esbuild_helpers.ts';
+import {resolve_specifier} from './resolve_specifier.ts';
+import {esbuild_plugin_sveltekit_shim_alias} from './esbuild_plugin_sveltekit_shim_alias.ts';
+import {esbuild_plugin_sveltekit_shim_env} from './esbuild_plugin_sveltekit_shim_env.ts';
+import {esbuild_plugin_sveltekit_shim_app} from './esbuild_plugin_sveltekit_shim_app.ts';
+import {esbuild_plugin_sveltekit_local_imports} from './esbuild_plugin_sveltekit_local_imports.ts';
+import {esbuild_plugin_svelte} from './esbuild_plugin_svelte.ts';
+import type {Parsed_Svelte_Config} from './svelte_config.ts';
+import type {Path_Id} from './path.ts';
 
 export interface Esbuild_Plugin_External_Worker_Options {
 	dev: boolean;

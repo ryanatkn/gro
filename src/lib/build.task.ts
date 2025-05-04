@@ -1,8 +1,8 @@
 import {z} from 'zod';
 
-import type {Task} from './task.js';
-import {Plugins} from './plugin.js';
-import {clean_fs} from './clean_fs.js';
+import type {Task} from './task.ts';
+import {Plugins} from './plugin.ts';
+import {clean_fs} from './clean_fs.ts';
 
 export const Args = z
 	.object({

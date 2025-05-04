@@ -1,13 +1,13 @@
 import {print_spawn_result, spawn} from '@ryanatkn/belt/process.js';
 
-import type {Plugin} from './plugin.js';
-import {Task_Error} from './task.js';
-import {load_package_json} from './package_json.js';
+import type {Plugin} from './plugin.ts';
+import {Task_Error} from './task.ts';
+import {load_package_json} from './package_json.ts';
 import {
 	SVELTE_PACKAGE_CLI,
 	run_svelte_package,
 	type Svelte_Package_Options,
-} from './sveltekit_helpers.js';
+} from './sveltekit_helpers.ts';
 
 export interface Gro_Plugin_Sveltekit_Library_Options {
 	/**

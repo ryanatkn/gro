@@ -1,9 +1,9 @@
 import {print_spawn_result} from '@ryanatkn/belt/process.js';
 import {z} from 'zod';
 
-import {Task_Error, type Task} from './task.js';
-import {format_directory} from './format_directory.js';
-import {paths} from './paths.js';
+import {Task_Error, type Task} from './task.ts';
+import {format_directory} from './format_directory.ts';
+import {paths} from './paths.ts';
 
 export const Args = z
 	.object({

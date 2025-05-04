@@ -2,9 +2,9 @@ import {parseSync, type ImportDeclaration} from 'oxc-parser';
 import type {Flavored} from '@ryanatkn/belt/types.js';
 import {Unreachable_Error} from '@ryanatkn/belt/error.js';
 
-import type {Path_Id} from './path.js';
-import {SVELTE_MATCHER} from './svelte_helpers.js';
-import {JS_MATCHER, TS_MATCHER, SVELTE_SCRIPT_MATCHER} from './constants.js';
+import type {Path_Id} from './path.ts';
+import {SVELTE_MATCHER} from './svelte_helpers.ts';
+import {JS_MATCHER, TS_MATCHER, SVELTE_SCRIPT_MATCHER} from './constants.ts';
 
 export type Import_Specifier = Flavored<string, 'Import_Specifier'>;
 

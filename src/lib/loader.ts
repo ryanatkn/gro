@@ -1,26 +1,25 @@
-import * as esbuild from 'esbuild';
 import {compile, compileModule, preprocess} from 'svelte/compiler';
 import {fileURLToPath, pathToFileURL} from 'node:url';
 import {dirname, join} from 'node:path';
 import type {LoadHook, ResolveHook} from 'node:module';
 import {escape_regexp} from '@ryanatkn/belt/regexp.js';
 import {readFileSync} from 'node:fs';
+import ts_blank_space from 'ts-blank-space';
 
-import {render_env_shim_module} from './sveltekit_shim_env.js';
+import {render_env_shim_module} from './sveltekit_shim_env.ts';
 import {
 	render_sveltekit_shim_app_environment,
 	render_sveltekit_shim_app_paths,
 	SVELTEKIT_SHIM_APP_ENVIRONMENT_MATCHER,
 	SVELTEKIT_SHIM_APP_PATHS_MATCHER,
 	sveltekit_shim_app_specifiers,
-} from './sveltekit_shim_app.js';
-import {default_svelte_config} from './svelte_config.js';
-import {SVELTE_MATCHER, SVELTE_RUNES_MATCHER} from './svelte_helpers.js';
-import {IS_THIS_GRO, paths} from './paths.js';
-import {JSON_MATCHER, NODE_MODULES_DIRNAME, TS_MATCHER} from './constants.js';
-import {to_define_import_meta_env, default_ts_transform_options} from './esbuild_helpers.js';
-import {resolve_specifier} from './resolve_specifier.js';
-import {map_sveltekit_aliases} from './sveltekit_helpers.js';
+} from './sveltekit_shim_app.ts';
+import {default_svelte_config} from './svelte_config.ts';
+import {SVELTE_MATCHER, SVELTE_RUNES_MATCHER} from './svelte_helpers.ts';
+import {IS_THIS_GRO, paths} from './paths.ts';
+import {JSON_MATCHER, NODE_MODULES_DIRNAME, TS_MATCHER} from './constants.ts';
+import {resolve_specifier} from './resolve_specifier.ts';
+import {map_sveltekit_aliases} from './sveltekit_helpers.ts';
 
 // TODO get out of the loader business, starting with https://nodejs.org/api/typescript.html#type-stripping
 
@@ -41,7 +40,7 @@ gro run foo.ts
 Direct usage without register (see also `$lib/gro.ts`):
 
 ```bash
-node --import 'data:text/javascript,import {register} from "node:module"; import {pathToFileURL} from "node:url"; register("@ryanatkn/gro/loader.js", pathToFileURL("./"));' --experimental-import-meta-resolve --enable-source-maps' foo.ts
+node --import 'data:text/javascript,import {register} from "node:module"; import {pathToFileURL} from "node:url"; register("@ryanatkn/gro/loader.js", pathToFileURL("./"));' --experimental-import-meta-resolve --experimental-strip-types' foo.ts
 ```
 
 TODO how to improve that gnarly import line? was originally designed for the now-deprecated `--loader`
@@ -68,19 +67,13 @@ const {
 	svelte_preprocessors,
 } = default_svelte_config;
 
-const ts_transform_options: esbuild.TransformOptions = {
-	...default_ts_transform_options,
-	define: to_define_import_meta_env(dev, base_url),
-	sourcemap: 'inline',
-};
-
 const aliases = Object.entries(alias);
 
 const RAW_MATCHER = /(%3Fraw|\.css|\.svg)$/; // TODO others? configurable?
-const ENV_MATCHER = /src\/lib\/\$env\/(static|dynamic)\/(public|private)$/;
 const NODE_MODULES_MATCHER = new RegExp(escape_regexp('/' + NODE_MODULES_DIRNAME + '/'), 'u');
 
 export const load: LoadHook = async (url, context, nextLoad) => {
+	// console.log(`url`, url);
 	if (SVELTEKIT_SHIM_APP_PATHS_MATCHER.test(url)) {
 		// SvelteKit `$app/paths` shim
 		return {
@@ -96,33 +89,25 @@ export const load: LoadHook = async (url, context, nextLoad) => {
 			source: render_sveltekit_shim_app_environment(dev),
 		};
 	} else if (SVELTE_RUNES_MATCHER.test(url)) {
-		// Svelte runes in js/ts
-		const loaded = await nextLoad(
-			url,
-			context.format === 'module' ? context : {...context, format: 'module'}, // TODO dunno why this is needed, specifically with tests
-		);
+		// Svelte runes in js/ts, `.svelte.ts`
 		const filename = fileURLToPath(url);
-		const source = loaded.source!.toString(); // eslint-disable-line @typescript-eslint/no-base-to-string
-		const js_source = TS_MATCHER.test(url)
-			? (await esbuild.transform(source, {...ts_transform_options, sourcefile: url})).code // TODO @many use warnings? handle not-inline sourcemaps?
-			: source;
-		const transformed = compileModule(js_source, {...svelte_compile_module_options, dev, filename});
+		const loaded = await nextLoad(url, {...context, format: 'module-typescript'});
+		const raw_source = loaded.source?.toString(); // eslint-disable-line @typescript-eslint/no-base-to-string
+		if (raw_source == null) throw new Error(`Failed to load ${url}`);
+		// TODO should be nice if we could use Node's builtin amaro transform, but I couldn't find a way after digging into the source, AFAICT it's internal and not exposed
+		const source = ts_blank_space(raw_source); // TODO was using oxc-transform and probably should, but this doesn't require sourcemaps, and it's still alpha as of May 2025
+		const transformed = compileModule(source, {
+			...svelte_compile_module_options,
+			dev,
+			filename,
+		});
 		return {format: 'module', shortCircuit: true, source: transformed.js.code};
 	} else if (TS_MATCHER.test(url)) {
-		// ts
-		const loaded = await nextLoad(
-			url,
-			context.format === 'module' ? context : {...context, format: 'module'}, // TODO dunno why this is needed, specifically with tests
-		);
-		const source = loaded.source!.toString(); // eslint-disable-line @typescript-eslint/no-base-to-string
-		const transformed = await esbuild.transform(source, {...ts_transform_options, sourcefile: url}); // TODO @many use warnings? handle not-inline sourcemaps?
-		return {format: 'module', shortCircuit: true, source: transformed.code};
+		// ts but not `.svelte.ts`
+		return nextLoad(url, {...context, format: 'module-typescript'});
 	} else if (SVELTE_MATCHER.test(url)) {
-		// Svelte
-		const loaded = await nextLoad(
-			url,
-			context.format === 'module' ? context : {...context, format: 'module'}, // TODO dunno why this is needed, specifically with tests
-		);
+		// Svelte, `.svelte`
+		const loaded = await nextLoad(url, {...context, format: 'module'});
 		const raw_source = loaded.source!.toString(); // eslint-disable-line @typescript-eslint/no-base-to-string
 		const filename = fileURLToPath(url);
 		const preprocessed = svelte_preprocessors // TODO @many use sourcemaps (and diagnostics?)
@@ -132,10 +117,12 @@ export const load: LoadHook = async (url, context, nextLoad) => {
 		const transformed = compile(source, {...svelte_compile_options, dev, filename});
 		return {format: 'module', shortCircuit: true, source: transformed.js.code};
 	} else if (JSON_MATCHER.test(url)) {
+		// TODO probably require import attrs: `JSON_MATCHER.test(url) && context.importAttributes.type === 'json'`
 		// json
-		// TODO probably follow esbuild and also export every top-level property for objects from the module - https://esbuild.github.io/content-types/#json (type generation?)
-		const loaded = await nextLoad(url);
-		const raw_source = loaded.source!.toString(); // eslint-disable-line @typescript-eslint/no-base-to-string
+		// TODO probably follow esbuild and also export every top-level property for objects from the module for good treeshaking - https://esbuild.github.io/content-types/#json (type generation?)
+		const loaded = await nextLoad(url, context);
+		const raw_source = loaded.source?.toString(); // eslint-disable-line @typescript-eslint/no-base-to-string
+		if (raw_source == null) throw new Error(`Failed to load ${url}`);
 		const source = `export default ` + raw_source;
 		return {format: 'module', shortCircuit: true, source};
 	} else if (RAW_MATCHER.test(url)) {
@@ -146,24 +133,36 @@ export const load: LoadHook = async (url, context, nextLoad) => {
 			'export default `' + raw_source.replaceAll('\\', '\\\\').replaceAll('`', '\\`') + '`;';
 		return {format: 'module', shortCircuit: true, source};
 	} else {
-		const matched_env = ENV_MATCHER.exec(url);
-		if (matched_env) {
-			// SvelteKit `$env`
-			const mode: 'static' | 'dynamic' = matched_env[1] as any;
-			const visibility: 'public' | 'private' = matched_env[2] as any;
-			return {
-				format: 'module',
-				shortCircuit: true,
-				source: render_env_shim_module(
-					dev,
-					mode,
-					visibility,
-					public_prefix,
-					private_prefix,
-					env_dir,
-				),
-			};
-		}
+		// SvelteKit `$env`
+		// TODO use `format` from the resolve hook to speed this up and make it simpler
+		if (context.format === 'sveltekit-env') {
+			let mode: 'static' | 'dynamic';
+			let visibility: 'public' | 'private';
+			if (context.importAttributes.virtual === '$env/static/public') {
+				mode = 'static';
+				visibility = 'public';
+			} else if (context.importAttributes.virtual === '$env/static/private') {
+				mode = 'static';
+				visibility = 'private';
+			} else if (context.importAttributes.virtual === '$env/dynamic/public') {
+				mode = 'dynamic';
+				visibility = 'public';
+			} else if (context.importAttributes.virtual === '$env/dynamic/private') {
+				mode = 'dynamic';
+				visibility = 'private';
+			} else {
+				throw new Error(`Unknown $env import: ${context.importAttributes.virtual}`);
+			}
+			const source = render_env_shim_module(
+				dev,
+				mode,
+				visibility,
+				public_prefix,
+				private_prefix,
+				env_dir,
+			);
+			return {format: 'module', shortCircuit: true, source};
+		} // else fallback
 	}
 
 	// fallback to default behavior
@@ -184,7 +183,8 @@ export const resolve: ResolveHook = async (specifier, context, nextResolve) => {
 		// so we need a slightly roundabout strategy to pass through the specifier for virtual files.
 		return {
 			url: pathToFileURL(join(dir, 'src/lib', s)).href,
-			format: 'module',
+			format: 'sveltekit-env',
+			importAttributes: {virtual: s}, // TODO idk I'm just making this up
 			shortCircuit: true,
 		};
 	}

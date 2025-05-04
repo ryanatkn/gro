@@ -1,5 +1,5 @@
-import {LIB_DIRNAME} from './paths.js';
-import {SOURCE_DIR, SOURCE_DIRNAME} from './constants.js';
+import {LIB_DIRNAME} from './paths.ts';
+import {SOURCE_DIR, SOURCE_DIRNAME} from './constants.ts';
 
 export const MODULE_PATH_SRC_PREFIX = SOURCE_DIR;
 export const MODULE_PATH_LIB_PREFIX = `$${LIB_DIRNAME}/`;

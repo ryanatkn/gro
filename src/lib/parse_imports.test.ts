@@ -1,7 +1,7 @@
 import {test} from 'uvu';
 import * as assert from 'uvu/assert';
 
-import {parse_imports} from './parse_imports.js';
+import {parse_imports} from './parse_imports.ts';
 
 test('parse js imports', () => {
 	const parsed = parse_imports(

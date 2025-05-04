@@ -2,7 +2,7 @@ import {styleText as st} from 'node:util';
 import type {Logger} from '@ryanatkn/belt/log.js';
 import type * as esbuild from 'esbuild';
 
-import type {Parsed_Svelte_Config} from './svelte_config.js';
+import type {Parsed_Svelte_Config} from './svelte_config.ts';
 
 export const print_build_result = (log: Logger, build_result: esbuild.BuildResult): void => {
 	for (const error of build_result.errors) {
@@ -42,9 +42,8 @@ export const to_define_import_meta_env = (
 });
 
 export const default_ts_transform_options: esbuild.TransformOptions = {
-	target: 'esnext',
+	target: 'esnext', // TODO load local tsconfig
 	format: 'esm',
 	loader: 'ts',
 	charset: 'utf8',
-	// TODO load local tsconfig
 };

@@ -4,10 +4,10 @@ import {strip_start} from '@ryanatkn/belt/string.js';
 import {z} from 'zod';
 import type {Flavored} from '@ryanatkn/belt/types.js';
 
-import {GRO_PACKAGE_DIR, GRO_DIST_DIR} from './paths.js';
-import type {Path_Info, Path_Id, Resolved_Path} from './path.js';
-import {search_fs} from './search_fs.js';
-import {TASK_FILE_SUFFIX_JS} from './task.js';
+import {GRO_PACKAGE_DIR, GRO_DIST_DIR} from './paths.ts';
+import type {Path_Info, Path_Id, Resolved_Path} from './path.ts';
+import {search_fs} from './search_fs.ts';
+import {TASK_FILE_SUFFIX_JS} from './task.ts';
 
 // TODO Flavored doesn't work when used in schemas, use Zod brand instead? problem is ergonomics
 export const Input_Path = z.string();

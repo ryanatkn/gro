@@ -40,7 +40,7 @@ So to add a new test, create a new file:
 import {test} from 'uvu';
 import * as assert from 'uvu/assert';
 
-import {thing} from '$lib/thing.js';
+import {thing} from './thing.ts';
 
 test('the thing', async () => {
 	assert.equal(thing, {expected: true});

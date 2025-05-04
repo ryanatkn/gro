@@ -1,22 +1,27 @@
 import {test} from 'uvu';
 import * as assert from 'uvu/assert';
 import {resolve} from 'node:path';
+import {noop} from '@ryanatkn/belt/function.js';
 
-import {is_task_path, to_task_name, validate_task_module, find_tasks, load_tasks} from './task.js';
-import * as actual_test_task_module from './test.task.js';
-import {create_empty_gro_config} from './gro_config.js';
-import {GRO_DIST_DIR} from './paths.js';
+import {is_task_path, to_task_name, validate_task_module, find_tasks, load_tasks} from './task.ts';
+import * as actual_test_task_module from './test.task.ts';
+import {create_empty_gro_config} from './gro_config.ts';
+import {GRO_DIST_DIR} from './paths.ts';
 
 test('is_task_path basic behavior', () => {
 	assert.ok(is_task_path('foo.task.ts'));
 	assert.ok(is_task_path('foo.task.js'));
 	assert.ok(!is_task_path('foo.ts'));
+	assert.ok(!is_task_path('foo.js'));
 	assert.ok(is_task_path('bar/baz/foo.task.ts'));
+	assert.ok(is_task_path('bar/baz/foo.task.js'));
 	assert.ok(!is_task_path('bar/baz/foo.ts'));
+	assert.ok(!is_task_path('bar/baz/foo.js'));
 });
 
 test('to_task_name basic behavior', () => {
 	assert.is(to_task_name('foo.task.ts', process.cwd(), '', ''), 'foo');
+	assert.is(to_task_name('foo.task.js', process.cwd(), '', ''), 'foo');
 	assert.is(to_task_name('bar/baz/foo.task.ts', process.cwd(), '', ''), 'bar/baz/foo');
 	assert.is(to_task_name('a/b/c/foo.task.ts', 'a/b/c', '', ''), 'foo');
 	assert.is(to_task_name('a/b/c/foo.task.ts', 'a', '', ''), 'b/c/foo');
@@ -50,13 +55,18 @@ test('to_task_name basic behavior', () => {
 	);
 });
 
-// TODO if we import directly, svelte-package generates types in `src/fixtures`
-const test_task_module = await import('../fixtures/' + 'test_task_module.task_fixture'); // eslint-disable-line no-useless-concat
-const test_invalid_task_module = await import('../fixtures/' + 'test_invalid_task_module.js'); // eslint-disable-line no-useless-concat
-
-test('validate_task_module basic behavior', () => {
-	assert.ok(validate_task_module(test_task_module));
-	assert.ok(!validate_task_module(test_invalid_task_module));
+test('validate_task_module basic behavior', async () => {
+	// TODO if we import directly, svelte-package generates types in `src/fixtures`
+	const test_task_module_js = await import('../fixtures/' + 'test_task_module.task_fixture.js'); // eslint-disable-line no-useless-concat
+	const test_task_module_ts = await import('../fixtures/' + 'test_task_module.task_fixture.ts'); // eslint-disable-line no-useless-concat
+	const test_invalid_task_module_js = await import('../fixtures/' + 'test_invalid_task_module.js'); // eslint-disable-line no-useless-concat
+	const test_invalid_task_module_ts = await import('../fixtures/' + 'test_invalid_task_module.ts'); // eslint-disable-line no-useless-concat
+	assert.ok(validate_task_module(test_task_module_js));
+	assert.ok(validate_task_module(test_task_module_ts));
+	assert.ok(!validate_task_module(test_invalid_task_module_js));
+	assert.ok(!validate_task_module(test_invalid_task_module_ts));
+	// demonstrating values:
+	assert.ok(validate_task_module({task: {run: noop}}));
 	assert.ok(!validate_task_module({task: {run: {}}}));
 });
 

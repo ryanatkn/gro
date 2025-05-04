@@ -3,7 +3,7 @@ import {join, resolve} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {spawn, type Spawn_Result} from '@ryanatkn/belt/process.js';
 
-import {JS_CLI_DEFAULT, NODE_MODULES_DIRNAME, SVELTEKIT_DIST_DIRNAME} from './constants.js';
+import {JS_CLI_DEFAULT, NODE_MODULES_DIRNAME, SVELTEKIT_DIST_DIRNAME} from './constants.ts';
 
 /*
 
@@ -93,8 +93,11 @@ export const spawn_with_loader = (
 			import {register} from "node:module";
 			import {pathToFileURL} from "node:url";
 			register("${loader_path}", pathToFileURL("./"));`,
+		// @sync Node options to `$lib/gro.ts`
 		'--experimental-import-meta-resolve', // for `import.meta.resolve`
-		'--enable-source-maps', // because TypeScript
+		'--experimental-strip-types',
+		'--disable-warning',
+		'ExperimentalWarning',
 	];
 	// In almost all cases we want the exports condition to be `"development"`. Needed for `esm-env`.
 	if (process.env.NODE_ENV !== 'production') {

@@ -1,8 +1,8 @@
 import {z} from 'zod';
 import {styleText as st} from 'node:util';
 
-import {TASK_FILE_SUFFIXES, type Task} from './task.js';
-import {resolve_input_paths, to_input_paths} from './input_path.js';
+import {TASK_FILE_SUFFIXES, type Task} from './task.ts';
+import {resolve_input_paths, to_input_paths} from './input_path.ts';
 
 export const Args = z
 	.object({

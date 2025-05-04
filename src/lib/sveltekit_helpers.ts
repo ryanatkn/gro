@@ -3,12 +3,12 @@ import {existsSync} from 'node:fs';
 import type {Logger} from '@ryanatkn/belt/log.js';
 import {join} from 'node:path';
 
-import {Package_Json, has_dep} from './package_json.js';
-import {default_svelte_config, type Parsed_Svelte_Config} from './svelte_config.js';
-import {SVELTE_CONFIG_FILENAME, SVELTEKIT_DEV_DIRNAME, PM_CLI_DEFAULT} from './constants.js';
-import {find_cli, spawn_cli, to_cli_name, type Cli} from './cli.js';
-import {Task_Error} from './task.js';
-import {serialize_args, to_forwarded_args} from './args.js';
+import {Package_Json, has_dep} from './package_json.ts';
+import {default_svelte_config, type Parsed_Svelte_Config} from './svelte_config.ts';
+import {SVELTE_CONFIG_FILENAME, SVELTEKIT_DEV_DIRNAME, PM_CLI_DEFAULT} from './constants.ts';
+import {find_cli, spawn_cli, to_cli_name, type Cli} from './cli.ts';
+import {Task_Error} from './task.ts';
+import {serialize_args, to_forwarded_args} from './args.ts';
 
 export const SVELTEKIT_CLI = 'svelte-kit';
 

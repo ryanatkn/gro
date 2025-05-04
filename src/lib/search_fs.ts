@@ -4,7 +4,7 @@ import {ensure_end} from '@ryanatkn/belt/string.js';
 import {isAbsolute, join} from 'node:path';
 import {existsSync, readdirSync} from 'node:fs';
 
-import type {File_Filter, Resolved_Path, Path_Filter} from './path.js';
+import type {File_Filter, Resolved_Path, Path_Filter} from './path.ts';
 
 export interface Search_Fs_Options {
 	/**

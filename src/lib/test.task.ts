@@ -1,9 +1,9 @@
 import {styleText as st} from 'node:util';
 import {z} from 'zod';
 
-import {Task_Error, type Task} from './task.js';
-import {paths} from './paths.js';
-import {find_cli} from './cli.js';
+import {Task_Error, type Task} from './task.ts';
+import {paths} from './paths.ts';
+import {find_cli} from './cli.ts';
 
 export const Args = z
 	.object({

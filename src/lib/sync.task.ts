@@ -1,9 +1,9 @@
 import {z} from 'zod';
 import {spawn} from '@ryanatkn/belt/process.js';
 
-import {Task_Error, type Task} from './task.js';
-import {sync_package_json} from './package_json.js';
-import {sveltekit_sync} from './sveltekit_helpers.js';
+import {Task_Error, type Task} from './task.ts';
+import {sync_package_json} from './package_json.ts';
+import {sveltekit_sync} from './sveltekit_helpers.ts';
 
 export const Args = z
 	.object({

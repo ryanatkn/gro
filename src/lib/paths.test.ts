@@ -10,7 +10,7 @@ import {
 	to_root_path,
 	path_id_to_base_path,
 	base_path_to_path_id,
-} from './paths.js';
+} from './paths.ts';
 
 const test__create_paths = suite('create_paths');
 

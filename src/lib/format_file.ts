@@ -1,7 +1,7 @@
 import prettier from 'prettier';
 import {extname} from 'node:path';
 
-import {load_package_json} from './package_json.js';
+import {load_package_json} from './package_json.ts';
 
 let cached_base_options: prettier.Options | undefined;
 
