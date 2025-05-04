@@ -1,5 +1,12 @@
 # @ryanatkn/gro
 
+## 0.156.0
+
+### Minor Changes
+
+- - require import attr for json, `with { type: "json" }` ([#545](https://github.com/ryanatkn/gro/pull/545))
+  - remove `JSON_MATCHER`
+
 ## 0.155.0
 
 ### Minor Changes
