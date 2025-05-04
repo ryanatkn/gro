@@ -4,6 +4,7 @@ import {resolve} from 'node:path';
 import {readFileSync} from 'node:fs';
 
 const JSON_FIXTURE = 'src/fixtures/modules/some_test_json.json';
+const JSON_WITHOUT_EXTENSION_FIXTURE = 'src/fixtures/modules/some_test_json_without_extension';
 
 test('import .js', async () => {
 	const imported = await import(resolve('src/fixtures/modules/some_test_ts.js'));
@@ -29,6 +30,14 @@ test('import .json', async () => {
 	const imported = await import(path, {with: {type: 'json'}}); // import attribute is required
 	assert.ok(imported);
 	assert.is(imported.default.a, 'ok');
+	assert.equal(imported.default, JSON.parse(readFileSync(path, 'utf8')));
+});
+
+test('import json that doesnt end with .json', async () => {
+	const path = resolve(JSON_WITHOUT_EXTENSION_FIXTURE);
+	const imported = await import(path, {with: {type: 'json'}}); // import attribute means `.json` is not required
+	assert.ok(imported);
+	assert.ok(imported.default.some_test_json_without_extension);
 	assert.equal(imported.default, JSON.parse(readFileSync(path, 'utf8')));
 });
 
