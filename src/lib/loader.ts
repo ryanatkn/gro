@@ -138,20 +138,30 @@ export const load: LoadHook = async (url, context, nextLoad) => {
 		if (context.format === 'sveltekit-env') {
 			let mode: 'static' | 'dynamic';
 			let visibility: 'public' | 'private';
-			if (context.importAttributes.virtual === '$env/static/public') {
-				mode = 'static';
-				visibility = 'public';
-			} else if (context.importAttributes.virtual === '$env/static/private') {
-				mode = 'static';
-				visibility = 'private';
-			} else if (context.importAttributes.virtual === '$env/dynamic/public') {
-				mode = 'dynamic';
-				visibility = 'public';
-			} else if (context.importAttributes.virtual === '$env/dynamic/private') {
-				mode = 'dynamic';
-				visibility = 'private';
-			} else {
-				throw new Error(`Unknown $env import: ${context.importAttributes.virtual}`);
+			switch (context.importAttributes.virtual) {
+				case '$env/static/public': {
+					mode = 'static';
+					visibility = 'public';
+					break;
+				}
+				case '$env/static/private': {
+					mode = 'static';
+					visibility = 'private';
+					break;
+				}
+				case '$env/dynamic/public': {
+					mode = 'dynamic';
+					visibility = 'public';
+					break;
+				}
+				case '$env/dynamic/private': {
+					mode = 'dynamic';
+					visibility = 'private';
+					break;
+				}
+				default: {
+					throw new Error(`Unknown $env import: ${context.importAttributes.virtual}`);
+				}
 			}
 			const source = render_env_shim_module(
 				dev,
@@ -162,7 +172,7 @@ export const load: LoadHook = async (url, context, nextLoad) => {
 				env_dir,
 			);
 			return {format: 'module', shortCircuit: true, source};
-		} // else fallback
+		}
 	}
 
 	// fallback to default behavior
