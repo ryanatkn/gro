@@ -392,7 +392,6 @@ export const src_json = {
 				{name: 'TSCONFIG_FILENAME', kind: 'variable'},
 				{name: 'TS_MATCHER', kind: 'variable'},
 				{name: 'JS_MATCHER', kind: 'variable'},
-				{name: 'JSON_MATCHER', kind: 'variable'},
 				{name: 'SVELTE_SCRIPT_MATCHER', kind: 'variable'},
 				{name: 'EVERYTHING_MATCHER', kind: 'variable'},
 				{name: 'JS_CLI_DEFAULT', kind: 'variable'},

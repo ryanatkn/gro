@@ -17,7 +17,7 @@ import {
 import {default_svelte_config} from './svelte_config.ts';
 import {SVELTE_MATCHER, SVELTE_RUNES_MATCHER} from './svelte_helpers.ts';
 import {IS_THIS_GRO, paths} from './paths.ts';
-import {JSON_MATCHER, NODE_MODULES_DIRNAME, TS_MATCHER} from './constants.ts';
+import {NODE_MODULES_DIRNAME, TS_MATCHER} from './constants.ts';
 import {resolve_specifier} from './resolve_specifier.ts';
 import {map_sveltekit_aliases} from './sveltekit_helpers.ts';
 
@@ -93,7 +93,7 @@ export const load: LoadHook = async (url, context, nextLoad) => {
 		const filename = fileURLToPath(url);
 		const loaded = await nextLoad(url, {...context, format: 'module-typescript'});
 		const raw_source = loaded.source?.toString(); // eslint-disable-line @typescript-eslint/no-base-to-string
-		if (raw_source == null) throw new Error(`Failed to load ${url}`);
+		if (raw_source == null) throw Error(`Failed to load ${url}`);
 		// TODO should be nice if we could use Node's builtin amaro transform, but I couldn't find a way after digging into the source, AFAICT it's internal and not exposed
 		const source = ts_blank_space(raw_source); // TODO was using oxc-transform and probably should, but this doesn't require sourcemaps, and it's still alpha as of May 2025
 		const transformed = compileModule(source, {
@@ -116,13 +116,14 @@ export const load: LoadHook = async (url, context, nextLoad) => {
 		const source = preprocessed?.code ?? raw_source;
 		const transformed = compile(source, {...svelte_compile_options, dev, filename});
 		return {format: 'module', shortCircuit: true, source: transformed.js.code};
-	} else if (JSON_MATCHER.test(url)) {
-		// TODO probably require import attrs: `JSON_MATCHER.test(url) && context.importAttributes.type === 'json'`
-		// json
+	} else if (context.importAttributes.type === 'json') {
+		// json - any file extension
 		// TODO probably follow esbuild and also export every top-level property for objects from the module for good treeshaking - https://esbuild.github.io/content-types/#json (type generation?)
-		const loaded = await nextLoad(url, context);
+		// TODO why is removing the importAttributes needed? can't pass no context either -
+		//   error: `Module "file:///home/user/dev/repo/foo.json" is not of type "json"`
+		const loaded = await nextLoad(url, {...context, importAttributes: undefined});
 		const raw_source = loaded.source?.toString(); // eslint-disable-line @typescript-eslint/no-base-to-string
-		if (raw_source == null) throw new Error(`Failed to load ${url}`);
+		if (raw_source == null) throw Error(`Failed to load ${url}`);
 		const source = `export default ` + raw_source;
 		return {format: 'module', shortCircuit: true, source};
 	} else if (RAW_MATCHER.test(url)) {
@@ -138,20 +139,30 @@ export const load: LoadHook = async (url, context, nextLoad) => {
 		if (context.format === 'sveltekit-env') {
 			let mode: 'static' | 'dynamic';
 			let visibility: 'public' | 'private';
-			if (context.importAttributes.virtual === '$env/static/public') {
-				mode = 'static';
-				visibility = 'public';
-			} else if (context.importAttributes.virtual === '$env/static/private') {
-				mode = 'static';
-				visibility = 'private';
-			} else if (context.importAttributes.virtual === '$env/dynamic/public') {
-				mode = 'dynamic';
-				visibility = 'public';
-			} else if (context.importAttributes.virtual === '$env/dynamic/private') {
-				mode = 'dynamic';
-				visibility = 'private';
-			} else {
-				throw new Error(`Unknown $env import: ${context.importAttributes.virtual}`);
+			switch (context.importAttributes.virtual) {
+				case '$env/static/public': {
+					mode = 'static';
+					visibility = 'public';
+					break;
+				}
+				case '$env/static/private': {
+					mode = 'static';
+					visibility = 'private';
+					break;
+				}
+				case '$env/dynamic/public': {
+					mode = 'dynamic';
+					visibility = 'public';
+					break;
+				}
+				case '$env/dynamic/private': {
+					mode = 'dynamic';
+					visibility = 'private';
+					break;
+				}
+				default: {
+					throw Error(`Unknown $env import: ${context.importAttributes.virtual}`);
+				}
 			}
 			const source = render_env_shim_module(
 				dev,
@@ -162,7 +173,7 @@ export const load: LoadHook = async (url, context, nextLoad) => {
 				env_dir,
 			);
 			return {format: 'module', shortCircuit: true, source};
-		} // else fallback
+		}
 	}
 
 	// fallback to default behavior
