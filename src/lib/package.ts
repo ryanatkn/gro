@@ -431,7 +431,6 @@ export const src_json = {
 				{name: 'print_build_result', kind: 'function'},
 				{name: 'to_define_import_meta_env', kind: 'function'},
 				{name: 'default_ts_transform_options', kind: 'variable'},
-				{name: 'default_ts_transform_options_oxc', kind: 'variable'},
 			],
 		},
 		'./esbuild_plugin_external_worker.js': {

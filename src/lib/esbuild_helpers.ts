@@ -1,7 +1,6 @@
 import {styleText as st} from 'node:util';
 import type {Logger} from '@ryanatkn/belt/log.js';
 import type * as esbuild from 'esbuild';
-import type {TransformOptions} from 'oxc-transform';
 
 import type {Parsed_Svelte_Config} from './svelte_config.ts';
 
@@ -47,9 +46,4 @@ export const default_ts_transform_options: esbuild.TransformOptions = {
 	format: 'esm',
 	loader: 'ts',
 	charset: 'utf8',
-};
-
-export const default_ts_transform_options_oxc: TransformOptions = {
-	lang: 'ts',
-	target: 'esnext', // TODO load local tsconfig?
 };
