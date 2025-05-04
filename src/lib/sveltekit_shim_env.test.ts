@@ -14,6 +14,7 @@ test('shims static SvelteKit $env imports', async () => {
 
 test('shims dynamic SvelteKit $env imports', async () => {
 	const mod = await import('$env/static/public');
+	// @ts-ignore
 	assert.is(mod.PUBLIC_SOME_PUBLIC_ENV_VAR, VALUE);
 });
 
