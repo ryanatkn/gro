@@ -101,12 +101,16 @@ export const load: LoadHook = async (url, context, nextLoad) => {
 			url,
 			context.format === 'module' ? context : {...context, format: 'module'}, // TODO dunno why this is needed, specifically with tests
 		);
-		const filename = fileURLToPath(url);
+		const path = fileURLToPath(url);
 		const source = loaded.source!.toString(); // eslint-disable-line @typescript-eslint/no-base-to-string
 		const js_source = TS_MATCHER.test(url)
 			? (await esbuild.transform(source, {...ts_transform_options, sourcefile: url})).code // TODO @many use warnings? handle not-inline sourcemaps?
 			: source;
-		const transformed = compileModule(js_source, {...svelte_compile_module_options, dev, filename});
+		const transformed = compileModule(js_source, {
+			...svelte_compile_module_options,
+			dev,
+			filename: path,
+		});
 		return {format: 'module', shortCircuit: true, source: transformed.js.code};
 	} else if (TS_MATCHER.test(url)) {
 		// ts
