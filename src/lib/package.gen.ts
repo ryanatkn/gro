@@ -22,7 +22,7 @@ export const gen: Gen = ({origin_path}) => {
 import type {Package_Json} from '${
 		IS_THIS_GRO ? './package_json.ts' : '@ryanatkn/gro/package_json.js'
 	}';
-import type {Src_Json} from '${IS_THIS_GRO ? './src_json.ts' : '@ryanatkn/gro/src_json.ts'}';
+import type {Src_Json} from '${IS_THIS_GRO ? './src_json.ts' : '@ryanatkn/gro/src_json.js'}';
 
 export const package_json = ${JSON.stringify(package_json)} satisfies Package_Json;
 
