@@ -4,7 +4,7 @@ import {dirname, join} from 'node:path';
 import type {LoadHook, ResolveHook} from 'node:module';
 import {escape_regexp} from '@ryanatkn/belt/regexp.js';
 import {readFileSync} from 'node:fs';
-import {transform, type TransformOptions} from 'oxc-transform';
+import ts_blank_space from 'ts-blank-space';
 
 import {render_env_shim_module} from './sveltekit_shim_env.ts';
 import {
@@ -18,7 +18,6 @@ import {default_svelte_config} from './svelte_config.ts';
 import {SVELTE_MATCHER, SVELTE_RUNES_MATCHER} from './svelte_helpers.ts';
 import {IS_THIS_GRO, paths} from './paths.ts';
 import {JSON_MATCHER, NODE_MODULES_DIRNAME, TS_MATCHER} from './constants.ts';
-import {to_define_import_meta_env, default_ts_transform_options_oxc} from './esbuild_helpers.ts';
 import {resolve_specifier} from './resolve_specifier.ts';
 import {map_sveltekit_aliases} from './sveltekit_helpers.ts';
 
@@ -68,12 +67,6 @@ const {
 	svelte_preprocessors,
 } = default_svelte_config;
 
-const ts_transform_options: TransformOptions = {
-	...default_ts_transform_options_oxc,
-	// sourcemap: true, // TODO probably do this and add them inline
-	define: to_define_import_meta_env(dev, base_url),
-};
-
 const aliases = Object.entries(alias);
 
 const RAW_MATCHER = /(%3Fraw|\.css|\.svg)$/; // TODO others? configurable?
@@ -102,8 +95,8 @@ export const load: LoadHook = async (url, context, nextLoad) => {
 		const loaded = await nextLoad(url, {...context, format: 'module-typescript'});
 		const raw_source = loaded.source?.toString(); // eslint-disable-line @typescript-eslint/no-base-to-string
 		if (raw_source == null) throw new Error(`Failed to load ${url}`);
-		const source = transform(filename, raw_source, ts_transform_options);
-		const transformed = compileModule(source.code, {
+		const source = ts_blank_space(raw_source); // TODO was using oxc-transform and probably should, but this doesn't require sourcemaps, and it's still alpha as of May 2025
+		const transformed = compileModule(source, {
 			...svelte_compile_module_options,
 			dev,
 			filename,
