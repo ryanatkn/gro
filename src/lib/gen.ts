@@ -7,19 +7,19 @@ import type {Timings} from '@ryanatkn/belt/timings.js';
 import {styleText as st} from 'node:util';
 import {existsSync} from 'node:fs';
 
-import {print_path} from './paths.js';
-import type {Path_Id} from './path.js';
-import type {Gro_Config} from './gro_config.js';
-import type {Parsed_Svelte_Config} from './svelte_config.js';
-import {load_modules, type Load_Modules_Failure, type Module_Meta} from './modules.js';
+import {print_path} from './paths.ts';
+import type {Path_Id} from './path.ts';
+import type {Gro_Config} from './gro_config.ts';
+import type {Parsed_Svelte_Config} from './svelte_config.ts';
+import {load_modules, type Load_Modules_Failure, type Module_Meta} from './modules.ts';
 import {
 	Input_Path,
 	resolve_input_files,
 	resolve_input_paths,
 	type Resolved_Input_File,
 	type Resolved_Input_Path,
-} from './input_path.js';
-import {search_fs} from './search_fs.js';
+} from './input_path.ts';
+import {search_fs} from './search_fs.ts';
 
 export const GEN_FILE_PATTERN_TEXT = 'gen';
 export const GEN_FILE_PATTERN = '.' + GEN_FILE_PATTERN_TEXT + '.';

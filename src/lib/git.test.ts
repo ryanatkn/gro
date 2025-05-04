@@ -7,7 +7,7 @@ import {
 	git_current_branch_first_commit_hash,
 	git_current_branch_name,
 	git_current_commit_hash,
-} from './git.js';
+} from './git.ts';
 
 test('git_current_branch_name', async () => {
 	const branch_name = await git_current_branch_name();

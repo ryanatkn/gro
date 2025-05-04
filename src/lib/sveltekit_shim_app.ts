@@ -1,4 +1,4 @@
-import type {Parsed_Svelte_Config} from './svelte_config.js';
+import type {Parsed_Svelte_Config} from './svelte_config.ts';
 
 export const SVELTEKIT_SHIM_APP_PATHS_MATCHER = /\/util\/sveltekit_shim_app_paths\.js$/;
 export const SVELTEKIT_SHIM_APP_ENVIRONMENT_MATCHER = /\/util\/sveltekit_shim_app_environment\.js$/;

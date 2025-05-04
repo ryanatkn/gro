@@ -1,7 +1,7 @@
 import {strip_start, strip_end, ensure_end} from '@ryanatkn/belt/string.js';
 
-import type {Package_Json, Url} from './package_json.js';
-import type {Src_Json} from './src_json.js';
+import type {Package_Json, Url} from './package_json.ts';
+import type {Src_Json} from './src_json.ts';
 
 // TODO needs refactoring, more clarity
 export interface Package_Meta {

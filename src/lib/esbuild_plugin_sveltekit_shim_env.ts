@@ -1,8 +1,8 @@
 import type * as esbuild from 'esbuild';
 
-import {render_env_shim_module} from './sveltekit_shim_env.js';
-import {EVERYTHING_MATCHER} from './constants.js';
-import {SVELTEKIT_ENV_MATCHER} from './sveltekit_helpers.js';
+import {render_env_shim_module} from './sveltekit_shim_env.ts';
+import {EVERYTHING_MATCHER} from './constants.ts';
+import {SVELTEKIT_ENV_MATCHER} from './sveltekit_helpers.ts';
 
 export interface Esbuild_Plugin_Sveltekit_Shim_Env_Options {
 	dev: boolean;

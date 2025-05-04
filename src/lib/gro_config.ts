@@ -1,7 +1,7 @@
 import {join, resolve} from 'node:path';
 import {existsSync} from 'node:fs';
 
-import {GRO_DIST_DIR, IS_THIS_GRO, paths} from './paths.js';
+import {GRO_DIST_DIR, IS_THIS_GRO, paths} from './paths.ts';
 import {
 	GRO_CONFIG_PATH,
 	JS_CLI_DEFAULT,
@@ -10,12 +10,12 @@ import {
 	SERVER_DIST_PATH,
 	SVELTEKIT_BUILD_DIRNAME,
 	SVELTEKIT_DIST_DIRNAME,
-} from './constants.js';
-import create_default_config from './gro.config.default.js';
-import type {Create_Config_Plugins} from './plugin.js';
-import type {Map_Package_Json} from './package_json.js';
-import type {Path_Filter, Path_Id} from './path.js';
-import type {Parsed_Svelte_Config} from './svelte_config.js';
+} from './constants.ts';
+import create_default_config from './gro.config.default.ts';
+import type {Create_Config_Plugins} from './plugin.ts';
+import type {Map_Package_Json} from './package_json.ts';
+import type {Path_Filter, Path_Id} from './path.ts';
+import type {Parsed_Svelte_Config} from './svelte_config.ts';
 
 /**
  * The config that users can extend via `gro.config.ts`.

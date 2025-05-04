@@ -7,7 +7,7 @@ import {
 	to_forwarded_args,
 	to_forwarded_args_by_command,
 	to_raw_rest_args,
-} from './args.js';
+} from './args.ts';
 
 const test__serialize_args = suite('serialize_args');
 

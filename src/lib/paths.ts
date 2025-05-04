@@ -9,9 +9,9 @@ import {
 	GRO_DIR,
 	SOURCE_DIR,
 	SVELTEKIT_DIST_DIRNAME,
-} from './constants.js';
-import {default_svelte_config} from './svelte_config.js';
-import type {Path_Id} from './path.js';
+} from './constants.ts';
+import {default_svelte_config} from './svelte_config.ts';
+import type {Path_Id} from './path.ts';
 
 /*
 

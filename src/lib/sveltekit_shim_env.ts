@@ -1,4 +1,4 @@
-import {load_env} from './env.js';
+import {load_env} from './env.ts';
 
 // TODO might want to do more escaping and validation
 

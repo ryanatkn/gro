@@ -3,10 +3,10 @@ import {configure_log_colors} from '@ryanatkn/belt/log.js';
 import {set_colors} from '@ryanatkn/belt/print.js';
 import {styleText} from 'node:util';
 
-import {invoke_task} from './invoke_task.js';
-import {to_task_args} from './args.js';
-import {load_gro_config} from './gro_config.js';
-import {sveltekit_sync_if_obviously_needed} from './sveltekit_helpers.js';
+import {invoke_task} from './invoke_task.ts';
+import {to_task_args} from './args.ts';
+import {load_gro_config} from './gro_config.ts';
+import {sveltekit_sync_if_obviously_needed} from './sveltekit_helpers.ts';
 
 /*
 

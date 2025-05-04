@@ -2,9 +2,9 @@ import {z} from 'zod';
 import {spawn} from '@ryanatkn/belt/process.js';
 import {styleText as st} from 'node:util';
 
-import {Task_Error, type Task} from './task.js';
-import {git_check_clean_workspace} from './git.js';
-import {sync_package_json} from './package_json.js';
+import {Task_Error, type Task} from './task.ts';
+import {git_check_clean_workspace} from './git.ts';
+import {sync_package_json} from './package_json.ts';
 
 export const Args = z
 	.object({

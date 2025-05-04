@@ -1,9 +1,9 @@
 import {spawn} from '@ryanatkn/belt/process.js';
 import {z} from 'zod';
 
-import type {Task} from './task.js';
-import {clean_fs} from './clean_fs.js';
-import {Git_Origin} from './git.js';
+import type {Task} from './task.ts';
+import {clean_fs} from './clean_fs.ts';
+import {Git_Origin} from './git.ts';
 
 export const Args = z
 	.object({

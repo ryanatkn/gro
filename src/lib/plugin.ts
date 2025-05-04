@@ -1,4 +1,4 @@
-import type {Task_Context} from './task.js';
+import type {Task_Context} from './task.ts';
 
 /**
  * Gro `Plugin`s enable custom behavior during `gro dev` and `gro build`.
@@ -22,10 +22,13 @@ export interface Plugin_Context<T_Args = object> extends Task_Context<T_Args> {
 
 /** See `Plugins.create` for a usage example. */
 export class Plugins<T_Plugin_Context extends Plugin_Context> {
-	constructor(
-		private ctx: T_Plugin_Context,
-		private instances: Array<Plugin>,
-	) {}
+	readonly ctx: T_Plugin_Context;
+	readonly instances: Array<Plugin<T_Plugin_Context>>;
+
+	constructor(ctx: T_Plugin_Context, instances: Array<Plugin>) {
+		this.ctx = ctx;
+		this.instances = instances;
+	}
 
 	static async create<T_Plugin_Context extends Plugin_Context>(
 		ctx: T_Plugin_Context,

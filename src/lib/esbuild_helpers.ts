@@ -2,7 +2,7 @@ import {styleText as st} from 'node:util';
 import type {Logger} from '@ryanatkn/belt/log.js';
 import type * as esbuild from 'esbuild';
 
-import type {Parsed_Svelte_Config} from './svelte_config.js';
+import type {Parsed_Svelte_Config} from './svelte_config.ts';
 
 export const print_build_result = (log: Logger, build_result: esbuild.BuildResult): void => {
 	for (const error of build_result.errors) {

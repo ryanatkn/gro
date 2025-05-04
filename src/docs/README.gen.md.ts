@@ -2,9 +2,9 @@ import {dirname, relative, basename} from 'node:path';
 import {parse_path_parts, parse_path_segments} from '@ryanatkn/belt/path.js';
 import {strip_start} from '@ryanatkn/belt/string.js';
 
-import {type Gen, to_output_file_name} from '../lib/gen.js';
-import {paths, base_path_to_path_id} from '../lib/paths.js';
-import {search_fs} from '../lib/search_fs.js';
+import {type Gen, to_output_file_name} from '../lib/gen.ts';
+import {paths, base_path_to_path_id} from '../lib/paths.ts';
+import {search_fs} from '../lib/search_fs.ts';
 
 // TODO look at `tasks.gen.md.ts` to refactor and generalize
 // TODO show nested structure, not a flat list

@@ -1,9 +1,9 @@
 import {test} from 'uvu';
 import * as assert from 'uvu/assert';
 
-import {to_src_modules} from './src_json.js';
-import {to_package_exports} from './package_json.js';
-import {paths} from './paths.js';
+import {to_src_modules} from './src_json.ts';
+import {to_package_exports} from './package_json.ts';
+import {paths} from './paths.ts';
 
 test('to_package_modules', () => {
 	assert.equal(

@@ -2,7 +2,7 @@ import {test} from 'uvu';
 import * as assert from 'uvu/assert';
 import {resolve} from 'node:path';
 
-import {load_module} from './modules.js';
+import {load_module} from './modules.ts';
 
 // TODO if we import directly, svelte-package generates types in `src/fixtures`
 /* eslint-disable no-useless-concat */

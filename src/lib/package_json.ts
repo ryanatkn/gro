@@ -6,11 +6,11 @@ import type {Logger} from '@ryanatkn/belt/log.js';
 import type {Flavored} from '@ryanatkn/belt/types.js';
 import {styleText as st} from 'node:util';
 
-import {paths, gro_paths, IS_THIS_GRO, replace_extension} from './paths.js';
-import {SVELTEKIT_DIST_DIRNAME} from './constants.js';
-import {search_fs} from './search_fs.js';
-import {has_sveltekit_library} from './sveltekit_helpers.js';
-import {GITHUB_REPO_MATCHER} from './github.js';
+import {paths, gro_paths, IS_THIS_GRO, replace_extension} from './paths.ts';
+import {SVELTEKIT_DIST_DIRNAME} from './constants.ts';
+import {search_fs} from './search_fs.ts';
+import {has_sveltekit_library} from './sveltekit_helpers.ts';
+import {GITHUB_REPO_MATCHER} from './github.ts';
 
 // TODO @many belongs elsewhere
 export const Url = z.string();

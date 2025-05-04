@@ -1,13 +1,13 @@
 import {resolve} from 'node:path';
 
-import type {Create_Gro_Config} from './gro_config.js';
-import {gro_plugin_sveltekit_library} from './gro_plugin_sveltekit_library.js';
-import {has_server, gro_plugin_server} from './gro_plugin_server.js';
-import {gro_plugin_sveltekit_app} from './gro_plugin_sveltekit_app.js';
-import {has_sveltekit_app, has_sveltekit_library} from './sveltekit_helpers.js';
-import {gro_plugin_gen} from './gro_plugin_gen.js';
-import {has_dep, load_package_json} from './package_json.js';
-import {find_first_existing_file} from './search_fs.js';
+import type {Create_Gro_Config} from './gro_config.ts';
+import {gro_plugin_sveltekit_library} from './gro_plugin_sveltekit_library.ts';
+import {has_server, gro_plugin_server} from './gro_plugin_server.ts';
+import {gro_plugin_sveltekit_app} from './gro_plugin_sveltekit_app.ts';
+import {has_sveltekit_app, has_sveltekit_library} from './sveltekit_helpers.ts';
+import {gro_plugin_gen} from './gro_plugin_gen.ts';
+import {has_dep, load_package_json} from './package_json.ts';
+import {find_first_existing_file} from './search_fs.ts';
 
 // TODO hacky, maybe extract utils?
 

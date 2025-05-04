@@ -2,8 +2,8 @@ import {z} from 'zod';
 import {styleText as st} from 'node:util';
 import {existsSync} from 'node:fs';
 
-import {Task_Error, type Task} from './task.js';
-import {resolve_gro_module_path, spawn_with_loader} from './gro_helpers.js';
+import {Task_Error, type Task} from './task.ts';
+import {resolve_gro_module_path, spawn_with_loader} from './gro_helpers.ts';
 
 export const Args = z
 	.object({

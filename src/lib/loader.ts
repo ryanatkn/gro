@@ -6,21 +6,21 @@ import type {LoadHook, ResolveHook} from 'node:module';
 import {escape_regexp} from '@ryanatkn/belt/regexp.js';
 import {readFileSync} from 'node:fs';
 
-import {render_env_shim_module} from './sveltekit_shim_env.js';
+import {render_env_shim_module} from './sveltekit_shim_env.ts';
 import {
 	render_sveltekit_shim_app_environment,
 	render_sveltekit_shim_app_paths,
 	SVELTEKIT_SHIM_APP_ENVIRONMENT_MATCHER,
 	SVELTEKIT_SHIM_APP_PATHS_MATCHER,
 	sveltekit_shim_app_specifiers,
-} from './sveltekit_shim_app.js';
-import {default_svelte_config} from './svelte_config.js';
-import {SVELTE_MATCHER, SVELTE_RUNES_MATCHER} from './svelte_helpers.js';
-import {IS_THIS_GRO, paths} from './paths.js';
-import {JSON_MATCHER, NODE_MODULES_DIRNAME, TS_MATCHER} from './constants.js';
-import {to_define_import_meta_env, default_ts_transform_options} from './esbuild_helpers.js';
-import {resolve_specifier} from './resolve_specifier.js';
-import {map_sveltekit_aliases} from './sveltekit_helpers.js';
+} from './sveltekit_shim_app.ts';
+import {default_svelte_config} from './svelte_config.ts';
+import {SVELTE_MATCHER, SVELTE_RUNES_MATCHER} from './svelte_helpers.ts';
+import {IS_THIS_GRO, paths} from './paths.ts';
+import {JSON_MATCHER, NODE_MODULES_DIRNAME, TS_MATCHER} from './constants.ts';
+import {to_define_import_meta_env, default_ts_transform_options} from './esbuild_helpers.ts';
+import {resolve_specifier} from './resolve_specifier.ts';
+import {map_sveltekit_aliases} from './sveltekit_helpers.ts';
 
 // TODO get out of the loader business, starting with https://nodejs.org/api/typescript.html#type-stripping
 
@@ -117,8 +117,9 @@ export const load: LoadHook = async (url, context, nextLoad) => {
 		const source = loaded.source!.toString(); // eslint-disable-line @typescript-eslint/no-base-to-string
 		const transformed = await esbuild.transform(source, {...ts_transform_options, sourcefile: url}); // TODO @many use warnings? handle not-inline sourcemaps?
 		return {format: 'module', shortCircuit: true, source: transformed.code};
+		// TODO implement
 		// TS uses Node's type stripping - https://nodejs.org/api/typescript.html#type-stripping
-		return nextLoad(url, context);
+		// return nextLoad(url, context);
 	} else if (SVELTE_MATCHER.test(url)) {
 		// Svelte
 		const loaded = await nextLoad(

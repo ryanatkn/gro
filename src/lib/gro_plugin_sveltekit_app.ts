@@ -2,16 +2,16 @@ import type {Spawned_Process} from '@ryanatkn/belt/process.js';
 import {cpSync, mkdirSync, rmSync, writeFileSync, existsSync} from 'node:fs';
 import {dirname, join} from 'node:path';
 
-import type {Plugin} from './plugin.js';
-import {serialize_args, to_forwarded_args} from './args.js';
-import {serialize_package_json, type Map_Package_Json, load_package_json} from './package_json.js';
-import {Task_Error} from './task.js';
-import {find_cli, spawn_cli, spawn_cli_process} from './cli.js';
-import {type Map_Src_Json, serialize_src_json, create_src_json} from './src_json.js';
-import {EXPORTS_EXCLUDER_DEFAULT} from './gro_config.js';
-import {default_svelte_config} from './svelte_config.js';
-import {SOURCE_DIRNAME} from './constants.js';
-import {VITE_CLI} from './sveltekit_helpers.js';
+import type {Plugin} from './plugin.ts';
+import {serialize_args, to_forwarded_args} from './args.ts';
+import {serialize_package_json, type Map_Package_Json, load_package_json} from './package_json.ts';
+import {Task_Error} from './task.ts';
+import {find_cli, spawn_cli, spawn_cli_process} from './cli.ts';
+import {type Map_Src_Json, serialize_src_json, create_src_json} from './src_json.ts';
+import {EXPORTS_EXCLUDER_DEFAULT} from './gro_config.ts';
+import {default_svelte_config} from './svelte_config.ts';
+import {SOURCE_DIRNAME} from './constants.ts';
+import {VITE_CLI} from './sveltekit_helpers.ts';
 
 export interface Gro_Plugin_Sveltekit_App_Options {
 	/**

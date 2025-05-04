@@ -1,12 +1,12 @@
 import {print_spawn_result} from '@ryanatkn/belt/process.js';
 import {z} from 'zod';
 
-import {Task_Error, type Task} from './task.js';
-import {serialize_args, to_forwarded_args} from './args.js';
-import {find_cli, spawn_cli, spawn_cli_process} from './cli.js';
-import {SVELTE_CHECK_CLI, sveltekit_sync_if_available} from './sveltekit_helpers.js';
-import {configure_colored_output_with_path_replacement} from './child_process_logging.js';
-import {paths} from './paths.js';
+import {Task_Error, type Task} from './task.ts';
+import {serialize_args, to_forwarded_args} from './args.ts';
+import {find_cli, spawn_cli, spawn_cli_process} from './cli.ts';
+import {SVELTE_CHECK_CLI, sveltekit_sync_if_available} from './sveltekit_helpers.ts';
+import {configure_colored_output_with_path_replacement} from './child_process_logging.ts';
+import {paths} from './paths.ts';
 
 export const Args = z
 	.object({

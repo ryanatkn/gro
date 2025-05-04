@@ -21,9 +21,10 @@
 		"importHelpers": true,
 		"skipLibCheck": true,
 		"allowJs": true,
+		"checkJs": true,
 		"erasableSyntaxOnly": true,
-		"allowImportingTsExtensions": false,
-		"checkJs": true
+		"allowImportingTsExtensions": true,
+		"rewriteRelativeImportExtensions": true
 	},
 	"include": [
 		"*.js",

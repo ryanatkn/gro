@@ -3,14 +3,14 @@ import {print_ms, print_error} from '@ryanatkn/belt/print.js';
 import {plural} from '@ryanatkn/belt/string.js';
 import {z} from 'zod';
 
-import {Task_Error, type Task} from './task.js';
-import {run_gen} from './run_gen.js';
-import {Raw_Input_Path, to_input_paths} from './input_path.js';
-import {format_file} from './format_file.js';
-import {print_path} from './paths.js';
-import {log_error_reasons} from './task_logging.js';
-import {write_gen_results, analyze_gen_results, find_genfiles, load_genfiles} from './gen.js';
-import {SOURCE_DIRNAME} from './constants.js';
+import {Task_Error, type Task} from './task.ts';
+import {run_gen} from './run_gen.ts';
+import {Raw_Input_Path, to_input_paths} from './input_path.ts';
+import {format_file} from './format_file.ts';
+import {print_path} from './paths.ts';
+import {log_error_reasons} from './task_logging.ts';
+import {write_gen_results, analyze_gen_results, find_genfiles, load_genfiles} from './gen.ts';
+import {SOURCE_DIRNAME} from './constants.ts';
 
 export const Args = z
 	.object({

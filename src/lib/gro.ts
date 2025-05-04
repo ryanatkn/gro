@@ -2,7 +2,7 @@
 
 import {join} from 'node:path';
 
-import {resolve_gro_module_path, spawn_with_loader} from './gro_helpers.js';
+import {resolve_gro_module_path, spawn_with_loader} from './gro_helpers.ts';
 
 /*
 

@@ -2,9 +2,9 @@ import {test} from 'uvu';
 import * as assert from 'uvu/assert';
 import {resolve} from 'node:path';
 
-import {to_gen_result, find_genfiles, validate_gen_module} from './gen.js';
-import {paths} from './paths.js';
-import {create_empty_gro_config} from './gro_config.js';
+import {to_gen_result, find_genfiles, validate_gen_module} from './gen.ts';
+import {paths} from './paths.ts';
+import {create_empty_gro_config} from './gro_config.ts';
 
 const origin_id = resolve('src/foo.gen.ts');
 

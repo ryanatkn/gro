@@ -2,7 +2,7 @@ import {suite} from 'uvu';
 import * as assert from 'uvu/assert';
 import {webcrypto} from 'node:crypto';
 
-import {to_hash} from './hash.js';
+import {to_hash} from './hash.ts';
 
 const test__to_hash = suite('to_hash');
 

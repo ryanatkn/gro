@@ -4,9 +4,9 @@ import {resolve, join} from 'node:path';
 import {Timings} from '@ryanatkn/belt/timings.js';
 import {Logger} from '@ryanatkn/belt/log.js';
 
-import type {Genfile_Module_Meta} from './gen.js';
-import {run_gen} from './run_gen.js';
-import {load_gro_config} from './gro_config.js';
+import type {Genfile_Module_Meta} from './gen.ts';
+import {run_gen} from './run_gen.ts';
+import {load_gro_config} from './gro_config.ts';
 
 const log = new Logger('test__run_gen'); // TODO test logger?
 

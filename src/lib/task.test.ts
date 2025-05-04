@@ -2,10 +2,10 @@ import {test} from 'uvu';
 import * as assert from 'uvu/assert';
 import {resolve} from 'node:path';
 
-import {is_task_path, to_task_name, validate_task_module, find_tasks, load_tasks} from './task.js';
-import * as actual_test_task_module from './test.task.js';
-import {create_empty_gro_config} from './gro_config.js';
-import {GRO_DIST_DIR} from './paths.js';
+import {is_task_path, to_task_name, validate_task_module, find_tasks, load_tasks} from './task.ts';
+import * as actual_test_task_module from './test.task.ts';
+import {create_empty_gro_config} from './gro_config.ts';
+import {GRO_DIST_DIR} from './paths.ts';
 
 test('is_task_path basic behavior', () => {
 	assert.ok(is_task_path('foo.task.ts'));

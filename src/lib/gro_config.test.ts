@@ -1,7 +1,7 @@
 import {test} from 'uvu';
 import * as assert from 'uvu/assert';
 
-import {SEARCH_EXCLUDER_DEFAULT, load_gro_config} from './gro_config.js';
+import {SEARCH_EXCLUDER_DEFAULT, load_gro_config} from './gro_config.ts';
 
 test('load_gro_config', async () => {
 	const config = await load_gro_config();

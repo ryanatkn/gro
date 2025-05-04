@@ -1,7 +1,7 @@
 import {suite} from 'uvu';
 import * as assert from 'uvu/assert';
 
-import {is_external_module} from './module.js';
+import {is_external_module} from './module.ts';
 
 const test__is_external_module = suite('is_external_module');
 

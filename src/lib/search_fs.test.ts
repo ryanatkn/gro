@@ -2,7 +2,7 @@ import {test} from 'uvu';
 import * as assert from 'uvu/assert';
 import {resolve} from 'node:path';
 
-import {search_fs} from './search_fs.js';
+import {search_fs} from './search_fs.ts';
 
 test('search_fs basic behavior', () => {
 	const ignored_path = 'test1.foo.ts';

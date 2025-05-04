@@ -1,7 +1,7 @@
 import {test} from 'uvu';
 import * as assert from 'uvu/assert';
 
-import {format_file} from './format_file.js';
+import {format_file} from './format_file.ts';
 
 test('format ts', async () => {
 	const ts_unformatted = 'hey (1)';

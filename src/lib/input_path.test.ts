@@ -9,9 +9,9 @@ import {
 	get_possible_paths,
 	type Resolved_Input_Path,
 	type Resolved_Input_File,
-} from './input_path.js';
-import {GRO_DIST_DIR, paths} from './paths.js';
-import type {Resolved_Path} from './path.js';
+} from './input_path.ts';
+import {GRO_DIST_DIR, paths} from './paths.ts';
+import type {Resolved_Path} from './path.ts';
 
 test('to_input_path', () => {
 	assert.is(to_input_path(resolve('foo.ts')), resolve('foo.ts'));
