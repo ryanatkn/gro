@@ -4,9 +4,8 @@ import {resolve} from 'node:path';
 
 const VALUE = 'SOME_PUBLIC_ENV_VAR';
 
-test.before(async () => {
-	(await import(resolve('../fixtures/test_helpers.ts'))).init_test_env();
-});
+// dynamic import paths are needed to avoid building .d.ts and .d.ts.map files, could be fixed in the build process
+(await import(resolve('../fixtures/test_helpers.ts'))).init_test_env();
 
 test('shims static SvelteKit $env imports', async () => {
 	const mod = await import(resolve('../fixtures/test_sveltekit_env.ts'));
