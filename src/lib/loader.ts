@@ -41,7 +41,7 @@ gro run foo.ts
 Direct usage without register (see also `$lib/gro.ts`):
 
 ```bash
-node --import 'data:text/javascript,import {register} from "node:module"; import {pathToFileURL} from "node:url"; register("@ryanatkn/gro/loader.js", pathToFileURL("./"));' --experimental-import-meta-resolve --enable-source-maps' foo.ts
+node --import 'data:text/javascript,import {register} from "node:module"; import {pathToFileURL} from "node:url"; register("@ryanatkn/gro/loader.js", pathToFileURL("./"));' --experimental-import-meta-resolve --experimental-strip-types' foo.ts
 ```
 
 TODO how to improve that gnarly import line? was originally designed for the now-deprecated `--loader`
@@ -81,6 +81,7 @@ const ENV_MATCHER = /src\/lib\/\$env\/(static|dynamic)\/(public|private)$/;
 const NODE_MODULES_MATCHER = new RegExp(escape_regexp('/' + NODE_MODULES_DIRNAME + '/'), 'u');
 
 export const load: LoadHook = async (url, context, nextLoad) => {
+	// console.log(`url`, url);
 	if (SVELTEKIT_SHIM_APP_PATHS_MATCHER.test(url)) {
 		// SvelteKit `$app/paths` shim
 		return {

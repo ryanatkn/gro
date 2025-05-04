@@ -1,4 +1,6 @@
-#!/usr/bin/env node
+#!/usr/bin/env -S node --experimental-import-meta-resolve --experimental-strip-types --disable-warning=ExperimentalWarning
+
+// @sync Node options to `$lib/gro_helpers.ts`
 
 import {join} from 'node:path';
 
