@@ -97,7 +97,7 @@ export const load: LoadHook = async (url, context, nextLoad) => {
 			source: render_sveltekit_shim_app_environment(dev),
 		};
 	} else if (SVELTE_RUNES_MATCHER.test(url)) {
-		// Svelte runes in js/ts
+		// Svelte runes in js/ts, `.svelte.ts`
 		const loaded = await nextLoad(
 			url,
 			context.format === 'module' ? context : {...context, format: 'module'}, // TODO dunno why this is needed, specifically with tests
@@ -114,20 +114,10 @@ export const load: LoadHook = async (url, context, nextLoad) => {
 		});
 		return {format: 'module', shortCircuit: true, source: transformed.js.code};
 	} else if (TS_MATCHER.test(url)) {
-		// ts
-		const loaded = await nextLoad(
-			url,
-			context.format === 'module' ? context : {...context, format: 'module'}, // TODO dunno why this is needed, specifically with tests
-		);
-		const source = loaded.source!.toString(); // eslint-disable-line @typescript-eslint/no-base-to-string
-		const transformed = await esbuild.transform(source, {...ts_transform_options, sourcefile: url}); // TODO @many use warnings? handle not-inline sourcemaps?
-		return {format: 'module', shortCircuit: true, source: transformed.code};
-		// TODO BLOCK implement
-		// TS uses Node's type stripping - https://nodejs.org/api/typescript.html#type-stripping
-		// console.log(`url`, url);
-		// return nextLoad(url, context);
+		// ts but not `.svelte.ts`
+		return nextLoad(url, {...context, format: 'module-typescript'});
 	} else if (SVELTE_MATCHER.test(url)) {
-		// Svelte
+		// Svelte, `.svelte`
 		const loaded = await nextLoad(
 			url,
 			context.format === 'module' ? context : {...context, format: 'module'}, // TODO dunno why this is needed, specifically with tests
@@ -141,6 +131,7 @@ export const load: LoadHook = async (url, context, nextLoad) => {
 		const transformed = compile(source, {...svelte_compile_options, dev, filename});
 		return {format: 'module', shortCircuit: true, source: transformed.js.code};
 	} else if (JSON_MATCHER.test(url)) {
+		// TODO probably require import attrs: `JSON_MATCHER.test(url) && context.importAttributes.type === 'json'`
 		// json
 		// TODO probably follow esbuild and also export every top-level property for objects from the module - https://esbuild.github.io/content-types/#json (type generation?)
 		const loaded = await nextLoad(url);
@@ -156,6 +147,7 @@ export const load: LoadHook = async (url, context, nextLoad) => {
 		return {format: 'module', shortCircuit: true, source};
 	} else {
 		// SvelteKit `$env`
+		// TODO use `format` from the resolve hook to speed this up and make it simpler
 		const matched_env = ENV_MATCHER.exec(url);
 		if (matched_env) {
 			const mode: 'static' | 'dynamic' = matched_env[1] as any;
