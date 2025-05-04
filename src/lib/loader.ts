@@ -101,9 +101,7 @@ export const load: LoadHook = async (url, context, nextLoad) => {
 		const filename = fileURLToPath(url);
 		const loaded = await nextLoad(url, {...context, format: 'module-typescript'});
 		const raw_source = loaded.source?.toString(); // eslint-disable-line @typescript-eslint/no-base-to-string
-		if (!raw_source) {
-			throw new Error(`Failed to load ${url}`);
-		}
+		if (raw_source == null) throw new Error(`Failed to load ${url}`);
 		const source = transform(filename, raw_source, ts_transform_options);
 		const transformed = compileModule(source.code, {
 			...svelte_compile_module_options,
@@ -130,7 +128,8 @@ export const load: LoadHook = async (url, context, nextLoad) => {
 		// json
 		// TODO probably follow esbuild and also export every top-level property for objects from the module for good treeshaking - https://esbuild.github.io/content-types/#json (type generation?)
 		const loaded = await nextLoad(url, context);
-		const raw_source = loaded.source!.toString(); // eslint-disable-line @typescript-eslint/no-base-to-string
+		const raw_source = loaded.source?.toString(); // eslint-disable-line @typescript-eslint/no-base-to-string
+		if (raw_source == null) throw new Error(`Failed to load ${url}`);
 		const source = `export default ` + raw_source;
 		return {format: 'module', shortCircuit: true, source};
 	} else if (RAW_MATCHER.test(url)) {
