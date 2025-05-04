@@ -17,7 +17,7 @@ import {
 import {default_svelte_config} from './svelte_config.ts';
 import {SVELTE_MATCHER, SVELTE_RUNES_MATCHER} from './svelte_helpers.ts';
 import {IS_THIS_GRO, paths} from './paths.ts';
-import {JSON_MATCHER, NODE_MODULES_DIRNAME, TS_MATCHER} from './constants.ts';
+import {NODE_MODULES_DIRNAME, TS_MATCHER} from './constants.ts';
 import {resolve_specifier} from './resolve_specifier.ts';
 import {map_sveltekit_aliases} from './sveltekit_helpers.ts';
 
