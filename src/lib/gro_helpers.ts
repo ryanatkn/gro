@@ -94,7 +94,6 @@ export const spawn_with_loader = (
 			import {pathToFileURL} from "node:url";
 			register("${loader_path}", pathToFileURL("./"));`,
 		'--experimental-import-meta-resolve', // for `import.meta.resolve`
-		'--enable-source-maps', // because TypeScript
 	];
 	// In almost all cases we want the exports condition to be `"development"`. Needed for `esm-env`.
 	if (process.env.NODE_ENV !== 'production') {
