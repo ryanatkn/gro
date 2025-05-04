@@ -70,7 +70,6 @@ const {
 const aliases = Object.entries(alias);
 
 const RAW_MATCHER = /(%3Fraw|\.css|\.svg)$/; // TODO others? configurable?
-const ENV_MATCHER = /src\/lib\/\$env\/(static|dynamic)\/(public|private)$/;
 const NODE_MODULES_MATCHER = new RegExp(escape_regexp('/' + NODE_MODULES_DIRNAME + '/'), 'u');
 
 export const load: LoadHook = async (url, context, nextLoad) => {
@@ -136,23 +135,34 @@ export const load: LoadHook = async (url, context, nextLoad) => {
 	} else {
 		// SvelteKit `$env`
 		// TODO use `format` from the resolve hook to speed this up and make it simpler
-		const matched_env = ENV_MATCHER.exec(url);
-		if (matched_env) {
-			const mode: 'static' | 'dynamic' = matched_env[1] as any;
-			const visibility: 'public' | 'private' = matched_env[2] as any;
-			return {
-				format: 'module',
-				shortCircuit: true,
-				source: render_env_shim_module(
-					dev,
-					mode,
-					visibility,
-					public_prefix,
-					private_prefix,
-					env_dir,
-				),
-			};
-		}
+		if (context.format === 'sveltekit-env') {
+			let mode: 'static' | 'dynamic';
+			let visibility: 'public' | 'private';
+			if (context.importAttributes.virtual === '$env/static/public') {
+				mode = 'static';
+				visibility = 'public';
+			} else if (context.importAttributes.virtual === '$env/static/private') {
+				mode = 'static';
+				visibility = 'private';
+			} else if (context.importAttributes.virtual === '$env/dynamic/public') {
+				mode = 'dynamic';
+				visibility = 'public';
+			} else if (context.importAttributes.virtual === '$env/dynamic/private') {
+				mode = 'dynamic';
+				visibility = 'private';
+			} else {
+				throw new Error(`Unknown $env import: ${context.importAttributes.virtual}`);
+			}
+			const source = render_env_shim_module(
+				dev,
+				mode,
+				visibility,
+				public_prefix,
+				private_prefix,
+				env_dir,
+			);
+			return {format: 'module', shortCircuit: true, source};
+		} // else fallback
 	}
 
 	// fallback to default behavior
@@ -173,7 +183,8 @@ export const resolve: ResolveHook = async (specifier, context, nextResolve) => {
 		// so we need a slightly roundabout strategy to pass through the specifier for virtual files.
 		return {
 			url: pathToFileURL(join(dir, 'src/lib', s)).href,
-			format: 'module',
+			format: 'sveltekit-env',
+			importAttributes: {virtual: s}, // TODO idk I'm just making this up
 			shortCircuit: true,
 		};
 	}
