@@ -95,6 +95,7 @@ export const load: LoadHook = async (url, context, nextLoad) => {
 		const loaded = await nextLoad(url, {...context, format: 'module-typescript'});
 		const raw_source = loaded.source?.toString(); // eslint-disable-line @typescript-eslint/no-base-to-string
 		if (raw_source == null) throw new Error(`Failed to load ${url}`);
+		// TODO should be nice if we could use Node's builtin amaro transform, but I couldn't find a way after digging into the source, AFAICT it's internal and not exposed
 		const source = ts_blank_space(raw_source); // TODO was using oxc-transform and probably should, but this doesn't require sourcemaps, and it's still alpha as of May 2025
 		const transformed = compileModule(source, {
 			...svelte_compile_module_options,
