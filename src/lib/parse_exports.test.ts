@@ -302,4 +302,31 @@ test('process_ts_exports correctly handles aliased dual purpose exports', () => 
 	});
 });
 
+test('process_ts_exports correctly identifies re-exported functions', () => {
+	const module_a = `
+		export function example_function() { return true; }
+	`;
+
+	const module_b = `
+		export {example_function} from './module_a.ts';
+		export {example_function as renamed_function} from './module_a.ts';
+	`;
+
+	const {
+		source_file: module_b_source,
+		checker,
+		exports: export_symbols,
+	} = create_ts_test_env(module_b, dir, {
+		'./module_a.ts': module_a,
+	});
+
+	const declarations = process_ts_exports(module_b_source, checker, export_symbols);
+
+	const declaration_map = Object.fromEntries(declarations.map((d) => [d.name, d.kind]));
+	assert.equal(declaration_map, {
+		example_function: 'function',
+		renamed_function: 'function',
+	});
+});
+
 test.run();
