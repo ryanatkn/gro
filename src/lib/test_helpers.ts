@@ -53,9 +53,11 @@ export const init_test_env = (dir = process.cwd(), env_filename = '.env'): boole
 export const create_ts_test_env = (
 	source_code: string,
 	dir: string = process.cwd(),
+	virtual_files: Record<string, string> = {},
 ): {
 	source_file: ts.SourceFile;
 	checker: ts.TypeChecker;
+	program: ts.Program;
 	exports: Array<ts.Symbol>;
 } => {
 	// Create a virtual file path for testing
@@ -65,17 +67,29 @@ export const create_ts_test_env = (
 	const host = ts.createCompilerHost({});
 	const original_get_source_file = host.getSourceFile.bind(host);
 
-	// Override getSourceFile to return our test file
+	// Override getSourceFile to return our test files
 	host.getSourceFile = (fileName: string, languageVersion: ts.ScriptTarget) => {
 		if (fileName === file_path) {
 			return ts.createSourceFile(fileName, source_code, languageVersion);
 		}
+
+		// Check if we have a virtual file for this path
+		for (const [virtual_path, content] of Object.entries(virtual_files)) {
+			const full_path = join(dir, virtual_path);
+			if (fileName === full_path) {
+				return ts.createSourceFile(fileName, content, languageVersion);
+			}
+		}
+
 		return original_get_source_file(fileName, languageVersion);
 	};
 
-	// Create a program with our virtual file
+	// Include all virtual files in the program files list
+	const program_files = [file_path, ...Object.keys(virtual_files).map((path) => join(dir, path))];
+
+	// Create a program with our virtual files
 	const program = ts.createProgram(
-		[file_path],
+		program_files,
 		{
 			target: ts.ScriptTarget.ESNext,
 			module: ts.ModuleKind.ESNext,
@@ -91,5 +105,5 @@ export const create_ts_test_env = (
 	const symbol = checker.getSymbolAtLocation(source_file);
 	const exports = symbol ? checker.getExportsOfModule(symbol) : [];
 
-	return {source_file, checker, exports};
+	return {source_file, checker, program, exports};
 };

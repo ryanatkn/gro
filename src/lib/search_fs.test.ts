@@ -22,7 +22,6 @@ test('search_fs basic behavior', () => {
 		'test_sveltekit_env.ts',
 		'test_js.js',
 		'test_invalid_task_module.ts',
-		'test_helpers.ts',
 		'test_file.other.ext',
 		'test_failing_task_module.ts',
 		'some_test_side_effect.ts',

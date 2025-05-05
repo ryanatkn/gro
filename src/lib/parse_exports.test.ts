@@ -1,6 +1,6 @@
 import {test} from 'uvu';
 import * as assert from 'uvu/assert';
-import {dirname, resolve} from 'node:path';
+import {dirname} from 'node:path';
 import {fileURLToPath} from 'node:url';
 
 import {
@@ -8,8 +8,7 @@ import {
 	process_ts_exports,
 	type Declaration_Kind,
 } from './parse_exports.ts';
-
-const {create_ts_test_env} = await import(resolve('src/fixtures/test_helpers.ts'));
+import {create_ts_test_env} from './test_helpers.ts';
 
 const dir = dirname(fileURLToPath(import.meta.url));
 
@@ -61,9 +60,9 @@ test('process_ts_exports correctly identifies direct exports', () => {
 		export interface Interface_Export {}
 	`;
 
-	const {source_file, checker, exports: export_symbols} = create_ts_test_env(source_code, dir);
+	const {source_file, program, exports: export_symbols} = create_ts_test_env(source_code, dir);
 
-	const declarations = process_ts_exports(source_file, checker, export_symbols);
+	const declarations = process_ts_exports(source_file, program, export_symbols);
 
 	const declaration_map = Object.fromEntries(declarations.map((d) => [d.name, d.kind]));
 	assert.equal(declaration_map, {
@@ -92,9 +91,9 @@ test('process_ts_exports correctly identifies named exports', () => {
 		};
 	`;
 
-	const {source_file, checker, exports: export_symbols} = create_ts_test_env(source_code, dir);
+	const {source_file, program, exports: export_symbols} = create_ts_test_env(source_code, dir);
 
-	const declarations = process_ts_exports(source_file, checker, export_symbols);
+	const declarations = process_ts_exports(source_file, program, export_symbols);
 
 	const declaration_map = Object.fromEntries(declarations.map((d) => [d.name, d.kind]));
 	assert.equal(declaration_map, {
@@ -117,13 +116,13 @@ test('process_ts_exports correctly identifies renamed exports', () => {
 			original_variable as renamed_variable, 
 			original_function as renamed_function,
 			Original_Class as Renamed_Class,
-			Original_Type as Renamed_Type
+			type Original_Type as Renamed_Type
 		};
 	`;
 
-	const {source_file, checker, exports: export_symbols} = create_ts_test_env(source_code, dir);
+	const {source_file, program, exports: export_symbols} = create_ts_test_env(source_code, dir);
 
-	const declarations = process_ts_exports(source_file, checker, export_symbols);
+	const declarations = process_ts_exports(source_file, program, export_symbols);
 
 	const declaration_map = Object.fromEntries(declarations.map((d) => [d.name, d.kind]));
 	assert.equal(declaration_map, {
@@ -145,9 +144,9 @@ test('process_ts_exports correctly identifies type-only exports', () => {
 		export type { Regular_Type, Regular_Interface };
 	`;
 
-	const {source_file, checker, exports: export_symbols} = create_ts_test_env(source_code, dir);
+	const {source_file, program, exports: export_symbols} = create_ts_test_env(source_code, dir);
 
-	const declarations = process_ts_exports(source_file, checker, export_symbols);
+	const declarations = process_ts_exports(source_file, program, export_symbols);
 
 	const declaration_map = Object.fromEntries(declarations.map((d) => [d.name, d.kind]));
 	assert.equal(declaration_map, {
@@ -169,9 +168,9 @@ test('process_ts_exports correctly identifies function exports', () => {
 		export { arrow_function, multi_line_arrow, declared_function };
 	`;
 
-	const {source_file, checker, exports: export_symbols} = create_ts_test_env(source_code, dir);
+	const {source_file, program, exports: export_symbols} = create_ts_test_env(source_code, dir);
 
-	const declarations = process_ts_exports(source_file, checker, export_symbols);
+	const declarations = process_ts_exports(source_file, program, export_symbols);
 
 	const declaration_map = Object.fromEntries(declarations.map((d) => [d.name, d.kind]));
 	assert.equal(declaration_map, {
@@ -192,9 +191,9 @@ test('process_ts_exports correctly identifies class exports', () => {
 		export { Simple_Class, class_expression };
 	`;
 
-	const {source_file, checker, exports: export_symbols} = create_ts_test_env(source_code, dir);
+	const {source_file, program, exports: export_symbols} = create_ts_test_env(source_code, dir);
 
-	const declarations = process_ts_exports(source_file, checker, export_symbols);
+	const declarations = process_ts_exports(source_file, program, export_symbols);
 
 	const declaration_map = Object.fromEntries(declarations.map((d) => [d.name, d.kind]));
 	assert.equal(declaration_map, {
@@ -209,9 +208,9 @@ test('process_ts_exports correctly identifies default exports', () => {
 		export default test_function;
 	`;
 
-	const {source_file, checker, exports: export_symbols} = create_ts_test_env(source_code, dir);
+	const {source_file, program, exports: export_symbols} = create_ts_test_env(source_code, dir);
 
-	const declarations = process_ts_exports(source_file, checker, export_symbols);
+	const declarations = process_ts_exports(source_file, program, export_symbols);
 
 	const declaration_map = Object.fromEntries(declarations.map((d) => [d.name, d.kind]));
 	assert.equal(declaration_map, {
@@ -224,9 +223,9 @@ test('process_ts_exports correctly identifies inline default exports', () => {
 		export default function() { return true; }
 	`;
 
-	const {source_file, checker, exports: export_symbols} = create_ts_test_env(source_code, dir);
+	const {source_file, program, exports: export_symbols} = create_ts_test_env(source_code, dir);
 
-	const declarations = process_ts_exports(source_file, checker, export_symbols);
+	const declarations = process_ts_exports(source_file, program, export_symbols);
 
 	const declaration_map = Object.fromEntries(declarations.map((d) => [d.name, d.kind]));
 	assert.equal(declaration_map, {
@@ -247,9 +246,9 @@ test('process_ts_exports correctly identifies dual purpose exports', () => {
 		export type { dual_purpose as dual_purpose_type };
 	`;
 
-	const {source_file, checker, exports: export_symbols} = create_ts_test_env(source_code, dir);
+	const {source_file, program, exports: export_symbols} = create_ts_test_env(source_code, dir);
 
-	const declarations = process_ts_exports(source_file, checker, export_symbols);
+	const declarations = process_ts_exports(source_file, program, export_symbols);
 
 	const declaration_map = Object.fromEntries(declarations.map((d) => [d.name, d.kind]));
 	assert.equal(declaration_map, {
@@ -268,9 +267,9 @@ test('process_ts_exports correctly handles type-based exports of dual purpose sy
 		export type { dual_purpose };
 	`;
 
-	const {source_file, checker, exports: export_symbols} = create_ts_test_env(source_code, dir);
+	const {source_file, program, exports: export_symbols} = create_ts_test_env(source_code, dir);
 
-	const declarations = process_ts_exports(source_file, checker, export_symbols);
+	const declarations = process_ts_exports(source_file, program, export_symbols);
 
 	const declaration_map = Object.fromEntries(declarations.map((d) => [d.name, d.kind]));
 	assert.equal(declaration_map, {
@@ -291,9 +290,9 @@ test('process_ts_exports correctly handles aliased dual purpose exports', () => 
 		export type { dual_purpose as dual_purpose_type_alias };
 	`;
 
-	const {source_file, checker, exports: export_symbols} = create_ts_test_env(source_code, dir);
+	const {source_file, program, exports: export_symbols} = create_ts_test_env(source_code, dir);
 
-	const declarations = process_ts_exports(source_file, checker, export_symbols);
+	const declarations = process_ts_exports(source_file, program, export_symbols);
 
 	const declaration_map = Object.fromEntries(declarations.map((d) => [d.name, d.kind]));
 	assert.equal(declaration_map, {
@@ -314,13 +313,13 @@ test('process_ts_exports correctly identifies re-exported functions', () => {
 
 	const {
 		source_file: module_b_source,
-		checker,
+		program,
 		exports: export_symbols,
 	} = create_ts_test_env(module_b, dir, {
 		'./module_a.ts': module_a,
 	});
 
-	const declarations = process_ts_exports(module_b_source, checker, export_symbols);
+	const declarations = process_ts_exports(module_b_source, program, export_symbols);
 
 	const declaration_map = Object.fromEntries(declarations.map((d) => [d.name, d.kind]));
 	assert.equal(declaration_map, {
@@ -329,4 +328,63 @@ test('process_ts_exports correctly identifies re-exported functions', () => {
 	});
 });
 
+test('process_ts_exports correctly identifies re-exported functions with type exports', () => {
+	const plugin_module = `
+		export interface Plugin {
+			name: string;
+		}
+
+		export const replace_plugin = (
+			plugins,
+			new_plugin,
+			name = new_plugin.name,
+		) => {
+			return [new_plugin];
+		};
+	`;
+
+	const index_module = `
+		export {type Plugin, replace_plugin} from './plugin_module.ts';
+	`;
+
+	const {
+		source_file: index_source,
+		program,
+		exports: export_symbols,
+	} = create_ts_test_env(index_module, dir, {
+		'./plugin_module.ts': plugin_module,
+	});
+
+	const declarations = process_ts_exports(index_source, program, export_symbols);
+
+	const declaration_map = Object.fromEntries(declarations.map((d) => [d.name, d.kind]));
+	assert.equal(declaration_map, {
+		Plugin: 'type',
+		replace_plugin: 'function',
+	});
+});
+
+// Add a test for the actual `replace_plugin` from plugin.ts
+test('process_ts_exports correctly identifies replace_plugin from actual plugin.ts', () => {
+	// Create a simplified version of the index.ts content
+	const index_code = `
+		export {type Plugin, replace_plugin} from './plugin.ts';
+	`;
+
+	// Create the test environment with the actual plugin.ts file
+	const {source_file, program, exports: export_symbols} = create_ts_test_env(index_code, dir);
+
+	const declarations = process_ts_exports(source_file, program, export_symbols);
+
+	// Find the replace_plugin export
+	const replace_plugin_declaration = declarations.find((d) => d.name === 'replace_plugin');
+	assert.ok(replace_plugin_declaration, 'replace_plugin export should be found');
+	assert.equal(
+		replace_plugin_declaration.kind,
+		'function',
+		'replace_plugin should be identified as a function',
+	);
+});
+
+// Remove .only to run all tests
 test.run();

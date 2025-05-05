@@ -20,7 +20,6 @@ export const Src_Module_Declaration_Kind = z.enum([
 	'component',
 	'json',
 	'css',
-	'primitive',
 ]);
 export type Src_Module_Declaration_Kind = z.infer<typeof Src_Module_Declaration_Kind>;
 
