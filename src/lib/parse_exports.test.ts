@@ -6,14 +6,13 @@ import {fileURLToPath} from 'node:url';
 import {
 	infer_declarations_from_file_type,
 	process_ts_exports,
-	type Declaration_Kind,
 	type Export_Declaration,
 } from './parse_exports.ts';
 import {create_ts_test_env} from './test_helpers.ts';
 
 const dir = dirname(fileURLToPath(import.meta.url));
 
-const create_declaration_map = (declarations: Export_Declaration[]) =>
+const create_declaration_map = (declarations: Array<Export_Declaration>) =>
 	Object.fromEntries(declarations.map((d) => [d.name, d.kind]));
 
 test('infer_declarations_from_file_type detects Svelte components', () => {
