@@ -8,7 +8,6 @@ import type {Declaration_Kind, Export_Declaration} from './parse_exports.ts';
  */
 export class Parse_Exports_Context {
 	readonly #checker: ts.TypeChecker;
-	readonly #debug = process.env.DEBUG_EXPORTS === 'true';
 
 	// Map of source file paths to their symbols
 	readonly #file_symbols: Map<string, ts.Symbol> = new Map();
@@ -16,6 +15,7 @@ export class Parse_Exports_Context {
 	readonly #symbol_kind_cache: Map<ts.Symbol, Declaration_Kind> = new Map();
 
 	readonly log: Logger | undefined;
+	debug = process.env.DEBUG_EXPORTS === 'true';
 
 	constructor(program: ts.Program, log?: Logger) {
 		this.log = log;
@@ -26,7 +26,7 @@ export class Parse_Exports_Context {
 	 * Log a debug message if debug mode is enabled.
 	 */
 	#log(...args: Array<unknown>): void {
-		if (this.#debug && this.log) {
+		if (this.debug && this.log) {
 			this.log.info(...args);
 		}
 	}
