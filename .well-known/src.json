@@ -1,6 +1,6 @@
 {
   "name": "@ryanatkn/gro",
-  "version": "0.156.0",
+  "version": "0.157.1",
   "modules": {
     ".": {
       "path": "index.ts",
@@ -49,7 +49,12 @@
     },
     "./package.json": {
       "path": "package.json",
-      "declarations": []
+      "declarations": [
+        {
+          "name": "default",
+          "kind": "json"
+        }
+      ]
     },
     "./args.js": {
       "path": "args.ts",
@@ -343,6 +348,18 @@
         },
         {
           "name": "JS_MATCHER",
+          "kind": "variable"
+        },
+        {
+          "name": "JSON_MATCHER",
+          "kind": "variable"
+        },
+        {
+          "name": "SVELTE_MATCHER",
+          "kind": "variable"
+        },
+        {
+          "name": "SVELTE_RUNES_MATCHER",
           "kind": "variable"
         },
         {
@@ -1260,6 +1277,44 @@
         }
       ]
     },
+    "./parse_exports_context.js": {
+      "path": "parse_exports_context.ts",
+      "declarations": [
+        {
+          "name": "Parse_Exports_Context",
+          "kind": "class"
+        }
+      ]
+    },
+    "./parse_exports.js": {
+      "path": "parse_exports.ts",
+      "declarations": [
+        {
+          "name": "Declaration_Kind",
+          "kind": "type"
+        },
+        {
+          "name": "Declaration",
+          "kind": "type"
+        },
+        {
+          "name": "Export_Declaration",
+          "kind": "type"
+        },
+        {
+          "name": "parse_exports",
+          "kind": "function"
+        },
+        {
+          "name": "infer_declarations_from_file_type",
+          "kind": "function"
+        },
+        {
+          "name": "process_ts_exports",
+          "kind": "function"
+        }
+      ]
+    },
     "./parse_imports.js": {
       "path": "parse_imports.ts",
       "declarations": [
@@ -1533,6 +1588,10 @@
       "path": "src_json.ts",
       "declarations": [
         {
+          "name": "Src_Module_Declaration_Kind",
+          "kind": "variable"
+        },
+        {
           "name": "Src_Module_Declaration",
           "kind": "variable"
         },
@@ -1587,19 +1646,6 @@
         },
         {
           "name": "default_svelte_config",
-          "kind": "variable"
-        }
-      ]
-    },
-    "./svelte_helpers.js": {
-      "path": "svelte_helpers.ts",
-      "declarations": [
-        {
-          "name": "SVELTE_MATCHER",
-          "kind": "variable"
-        },
-        {
-          "name": "SVELTE_RUNES_MATCHER",
           "kind": "variable"
         }
       ]
@@ -1927,6 +1973,27 @@
         },
         {
           "name": "validate_task_module",
+          "kind": "function"
+        }
+      ]
+    },
+    "./test_helpers.js": {
+      "path": "test_helpers.ts",
+      "declarations": [
+        {
+          "name": "SOME_PUBLIC_ENV_VAR_NAME",
+          "kind": "variable"
+        },
+        {
+          "name": "SOME_PUBLIC_ENV_VAR_VALUE",
+          "kind": "variable"
+        },
+        {
+          "name": "init_test_env",
+          "kind": "function"
+        },
+        {
+          "name": "create_ts_test_env",
           "kind": "function"
         }
       ]
