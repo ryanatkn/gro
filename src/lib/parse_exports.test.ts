@@ -386,5 +386,4 @@ test('process_ts_exports correctly identifies replace_plugin from actual plugin.
 	);
 });
 
-// Remove .only to run all tests
 test.run();

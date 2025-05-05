@@ -325,6 +325,10 @@
       "types": "./dist/package.d.ts",
       "default": "./dist/package.js"
     },
+    "./parse_exports_context.js": {
+      "types": "./dist/parse_exports_context.d.ts",
+      "default": "./dist/parse_exports_context.js"
+    },
     "./parse_exports.js": {
       "types": "./dist/parse_exports.d.ts",
       "default": "./dist/parse_exports.js"
@@ -436,6 +440,10 @@
     "./task.js": {
       "types": "./dist/task.d.ts",
       "default": "./dist/task.js"
+    },
+    "./test_helpers.js": {
+      "types": "./dist/test_helpers.d.ts",
+      "default": "./dist/test_helpers.js"
     },
     "./test.task.js": {
       "types": "./dist/test.task.d.ts",

@@ -1,4 +1,5 @@
 import ts from 'typescript';
+import type {Logger} from '@ryanatkn/belt/log.js';
 
 import type {Declaration_Kind, Export_Declaration} from './parse_exports.ts';
 
@@ -14,7 +15,10 @@ export class Parse_Exports_Context {
 	// Cache for resolved symbols to avoid repeated resolution
 	readonly #symbol_kind_cache: Map<ts.Symbol, Declaration_Kind> = new Map();
 
-	constructor(program: ts.Program) {
+	readonly log: Logger | undefined;
+
+	constructor(program: ts.Program, log?: Logger) {
+		this.log = log;
 		this.#checker = program.getTypeChecker();
 	}
 
@@ -22,8 +26,8 @@ export class Parse_Exports_Context {
 	 * Log a debug message if debug mode is enabled.
 	 */
 	#log(...args: Array<unknown>): void {
-		if (this.#debug) {
-			console.log(...args);
+		if (this.#debug && this.log) {
+			this.log.info(...args);
 		}
 	}
 

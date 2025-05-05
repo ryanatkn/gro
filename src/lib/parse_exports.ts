@@ -5,6 +5,7 @@ import type {Flavored} from '@ryanatkn/belt/types.js';
 import type {Path_Id} from './path.ts';
 import {TS_MATCHER} from './constants.ts';
 import {Parse_Exports_Context} from './parse_exports_context.ts';
+import type {Logger} from '@ryanatkn/belt/log.js';
 
 export type Declaration_Kind =
 	| 'type'
@@ -29,6 +30,7 @@ export const parse_exports = (
 	id: Path_Id,
 	program?: ts.Program,
 	declarations: Array<Export_Declaration> = [],
+	log?: Logger,
 ): Array<Export_Declaration> => {
 	// First, infer declarations based on file extension
 	infer_declarations_from_file_type(id, declarations);
@@ -48,7 +50,7 @@ export const parse_exports = (
 		const exports = checker.getExportsOfModule(symbol);
 
 		// Process TypeScript declarations
-		const export_context = new Parse_Exports_Context(program);
+		const export_context = new Parse_Exports_Context(program, log);
 		export_context.analyze_source_file(source_file);
 		export_context.process_exports(source_file, exports, declarations);
 	}
@@ -98,8 +100,9 @@ export const process_ts_exports = (
 	program: ts.Program,
 	exports: Array<ts.Symbol>,
 	declarations: Array<Export_Declaration> = [],
+	log?: Logger,
 ): Array<Export_Declaration> => {
-	const export_context = new Parse_Exports_Context(program);
+	const export_context = new Parse_Exports_Context(program, log);
 	export_context.analyze_source_file(source_file);
 	return export_context.process_exports(source_file, exports, declarations);
 };

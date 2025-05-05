@@ -63,7 +63,7 @@ export const create_ts_test_env = (
 	// Create a virtual file path for testing
 	const file_path = join(dir, 'virtual_test_file.ts');
 
-	// Create a virtual compiler host
+	// Create a compiler host with custom module resolution
 	const host = ts.createCompilerHost({});
 	const original_get_source_file = host.getSourceFile.bind(host);
 
@@ -84,22 +84,69 @@ export const create_ts_test_env = (
 		return original_get_source_file(fileName, languageVersion);
 	};
 
+	// TODO simplify?
+	// Add custom module resolution using resolveModuleNameLiterals
+	host.resolveModuleNameLiterals = (
+		module_literals: ReadonlyArray<ts.StringLiteralLike>,
+		containing_file: string,
+		_redirected_reference: ts.ResolvedProjectReference | undefined,
+		options: ts.CompilerOptions,
+	): Array<ts.ResolvedModuleWithFailedLookupLocations> => {
+		return module_literals.map((module_literal) => {
+			const module_name = module_literal.text;
+
+			// Handle relative imports that might be in our virtual files
+			if (module_name.startsWith('./') || module_name.startsWith('../')) {
+				const module_path = join(containing_file, '..', module_name);
+
+				// Normalize the path handling for the virtual files
+				for (const virtual_path of Object.keys(virtual_files)) {
+					const full_path = join(dir, virtual_path);
+					const normalized_module_path = module_path.replace(/\.ts$/, '') + '.ts';
+
+					if (normalized_module_path === full_path) {
+						return {
+							resolvedModule: {
+								resolvedFileName: full_path,
+								isExternalLibraryImport: false,
+								extension: ts.Extension.Ts,
+							},
+						};
+					}
+				}
+			}
+
+			// If it's our main file
+			if (join(dir, module_name) === file_path) {
+				return {
+					resolvedModule: {
+						resolvedFileName: file_path,
+						isExternalLibraryImport: false,
+						extension: ts.Extension.Ts,
+					},
+				};
+			}
+
+			// For non-virtual modules, try standard resolution
+			return ts.resolveModuleName(module_name, containing_file, options, host);
+		});
+	};
+
 	// Include all virtual files in the program files list
 	const program_files = [file_path, ...Object.keys(virtual_files).map((path) => join(dir, path))];
 
+	// TODO get from tsconfig?
+	// Create program options
+	const compiler_options: ts.CompilerOptions = {
+		target: ts.ScriptTarget.ESNext,
+		module: ts.ModuleKind.ESNext,
+		moduleResolution: ts.ModuleResolutionKind.NodeNext,
+		verbatimModuleSyntax: true,
+		isolatedModules: true,
+	};
+
 	// Create a program with our virtual files
-	const program = ts.createProgram(
-		program_files,
-		// TODO BLOCK get from tsconfig?
-		{
-			target: ts.ScriptTarget.ESNext,
-			module: ts.ModuleKind.ESNext,
-			moduleResolution: ts.ModuleResolutionKind.NodeNext,
-			verbatimModuleSyntax: true,
-			isolatedModules: true,
-		},
-		host,
-	);
+	const program = ts.createProgram(program_files, compiler_options, host);
 
 	const source_file = program.getSourceFile(file_path)!;
 	const checker = program.getTypeChecker();

@@ -117,7 +117,7 @@ export const to_src_modules = (
 	if (ts_files.length > 0) {
 		program = ts.createProgram(
 			ts_files,
-			// TODO BLOCK get from tsconfig?
+			// TODO get from tsconfig?
 			{
 				target: ts.ScriptTarget.ESNext,
 				module: ts.ModuleKind.ESNext,
