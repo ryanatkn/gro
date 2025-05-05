@@ -12,8 +12,11 @@ export const GRO_DIRNAME = '.gro';
 export const GRO_DIST_PREFIX = 'dist_'; //
 export const SERVER_DIST_PATH = 'dist_server'; // TODO should all of these be `_PATH` or should this be `DIRNAME`? also, add `_PLUGIN` to this name?
 export const GRO_DEV_DIRNAME = GRO_DIRNAME + '/dev';
+/** @trailing_slash */
 export const SOURCE_DIR = SOURCE_DIRNAME + '/';
+/** @trailing_slash */
 export const GRO_DIR = GRO_DIRNAME + '/';
+/** @trailing_slash */
 export const GRO_DEV_DIR = GRO_DEV_DIRNAME + '/';
 export const GRO_CONFIG_PATH = 'gro.config.ts';
 export const README_FILENAME = 'README.md';

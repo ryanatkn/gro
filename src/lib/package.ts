@@ -268,7 +268,7 @@ export const src_json = {
 				{name: 'Create_Gro_Config', kind: 'type'},
 				{name: 'Raw_Gro_Config', kind: 'type'},
 				{name: 'Plugin', kind: 'type'},
-				{name: 'replace_plugin', kind: 'function'},
+				{name: 'replace_plugin', kind: 'variable'},
 				{name: 'Gen', kind: 'type'},
 				{name: 'Gen_Context', kind: 'type'},
 				{name: 'Task', kind: 'type'},
@@ -276,6 +276,7 @@ export const src_json = {
 				{name: 'Task_Error', kind: 'class'},
 			],
 		},
+		'./package.json': {path: 'package.json', declarations: [{name: 'default', kind: 'json'}]},
 		'./args.js': {
 			path: 'args.ts',
 			declarations: [
@@ -386,6 +387,7 @@ export const src_json = {
 				{name: 'TSCONFIG_FILENAME', kind: 'variable'},
 				{name: 'TS_MATCHER', kind: 'variable'},
 				{name: 'JS_MATCHER', kind: 'variable'},
+				{name: 'JSON_MATCHER', kind: 'variable'},
 				{name: 'SVELTE_MATCHER', kind: 'variable'},
 				{name: 'SVELTE_RUNES_MATCHER', kind: 'variable'},
 				{name: 'SVELTE_SCRIPT_MATCHER', kind: 'variable'},
@@ -904,7 +906,7 @@ export const src_json = {
 		'./sveltekit_shim_app_forms.js': {
 			path: 'sveltekit_shim_app_forms.ts',
 			declarations: [
-				{name: 'applyAction', kind: 'function'},
+				{name: 'applyAction', kind: 'variable'},
 				{name: 'deserialize', kind: 'function'},
 				{name: 'enhance', kind: 'function'},
 			],
@@ -912,14 +914,14 @@ export const src_json = {
 		'./sveltekit_shim_app_navigation.js': {
 			path: 'sveltekit_shim_app_navigation.ts',
 			declarations: [
-				{name: 'afterNavigate', kind: 'function'},
-				{name: 'beforeNavigate', kind: 'function'},
-				{name: 'disableScrollHandling', kind: 'function'},
-				{name: 'goto', kind: 'function'},
-				{name: 'invalidate', kind: 'function'},
-				{name: 'invalidateAll', kind: 'function'},
-				{name: 'preloadCode', kind: 'function'},
-				{name: 'preloadData', kind: 'function'},
+				{name: 'afterNavigate', kind: 'variable'},
+				{name: 'beforeNavigate', kind: 'variable'},
+				{name: 'disableScrollHandling', kind: 'variable'},
+				{name: 'goto', kind: 'variable'},
+				{name: 'invalidate', kind: 'variable'},
+				{name: 'invalidateAll', kind: 'variable'},
+				{name: 'preloadCode', kind: 'variable'},
+				{name: 'preloadData', kind: 'variable'},
 			],
 		},
 		'./sveltekit_shim_app_paths.js': {
@@ -927,7 +929,7 @@ export const src_json = {
 			declarations: [
 				{name: 'assets', kind: 'variable'},
 				{name: 'base', kind: 'variable'},
-				{name: 'resolveRoute', kind: 'function'},
+				{name: 'resolveRoute', kind: 'variable'},
 			],
 		},
 		'./sveltekit_shim_app_state.js': {

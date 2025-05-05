@@ -18,10 +18,18 @@ const numeric_value = 123;
 function declared_function(): string {
 	return 'declared function result';
 }
-// eslint-disable-next-line @typescript-eslint/no-extraneous-class
-class Simple_Class {}
-// eslint-disable-next-line @typescript-eslint/no-extraneous-class
-const class_expression = class Named_Class {};
+class Simple_Class {
+	property: string;
+	constructor(property: string) {
+		this.property = property;
+	}
+}
+const class_expression = class Named_Class {
+	property: string;
+	constructor(property: string) {
+		this.property = property;
+	}
+};
 
 // Direct exports
 export const direct_variable = 'direct variable';
@@ -33,8 +41,12 @@ export type Direct_Type = boolean;
 export interface Direct_Interface {
 	value: boolean;
 }
-// eslint-disable-next-line @typescript-eslint/no-extraneous-class
-export class Direct_Class {}
+export class Direct_Class {
+	property: string;
+	constructor(property: string) {
+		this.property = property;
+	}
+}
 
 // Named exports
 export {simple_variable};
