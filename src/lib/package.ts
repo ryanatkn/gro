@@ -77,7 +77,7 @@ export const package_json = {
 		'typescript-eslint': '^8.32.0',
 		uvu: '^0.5.6',
 	},
-	optionalDependencies: {'@ryanatkn/moss': '>=0.27.0 <0.29.0'},
+	optionalDependencies: {'@ryanatkn/moss': '>=0.27.0 <0.30.0'},
 	prettier: {
 		plugins: ['prettier-plugin-svelte'],
 		useTabs: true,

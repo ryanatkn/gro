@@ -1,11 +1,11 @@
 import ts from 'typescript';
 import {extname} from 'node:path';
 import type {Flavored} from '@ryanatkn/belt/types.js';
+import type {Logger} from '@ryanatkn/belt/log.js';
 
 import type {Path_Id} from './path.ts';
 import {TS_MATCHER} from './constants.ts';
 import {Parse_Exports_Context} from './parse_exports_context.ts';
-import type {Logger} from '@ryanatkn/belt/log.js';
 
 export type Declaration_Kind =
 	| 'type'
