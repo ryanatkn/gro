@@ -212,10 +212,6 @@ export const package_json = {
 		'./search_fs.js': {types: './dist/search_fs.d.ts', default: './dist/search_fs.js'},
 		'./src_json.js': {types: './dist/src_json.d.ts', default: './dist/src_json.js'},
 		'./svelte_config.js': {types: './dist/svelte_config.d.ts', default: './dist/svelte_config.js'},
-		'./svelte_helpers.js': {
-			types: './dist/svelte_helpers.d.ts',
-			default: './dist/svelte_helpers.js',
-		},
 		'./sveltekit_helpers.js': {
 			types: './dist/sveltekit_helpers.d.ts',
 			default: './dist/sveltekit_helpers.js',
@@ -390,6 +386,8 @@ export const src_json = {
 				{name: 'TSCONFIG_FILENAME', kind: 'variable'},
 				{name: 'TS_MATCHER', kind: 'variable'},
 				{name: 'JS_MATCHER', kind: 'variable'},
+				{name: 'SVELTE_MATCHER', kind: 'variable'},
+				{name: 'SVELTE_RUNES_MATCHER', kind: 'variable'},
 				{name: 'SVELTE_SCRIPT_MATCHER', kind: 'variable'},
 				{name: 'EVERYTHING_MATCHER', kind: 'variable'},
 				{name: 'JS_CLI_DEFAULT', kind: 'variable'},
@@ -853,6 +851,7 @@ export const src_json = {
 		'./src_json.js': {
 			path: 'src_json.ts',
 			declarations: [
+				{name: 'Src_Module_Declaration_Kind', kind: 'variable'},
 				{name: 'Src_Module_Declaration', kind: 'variable'},
 				{name: 'Src_Module', kind: 'variable'},
 				{name: 'Src_Modules', kind: 'variable'},
@@ -871,13 +870,6 @@ export const src_json = {
 				{name: 'parse_svelte_config', kind: 'function'},
 				{name: 'to_default_compile_module_options', kind: 'function'},
 				{name: 'default_svelte_config', kind: 'variable'},
-			],
-		},
-		'./svelte_helpers.js': {
-			path: 'svelte_helpers.ts',
-			declarations: [
-				{name: 'SVELTE_MATCHER', kind: 'variable'},
-				{name: 'SVELTE_RUNES_MATCHER', kind: 'variable'},
 			],
 		},
 		'./sveltekit_helpers.js': {

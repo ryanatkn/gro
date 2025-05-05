@@ -12,6 +12,7 @@ import {
 	type Package_Json_Exports,
 } from './package_json.ts';
 
+// TODO expand to include 'primitive' and types from files - 'component' (.Svelte files), 'json' (.json files), 'css' (.css files)
 export const Src_Module_Declaration_Kind = z.enum(['type', 'function', 'variable', 'class']);
 export type Src_Module_Declaration_Kind = z.infer<typeof Src_Module_Declaration_Kind>;
 
@@ -145,11 +146,11 @@ export const to_src_modules = (
 const process_exports = (
 	source_file: ts.SourceFile,
 	checker: ts.TypeChecker,
-	declarations: Array<Src_Module_Declaration>,
-): void => {
+	declarations: Array<Src_Module_Declaration> = [],
+): Array<Src_Module_Declaration> => {
 	// Get the exports of the source file (module)
 	const symbol = checker.getSymbolAtLocation(source_file);
-	if (!symbol) return;
+	if (!symbol) return declarations; // TODO maybe return null?
 
 	// Get the module exports
 	const exports = checker.getExportsOfModule(symbol);
@@ -343,6 +344,8 @@ const process_exports = (
 			kind,
 		});
 	}
+
+	return declarations;
 };
 
 /**

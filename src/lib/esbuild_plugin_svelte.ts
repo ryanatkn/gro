@@ -10,14 +10,13 @@ import {
 import {readFile} from 'node:fs/promises';
 import {relative} from 'node:path';
 
-import {SVELTE_MATCHER, SVELTE_RUNES_MATCHER} from './svelte_helpers.ts';
 import {to_define_import_meta_env, default_ts_transform_options} from './esbuild_helpers.ts';
 import {
 	default_svelte_config,
 	to_default_compile_module_options,
 	type Parsed_Svelte_Config,
 } from './svelte_config.ts';
-import {TS_MATCHER} from './constants.ts';
+import {TS_MATCHER, SVELTE_MATCHER, SVELTE_RUNES_MATCHER} from './constants.ts';
 
 export interface Esbuild_Plugin_Svelte_Options {
 	dev: boolean;
