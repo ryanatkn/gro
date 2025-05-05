@@ -7,48 +7,53 @@ import {
 	infer_declarations_from_file_type,
 	process_ts_exports,
 	type Declaration_Kind,
+	type Export_Declaration,
 } from './parse_exports.ts';
 import {create_ts_test_env} from './test_helpers.ts';
 
 const dir = dirname(fileURLToPath(import.meta.url));
 
+const create_declaration_map = (declarations: Export_Declaration[]) =>
+	Object.fromEntries(declarations.map((d) => [d.name, d.kind]));
+
 test('infer_declarations_from_file_type detects Svelte components', () => {
-	const declarations = infer_declarations_from_file_type('Component.svelte');
-	assert.equal(declarations, [{name: 'default', kind: 'component'}]);
+	assert.equal(infer_declarations_from_file_type('Component.svelte'), [
+		{name: 'default', kind: 'component'},
+	]);
 });
 
 test('infer_declarations_from_file_type detects CSS files', () => {
-	const declarations = infer_declarations_from_file_type('styles.css');
-	assert.equal(declarations, [{name: 'default', kind: 'css'}]);
+	assert.equal(infer_declarations_from_file_type('styles.css'), [{name: 'default', kind: 'css'}]);
 });
 
 test('infer_declarations_from_file_type detects JSON files', () => {
-	const declarations = infer_declarations_from_file_type('data.json');
-	assert.equal(declarations, [{name: 'default', kind: 'json'}]);
+	assert.equal(infer_declarations_from_file_type('data.json'), [{name: 'default', kind: 'json'}]);
 });
 
 test('infer_declarations_from_file_type does not infer for TypeScript files', () => {
-	const declarations = infer_declarations_from_file_type('module.ts');
-	assert.equal(declarations, []);
+	assert.equal(infer_declarations_from_file_type('module.ts'), []);
 });
 
 test('infer_declarations_from_file_type handles paths with directories', () => {
-	const declarations = infer_declarations_from_file_type('src/components/Header.svelte');
-	assert.equal(declarations, [{name: 'default', kind: 'component'}]);
+	assert.equal(infer_declarations_from_file_type('src/components/Header.svelte'), [
+		{name: 'default', kind: 'component'},
+	]);
 });
 
 test('infer_declarations_from_file_type handles extensions case-insensitively', () => {
-	const declarations = infer_declarations_from_file_type('Component.SVELTE');
-	assert.equal(declarations, [{name: 'default', kind: 'component'}]);
+	assert.equal(infer_declarations_from_file_type('Component.SVELTE'), [
+		{name: 'default', kind: 'component'},
+	]);
 });
 
 test('infer_declarations_from_file_type accumulates declarations', () => {
-	const existing = [{name: 'existing', kind: 'variable' as Declaration_Kind}];
-	const declarations = infer_declarations_from_file_type('Component.svelte', existing);
-	assert.equal(declarations, [
-		{name: 'existing', kind: 'variable'},
-		{name: 'default', kind: 'component'},
-	]);
+	assert.equal(
+		infer_declarations_from_file_type('Component.svelte', [{name: 'existing', kind: 'variable'}]),
+		[
+			{name: 'existing', kind: 'variable'},
+			{name: 'default', kind: 'component'},
+		],
+	);
 });
 
 test('process_ts_exports correctly identifies direct exports', () => {
@@ -64,8 +69,7 @@ test('process_ts_exports correctly identifies direct exports', () => {
 
 	const declarations = process_ts_exports(source_file, program, export_symbols);
 
-	const declaration_map = Object.fromEntries(declarations.map((d) => [d.name, d.kind]));
-	assert.equal(declaration_map, {
+	assert.equal(create_declaration_map(declarations), {
 		variable_export: 'variable',
 		function_export: 'function',
 		Class_Export: 'class',
@@ -95,8 +99,7 @@ test('process_ts_exports correctly identifies named exports', () => {
 
 	const declarations = process_ts_exports(source_file, program, export_symbols);
 
-	const declaration_map = Object.fromEntries(declarations.map((d) => [d.name, d.kind]));
-	assert.equal(declaration_map, {
+	assert.equal(create_declaration_map(declarations), {
 		variable_value: 'variable',
 		function_value: 'function',
 		Class_Value: 'class',
@@ -124,8 +127,7 @@ test('process_ts_exports correctly identifies renamed exports', () => {
 
 	const declarations = process_ts_exports(source_file, program, export_symbols);
 
-	const declaration_map = Object.fromEntries(declarations.map((d) => [d.name, d.kind]));
-	assert.equal(declaration_map, {
+	assert.equal(create_declaration_map(declarations), {
 		renamed_variable: 'variable',
 		renamed_function: 'function',
 		Renamed_Class: 'class',
@@ -148,8 +150,7 @@ test('process_ts_exports correctly identifies type-only exports', () => {
 
 	const declarations = process_ts_exports(source_file, program, export_symbols);
 
-	const declaration_map = Object.fromEntries(declarations.map((d) => [d.name, d.kind]));
-	assert.equal(declaration_map, {
+	assert.equal(create_declaration_map(declarations), {
 		Direct_Type: 'type',
 		Direct_Interface: 'type',
 		Regular_Type: 'type',
@@ -172,8 +173,7 @@ test('process_ts_exports correctly identifies function exports', () => {
 
 	const declarations = process_ts_exports(source_file, program, export_symbols);
 
-	const declaration_map = Object.fromEntries(declarations.map((d) => [d.name, d.kind]));
-	assert.equal(declaration_map, {
+	assert.equal(create_declaration_map(declarations), {
 		arrow_function: 'function',
 		multi_line_arrow: 'function',
 		declared_function: 'function',
@@ -195,8 +195,7 @@ test('process_ts_exports correctly identifies class exports', () => {
 
 	const declarations = process_ts_exports(source_file, program, export_symbols);
 
-	const declaration_map = Object.fromEntries(declarations.map((d) => [d.name, d.kind]));
-	assert.equal(declaration_map, {
+	assert.equal(create_declaration_map(declarations), {
 		Simple_Class: 'class',
 		class_expression: 'class',
 	});
@@ -212,8 +211,7 @@ test('process_ts_exports correctly identifies default exports', () => {
 
 	const declarations = process_ts_exports(source_file, program, export_symbols);
 
-	const declaration_map = Object.fromEntries(declarations.map((d) => [d.name, d.kind]));
-	assert.equal(declaration_map, {
+	assert.equal(create_declaration_map(declarations), {
 		default: 'function',
 	});
 });
@@ -227,8 +225,7 @@ test('process_ts_exports correctly identifies inline default exports', () => {
 
 	const declarations = process_ts_exports(source_file, program, export_symbols);
 
-	const declaration_map = Object.fromEntries(declarations.map((d) => [d.name, d.kind]));
-	assert.equal(declaration_map, {
+	assert.equal(create_declaration_map(declarations), {
 		default: 'function',
 	});
 });
@@ -250,8 +247,7 @@ test('process_ts_exports correctly identifies dual purpose exports', () => {
 
 	const declarations = process_ts_exports(source_file, program, export_symbols);
 
-	const declaration_map = Object.fromEntries(declarations.map((d) => [d.name, d.kind]));
-	assert.equal(declaration_map, {
+	assert.equal(create_declaration_map(declarations), {
 		dual_purpose: 'variable', // Should be identified as variable when exported as value
 		dual_purpose_type: 'type', // And as type when exported as type
 	});
@@ -271,8 +267,7 @@ test('process_ts_exports correctly handles type-based exports of dual purpose sy
 
 	const declarations = process_ts_exports(source_file, program, export_symbols);
 
-	const declaration_map = Object.fromEntries(declarations.map((d) => [d.name, d.kind]));
-	assert.equal(declaration_map, {
+	assert.equal(create_declaration_map(declarations), {
 		dual_purpose: 'type', // Should be identified as type when only exported as type
 	});
 });
@@ -294,8 +289,7 @@ test('process_ts_exports correctly handles aliased dual purpose exports', () => 
 
 	const declarations = process_ts_exports(source_file, program, export_symbols);
 
-	const declaration_map = Object.fromEntries(declarations.map((d) => [d.name, d.kind]));
-	assert.equal(declaration_map, {
+	assert.equal(create_declaration_map(declarations), {
 		dual_purpose_alias: 'variable', // Should be identified as variable when exported as value
 		dual_purpose_type_alias: 'type', // Should be identified as type when exported as type
 	});
@@ -321,8 +315,7 @@ test('process_ts_exports correctly identifies re-exported functions', () => {
 
 	const declarations = process_ts_exports(module_b_source, program, export_symbols);
 
-	const declaration_map = Object.fromEntries(declarations.map((d) => [d.name, d.kind]));
-	assert.equal(declaration_map, {
+	assert.equal(create_declaration_map(declarations), {
 		example_function: 'function',
 		renamed_function: 'function',
 	});
@@ -357,8 +350,7 @@ test('process_ts_exports correctly identifies re-exported functions with type ex
 
 	const declarations = process_ts_exports(index_source, program, export_symbols);
 
-	const declaration_map = Object.fromEntries(declarations.map((d) => [d.name, d.kind]));
-	assert.equal(declaration_map, {
+	assert.equal(create_declaration_map(declarations), {
 		Plugin: 'type',
 		replace_plugin: 'function',
 	});
