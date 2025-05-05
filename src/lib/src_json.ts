@@ -12,13 +12,16 @@ import {
 	type Package_Json_Exports,
 } from './package_json.ts';
 
+export const Src_Module_Declaration_Kind = z.enum(['type', 'function', 'variable', 'class']);
+export type Src_Module_Declaration_Kind = z.infer<typeof Src_Module_Declaration_Kind>;
+
 // TODO @many rename to prefix with `Src_Json_`?
 export const Src_Module_Declaration = z
 	.object({
 		name: z.string(), // the export identifier
 		// TODO these are poorly named, and they're somewhat redundant with `kind`,
 		// they were added to distinguish `VariableDeclaration` functions and non-functions
-		kind: z.enum(['type', 'function', 'variable', 'class']).nullable(),
+		kind: Src_Module_Declaration_Kind.nullable(),
 		// code: z.string(), // TODO experiment with `getType().getText()`, some of them return the same as `name`
 	})
 	.passthrough();
@@ -257,7 +260,7 @@ const process_exports = (
 		const name = export_symbol.name;
 
 		// Determine the export kind with strict precedence rules
-		let kind: 'type' | 'function' | 'variable' | 'class' | null = null;
+		let kind: Src_Module_Declaration_Kind | null = null;
 
 		// Priority 1: If it's explicitly exported with 'export' without 'type' keyword, it should be a value
 		if (value_exports.has(name)) {
@@ -349,7 +352,7 @@ const determine_declaration_kind = (
 	checker: ts.TypeChecker,
 	symbol: ts.Symbol,
 	node?: ts.Node,
-): 'type' | 'function' | 'variable' | 'class' | null => {
+): Src_Module_Declaration_Kind | null => {
 	// Handle type exports
 	if (symbol.flags & ts.SymbolFlags.Type && !(symbol.flags & ts.SymbolFlags.Class)) {
 		return 'type';
