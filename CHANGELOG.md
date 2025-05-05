@@ -1,5 +1,23 @@
 # @ryanatkn/gro
 
+## 0.157.0
+
+### Minor Changes
+
+- remove ts-morph dep and use the ts API instead ([#546](https://github.com/ryanatkn/gro/pull/546))
+
+  - add `typescript^5` peer dep
+  - merge `svelte_helpers.ts` into `constants.ts`
+  - add default declarations:
+    - new: `'./package.json': {path: 'package.json', declarations: [{name: 'default', kind: 'json'}]},`
+    - old: `'./package.json': {path: 'package.json', declarations: []},`
+  - add `parse_exports.ts`
+  - add `Src_Module_Declaration_Kind`
+
+- bump oxc-parser@0.68.1 from 0.67 ([#546](https://github.com/ryanatkn/gro/pull/546))
+
+  - also bump zod patch
+
 ## 0.156.0
 
 ### Minor Changes
