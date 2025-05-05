@@ -1,5 +1,4 @@
-// This file contains systematic examples of all different kinds of exports
-// for testing the src_json module
+// This file contains systematic examples of all different kinds of exports in the `src_json`
 
 // Type declarations
 type Simple_Type = string;
