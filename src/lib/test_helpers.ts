@@ -90,10 +90,13 @@ export const create_ts_test_env = (
 	// Create a program with our virtual files
 	const program = ts.createProgram(
 		program_files,
+		// TODO BLOCK get from tsconfig?
 		{
 			target: ts.ScriptTarget.ESNext,
 			module: ts.ModuleKind.ESNext,
 			moduleResolution: ts.ModuleResolutionKind.NodeNext,
+			verbatimModuleSyntax: true,
+			isolatedModules: true,
 		},
 		host,
 	);

@@ -115,11 +115,17 @@ export const to_src_modules = (
 
 	let program: ts.Program | undefined;
 	if (ts_files.length > 0) {
-		program = ts.createProgram(ts_files, {
-			target: ts.ScriptTarget.ESNext,
-			module: ts.ModuleKind.ESNext,
-			moduleResolution: ts.ModuleResolutionKind.NodeNext,
-		});
+		program = ts.createProgram(
+			ts_files,
+			// TODO BLOCK get from tsconfig?
+			{
+				target: ts.ScriptTarget.ESNext,
+				module: ts.ModuleKind.ESNext,
+				moduleResolution: ts.ModuleResolutionKind.NodeNext,
+				verbatimModuleSyntax: true,
+				isolatedModules: true,
+			},
+		);
 	}
 
 	const result: Src_Modules = {};
