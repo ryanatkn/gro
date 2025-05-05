@@ -49,15 +49,14 @@ export const package_json = {
 		dotenv: '^16.5.0',
 		'esm-env': '^1.2.2',
 		mri: '^1.2.0',
-		'oxc-parser': '^0.67.0',
+		'oxc-parser': '^0.68.1',
 		prettier: '^3.5.3',
 		'prettier-plugin-svelte': '^3.3.3',
 		'ts-blank-space': '^0.6.1',
-		'ts-morph': '^25.0.1',
 		tslib: '^2.8.1',
-		zod: '^3.24.3',
+		zod: '^3.24.4',
 	},
-	peerDependencies: {esbuild: '^0.25', svelte: '^5'},
+	peerDependencies: {esbuild: '^0.25', svelte: '^5', typescript: '^5'},
 	devDependencies: {
 		'@changesets/changelog-git': '^0.2.1',
 		'@changesets/types': '^6.1.0',
@@ -70,12 +69,12 @@ export const package_json = {
 		'@sveltejs/vite-plugin-svelte': '^5.0.3',
 		'@types/node': '^22.15.3',
 		esbuild: '^0.25.3',
-		eslint: '^9.25.1',
+		eslint: '9.25.1',
 		'eslint-plugin-svelte': '^3.5.1',
 		svelte: '^5.28.2',
-		'svelte-check': '^4.1.6',
+		'svelte-check': '^4.1.7',
 		typescript: '^5.8.3',
-		'typescript-eslint': '^8.31.1',
+		'typescript-eslint': '^8.32.0',
 		uvu: '^0.5.6',
 	},
 	optionalDependencies: {'@ryanatkn/moss': '>=0.27.0 <0.29.0'},
@@ -191,6 +190,11 @@ export const package_json = {
 		'./package_meta.js': {types: './dist/package_meta.d.ts', default: './dist/package_meta.js'},
 		'./package.gen.js': {types: './dist/package.gen.d.ts', default: './dist/package.gen.js'},
 		'./package.js': {types: './dist/package.d.ts', default: './dist/package.js'},
+		'./parse_exports_context.js': {
+			types: './dist/parse_exports_context.d.ts',
+			default: './dist/parse_exports_context.js',
+		},
+		'./parse_exports.js': {types: './dist/parse_exports.d.ts', default: './dist/parse_exports.js'},
 		'./parse_imports.js': {types: './dist/parse_imports.d.ts', default: './dist/parse_imports.js'},
 		'./path.js': {types: './dist/path.d.ts', default: './dist/path.js'},
 		'./paths.js': {types: './dist/paths.d.ts', default: './dist/paths.js'},
@@ -213,10 +217,6 @@ export const package_json = {
 		'./search_fs.js': {types: './dist/search_fs.d.ts', default: './dist/search_fs.js'},
 		'./src_json.js': {types: './dist/src_json.d.ts', default: './dist/src_json.js'},
 		'./svelte_config.js': {types: './dist/svelte_config.d.ts', default: './dist/svelte_config.js'},
-		'./svelte_helpers.js': {
-			types: './dist/svelte_helpers.d.ts',
-			default: './dist/svelte_helpers.js',
-		},
 		'./sveltekit_helpers.js': {
 			types: './dist/sveltekit_helpers.d.ts',
 			default: './dist/sveltekit_helpers.js',
@@ -252,6 +252,7 @@ export const package_json = {
 		'./sync.task.js': {types: './dist/sync.task.d.ts', default: './dist/sync.task.js'},
 		'./task_logging.js': {types: './dist/task_logging.d.ts', default: './dist/task_logging.js'},
 		'./task.js': {types: './dist/task.d.ts', default: './dist/task.js'},
+		'./test_helpers.js': {types: './dist/test_helpers.d.ts', default: './dist/test_helpers.js'},
 		'./test.task.js': {types: './dist/test.task.d.ts', default: './dist/test.task.js'},
 		'./typecheck.task.js': {
 			types: './dist/typecheck.task.d.ts',
@@ -281,7 +282,7 @@ export const src_json = {
 				{name: 'Task_Error', kind: 'class'},
 			],
 		},
-		'./package.json': {path: 'package.json', declarations: []},
+		'./package.json': {path: 'package.json', declarations: [{name: 'default', kind: 'json'}]},
 		'./args.js': {
 			path: 'args.ts',
 			declarations: [
@@ -392,6 +393,9 @@ export const src_json = {
 				{name: 'TSCONFIG_FILENAME', kind: 'variable'},
 				{name: 'TS_MATCHER', kind: 'variable'},
 				{name: 'JS_MATCHER', kind: 'variable'},
+				{name: 'JSON_MATCHER', kind: 'variable'},
+				{name: 'SVELTE_MATCHER', kind: 'variable'},
+				{name: 'SVELTE_RUNES_MATCHER', kind: 'variable'},
 				{name: 'SVELTE_SCRIPT_MATCHER', kind: 'variable'},
 				{name: 'EVERYTHING_MATCHER', kind: 'variable'},
 				{name: 'JS_CLI_DEFAULT', kind: 'variable'},
@@ -736,6 +740,21 @@ export const src_json = {
 				{name: 'src_json', kind: 'variable'},
 			],
 		},
+		'./parse_exports_context.js': {
+			path: 'parse_exports_context.ts',
+			declarations: [{name: 'Parse_Exports_Context', kind: 'class'}],
+		},
+		'./parse_exports.js': {
+			path: 'parse_exports.ts',
+			declarations: [
+				{name: 'Declaration_Kind', kind: 'type'},
+				{name: 'Declaration', kind: 'type'},
+				{name: 'Export_Declaration', kind: 'type'},
+				{name: 'parse_exports', kind: 'function'},
+				{name: 'infer_declarations_from_file_type', kind: 'function'},
+				{name: 'process_ts_exports', kind: 'function'},
+			],
+		},
 		'./parse_imports.js': {
 			path: 'parse_imports.ts',
 			declarations: [
@@ -855,6 +874,7 @@ export const src_json = {
 		'./src_json.js': {
 			path: 'src_json.ts',
 			declarations: [
+				{name: 'Src_Module_Declaration_Kind', kind: 'variable'},
 				{name: 'Src_Module_Declaration', kind: 'variable'},
 				{name: 'Src_Module', kind: 'variable'},
 				{name: 'Src_Modules', kind: 'variable'},
@@ -873,13 +893,6 @@ export const src_json = {
 				{name: 'parse_svelte_config', kind: 'function'},
 				{name: 'to_default_compile_module_options', kind: 'function'},
 				{name: 'default_svelte_config', kind: 'variable'},
-			],
-		},
-		'./svelte_helpers.js': {
-			path: 'svelte_helpers.ts',
-			declarations: [
-				{name: 'SVELTE_MATCHER', kind: 'variable'},
-				{name: 'SVELTE_RUNES_MATCHER', kind: 'variable'},
 			],
 		},
 		'./sveltekit_helpers.js': {
@@ -1001,6 +1014,15 @@ export const src_json = {
 				{name: 'Load_Tasks_Failure', kind: 'type'},
 				{name: 'load_tasks', kind: 'function'},
 				{name: 'validate_task_module', kind: 'function'},
+			],
+		},
+		'./test_helpers.js': {
+			path: 'test_helpers.ts',
+			declarations: [
+				{name: 'SOME_PUBLIC_ENV_VAR_NAME', kind: 'variable'},
+				{name: 'SOME_PUBLIC_ENV_VAR_VALUE', kind: 'variable'},
+				{name: 'init_test_env', kind: 'function'},
+				{name: 'create_ts_test_env', kind: 'function'},
 			],
 		},
 		'./test.task.js': {

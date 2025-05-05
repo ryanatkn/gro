@@ -1,6 +1,6 @@
 import {join, extname, relative, basename} from 'node:path';
 import {fileURLToPath} from 'node:url';
-import {strip_end} from '@ryanatkn/belt/string.js';
+import {ensure_end, strip_end} from '@ryanatkn/belt/string.js';
 import {styleText as st} from 'node:util';
 
 import {
@@ -22,21 +22,27 @@ It's the same name that Rollup uses.
 
 export const LIB_DIRNAME = basename(default_svelte_config.lib_path);
 export const LIB_PATH = SOURCE_DIR + LIB_DIRNAME;
+/** @trailing_slash */
 export const LIB_DIR = LIB_PATH + '/';
 export const ROUTES_DIRNAME = basename(default_svelte_config.routes_path);
 
 export interface Paths {
+	/** @trailing_slash */
 	root: string;
+	/** @trailing_slash */
 	source: string;
+	/** @trailing_slash */
 	lib: string;
+	/** @trailing_slash */
 	build: string;
+	/** @trailing_slash */
 	build_dev: string;
 	config: string;
 }
 
 export const create_paths = (root_dir: string): Paths => {
 	// TODO remove reliance on trailing slash towards windows support
-	const root = strip_end(root_dir, '/') + '/';
+	const root = ensure_end(root_dir, '/');
 	return {
 		root,
 		source: root + SOURCE_DIR,
@@ -48,7 +54,9 @@ export const create_paths = (root_dir: string): Paths => {
 };
 
 export const infer_paths = (id: Path_Id): Paths => (is_gro_id(id) ? gro_paths : paths);
-export const is_gro_id = (id: Path_Id): boolean => id.startsWith(strip_end(gro_paths.root, '/')); // strip `/` in case we're looking at the Gro root without a trailing slash
+
+export const is_gro_id = (id: Path_Id): boolean =>
+	id.startsWith(gro_paths.root) || gro_paths.root === ensure_end(id, '/');
 
 // '/home/me/app/src/foo/bar/baz.ts' → 'src/foo/bar/baz.ts'
 export const to_root_path = (id: Path_Id, p = infer_paths(id)): string =>
@@ -81,6 +89,7 @@ export const replace_extension = (path: string, new_extension: string): string =
  */
 export const paths = create_paths(process.cwd());
 
+/** @trailing_slash */
 export const GRO_PACKAGE_DIR = 'gro/';
 // TODO document these conditions with comments
 // TODO there's probably a more robust way to do this
@@ -98,4 +107,5 @@ export const IS_THIS_GRO = gro_package_dir_path === paths.root;
  * Paths for the Gro package being used by the user repo.
  */
 export const gro_paths = IS_THIS_GRO ? paths : create_paths(gro_package_dir_path);
+/** @trailing_slash */
 export const GRO_DIST_DIR = gro_paths.root + SVELTEKIT_DIST_DIRNAME + '/';

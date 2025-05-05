@@ -30,8 +30,15 @@ test__create_paths.run();
 const test__is_gro_id = suite('is_gro_id');
 
 test__is_gro_id('basic behavior', () => {
-	assert.ok(is_gro_id(resolve(paths.source)));
+	assert.ok(is_gro_id(resolve(paths.root)));
+	assert.ok(is_gro_id(resolve(paths.root.slice(0, -1))));
+	assert.ok(is_gro_id(resolve(paths.source).slice(0, -1)));
 	assert.ok(!is_gro_id(resolve('../fake/src')));
+	assert.ok(!is_gro_id(resolve('../fake/src/')));
+	assert.ok(!is_gro_id(resolve('../gro_fake')));
+	assert.ok(!is_gro_id(resolve('../gro_fake/')));
+	assert.ok(!is_gro_id(resolve('../gro_fake/src')));
+	assert.ok(!is_gro_id(resolve('../gro_fake/src/')));
 });
 
 test__is_gro_id.run();
