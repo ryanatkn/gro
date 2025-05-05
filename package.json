@@ -325,6 +325,10 @@
       "types": "./dist/package.d.ts",
       "default": "./dist/package.js"
     },
+    "./parse_exports.js": {
+      "types": "./dist/parse_exports.d.ts",
+      "default": "./dist/parse_exports.js"
+    },
     "./parse_imports.js": {
       "types": "./dist/parse_imports.d.ts",
       "default": "./dist/parse_imports.js"

@@ -190,6 +190,7 @@ export const package_json = {
 		'./package_meta.js': {types: './dist/package_meta.d.ts', default: './dist/package_meta.js'},
 		'./package.gen.js': {types: './dist/package.gen.d.ts', default: './dist/package.gen.js'},
 		'./package.js': {types: './dist/package.d.ts', default: './dist/package.js'},
+		'./parse_exports.js': {types: './dist/parse_exports.d.ts', default: './dist/parse_exports.js'},
 		'./parse_imports.js': {types: './dist/parse_imports.d.ts', default: './dist/parse_imports.js'},
 		'./path.js': {types: './dist/path.d.ts', default: './dist/path.js'},
 		'./paths.js': {types: './dist/paths.d.ts', default: './dist/paths.js'},
@@ -732,6 +733,19 @@ export const src_json = {
 			declarations: [
 				{name: 'package_json', kind: 'variable'},
 				{name: 'src_json', kind: 'variable'},
+			],
+		},
+		'./parse_exports.js': {
+			path: 'parse_exports.ts',
+			declarations: [
+				{name: 'Declaration_Kind', kind: 'type'},
+				{name: 'Declaration', kind: 'type'},
+				{name: 'Export_Declaration', kind: 'type'},
+				{name: 'parse_exports', kind: 'function'},
+				{name: 'infer_declarations_from_file_type', kind: 'function'},
+				{name: 'get_declaration_kind', kind: 'function'},
+				{name: 'infer_kind_from_symbol', kind: 'function'},
+				{name: 'process_ts_exports', kind: 'function'},
 			],
 		},
 		'./parse_imports.js': {
