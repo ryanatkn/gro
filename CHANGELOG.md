@@ -1,5 +1,11 @@
 # @ryanatkn/gro
 
+## 0.157.1
+
+### Patch Changes
+
+- bump moss up to 0.29 ([b81be84](https://github.com/ryanatkn/gro/commit/b81be84))
+
 ## 0.157.0
 
 ### Minor Changes
