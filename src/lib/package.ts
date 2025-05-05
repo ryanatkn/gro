@@ -45,8 +45,6 @@ export const package_json = {
 	],
 	dependencies: {
 		'@ryanatkn/belt': '^0.30.2',
-		'@sveltejs/acorn-typescript': '^1.0.5',
-		acorn: '^8.14.1',
 		chokidar: '^4.0.3',
 		dotenv: '^16.5.0',
 		'esm-env': '^1.2.2',
@@ -58,7 +56,7 @@ export const package_json = {
 		tslib: '^2.8.1',
 		zod: '^3.24.3',
 	},
-	peerDependencies: {esbuild: '^0.25', svelte: '^5'},
+	peerDependencies: {esbuild: '^0.25', svelte: '^5', typescript: '^5'},
 	devDependencies: {
 		'@changesets/changelog-git': '^0.2.1',
 		'@changesets/types': '^6.1.0',
@@ -274,15 +272,14 @@ export const src_json = {
 				{name: 'Create_Gro_Config', kind: 'type'},
 				{name: 'Raw_Gro_Config', kind: 'type'},
 				{name: 'Plugin', kind: 'type'},
-				{name: 'replace_plugin', kind: 'variable'},
+				{name: 'replace_plugin', kind: 'function'},
 				{name: 'Gen', kind: 'type'},
 				{name: 'Gen_Context', kind: 'type'},
 				{name: 'Task', kind: 'type'},
 				{name: 'Task_Context', kind: 'type'},
-				{name: 'Task_Error', kind: 'variable'},
+				{name: 'Task_Error', kind: 'class'},
 			],
 		},
-		'./package.json': {path: 'package.json', declarations: []},
 		'./args.js': {
 			path: 'args.ts',
 			declarations: [
@@ -301,7 +298,7 @@ export const src_json = {
 		'./build.task.js': {
 			path: 'build.task.ts',
 			declarations: [
-				{name: 'Args', kind: 'type'},
+				{name: 'Args', kind: 'variable'},
 				{name: 'task', kind: 'variable'},
 			],
 		},
@@ -317,20 +314,20 @@ export const src_json = {
 				{name: 'Changeset_Access', kind: 'variable'},
 				{name: 'CHANGESET_CLI', kind: 'variable'},
 				{name: 'CHANGESET_DIR', kind: 'variable'},
-				{name: 'Changeset_Bump', kind: 'type'},
+				{name: 'Changeset_Bump', kind: 'variable'},
 			],
 		},
 		'./changeset.task.js': {
 			path: 'changeset.task.ts',
 			declarations: [
-				{name: 'Args', kind: 'type'},
+				{name: 'Args', kind: 'variable'},
 				{name: 'task', kind: 'variable'},
 			],
 		},
 		'./check.task.js': {
 			path: 'check.task.ts',
 			declarations: [
-				{name: 'Args', kind: 'type'},
+				{name: 'Args', kind: 'variable'},
 				{name: 'task', kind: 'variable'},
 			],
 		},
@@ -345,7 +342,7 @@ export const src_json = {
 		'./clean.task.js': {
 			path: 'clean.task.ts',
 			declarations: [
-				{name: 'Args', kind: 'type'},
+				{name: 'Args', kind: 'variable'},
 				{name: 'task', kind: 'variable'},
 			],
 		},
@@ -363,7 +360,7 @@ export const src_json = {
 		'./commit.task.js': {
 			path: 'commit.task.ts',
 			declarations: [
-				{name: 'Args', kind: 'type'},
+				{name: 'Args', kind: 'variable'},
 				{name: 'task', kind: 'variable'},
 			],
 		},
@@ -403,14 +400,14 @@ export const src_json = {
 		'./deploy.task.js': {
 			path: 'deploy.task.ts',
 			declarations: [
-				{name: 'Args', kind: 'type'},
+				{name: 'Args', kind: 'variable'},
 				{name: 'task', kind: 'variable'},
 			],
 		},
 		'./dev.task.js': {
 			path: 'dev.task.ts',
 			declarations: [
-				{name: 'Args', kind: 'type'},
+				{name: 'Args', kind: 'variable'},
 				{name: 'DevTask_Context', kind: 'type'},
 				{name: 'task', kind: 'variable'},
 			],
@@ -494,7 +491,7 @@ export const src_json = {
 		'./format.task.js': {
 			path: 'format.task.ts',
 			declarations: [
-				{name: 'Args', kind: 'type'},
+				{name: 'Args', kind: 'variable'},
 				{name: 'task', kind: 'variable'},
 			],
 		},
@@ -502,7 +499,7 @@ export const src_json = {
 		'./gen.task.js': {
 			path: 'gen.task.ts',
 			declarations: [
-				{name: 'Args', kind: 'type'},
+				{name: 'Args', kind: 'variable'},
 				{name: 'task', kind: 'variable'},
 			],
 		},
@@ -518,7 +515,7 @@ export const src_json = {
 				{name: 'Gen_Context', kind: 'type'},
 				{name: 'Raw_Gen_Result', kind: 'type'},
 				{name: 'Raw_Gen_File', kind: 'type'},
-				{name: 'Gen_Config', kind: 'type'},
+				{name: 'Gen_Config', kind: 'variable'},
 				{name: 'Gen_Results', kind: 'type'},
 				{name: 'Genfile_Module_Result', kind: 'type'},
 				{name: 'Genfile_Module_Result_Success', kind: 'type'},
@@ -545,8 +542,8 @@ export const src_json = {
 		'./git.js': {
 			path: 'git.ts',
 			declarations: [
-				{name: 'Git_Origin', kind: 'type'},
-				{name: 'Git_Branch', kind: 'type'},
+				{name: 'Git_Origin', kind: 'variable'},
+				{name: 'Git_Branch', kind: 'variable'},
 				{name: 'git_current_branch_name', kind: 'function'},
 				{name: 'git_remote_branch_exists', kind: 'function'},
 				{name: 'git_local_branch_exists', kind: 'function'},
@@ -570,7 +567,7 @@ export const src_json = {
 			path: 'github.ts',
 			declarations: [
 				{name: 'GITHUB_REPO_MATCHER', kind: 'variable'},
-				{name: 'Github_Pull_Request', kind: 'type'},
+				{name: 'Github_Pull_Request', kind: 'variable'},
 				{name: 'github_fetch_commit_prs', kind: 'function'},
 			],
 		},
@@ -640,8 +637,8 @@ export const src_json = {
 		'./input_path.js': {
 			path: 'input_path.ts',
 			declarations: [
-				{name: 'Input_Path', kind: 'type'},
-				{name: 'Raw_Input_Path', kind: 'type'},
+				{name: 'Input_Path', kind: 'variable'},
+				{name: 'Raw_Input_Path', kind: 'variable'},
 				{name: 'to_input_path', kind: 'function'},
 				{name: 'to_input_paths', kind: 'function'},
 				{name: 'Possible_Path', kind: 'type'},
@@ -662,7 +659,7 @@ export const src_json = {
 		'./lint.task.js': {
 			path: 'lint.task.ts',
 			declarations: [
-				{name: 'Args', kind: 'type'},
+				{name: 'Args', kind: 'variable'},
 				{name: 'task', kind: 'variable'},
 			],
 		},
@@ -681,19 +678,30 @@ export const src_json = {
 				{name: 'is_external_module', kind: 'function'},
 			],
 		},
-		'./modules.js': {path: 'modules.ts', declarations: []},
+		'./modules.js': {
+			path: 'modules.ts',
+			declarations: [
+				{name: 'Module_Meta', kind: 'type'},
+				{name: 'Load_Module_Result', kind: 'type'},
+				{name: 'Load_Module_Failure', kind: 'type'},
+				{name: 'load_module', kind: 'function'},
+				{name: 'Load_Modules_Failure', kind: 'type'},
+				{name: 'Load_Modules_Result', kind: 'type'},
+				{name: 'load_modules', kind: 'function'},
+			],
+		},
 		'./package_json.js': {
 			path: 'package_json.ts',
 			declarations: [
-				{name: 'Url', kind: 'type'},
-				{name: 'Email', kind: 'type'},
+				{name: 'Url', kind: 'variable'},
+				{name: 'Email', kind: 'variable'},
 				{name: 'transform_empty_object_to_undefined', kind: 'function'},
-				{name: 'Package_Json_Repository', kind: 'type'},
-				{name: 'Package_Json_Author', kind: 'type'},
-				{name: 'Package_Json_Funding', kind: 'type'},
-				{name: 'Export_Value', kind: 'type'},
-				{name: 'Package_Json_Exports', kind: 'type'},
-				{name: 'Package_Json', kind: 'type'},
+				{name: 'Package_Json_Repository', kind: 'variable'},
+				{name: 'Package_Json_Author', kind: 'variable'},
+				{name: 'Package_Json_Funding', kind: 'variable'},
+				{name: 'Export_Value', kind: 'variable'},
+				{name: 'Package_Json_Exports', kind: 'variable'},
+				{name: 'Package_Json', kind: 'variable'},
 				{name: 'Map_Package_Json', kind: 'type'},
 				{name: 'EMPTY_PACKAGE_JSON', kind: 'variable'},
 				{name: 'load_package_json', kind: 'function'},
@@ -780,7 +788,7 @@ export const src_json = {
 		'./publish.task.js': {
 			path: 'publish.task.ts',
 			declarations: [
-				{name: 'Args', kind: 'type'},
+				{name: 'Args', kind: 'variable'},
 				{name: 'task', kind: 'variable'},
 			],
 		},
@@ -788,14 +796,14 @@ export const src_json = {
 		'./reinstall.task.js': {
 			path: 'reinstall.task.ts',
 			declarations: [
-				{name: 'Args', kind: 'type'},
+				{name: 'Args', kind: 'variable'},
 				{name: 'task', kind: 'variable'},
 			],
 		},
 		'./release.task.js': {
 			path: 'release.task.ts',
 			declarations: [
-				{name: 'Args', kind: 'type'},
+				{name: 'Args', kind: 'variable'},
 				{name: 'task', kind: 'variable'},
 			],
 		},
@@ -809,7 +817,7 @@ export const src_json = {
 		'./resolve.task.js': {
 			path: 'resolve.task.ts',
 			declarations: [
-				{name: 'Args', kind: 'type'},
+				{name: 'Args', kind: 'variable'},
 				{name: 'task', kind: 'variable'},
 			],
 		},
@@ -830,7 +838,7 @@ export const src_json = {
 		'./run.task.js': {
 			path: 'run.task.ts',
 			declarations: [
-				{name: 'Args', kind: 'type'},
+				{name: 'Args', kind: 'variable'},
 				{name: 'task', kind: 'variable'},
 			],
 		},
@@ -845,10 +853,10 @@ export const src_json = {
 		'./src_json.js': {
 			path: 'src_json.ts',
 			declarations: [
-				{name: 'Src_Module_Declaration', kind: 'type'},
-				{name: 'Src_Module', kind: 'type'},
-				{name: 'Src_Modules', kind: 'type'},
-				{name: 'Src_Json', kind: 'type'},
+				{name: 'Src_Module_Declaration', kind: 'variable'},
+				{name: 'Src_Module', kind: 'variable'},
+				{name: 'Src_Modules', kind: 'variable'},
+				{name: 'Src_Json', kind: 'variable'},
 				{name: 'Map_Src_Json', kind: 'type'},
 				{name: 'create_src_json', kind: 'function'},
 				{name: 'serialize_src_json', kind: 'function'},
@@ -904,7 +912,7 @@ export const src_json = {
 		'./sveltekit_shim_app_forms.js': {
 			path: 'sveltekit_shim_app_forms.ts',
 			declarations: [
-				{name: 'applyAction', kind: 'variable'},
+				{name: 'applyAction', kind: 'function'},
 				{name: 'deserialize', kind: 'function'},
 				{name: 'enhance', kind: 'function'},
 			],
@@ -912,14 +920,14 @@ export const src_json = {
 		'./sveltekit_shim_app_navigation.js': {
 			path: 'sveltekit_shim_app_navigation.ts',
 			declarations: [
-				{name: 'afterNavigate', kind: 'variable'},
-				{name: 'beforeNavigate', kind: 'variable'},
-				{name: 'disableScrollHandling', kind: 'variable'},
-				{name: 'goto', kind: 'variable'},
-				{name: 'invalidate', kind: 'variable'},
-				{name: 'invalidateAll', kind: 'variable'},
-				{name: 'preloadCode', kind: 'variable'},
-				{name: 'preloadData', kind: 'variable'},
+				{name: 'afterNavigate', kind: 'function'},
+				{name: 'beforeNavigate', kind: 'function'},
+				{name: 'disableScrollHandling', kind: 'function'},
+				{name: 'goto', kind: 'function'},
+				{name: 'invalidate', kind: 'function'},
+				{name: 'invalidateAll', kind: 'function'},
+				{name: 'preloadCode', kind: 'function'},
+				{name: 'preloadData', kind: 'function'},
 			],
 		},
 		'./sveltekit_shim_app_paths.js': {
@@ -927,7 +935,7 @@ export const src_json = {
 			declarations: [
 				{name: 'assets', kind: 'variable'},
 				{name: 'base', kind: 'variable'},
-				{name: 'resolveRoute', kind: 'variable'},
+				{name: 'resolveRoute', kind: 'function'},
 			],
 		},
 		'./sveltekit_shim_app_state.js': {
@@ -955,7 +963,7 @@ export const src_json = {
 		'./sync.task.js': {
 			path: 'sync.task.ts',
 			declarations: [
-				{name: 'Args', kind: 'type'},
+				{name: 'Args', kind: 'variable'},
 				{name: 'task', kind: 'variable'},
 			],
 		},
@@ -996,21 +1004,21 @@ export const src_json = {
 		'./test.task.js': {
 			path: 'test.task.ts',
 			declarations: [
-				{name: 'Args', kind: 'type'},
+				{name: 'Args', kind: 'variable'},
 				{name: 'task', kind: 'variable'},
 			],
 		},
 		'./typecheck.task.js': {
 			path: 'typecheck.task.ts',
 			declarations: [
-				{name: 'Args', kind: 'type'},
+				{name: 'Args', kind: 'variable'},
 				{name: 'task', kind: 'variable'},
 			],
 		},
 		'./upgrade.task.js': {
 			path: 'upgrade.task.ts',
 			declarations: [
-				{name: 'Args', kind: 'type'},
+				{name: 'Args', kind: 'variable'},
 				{name: 'task', kind: 'variable'},
 			],
 		},

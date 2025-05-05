@@ -1,10 +1,8 @@
 import {z} from 'zod';
 import {join} from 'node:path';
 import {strip_start} from '@ryanatkn/belt/string.js';
-import {existsSync, readFileSync} from 'node:fs';
-import * as acorn from 'acorn';
-import {tsPlugin} from '@sveltejs/acorn-typescript';
-import {walk, type Context} from 'zimmerframe';
+import {existsSync} from 'node:fs';
+import * as ts from 'typescript';
 import type {Logger} from '@ryanatkn/belt/log.js';
 
 import {paths, replace_extension} from './paths.ts';
@@ -13,9 +11,6 @@ import {
 	type Package_Json,
 	type Package_Json_Exports,
 } from './package_json.ts';
-
-let _parser: typeof acorn.Parser | undefined;
-const ts_parser = (): typeof acorn.Parser => (_parser ??= acorn.Parser.extend(tsPlugin()));
 
 // TODO @many rename to prefix with `Src_Json_`?
 export const Src_Module_Declaration = z
@@ -79,342 +74,418 @@ export const to_src_modules = (
 ): Src_Modules | undefined => {
 	if (!exports) return;
 
-	return Object.fromEntries(
-		Object.entries(exports).map(([k, _v]) => {
-			// TODO hacky - doesn't handle any but the typical mappings, also add a helper?
-			const source_file_path =
-				k === '.' || k === './'
-					? 'index.ts'
-					: strip_start(k.endsWith('.js') ? replace_extension(k, '.ts') : k, './');
-			if (!source_file_path.endsWith('.ts')) {
-				// TODO support more than just TypeScript - maybe use @sveltejs/language-tools,
-				// see how @sveltejs/package generates types, or maybe use its generated declaration files
-				const src_module: Src_Module = {path: source_file_path, declarations: []};
-				return [k, src_module];
-			}
-			const source_file_id = join(lib_path, source_file_path);
-			if (!existsSync(source_file_id)) {
-				throw Error(
-					`Failed to infer source file from package.json export path ${k} - the inferred file ${source_file_id} does not exist`,
-				);
-			}
+	// Prepare a list of files to analyze
+	const file_paths: Array<{export_key: string; ts_path: string}> = [];
+	for (const [k, _v] of Object.entries(exports)) {
+		// TODO hacky - doesn't handle any but the typical mappings, also add a helper?
+		const source_file_path =
+			k === '.' || k === './'
+				? 'index.ts'
+				: strip_start(k.endsWith('.js') ? replace_extension(k, '.ts') : k, './');
 
-			// Track declarations and exports
-			interface ParseState {
-				// Maps symbol names to their declaration type
-				local_declarations: Map<string, string>;
-				// Maps exported names to their export information (both value and type)
-				exports: Map<
-					string,
-					{
-						name: string;
-						kind: string | null;
-						export_kind: 'value' | 'type' | 'both';
-						// For aliased exports, track the original name and if it's explicitly a type export
-						is_explicit_alias?: boolean;
-						original_name?: string;
-					}
-				>;
-			}
+		if (!source_file_path.endsWith('.ts')) {
+			// TODO support more than just TypeScript
+			continue;
+		}
 
-			const state: ParseState = {
-				local_declarations: new Map(),
-				exports: new Map(),
-			};
+		const source_file_id = join(lib_path, source_file_path);
+		if (!existsSync(source_file_id)) {
+			throw Error(
+				`Failed to infer source file from package.json export path ${k} - the inferred file ${source_file_id} does not exist`,
+			);
+		}
 
-			const contents = readFileSync(source_file_id, 'utf-8');
+		file_paths.push({export_key: k, ts_path: source_file_id});
+	}
 
-			try {
-				// Parse the file using acorn-typescript
-				const parsed = ts_parser().parse(contents, {
-					sourceType: 'module',
-					ecmaVersion: 'latest',
-					locations: true,
-				});
+	// Create a TypeScript program for all the files
+	const program = ts.createProgram(
+		file_paths.map((f) => f.ts_path),
+		{
+			target: ts.ScriptTarget.ESNext,
+			module: ts.ModuleKind.ESNext,
+			moduleResolution: ts.ModuleResolutionKind.NodeNext,
+		},
+	);
 
-				// First collect all declarations in the file
-				walk(parsed, state, {
-					VariableDeclaration(
-						node: acorn.VariableDeclaration,
-						{state, next}: Context<acorn.VariableDeclaration, ParseState>,
-					) {
-						for (const declarator of node.declarations) {
-							if (declarator.id.type === 'Identifier') {
-								const name = declarator.id.name;
-								let kind = 'variable';
+	// Get the type checker
+	const checker = program.getTypeChecker();
 
-								// Determine if it's a function
-								if (
-									declarator.init &&
-									(declarator.init.type === 'ArrowFunctionExpression' ||
-										declarator.init.type === 'FunctionExpression')
-								) {
-									kind = 'function';
-								}
+	const result: Src_Modules = {};
 
-								state.local_declarations.set(name, kind);
-							}
-						}
-						next();
-					},
+	// Process each file
+	for (const {export_key, ts_path} of file_paths) {
+		const source_file = program.getSourceFile(ts_path);
+		if (!source_file) {
+			log?.error(`Could not load source file ${ts_path}`);
+			continue;
+		}
 
-					FunctionDeclaration(
-						node: acorn.FunctionDeclaration,
-						{state, next}: Context<acorn.FunctionDeclaration, ParseState>,
-					) {
-						// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-						if (node.id && node.id.type === 'Identifier') {
-							state.local_declarations.set(node.id.name, 'function');
-						}
-						next();
-					},
+		const relative_path = ts_path.replace(lib_path, '').replace(/^\//, '');
+		const declarations: Array<Src_Module_Declaration> = [];
 
-					ClassDeclaration(
-						node: acorn.ClassDeclaration,
-						{state, next}: Context<acorn.ClassDeclaration, ParseState>,
-					) {
-						// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-						if (node.id && node.id.type === 'Identifier') {
-							state.local_declarations.set(node.id.name, 'class');
-						}
-						next();
-					},
+		// Process the exports in the file
+		process_exports(source_file, checker, declarations);
 
-					TSInterfaceDeclaration(node: any, {state, next}: Context<Node, ParseState>) {
-						if (node.id && node.id.type === 'Identifier') {
-							state.local_declarations.set(node.id.name, 'type');
-						}
-						next();
-					},
+		result[export_key] = {
+			path: relative_path,
+			declarations,
+		};
+	}
 
-					TSTypeAliasDeclaration(node: any, {state, next}: Context<Node, ParseState>) {
-						if (node.id && node.id.type === 'Identifier') {
-							state.local_declarations.set(node.id.name, 'type');
-						}
-						next();
-					},
-				} as any);
+	return result;
+};
 
-				// Now extract exports
-				walk(parsed, state, {
-					ExportNamedDeclaration(
-						node: acorn.ExportNamedDeclaration,
-						{state}: Context<Node, ParseState>,
-					) {
-						// Check if this is a type export
-						const is_type_export = (node as any).exportKind === 'type';
+/**
+ * Process exports in a source file, collecting declarations.
+ */
+const process_exports = (
+	source_file: ts.SourceFile,
+	checker: ts.TypeChecker,
+	declarations: Array<Src_Module_Declaration>,
+): void => {
+	// Get the exports of the source file (module)
+	const symbol = checker.getSymbolAtLocation(source_file);
+	if (!symbol) return;
 
-						// Handle direct exports (e.g. export const x = 1, export type T = ...)
-						if (node.declaration) {
-							if (node.declaration.type === 'VariableDeclaration') {
-								for (const declarator of node.declaration.declarations) {
-									if (declarator.id.type === 'Identifier') {
-										const name = declarator.id.name;
-										let kind = 'variable';
+	// Get the module exports
+	const exports = checker.getExportsOfModule(symbol);
 
-										// Determine if it's a function
+	// Track type exports (from explicit 'export type' statements)
+	const type_exports: Set<string> = new Set();
+
+	// Track value exports (from explicit 'export' without 'type' keyword)
+	const value_exports: Set<string> = new Set();
+
+	// Track arrow functions specifically to ensure they're properly identified
+	const arrow_function_exports: Set<string> = new Set();
+
+	// First pass: collect all exports and their kinds
+	ts.forEachChild(source_file, (node) => {
+		if (ts.isExportDeclaration(node)) {
+			if (node.exportClause && ts.isNamedExports(node.exportClause)) {
+				for (const element of node.exportClause.elements) {
+					// Get the exported name (which might be an alias)
+					const export_name = element.name.text;
+
+					// Check if this is a type-only export
+					if (node.isTypeOnly) {
+						type_exports.add(export_name);
+					} else if (element.isTypeOnly) {
+						// Handle `export {type X}` case - element-specific type export
+						type_exports.add(export_name);
+					} else {
+						// For regular exports (not type-only), it's definitely a value export
+						value_exports.add(export_name);
+
+						// Try to determine if it's an arrow function
+						if (element.propertyName) {
+							// Find the original declaration in the source file
+							const original_name = element.propertyName.text;
+							ts.forEachChild(source_file, (declaration_node) => {
+								if (ts.isVariableStatement(declaration_node)) {
+									for (const decl of declaration_node.declarationList.declarations) {
 										if (
-											declarator.init &&
-											(declarator.init.type === 'ArrowFunctionExpression' ||
-												declarator.init.type === 'FunctionExpression')
+											ts.isIdentifier(decl.name) &&
+											decl.name.text === original_name &&
+											decl.initializer &&
+											ts.isArrowFunction(decl.initializer)
 										) {
-											kind = 'function';
-										}
-
-										// Add as value export
-										state.exports.set(name, {
-											name,
-											kind,
-											export_kind: 'value',
-										});
-									}
-								}
-							} else if (
-								(node.declaration as any).type === 'TSTypeAliasDeclaration' ||
-								(node.declaration as any).type === 'TSInterfaceDeclaration'
-							) {
-								const name = (node.declaration as any).id.name;
-								state.exports.set(name, {
-									name,
-									kind: 'type',
-									export_kind: 'type',
-								});
-							} else if (node.declaration.type === 'ClassDeclaration') {
-								const name = node.declaration.id.name;
-								state.exports.set(name, {
-									name,
-									kind: 'class',
-									export_kind: 'value',
-								});
-								// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-							} else if (node.declaration.type === 'FunctionDeclaration') {
-								const name = node.declaration.id.name;
-								state.exports.set(name, {
-									name,
-									kind: 'function',
-									export_kind: 'value',
-								});
-							}
-						}
-						// Handle export specifiers (export {x, y} or export type {x, y})
-						// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-						else if (node.specifiers && node.specifiers.length > 0) {
-							for (const specifier of node.specifiers) {
-								// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-								if (specifier.type === 'ExportSpecifier') {
-									const local_name = (specifier.local as any).name;
-									const exported_name = (specifier.exported as any).name;
-
-									// Check if this is a type export
-									const specifier_is_type = (specifier as any).exportKind === 'type';
-									const is_type_export = (node as any).exportKind === 'type' || specifier_is_type;
-
-									// Get the declaration kind from local declarations
-									const local_declaration_kind = state.local_declarations.get(local_name);
-
-									// Check for existing export declaration
-									const existing = state.exports.get(exported_name);
-
-									// If it's a type export, mark it as a type
-									if (is_type_export) {
-										if (existing) {
-											// If it already exists as a value export, mark it as both
-											existing.export_kind = existing.export_kind === 'value' ? 'both' : 'type';
-										} else {
-											state.exports.set(exported_name, {
-												name: exported_name,
-												kind: 'type',
-												export_kind: 'type',
-												original_name: local_name,
-											});
-										}
-									} else {
-										// For value exports, preserve the original declaration kind if possible
-										if (existing) {
-											existing.export_kind = existing.export_kind === 'type' ? 'both' : 'value';
-											// For value exports, preserve the original declaration kind if possible
-											if (local_declaration_kind) {
-												existing.kind = local_declaration_kind;
-											}
-										} else {
-											state.exports.set(exported_name, {
-												name: exported_name,
-												kind: local_declaration_kind || 'variable',
-												export_kind: 'value',
-												original_name: local_name,
-											});
+											arrow_function_exports.add(export_name);
 										}
 									}
 								}
-							}
-						}
-					},
-
-					ExportDefaultDeclaration(
-						node: acorn.ExportDefaultDeclaration,
-						{state}: Context<Node, ParseState>,
-					) {
-						// Default exports are always value exports
-						if (node.declaration) {
-							if (node.declaration.type === 'Identifier') {
-								const local_name = node.declaration.name;
-								const kind = state.local_declarations.get(local_name) || 'variable';
-								state.exports.set('default', {
-									name: 'default',
-									kind,
-									export_kind: 'value',
-									original_name: local_name,
-								});
-							} else if (node.declaration.type === 'ClassDeclaration') {
-								state.exports.set('default', {
-									name: 'default',
-									kind: 'class',
-									export_kind: 'value',
-								});
-							} else if (node.declaration.type === 'FunctionDeclaration') {
-								state.exports.set('default', {
-									name: 'default',
-									kind: 'function',
-									export_kind: 'value',
-								});
-							} else if (
-								node.declaration.type === 'ArrowFunctionExpression' ||
-								node.declaration.type === 'FunctionExpression'
-							) {
-								state.exports.set('default', {
-									name: 'default',
-									kind: 'function',
-									export_kind: 'value',
-								});
-							} else {
-								state.exports.set('default', {
-									name: 'default',
-									kind: 'variable',
-									export_kind: 'value',
-								});
-							}
-						} else {
-							state.exports.set('default', {
-								name: 'default',
-								kind: 'variable',
-								export_kind: 'value',
 							});
 						}
-					},
-				} as any);
+					}
+				}
+			}
+		} else if (ts.isExportAssignment(node) && !node.isExportEquals) {
+			// Handle default exports
+			value_exports.add('default');
 
-				// Process exported declarations to apply final precedence rules
-				const declarations: Src_Module['declarations'] = Array.from(state.exports.values()).map(
-					({name, kind, export_kind, original_name}) => {
-						let final_kind = kind;
+			// Check if default export is an arrow function
+			// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+			if (node.expression && ts.isArrowFunction(node.expression)) {
+				arrow_function_exports.add('default');
+			}
+		} else if (
+			ts.isVariableStatement(node) ||
+			ts.isFunctionDeclaration(node) ||
+			ts.isClassDeclaration(node)
+		) {
+			// Handle direct exports like 'export const/function/class'
+			if (node.modifiers?.some((mod) => mod.kind === ts.SyntaxKind.ExportKeyword)) {
+				if (ts.isVariableStatement(node)) {
+					for (const decl of node.declarationList.declarations) {
+						if (ts.isIdentifier(decl.name)) {
+							value_exports.add(decl.name.text);
 
-						// When something is exported as a value (not as a type), we should ensure it's not treated as a type
-						if (export_kind === 'value') {
-							// For regular exports, use the local declaration kind if available
-							const local_name = original_name || name;
-							const local_kind = state.local_declarations.get(local_name);
-
-							// If we have a local declaration that's not a type, use that
-							if (local_kind && local_kind !== 'type') {
-								final_kind = local_kind;
-							} else {
-								// Default to variable for value exports with no non-type declaration
-								final_kind = 'variable';
+							// Check if this is an arrow function
+							if (decl.initializer && ts.isArrowFunction(decl.initializer)) {
+								arrow_function_exports.add(decl.name.text);
+							} else if (decl.initializer) {
+								// For function expressions or other function-like initializers
+								try {
+									const decl_type = checker.getTypeAtLocation(decl.initializer);
+									if (decl_type.getCallSignatures().length > 0) {
+										arrow_function_exports.add(decl.name.text);
+									}
+								} catch (_error) {
+									// If we can't get the type, continue with other checks
+								}
 							}
 						}
-						// For type-only exports, ensure it's marked as a type
-						else if (export_kind === 'type') {
-							final_kind = 'type';
-						}
-						// For both value and type exports, value takes precedence
-						else if (export_kind === 'both') {
-							// If there's a non-type local declaration, use that
-							const local_name = original_name || name;
-							const local_kind = state.local_declarations.get(local_name);
+					}
+				} else if ((ts.isFunctionDeclaration(node) || ts.isClassDeclaration(node)) && node.name) {
+					value_exports.add(node.name.text);
+					if (ts.isFunctionDeclaration(node)) {
+						arrow_function_exports.add(node.name.text);
+					}
+				}
+			}
+		} else if (ts.isTypeAliasDeclaration(node) || ts.isInterfaceDeclaration(node)) {
+			// Handle direct type exports like 'export type/interface'
+			if (node.modifiers?.some((mod) => mod.kind === ts.SyntaxKind.ExportKeyword)) {
+				type_exports.add(node.name.text);
+			}
+		}
+	});
 
-							if (local_kind && local_kind !== 'type') {
-								final_kind = local_kind;
-							} else {
-								// Default to variable if no non-type declaration exists
-								final_kind = 'variable';
-							}
-						}
+	// Process each export
+	for (const export_symbol of exports) {
+		const name = export_symbol.name;
 
-						return {
-							name,
-							kind: final_kind as any,
-						};
-					},
+		// Determine the export kind with strict precedence rules
+		let kind: 'type' | 'function' | 'variable' | 'class' | null = null;
+
+		// Priority 1: If it's explicitly exported with 'export' without 'type' keyword, it should be a value
+		if (value_exports.has(name)) {
+			// First check if we've already determined it's an arrow function
+			if (arrow_function_exports.has(name)) {
+				kind = 'function';
+			}
+			// Then check if it's a class
+			else if (export_symbol.flags & ts.SymbolFlags.Class) {
+				kind = 'class';
+			}
+			// Then check if it's a standard function
+			else if (export_symbol.flags & ts.SymbolFlags.Function) {
+				kind = 'function';
+			}
+			// For value exports that aren't already determined, follow aliases and determine the kind
+			else {
+				// If it's an alias, follow it to get the actual kind
+				if (export_symbol.flags & ts.SymbolFlags.Alias) {
+					const aliased = checker.getAliasedSymbol(export_symbol);
+
+					// Get the kind, including function detection
+					kind = determine_declaration_kind(checker, aliased, export_symbol.declarations?.[0]);
+
+					// Ensure values without specific function/class detection are marked as variables
+					// This is important for dual declarations like Dual_Export
+					if (kind !== 'function' && kind !== 'class') {
+						kind = 'variable';
+					}
+				} else {
+					// For non-aliases, determine directly
+					kind = determine_declaration_kind(
+						checker,
+						export_symbol,
+						export_symbol.declarations?.[0],
+					);
+
+					// Enforce that any value export without a specific function/class detection
+					// is treated as a variable regardless of other declarations
+					if (kind !== 'function' && kind !== 'class') {
+						kind = 'variable';
+					}
+				}
+			}
+		}
+		// Priority 2: If it's explicitly exported with 'export type', always treat as type
+		else if (type_exports.has(name)) {
+			kind = 'type';
+		}
+		// Priority 3: If it's an Interface, it must be a type
+		else if (export_symbol.flags & ts.SymbolFlags.Interface) {
+			kind = 'type';
+		}
+		// Priority 4: If it's a TypeAlias, it must be a type
+		else if (export_symbol.flags & ts.SymbolFlags.TypeAlias) {
+			kind = 'type';
+		}
+		// Priority 5: If it's a class
+		else if (export_symbol.flags & ts.SymbolFlags.Class) {
+			kind = 'class';
+		}
+		// Priority 6: If it's an alias, follow it
+		else if (export_symbol.flags & ts.SymbolFlags.Alias) {
+			const aliased = checker.getAliasedSymbol(export_symbol);
+
+			// Special handling for interfaces and type aliases
+			if (aliased.flags & ts.SymbolFlags.Interface || aliased.flags & ts.SymbolFlags.TypeAlias) {
+				kind = 'type';
+			} else {
+				kind = determine_declaration_kind(checker, aliased, export_symbol.declarations?.[0]);
+			}
+		}
+		// Priority 7: Other kinds of exports
+		else {
+			kind = determine_declaration_kind(checker, export_symbol);
+		}
+
+		declarations.push({
+			name,
+			kind,
+		});
+	}
+};
+
+/**
+ * Determines the declaration kind based on TypeScript node and type information.
+ */
+const determine_declaration_kind = (
+	checker: ts.TypeChecker,
+	symbol: ts.Symbol,
+	node?: ts.Node,
+): 'type' | 'function' | 'variable' | 'class' | null => {
+	// Handle type exports
+	if (symbol.flags & ts.SymbolFlags.Type && !(symbol.flags & ts.SymbolFlags.Class)) {
+		return 'type';
+	}
+
+	// Handle class exports - check for class flag or constructor signature
+	if (symbol.flags & ts.SymbolFlags.Class) {
+		return 'class';
+	}
+
+	// For exports with valueDeclaration - check if it's a class or function
+	if (symbol.valueDeclaration) {
+		const type = checker.getTypeOfSymbolAtLocation(symbol, symbol.valueDeclaration);
+
+		// Check if it has constructSignatures - this is a reliable way to identify classes
+		if (type.getConstructSignatures().length > 0) {
+			return 'class';
+		}
+
+		// Check if the symbol has members with a prototype - another class indicator
+		if (symbol.members?.size && symbol.members.has(ts.escapeLeadingUnderscores('prototype'))) {
+			return 'class';
+		}
+
+		// Check if it has call signatures - identifying both regular and arrow functions
+		if (type.getCallSignatures().length > 0) {
+			return 'function';
+		}
+
+		// For arrow functions in variable declarations
+		if (ts.isVariableDeclaration(symbol.valueDeclaration) && symbol.valueDeclaration.initializer) {
+			const initializer = symbol.valueDeclaration.initializer;
+
+			// Check if the initializer is an arrow function or function expression
+			if (
+				ts.isArrowFunction(initializer) ||
+				ts.isFunctionExpression(initializer) ||
+				ts.isMethodDeclaration(initializer)
+			) {
+				return 'function';
+			}
+
+			// For more complex initializers, examine the type
+			try {
+				const init_type = checker.getTypeAtLocation(initializer);
+				if (init_type.getCallSignatures().length > 0) {
+					return 'function';
+				}
+			} catch (_error) {
+				// If we can't get the type, continue with other checks
+			}
+		}
+	}
+
+	// Handle function exports - need to check the type signature
+	if (symbol.valueDeclaration) {
+		// Get the type of the symbol at its declaration site
+		const type = checker.getTypeOfSymbolAtLocation(symbol, symbol.valueDeclaration);
+
+		// Check if it's a function type
+		const is_function_type =
+			(type.flags & ts.TypeFlags.Object) !== 0 && type.getCallSignatures().length > 0;
+
+		if (symbol.flags & ts.SymbolFlags.Function || is_function_type) {
+			return 'function';
+		}
+
+		// For export aliases, we need to check if they point to a function or class
+		if (symbol.flags & ts.SymbolFlags.Alias) {
+			const target_symbol = checker.getAliasedSymbol(symbol);
+
+			// First check if the aliased symbol is a class
+			if (target_symbol.flags & ts.SymbolFlags.Class) {
+				return 'class';
+			}
+
+			// Check if target has a valueDeclaration - important for checking class and function types
+			if (target_symbol.valueDeclaration) {
+				const target_type = checker.getTypeOfSymbolAtLocation(
+					target_symbol,
+					// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+					target_symbol.valueDeclaration || node || symbol.valueDeclaration,
 				);
 
-				const src_module: Src_Module = {path: source_file_path, declarations};
-				return [k, src_module];
-			} catch (err) {
-				// If parsing fails, return an empty declarations array rather than crashing
-				log?.error(`Failed to parse ${source_file_id}:`, err.message);
-				const src_module: Src_Module = {path: source_file_path, declarations: []};
-				return [k, src_module];
+				// Check for class by looking for constructor signatures
+				if (target_type.getConstructSignatures().length > 0) {
+					return 'class';
+				}
+
+				// Check for function
+				if (
+					(target_symbol.flags & ts.SymbolFlags.Function) !== 0 ||
+					((target_type.flags & ts.TypeFlags.Object) !== 0 &&
+						target_type.getCallSignatures().length > 0)
+				) {
+					return 'function';
+				}
+
+				// Check if the target value declaration is a variable with an arrow function initializer
+				if (
+					ts.isVariableDeclaration(target_symbol.valueDeclaration) &&
+					target_symbol.valueDeclaration.initializer &&
+					ts.isArrowFunction(target_symbol.valueDeclaration.initializer)
+				) {
+					return 'function';
+				}
 			}
-		}),
-	);
+		}
+	}
+
+	// Special case for direct exports of arrow functions
+	if (node && ts.isExportSpecifier(node)) {
+		// Try to find the original declaration of the exported symbol
+		const local_symbol = checker.getExportSpecifierLocalTargetSymbol(node);
+		if (local_symbol?.valueDeclaration) {
+			// Check if it's a variable declaration with an arrow function initializer
+			if (
+				ts.isVariableDeclaration(local_symbol.valueDeclaration) &&
+				local_symbol.valueDeclaration.initializer &&
+				ts.isArrowFunction(local_symbol.valueDeclaration.initializer)
+			) {
+				return 'function';
+			}
+
+			// Check the type for call signatures
+			try {
+				const type = checker.getTypeOfSymbolAtLocation(local_symbol, local_symbol.valueDeclaration);
+				if (type.getCallSignatures().length > 0) {
+					return 'function';
+				}
+			} catch (_error) {
+				// If we can't get the type, continue with other checks
+			}
+		}
+	}
+
+	// Default to variable for value exports
+	return 'variable';
 };
