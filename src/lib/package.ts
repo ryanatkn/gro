@@ -638,7 +638,7 @@ export const src_json = {
 			path: 'gro.config.default.ts',
 			declarations: [{name: 'default', kind: 'function'}],
 		},
-		'./gro.js': {path: 'gro.ts', declarations: []},
+		'./gro.js': {path: 'gro.ts'},
 		'./hash.js': {path: 'hash.ts', declarations: [{name: 'to_hash', kind: 'function'}]},
 		'./input_path.js': {
 			path: 'input_path.ts',
@@ -661,7 +661,7 @@ export const src_json = {
 			path: 'invoke_task.ts',
 			declarations: [{name: 'invoke_task', kind: 'function'}],
 		},
-		'./invoke.js': {path: 'invoke.ts', declarations: []},
+		'./invoke.js': {path: 'invoke.ts'},
 		'./lint.task.js': {
 			path: 'lint.task.ts',
 			declarations: [
@@ -813,7 +813,7 @@ export const src_json = {
 				{name: 'task', kind: 'variable'},
 			],
 		},
-		'./register.js': {path: 'register.ts', declarations: []},
+		'./register.js': {path: 'register.ts'},
 		'./reinstall.task.js': {
 			path: 'reinstall.task.ts',
 			declarations: [
