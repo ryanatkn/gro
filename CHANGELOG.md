@@ -1,5 +1,12 @@
 # @ryanatkn/gro
 
+## 0.158.0
+
+### Minor Changes
+
+- change `Src_Module` to make `declarations` optional, ([#547](https://github.com/ryanatkn/gro/pull/547))
+  and when generated replace any empty arrays with `undefined`
+
 ## 0.157.1
 
 ### Patch Changes
