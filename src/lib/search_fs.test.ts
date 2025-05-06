@@ -29,6 +29,7 @@ test('search_fs basic behavior', () => {
 		'some_test_exports2.ts',
 		'some_test_exports.ts',
 		'modules/src_json_sample_exports.ts',
+		'modules/some_test_script.ts',
 		'modules/some_test_ts.ts',
 		'modules/Some_Test_Svelte.svelte',
 		'modules/some_test_svelte_ts.svelte.ts',
