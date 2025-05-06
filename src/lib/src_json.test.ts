@@ -4,6 +4,42 @@ import * as assert from 'uvu/assert';
 import {to_src_modules} from './src_json.ts';
 import {paths} from './paths.ts';
 
+test('to_src_modules handles simple cases and omits `declarations` when empty', () => {
+	const exports = {
+		'./fixtures/modules/some_test_script.js': {
+			import: './dist/some_test_script.js',
+			types: './dist/some_test_script.d.ts',
+		},
+		'./fixtures/modules/some_test_ts.js': {
+			import: './dist/some_test_ts.js',
+			types: './dist/some_test_ts.d.ts',
+		},
+	};
+
+	const result = to_src_modules(exports, paths.source);
+
+	assert.ok(result, 'result should be defined');
+	assert.ok(result['./fixtures/modules/some_test_script.js'], 'module should be processed');
+
+	assert.equal(result, {
+		'./fixtures/modules/some_test_script.js': {
+			path: 'fixtures/modules/some_test_script.ts',
+			// `declarations` should be omitted when empty
+		},
+		'./fixtures/modules/some_test_ts.js': {
+			path: 'fixtures/modules/some_test_ts.ts',
+			declarations: [
+				{name: 'a', kind: 'variable'},
+				{name: 'some_test_ts', kind: 'variable'},
+				{name: 'some_test_fn', kind: 'function'},
+				{name: 'Some_Test_Type', kind: 'type'},
+				{name: 'Some_Test_Interface', kind: 'type'},
+				{name: 'Some_Test_Class', kind: 'class'},
+			],
+		},
+	});
+});
+
 test('to_src_modules identifies all export kinds correctly', () => {
 	const exports = {
 		'./fixtures/modules/src_json_sample_exports.js': {
@@ -14,7 +50,6 @@ test('to_src_modules identifies all export kinds correctly', () => {
 
 	const result = to_src_modules(exports, paths.source);
 
-	// Ensure the module was processed
 	assert.ok(result, 'result should be defined');
 	assert.ok(result['./fixtures/modules/src_json_sample_exports.js'], 'module should be processed');
 

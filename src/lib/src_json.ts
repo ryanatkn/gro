@@ -39,7 +39,7 @@ export type Src_Module_Declaration = z.infer<typeof Src_Module_Declaration>;
 export const Src_Module = z
 	.object({
 		path: z.string(),
-		declarations: z.array(Src_Module_Declaration),
+		declarations: z.array(Src_Module_Declaration).optional(),
 	})
 	.passthrough();
 export type Src_Module = z.infer<typeof Src_Module>;
@@ -140,10 +140,14 @@ export const to_src_modules = (
 			kind: kind as Src_Module_Declaration_Kind | null,
 		}));
 
-		result[export_key] = {
-			path: relative_path,
-			declarations,
-		};
+		result[export_key] = declarations.length
+			? {
+					path: relative_path,
+					declarations,
+				}
+			: {
+					path: relative_path,
+				};
 	}
 
 	return result;
