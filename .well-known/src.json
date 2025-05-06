@@ -1,6 +1,6 @@
 {
   "name": "@ryanatkn/gro",
-  "version": "0.157.1",
+  "version": "0.158.0",
   "modules": {
     ".": {
       "path": "index.ts",
@@ -987,8 +987,7 @@
       ]
     },
     "./gro.js": {
-      "path": "gro.ts",
-      "declarations": []
+      "path": "gro.ts"
     },
     "./hash.js": {
       "path": "hash.ts",
@@ -1062,8 +1061,7 @@
       ]
     },
     "./invoke.js": {
-      "path": "invoke.ts",
-      "declarations": []
+      "path": "invoke.ts"
     },
     "./lint.task.js": {
       "path": "lint.task.ts",
@@ -1473,8 +1471,7 @@
       ]
     },
     "./register.js": {
-      "path": "register.ts",
-      "declarations": []
+      "path": "register.ts"
     },
     "./reinstall.task.js": {
       "path": "reinstall.task.ts",
