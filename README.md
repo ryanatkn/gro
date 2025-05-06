@@ -38,7 +38,7 @@ It includes:
   - exposes all of its internals in `$lib`
   - uses [Changesets](https://github.com/changesets/changesets) for versioning and changelogs
   - provides a [Node loader](/src/lib/loader.ts) with a [register hook](/src/lib/register.ts)
-    - supports Node's type stripping and importing JSON, SvelteKit shims,
+    - uses Node's type stripping and supports importing JSON, SvelteKit shims,
       and SSR'd Svelte files in tests/tasks/scripts
     - supports [SvelteKit module imports](https://kit.svelte.dev/docs/modules) for
       `$lib`, `$env`, and `$app` in tasks, tests, Node servers,
