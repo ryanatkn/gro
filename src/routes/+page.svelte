@@ -1,19 +1,19 @@
 <script lang="ts">
-	import {base} from '$app/paths';
-	import Docs_Footer from '@ryanatkn/fuz/Docs_Footer.svelte';
-	import Package_Detail from '@ryanatkn/fuz/Package_Detail.svelte';
-	import Package_Summary from '@ryanatkn/fuz/Package_Summary.svelte';
+	// import {base} from '$app/paths';
+	// import Docs_Footer from '@ryanatkn/fuz/Docs_Footer.svelte';
+	// import Package_Detail from '@ryanatkn/fuz/Package_Detail.svelte';
+	// import Package_Summary from '@ryanatkn/fuz/Package_Summary.svelte';
 	import Svg from '@ryanatkn/fuz/Svg.svelte';
 	import {gro_logo} from '@ryanatkn/fuz/logos.js';
 	import {slide} from 'svelte/transition';
-	import Hidden_Personal_Links from '@ryanatkn/fuz/Hidden_Personal_Links.svelte';
+	// import Hidden_Personal_Links from '@ryanatkn/fuz/Hidden_Personal_Links.svelte';
 
-	import {parse_package_meta} from '../lib/package_meta.ts';
-	import {package_json, src_json} from '../lib/package.ts';
+	// import {parse_package_meta} from '../lib/package_meta.ts';
+	// import {package_json, src_json} from '../lib/package.ts';
 
 	// TODO add website, rewriting the markdown docs as Svelte
 
-	const pkg = parse_package_meta(package_json, src_json);
+	// const pkg = parse_package_meta(package_json, src_json);
 
 	let show_detail = $state(false);
 </script>
@@ -41,19 +41,19 @@
 			>
 			{#if show_detail}
 				<div class="box w_100" transition:slide>
-					<Package_Detail {pkg} />
+					<!-- <Package_Detail {pkg} /> -->
 				</div>
 			{:else}
 				<div class="box" transition:slide>
-					<Package_Summary {pkg} />
+					<!-- <Package_Summary {pkg} /> -->
 				</div>
 			{/if}
 		</section>
 		<section>
-			<Docs_Footer {pkg}>
+			<!-- <Docs_Footer {pkg}>
 				{#snippet logo_header()}<a href="{base}/about" class="mb_xs">about</a>{/snippet}
 				<Hidden_Personal_Links />
-			</Docs_Footer>
+			</Docs_Footer> -->
 		</section>
 	</div>
 </main>
