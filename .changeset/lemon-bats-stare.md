@@ -1,5 +1,6 @@
 ---
-"@ryanatkn/gro": patch
+'@ryanatkn/gro': minor
 ---
 
-generate undefined declarations instead of empty array
+change `Src_Module` to make `declarations` optional,
+and when generated replace any empty arrays with `undefined`
