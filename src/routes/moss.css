@@ -50,6 +50,17 @@
 	--border_color: transparent;
 }
 
+.chip {
+	font-weight: 600;
+	padding-left: var(--space_xs);
+	padding-right: var(--space_xs);
+	background-color: var(--fg_1);
+	border-radius: var(--border_radius_xs);
+}
+a.chip {
+	font-weight: 700;
+}
+
 .relative {
 	position: relative;
 }
@@ -57,8 +68,25 @@
 .display_inline_block {
 	display: inline-block;
 }
+/** Same as `display: block flex`. */
+.display_flex {
+	display: flex;
+}
+.flex_1 {
+	flex: 1;
+}
+.text_align_center {
+	text-align: center;
+}
+.shadow_inset_xs {
+	box-shadow: var(--shadow_inset_xs)
+		color-mix(in hsl, var(--shadow_color) var(--shadow_alpha, var(--shadow_alpha_1)), transparent);
+}
 .w_100 {
 	width: 100%;
+}
+.h_100 {
+	height: 100%;
 }
 .p_md {
 	padding: var(--space_md);
@@ -66,11 +94,18 @@
 .p_lg {
 	padding: var(--space_lg);
 }
+.px_xl {
+	padding-left: var(--space_xl);
+	padding-right: var(--space_xl);
+}
 .mt_0 {
 	margin-top: 0;
 }
 .mt_xl3 {
 	margin-top: var(--space_xl3);
+}
+.mr_xs {
+	margin-right: var(--space_xs);
 }
 .mb_xs {
 	margin-bottom: var(--space_xs);
