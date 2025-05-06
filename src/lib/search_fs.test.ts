@@ -34,6 +34,7 @@ test('search_fs basic behavior', () => {
 		'modules/some_test_svelte_ts.svelte.ts',
 		'modules/some_test_svelte_js.svelte.js',
 		'modules/some_test_server.ts',
+		'modules/some_test_script.ts',
 		'modules/some_test_json.json',
 		'modules/some_test_json_without_extension',
 		'modules/some_test_js.js',
