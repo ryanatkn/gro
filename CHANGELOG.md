@@ -1,5 +1,11 @@
 # @ryanatkn/gro
 
+## 0.159.0
+
+### Minor Changes
+
+- remove moss optional dep version cap ([85ae474](https://github.com/ryanatkn/gro/commit/85ae474))
+
 ## 0.158.0
 
 ### Minor Changes
