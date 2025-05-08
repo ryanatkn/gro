@@ -114,7 +114,11 @@ export const task: Task<Args> = {
 		for (const result of gen_results.results) {
 			log_result += `\n\t${result.ok ? st('green', '✓') : st('red', '🞩')}  ${
 				result.ok ? result.files.length : 0
-			} ${st('gray', 'in')} ${print_ms(result.elapsed)} ${st('gray', '←')} ${print_path(result.id)}`;
+			} ${st('gray', 'in')} ${print_ms(result.elapsed)} ${st('gray', '←')} ${print_path(
+				result.id,
+			)} ${st('gray', '→')} ${
+				result.ok ? result.files.map((f) => print_path(f.id)).join(', ') : print_error(result.error)
+			}`;
 		}
 		log.info(log_result);
 		log.info(
