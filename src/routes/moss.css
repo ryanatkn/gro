@@ -61,7 +61,7 @@ a.chip {
 	font-weight: 700;
 }
 
-.relative {
+.position_relative {
 	position: relative;
 }
 /** Same as `display: inline flow-root`. */

@@ -31,7 +31,7 @@
 				<a href="https://github.com/ryanatkn/gro">the source repo</a>.
 			</aside>
 		</section>
-		<section class="panel mb_lg p_md w_100 relative">
+		<section class="panel mb_lg p_md w_100 position_relative">
 			<button
 				type="button"
 				class="toggle icon_button deselectable"
