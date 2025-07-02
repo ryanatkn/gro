@@ -19,6 +19,7 @@ extending [SvelteKit](https://github.com/sveltejs/kit),
 [Vite](https://github.com/vitejs/vite),
 and [esbuild](https://github.com/evanw/esbuild)
 for making web frontends, servers, and libraries with TypeScript.
+It's a dev tool, not for production use.
 It includes:
 
 - [task runner](/src/docs/task.md) that uses the filesystem convention `*.task.ts`
