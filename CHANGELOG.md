@@ -1,5 +1,15 @@
 # @ryanatkn/gro
 
+## 0.160.0
+
+### Minor Changes
+
+- chore: upgrade deps ([dc24c7c](https://github.com/ryanatkn/gro/commit/dc24c7c))
+
+### Patch Changes
+
+- improve gen logging ([#548](https://github.com/ryanatkn/gro/pull/548))
+
 ## 0.159.0
 
 ### Minor Changes
@@ -24,7 +34,6 @@
 ### Minor Changes
 
 - remove ts-morph dep and use the ts API instead ([#546](https://github.com/ryanatkn/gro/pull/546))
-
   - add `typescript^5` peer dep
   - merge `svelte_helpers.ts` into `constants.ts`
   - add default declarations:
@@ -34,7 +43,6 @@
   - add `Src_Module_Declaration_Kind`
 
 - bump oxc-parser@0.68.1 from 0.67 ([#546](https://github.com/ryanatkn/gro/pull/546))
-
   - also bump zod patch
 
 ## 0.156.0
@@ -49,7 +57,6 @@
 ### Minor Changes
 
 - use Node's builtin type stripping ([#544](https://github.com/ryanatkn/gro/pull/544))
-
   - bump node@22.15 from 22.11
   - add `ts-blank-space` dep to preprocess `.svelte.ts` modules
   - internally use `.ts` extensions
@@ -77,7 +84,6 @@
 ### Minor Changes
 
 - rework some of the config impl and extend the options ([#543](https://github.com/ryanatkn/gro/pull/543))
-
   - rename "SvelteKitConfig" to "SvelteConfig"
     - `svelte_config` from `sveltekit_config`
     - `SVELTE_CONFIG_FILENAME` from `SVELTEKIT_CONFIG_FILENAME`
@@ -116,7 +122,6 @@
 ### Minor Changes
 
 - fix `Filer` bug with missing source files ([#535](https://github.com/ryanatkn/gro/pull/535))
-
   - **break**: move `filter_dependents` to `filer.ts` from `gro_plugin_gen.ts`
 
 ## 0.150.1
@@ -486,7 +491,6 @@
 ### Minor Changes
 
 - rename gro config helpers to include `gro_` for clarity ([#487](https://github.com/ryanatkn/gro/pull/487))
-
   - rename `load_gro_config` from `load_config`
   - rename `normalize_gro_config` from `normalize_config`
   - rename `create_empty_gro_config ` from `create_empty_config `
@@ -662,7 +666,6 @@
 ### Minor Changes
 
 - improve CLI handling ([#475](https://github.com/ryanatkn/gro/pull/475))
-
   - change `find_cli` to return an object
   - remove `npx` usage
   - add a bunch of CLI customizability
@@ -1042,7 +1045,6 @@
 ### Patch Changes
 
 - avoid building twice on `gro release` ([cbc4762](https://github.com/ryanatkn/gro/commit/cbc4762))
-
   - if `gro publish` is called before `gro deploy`, we don't need to build to deploy
 
 ## 0.104.1
@@ -1054,7 +1056,6 @@
   this is just a test commit for testing purposes
 
   because
-
   - changelog
   - other things
 
@@ -1067,7 +1068,6 @@
 - replace `exists.ts` with `fs.ts` and add `empty_dir` ([#429](https://github.com/ryanatkn/gro/pull/429))
 - stop using `git workspace` for `gro deploy` ([#429](https://github.com/ryanatkn/gro/pull/429))
 - upgrade deps: ([#437](https://github.com/ryanatkn/gro/pull/437))
-
   - @ryanatkn/belt@18
   - prettier@3.1.1
   - ts-morph@21
