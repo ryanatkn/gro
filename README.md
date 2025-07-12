@@ -129,7 +129,7 @@ resolve    diagnostic that logs resolved filesystem info for the given input pat
 run        execute a file with the loader, like `node` but works for TypeScript
 sync       run `gro gen`, update `package.json`, and optionally install packages to sync up
 test       run tests with uvu
-typecheck  run tsc on the project without emitting any files
+typecheck  run svelte-check or tsc on the project without emitting any files
 upgrade    upgrade deps
 ```
 
@@ -189,7 +189,7 @@ Check all the things:
 
 ```bash
 gro check # does all of the following:
-gro typecheck # typecheck JS/TypeScript and Svelte
+gro typecheck # svelte-check with tsc fallback
 gro test # run tests
 gro gen --check # ensure generated files are current
 gro format --check # ensure everything is formatted

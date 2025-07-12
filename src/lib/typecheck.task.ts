@@ -25,7 +25,7 @@ export const Args = z
 export type Args = z.infer<typeof Args>;
 
 export const task: Task<Args> = {
-	summary: 'run tsc on the project without emitting any files',
+	summary: 'run svelte-check or tsc on the project without emitting any files',
 	Args,
 	run: async ({args, log}): Promise<void> => {
 		const {svelte_check_cli, typescript_cli, path_replacement, cwd} = args;

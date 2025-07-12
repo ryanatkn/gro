@@ -23,7 +23,7 @@ What is a `Task`? See [`task.md`](./task.md).
 - [run](../lib/run.task.ts) - execute a file with the loader, like `node` but works for TypeScript
 - [sync](../lib/sync.task.ts) - run `gro gen`, update `package.json`, and optionally install packages to sync up
 - [test](../lib/test.task.ts) - run tests with uvu
-- [typecheck](../lib/typecheck.task.ts) - run tsc on the project without emitting any files
+- [typecheck](../lib/typecheck.task.ts) - run svelte-check or tsc on the project without emitting any files
 - [upgrade](../lib/upgrade.task.ts) - upgrade deps
 
 ## usage
