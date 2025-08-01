@@ -1,6 +1,6 @@
 import {test} from 'uvu';
 import * as assert from 'uvu/assert';
-import {Package_Json, Package_Json_Exports} from '@ryanatkn/fuz/package_helpers.js';
+import {Package_Json, Package_Json_Exports} from '@ryanatkn/belt/package_helpers.js';
 
 import {
 	load_package_json,

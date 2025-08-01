@@ -7,7 +7,7 @@ import {isBuiltin} from 'node:module';
 import {fileURLToPath, pathToFileURL} from 'node:url';
 import {Unreachable_Error} from '@ryanatkn/belt/error.js';
 import type {Logger} from '@ryanatkn/belt/log.js';
-import type {Package_Json} from '@ryanatkn/fuz/package_helpers.js';
+import type {Package_Json} from '@ryanatkn/belt/package_helpers.js';
 
 import type {File_Filter, Path_Id} from './path.ts';
 import {

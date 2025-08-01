@@ -4,7 +4,7 @@ import {readFileSync, writeFileSync} from 'node:fs';
 import {plural, strip_end} from '@ryanatkn/belt/string.js';
 import type {Logger} from '@ryanatkn/belt/log.js';
 import {styleText as st} from 'node:util';
-import {Package_Json, Package_Json_Exports} from '@ryanatkn/fuz/package_helpers.js';
+import {Package_Json, Package_Json_Exports} from '@ryanatkn/belt/package_helpers.js';
 
 import {paths, gro_paths, IS_THIS_GRO, replace_extension} from './paths.ts';
 import {SVELTEKIT_DIST_DIRNAME} from './constants.ts';

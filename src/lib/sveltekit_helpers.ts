@@ -2,7 +2,7 @@ import type {Result} from '@ryanatkn/belt/result.js';
 import {existsSync} from 'node:fs';
 import type {Logger} from '@ryanatkn/belt/log.js';
 import {join} from 'node:path';
-import type {Package_Json} from '@ryanatkn/fuz/package_helpers.js';
+import type {Package_Json} from '@ryanatkn/belt/package_helpers.js';
 
 import {has_dep} from './package_json.ts';
 import {default_svelte_config, type Parsed_Svelte_Config} from './svelte_config.ts';

@@ -8,7 +8,7 @@ import {
 	type Package_Json,
 	type Package_Json_Exports,
 	type Src_Module_Declaration_Kind,
-} from '@ryanatkn/fuz/package_helpers.js';
+} from '@ryanatkn/belt/package_helpers.js';
 
 import {paths, replace_extension} from './paths.ts';
 import {parse_exports} from './parse_exports.ts';
