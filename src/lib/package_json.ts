@@ -1,153 +1,16 @@
 import {z} from 'zod';
 import {join} from 'node:path';
 import {readFileSync, writeFileSync} from 'node:fs';
-import {count_graphemes, plural, strip_end} from '@ryanatkn/belt/string.js';
+import {plural, strip_end} from '@ryanatkn/belt/string.js';
 import type {Logger} from '@ryanatkn/belt/log.js';
-import type {Flavored} from '@ryanatkn/belt/types.js';
 import {styleText as st} from 'node:util';
+import {Package_Json, Package_Json_Exports} from '@ryanatkn/fuz/package_helpers.js';
 
 import {paths, gro_paths, IS_THIS_GRO, replace_extension} from './paths.ts';
 import {SVELTEKIT_DIST_DIRNAME} from './constants.ts';
 import {search_fs} from './search_fs.ts';
 import {has_sveltekit_library} from './sveltekit_helpers.ts';
 import {GITHUB_REPO_MATCHER} from './github.ts';
-
-// TODO @many belongs elsewhere
-export const Url = z.string();
-export type Url = Flavored<z.infer<typeof Url>, 'Url'>;
-
-// TODO @many belongs elsewhere
-export const Email = z.string();
-export type Email = Flavored<z.infer<typeof Email>, 'Email'>;
-
-// TODO move this where?
-export const transform_empty_object_to_undefined = <T>(val: T): T | undefined => {
-	if (val && Object.keys(val).length === 0) {
-		return;
-	}
-	return val;
-};
-
-export const Package_Json_Repository = z.union([
-	z.string(),
-	z
-		.object({
-			type: z.string(),
-			url: Url,
-			directory: z.string().optional(),
-		})
-		.passthrough(),
-]);
-export type Package_Json_Repository = z.infer<typeof Package_Json_Repository>;
-
-export const Package_Json_Author = z.union([
-	z.string(),
-	z
-		.object({
-			name: z.string(),
-			email: Email.optional(),
-			url: Url.optional(),
-		})
-		.passthrough(),
-]);
-export type Package_Json_Author = z.infer<typeof Package_Json_Author>;
-
-export const Package_Json_Funding = z.union([
-	z.string(),
-	z
-		.object({
-			type: z.string(),
-			url: Url,
-		})
-		.passthrough(),
-]);
-export type Package_Json_Funding = z.infer<typeof Package_Json_Funding>;
-
-// Helper to create a recursive type that represents export conditions and values
-const create_export_value_schema = (): z.ZodType => {
-	return z.lazy(() => z.union([z.string(), z.null(), z.record(z.lazy(() => export_value_schema))]));
-};
-
-// The base export value schema that can be a string, null, or nested conditions
-const export_value_schema = create_export_value_schema();
-export const Export_Value = export_value_schema;
-export type Export_Value = z.infer<typeof Export_Value>;
-
-// Package exports can be:
-// 1. A string (shorthand for main export)
-// 2. null (to block exports)
-// 3. A record of export conditions/paths
-export const Package_Json_Exports = z.union([z.string(), z.null(), z.record(export_value_schema)]);
-export type Package_Json_Exports = z.infer<typeof Package_Json_Exports>;
-
-/**
- * @see https://docs.npmjs.com/cli/v10/configuring-npm/package-json
- */
-export const Package_Json = z
-	.object({
-		// according to the npm docs, `name` and `version` are the only required properties
-		name: z.string(),
-		version: z.string(),
-		private: z.boolean({description: 'disallow publishing to the configured registry'}).optional(),
-		public: z
-			.boolean({
-				description:
-					'a Gro extension that enables publishing `.well-known/package.json` and `.well-known/src`',
-			})
-			.optional(),
-		description: z.string().optional(),
-		motto: z
-			.string({description: "a Gro extension that's a short phrase that represents this project"})
-			.optional(),
-		glyph: z
-			.string({
-				description:
-					"a Gro extension that's a single unicode character that represents this project",
-			})
-			.refine((v) => count_graphemes(v) === 1, 'must be a single unicode character')
-			.optional(),
-		logo: z
-			.string({
-				description:
-					"a Gro extension that's a link relative to the `homepage` to an image that represents this project",
-			})
-			.optional(),
-		logo_alt: z
-			.string({description: "a Gro extension that's the alt text for the `logo`"})
-			.optional(),
-		license: z.string().optional(),
-		scripts: z.record(z.string()).optional(),
-		homepage: Url.optional(),
-		author: z.union([z.string(), Package_Json_Author.optional()]),
-		repository: z.union([z.string(), Url, Package_Json_Repository]).optional(),
-		contributors: z.array(z.union([z.string(), Package_Json_Author])).optional(),
-		bugs: z
-			.union([z.string(), z.object({url: Url.optional(), email: Email.optional()}).passthrough()])
-			.optional(),
-		funding: z
-			.union([Url, Package_Json_Funding, z.array(z.union([Url, Package_Json_Funding]))])
-			.optional(),
-		keywords: z.array(z.string()).optional(),
-
-		type: z.string().optional(),
-		engines: z.record(z.string()).optional(),
-		os: z.array(z.string()).optional(),
-		cpu: z.array(z.string()).optional(),
-
-		dependencies: z.record(z.string()).optional(),
-		devDependencies: z.record(z.string()).optional(),
-		peerDependencies: z.record(z.string()).optional(),
-		peerDependenciesMeta: z.record(z.object({optional: z.boolean()})).optional(),
-		optionalDependencies: z.record(z.string()).optional(),
-
-		bin: z.record(z.string()).optional(),
-		sideEffects: z.array(z.string()).optional(),
-		files: z.array(z.string()).optional(),
-		main: z.string().optional(),
-		exports: Package_Json_Exports.transform(transform_empty_object_to_undefined).optional(),
-	})
-	.passthrough();
-export type Package_Json = z.infer<typeof Package_Json>;
 
 export type Map_Package_Json = (
 	package_json: Package_Json,
