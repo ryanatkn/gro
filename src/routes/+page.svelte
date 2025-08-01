@@ -7,8 +7,8 @@
 	import {gro_logo} from '@ryanatkn/fuz/logos.js';
 	import {slide} from 'svelte/transition';
 	import Hidden_Personal_Links from '@ryanatkn/fuz/Hidden_Personal_Links.svelte';
+	import {parse_package_meta} from '@ryanatkn/fuz/package_meta.ts';
 
-	import {parse_package_meta} from '../lib/package_meta.ts';
 	import {package_json, src_json} from '../lib/package.ts';
 
 	// TODO add website, rewriting the markdown docs as Svelte
