@@ -1,6 +1,7 @@
+import {load_package_json} from '@ryanatkn/belt/package_json.js';
+import {create_src_json} from '@ryanatkn/belt/src_json.js';
+
 import type {Gen} from './gen.ts';
-import {load_package_json} from './package_json.ts';
-import {create_src_json} from './src_json.ts';
 
 // TODO rename? `Package_Json + Src_Json = package.ts` currently, idk
 
