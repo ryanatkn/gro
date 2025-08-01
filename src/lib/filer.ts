@@ -7,6 +7,7 @@ import {isBuiltin} from 'node:module';
 import {fileURLToPath, pathToFileURL} from 'node:url';
 import {Unreachable_Error} from '@ryanatkn/belt/error.js';
 import type {Logger} from '@ryanatkn/belt/log.js';
+import type {Package_Json} from '@ryanatkn/fuz/package_helpers.js';
 
 import type {File_Filter, Path_Id} from './path.ts';
 import {
@@ -21,7 +22,6 @@ import {parse_imports} from './parse_imports.ts';
 import {resolve_specifier} from './resolve_specifier.ts';
 import {default_svelte_config} from './svelte_config.ts';
 import {map_sveltekit_aliases, SVELTEKIT_GLOBAL_SPECIFIER} from './sveltekit_helpers.ts';
-import type {Package_Json} from './package_json.ts';
 
 const aliases = Object.entries(default_svelte_config.alias);
 

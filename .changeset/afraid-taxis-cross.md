@@ -2,4 +2,4 @@
 '@ryanatkn/gro': minor
 ---
 
-extract `package_meta.ts` to Fuz
+extract `pkg.ts` to Fuz

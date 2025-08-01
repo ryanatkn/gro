@@ -7,13 +7,13 @@
 	import {gro_logo} from '@ryanatkn/fuz/logos.js';
 	import {slide} from 'svelte/transition';
 	import Hidden_Personal_Links from '@ryanatkn/fuz/Hidden_Personal_Links.svelte';
-	import {parse_package_meta} from '@ryanatkn/fuz/package_meta.ts';
+	import {parse_pkg} from '@ryanatkn/fuz/pkg.js';
 
 	import {package_json, src_json} from '../lib/package.ts';
 
 	// TODO add website, rewriting the markdown docs as Svelte
 
-	const pkg = parse_package_meta(package_json, src_json);
+	const pkg = parse_pkg(package_json, src_json);
 
 	let show_detail = $state(false);
 </script>
