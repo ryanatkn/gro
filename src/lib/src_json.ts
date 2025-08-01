@@ -2,13 +2,8 @@ import {join, extname} from 'node:path';
 import {ensure_end, strip_start} from '@ryanatkn/belt/string.js';
 import {existsSync} from 'node:fs';
 import ts from 'typescript';
-import {
-	Src_Json,
-	Src_Modules,
-	type Package_Json,
-	type Package_Json_Exports,
-	type Src_Module_Declaration_Kind,
-} from '@ryanatkn/belt/package_helpers.js';
+import type {Package_Json, Package_Json_Exports} from '@ryanatkn/belt/package_json.js';
+import {Src_Json, Src_Modules, type Src_Module_Declaration_Kind} from '@ryanatkn/belt/src_json.js';
 
 import {paths, replace_extension} from './paths.ts';
 import {parse_exports} from './parse_exports.ts';

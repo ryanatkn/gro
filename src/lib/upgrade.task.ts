@@ -1,7 +1,7 @@
 import {spawn} from '@ryanatkn/belt/process.js';
 import {z} from 'zod';
 import {rmSync} from 'node:fs';
-import type {Package_Json_Dep} from '@ryanatkn/belt/package_helpers.js';
+import type {Package_Json_Dep} from '@ryanatkn/belt/package_json.js';
 
 import {Task_Error, type Task} from './task.ts';
 import {extract_deps, load_package_json} from './package_json.ts';
