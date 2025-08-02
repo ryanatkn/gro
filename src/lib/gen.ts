@@ -1,7 +1,6 @@
 import type {Logger} from '@ryanatkn/belt/log.js';
 import {join, basename, dirname, isAbsolute} from 'node:path';
 import {mkdir, readFile, writeFile} from 'node:fs/promises';
-import {z} from 'zod';
 import type {Result} from '@ryanatkn/belt/result.js';
 import type {Timings} from '@ryanatkn/belt/timings.js';
 import {styleText as st} from 'node:util';
@@ -60,11 +59,6 @@ export interface Raw_Gen_File {
 	filename?: string;
 	format?: boolean; // defaults to `true`
 }
-
-export const Gen_Config = z.object({
-	imports: z.record(z.string(), z.string()).default({}),
-});
-export type Gen_Config = z.infer<typeof Gen_Config>;
 
 export interface Gen_Results {
 	results: Array<Genfile_Module_Result>;

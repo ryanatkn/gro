@@ -6,31 +6,34 @@ import {Task_Error, type Task} from './task.ts';
 import {git_check_clean_workspace} from './git.ts';
 import {sync_package_json} from './package_json.ts';
 
-export const Args = z
-	.object({
-		typecheck: z.boolean({description: 'dual of no-typecheck'}).default(true),
-		'no-typecheck': z.boolean({description: 'opt out of typechecking'}).default(false),
-		test: z.boolean({description: 'dual of no-test'}).default(true),
-		'no-test': z.boolean({description: 'opt out of running tests'}).default(false),
-		gen: z.boolean({description: 'dual of no-gen'}).default(true),
-		'no-gen': z.boolean({description: 'opt out of gen check'}).default(false),
-		format: z.boolean({description: 'dual of no-format'}).default(true),
-		'no-format': z.boolean({description: 'opt out of format check'}).default(false),
-		package_json: z.boolean({description: 'dual of no-package_json'}).default(true),
-		'no-package_json': z.boolean({description: 'opt out of package.json check'}).default(false),
-		lint: z.boolean({description: 'dual of no-lint'}).default(true),
-		'no-lint': z.boolean({description: 'opt out of linting'}).default(false),
-		sync: z.boolean({description: 'dual of no-sync'}).default(true),
-		'no-sync': z.boolean({description: 'opt out of syncing'}).default(false),
-		install: z.boolean({description: 'dual of no-install'}).default(true),
-		'no-install': z
-			.boolean({description: 'opt out of installing packages when syncing'})
-			.default(false), // convenience, same as `gro check -- gro sync --no-install` but the latter takes precedence
-		workspace: z
-			.boolean({description: 'ensure a clean git workspace, useful for CI, also implies --no-sync'})
-			.default(false),
-	})
-	.strict();
+export const Args = z.strictObject({
+	typecheck: z.boolean().meta({description: 'dual of no-typecheck'}).default(true),
+	'no-typecheck': z.boolean().meta({description: 'opt out of typechecking'}).default(false),
+	test: z.boolean().meta({description: 'dual of no-test'}).default(true),
+	'no-test': z.boolean().meta({description: 'opt out of running tests'}).default(false),
+	gen: z.boolean().meta({description: 'dual of no-gen'}).default(true),
+	'no-gen': z.boolean().meta({description: 'opt out of gen check'}).default(false),
+	format: z.boolean().meta({description: 'dual of no-format'}).default(true),
+	'no-format': z.boolean().meta({description: 'opt out of format check'}).default(false),
+	package_json: z.boolean().meta({description: 'dual of no-package_json'}).default(true),
+	'no-package_json': z
+		.boolean()
+		.meta({description: 'opt out of package.json check'})
+		.default(false),
+	lint: z.boolean().meta({description: 'dual of no-lint'}).default(true),
+	'no-lint': z.boolean().meta({description: 'opt out of linting'}).default(false),
+	sync: z.boolean().meta({description: 'dual of no-sync'}).default(true),
+	'no-sync': z.boolean().meta({description: 'opt out of syncing'}).default(false),
+	install: z.boolean().meta({description: 'dual of no-install'}).default(true),
+	'no-install': z
+		.boolean()
+		.meta({description: 'opt out of installing packages when syncing'})
+		.default(false), // convenience, same as `gro check -- gro sync --no-install` but the latter takes precedence
+	workspace: z
+		.boolean()
+		.meta({description: 'ensure a clean git workspace, useful for CI, also implies --no-sync'})
+		.default(false),
+});
 export type Args = z.infer<typeof Args>;
 
 export const task: Task<Args> = {

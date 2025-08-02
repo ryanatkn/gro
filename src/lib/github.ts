@@ -8,12 +8,12 @@ import {z} from 'zod';
 
 export const GITHUB_REPO_MATCHER = /.+github.com\/(.+)\/(.+)/;
 
-export const Github_Pull_Request = z.object({
+export const Github_Pull_Request = z.looseObject({
 	url: z.string(),
 	id: z.number(),
 	html_url: z.string(),
 	number: z.number(),
-	user: z.object({
+	user: z.looseObject({
 		login: z.string(),
 	}),
 });

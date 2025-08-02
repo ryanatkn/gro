@@ -5,13 +5,16 @@ import {existsSync} from 'node:fs';
 import {Task_Error, type Task} from './task.ts';
 import {resolve_gro_module_path, spawn_with_loader} from './gro_helpers.ts';
 
-export const Args = z
-	.object({
-		_: z
-			.array(z.string(), {description: 'the file path to run and other node CLI args'})
-			.default([]),
-	})
-	.strict();
+// TODO maybe delete this? if misused is a security risk,
+// and I'm not using it for anything that couldn't be done with Node directly atm.
+// It could potentially be more useful if I keep building on the task system.
+
+export const Args = z.strictObject({
+	_: z
+		.array(z.string())
+		.meta({description: 'the file path to run and other node CLI args'})
+		.default([]),
+});
 export type Args = z.infer<typeof Args>;
 
 export const task: Task<Args> = {
