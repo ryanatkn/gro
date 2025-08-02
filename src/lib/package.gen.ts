@@ -23,7 +23,7 @@ export const gen: Gen = ({origin_path}) => {
 import type {Package_Json} from '${
 		is_this_belt ? '$lib/package_json.js' : '@ryanatkn/belt/package_json.js'
 	}';
-import type {Src_Json} from '${is_this_belt ? './src_json.js' : '@ryanatkn/belt/src_json.js'}';
+import type {Src_Json} from '${is_this_belt ? '$lib/src_json.js' : '@ryanatkn/belt/src_json.js'}';
 
 export const package_json: Package_Json = ${JSON.stringify(package_json)} as any;
 
