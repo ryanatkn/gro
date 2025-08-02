@@ -57,12 +57,13 @@ export const package_json: Package_Json = {
 		zod: '^4.0.14',
 	},
 	peerDependencies: {esbuild: '^0.25', svelte: '^5', typescript: '^5'},
+	optionalDependencies: {'@ryanatkn/moss': '>=0.31.0'},
 	devDependencies: {
 		'@changesets/changelog-git': '^0.2.1',
 		'@changesets/types': '^6.1.0',
 		'@ryanatkn/eslint-config': '^0.8.0',
-		'@ryanatkn/fuz': 'file:../fuz',
-		'@ryanatkn/moss': 'file:../moss',
+		'@ryanatkn/fuz': '^0.144.5',
+		'@ryanatkn/moss': '^0.31.0',
 		'@sveltejs/adapter-static': '^3.0.8',
 		'@sveltejs/kit': '^2.27.0',
 		'@sveltejs/package': '^2.3.12',
@@ -77,7 +78,6 @@ export const package_json: Package_Json = {
 		'typescript-eslint': '^8.35.1',
 		uvu: '^0.5.6',
 	},
-	optionalDependencies: {'@ryanatkn/moss': 'file:../moss'},
 	prettier: {
 		plugins: ['prettier-plugin-svelte'],
 		useTabs: true,
