@@ -16,4 +16,4 @@ export const assets = '';
 export const base = '';
 export const resolve: typeof base_resolve = (v) => ('/' + v.replace(/^\//, '')) as any; // TODO needs to use SvelteKit config base, should we just import it?
 /** @deprecated */
-export const resolveRoute: typeof base_resolveRoute = noop;
+export const resolveRoute: typeof base_resolveRoute = noop; // eslint-disable-line @typescript-eslint/no-deprecated

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import {base} from '$app/paths';
+	import {resolve} from '$app/paths';
 	import Docs_Footer from '@ryanatkn/fuz/Docs_Footer.svelte';
 	import Package_Detail from '@ryanatkn/fuz/Package_Detail.svelte';
 	import Package_Summary from '@ryanatkn/fuz/Package_Summary.svelte';
@@ -51,7 +51,7 @@
 		</section>
 		<section>
 			<Docs_Footer {pkg}>
-				{#snippet logo_header()}<a href="{base}/about" class="mb_xs">about</a>{/snippet}
+				{#snippet logo_header()}<a href={resolve('/about')} class="mb_xs">about</a>{/snippet}
 				<Hidden_Personal_Links />
 			</Docs_Footer>
 		</section>
