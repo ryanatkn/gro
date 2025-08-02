@@ -3,7 +3,7 @@ import {ensure_end, strip_start} from '@ryanatkn/belt/string.js';
 import {existsSync} from 'node:fs';
 import ts from 'typescript';
 import type {Package_Json, Package_Json_Exports} from '@ryanatkn/belt/package_json.js';
-import {Src_Json, Src_Modules, type Src_Module_Declaration_Kind} from '@ryanatkn/belt/src_json.js';
+import {Src_Json, Src_Modules} from '@ryanatkn/belt/src_json.js';
 
 import {paths, replace_extension} from './paths.ts';
 import {parse_exports} from './parse_exports.ts';
@@ -82,11 +82,7 @@ export const to_src_modules = (
 	for (const {export_key, file_path} of file_paths) {
 		const relative_path = file_path.replace(ensure_end(lib_path, '/'), '');
 
-		// Use parse_exports for all file types
-		const declarations = parse_exports(file_path, program).map(({name, kind}) => ({
-			name,
-			kind: kind as Src_Module_Declaration_Kind | null,
-		}));
+		const declarations = parse_exports(file_path, program).map(({name, kind}) => ({name, kind}));
 
 		result[export_key] = declarations.length
 			? {
