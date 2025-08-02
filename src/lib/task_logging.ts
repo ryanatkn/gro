@@ -8,6 +8,8 @@ import type {Arg_Schema} from './args.ts';
 import type {Loaded_Tasks, Task_Module_Meta} from './task.ts';
 import {print_path} from './paths.ts';
 
+// TODO BLOCK simplify logging chars, remove fences for non-errors (and warnings?)
+
 export const log_tasks = (log: Logger, loaded_tasks: Loaded_Tasks, log_intro = true): void => {
 	const {modules, found_tasks} = loaded_tasks;
 	const {resolved_input_files_by_root_dir} = found_tasks;
