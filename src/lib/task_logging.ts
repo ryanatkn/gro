@@ -202,6 +202,14 @@ const to_args_schema_type = (schema: z.ZodType): Arg_Schema['type'] => {
 				return 'nullable';
 			}
 		}
+		case 'optional': {
+			const subschema = to_subschema(def);
+			if (subschema) {
+				return to_args_schema_type(subschema) + ' | undefined';
+			} else {
+				return 'optional';
+			}
+		}
 		case 'success':
 			return 'success';
 		case 'catch':
@@ -219,7 +227,6 @@ const to_args_schema_type = (schema: z.ZodType): Arg_Schema['type'] => {
 		case 'custom':
 			return 'custom';
 		// Unwrap these:
-		// case 'optional':
 		// case 'nonoptional':
 		// case 'transform':
 		// case 'default':
