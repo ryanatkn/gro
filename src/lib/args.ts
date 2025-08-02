@@ -38,12 +38,12 @@ export interface Arg_Schema {
  * A simpler implementation could replace `mri`, but it handles some finicky details well.
  */
 export const parse_args = <
-	TOutput extends Record<string, Arg_Value> = Args,
-	TInput extends Record<string, Arg_Value> = Args,
+	T_Output extends Record<string, Arg_Value> = Args,
+	T_Input extends Record<string, Arg_Value> = Args,
 >(
-	unparsed_args: TInput,
-	schema: z.ZodType<TOutput, z.ZodTypeDef, TInput>,
-): z.SafeParseReturnType<TInput, TOutput> => {
+	unparsed_args: T_Input,
+	schema: z.ZodType<T_Output, T_Input>,
+): z.ZodSafeParseResult<T_Output> => {
 	const parsed = schema.safeParse(unparsed_args);
 	if (parsed.success) {
 		// mutate `data` with the correct source of truth for `no-` prefixed args

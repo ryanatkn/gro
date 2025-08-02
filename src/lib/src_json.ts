@@ -1,64 +1,12 @@
-import {z} from 'zod';
 import {join, extname} from 'node:path';
 import {ensure_end, strip_start} from '@ryanatkn/belt/string.js';
 import {existsSync} from 'node:fs';
 import ts from 'typescript';
+import type {Package_Json, Package_Json_Exports} from '@ryanatkn/belt/package_json.js';
+import {Src_Json, Src_Modules} from '@ryanatkn/belt/src_json.js';
 
 import {paths, replace_extension} from './paths.ts';
-import {
-	transform_empty_object_to_undefined,
-	type Package_Json,
-	type Package_Json_Exports,
-} from './package_json.ts';
 import {parse_exports} from './parse_exports.ts';
-
-export const Src_Module_Declaration_Kind = z.enum([
-	'type',
-	'function',
-	'variable',
-	'class',
-	'component',
-	'json',
-	'css',
-]);
-export type Src_Module_Declaration_Kind = z.infer<typeof Src_Module_Declaration_Kind>;
-
-// TODO @many rename to prefix with `Src_Json_`?
-export const Src_Module_Declaration = z
-	.object({
-		name: z.string(), // the export identifier
-		// TODO these are poorly named, and they're somewhat redundant with `kind`,
-		// they were added to distinguish `VariableDeclaration` functions and non-functions
-		kind: Src_Module_Declaration_Kind.nullable(),
-		// code: z.string(), // TODO experiment with `getType().getText()`, some of them return the same as `name`
-	})
-	.passthrough();
-export type Src_Module_Declaration = z.infer<typeof Src_Module_Declaration>;
-
-// TODO @many rename to prefix with `Src_Json_`?
-export const Src_Module = z
-	.object({
-		path: z.string(),
-		declarations: z.array(Src_Module_Declaration).optional(),
-	})
-	.passthrough();
-export type Src_Module = z.infer<typeof Src_Module>;
-
-// TODO @many rename to prefix with `Src_Json_`?
-export const Src_Modules = z.record(Src_Module);
-export type Src_Modules = z.infer<typeof Src_Modules>;
-
-/**
- * @see https://github.com/ryanatkn/gro/blob/main/src/docs/gro_plugin_sveltekit_app.md#well-known-src
- */
-export const Src_Json = z
-	.object({
-		name: z.string(), // same as Package_Json
-		version: z.string(), // same as Package_Json
-		modules: Src_Modules.transform(transform_empty_object_to_undefined).optional(),
-	})
-	.passthrough();
-export type Src_Json = z.infer<typeof Src_Json>;
 
 export type Map_Src_Json = (src_json: Src_Json) => Src_Json | null | Promise<Src_Json | null>;
 
@@ -134,11 +82,7 @@ export const to_src_modules = (
 	for (const {export_key, file_path} of file_paths) {
 		const relative_path = file_path.replace(ensure_end(lib_path, '/'), '');
 
-		// Use parse_exports for all file types
-		const declarations = parse_exports(file_path, program).map(({name, kind}) => ({
-			name,
-			kind: kind as Src_Module_Declaration_Kind | null,
-		}));
+		const declarations = parse_exports(file_path, program).map(({name, kind}) => ({name, kind}));
 
 		result[export_key] = declarations.length
 			? {

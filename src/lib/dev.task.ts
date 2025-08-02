@@ -4,23 +4,22 @@ import type {Task} from './task.ts';
 import {Plugins, type Plugin_Context} from './plugin.ts';
 import {clean_fs} from './clean_fs.ts';
 
-export const Args = z
-	.object({
-		watch: z.boolean({description: 'dual of no-watch'}).default(true),
-		'no-watch': z
-			.boolean({
-				description:
-					'opt out of running a long-lived process to watch files and rebuild on changes',
-			})
-			.default(false),
-		sync: z.boolean({description: 'dual of no-sync'}).default(true),
-		'no-sync': z.boolean({description: 'opt out of gro sync'}).default(false),
-		install: z.boolean({description: 'dual of no-install'}).default(true),
-		'no-install': z // convenience, same as `gro dev -- gro sync --no-install` but the latter takes precedence
-			.boolean({description: 'opt out of installing packages before starting the dev server'})
-			.default(false),
-	})
-	.strict();
+export const Args = z.strictObject({
+	watch: z.boolean().meta({description: 'dual of no-watch'}).default(true),
+	'no-watch': z
+		.boolean()
+		.meta({
+			description: 'opt out of running a long-lived process to watch files and rebuild on changes',
+		})
+		.default(false),
+	sync: z.boolean().meta({description: 'dual of no-sync'}).default(true),
+	'no-sync': z.boolean().meta({description: 'opt out of gro sync'}).default(false),
+	install: z.boolean().meta({description: 'dual of no-install'}).default(true),
+	'no-install': z // convenience, same as `gro dev -- gro sync --no-install` but the latter takes precedence
+		.boolean()
+		.meta({description: 'opt out of installing packages before starting the dev server'})
+		.default(false),
+});
 export type Args = z.infer<typeof Args>;
 
 export type DevTask_Context = Plugin_Context<Args>;

@@ -123,11 +123,9 @@ Minimum with [`Args`](#task-args):
 import type {Task} from '@ryanatkn/gro';
 import {z} from 'zod';
 
-export const Args = z
-	.object({
-		arg: z.number({description: 'example number arg'}).default(2),
-	})
-	.strict();
+export const Args = z.strictObject({
+	arg: z.number().meta({description: 'example number arg'}).default(2),
+});
 export type Args = z.infer<typeof Args>;
 
 export const task: Task = {
@@ -264,15 +262,12 @@ Using zod has some benefits:
 import type {Task} from '@ryanatkn/gro';
 import type {z} from 'zod';
 
-export const Args = z
-	.object({
-		_: z.array(z.string(), {description: 'rest args'}).default([]),
-		yepyep: z.string({description: 'helpful info'}).default('ya'),
-		okcool: z.number({description: 'that prints to the CLI'}).default(1234),
-		maybee: z.boolean({description: 'and optional args work too'}),
-	})
-	.strict();
-export type Args = z.infer<typeof Args>;
+export const Args = z.strictObject({
+	_: z.array(z.string()).meta({description: 'rest args'}).default([]),
+	yepyep: z.string().meta({description: 'helpful info'}).default('ya'),
+	okcool: z.number().meta({description: 'that prints to the CLI'}).default(1234),
+	maybee: z.boolean().meta({description: 'and optional args work too'}),
+});
 
 export const task: Task<Args> = {
 	Args,

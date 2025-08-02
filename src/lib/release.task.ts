@@ -4,7 +4,7 @@ import type {Task} from './task.ts';
 import {has_sveltekit_library, has_sveltekit_app} from './sveltekit_helpers.ts';
 import {load_package_json} from './package_json.ts';
 
-export const Args = z.object({}).strict();
+export const Args = z.strictObject({}).strict();
 export type Args = z.infer<typeof Args>;
 
 export const task: Task<Args> = {

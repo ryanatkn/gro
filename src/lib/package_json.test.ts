@@ -1,9 +1,8 @@
 import {test} from 'uvu';
 import * as assert from 'uvu/assert';
+import {Package_Json, Package_Json_Exports} from '@ryanatkn/belt/package_json.js';
 
 import {
-	Package_Json,
-	Package_Json_Exports,
 	load_package_json,
 	parse_repo_url,
 	serialize_package_json,

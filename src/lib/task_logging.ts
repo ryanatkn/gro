@@ -2,11 +2,13 @@ import {styleText as st} from 'node:util';
 import type {Logger} from '@ryanatkn/belt/log.js';
 import {plural} from '@ryanatkn/belt/string.js';
 import {print_value} from '@ryanatkn/belt/print.js';
-import {ZodFirstPartyTypeKind, type ZodObjectDef, type ZodTypeAny, type ZodTypeDef} from 'zod';
+import {z} from 'zod';
 
 import type {Arg_Schema} from './args.ts';
 import type {Loaded_Tasks, Task_Module_Meta} from './task.ts';
 import {print_path} from './paths.ts';
+
+// TODO BLOCK simplify logging chars, remove fences for non-errors (and warnings?)
 
 export const log_tasks = (log: Logger, loaded_tasks: Loaded_Tasks, log_intro = true): void => {
 	const {modules, found_tasks} = loaded_tasks;
@@ -64,7 +66,7 @@ export const log_task_help = (log: Logger, meta: Task_Module_Meta): void => {
 		st('cyan', `\n\ngro ${name}`) + `: ${task.summary ?? '(no summary available)'}\n`,
 	);
 	if (task.Args) {
-		const properties = to_arg_properties(task.Args._def, meta);
+		const properties = to_arg_properties(task.Args, meta);
 		// TODO hacky padding for some quick and dirty tables
 		const longest_task_name = Math.max(
 			ARGS_PROPERTY_NAME.length,
@@ -93,14 +95,20 @@ interface Arg_Schema_Property {
 	schema: Arg_Schema;
 }
 
-const to_arg_properties = (def: ZodTypeDef, meta: Task_Module_Meta): Array<Arg_Schema_Property> => {
+const to_arg_properties = (
+	schema: z.ZodType,
+	meta: Task_Module_Meta,
+): Array<Arg_Schema_Property> => {
+	console.log(`schema`, schema);
+	const {def} = schema;
 	const type_name = to_type_name(def);
-	if (type_name !== ZodFirstPartyTypeKind.ZodObject) {
+	console.log(`type_name`, type_name);
+	if (type_name !== z.ZodFirstPartyTypeKind.ZodObject) {
 		throw Error(
 			`Expected Args for task "${meta.name}" to be a ZodObject schema but got ${type_name}`,
 		);
 	}
-	const shape = (def as ZodObjectDef).shape();
+	const shape = (def as z.core.$ZodObjectDef).shape;
 	const properties: Array<Arg_Schema_Property> = [];
 	for (const name in shape) {
 		if ('no-' + name in shape) continue;
@@ -120,24 +128,25 @@ const to_max_length = <T>(items: Array<T>, toString: (item: T) => string) =>
 
 // The following Zod helpers only need to support single-depth schemas for CLI args,
 // but there's generic recursion to handle things like `ZodOptional` and `ZodDefault`.
-const to_type_name = (def: ZodTypeDef): ZodFirstPartyTypeKind => (def as any).typeName;
-const to_args_schema_type = ({_def}: ZodTypeAny): Arg_Schema['type'] => {
-	const t = to_type_name(_def);
+const to_type_name = (def: z.core.$ZodTypeDef): z.ZodFirstPartyTypeKind => (def as any).typeName;
+const to_args_schema_type = (schema: z.ZodType): Arg_Schema['type'] => {
+	const {def} = schema;
+	const t = to_type_name(def);
 	switch (t) {
-		case ZodFirstPartyTypeKind.ZodBoolean:
+		case z.ZodFirstPartyTypeKind.ZodBoolean:
 			return 'boolean';
-		case ZodFirstPartyTypeKind.ZodString:
+		case z.ZodFirstPartyTypeKind.ZodString:
 			return 'string';
-		case ZodFirstPartyTypeKind.ZodNumber:
+		case z.ZodFirstPartyTypeKind.ZodNumber:
 			return 'number';
-		case ZodFirstPartyTypeKind.ZodArray:
+		case z.ZodFirstPartyTypeKind.ZodArray:
 			return 'Array<string>'; // TODO support arrays of arbitrary types, or more hardcoded ones as needed
-		case ZodFirstPartyTypeKind.ZodEnum:
-			return _def.values.map((v: string) => `'${v}'`).join(' | ');
-		case ZodFirstPartyTypeKind.ZodUnion:
+		case z.ZodFirstPartyTypeKind.ZodEnum:
+			return def.values.map((v: string) => `'${v}'`).join(' | ');
+		case z.ZodFirstPartyTypeKind.ZodUnion:
 			return 'string | Array<string>'; // TODO support unions of arbitrary types, or more hardcoded ones as needed
 		default: {
-			const subschema = to_subschema(_def);
+			const subschema = to_subschema(def);
 			if (subschema) {
 				return to_args_schema_type(subschema);
 			} else {
@@ -146,33 +155,36 @@ const to_args_schema_type = ({_def}: ZodTypeAny): Arg_Schema['type'] => {
 		}
 	}
 };
-const to_args_schema_description = ({_def}: ZodTypeAny): string => {
-	if (_def.description) {
-		return _def.description;
+const to_args_schema_description = (schema: z.ZodType): string => {
+	const meta = schema.meta();
+	if (meta?.description) {
+		return meta.description;
 	}
-	const subschema = to_subschema(_def);
+	const subschema = to_subschema(schema.def);
 	if (subschema) {
 		return to_args_schema_description(subschema);
 	}
 	return '';
 };
-const to_args_schema_default = ({_def}: ZodTypeAny): any => {
-	if (_def.defaultValue) {
-		return _def.defaultValue();
+const to_args_schema_default = (schema: z.ZodType): any => {
+	schema.type;
+	const {def} = schema;
+	if (def.defaultValue) {
+		return def.defaultValue();
 	}
-	const subschema = to_subschema(_def);
+	const subschema = to_subschema(def);
 	if (subschema) {
 		return to_args_schema_default(subschema);
 	}
 };
 
-const to_subschema = (_def: any): ZodTypeAny | undefined => {
-	if ('type' in _def) {
-		return _def.type;
-	} else if ('innerType' in _def) {
-		return _def.innerType;
-	} else if ('schema' in _def) {
-		return _def.schema;
+const to_subschema = (def: any): z.ZodType | undefined => {
+	if ('type' in def) {
+		return def.type;
+	} else if ('innerType' in def) {
+		return def.innerType;
+	} else if ('schema' in def) {
+		return def.schema;
 	}
 	return undefined;
 };

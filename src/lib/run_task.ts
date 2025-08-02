@@ -2,6 +2,7 @@ import {styleText as st} from 'node:util';
 import {print_log_label} from '@ryanatkn/belt/print.js';
 import {System_Logger} from '@ryanatkn/belt/log.js';
 import type {Timings} from '@ryanatkn/belt/timings.js';
+import z from 'zod';
 
 import {parse_args, type Args} from './args.ts';
 import type {invoke_task as base_invoke_task} from './invoke_task.ts';
@@ -43,8 +44,9 @@ export const run_task = async (
 	if (task.Args) {
 		const parsed = parse_args(unparsed_args, task.Args);
 		if (!parsed.success) {
-			log.error(st('red', `Args validation failed:`), '\n', parsed.error.format());
-			throw new Task_Error(`Task args failed validation`);
+			throw new Task_Error(
+				`Failed task args validation for task '${task_meta.name}':\n${z.prettifyError(parsed.error)}`,
+			);
 		}
 		args = parsed.data;
 	}

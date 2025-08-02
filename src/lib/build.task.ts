@@ -4,16 +4,15 @@ import type {Task} from './task.ts';
 import {Plugins} from './plugin.ts';
 import {clean_fs} from './clean_fs.ts';
 
-export const Args = z
-	.object({
-		sync: z.boolean({description: 'dual of no-sync'}).default(true),
-		'no-sync': z.boolean({description: 'opt out of gro sync'}).default(false),
-		install: z.boolean({description: 'dual of no-install'}).default(true),
-		'no-install': z // convenience, same as `gro build -- gro sync --no-install` but the latter takes precedence
-			.boolean({description: 'opt out of installing packages before building'})
-			.default(false),
-	})
-	.strict();
+export const Args = z.strictObject({
+	sync: z.boolean().meta({description: 'dual of no-sync'}).default(true),
+	'no-sync': z.boolean().meta({description: 'opt out of gro sync'}).default(false),
+	install: z.boolean().meta({description: 'dual of no-install'}).default(true),
+	'no-install': z // convenience, same as `gro build -- gro sync --no-install` but the latter takes precedence
+		.boolean()
+		.meta({description: 'opt out of installing packages before building'})
+		.default(false),
+});
 export type Args = z.infer<typeof Args>;
 
 export const task: Task<Args> = {

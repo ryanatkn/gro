@@ -7,12 +7,10 @@ import {find_cli, spawn_cli} from './cli.ts';
 
 const ESLINT_CLI = 'eslint';
 
-export const Args = z
-	.object({
-		_: z.array(z.string(), {description: 'paths to serve'}).default([]),
-		eslint_cli: z.string({description: 'the ESLint CLI to use'}).default(ESLINT_CLI),
-	})
-	.strict();
+export const Args = z.strictObject({
+	_: z.array(z.string()).meta({description: 'paths to serve'}).default([]),
+	eslint_cli: z.string().meta({description: 'the ESLint CLI to use'}).default(ESLINT_CLI),
+});
 export type Args = z.infer<typeof Args>;
 
 export const task: Task<Args> = {

@@ -23,8 +23,8 @@ import {load_modules, type Load_Modules_Failure, type Module_Meta} from './modul
 import type {Filer} from './filer.ts';
 
 export interface Task<
-	T_Args = Args, // same as `z.infer<typeof Args>`
-	T_Args_Schema extends z.ZodType = z.ZodType,
+	T_Args = Args,
+	T_Args_Schema extends z.ZodType<Args, Args> = z.ZodType<Args, Args>, // TODO improve type? separate input/output?
 	T_Return = unknown,
 > {
 	run: (ctx: Task_Context<T_Args>) => T_Return | Promise<T_Return>; // TODO unused return value

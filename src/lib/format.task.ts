@@ -5,13 +5,12 @@ import {Task_Error, type Task} from './task.ts';
 import {format_directory} from './format_directory.ts';
 import {paths} from './paths.ts';
 
-export const Args = z
-	.object({
-		check: z
-			.boolean({description: 'exit with a nonzero code if any files are unformatted'})
-			.default(false),
-	})
-	.strict();
+export const Args = z.strictObject({
+	check: z
+		.boolean()
+		.meta({description: 'exit with a nonzero code if any files are unformatted'})
+		.default(false),
+});
 export type Args = z.infer<typeof Args>;
 
 export const task: Task<Args> = {

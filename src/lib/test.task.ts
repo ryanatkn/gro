@@ -5,18 +5,18 @@ import {Task_Error, type Task} from './task.ts';
 import {paths} from './paths.ts';
 import {find_cli} from './cli.ts';
 
-export const Args = z
-	.object({
-		_: z.array(z.string(), {description: 'file patterns to test'}).default([`\\.test\\.ts$`]), // TODO maybe use uvu's default instead of being restrictive?
-		bail: z
-			.boolean({description: 'the bail option to uvu run, exit immediately on failure'})
-			.default(false),
-		cwd: z.string({description: 'the cwd option to uvu parse'}).optional(),
-		ignore: z
-			.union([z.string(), z.array(z.string())], {description: 'the ignore option to uvu parse'})
-			.optional(),
-	})
-	.strict();
+export const Args = z.strictObject({
+	_: z.array(z.string()).meta({description: 'file patterns to test'}).default([`\\.test\\.ts$`]), // TODO maybe use uvu's default instead of being restrictive?
+	bail: z
+		.boolean()
+		.meta({description: 'the bail option to uvu run, exit immediately on failure'})
+		.default(false),
+	cwd: z.string().meta({description: 'the cwd option to uvu parse'}).optional(),
+	ignore: z
+		.union([z.string(), z.array(z.string())])
+		.meta({description: 'the ignore option to uvu parse'})
+		.optional(),
+});
 export type Args = z.infer<typeof Args>;
 
 export const task: Task<Args> = {

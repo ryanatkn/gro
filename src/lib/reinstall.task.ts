@@ -5,7 +5,7 @@ import {rm} from 'node:fs/promises';
 import {Task_Error, type Task} from './task.ts';
 import {LOCKFILE_FILENAME, NODE_MODULES_DIRNAME} from './constants.ts';
 
-export const Args = z.object({}).strict();
+export const Args = z.strictObject({}).strict();
 export type Args = z.infer<typeof Args>;
 
 export const task: Task<Args> = {
@@ -30,6 +30,7 @@ export const task: Task<Args> = {
 			);
 		}
 
+		// TODO this relies on npm behavior that changed in v11
 		// Deleting the lockfile and reinstalling cleans the lockfile of unnecessary dep noise,
 		// like esbuild's many packages for each platform.
 		await rm(LOCKFILE_FILENAME);

@@ -12,17 +12,20 @@ import {log_error_reasons} from './task_logging.ts';
 import {write_gen_results, analyze_gen_results, find_genfiles, load_genfiles} from './gen.ts';
 import {SOURCE_DIRNAME} from './constants.ts';
 
-export const Args = z
-	.object({
-		_: z.array(Raw_Input_Path, {description: 'input paths to generate'}).default([SOURCE_DIRNAME]),
-		root_dirs: z
-			.array(z.string(), {description: 'root directories to resolve input paths against'}) // TODO `Path_Id` schema
-			.default([process.cwd()]),
-		check: z
-			.boolean({description: 'exit with a nonzero code if any files need to be generated'})
-			.default(false),
-	})
-	.strict();
+export const Args = z.strictObject({
+	_: z
+		.array(Raw_Input_Path)
+		.meta({description: 'input paths to generate'})
+		.default([SOURCE_DIRNAME]),
+	root_dirs: z
+		.array(z.string())
+		.meta({description: 'root directories to resolve input paths against'}) // TODO `Path_Id` schema
+		.default([process.cwd()]),
+	check: z
+		.boolean()
+		.meta({description: 'exit with a nonzero code if any files need to be generated'})
+		.default(false),
+});
 export type Args = z.infer<typeof Args>;
 
 // TODO test - especially making sure nothing gets genned
