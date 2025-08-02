@@ -1,5 +1,12 @@
 # @ryanatkn/gro
 
+## 0.161.1
+
+### Patch Changes
+
+- upgrade deps ([da81662](https://github.com/ryanatkn/gro/commit/da81662))
+- fix package generation for belt ([da81662](https://github.com/ryanatkn/gro/commit/da81662))
+
 ## 0.161.0
 
 ### Minor Changes
