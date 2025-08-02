@@ -1,6 +1,6 @@
 {
   "name": "@ryanatkn/gro",
-  "version": "0.160.0",
+  "version": "0.161.1",
   "modules": {
     ".": {
       "path": "index.ts",
@@ -652,10 +652,6 @@
           "kind": "type"
         },
         {
-          "name": "Gen_Config",
-          "kind": "variable"
-        },
-        {
           "name": "Gen_Results",
           "kind": "type"
         },
@@ -1143,42 +1139,6 @@
       "path": "package_json.ts",
       "declarations": [
         {
-          "name": "Url",
-          "kind": "variable"
-        },
-        {
-          "name": "Email",
-          "kind": "variable"
-        },
-        {
-          "name": "transform_empty_object_to_undefined",
-          "kind": "function"
-        },
-        {
-          "name": "Package_Json_Repository",
-          "kind": "variable"
-        },
-        {
-          "name": "Package_Json_Author",
-          "kind": "variable"
-        },
-        {
-          "name": "Package_Json_Funding",
-          "kind": "variable"
-        },
-        {
-          "name": "Export_Value",
-          "kind": "variable"
-        },
-        {
-          "name": "Package_Json_Exports",
-          "kind": "variable"
-        },
-        {
-          "name": "Package_Json",
-          "kind": "variable"
-        },
-        {
           "name": "Map_Package_Json",
           "kind": "type"
         },
@@ -1232,27 +1192,6 @@
         }
       ]
     },
-    "./package_meta.js": {
-      "path": "package_meta.ts",
-      "declarations": [
-        {
-          "name": "Package_Meta",
-          "kind": "type"
-        },
-        {
-          "name": "parse_package_meta",
-          "kind": "function"
-        },
-        {
-          "name": "parse_repo_name",
-          "kind": "function"
-        },
-        {
-          "name": "parse_org_url",
-          "kind": "function"
-        }
-      ]
-    },
     "./package.gen.js": {
       "path": "package.gen.ts",
       "declarations": [
@@ -1287,10 +1226,6 @@
     "./parse_exports.js": {
       "path": "parse_exports.ts",
       "declarations": [
-        {
-          "name": "Declaration_Kind",
-          "kind": "type"
-        },
         {
           "name": "Declaration",
           "kind": "type"
@@ -1585,26 +1520,6 @@
       "path": "src_json.ts",
       "declarations": [
         {
-          "name": "Src_Module_Declaration_Kind",
-          "kind": "variable"
-        },
-        {
-          "name": "Src_Module_Declaration",
-          "kind": "variable"
-        },
-        {
-          "name": "Src_Module",
-          "kind": "variable"
-        },
-        {
-          "name": "Src_Modules",
-          "kind": "variable"
-        },
-        {
-          "name": "Src_Json",
-          "kind": "variable"
-        },
-        {
           "name": "Map_Src_Json",
           "kind": "type"
         },
@@ -1797,6 +1712,10 @@
         {
           "name": "base",
           "kind": "variable"
+        },
+        {
+          "name": "resolve",
+          "kind": "function"
         },
         {
           "name": "resolveRoute",
