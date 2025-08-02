@@ -64,7 +64,7 @@ export const log_task_help = (log: Logger, meta: Task_Module_Meta): void => {
 		st('cyan', `\n\ngro ${name}`) + `: ${task.summary ?? '(no summary available)'}\n`,
 	);
 	if (task.Args) {
-		const properties = to_arg_properties(task.Args, meta);
+		const properties = to_arg_properties(task.Args, meta, log);
 		// TODO hacky padding for some quick and dirty tables
 		const longest_task_name = Math.max(
 			ARGS_PROPERTY_NAME.length,
@@ -97,18 +97,18 @@ interface Arg_Schema_Property {
 	schema: Arg_Schema;
 }
 
-// TODO this blocks many usecases like unions, need better support for arbitrary schemas
+// TODO this blocks many usecases like unions, and it's only implemented for CLI arg types, need better support for arbitrary schemas
 const to_arg_properties = (
 	schema: z.ZodType,
 	meta: Task_Module_Meta,
+	log: Logger,
 ): Array<Arg_Schema_Property> => {
 	const {def} = schema;
 
 	// TODO overly restrictive, support optional objects and/or unions?
 	if (!('shape' in def)) {
-		throw new Error(
-			`Expected Args for task "${meta.name}" to be an object schema but got ${def.type}`,
-		);
+		log.error(`Expected Args for task "${meta.name}" to be an object schema but got ${def.type}`);
+		return [];
 	}
 	const shape = (def as z.core.$ZodObjectDef).shape;
 
@@ -186,19 +186,11 @@ const to_args_schema_type = (schema: z.ZodType): Arg_Schema['type'] => {
 			return (def as unknown as {values: Array<any>}).values.map((v) => print_value(v)).join(' | ');
 		case 'nullable': {
 			const subschema = to_subschema(def);
-			if (subschema) {
-				return to_args_schema_type(subschema) + ' | null';
-			} else {
-				return 'nullable';
-			}
+			return subschema ? to_args_schema_type(subschema) + ' | null' : 'nullable';
 		}
 		case 'optional': {
 			const subschema = to_subschema(def);
-			if (subschema) {
-				return to_args_schema_type(subschema) + ' | undefined';
-			} else {
-				return 'optional';
-			}
+			return subschema ? to_args_schema_type(subschema) + ' | undefined' : 'optional';
 		}
 		case 'success':
 			return 'success';
@@ -224,11 +216,7 @@ const to_args_schema_type = (schema: z.ZodType): Arg_Schema['type'] => {
 		// case 'pipe':
 		default: {
 			const subschema = to_subschema(def);
-			if (subschema) {
-				return to_args_schema_type(subschema);
-			} else {
-				throw new Error(`Unhandled Zod type: ${def.type}`);
-			}
+			return subschema ? to_args_schema_type(subschema) : def.type;
 		}
 	}
 };
