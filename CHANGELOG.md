@@ -1,5 +1,11 @@
 # @ryanatkn/gro
 
+## 0.161.2
+
+### Patch Changes
+
+- fix another bug with belt package generation ([430902c](https://github.com/ryanatkn/gro/commit/430902c))
+
 ## 0.161.1
 
 ### Patch Changes
