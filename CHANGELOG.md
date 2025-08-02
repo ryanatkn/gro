@@ -1,5 +1,17 @@
 # @ryanatkn/gro
 
+## 0.161.0
+
+### Minor Changes
+
+- extract `pkg.ts` to Fuz ([#550](https://github.com/ryanatkn/gro/pull/550))
+- upgrade zod@4 ([#550](https://github.com/ryanatkn/gro/pull/550))
+- remove `Declaration_Kind`, use instead `import type {Src_Module_Declaration_Kind} from '@ryanatkn/belt/src_json.js';` ([#550](https://github.com/ryanatkn/gro/pull/550))
+
+### Patch Changes
+
+- support SvelteKit shim for `resolve` ([#550](https://github.com/ryanatkn/gro/pull/550))
+
 ## 0.160.0
 
 ### Minor Changes
