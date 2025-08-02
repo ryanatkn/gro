@@ -44,7 +44,7 @@ export const package_json: Package_Json = {
 		'typescript',
 	],
 	dependencies: {
-		'@ryanatkn/belt': 'file:../belt',
+		'@ryanatkn/belt': '^0.32.0',
 		chokidar: '^4.0.3',
 		dotenv: '^17.0.1',
 		'esm-env': '^1.2.2',
@@ -54,7 +54,7 @@ export const package_json: Package_Json = {
 		'prettier-plugin-svelte': '^3.4.0',
 		'ts-blank-space': '^0.6.1',
 		tslib: '^2.8.1',
-		zod: '^3.25.74',
+		zod: '^4.0.14',
 	},
 	peerDependencies: {esbuild: '^0.25', svelte: '^5', typescript: '^5'},
 	devDependencies: {
@@ -520,7 +520,6 @@ export const src_json: Src_Json = {
 				{name: 'Gen_Context', kind: 'type'},
 				{name: 'Raw_Gen_Result', kind: 'type'},
 				{name: 'Raw_Gen_File', kind: 'type'},
-				{name: 'Gen_Config', kind: 'variable'},
 				{name: 'Gen_Results', kind: 'type'},
 				{name: 'Genfile_Module_Result', kind: 'type'},
 				{name: 'Genfile_Module_Result_Success', kind: 'type'},

@@ -5,7 +5,7 @@ import {rm} from 'node:fs/promises';
 import {Task_Error, type Task} from './task.ts';
 import {LOCKFILE_FILENAME, NODE_MODULES_DIRNAME} from './constants.ts';
 
-export const Args = z.strictObject({}).strict();
+export const Args = z.strictObject({});
 export type Args = z.infer<typeof Args>;
 
 export const task: Task<Args> = {

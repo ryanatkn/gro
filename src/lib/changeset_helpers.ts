@@ -4,6 +4,7 @@ export const CHANGESET_RESTRICTED_ACCESS = 'restricted';
 export const CHANGESET_PUBLIC_ACCESS = 'public';
 
 export const Changeset_Access = z.enum([CHANGESET_RESTRICTED_ACCESS, CHANGESET_PUBLIC_ACCESS]);
+export type Changeset_Access = z.infer<typeof Changeset_Access>;
 
 export const CHANGESET_CLI = 'changeset';
 
