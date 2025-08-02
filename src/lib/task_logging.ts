@@ -64,10 +64,6 @@ export const log_task_help = (log: Logger, meta: Task_Module_Meta): void => {
 		st('cyan', `\n\ngro ${name}`) + `: ${task.summary ?? '(no summary available)'}\n`,
 	);
 	if (task.Args) {
-		if (!('_zod' in task.Args)) {
-			throw new Error('not v4');
-		}
-		console.log(`task.Args._zod`, task.Args._zod);
 		const properties = to_arg_properties(task.Args, meta);
 		// TODO hacky padding for some quick and dirty tables
 		const longest_task_name = Math.max(
@@ -106,13 +102,9 @@ const to_arg_properties = (
 	schema: z.ZodType,
 	meta: Task_Module_Meta,
 ): Array<Arg_Schema_Property> => {
-	console.log(`schema.def`, schema.def);
-	console.log(`schema.meta()`, schema.meta());
-	console.log(`schema.description`, schema.description);
 	const {def} = schema;
-	console.log(`type_name`, def.type);
 
-	// TODO BLOCK overly restrictive, support optional objects and/or unions?
+	// TODO overly restrictive, support optional objects and/or unions?
 	if (!('shape' in def)) {
 		throw new Error(
 			`Expected Args for task "${meta.name}" to be an object schema but got ${def.type}`,
@@ -191,9 +183,7 @@ const to_args_schema_type = (schema: z.ZodType): Arg_Schema['type'] => {
 				.map((v) => `'${v}'`)
 				.join(' | ');
 		case 'literal':
-			return (def as unknown as {values: Array<any>}).values
-				.map((v) => (typeof v === 'string' ? `'${v}'` : v))
-				.join(' | ');
+			return (def as unknown as {values: Array<any>}).values.map((v) => print_value(v)).join(' | ');
 		case 'nullable': {
 			const subschema = to_subschema(def);
 			if (subschema) {
@@ -269,6 +259,8 @@ const to_args_schema_default = (schema: z.ZodType): any => {
 const to_subschema = (def: z.core.$ZodTypeDef): z.ZodType | undefined => {
 	if ('innerType' in def) {
 		return def.innerType as any;
+	} else if ('in' in def) {
+		return def.in as any;
 	} else if ('schema' in def) {
 		return def.schema as any;
 	}
