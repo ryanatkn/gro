@@ -8,20 +8,21 @@ import {SVELTE_CHECK_CLI, sveltekit_sync_if_available} from './sveltekit_helpers
 import {configure_colored_output_with_path_replacement} from './child_process_logging.ts';
 import {paths} from './paths.ts';
 
-export const Args = z
-	.object({
-		svelte_check_cli: z
-			.string({description: 'the svelte-check CLI to use'})
-			.default(SVELTE_CHECK_CLI),
-		typescript_cli: z
-			.string({description: 'the TypeScript CLI to use as a fallback to svelte-check'})
-			.default('tsc'),
-		path_replacement: z
-			.string({description: 'replacement string for current working directory in output'})
-			.default('.'),
-		cwd: z.string({description: 'current working directory'}).default(paths.root),
-	})
-	.strict();
+export const Args = z.strictObject({
+	svelte_check_cli: z
+		.string()
+		.meta({description: 'the svelte-check CLI to use'})
+		.default(SVELTE_CHECK_CLI),
+	typescript_cli: z
+		.string()
+		.meta({description: 'the TypeScript CLI to use as a fallback to svelte-check'})
+		.default('tsc'),
+	path_replacement: z
+		.string()
+		.meta({description: 'replacement string for current working directory in output'})
+		.default('.'),
+	cwd: z.string().meta({description: 'current working directory'}).default(paths.root),
+});
 export type Args = z.infer<typeof Args>;
 
 export const task: Task<Args> = {
