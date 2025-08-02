@@ -3,7 +3,7 @@
 	import Docs_Footer from '@ryanatkn/fuz/Docs_Footer.svelte';
 	import Community_Links_Panel from '@ryanatkn/fuz/Community_Links_Panel.svelte';
 	import Breadcrumb from '@ryanatkn/fuz/Breadcrumb.svelte';
-	import {parse_pkg} from '@ryanatkn/fuz/pkg.js';
+	import {parse_pkg} from '@ryanatkn/belt/pkg.js';
 
 	import {package_json, src_json} from '../../lib/package.ts';
 

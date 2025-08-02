@@ -7,7 +7,7 @@
 	import {gro_logo} from '@ryanatkn/fuz/logos.js';
 	import {slide} from 'svelte/transition';
 	import Hidden_Personal_Links from '@ryanatkn/fuz/Hidden_Personal_Links.svelte';
-	import {parse_pkg} from '@ryanatkn/fuz/pkg.js';
+	import {parse_pkg} from '@ryanatkn/belt/pkg.js';
 
 	import {package_json, src_json} from '../lib/package.ts';
 
