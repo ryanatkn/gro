@@ -24,11 +24,7 @@ export const Args = z.strictObject({
 	'no-lint': z.boolean().meta({description: 'opt out of linting'}).default(false),
 	sync: z.boolean().meta({description: 'dual of no-sync'}).default(true),
 	'no-sync': z.boolean().meta({description: 'opt out of syncing'}).default(false),
-	install: z.boolean().meta({description: 'dual of no-install'}).default(true),
-	'no-install': z
-		.boolean()
-		.meta({description: 'opt out of installing packages when syncing'})
-		.default(false), // convenience, same as `gro check -- gro sync --no-install` but the latter takes precedence
+	install: z.boolean().meta({description: 'opt into installing packages'}).default(false),
 	workspace: z
 		.boolean()
 		.meta({description: 'ensure a clean git workspace, useful for CI, also implies --no-sync'})

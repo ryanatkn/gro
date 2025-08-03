@@ -14,11 +14,7 @@ export const Args = z.strictObject({
 		.default(false),
 	sync: z.boolean().meta({description: 'dual of no-sync'}).default(true),
 	'no-sync': z.boolean().meta({description: 'opt out of gro sync'}).default(false),
-	install: z.boolean().meta({description: 'dual of no-install'}).default(true),
-	'no-install': z // convenience, same as `gro dev -- gro sync --no-install` but the latter takes precedence
-		.boolean()
-		.meta({description: 'opt out of installing packages before starting the dev server'})
-		.default(false),
+	install: z.boolean().meta({description: 'opt into installing packages'}).default(false),
 });
 export type Args = z.infer<typeof Args>;
 
