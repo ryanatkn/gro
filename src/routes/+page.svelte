@@ -1,5 +1,5 @@
 <script lang="ts">
-	import {base} from '$app/paths';
+	import {resolve} from '$app/paths';
 	import Docs_Footer from '@ryanatkn/fuz/Docs_Footer.svelte';
 	import Package_Detail from '@ryanatkn/fuz/Package_Detail.svelte';
 	import Package_Summary from '@ryanatkn/fuz/Package_Summary.svelte';
@@ -7,13 +7,13 @@
 	import {gro_logo} from '@ryanatkn/fuz/logos.js';
 	import {slide} from 'svelte/transition';
 	import Hidden_Personal_Links from '@ryanatkn/fuz/Hidden_Personal_Links.svelte';
+	import {parse_pkg} from '@ryanatkn/belt/pkg.js';
 
-	import {parse_package_meta} from '../lib/package_meta.ts';
 	import {package_json, src_json} from '../lib/package.ts';
 
 	// TODO add website, rewriting the markdown docs as Svelte
 
-	const pkg = parse_package_meta(package_json, src_json);
+	const pkg = parse_pkg(package_json, src_json);
 
 	let show_detail = $state(false);
 </script>
@@ -51,7 +51,7 @@
 		</section>
 		<section>
 			<Docs_Footer {pkg}>
-				{#snippet logo_header()}<a href="{base}/about" class="mb_xs">about</a>{/snippet}
+				{#snippet logo_header()}<a href={resolve('/about')} class="mb_xs">about</a>{/snippet}
 				<Hidden_Personal_Links />
 			</Docs_Footer>
 		</section>

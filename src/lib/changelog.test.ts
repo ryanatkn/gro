@@ -46,7 +46,6 @@ test('update_changelog', async () => {
 - duplicate 1 ([#429](https://github.com/ryanatkn/gro/pull/429))
 - duplicate 2 ([#429](https://github.com/ryanatkn/gro/pull/429))
 - abc ([#437](https://github.com/ryanatkn/gro/pull/437))
-
   - 123
   - 123
   - 123

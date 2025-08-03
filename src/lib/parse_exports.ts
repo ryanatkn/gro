@@ -2,23 +2,15 @@ import ts from 'typescript';
 import {extname} from 'node:path';
 import type {Flavored} from '@ryanatkn/belt/types.js';
 import type {Logger} from '@ryanatkn/belt/log.js';
+import type {Src_Module_Declaration_Kind} from '@ryanatkn/belt/src_json.js';
 
 import type {Path_Id} from './path.ts';
 import {TS_MATCHER} from './constants.ts';
 import {Parse_Exports_Context} from './parse_exports_context.ts';
 
-export type Declaration_Kind =
-	| 'type'
-	| 'function'
-	| 'variable' // TODO maybe expand this to have literals/primitives?
-	| 'class'
-	| 'component'
-	| 'json'
-	| 'css';
-
 export interface Declaration {
 	name: string;
-	kind: Declaration_Kind | null;
+	kind: Src_Module_Declaration_Kind | null;
 }
 
 export type Export_Declaration = Flavored<Declaration, 'Export_Declaration'>;

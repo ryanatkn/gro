@@ -2,7 +2,7 @@ import {styleText as st} from 'node:util';
 import type {Logger} from '@ryanatkn/belt/log.js';
 import {plural} from '@ryanatkn/belt/string.js';
 import {print_value} from '@ryanatkn/belt/print.js';
-import {ZodFirstPartyTypeKind, type ZodObjectDef, type ZodTypeAny, type ZodTypeDef} from 'zod';
+import {z} from 'zod';
 
 import type {Arg_Schema} from './args.ts';
 import type {Loaded_Tasks, Task_Module_Meta} from './task.ts';
@@ -64,7 +64,7 @@ export const log_task_help = (log: Logger, meta: Task_Module_Meta): void => {
 		st('cyan', `\n\ngro ${name}`) + `: ${task.summary ?? '(no summary available)'}\n`,
 	);
 	if (task.Args) {
-		const properties = to_arg_properties(task.Args._def, meta);
+		const properties = to_arg_properties(task.Args, meta, log);
 		// TODO hacky padding for some quick and dirty tables
 		const longest_task_name = Math.max(
 			ARGS_PROPERTY_NAME.length,
@@ -88,26 +88,37 @@ export const log_task_help = (log: Logger, meta: Task_Module_Meta): void => {
 	log.info(...logged, '\n');
 };
 
+// TODO rework all of this
+// The following Zod helpers only need to support single-depth schemas for CLI args,
+// but there's generic recursion to handle things like `ZodOptional` and `ZodDefault`.
+
 interface Arg_Schema_Property {
 	name: string;
 	schema: Arg_Schema;
 }
 
-const to_arg_properties = (def: ZodTypeDef, meta: Task_Module_Meta): Array<Arg_Schema_Property> => {
-	const type_name = to_type_name(def);
-	if (type_name !== ZodFirstPartyTypeKind.ZodObject) {
-		throw Error(
-			`Expected Args for task "${meta.name}" to be a ZodObject schema but got ${type_name}`,
-		);
+// TODO this blocks many usecases like unions, and it's only implemented for CLI arg types, need better support for arbitrary schemas
+const to_arg_properties = (
+	schema: z.ZodType,
+	meta: Task_Module_Meta,
+	log: Logger,
+): Array<Arg_Schema_Property> => {
+	const {def} = schema;
+
+	// TODO overly restrictive, support optional objects and/or unions?
+	if (!('shape' in def)) {
+		log.error(`Expected Args for task "${meta.name}" to be an object schema but got ${def.type}`);
+		return [];
 	}
-	const shape = (def as ZodObjectDef).shape();
+	const shape = (def as z.core.$ZodObjectDef).shape;
+
 	const properties: Array<Arg_Schema_Property> = [];
 	for (const name in shape) {
 		if ('no-' + name in shape) continue;
-		const s = shape[name];
+		const s = shape[name] as z.ZodType;
 		const schema: Arg_Schema = {
 			type: to_args_schema_type(s),
-			description: to_args_schema_description(s),
+			description: to_args_schema_description(s) || '',
 			default: to_args_schema_default(s),
 		};
 		properties.push({name, schema});
@@ -118,61 +129,128 @@ const to_arg_properties = (def: ZodTypeDef, meta: Task_Module_Meta): Array<Arg_S
 const to_max_length = <T>(items: Array<T>, toString: (item: T) => string) =>
 	items.reduce((max, m) => Math.max(toString(m).length, max), 0);
 
-// The following Zod helpers only need to support single-depth schemas for CLI args,
-// but there's generic recursion to handle things like `ZodOptional` and `ZodDefault`.
-const to_type_name = (def: ZodTypeDef): ZodFirstPartyTypeKind => (def as any).typeName;
-const to_args_schema_type = ({_def}: ZodTypeAny): Arg_Schema['type'] => {
-	const t = to_type_name(_def);
-	switch (t) {
-		case ZodFirstPartyTypeKind.ZodBoolean:
-			return 'boolean';
-		case ZodFirstPartyTypeKind.ZodString:
+const to_args_schema_type = (schema: z.ZodType): Arg_Schema['type'] => {
+	const {def} = schema._zod;
+	switch (def.type) {
+		case 'string':
 			return 'string';
-		case ZodFirstPartyTypeKind.ZodNumber:
+		case 'number':
 			return 'number';
-		case ZodFirstPartyTypeKind.ZodArray:
-			return 'Array<string>'; // TODO support arrays of arbitrary types, or more hardcoded ones as needed
-		case ZodFirstPartyTypeKind.ZodEnum:
-			return _def.values.map((v: string) => `'${v}'`).join(' | ');
-		case ZodFirstPartyTypeKind.ZodUnion:
-			return 'string | Array<string>'; // TODO support unions of arbitrary types, or more hardcoded ones as needed
+		case 'int':
+			return 'int';
+		case 'boolean':
+			return 'boolean';
+		case 'bigint':
+			return 'bigint';
+		case 'symbol':
+			return 'symbol';
+		case 'null':
+			return 'null';
+		case 'undefined':
+			return 'undefined';
+		case 'void':
+			return 'void';
+		case 'never':
+			return 'never';
+		case 'any':
+			return 'any';
+		case 'unknown':
+			return 'unknown';
+		case 'date':
+			return 'date';
+		case 'object':
+			return 'object';
+		case 'record':
+			return 'record';
+		case 'file':
+			return 'file';
+		case 'array':
+			// TODO other types, only handling a subset of CLI arg cases
+			return 'Array<string>';
+		case 'tuple':
+			return 'tuple';
+		case 'union':
+			// TODO fix, this is a hacky way to handle unions for CLI args
+			return 'string | Array<string>';
+		case 'intersection':
+			return 'intersection';
+		case 'map':
+			return 'map';
+		case 'set':
+			return 'set';
+		case 'enum':
+			return (schema as unknown as {options: Array<string>}).options
+				.map((v) => `'${v}'`)
+				.join(' | ');
+		case 'literal':
+			return (def as unknown as {values: Array<any>}).values.map((v) => print_value(v)).join(' | ');
+		case 'nullable': {
+			const subschema = to_subschema(def);
+			return subschema ? to_args_schema_type(subschema) + ' | null' : 'nullable';
+		}
+		case 'optional': {
+			const subschema = to_subschema(def);
+			return subschema ? to_args_schema_type(subschema) + ' | undefined' : 'optional';
+		}
+		case 'success':
+			return 'success';
+		case 'catch':
+			return 'catch';
+		case 'nan':
+			return 'NaN';
+		case 'readonly':
+			return 'readonly';
+		case 'template_literal':
+			return 'template_literal';
+		case 'promise':
+			return 'promise';
+		case 'lazy':
+			return 'lazy';
+		case 'custom':
+			return 'custom';
+		// Unwrap these:
+		// case 'nonoptional':
+		// case 'transform':
+		// case 'default':
+		// case 'prefault':
+		// case 'pipe':
 		default: {
-			const subschema = to_subschema(_def);
-			if (subschema) {
-				return to_args_schema_type(subschema);
-			} else {
-				throw Error('Unknown zod type ' + t);
-			}
+			const subschema = to_subschema(def);
+			return subschema ? to_args_schema_type(subschema) : def.type;
 		}
 	}
 };
-const to_args_schema_description = ({_def}: ZodTypeAny): string => {
-	if (_def.description) {
-		return _def.description;
+
+const to_args_schema_description = (schema: z.ZodType): string | null => {
+	const meta = schema.meta();
+	if (meta?.description) {
+		return meta.description;
 	}
-	const subschema = to_subschema(_def);
+	const subschema = to_subschema(schema.def);
 	if (subschema) {
 		return to_args_schema_description(subschema);
 	}
-	return '';
+	return null;
 };
-const to_args_schema_default = ({_def}: ZodTypeAny): any => {
-	if (_def.defaultValue) {
-		return _def.defaultValue();
+
+const to_args_schema_default = (schema: z.ZodType): any => {
+	const {def} = schema._zod;
+	if ('defaultValue' in def) {
+		return def.defaultValue;
 	}
-	const subschema = to_subschema(_def);
+	const subschema = to_subschema(def);
 	if (subschema) {
 		return to_args_schema_default(subschema);
 	}
 };
 
-const to_subschema = (_def: any): ZodTypeAny | undefined => {
-	if ('type' in _def) {
-		return _def.type;
-	} else if ('innerType' in _def) {
-		return _def.innerType;
-	} else if ('schema' in _def) {
-		return _def.schema;
+const to_subschema = (def: z.core.$ZodTypeDef): z.ZodType | undefined => {
+	if ('innerType' in def) {
+		return def.innerType as any;
+	} else if ('in' in def) {
+		return def.in as any;
+	} else if ('schema' in def) {
+		return def.schema as any;
 	}
 	return undefined;
 };

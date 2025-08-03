@@ -7,7 +7,6 @@
 - 03da698: duplicate 1
 - 03da698: duplicate 2
 - 88f4b00: abc
-
   - 123
   - 123
   - 123
