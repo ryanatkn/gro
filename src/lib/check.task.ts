@@ -41,11 +41,9 @@ export const task: Task<Args> = {
 		// When checking the workspace, which was added for CI, never sync.
 		// Setup like installing packages and `sveltekit-sync` should be done in the CI setup.
 		if (!workspace) {
-			if (sync) {
+			if (sync || install) {
+				if (!sync) log.warn('sync is false but install is true, so ignoring the sync option');
 				await invoke_task('sync', {install, gen: false}); // never generate because `gro gen --check` runs below
-			} else if (install) {
-				const result = await spawn(config.pm_cli, ['install']);
-				if (!result.ok) throw new Task_Error(`Failed \`${config.pm_cli} install\``);
 			}
 		}
 
