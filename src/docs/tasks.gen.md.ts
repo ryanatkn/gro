@@ -43,7 +43,6 @@ export const gen: Gen = async ({origin_id, log, config}) => {
 	const relative_path = strip_start(origin_id, base_dir);
 	const relative_dir = dirname(relative_path);
 
-	// TODO should this be passed in the context, like `defaultOutputFileName`?
 	const output_file_name = to_output_file_name(origin_base);
 
 	// TODO this is GitHub-specific
