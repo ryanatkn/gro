@@ -27,9 +27,7 @@ export const task: Task<Args> = {
 			await invoke_task('sync', {install});
 		} else if (install) {
 			const result = await spawn(config.pm_cli, ['install']);
-			if (!result.ok) {
-				throw new Task_Error(`Failed \`${config.pm_cli} install\``);
-			}
+			if (!result.ok) throw new Task_Error(`Failed \`${config.pm_cli} install\``);
 		}
 
 		// TODO possibly detect if the git workspace is clean, and ask for confirmation if not,
