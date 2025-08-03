@@ -234,6 +234,7 @@ export const gro_plugin_server = ({
 			// uses chokidar instead of esbuild's watcher for efficiency
 			if (watch) {
 				let watcher_ready = false;
+				// TODO BLOCK change server plugin to use filer
 				// TODO maybe reuse this watcher globally via an option,
 				// because it watches all of `$lib`, and that means it excludes `$routes`
 				// while also including a lot of client files we don't care about,
