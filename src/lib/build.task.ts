@@ -1,6 +1,7 @@
 import {z} from 'zod';
+import {spawn} from '@ryanatkn/belt/process.js';
 
-import type {Task} from './task.ts';
+import {Task_Error, type Task} from './task.ts';
 import {Plugins} from './plugin.ts';
 import {clean_fs} from './clean_fs.ts';
 
@@ -19,11 +20,16 @@ export const task: Task<Args> = {
 	summary: 'build the project',
 	Args,
 	run: async (ctx): Promise<void> => {
-		const {args, invoke_task} = ctx;
+		const {args, invoke_task, config} = ctx;
 		const {sync, install} = args;
 
 		if (sync) {
 			await invoke_task('sync', {install});
+		} else if (install) {
+			const result = await spawn(config.pm_cli, ['install']);
+			if (!result.ok) {
+				throw new Task_Error(`Failed \`${config.pm_cli} install\``);
+			}
 		}
 
 		// TODO possibly detect if the git workspace is clean, and ask for confirmation if not,
