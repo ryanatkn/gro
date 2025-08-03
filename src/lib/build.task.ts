@@ -19,10 +19,11 @@ export const task: Task<Args> = {
 	summary: 'build the project',
 	Args,
 	run: async (ctx): Promise<void> => {
-		const {args, invoke_task} = ctx;
+		const {args, invoke_task, log} = ctx;
 		const {sync, install} = args;
 
-		if (sync) {
+		if (sync || install) {
+			if (!sync) log.warn('sync is false but install is true, so ignoring the sync option');
 			await invoke_task('sync', {install});
 		}
 

@@ -110,6 +110,7 @@ export const task: Task<Args> = {
 		install_args.push(...serialize_args(to_forwarded_args(config.pm_cli)));
 		await spawn(config.pm_cli, install_args);
 
+		// TODO @many this relies on npm behavior that changed in v11
 		// If we deleted the lockfile or node modules, `npm install` again
 		// to fix a recurring npm bug getting the lockfile to its final state.
 		if (!dry && (delete_node_modules || delete_lockfile)) {
@@ -118,7 +119,7 @@ export const task: Task<Args> = {
 		}
 
 		// Sync in a new process to pick up any changes after installing, avoiding some errors.
-		await spawn_cli('gro', ['sync', '--no-install']); // don't install because we do above
+		await spawn_cli('gro', ['sync']); // don't install because we do above
 	},
 };
 

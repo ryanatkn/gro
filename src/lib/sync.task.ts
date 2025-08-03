@@ -12,8 +12,7 @@ export const Args = z.strictObject({
 	'no-package_json': z.boolean().meta({description: 'opt out of package.json sync'}).default(false),
 	gen: z.boolean().meta({description: 'dual of no-gen'}).default(true),
 	'no-gen': z.boolean().meta({description: 'opt out of running gen'}).default(false),
-	install: z.boolean().meta({description: 'dual of no-install'}).default(true),
-	'no-install': z.boolean().meta({description: 'opt out of installing packages'}).default(false),
+	install: z.boolean().meta({description: 'opt into installing packages'}).default(false),
 });
 export type Args = z.infer<typeof Args>;
 

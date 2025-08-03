@@ -24,11 +24,7 @@ export const Args = z.strictObject({
 	'no-lint': z.boolean().meta({description: 'opt out of linting'}).default(false),
 	sync: z.boolean().meta({description: 'dual of no-sync'}).default(true),
 	'no-sync': z.boolean().meta({description: 'opt out of syncing'}).default(false),
-	install: z.boolean().meta({description: 'dual of no-install'}).default(true),
-	'no-install': z
-		.boolean()
-		.meta({description: 'opt out of installing packages when syncing'})
-		.default(false), // convenience, same as `gro check -- gro sync --no-install` but the latter takes precedence
+	install: z.boolean().meta({description: 'opt into installing packages'}).default(false),
 	workspace: z
 		.boolean()
 		.meta({description: 'ensure a clean git workspace, useful for CI, also implies --no-sync'})
@@ -44,8 +40,11 @@ export const task: Task<Args> = {
 
 		// When checking the workspace, which was added for CI, never sync.
 		// Setup like installing packages and `sveltekit-sync` should be done in the CI setup.
-		if (sync && !workspace) {
-			await invoke_task('sync', {install, gen: false}); // never generate because `gro gen --check` runs below
+		if (!workspace) {
+			if (sync || install) {
+				if (!sync) log.warn('sync is false but install is true, so ignoring the sync option');
+				await invoke_task('sync', {install, gen: false}); // never generate because `gro gen --check` runs below
+			}
 		}
 
 		if (typecheck) {
