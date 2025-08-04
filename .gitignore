@@ -33,5 +33,7 @@ ignore
 .DS_Store
 Thumbs.db
 
-# GitHub
+# LLMs
 .github/copilot-instructions.md
+CLAUDE.md
+.claude
