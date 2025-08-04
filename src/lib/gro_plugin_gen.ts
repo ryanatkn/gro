@@ -47,7 +47,7 @@ export const gro_plugin_gen = ({
 	);
 	const gen = (files: Array<string> = []) => spawn_cli('gro', ['gen', ...files]);
 
-	let cleanup: Cleanup_Watch | undefined;
+	let cleanup_watch: Cleanup_Watch | undefined;
 
 	return {
 		name: 'gro_plugin_gen',
@@ -73,7 +73,7 @@ export const gro_plugin_gen = ({
 
 			// When a file builds, check it and its tree of dependents
 			// for any `.gen.` files that need to run.
-			cleanup = await filer.watch((change, source_file) => {
+			cleanup_watch = await filer.watch((change, source_file) => {
 				if (source_file.external) return;
 				switch (change.type) {
 					case 'add':
@@ -104,9 +104,9 @@ export const gro_plugin_gen = ({
 			});
 		},
 		teardown: async () => {
-			if (cleanup !== undefined) {
-				await cleanup();
-				cleanup = undefined;
+			if (cleanup_watch) {
+				await cleanup_watch();
+				cleanup_watch = undefined;
 			}
 		},
 	};

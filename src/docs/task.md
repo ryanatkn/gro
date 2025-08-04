@@ -91,6 +91,9 @@ $ gro some/file arg1 arg2 --arg3 example
 # without checking the current working directory,
 # and displays an error if it doesn't exist.
 $ gro gro/some/file
+
+# Without colors:
+$ NO_COLOR=1 gro
 ```
 
 ### define a task

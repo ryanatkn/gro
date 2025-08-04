@@ -21,7 +21,8 @@ import {paths} from './paths.ts';
 import {parse_imports} from './parse_imports.ts';
 import {resolve_specifier} from './resolve_specifier.ts';
 import {default_svelte_config} from './svelte_config.ts';
-import {map_sveltekit_aliases, SVELTEKIT_GLOBAL_SPECIFIER} from './sveltekit_helpers.ts';
+import {map_sveltekit_aliases} from './sveltekit_helpers.ts';
+import {SVELTEKIT_GLOBAL_SPECIFIER} from './constants.ts';
 
 const aliases = Object.entries(default_svelte_config.alias);
 
@@ -177,7 +178,7 @@ export class Filer {
 		return file;
 	}
 
-	#notify_listener(listener: On_Filer_Change): void {
+	#sync_listener_with_files(listener: On_Filer_Change): void {
 		if (!this.#ready) return;
 		for (const source_file of this.files.values()) {
 			listener({type: 'add', path: source_file.id, is_directory: false}, source_file);
@@ -197,7 +198,7 @@ export class Filer {
 			// if already watching, call the listener for all existing files after init
 			await this.#watching.init();
 			await wait(); // wait a tick to ensure the `this.#ready` value is updated below first
-			this.#notify_listener(listener);
+			this.#sync_listener_with_files(listener);
 			return;
 		}
 		this.#watching = this.#watch_dir({
@@ -207,7 +208,7 @@ export class Filer {
 		});
 		await this.#watching.init();
 		this.#ready = true;
-		this.#notify_listener(listener);
+		this.#sync_listener_with_files(listener);
 	}
 
 	async #remove_listener(listener: On_Filer_Change): Promise<void> {

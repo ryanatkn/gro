@@ -12,7 +12,6 @@ import type {Plugin} from './plugin.ts';
 import {base_path_to_path_id, LIB_DIRNAME, paths} from './paths.ts';
 import type {Path_Id} from './path.ts';
 import {GRO_DEV_DIRNAME, SERVER_DIST_PATH} from './constants.ts';
-import {watch_dir, type Watch_Node_Fs} from './watch_dir.ts';
 import {parse_svelte_config, default_svelte_config} from './svelte_config.ts';
 import {esbuild_plugin_sveltekit_shim_app} from './esbuild_plugin_sveltekit_shim_app.ts';
 import {esbuild_plugin_sveltekit_shim_env} from './esbuild_plugin_sveltekit_shim_env.ts';
@@ -122,14 +121,14 @@ export const gro_plugin_server = ({
 	cli_command,
 	run, // `dev` default is not available in this scope
 }: Gro_Plugin_Server_Options = {}): Plugin => {
-	let build_ctx: esbuild.BuildContext | null = null;
-	let watcher: Watch_Node_Fs | null = null;
-	let server_process: Restartable_Process | null = null;
-	let deps: Set<Path_Id> | null = null;
+	let build_ctx: esbuild.BuildContext | undefined;
+	let cleanup_watch: (() => void) | undefined;
+	let server_process: Restartable_Process | undefined;
+	let deps: Set<Path_Id> | undefined;
 
 	return {
 		name: 'gro_plugin_server',
-		setup: async ({dev, watch, timings, log, config}) => {
+		setup: async ({dev, watch, timings, log, config, filer}) => {
 			const parsed_svelte_config =
 				!svelte_config && strip_end(dir, '/') === process.cwd()
 					? default_svelte_config
@@ -231,22 +230,13 @@ export const gro_plugin_server = ({
 
 			await rebuild();
 
-			// uses chokidar instead of esbuild's watcher for efficiency
 			if (watch) {
-				let watcher_ready = false;
-				// TODO maybe reuse this watcher globally via an option,
-				// because it watches all of `$lib`, and that means it excludes `$routes`
-				// while also including a lot of client files we don't care about,
-				// but we can't discern which of `$lib` to watch ahead of time
-				watcher = watch_dir({
-					dir: paths.lib,
-					on_change: (change) => {
-						if (!watcher_ready || !deps?.has(change.path)) return;
-						void rebuild();
-					},
+				cleanup_watch = await filer.watch((change) => {
+					if (!deps?.has(change.path)) {
+						return;
+					}
+					void rebuild();
 				});
-				await watcher.init();
-				watcher_ready = true;
 			}
 
 			if (!existsSync(server_outpath)) {
@@ -263,16 +253,20 @@ export const gro_plugin_server = ({
 			}
 		},
 		teardown: async () => {
+			if (cleanup_watch) {
+				cleanup_watch();
+				cleanup_watch = undefined;
+			}
+
 			if (server_process) {
 				const s = server_process; // avoid possible issue where a build is in progress, don't want to issue a restart, could be fixed upstream in `spawn_restartable_process`
-				server_process = null;
+				server_process = undefined;
 				await s.kill();
 			}
-			if (watcher) {
-				await watcher.close();
-			}
+
 			if (build_ctx) {
 				await build_ctx.dispose();
+				build_ctx = undefined;
 			}
 		},
 	};

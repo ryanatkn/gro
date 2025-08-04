@@ -37,8 +37,6 @@ export interface Task_Context<T_Args = object> {
 	config: Gro_Config;
 	svelte_config: Parsed_Svelte_Config;
 	filer: Filer;
-	// TODO should this go here or on `config` for convenience?
-	// svelte_config: Parsed_Svelte_Config;
 	log: Logger;
 	timings: Timings;
 	invoke_task: (task_name: string, args?: Args, config?: Gro_Config) => Promise<void>;

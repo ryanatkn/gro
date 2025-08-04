@@ -10,8 +10,7 @@ import {find_cli, spawn_cli, spawn_cli_process} from './cli.ts';
 import {type Map_Src_Json, serialize_src_json, create_src_json} from './src_json.ts';
 import {EXPORTS_EXCLUDER_DEFAULT} from './gro_config.ts';
 import {default_svelte_config} from './svelte_config.ts';
-import {SOURCE_DIRNAME} from './constants.ts';
-import {VITE_CLI} from './sveltekit_helpers.ts';
+import {SOURCE_DIRNAME, VITE_CLI} from './constants.ts';
 
 export interface Gro_Plugin_Sveltekit_App_Options {
 	/**

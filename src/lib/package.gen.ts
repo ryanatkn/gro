@@ -13,6 +13,7 @@ import type {Gen} from './gen.ts';
  */
 export const gen: Gen = ({origin_path}) => {
 	const package_json = load_package_json();
+	// similarly do this in other places too?
 	const src_json = create_src_json(package_json, undefined);
 
 	const is_this_belt = package_json.name === '@ryanatkn/belt'; // TODO more robust?
