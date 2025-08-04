@@ -9,7 +9,14 @@ import {Raw_Input_Path, to_input_paths} from './input_path.ts';
 import {format_file} from './format_file.ts';
 import {print_path} from './paths.ts';
 import {log_error_reasons} from './task_logging.ts';
-import {write_gen_results, analyze_gen_results, find_genfiles, load_genfiles} from './gen.ts';
+import {
+	write_gen_results,
+	analyze_gen_results,
+	find_genfiles,
+	load_genfiles,
+	type Analyzed_Gen_Result,
+	type Gen_Results,
+} from './gen.ts';
 import {SOURCE_DIRNAME} from './constants.ts';
 
 export const Args = z.strictObject({
@@ -106,31 +113,16 @@ export const task: Task<Args> = {
 			timing_to_output_results();
 		}
 
-		// TODO these final printed results could be improved showing a breakdown per file id
+		// collect and format output with summary
+		const output_lines = collect_output_lines(gen_results, analyzed_gen_results);
 		const new_count = analyzed_gen_results.filter((r) => r.is_new).length;
-		const changed_count = analyzed_gen_results.filter((r) => r.has_changed).length;
+		const changed_count = analyzed_gen_results.filter((r) => r.has_changed && !r.is_new).length;
 		const unchanged_count = analyzed_gen_results.filter((r) => !r.is_new && !r.has_changed).length;
-		let log_result = st('green', 'gen results:');
-		log_result += `\n\t${new_count} ` + st('gray', 'new');
-		log_result += `\n\t${changed_count} ` + st('gray', 'changed');
-		log_result += `\n\t${unchanged_count} ` + st('gray', 'unchanged');
-		for (const result of gen_results.results) {
-			log_result += `\n\t${result.ok ? st('green', '✓') : st('red', '🞩')}  ${
-				result.ok ? result.files.length : 0
-			} ${st('gray', 'in')} ${print_ms(result.elapsed)} ${st('gray', '←')} ${print_path(
-				result.id,
-			)} ${st('gray', '→')} ${
-				result.ok ? result.files.map((f) => print_path(f.id)).join(', ') : print_error(result.error)
-			}`;
-		}
-		log.info(log_result);
+		const error_count = gen_results.failures.length;
+
 		log.info(
-			st(
-				'green',
-				`generated ${gen_results.output_count} file${plural(gen_results.output_count)} from ${
-					gen_results.successes.length
-				} input file${plural(gen_results.successes.length)}`,
-			),
+			format_gen_output(output_lines) +
+				`\n\n\t${new_count} ${st(new_count > 0 ? 'green' : 'gray', 'new')}, ${changed_count} ${st(changed_count > 0 ? 'cyan' : 'gray', 'changed')}, ${unchanged_count} ${st('gray', 'unchanged')}${error_count ? `, ${error_count} ${st('red', 'error' + plural(error_count))}` : ''} from ${gen_results.input_count} input file${plural(gen_results.input_count)}`,
 		);
 
 		if (fail_count) {
@@ -140,4 +132,72 @@ export const task: Task<Args> = {
 			throw new Task_Error(`Failed to generate ${fail_count} file${plural(fail_count)}.`);
 		}
 	},
+};
+
+interface Gen_Status {
+	symbol: string;
+	color: Parameters<typeof st>[0];
+	text: string;
+}
+
+const format_gen_status = (analyzed: Analyzed_Gen_Result | undefined): Gen_Status => {
+	if (!analyzed) return {symbol: '?', color: 'gray', text: 'unknown'};
+	if (analyzed.is_new) return {symbol: '●', color: 'green', text: 'new'};
+	if (analyzed.has_changed) return {symbol: '◐', color: 'cyan', text: 'changed'};
+	return {symbol: '○', color: 'gray', text: 'unchanged'};
+};
+
+interface Output_Line {
+	status: Gen_Status;
+	elapsed: string;
+	source: string;
+	target: string;
+	is_error: boolean;
+}
+
+const collect_output_lines = (
+	gen_results: Gen_Results,
+	analyzed_gen_results: Array<Analyzed_Gen_Result>,
+): Array<Output_Line> => {
+	const output_lines: Array<Output_Line> = [];
+
+	for (const result of gen_results.results) {
+		if (result.ok) {
+			for (const file of result.files) {
+				const analyzed = analyzed_gen_results.find((a) => a.file.id === file.id);
+				output_lines.push({
+					status: format_gen_status(analyzed),
+					elapsed: print_ms(result.elapsed),
+					source: print_path(result.id),
+					target: print_path(file.id),
+					is_error: false,
+				});
+			}
+		} else {
+			output_lines.push({
+				status: {symbol: '🞩', color: 'red', text: 'error'},
+				elapsed: print_ms(result.elapsed),
+				source: print_path(result.id),
+				target: st('red', result.error.stack || result.error.message || 'error'),
+				is_error: true,
+			});
+		}
+	}
+
+	return output_lines;
+};
+
+const format_gen_output = (output_lines: Array<Output_Line>): string => {
+	// calculate column widths for alignment
+	const max_elapsed_length = Math.max(...output_lines.map((l) => l.elapsed.length));
+	const max_source_length = Math.max(...output_lines.map((l) => l.source.length));
+
+	// format the output lines
+	let log_result = 'gen results:';
+	for (const line of output_lines) {
+		const elapsed_text = line.elapsed.padStart(max_elapsed_length);
+		const source_text = line.source.padEnd(max_source_length);
+		log_result += `\n\t${st(line.status.color, line.status.symbol)}  ${elapsed_text}  ${source_text} → ${line.target}`;
+	}
+	return log_result;
 };
