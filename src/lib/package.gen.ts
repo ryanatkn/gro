@@ -13,6 +13,7 @@ import type {Gen} from './gen.ts';
  */
 export const gen: Gen = ({origin_path}) => {
 	const package_json = load_package_json();
+	// TODO BLOCK this can error with bad json data, do we need to update the package.json here first?
 	// similarly do this in other places too?
 	const src_json = create_src_json(package_json, undefined);
 
