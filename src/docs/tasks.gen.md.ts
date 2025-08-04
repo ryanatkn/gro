@@ -9,7 +9,7 @@ import {
 	create_root_link,
 	create_breadcrumbs,
 	create_gen_footer,
-} from './gro_gen_helpers.ts';
+} from './gro_docs_gen_helpers.ts';
 
 // This is the first simple implementation of Gro's automated docs.
 // It combines Gro's gen and task systems

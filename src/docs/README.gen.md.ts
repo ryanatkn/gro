@@ -7,7 +7,7 @@ import {
 	create_root_link,
 	create_breadcrumbs,
 	create_gen_footer,
-} from './gro_gen_helpers.ts';
+} from './gro_docs_gen_helpers.ts';
 
 // TODO look at `tasks.gen.md.ts` to refactor and generalize
 // TODO show nested structure, not a flat list
@@ -44,6 +44,7 @@ export const gen: Gen = ({origin_id}) => {
 
 	// TODO render the footer with the origin_id
 	return `# docs
+
 
 ${breadcrumbs}
 
