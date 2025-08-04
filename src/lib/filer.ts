@@ -21,7 +21,8 @@ import {paths} from './paths.ts';
 import {parse_imports} from './parse_imports.ts';
 import {resolve_specifier} from './resolve_specifier.ts';
 import {default_svelte_config} from './svelte_config.ts';
-import {map_sveltekit_aliases, SVELTEKIT_GLOBAL_SPECIFIER} from './sveltekit_helpers.ts';
+import {map_sveltekit_aliases} from './sveltekit_helpers.ts';
+import {SVELTEKIT_GLOBAL_SPECIFIER} from './constants.ts';
 
 const aliases = Object.entries(default_svelte_config.alias);
 

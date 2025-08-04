@@ -6,22 +6,16 @@ import type {Package_Json} from '@ryanatkn/belt/package_json.js';
 
 import {has_dep} from './package_json.ts';
 import {default_svelte_config, type Parsed_Svelte_Config} from './svelte_config.ts';
-import {SVELTE_CONFIG_FILENAME, SVELTEKIT_DEV_DIRNAME, PM_CLI_DEFAULT} from './constants.ts';
+import {
+	SVELTE_CONFIG_FILENAME,
+	SVELTEKIT_DEV_DIRNAME,
+	PM_CLI_DEFAULT,
+	SVELTE_PACKAGE_DEP_NAME,
+	SVELTEKIT_CLI,
+} from './constants.ts';
 import {find_cli, spawn_cli, to_cli_name, type Cli} from './cli.ts';
 import {Task_Error} from './task.ts';
 import {serialize_args, to_forwarded_args} from './args.ts';
-
-export const SVELTEKIT_CLI = 'svelte-kit';
-
-export const SVELTE_CHECK_CLI = 'svelte-check';
-
-export const SVELTE_PACKAGE_CLI = 'svelte-package';
-export const SVELTE_PACKAGE_DEP_NAME = '@sveltejs/package';
-
-export const VITE_CLI = 'vite';
-
-export const SVELTEKIT_ENV_MATCHER = /^\$env\/(static|dynamic)\/(public|private)$/;
-export const SVELTEKIT_GLOBAL_SPECIFIER = /^\$(env|app)\//;
 
 export const has_sveltekit_app = (
 	svelte_config_path: string = SVELTE_CONFIG_FILENAME,

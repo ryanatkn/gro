@@ -5,6 +5,8 @@ import {Task_Error, type Task} from './task.ts';
 import {paths} from './paths.ts';
 import {find_cli} from './cli.ts';
 import {has_dep} from './package_json.ts';
+import {serialize_args, to_forwarded_args} from './args.ts';
+import {VITEST_CLI} from './constants.ts';
 
 export const Args = z.strictObject({
 	_: z.array(z.string()).meta({description: 'file patterns to test'}).default([`\\.test\\.ts$`]), // TODO maybe use uvu's default instead of being restrictive?
@@ -26,11 +28,17 @@ export const task: Task<Args> = {
 	run: async ({args}): Promise<void> => {
 		const {_: patterns, bail, cwd, ignore} = args;
 
-		if (has_dep('vitest')) {
-			if (!find_cli('vitest')) {
+		if (has_dep(VITEST_CLI)) {
+			if (!find_cli(VITEST_CLI)) {
 				throw new Task_Error('vitest is a dependency but not installed; run `npm i`?');
 			}
-			const spawned = await spawn_cli('vitest', ['run', ...patterns, '--dir', 'src']); // TODO proper forwarding
+			const spawned = await spawn_cli(VITEST_CLI, [
+				'run',
+				...patterns,
+				'--dir',
+				'src',
+				...serialize_args(to_forwarded_args(VITEST_CLI)),
+			]); // TODO proper forwarding
 			if (!spawned?.ok) {
 				throw new Task_Error(`vitest failed with exit code ${spawned?.code}`);
 			}
