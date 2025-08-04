@@ -54,6 +54,8 @@ export const task: Task<Args> = {
 			if (process.exitCode) {
 				throw new Task_Error(`uvu failed with exit code ${process.exitCode}`);
 			}
+		} else {
+			throw new Task_Error('no test runner found, install vitest or uvu');
 		}
 	},
 };
