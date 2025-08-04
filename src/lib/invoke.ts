@@ -24,7 +24,6 @@ attach_process_error_handlers(
 	(err) => (err.constructor.name === 'Silent_Error' ? '' : null),
 );
 
-// TODO BLOCK document
 if (!process.env.NO_COLOR) {
 	const {styleText} = await import('node:util');
 	configure_log_colors(styleText);
