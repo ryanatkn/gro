@@ -1,5 +1,5 @@
 ---
-'@ryanatkn/gro': patch
+'@ryanatkn/gro': minor
 ---
 
-support vitest
+support vitest and fail `gro test` if no test runner installed
