@@ -69,10 +69,10 @@ export class Filer {
 		this.#watch_dir = options.watch_dir ?? watch_dir;
 		this.#watch_dir_options = options.watch_dir_options ?? EMPTY_OBJECT;
 		this.root_dir = resolve(options.watch_dir_options?.dir ?? paths.source);
-		// TODO for package.json maybe another array of files/dirs to watch to invalidate everything?
+		// TODO BLOCK for package.json maybe another array of files/dirs to watch to invalidate everything?
 		// instead of that, think of taking an array of config objects that can specify invalidation rules,
-		// so package.json would be configured differently than ./src, and we could add
-		// gro.config.ts/tsconfig.json/svelte.config.js/vite.config.ts
+		// so package.json would be configured differently than ./src, and we could add a default with
+		// package.json/gro.config.ts/tsconfig.json/svelte.config.js/vite.config.ts to invalidate everything
 		this.#log = options.log;
 	}
 

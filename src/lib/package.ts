@@ -592,7 +592,7 @@ export const src_json: Src_Json = {
 				{name: 'create_empty_gro_config', kind: 'function'},
 				{name: 'SEARCH_EXCLUDER_DEFAULT', kind: 'variable'},
 				{name: 'EXPORTS_EXCLUDER_DEFAULT', kind: 'variable'},
-				{name: 'normalize_gro_config', kind: 'function'},
+				{name: 'cook_gro_config', kind: 'function'},
 				{name: 'Gro_Config_Module', kind: 'type'},
 				{name: 'load_gro_config', kind: 'function'},
 				{name: 'validate_gro_config_module', kind: 'function'},
