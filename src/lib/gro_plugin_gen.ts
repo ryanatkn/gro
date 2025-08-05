@@ -1,42 +1,44 @@
 import {EMPTY_OBJECT} from '@ryanatkn/belt/object.js';
 import {throttle} from '@ryanatkn/belt/throttle.js';
-import {Unreachable_Error} from '@ryanatkn/belt/error.js';
 
 import type {Plugin} from './plugin.ts';
 import type {Args} from './args.ts';
 import {paths} from './paths.ts';
 import {find_genfiles, is_gen_path} from './gen.ts';
 import {spawn_cli} from './cli.ts';
-import {filter_dependents, type Cleanup_Watch} from './filer.ts';
-
-const FLUSH_DEBOUNCE_DELAY = 500;
 
 export interface Task_Args extends Args {
 	watch?: boolean;
 }
 
 export interface Gro_Plugin_Gen_Options {
+	/**
+	 * Paths to search for gen files to process.
+	 * @default [paths.source]
+	 */
 	input_paths?: Array<string>;
+	/**
+	 * Root directories for resolving gen file imports and dependencies.
+	 * @default [paths.source]
+	 */
 	root_dirs?: Array<string>;
+	/**
+	 * Milliseconds to throttle gen rebuilds.
+	 * Should be longer than it takes to generate to avoid backpressure.
+	 * @default 500
+	 */
 	flush_debounce_delay?: number;
 }
 
 export const gro_plugin_gen = ({
 	input_paths = [paths.source],
 	root_dirs = [paths.source],
-	flush_debounce_delay = FLUSH_DEBOUNCE_DELAY,
+	flush_debounce_delay = 500,
 }: Gro_Plugin_Gen_Options = EMPTY_OBJECT): Plugin => {
-	let flushing_timeout: NodeJS.Timeout | undefined;
 	const queued_files: Set<string> = new Set();
-	const queue_gen = (gen_file_id: string) => {
-		queued_files.add(gen_file_id);
-		if (flushing_timeout === undefined) {
-			flushing_timeout = setTimeout(() => {
-				flushing_timeout = undefined;
-				void flush_gen_queue();
-			}); // the timeout batches synchronously
-		}
-	};
+	let unsubscribe: (() => void) | undefined;
+
+	// Throttled gen execution to batch multiple changes
 	const flush_gen_queue = throttle(
 		async () => {
 			const files = Array.from(queued_files);
@@ -46,10 +48,14 @@ export const gro_plugin_gen = ({
 		{delay: flush_debounce_delay},
 	);
 
-	// TODO do this in-process - will it cause caching issues with the current impl?
-	const gen = (files: Array<string> = []) => spawn_cli('gro', ['gen', ...files]);
+	// Queue a gen file for regeneration
+	const queue_gen = (gen_file_id: string) => {
+		queued_files.add(gen_file_id);
+		void flush_gen_queue();
+	};
 
-	let cleanup_watch: Cleanup_Watch | undefined;
+	// Execute gen command (TODO: do this in-process eventually)
+	const gen = (files: Array<string> = []) => spawn_cli('gro', ['gen', ...files]);
 
 	return {
 		name: 'gro_plugin_gen',
@@ -58,7 +64,7 @@ export const gro_plugin_gen = ({
 			// which should be checked by CI via `gro check` which calls `gro gen --check`.
 			if (!dev) return;
 
-			// Do we need to just generate everything once and exit?
+			// Run gen once and exit for non-watch mode
 			if (!watch) {
 				log.info('generating and exiting early');
 
@@ -75,41 +81,88 @@ export const gro_plugin_gen = ({
 
 			// When a file builds, check it and its tree of dependents
 			// for any `.gen.` files that need to run.
-			cleanup_watch = await filer.watch((change, source_file) => {
-				if (source_file.external) return;
-				switch (change.type) {
-					case 'add':
-					case 'update': {
-						if (is_gen_path(source_file.id)) {
-							queue_gen(source_file.id);
+			unsubscribe = filer.observe({
+				id: 'gro_plugin_gen',
+
+				// Match any file that could affect gen files
+				match: (node) => {
+					// Direct gen files
+					if (is_gen_path(node.id)) return true;
+
+					// Check if any dependents are gen files
+					for (const dependent_id of node.dependents.keys()) {
+						if (is_gen_path(dependent_id)) return true;
+					}
+
+					return false;
+				},
+
+				// Track dependencies to catch changes in imported files
+				invalidate: 'dependents',
+
+				// Need contents to parse imports
+				needs_contents: true,
+
+				// Run early to generate before other builds
+				phase: 'pre',
+				priority: 100,
+
+				// Don't track external files or directories
+				track_external: false,
+				track_directories: false,
+
+				// Handle errors gracefully
+				on_error: (error, batch) => {
+					log.error('[gro_plugin_gen] Observer error:', error, batch);
+					return 'continue'; // Don't abort other observers
+				},
+
+				// Process changes
+				on_change: (batch) => {
+					// Queue all gen files that need regeneration
+					for (const node of batch.all_nodes) {
+						if (is_gen_path(node.id)) {
+							queue_gen(node.id);
 						}
-						const dependent_gen_file_ids = filter_dependents(
-							source_file,
-							filer.get_by_id,
+					}
+
+					// Also check if any updated files have gen file dependents
+					for (const node of batch.updated) {
+						// Use filer's built-in dependent filtering
+						const dependent_gen_files = filer.filter_dependents(
+							node,
 							is_gen_path,
-							undefined,
-							undefined,
-							log,
+							true, // recursive
 						);
-						for (const dependent_gen_file_id of dependent_gen_file_ids) {
-							queue_gen(dependent_gen_file_id);
+
+						for (const dependent_id of dependent_gen_files) {
+							queue_gen(dependent_id);
 						}
-						break;
 					}
-					case 'delete': {
-						// TODO delete the generated file(s)? option? because it may be surprising
-						break;
+
+					// Check deleted files' former dependents
+					for (const deleted_id of batch.deleted) {
+						const deleted_node = filer.get_by_id(deleted_id);
+						if (deleted_node) {
+							const dependent_gen_files = filer.filter_dependents(deleted_node, is_gen_path, true);
+
+							for (const dependent_id of dependent_gen_files) {
+								queue_gen(dependent_id);
+							}
+						}
 					}
-					default:
-						throw new Unreachable_Error(change.type);
-				}
+				},
 			});
 		},
-		teardown: async () => {
-			if (cleanup_watch) {
-				await cleanup_watch();
-				cleanup_watch = undefined;
+
+		teardown: () => {
+			if (unsubscribe) {
+				unsubscribe();
+				unsubscribe = undefined;
 			}
+
+			// Clear any pending gen operations
+			queued_files.clear();
 		},
 	};
 };

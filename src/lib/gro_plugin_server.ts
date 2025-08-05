@@ -10,7 +10,6 @@ import {throttle} from '@ryanatkn/belt/throttle.js';
 
 import type {Plugin} from './plugin.ts';
 import {base_path_to_path_id, LIB_DIRNAME, paths} from './paths.ts';
-import type {Path_Id} from './path.ts';
 import {GRO_DEV_DIRNAME, SERVER_DIST_PATH} from './constants.ts';
 import {parse_svelte_config, default_svelte_config} from './svelte_config.ts';
 import {esbuild_plugin_sveltekit_shim_app} from './esbuild_plugin_sveltekit_shim_app.ts';
@@ -20,6 +19,8 @@ import {esbuild_plugin_sveltekit_shim_alias} from './esbuild_plugin_sveltekit_sh
 import {esbuild_plugin_external_worker} from './esbuild_plugin_external_worker.ts';
 import {esbuild_plugin_sveltekit_local_imports} from './esbuild_plugin_sveltekit_local_imports.ts';
 import {esbuild_plugin_svelte} from './esbuild_plugin_svelte.ts';
+import type {Filer_Observer} from './filer.ts';
+import type {Disknode} from './disknode.ts';
 
 // TODO sourcemap as a hoisted option? disable for production by default - or like `outpaths`, passed a `dev` param
 
@@ -73,7 +74,7 @@ export interface Gro_Plugin_Server_Options {
 	 * Should be longer than it takes to build to avoid backpressure.
 	 * @default 1000
 	 */
-	rebuild_throttle_delay?: number; // TODO could detect the backpressure problem and at least warn, shouldn't be a big deal
+	rebuild_throttle_delay?: number;
 	/**
 	 * The CLI command to run the server, like `'node'` or `'bun'` or `'deno'`.
 	 * Receives the path to the server js file as its argument.
@@ -122,9 +123,12 @@ export const gro_plugin_server = ({
 	run, // `dev` default is not available in this scope
 }: Gro_Plugin_Server_Options = {}): Plugin => {
 	let build_ctx: esbuild.BuildContext | undefined;
-	let cleanup_watch: (() => void) | undefined;
 	let server_process: Restartable_Process | undefined;
-	let deps: Set<Path_Id> | undefined;
+	let unsubscribe: (() => void) | undefined;
+
+	// Track entry points and their dependencies
+	const entry_nodes: Set<Disknode> = new Set();
+	const dependency_nodes: Set<Disknode> = new Set();
 
 	return {
 		name: 'gro_plugin_server',
@@ -136,6 +140,7 @@ export const gro_plugin_server = ({
 							dir_or_config: svelte_config ?? dir,
 							config_filename: config.svelte_config_filename,
 						});
+
 			const {
 				alias,
 				base_url,
@@ -149,9 +154,9 @@ export const gro_plugin_server = ({
 			} = parsed_svelte_config;
 
 			const {outbase, outdir, outname} = outpaths(dev);
-
 			const server_outpath = join(outdir, outname);
 
+			// Create esbuild context
 			const timing_to_esbuild_create_context = timings.start('create build context');
 
 			const build_options = esbuild_build_options({
@@ -210,6 +215,7 @@ export const gro_plugin_server = ({
 
 			timing_to_esbuild_create_context();
 
+			// Throttled rebuild function
 			const rebuild = throttle(
 				async () => {
 					let build_result;
@@ -219,30 +225,117 @@ export const gro_plugin_server = ({
 						log.error('[gro_plugin_server] build failed', err);
 						return;
 					}
+
 					const {metafile} = build_result;
 					if (!metafile) return;
+
 					print_build_result(log, build_result);
-					deps = parse_deps(metafile.inputs, dir);
+
+					// Update tracked dependencies from build metadata
+					update_dependencies_from_metafile(metafile, dir);
+
+					// Restart server if running
 					server_process?.restart();
 				},
 				{delay: rebuild_throttle_delay},
 			);
 
+			// Helper to update dependency tracking from esbuild metadata
+			const update_dependencies_from_metafile = (
+				metafile: esbuild.Metafile,
+				base_dir: string,
+			): void => {
+				// Clear previous tracking
+				entry_nodes.clear();
+				dependency_nodes.clear();
+
+				// Track all entry points
+				for (const entry of entry_points) {
+					const resolved = resolve(base_dir, entry);
+					const node = filer.get_node(resolved);
+					entry_nodes.add(node);
+				}
+
+				// Track all dependencies from the build
+				for (const key in metafile.inputs) {
+					const path = resolve(base_dir, strip_before(key, ':'));
+					const node = filer.get_node(path);
+					dependency_nodes.add(node);
+				}
+			};
+
+			// Initial build
 			await rebuild();
 
 			if (watch) {
-				cleanup_watch = await filer.watch((change) => {
-					if (!deps?.has(change.path)) {
-						return;
-					}
-					void rebuild();
-				});
+				// Create observer for server files
+				const server_observer: Filer_Observer = {
+					id: 'gro_plugin_server',
+
+					// Match files that are part of the server build
+					match: (node) => {
+						// Entry points always match
+						if (entry_nodes.has(node)) return true;
+
+						// Dependencies match
+						if (dependency_nodes.has(node)) return true;
+
+						// Config files that should trigger full rebuild
+						const config_files = [
+							'/package.json',
+							'/tsconfig.json',
+							'/svelte.config.js',
+							'/vite.config.ts',
+							'/gro.config.ts',
+						];
+
+						for (const config_file of config_files) {
+							if (node.id.endsWith(config_file)) return true;
+						}
+
+						return false;
+					},
+
+					// We handle our own dependency tracking via esbuild
+					invalidate: 'self',
+
+					// Need to read files for rebuild
+					needs_contents: true,
+					needs_stats: true,
+
+					// Run in main phase
+					phase: 'main',
+					priority: 50,
+
+					// Don't track external files
+					track_external: false,
+					track_directories: false,
+
+					// Handle errors
+					on_error: (error, batch) => {
+						log.error('[gro_plugin_server] Observer error:', error, batch);
+						return 'continue';
+					},
+
+					// Handle changes
+					on_change: async (batch) => {
+						// Any change to tracked files triggers rebuild
+						if (batch.size > 0) {
+							await rebuild();
+						}
+					},
+				};
+
+				// Register the observer
+				unsubscribe = filer.observe(server_observer);
 			}
 
+			// Check if server was built
 			if (!existsSync(server_outpath)) {
 				throw Error(`Node server failed to start due to missing file: ${server_outpath}`);
 			}
 
+			// Start server if requested
 			if (run || dev) {
 				const cli_args = [];
 				if (dev) {
@@ -252,35 +345,30 @@ export const gro_plugin_server = ({
 				server_process = spawn_restartable_process(cli_command ?? config.js_cli, cli_args);
 			}
 		},
+
 		teardown: async () => {
-			if (cleanup_watch) {
-				cleanup_watch();
-				cleanup_watch = undefined;
+			// Clean up observer
+			if (unsubscribe) {
+				unsubscribe();
+				unsubscribe = undefined;
 			}
 
+			// Stop server
 			if (server_process) {
-				const s = server_process; // avoid possible issue where a build is in progress, don't want to issue a restart, could be fixed upstream in `spawn_restartable_process`
+				const s = server_process;
 				server_process = undefined;
 				await s.kill();
 			}
 
+			// Dispose build context
 			if (build_ctx) {
 				await build_ctx.dispose();
 				build_ctx = undefined;
 			}
+
+			// Clear tracking
+			entry_nodes.clear();
+			dependency_nodes.clear();
 		},
 	};
-};
-
-/**
- * The esbuild metafile contains the paths in `entryPoints` relative to the `dir`
- * even though we're resolving them to absolute paths before passing them to esbuild,
- * so we resolve them here relative to the `dir`.
- */
-const parse_deps = (metafile_inputs: Record<string, unknown>, dir: string): Set<string> => {
-	const deps: Set<string> = new Set();
-	for (const key in metafile_inputs) {
-		deps.add(resolve(dir, strip_before(key, ':')));
-	}
-	return deps;
 };

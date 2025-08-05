@@ -18,11 +18,12 @@ export const SOURCE_DIR = SOURCE_DIRNAME + '/';
 export const GRO_DIR = GRO_DIRNAME + '/';
 /** @trailing_slash */
 export const GRO_DEV_DIR = GRO_DEV_DIRNAME + '/';
-export const GRO_CONFIG_PATH = 'gro.config.ts';
+export const GRO_CONFIG_FILENAME = 'gro.config.ts';
 export const README_FILENAME = 'README.md';
 export const SVELTE_CONFIG_FILENAME = 'svelte.config.js';
 export const VITE_CONFIG_FILENAME = 'vite.config.ts';
 export const NODE_MODULES_DIRNAME = 'node_modules';
+export const PACKAGE_JSON_FILENAME = 'package.json';
 export const LOCKFILE_FILENAME = 'package-lock.json';
 export const SVELTEKIT_DEV_DIRNAME = '.svelte-kit'; // TODO use Svelte config value `outDir`
 export const SVELTEKIT_BUILD_DIRNAME = 'build';

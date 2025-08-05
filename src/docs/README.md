@@ -11,6 +11,7 @@
 - [package_json](package_json.md)
 - [plugin](plugin.md)
 - [publish](publish.md)
+- [filer](slop/filer.md)
 - [task](task.md)
 - [tasks](tasks.md)
 - [test](test.md)
