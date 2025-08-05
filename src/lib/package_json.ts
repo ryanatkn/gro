@@ -44,14 +44,13 @@ export const load_package_json = (
 export const sync_package_json = async (
 	map_package_json: Map_Package_Json,
 	log: Logger,
-	check = false,
+	write = true,
 	dir = paths.root,
 	exports_dir = paths.lib,
 ): Promise<{package_json: Package_Json | null; changed: boolean}> => {
 	const exported_files = search_fs(exports_dir);
 	const exported_paths = exported_files.map((f) => f.path);
 	const updated = await update_package_json(
-		dir,
 		async (package_json) => {
 			if (has_sveltekit_library(package_json).ok) {
 				const exports = to_package_exports(exported_paths);
@@ -60,7 +59,8 @@ export const sync_package_json = async (
 			const mapped = await map_package_json(package_json);
 			return mapped ? parse_package_json(Package_Json, mapped) : mapped;
 		},
-		!check,
+		dir,
+		write,
 	);
 
 	const exports_count =
@@ -93,8 +93,8 @@ export const serialize_package_json = (package_json: Package_Json): string =>
  * Updates package.json. Writes to the filesystem only when contents change.
  */
 export const update_package_json = async (
-	dir = paths.root,
 	update: (package_json: Package_Json) => Package_Json | null | Promise<Package_Json | null>,
+	dir = paths.root,
 	write = true,
 ): Promise<{package_json: Package_Json | null; changed: boolean}> => {
 	const original_contents = load_package_json_contents(dir);
