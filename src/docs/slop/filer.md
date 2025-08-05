@@ -230,7 +230,6 @@ filer.observe({
 
 **Current Limitations:**
 
-- No Windows path support (POSIX only)
 - No content hashing (relies on mtime)
 - Single-threaded dependency parsing
 - No automatic memory management for large trees
@@ -240,5 +239,9 @@ filer.observe({
 - Worker thread support for parsing
 - Incremental dependency updates
 - Virtual file support
-- Glob pattern matching
 - .gitignore integration
+
+**Intentional Omissions**
+
+- No Windows path support (POSIX only)
+- No glob pattern matching
