@@ -22,10 +22,12 @@ export const Args = z.strictObject({
 });
 export type Args = z.infer<typeof Args>;
 
+// TODO BLOCK need to replace uvu tests
+
 export const task: Task<Args> = {
 	summary: 'run tests with uvu',
 	Args,
-	run: async ({args, log}): Promise<void> => {
+	run: async ({args, log, filer}): Promise<void> => {
 		const {_: patterns, bail, cwd, ignore} = args;
 
 		console.log(
@@ -73,5 +75,8 @@ export const task: Task<Args> = {
 		} else {
 			throw new Task_Error('no test runner found, install vitest or uvu');
 		}
+
+		// TODO BLOCK how to do this correctly?
+		await filer.close();
 	},
 };
