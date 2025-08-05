@@ -139,8 +139,10 @@ The Gro config option `map_package_json` hooks into Gro's `package.json` automat
 The `gro sync` task, which is called during the dev and build tasks among others,
 performs several steps to get a project's state ready,
 including `svelte-kit sync` and `package.json` automations.
+
 When the `map_package_json` config value is truthy,
-Gro outputs a mapped version of the root `package.json`.
+`gro sync` writes to the root `package.json` on the filesystem with a mapped version.
+To opt out, configure `map_package_json` to `null` or return `null` from it.
 
 > The `gro check` task integrates with `map_package_json` to ensure everything is synced.
 
@@ -153,8 +155,6 @@ By default `package_json.exports` includes everything from `$lib/`
 except for some ignored files like tests and markdown,
 and you can provide your own `map_package_json` hook to
 mutate the `package_json`, return new data, or return `null` to be a no-op.
-
-Typical usage modifies `package_json.exports` during this step to define the public API.
 
 ### using `map_package_json`
 
