@@ -44,7 +44,7 @@ export const load_package_json = (
 export const sync_package_json = async (
 	map_package_json: Map_Package_Json,
 	log: Logger,
-	check = false,
+	write = true,
 	dir = paths.root,
 	exports_dir = paths.lib,
 ): Promise<{package_json: Package_Json | null; changed: boolean}> => {
@@ -60,7 +60,7 @@ export const sync_package_json = async (
 			return mapped ? parse_package_json(Package_Json, mapped) : mapped;
 		},
 		dir,
-		!check,
+		write,
 	);
 
 	const exports_count =
