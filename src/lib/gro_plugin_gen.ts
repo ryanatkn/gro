@@ -45,6 +45,7 @@ export const gro_plugin_gen = ({
 		},
 		{delay: flush_debounce_delay},
 	);
+	// TODO do this in-process - will it cause caching issues with the current impl?
 	const gen = (files: Array<string> = []) => spawn_cli('gro', ['gen', ...files]);
 
 	let cleanup_watch: Cleanup_Watch | undefined;
