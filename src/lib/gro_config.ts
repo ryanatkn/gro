@@ -121,7 +121,7 @@ export const EXPORTS_EXCLUDER_DEFAULT = /(\.md|\.(test|ignore)\.|\/(test|fixture
  * Transforms a `Raw_Gro_Config` to the more strict `Gro_Config`.
  * This allows users to provide a more relaxed config.
  */
-export const normalize_gro_config = (raw_config: Raw_Gro_Config): Gro_Config => {
+export const cook_gro_config = (raw_config: Raw_Gro_Config): Gro_Config => {
 	const empty_config = create_empty_gro_config();
 	// All of the raw config properties are optional,
 	// so fall back to the empty values when `undefined`.
@@ -152,9 +152,7 @@ export interface Gro_Config_Module {
 }
 
 export const load_gro_config = async (dir = paths.root): Promise<Gro_Config> => {
-	const default_config = normalize_gro_config(
-		await create_default_config(create_empty_gro_config()),
-	);
+	const default_config = cook_gro_config(await create_default_config(create_empty_gro_config()));
 	const config_path = join(dir, GRO_CONFIG_PATH);
 	if (!existsSync(config_path)) {
 		// No user config file found, so return the default.
@@ -163,7 +161,7 @@ export const load_gro_config = async (dir = paths.root): Promise<Gro_Config> => 
 	// Import the user's `gro.config.ts`.
 	const config_module = await import(config_path);
 	validate_gro_config_module(config_module, config_path);
-	return normalize_gro_config(
+	return cook_gro_config(
 		typeof config_module.default === 'function'
 			? await config_module.default(default_config)
 			: config_module.default,
