@@ -294,6 +294,18 @@ export const filer_should_filter_disknode = (
 };
 
 /**
+ * Determine if an observer needs imports parsing enabled.
+ * Auto-enables for expand_to or returns_intents unless explicitly disabled.
+ */
+export const filer_observer_needs_imports = (observer: Filer_Observer): boolean =>
+	observer.needs_imports === false
+		? false
+		: observer.needs_imports ||
+			observer.expand_to === 'dependents' ||
+			observer.expand_to === 'dependencies' ||
+			!!observer.returns_intents; // Intent types may require the graph
+
+/**
  * Check if an observer matches a disknode.
  */
 export const filer_observer_matches = (
@@ -339,7 +351,14 @@ export const filer_execute_observer = async (
 
 	try {
 		const result = await Promise.race([
-			Promise.resolve(observer.on_change(batch)),
+			new Promise<Array<Filer_Invalidation_Intent> | void>((resolve, reject) => {
+				try {
+					// Wrap the observer call to catch synchronous throws
+					resolve(observer.on_change(batch));
+				} catch (error) {
+					reject(error);
+				}
+			}),
 			new Promise<never>((_, reject) => {
 				timer = setTimeout(() => {
 					reject(new Filer_Observer_Timeout_Error(observer.id, timeout));
@@ -371,7 +390,7 @@ export function* filer_traverse_relationships(
 		for (const related of relationships.values()) {
 			// Skip deleted nodes to prevent stale traversal
 			if (!related.exists) continue;
-			
+
 			if (!visited.has(related)) {
 				visited.add(related);
 				yield related;

@@ -222,6 +222,10 @@
       "types": "./dist/filer_helpers.d.ts",
       "default": "./dist/filer_helpers.js"
     },
+    "./filer.test_helpers.js": {
+      "types": "./dist/filer.test_helpers.d.ts",
+      "default": "./dist/filer.test_helpers.js"
+    },
     "./filer.js": {
       "types": "./dist/filer.d.ts",
       "default": "./dist/filer.js"

@@ -240,4 +240,56 @@ describe('Filer Prewarm + Expansion Integration', () => {
 		expect(imports_spy_a).not.toHaveBeenCalled();
 		expect(imports_spy_b).not.toHaveBeenCalled();
 	});
+
+	test('returns_intents auto-enables imports prewarm when not explicitly disabled', async () => {
+		const auto_imports_observer: Filer_Observer = {
+			id: 'auto_imports_intents_test',
+			patterns: [/\.ts$/],
+			returns_intents: true, // Should auto-enable imports
+			// needs_imports is undefined, so auto-enable should work
+			on_change: vi.fn(() => []),
+		};
+
+		const filer = await ctx.create_mounted_filer({
+			paths: [TEST_PATHS.SOURCE],
+			batch_delay: 0,
+			observers: [auto_imports_observer],
+		});
+
+		const node_a = filer.get_disknode(TEST_PATHS.FILE_A);
+		const imports_spy_a = vi.spyOn(node_a, 'imports', 'get');
+
+		// Trigger change to A
+		ctx.mock_watcher.emit('change', TEST_PATHS.FILE_A);
+		await wait_for_batch(10);
+
+		// Verify imports prewarm happened because returns_intents: true auto-enables it
+		expect(imports_spy_a).toHaveBeenCalled();
+	});
+
+	test('returns_intents respects explicit needs_imports: false', async () => {
+		const explicit_no_imports_observer: Filer_Observer = {
+			id: 'explicit_no_imports_intents_test',
+			patterns: [/\.ts$/],
+			returns_intents: true,
+			needs_imports: false, // Explicitly disabled - should not auto-enable
+			on_change: vi.fn(() => []),
+		};
+
+		const filer = await ctx.create_mounted_filer({
+			paths: [TEST_PATHS.SOURCE],
+			batch_delay: 0,
+			observers: [explicit_no_imports_observer],
+		});
+
+		const node_a = filer.get_disknode(TEST_PATHS.FILE_A);
+		const imports_spy_a = vi.spyOn(node_a, 'imports', 'get');
+
+		// Trigger change to A
+		ctx.mock_watcher.emit('change', TEST_PATHS.FILE_A);
+		await wait_for_batch(10);
+
+		// Verify imports prewarm did NOT happen because needs_imports: false overrides auto-enable
+		expect(imports_spy_a).not.toHaveBeenCalled();
+	});
 });

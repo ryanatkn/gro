@@ -246,12 +246,12 @@ describe('Filer Core', () => {
 
 			const file_node = filer.get_disknode(TEST_PATHS.FILE_A);
 			const parent_node = filer.get_disknode(TEST_PATHS.SOURCE);
-			
+
 			// Verify relationships are set up correctly
 			expect(file_node.parent).toBe(parent_node);
 			expect(parent_node.children.get('a.ts')).toBe(file_node);
 			expect(parent_node.children.size).toBe(1);
-			
+
 			// Verify no duplicate entries in parent's children map
 			const child_entries = Array.from(parent_node.children.entries());
 			const unique_entries = new Set(child_entries.map(([name]) => name));
@@ -274,13 +274,13 @@ describe('Filer Core', () => {
 			expect(file_node.parent).toBe(parent_node);
 			expect(parent_node.children.get('a.ts')).toBe(file_node);
 			expect(parent_node.children.size).toBe(1); // No duplicates
-			
+
 			// Verify parent's children map is clean - no duplicate keys or values
 			const all_children = Array.from(parent_node.children.values());
 			const unique_children = new Set(all_children);
 			expect(unique_children.size).toBe(all_children.length);
-			
-			// Verify bidirectional consistency  
+
+			// Verify bidirectional consistency
 			for (const [child_name, child_node] of parent_node.children) {
 				expect(child_node.parent).toBe(parent_node);
 				expect(child_node.id.endsWith(child_name)).toBe(true);

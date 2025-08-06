@@ -17,6 +17,7 @@ import {
 	filer_coalesce_change,
 	filer_should_filter_disknode,
 	filer_observer_matches,
+	filer_observer_needs_imports,
 	filer_execute_observer,
 	Filer_Phase,
 	filer_traverse_relationships,
@@ -287,7 +288,6 @@ export class Filer {
 			this.#pending_changes.delete(id);
 		}
 
-
 		// Remove from parent on delete
 		if (type === 'delete' && disknode?.parent) {
 			disknode.parent.children.delete(basename(id));
@@ -325,7 +325,7 @@ export class Filer {
 		// Process with loop prevention
 		const processed: Set<Path_Id> = new Set();
 		await this.#process_batch_with_intents(batch, processed);
-		
+
 		// Clear relationships for deleted nodes after observers have processed them
 		this.#clear_deleted_node_relationships(batch);
 	}
@@ -346,15 +346,7 @@ export class Filer {
 	 */
 	#any_observer_needs_imports(): boolean {
 		for (const observer of this.#observers.values()) {
-			// Only auto-enable imports if not explicitly set to false
-			const needs_imports =
-				observer.needs_imports === false
-					? false
-					: observer.needs_imports ||
-						observer.expand_to === 'dependents' ||
-						observer.expand_to === 'dependencies';
-
-			if (needs_imports) {
+			if (filer_observer_needs_imports(observer)) {
 				return true;
 			}
 		}
@@ -526,10 +518,10 @@ export class Filer {
 				this.tombstones.delete(id);
 				this.disknodes.set(id, disknode);
 				disknode.exists = true; // Mark as existing again
-				
+
 				// Re-establish parent-child relationships
 				this.#setup_disknode_relationships(disknode);
-				
+
 				return disknode;
 			}
 
@@ -705,13 +697,7 @@ export class Filer {
 	 * Pre-warm data for observer based on hints.
 	 */
 	#prewarm_observer_data(batch: Filer_Change_Batch, observer: Filer_Observer): void {
-		// Only auto-enable imports if not explicitly set to false
-		const needs_imports =
-			observer.needs_imports === false
-				? false
-				: observer.needs_imports ||
-					observer.expand_to === 'dependents' ||
-					observer.expand_to === 'dependencies';
+		const needs_imports = filer_observer_needs_imports(observer);
 
 		for (const disknode of batch.all_disknodes) {
 			if (observer.needs_contents) {

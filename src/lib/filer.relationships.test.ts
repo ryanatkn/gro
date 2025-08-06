@@ -120,11 +120,11 @@ describe('Filer Parent-Child Relationships', () => {
 			for (let i = 0; i < 50; i++) {
 				const temp_id = `/test/project/src/temp${i}.ts`;
 				const temp_node = filer.get_by_id(temp_id);
-				
+
 				if (temp_node) {
 					// File should be marked as not existing
 					expect(temp_node.exists).toBe(false);
-					
+
 					// The important thing is it's not in the parent's children map
 					expect(parent.children.has(`temp${i}.ts`)).toBe(false);
 				}
@@ -260,7 +260,7 @@ describe('Filer Parent-Child Relationships', () => {
 			// but we're testing the relationship consistency)
 			const relationship_before_dir_ops = {
 				child_parent: child.parent,
-				parent_has_child: parent.children.get('a.ts')
+				parent_has_child: parent.children.get('a.ts'),
 			};
 
 			// Directory operations

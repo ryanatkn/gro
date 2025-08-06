@@ -971,6 +971,36 @@ describe('Filer Observer System', () => {
 	});
 
 	describe('edge cases and error handling', () => {
+		test('handles observer throwing synchronous exception', async () => {
+			const sync_failing_observer: Filer_Observer = {
+				id: 'sync_failing_observer',
+				patterns: [/\.ts$/],
+				on_change: () => {
+					throw new Error('Synchronous observer failure');
+				},
+				on_error: () => 'continue',
+			};
+
+			const tracking_observer: Filer_Observer = {
+				id: 'tracking',
+				patterns: [/\.ts$/],
+				on_change: vi.fn(),
+			};
+
+			await ctx.create_mounted_filer({
+				paths: [TEST_PATHS.SOURCE],
+				batch_delay: 0,
+				observers: [sync_failing_observer, tracking_observer],
+			});
+
+			// Should handle synchronous throws without crashing
+			ctx.mock_watcher.emit('add', TEST_PATHS.FILE_A);
+			await wait_for_batch(10);
+
+			// Other observers should still be called
+			expect(vi.mocked(tracking_observer.on_change)).toHaveBeenCalled();
+		});
+
 		test('handles observer throwing exception with continue', async () => {
 			const failing_observer: Filer_Observer = {
 				id: 'failing_observer',
