@@ -271,15 +271,25 @@ export const FILER_OBSERVER_SCHEMA = z.strictObject({
  */
 export type Filer_Observer = z.infer<typeof FILER_OBSERVER_SCHEMA>;
 
-// Change type transitions for coalescing - keep the original logic
-export const COALESCE_TRANSITIONS: Record<string, Filer_Change['type'] | null> = {
-	'add:update': 'add', // add + update → add (preserve add semantic)
-	'add:delete': null, // add + delete → remove entirely
-	'update:update': 'update', // update + update → update
-	'update:delete': 'delete', // update + delete → delete
-	'delete:add': 'update', // delete + add → update (recreated)
-	'delete:update': 'update', // delete + update → update (shouldn't happen but handle it)
-	'delete:delete': 'delete', // delete + delete → delete
+export const FILER_CHANGE_TRANSITIONS: Record<
+	Filer_Change['type'],
+	Record<Filer_Change['type'], Filer_Change['type'] | null>
+> = {
+	add: {
+		add: 'add', // add + add → add (shouldn't happen but handle it)
+		update: 'add', // add + update → add (preserve add semantic)
+		delete: null, // add + delete → remove entirely
+	},
+	update: {
+		add: 'add', // update + add → add (shouldn't happen but handle it)
+		update: 'update', // update + update → update
+		delete: 'delete', // update + delete → delete
+	},
+	delete: {
+		add: 'update', // delete + add → update (recreated)
+		update: 'update', // delete + update → update (shouldn't happen but handle it)
+		delete: 'delete', // delete + delete → delete
+	},
 };
 
 /**
@@ -301,11 +311,9 @@ export const filer_coalesce_change = (
 ): Filer_Change | null => {
 	if (!prev) return next;
 
-	const key = `${prev.type}:${next.type}`;
-	const result = COALESCE_TRANSITIONS[key] as (typeof COALESCE_TRANSITIONS)[string] | undefined;
+	const result = FILER_CHANGE_TRANSITIONS[prev.type][next.type];
 
 	if (result === null) return null; // Remove entry
-	if (result === undefined) return next; // Not defined, latest wins
 
 	// Return coalesced change
 	return {...next, type: result};
