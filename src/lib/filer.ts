@@ -758,7 +758,7 @@ export class Filer {
 	/**
 	 * Clean up and close the filer.
 	 */
-	async close(): Promise<void> {
+	async dispose(): Promise<void> {
 		if (this.#batch_timeout) {
 			clearTimeout(this.#batch_timeout);
 			this.#batch_timeout = undefined;

@@ -1,13 +1,15 @@
 // @slop Claude Opus 4.1
 
-import {describe, test, expect, vi, beforeEach, afterEach} from 'vitest';
-import {existsSync, type Stats} from 'node:fs';
-import {watch, type FSWatcher} from 'chokidar';
+import {describe, test, expect, vi} from 'vitest';
 
-import {Filer} from './filer.ts';
 import type {Filer_Observer} from './filer_helpers.ts';
 import {Disknode} from './disknode.ts';
-import type {Path_Id} from './path.ts';
+import {
+	use_filer_test_context,
+	create_mock_stats,
+	TEST_PATHS,
+	wait_for_batch,
+} from './filer.test_helpers.ts';
 
 // Mock modules
 vi.mock('node:fs', () => ({
@@ -17,132 +19,24 @@ vi.mock('node:fs', () => ({
 	realpathSync: vi.fn(),
 }));
 
+vi.mock('node:fs/promises', () => ({
+	stat: vi.fn(),
+}));
+
 vi.mock('chokidar', () => ({
 	watch: vi.fn(),
 	// eslint-disable-next-line @typescript-eslint/no-extraneous-class
 	FSWatcher: class MockFSWatcher {},
 }));
 
-// Test constants
-const TEST_ROOT = '/test/project';
-const TEST_SOURCE = `${TEST_ROOT}/src`;
-const TEST_FILE_A: Path_Id = `${TEST_SOURCE}/a.ts`;
-const TEST_FILE_B: Path_Id = `${TEST_SOURCE}/b.ts`;
-const TEST_FILE_C: Path_Id = `${TEST_SOURCE}/c.ts`;
-const TEST_FILE_D: Path_Id = `${TEST_SOURCE}/d.ts`;
-const TEST_DIR_LIB: Path_Id = `${TEST_SOURCE}/lib`;
-const TEST_FILE_LIB_E: Path_Id = `${TEST_DIR_LIB}/e.ts`;
-const TEST_FILE_LIB_F: Path_Id = `${TEST_DIR_LIB}/f.ts`;
-const TEST_EXTERNAL_FILE: Path_Id = '/external/file.ts';
-const TEST_CONFIG_FILE: Path_Id = `${TEST_ROOT}/package.json`;
-
-// Mock stats factory
-const create_mock_stats = (options: Partial<Stats> = {}): Stats =>
-	({
-		isFile: () => !options.isDirectory?.(),
-		isDirectory: () => false,
-		isSymbolicLink: () => false,
-		isBlockDevice: () => false,
-		isCharacterDevice: () => false,
-		isFIFO: () => false,
-		isSocket: () => false,
-		dev: 1,
-		ino: 1,
-		mode: 33188,
-		nlink: 1,
-		uid: 1000,
-		gid: 1000,
-		rdev: 0,
-		size: 100,
-		blksize: 4096,
-		blocks: 8,
-		atimeMs: Date.now(),
-		mtimeMs: Date.now(),
-		ctimeMs: Date.now(),
-		birthtimeMs: Date.now(),
-		atime: new Date(),
-		mtime: new Date(),
-		ctime: new Date(),
-		birthtime: new Date(),
-		...options,
-	}) as Stats;
-
-// Mock FSWatcher
-class Mock_Watcher implements Partial<FSWatcher> {
-	// @ts-expect-error
-	listeners: Map<string, Array<(...args: Array<any>) => void>> = new Map();
-
-	// @ts-expect-error
-	on(event: string, handler: (...args: Array<any>) => void): this {
-		const handlers = this.listeners.get(event) || [];
-		handlers.push(handler);
-		this.listeners.set(event, handlers);
-		return this;
-	}
-
-	// @ts-expect-error
-	once(event: string, handler: (...args: Array<any>) => void): this {
-		return this.on(event, handler);
-	}
-
-	// @ts-expect-error
-	emit(event: string, ...args: Array<any>): void {
-		const handlers = this.listeners.get(event) || [];
-		handlers.forEach((h) => h(...args));
-	}
-
-	close(): Promise<void> {
-		this.listeners.clear();
-		return Promise.resolve();
-	}
-}
-
-// Test helper to set up filer properly
-async function setup_test_filer(options: {
-	intent_observer: Filer_Observer;
-	tracking_observer: Filer_Observer;
-	other_observers?: Array<Filer_Observer>;
-	mock_watcher: Mock_Watcher;
-}): Promise<Filer> {
-	const {intent_observer, tracking_observer, other_observers = [], mock_watcher} = options;
-
-	const filer = new Filer({
-		paths: [TEST_SOURCE],
-		batch_delay: 0,
-		observers: [intent_observer, tracking_observer, ...other_observers],
-	});
-
-	// Emit ready event for the watcher
-	setTimeout(() => mock_watcher.emit('ready'), 0);
-
-	// Wait for filer to be ready
-	await filer.ready;
-
-	return filer;
-}
-
-// Test helper to wait for batch processing
-const wait_for_batch = (ms = 50) => new Promise((resolve) => setTimeout(resolve, ms));
-
 describe('Filer Invalidation System', () => {
-	let mock_watcher: Mock_Watcher;
-
-	beforeEach(() => {
-		vi.clearAllMocks();
-		mock_watcher = new Mock_Watcher();
-		vi.mocked(watch).mockReturnValue(mock_watcher as unknown as FSWatcher);
-		vi.mocked(existsSync).mockReturnValue(true);
-	});
-
-	afterEach(() => {
-		vi.restoreAllMocks();
-	});
+	const ctx = use_filer_test_context();
 
 	describe('invalidation intents', () => {
 		test('processes "all" invalidation intent', async () => {
 			const intent_observer: Filer_Observer = {
 				id: 'intent_source',
-				paths: [TEST_CONFIG_FILE],
+				paths: [TEST_PATHS.CONFIG_FILE],
 				returns_intents: true,
 				track_external: true,
 				on_change: () => [{type: 'all'}],
@@ -155,47 +49,47 @@ describe('Filer Invalidation System', () => {
 				on_change: vi.fn((batch) => {
 					// Only validate on the second call (invalidation call)
 					if (vi.mocked(tracking_observer.on_change).mock.calls.length === 2) {
-						expect(batch.has(TEST_FILE_A)).toBe(true);
-						expect(batch.has(TEST_FILE_B)).toBe(true);
-						expect(batch.has(TEST_FILE_C)).toBe(true);
-						expect(batch.has(TEST_EXTERNAL_FILE)).toBe(false); // External excluded
+						expect(batch.has(TEST_PATHS.FILE_A)).toBe(true);
+						expect(batch.has(TEST_PATHS.FILE_B)).toBe(true);
+						expect(batch.has(TEST_PATHS.FILE_C)).toBe(true);
+						expect(batch.has(TEST_PATHS.EXTERNAL_FILE)).toBe(false); // External excluded
 					}
 				}),
 			};
 
-			const filer = await setup_test_filer({intent_observer, tracking_observer, mock_watcher});
+			const filer = await ctx.setup_test_filer({intent_observer, tracking_observer});
 
 			// Create some disknodes
-			filer.get_disknode(TEST_FILE_A);
-			filer.get_disknode(TEST_FILE_B);
-			filer.get_disknode(TEST_FILE_C);
-			const external = filer.get_disknode(TEST_EXTERNAL_FILE);
+			filer.get_disknode(TEST_PATHS.FILE_A);
+			filer.get_disknode(TEST_PATHS.FILE_B);
+			filer.get_disknode(TEST_PATHS.FILE_C);
+			const external = filer.get_disknode(TEST_PATHS.EXTERNAL_FILE);
 			external.is_external = true;
 
 			// Trigger config change
-			mock_watcher.emit('change', TEST_CONFIG_FILE, create_mock_stats());
+			ctx.mock_watcher.emit('change', TEST_PATHS.CONFIG_FILE, create_mock_stats());
 			await wait_for_batch();
 
 			// Should be called twice: once for config, once for invalidation
 			expect(vi.mocked(tracking_observer.on_change)).toHaveBeenCalledTimes(2);
 
 			const second_call = vi.mocked(tracking_observer.on_change).mock.calls[1][0];
-			expect(second_call.has(TEST_FILE_A)).toBe(true);
-			expect(second_call.has(TEST_FILE_B)).toBe(true);
-			expect(second_call.has(TEST_FILE_C)).toBe(true);
-			expect(second_call.has(TEST_EXTERNAL_FILE)).toBe(false); // External excluded
+			expect(second_call.has(TEST_PATHS.FILE_A)).toBe(true);
+			expect(second_call.has(TEST_PATHS.FILE_B)).toBe(true);
+			expect(second_call.has(TEST_PATHS.FILE_C)).toBe(true);
+			expect(second_call.has(TEST_PATHS.EXTERNAL_FILE)).toBe(false); // External excluded
 		});
 
 		test('processes "paths" invalidation intent', async () => {
 			const intent_observer: Filer_Observer = {
 				id: 'intent_source',
-				paths: [TEST_CONFIG_FILE],
+				paths: [TEST_PATHS.CONFIG_FILE],
 				returns_intents: true,
 				track_external: true,
 				on_change: () => [
 					{
 						type: 'paths',
-						paths: [TEST_FILE_B, TEST_FILE_C],
+						paths: [TEST_PATHS.FILE_B, TEST_PATHS.FILE_C],
 					},
 				],
 			};
@@ -207,29 +101,29 @@ describe('Filer Invalidation System', () => {
 				on_change: vi.fn(),
 			};
 
-			const filer = await setup_test_filer({intent_observer, tracking_observer, mock_watcher});
+			const filer = await ctx.setup_test_filer({intent_observer, tracking_observer});
 
 			// Create disknodes
-			filer.get_disknode(TEST_FILE_A);
-			filer.get_disknode(TEST_FILE_B);
-			filer.get_disknode(TEST_FILE_C);
+			filer.get_disknode(TEST_PATHS.FILE_A);
+			filer.get_disknode(TEST_PATHS.FILE_B);
+			filer.get_disknode(TEST_PATHS.FILE_C);
 
 			// Trigger config change
-			mock_watcher.emit('change', TEST_CONFIG_FILE, create_mock_stats());
+			ctx.mock_watcher.emit('change', TEST_PATHS.CONFIG_FILE, create_mock_stats());
 			await wait_for_batch();
 
 			expect(vi.mocked(tracking_observer.on_change)).toHaveBeenCalledTimes(2);
 
 			const second_call = vi.mocked(tracking_observer.on_change).mock.calls[1][0];
-			expect(second_call.has(TEST_FILE_A)).toBe(false); // Not in paths intent
-			expect(second_call.has(TEST_FILE_B)).toBe(true);
-			expect(second_call.has(TEST_FILE_C)).toBe(true);
+			expect(second_call.has(TEST_PATHS.FILE_A)).toBe(false); // Not in paths intent
+			expect(second_call.has(TEST_PATHS.FILE_B)).toBe(true);
+			expect(second_call.has(TEST_PATHS.FILE_C)).toBe(true);
 		});
 
 		test('processes "pattern" invalidation intent', async () => {
 			const intent_observer: Filer_Observer = {
 				id: 'intent_source',
-				paths: [TEST_CONFIG_FILE],
+				paths: [TEST_PATHS.CONFIG_FILE],
 				returns_intents: true,
 				track_external: true,
 				on_change: () => [
@@ -248,25 +142,25 @@ describe('Filer Invalidation System', () => {
 				on_change: vi.fn(),
 			};
 
-			const filer = await setup_test_filer({intent_observer, tracking_observer, mock_watcher});
+			const filer = await ctx.setup_test_filer({intent_observer, tracking_observer});
 
 			// Create disknodes - some with 'lib' in path
-			filer.get_disknode(TEST_FILE_A); // No 'lib'
-			filer.get_disknode(TEST_DIR_LIB); // Has 'lib'
-			filer.get_disknode(TEST_FILE_LIB_E); // Has 'lib'
-			filer.get_disknode(`${TEST_SOURCE}/other.ts`); // No 'lib'
+			filer.get_disknode(TEST_PATHS.FILE_A); // No 'lib'
+			filer.get_disknode(TEST_PATHS.DIR_LIB); // Has 'lib'
+			filer.get_disknode(TEST_PATHS.FILE_LIB_E); // Has 'lib'
+			filer.get_disknode(`${TEST_PATHS.SOURCE}/other.ts`); // No 'lib'
 
 			// Trigger config change
-			mock_watcher.emit('change', TEST_CONFIG_FILE, create_mock_stats());
+			ctx.mock_watcher.emit('change', TEST_PATHS.CONFIG_FILE, create_mock_stats());
 			await wait_for_batch();
 
 			expect(vi.mocked(tracking_observer.on_change)).toHaveBeenCalledTimes(2);
 
 			const second_call = vi.mocked(tracking_observer.on_change).mock.calls[1][0];
-			expect(second_call.has(TEST_FILE_A)).toBe(false); // No 'lib' in path
-			expect(second_call.has(TEST_DIR_LIB)).toBe(true); // Has 'lib'
-			expect(second_call.has(TEST_FILE_LIB_E)).toBe(true); // Has 'lib'
-			expect(second_call.has(`${TEST_SOURCE}/other.ts`)).toBe(false); // No 'lib'
+			expect(second_call.has(TEST_PATHS.FILE_A)).toBe(false); // No 'lib' in path
+			expect(second_call.has(TEST_PATHS.DIR_LIB)).toBe(true); // Has 'lib'
+			expect(second_call.has(TEST_PATHS.FILE_LIB_E)).toBe(true); // Has 'lib'
+			expect(second_call.has(`${TEST_PATHS.SOURCE}/other.ts`)).toBe(false); // No 'lib'
 		});
 
 		test('processes "dependents" invalidation intent', async () => {
@@ -274,7 +168,7 @@ describe('Filer Invalidation System', () => {
 
 			const intent_observer: Filer_Observer = {
 				id: 'intent_source',
-				paths: [TEST_CONFIG_FILE],
+				paths: [TEST_PATHS.CONFIG_FILE],
 				returns_intents: true,
 				track_external: true,
 				on_change: () => [
@@ -292,26 +186,26 @@ describe('Filer Invalidation System', () => {
 				on_change: vi.fn(),
 			};
 
-			const filer = await setup_test_filer({intent_observer, tracking_observer, mock_watcher});
+			const filer = await ctx.setup_test_filer({intent_observer, tracking_observer});
 
 			// Set up dependency chain: A <- B <- C
-			const node_a = filer.get_disknode(TEST_FILE_A);
-			const node_b = filer.get_disknode(TEST_FILE_B);
-			const node_c = filer.get_disknode(TEST_FILE_C);
+			const node_a = filer.get_disknode(TEST_PATHS.FILE_A);
+			const node_b = filer.get_disknode(TEST_PATHS.FILE_B);
+			const node_c = filer.get_disknode(TEST_PATHS.FILE_C);
 			node_b.add_dependency(node_a);
 			node_c.add_dependency(node_b);
 			target_disknode = node_a;
 
 			// Trigger config change
-			mock_watcher.emit('change', TEST_CONFIG_FILE, create_mock_stats());
+			ctx.mock_watcher.emit('change', TEST_PATHS.CONFIG_FILE, create_mock_stats());
 			await wait_for_batch();
 
 			expect(vi.mocked(tracking_observer.on_change)).toHaveBeenCalledTimes(2);
 
 			const second_call = vi.mocked(tracking_observer.on_change).mock.calls[1][0];
-			expect(second_call.has(TEST_FILE_A)).toBe(false); // Target node excluded
-			expect(second_call.has(TEST_FILE_B)).toBe(true); // Direct dependent
-			expect(second_call.has(TEST_FILE_C)).toBe(true); // Transitive dependent
+			expect(second_call.has(TEST_PATHS.FILE_A)).toBe(false); // Target node excluded
+			expect(second_call.has(TEST_PATHS.FILE_B)).toBe(true); // Direct dependent
+			expect(second_call.has(TEST_PATHS.FILE_C)).toBe(true); // Transitive dependent
 		});
 
 		test('processes "dependencies" invalidation intent', async () => {
@@ -319,7 +213,7 @@ describe('Filer Invalidation System', () => {
 
 			const intent_observer: Filer_Observer = {
 				id: 'intent_source',
-				paths: [TEST_CONFIG_FILE],
+				paths: [TEST_PATHS.CONFIG_FILE],
 				returns_intents: true,
 				track_external: true,
 				on_change: () => [
@@ -337,26 +231,26 @@ describe('Filer Invalidation System', () => {
 				on_change: vi.fn(),
 			};
 
-			const filer = await setup_test_filer({intent_observer, tracking_observer, mock_watcher});
+			const filer = await ctx.setup_test_filer({intent_observer, tracking_observer});
 
 			// Set up dependency chain: A -> B -> C
-			const node_a = filer.get_disknode(TEST_FILE_A);
-			const node_b = filer.get_disknode(TEST_FILE_B);
-			const node_c = filer.get_disknode(TEST_FILE_C);
+			const node_a = filer.get_disknode(TEST_PATHS.FILE_A);
+			const node_b = filer.get_disknode(TEST_PATHS.FILE_B);
+			const node_c = filer.get_disknode(TEST_PATHS.FILE_C);
 			node_c.add_dependency(node_b);
 			node_b.add_dependency(node_a);
 			target_disknode = node_c;
 
 			// Trigger config change
-			mock_watcher.emit('change', TEST_CONFIG_FILE, create_mock_stats());
+			ctx.mock_watcher.emit('change', TEST_PATHS.CONFIG_FILE, create_mock_stats());
 			await wait_for_batch();
 
 			expect(vi.mocked(tracking_observer.on_change)).toHaveBeenCalledTimes(2);
 
 			const second_call = vi.mocked(tracking_observer.on_change).mock.calls[1][0];
-			expect(second_call.has(TEST_FILE_A)).toBe(true); // Transitive dependency
-			expect(second_call.has(TEST_FILE_B)).toBe(true); // Direct dependency
-			expect(second_call.has(TEST_FILE_C)).toBe(false); // Target node excluded
+			expect(second_call.has(TEST_PATHS.FILE_A)).toBe(true); // Transitive dependency
+			expect(second_call.has(TEST_PATHS.FILE_B)).toBe(true); // Direct dependency
+			expect(second_call.has(TEST_PATHS.FILE_C)).toBe(false); // Target node excluded
 		});
 
 		test('processes "subtree" invalidation intent', async () => {
@@ -364,7 +258,7 @@ describe('Filer Invalidation System', () => {
 
 			const intent_observer: Filer_Observer = {
 				id: 'intent_source',
-				paths: [TEST_CONFIG_FILE],
+				paths: [TEST_PATHS.CONFIG_FILE],
 				returns_intents: true,
 				track_external: true,
 				on_change: () => [
@@ -384,13 +278,13 @@ describe('Filer Invalidation System', () => {
 				on_change: vi.fn(),
 			};
 
-			const filer = await setup_test_filer({intent_observer, tracking_observer, mock_watcher});
+			const filer = await ctx.setup_test_filer({intent_observer, tracking_observer});
 
 			// Create directory structure
-			const lib_dir = filer.get_disknode(TEST_DIR_LIB);
-			const lib_file_e = filer.get_disknode(TEST_FILE_LIB_E);
-			const lib_file_f = filer.get_disknode(TEST_FILE_LIB_F);
-			filer.get_disknode(TEST_FILE_A);
+			const lib_dir = filer.get_disknode(TEST_PATHS.DIR_LIB);
+			const lib_file_e = filer.get_disknode(TEST_PATHS.FILE_LIB_E);
+			const lib_file_f = filer.get_disknode(TEST_PATHS.FILE_LIB_F);
+			filer.get_disknode(TEST_PATHS.FILE_A);
 
 			// Set up parent-child relationships manually for test
 			lib_file_e.parent = lib_dir;
@@ -400,16 +294,16 @@ describe('Filer Invalidation System', () => {
 			target_disknode = lib_dir;
 
 			// Trigger config change
-			mock_watcher.emit('change', TEST_CONFIG_FILE, create_mock_stats());
+			ctx.mock_watcher.emit('change', TEST_PATHS.CONFIG_FILE, create_mock_stats());
 			await wait_for_batch();
 
 			expect(vi.mocked(tracking_observer.on_change)).toHaveBeenCalledTimes(2);
 
 			const second_call = vi.mocked(tracking_observer.on_change).mock.calls[1][0];
-			expect(second_call.has(TEST_DIR_LIB)).toBe(true); // include_self: true
-			expect(second_call.has(TEST_FILE_LIB_E)).toBe(true); // Descendant
-			expect(second_call.has(TEST_FILE_LIB_F)).toBe(true); // Descendant
-			expect(second_call.has(TEST_FILE_A)).toBe(false); // Not in subtree
+			expect(second_call.has(TEST_PATHS.DIR_LIB)).toBe(true); // include_self: true
+			expect(second_call.has(TEST_PATHS.FILE_LIB_E)).toBe(true); // Descendant
+			expect(second_call.has(TEST_PATHS.FILE_LIB_F)).toBe(true); // Descendant
+			expect(second_call.has(TEST_PATHS.FILE_A)).toBe(false); // Not in subtree
 		});
 
 		test('subtree intent excludes self when include_self is false', async () => {
@@ -417,7 +311,7 @@ describe('Filer Invalidation System', () => {
 
 			const intent_observer: Filer_Observer = {
 				id: 'intent_source',
-				paths: [TEST_CONFIG_FILE],
+				paths: [TEST_PATHS.CONFIG_FILE],
 				returns_intents: true,
 				track_external: true,
 				on_change: () => [
@@ -437,35 +331,35 @@ describe('Filer Invalidation System', () => {
 				on_change: vi.fn(),
 			};
 
-			const filer = await setup_test_filer({intent_observer, tracking_observer, mock_watcher});
+			const filer = await ctx.setup_test_filer({intent_observer, tracking_observer});
 
 			// Create directory structure
-			const lib_dir = filer.get_disknode(TEST_DIR_LIB);
-			const lib_file_e = filer.get_disknode(TEST_FILE_LIB_E);
+			const lib_dir = filer.get_disknode(TEST_PATHS.DIR_LIB);
+			const lib_file_e = filer.get_disknode(TEST_PATHS.FILE_LIB_E);
 			lib_file_e.parent = lib_dir;
 			lib_dir.children.set('e.ts', lib_file_e);
 			target_disknode = lib_dir;
 
 			// Trigger config change
-			mock_watcher.emit('change', TEST_CONFIG_FILE, create_mock_stats());
+			ctx.mock_watcher.emit('change', TEST_PATHS.CONFIG_FILE, create_mock_stats());
 			await wait_for_batch();
 
 			expect(vi.mocked(tracking_observer.on_change)).toHaveBeenCalledTimes(2);
 
 			const second_call = vi.mocked(tracking_observer.on_change).mock.calls[1][0];
-			expect(second_call.has(TEST_DIR_LIB)).toBe(false); // include_self: false
-			expect(second_call.has(TEST_FILE_LIB_E)).toBe(true); // Descendant
+			expect(second_call.has(TEST_PATHS.DIR_LIB)).toBe(false); // include_self: false
+			expect(second_call.has(TEST_PATHS.FILE_LIB_E)).toBe(true); // Descendant
 		});
 
 		test('handles multiple invalidation intents', async () => {
 			const intent_observer: Filer_Observer = {
 				id: 'intent_source',
-				paths: [TEST_CONFIG_FILE],
+				paths: [TEST_PATHS.CONFIG_FILE],
 				returns_intents: true,
 				track_external: true,
 				on_change: () => [
-					{type: 'paths', paths: [TEST_FILE_A]},
-					{type: 'paths', paths: [TEST_FILE_B, TEST_FILE_C]},
+					{type: 'paths', paths: [TEST_PATHS.FILE_A]},
+					{type: 'paths', paths: [TEST_PATHS.FILE_B, TEST_PATHS.FILE_C]},
 				],
 			};
 
@@ -476,31 +370,31 @@ describe('Filer Invalidation System', () => {
 				on_change: vi.fn(),
 			};
 
-			const filer = await setup_test_filer({intent_observer, tracking_observer, mock_watcher});
+			const filer = await ctx.setup_test_filer({intent_observer, tracking_observer});
 
 			// Create disknodes
-			filer.get_disknode(TEST_FILE_A);
-			filer.get_disknode(TEST_FILE_B);
-			filer.get_disknode(TEST_FILE_C);
-			filer.get_disknode(TEST_FILE_D);
+			filer.get_disknode(TEST_PATHS.FILE_A);
+			filer.get_disknode(TEST_PATHS.FILE_B);
+			filer.get_disknode(TEST_PATHS.FILE_C);
+			filer.get_disknode(TEST_PATHS.FILE_D);
 
 			// Trigger config change
-			mock_watcher.emit('change', TEST_CONFIG_FILE, create_mock_stats());
+			ctx.mock_watcher.emit('change', TEST_PATHS.CONFIG_FILE, create_mock_stats());
 			await wait_for_batch();
 
 			expect(vi.mocked(tracking_observer.on_change)).toHaveBeenCalledTimes(2);
 
 			const second_call = vi.mocked(tracking_observer.on_change).mock.calls[1][0];
-			expect(second_call.has(TEST_FILE_A)).toBe(true);
-			expect(second_call.has(TEST_FILE_B)).toBe(true);
-			expect(second_call.has(TEST_FILE_C)).toBe(true);
-			expect(second_call.has(TEST_FILE_D)).toBe(false); // Not in any intent
+			expect(second_call.has(TEST_PATHS.FILE_A)).toBe(true);
+			expect(second_call.has(TEST_PATHS.FILE_B)).toBe(true);
+			expect(second_call.has(TEST_PATHS.FILE_C)).toBe(true);
+			expect(second_call.has(TEST_PATHS.FILE_D)).toBe(false); // Not in any intent
 		});
 
 		test('handles empty invalidation intents array', async () => {
 			const intent_observer: Filer_Observer = {
 				id: 'intent_source',
-				paths: [TEST_CONFIG_FILE],
+				paths: [TEST_PATHS.CONFIG_FILE],
 				returns_intents: true,
 				track_external: true,
 				on_change: () => [], // Empty array
@@ -513,12 +407,12 @@ describe('Filer Invalidation System', () => {
 				on_change: vi.fn(),
 			};
 
-			const filer = await setup_test_filer({intent_observer, tracking_observer, mock_watcher});
+			const filer = await ctx.setup_test_filer({intent_observer, tracking_observer});
 
-			filer.get_disknode(TEST_FILE_A);
+			filer.get_disknode(TEST_PATHS.FILE_A);
 
 			// Trigger config change
-			mock_watcher.emit('change', TEST_CONFIG_FILE, create_mock_stats());
+			ctx.mock_watcher.emit('change', TEST_PATHS.CONFIG_FILE, create_mock_stats());
 			await wait_for_batch();
 
 			// Should only be called once for the original config change
@@ -533,7 +427,7 @@ describe('Filer Invalidation System', () => {
 				patterns: [/\.ts$/],
 				returns_intents: true,
 				on_change: () => [
-					{type: 'paths', paths: [TEST_FILE_A]}, // Always invalidate same file
+					{type: 'paths', paths: [TEST_PATHS.FILE_A]}, // Always invalidate same file
 				],
 			};
 
@@ -546,16 +440,15 @@ describe('Filer Invalidation System', () => {
 				},
 			};
 
-			const filer = await setup_test_filer({
+			const filer = await ctx.setup_test_filer({
 				intent_observer: looping_observer,
 				tracking_observer: counting_observer,
-				mock_watcher,
 			});
 
-			filer.get_disknode(TEST_FILE_A);
+			filer.get_disknode(TEST_PATHS.FILE_A);
 
 			// Trigger initial change
-			mock_watcher.emit('change', TEST_FILE_A, create_mock_stats());
+			ctx.mock_watcher.emit('change', TEST_PATHS.FILE_A, create_mock_stats());
 			await wait_for_batch(100);
 
 			// Should not loop infinitely - processed disknodes are tracked
@@ -568,14 +461,14 @@ describe('Filer Invalidation System', () => {
 				id: 'observer_a',
 				patterns: [/a\.ts$/],
 				returns_intents: true,
-				on_change: () => [{type: 'paths', paths: [TEST_FILE_B]}],
+				on_change: () => [{type: 'paths', paths: [TEST_PATHS.FILE_B]}],
 			};
 
 			const observer_b: Filer_Observer = {
 				id: 'observer_b',
 				patterns: [/b\.ts$/],
 				returns_intents: true,
-				on_change: () => [{type: 'paths', paths: [TEST_FILE_A]}],
+				on_change: () => [{type: 'paths', paths: [TEST_PATHS.FILE_A]}],
 			};
 
 			const call_counter = {count: 0};
@@ -587,18 +480,17 @@ describe('Filer Invalidation System', () => {
 				},
 			};
 
-			const filer = await setup_test_filer({
+			const filer = await ctx.setup_test_filer({
 				intent_observer: observer_a,
 				tracking_observer: counting_observer,
 				other_observers: [observer_b],
-				mock_watcher,
 			});
 
-			filer.get_disknode(TEST_FILE_A);
-			filer.get_disknode(TEST_FILE_B);
+			filer.get_disknode(TEST_PATHS.FILE_A);
+			filer.get_disknode(TEST_PATHS.FILE_B);
 
 			// Trigger initial change
-			mock_watcher.emit('change', TEST_FILE_A, create_mock_stats());
+			ctx.mock_watcher.emit('change', TEST_PATHS.FILE_A, create_mock_stats());
 			await wait_for_batch(100);
 
 			// Should prevent infinite loops
@@ -611,7 +503,7 @@ describe('Filer Invalidation System', () => {
 				id: 'intent_source',
 				patterns: [/\.ts$/],
 				returns_intents: true,
-				on_change: () => [{type: 'paths', paths: [TEST_FILE_B]}],
+				on_change: () => [{type: 'paths', paths: [TEST_PATHS.FILE_B]}],
 			};
 
 			const call_counter = {count: 0};
@@ -623,23 +515,22 @@ describe('Filer Invalidation System', () => {
 				},
 			};
 
-			const filer = await setup_test_filer({
+			const filer = await ctx.setup_test_filer({
 				intent_observer,
 				tracking_observer: counting_observer,
-				mock_watcher,
 			});
 
-			filer.get_disknode(TEST_FILE_A);
-			filer.get_disknode(TEST_FILE_B);
+			filer.get_disknode(TEST_PATHS.FILE_A);
+			filer.get_disknode(TEST_PATHS.FILE_B);
 
 			// First change
-			mock_watcher.emit('change', TEST_FILE_A, create_mock_stats());
+			ctx.mock_watcher.emit('change', TEST_PATHS.FILE_A, create_mock_stats());
 			await wait_for_batch();
 
 			const first_count = call_counter.count;
 
 			// Second change (should be processed again)
-			mock_watcher.emit('change', TEST_FILE_A, create_mock_stats());
+			ctx.mock_watcher.emit('change', TEST_PATHS.FILE_A, create_mock_stats());
 			await wait_for_batch();
 
 			// Should have processed more calls
@@ -651,7 +542,7 @@ describe('Filer Invalidation System', () => {
 		test('handles intent with non-existent node', async () => {
 			const intent_observer: Filer_Observer = {
 				id: 'intent_source',
-				paths: [TEST_CONFIG_FILE],
+				paths: [TEST_PATHS.CONFIG_FILE],
 				returns_intents: true,
 				track_external: true,
 				on_change: () => [
@@ -669,12 +560,12 @@ describe('Filer Invalidation System', () => {
 				on_change: vi.fn(),
 			};
 
-			const filer = await setup_test_filer({intent_observer, tracking_observer, mock_watcher});
+			const filer = await ctx.setup_test_filer({intent_observer, tracking_observer});
 
-			filer.get_disknode(TEST_FILE_A);
+			filer.get_disknode(TEST_PATHS.FILE_A);
 
 			// Should not crash
-			mock_watcher.emit('change', TEST_CONFIG_FILE, create_mock_stats());
+			ctx.mock_watcher.emit('change', TEST_PATHS.CONFIG_FILE, create_mock_stats());
 			await wait_for_batch();
 
 			// Should only be called once (for original change)
@@ -684,7 +575,7 @@ describe('Filer Invalidation System', () => {
 		test('handles pattern intent with invalid regex', async () => {
 			const intent_observer: Filer_Observer = {
 				id: 'intent_source',
-				paths: [TEST_CONFIG_FILE],
+				paths: [TEST_PATHS.CONFIG_FILE],
 				returns_intents: true,
 				track_external: true,
 				on_change: () => [
@@ -702,12 +593,12 @@ describe('Filer Invalidation System', () => {
 				on_change: vi.fn(),
 			};
 
-			const filer = await setup_test_filer({intent_observer, tracking_observer, mock_watcher});
+			const filer = await ctx.setup_test_filer({intent_observer, tracking_observer});
 
-			filer.get_disknode(TEST_FILE_A);
+			filer.get_disknode(TEST_PATHS.FILE_A);
 
 			// Should not crash
-			mock_watcher.emit('change', TEST_CONFIG_FILE, create_mock_stats());
+			ctx.mock_watcher.emit('change', TEST_PATHS.CONFIG_FILE, create_mock_stats());
 			await wait_for_batch();
 
 			// Should only be called once (for original change)
@@ -717,13 +608,13 @@ describe('Filer Invalidation System', () => {
 		test('handles paths intent with non-existent paths', async () => {
 			const intent_observer: Filer_Observer = {
 				id: 'intent_source',
-				paths: [TEST_CONFIG_FILE],
+				paths: [TEST_PATHS.CONFIG_FILE],
 				returns_intents: true,
 				track_external: true,
 				on_change: () => [
 					{
 						type: 'paths',
-						paths: [`${TEST_SOURCE}/non_existent.ts`], // File doesn't exist yet but is within watched paths
+						paths: [`${TEST_PATHS.SOURCE}/non_existent.ts`], // File doesn't exist yet but is within watched paths
 					},
 				],
 			};
@@ -735,23 +626,23 @@ describe('Filer Invalidation System', () => {
 				on_change: vi.fn(),
 			};
 
-			await setup_test_filer({intent_observer, tracking_observer, mock_watcher});
+			await ctx.setup_test_filer({intent_observer, tracking_observer});
 
 			// Trigger config change
-			mock_watcher.emit('change', TEST_CONFIG_FILE, create_mock_stats());
+			ctx.mock_watcher.emit('change', TEST_PATHS.CONFIG_FILE, create_mock_stats());
 			await wait_for_batch();
 
 			// Should create node and process it
 			expect(vi.mocked(tracking_observer.on_change)).toHaveBeenCalledTimes(2);
 
 			const second_call = vi.mocked(tracking_observer.on_change).mock.calls[1][0];
-			expect(second_call.has(`${TEST_SOURCE}/non_existent.ts`)).toBe(true);
+			expect(second_call.has(`${TEST_PATHS.SOURCE}/non_existent.ts`)).toBe(true);
 		});
 
 		test('skips external disknodes in intent processing', async () => {
 			const intent_observer: Filer_Observer = {
 				id: 'intent_source',
-				paths: [TEST_CONFIG_FILE],
+				paths: [TEST_PATHS.CONFIG_FILE],
 				returns_intents: true,
 				track_external: true,
 				on_change: () => [{type: 'all'}],
@@ -764,22 +655,22 @@ describe('Filer Invalidation System', () => {
 				on_change: vi.fn(),
 			};
 
-			const filer = await setup_test_filer({intent_observer, tracking_observer, mock_watcher});
+			const filer = await ctx.setup_test_filer({intent_observer, tracking_observer});
 
 			// Create internal and external disknodes
-			filer.get_disknode(TEST_FILE_A); // Internal
-			const external = filer.get_disknode(TEST_EXTERNAL_FILE); // External
+			filer.get_disknode(TEST_PATHS.FILE_A); // Internal
+			const external = filer.get_disknode(TEST_PATHS.EXTERNAL_FILE); // External
 			external.is_external = true;
 
 			// Trigger config change
-			mock_watcher.emit('change', TEST_CONFIG_FILE, create_mock_stats());
+			ctx.mock_watcher.emit('change', TEST_PATHS.CONFIG_FILE, create_mock_stats());
 			await wait_for_batch();
 
 			expect(vi.mocked(tracking_observer.on_change)).toHaveBeenCalledTimes(2);
 
 			const second_call = vi.mocked(tracking_observer.on_change).mock.calls[1][0];
-			expect(second_call.has(TEST_FILE_A)).toBe(true); // Internal included
-			expect(second_call.has(TEST_EXTERNAL_FILE)).toBe(false); // External excluded by intent processor
+			expect(second_call.has(TEST_PATHS.FILE_A)).toBe(true); // Internal included
+			expect(second_call.has(TEST_PATHS.EXTERNAL_FILE)).toBe(false); // External excluded by intent processor
 		});
 
 		test('handles regex state correctly for global patterns in intents', async () => {
@@ -787,7 +678,7 @@ describe('Filer Invalidation System', () => {
 
 			const intent_observer: Filer_Observer = {
 				id: 'intent_source',
-				paths: [TEST_CONFIG_FILE],
+				paths: [TEST_PATHS.CONFIG_FILE],
 				returns_intents: true,
 				track_external: true,
 				on_change: () => [
@@ -805,24 +696,24 @@ describe('Filer Invalidation System', () => {
 				on_change: vi.fn(),
 			};
 
-			const filer = await setup_test_filer({intent_observer, tracking_observer, mock_watcher});
+			const filer = await ctx.setup_test_filer({intent_observer, tracking_observer});
 
 			// Create multiple TypeScript files
-			filer.get_disknode(TEST_FILE_A);
-			filer.get_disknode(TEST_FILE_B);
-			filer.get_disknode(TEST_FILE_C);
+			filer.get_disknode(TEST_PATHS.FILE_A);
+			filer.get_disknode(TEST_PATHS.FILE_B);
+			filer.get_disknode(TEST_PATHS.FILE_C);
 
 			// Trigger config change
-			mock_watcher.emit('change', TEST_CONFIG_FILE, create_mock_stats());
+			ctx.mock_watcher.emit('change', TEST_PATHS.CONFIG_FILE, create_mock_stats());
 			await wait_for_batch();
 
 			expect(vi.mocked(tracking_observer.on_change)).toHaveBeenCalledTimes(2);
 
 			const second_call = vi.mocked(tracking_observer.on_change).mock.calls[1][0];
 			// All TypeScript files should match despite global flag
-			expect(second_call.has(TEST_FILE_A)).toBe(true);
-			expect(second_call.has(TEST_FILE_B)).toBe(true);
-			expect(second_call.has(TEST_FILE_C)).toBe(true);
+			expect(second_call.has(TEST_PATHS.FILE_A)).toBe(true);
+			expect(second_call.has(TEST_PATHS.FILE_B)).toBe(true);
+			expect(second_call.has(TEST_PATHS.FILE_C)).toBe(true);
 		});
 	});
 
@@ -832,19 +723,19 @@ describe('Filer Invalidation System', () => {
 
 			const intent_observer: Filer_Observer = {
 				id: 'intent_source',
-				paths: [TEST_FILE_A], // Only matches TEST_FILE_A
+				paths: [TEST_PATHS.FILE_A], // Only matches TEST_PATHS.FILE_A
 				track_external: true,
 				returns_intents: true,
 				priority: 100, // High priority
 				on_change: () => {
 					execution_order.push('intent_source');
-					return [{type: 'paths', paths: [TEST_FILE_B]}];
+					return [{type: 'paths', paths: [TEST_PATHS.FILE_B]}];
 				},
 			};
 
 			const other_observer: Filer_Observer = {
 				id: 'other',
-				paths: [TEST_FILE_A], // Only matches TEST_FILE_A
+				paths: [TEST_PATHS.FILE_A], // Only matches TEST_PATHS.FILE_A
 				track_external: true,
 				priority: 50, // Lower priority
 				on_change: () => {
@@ -862,18 +753,17 @@ describe('Filer Invalidation System', () => {
 				},
 			};
 
-			const filer = await setup_test_filer({
+			const filer = await ctx.setup_test_filer({
 				intent_observer,
 				tracking_observer,
 				other_observers: [other_observer],
-				mock_watcher,
 			});
 
-			filer.get_disknode(TEST_FILE_A);
-			filer.get_disknode(TEST_FILE_B);
+			filer.get_disknode(TEST_PATHS.FILE_A);
+			filer.get_disknode(TEST_PATHS.FILE_B);
 
 			// Trigger change
-			mock_watcher.emit('change', TEST_FILE_A, create_mock_stats());
+			ctx.mock_watcher.emit('change', TEST_PATHS.FILE_A, create_mock_stats());
 			await wait_for_batch();
 
 			// Should execute in priority order, then intents trigger second round
@@ -888,20 +778,20 @@ describe('Filer Invalidation System', () => {
 		test('intents from different phases are collected and processed together', async () => {
 			const intent_observer_pre: Filer_Observer = {
 				id: 'intent_pre',
-				paths: [TEST_FILE_A],
+				paths: [TEST_PATHS.FILE_A],
 				track_external: true,
 				phase: 'pre',
 				returns_intents: true,
-				on_change: () => [{type: 'paths', paths: [TEST_FILE_B]}],
+				on_change: () => [{type: 'paths', paths: [TEST_PATHS.FILE_B]}],
 			};
 
 			const intent_observer_main: Filer_Observer = {
 				id: 'intent_main',
-				paths: [TEST_FILE_A],
+				paths: [TEST_PATHS.FILE_A],
 				track_external: true,
 				phase: 'main',
 				returns_intents: true,
-				on_change: () => [{type: 'paths', paths: [TEST_FILE_C]}],
+				on_change: () => [{type: 'paths', paths: [TEST_PATHS.FILE_C]}],
 			};
 
 			const tracking_observer: Filer_Observer = {
@@ -911,19 +801,18 @@ describe('Filer Invalidation System', () => {
 				on_change: vi.fn(),
 			};
 
-			const filer = await setup_test_filer({
+			const filer = await ctx.setup_test_filer({
 				intent_observer: intent_observer_pre,
 				tracking_observer,
 				other_observers: [intent_observer_main],
-				mock_watcher,
 			});
 
-			filer.get_disknode(TEST_FILE_A);
-			filer.get_disknode(TEST_FILE_B);
-			filer.get_disknode(TEST_FILE_C);
+			filer.get_disknode(TEST_PATHS.FILE_A);
+			filer.get_disknode(TEST_PATHS.FILE_B);
+			filer.get_disknode(TEST_PATHS.FILE_C);
 
 			// Trigger change
-			mock_watcher.emit('change', TEST_FILE_A, create_mock_stats());
+			ctx.mock_watcher.emit('change', TEST_PATHS.FILE_A, create_mock_stats());
 			await wait_for_batch();
 
 			// Should be called twice: original batch + invalidation batch
@@ -931,14 +820,14 @@ describe('Filer Invalidation System', () => {
 
 			const second_call = vi.mocked(tracking_observer.on_change).mock.calls[1][0];
 			// Both intents should be processed together
-			expect(second_call.has(TEST_FILE_B)).toBe(true);
-			expect(second_call.has(TEST_FILE_C)).toBe(true);
+			expect(second_call.has(TEST_PATHS.FILE_B)).toBe(true);
+			expect(second_call.has(TEST_PATHS.FILE_C)).toBe(true);
 		});
 
 		test('handles observer that returns undefined instead of array', async () => {
 			const intent_observer: Filer_Observer = {
 				id: 'intent_source',
-				paths: [TEST_FILE_A],
+				paths: [TEST_PATHS.FILE_A],
 				track_external: true,
 				returns_intents: true,
 				on_change: () => undefined as any, // Returns undefined instead of array
@@ -951,12 +840,12 @@ describe('Filer Invalidation System', () => {
 				on_change: vi.fn(),
 			};
 
-			const filer = await setup_test_filer({intent_observer, tracking_observer, mock_watcher});
+			const filer = await ctx.setup_test_filer({intent_observer, tracking_observer});
 
-			filer.get_disknode(TEST_FILE_A);
+			filer.get_disknode(TEST_PATHS.FILE_A);
 
 			// Should not crash
-			mock_watcher.emit('change', TEST_FILE_A, create_mock_stats());
+			ctx.mock_watcher.emit('change', TEST_PATHS.FILE_A, create_mock_stats());
 			await wait_for_batch();
 
 			// Should only be called once (no invalidation round)
@@ -968,7 +857,7 @@ describe('Filer Invalidation System', () => {
 
 			const main_observer: Filer_Observer = {
 				id: 'main',
-				paths: [TEST_FILE_A],
+				paths: [TEST_PATHS.FILE_A],
 				track_external: true,
 				phase: 'main',
 				on_change: () => {
@@ -978,13 +867,13 @@ describe('Filer Invalidation System', () => {
 
 			const post_intent_observer: Filer_Observer = {
 				id: 'post_intent',
-				paths: [TEST_FILE_A],
+				paths: [TEST_PATHS.FILE_A],
 				track_external: true,
 				phase: 'post',
 				returns_intents: true,
 				on_change: () => {
 					execution_order.push('post_intent');
-					return [{type: 'paths', paths: [TEST_FILE_B]}];
+					return [{type: 'paths', paths: [TEST_PATHS.FILE_B]}];
 				},
 			};
 
@@ -997,17 +886,16 @@ describe('Filer Invalidation System', () => {
 				},
 			};
 
-			const filer = await setup_test_filer({
+			const filer = await ctx.setup_test_filer({
 				intent_observer: main_observer,
 				tracking_observer,
 				other_observers: [post_intent_observer],
-				mock_watcher,
 			});
 
-			filer.get_disknode(TEST_FILE_A);
-			filer.get_disknode(TEST_FILE_B);
+			filer.get_disknode(TEST_PATHS.FILE_A);
+			filer.get_disknode(TEST_PATHS.FILE_B);
 
-			mock_watcher.emit('change', TEST_FILE_A, create_mock_stats());
+			ctx.mock_watcher.emit('change', TEST_PATHS.FILE_A, create_mock_stats());
 			await wait_for_batch();
 
 			// Should execute main, then post, then process intents

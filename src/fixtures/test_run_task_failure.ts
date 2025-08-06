@@ -15,6 +15,7 @@ async function runTest() {
 	console.log('Testing run_task handles failing tasks...\n');
 
 	let err;
+	const filer = new Filer();
 	const result = await run_task(
 		{
 			name: 'testTask',
@@ -31,9 +32,10 @@ async function runTest() {
 		{_: []},
 		async () => {},
 		await load_gro_config(),
-		new Filer(),
+		filer,
 		new Timings(),
 	);
+	filer.dispose();
 
 	const success = !result.ok && result.reason && result.error === err;
 

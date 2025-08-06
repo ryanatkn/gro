@@ -15,6 +15,7 @@ async function runTest() {
 	console.log('Testing run_task passes args and returns output...\n');
 
 	const args = {a: 1, _: []};
+	const filer = new Filer();
 	const result = await run_task(
 		{
 			name: 'testTask',
@@ -28,9 +29,10 @@ async function runTest() {
 		args,
 		() => Promise.resolve(),
 		await load_gro_config(),
-		new Filer(),
+		filer,
 		new Timings(),
 	);
+	filer.dispose();
 
 	if (result.ok && result.output === args) {
 		console.log('✓ Test passed: run_task returns correct output');

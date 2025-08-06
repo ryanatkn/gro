@@ -178,6 +178,10 @@
       "types": "./dist/dev.task.d.ts",
       "default": "./dist/dev.task.js"
     },
+    "./disknode_helpers.js": {
+      "types": "./dist/disknode_helpers.d.ts",
+      "default": "./dist/disknode_helpers.js"
+    },
     "./disknode.js": {
       "types": "./dist/disknode.d.ts",
       "default": "./dist/disknode.js"
@@ -213,6 +217,10 @@
     "./esbuild_plugin_sveltekit_shim_env.js": {
       "types": "./dist/esbuild_plugin_sveltekit_shim_env.d.ts",
       "default": "./dist/esbuild_plugin_sveltekit_shim_env.js"
+    },
+    "./filer_helpers.js": {
+      "types": "./dist/filer_helpers.d.ts",
+      "default": "./dist/filer_helpers.js"
     },
     "./filer.js": {
       "types": "./dist/filer.d.ts",

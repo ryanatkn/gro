@@ -1,12 +1,9 @@
 // @slop Claude Opus 4.1
 
-import {describe, test, expect, vi, beforeEach, afterEach} from 'vitest';
-import {existsSync} from 'node:fs';
-import {watch, type FSWatcher} from 'chokidar';
+import {describe, test, expect, vi} from 'vitest';
 
-import {Filer, type Filer_Options} from './filer.ts';
 import type {Filer_Observer} from './filer_helpers.ts';
-import type {Path_Id} from './path.ts';
+import {use_filer_test_context, TEST_PATHS, wait_for_batch} from './filer.test_helpers.ts';
 
 // Mock modules
 vi.mock('node:fs', () => ({
@@ -16,78 +13,22 @@ vi.mock('node:fs', () => ({
 	realpathSync: vi.fn(),
 }));
 
+vi.mock('node:fs/promises', () => ({
+	stat: vi.fn(),
+}));
+
 vi.mock('chokidar', () => ({
 	watch: vi.fn(),
 	// eslint-disable-next-line @typescript-eslint/no-extraneous-class
 	FSWatcher: class MockFSWatcher {},
 }));
 
-// Test constants
-const TEST_ROOT = '/test/project';
-const TEST_SOURCE = `${TEST_ROOT}/src`;
-const TEST_FILE_A: Path_Id = `${TEST_SOURCE}/a.ts`;
-const TEST_FILE_B: Path_Id = `${TEST_SOURCE}/b.ts`;
-const TEST_FILE_C: Path_Id = `${TEST_SOURCE}/c.ts`;
-const TEST_FILE_JS: Path_Id = `${TEST_SOURCE}/app.js`;
-const TEST_DIR_LIB: Path_Id = `${TEST_SOURCE}/lib`;
-const TEST_FILE_LIB_D: Path_Id = `${TEST_DIR_LIB}/d.ts`;
-const TEST_EXTERNAL_FILE: Path_Id = '/external/file.ts';
-
-// Mock FSWatcher
-class Mock_Watcher implements Partial<FSWatcher> {
-	// @ts-expect-error
-	listeners: Map<string, Array<(...args: Array<any>) => void>> = new Map();
-
-	// @ts-expect-error
-	on(event: string, handler: (...args: Array<any>) => void): this {
-		const handlers = this.listeners.get(event) || [];
-		handlers.push(handler);
-		this.listeners.set(event, handlers);
-		return this;
-	}
-
-	// @ts-expect-error
-	once(event: string, handler: (...args: Array<any>) => void): this {
-		return this.on(event, handler);
-	}
-
-	// @ts-expect-error
-	emit(event: string, ...args: Array<any>): void {
-		const handlers = this.listeners.get(event) || [];
-		handlers.forEach((h) => h(...args));
-	}
-
-	close(): Promise<void> {
-		this.listeners.clear();
-		return Promise.resolve();
-	}
-}
-
 describe('Filer Observer System', () => {
-	let mock_watcher: Mock_Watcher;
-
-	// Helper function to create a Filer and wait for it to be ready
-	const create_ready_filer = async (options?: Filer_Options) => {
-		const filer = new Filer(options);
-		setTimeout(() => mock_watcher.emit('ready'), 0);
-		await filer.ready;
-		return filer;
-	};
-
-	beforeEach(() => {
-		vi.clearAllMocks();
-		mock_watcher = new Mock_Watcher();
-		vi.mocked(watch).mockReturnValue(mock_watcher as unknown as FSWatcher);
-		vi.mocked(existsSync).mockReturnValue(true);
-	});
-
-	afterEach(() => {
-		vi.restoreAllMocks();
-	});
+	const ctx = use_filer_test_context();
 
 	describe('observer registration', () => {
 		test('registers observer and returns unsubscribe function', () => {
-			const filer = new Filer({paths: []});
+			const filer = ctx.create_filer({paths: []});
 			const observer: Filer_Observer = {
 				id: 'test_observer',
 				patterns: [/\.ts$/],
@@ -103,7 +44,7 @@ describe('Filer Observer System', () => {
 		});
 
 		test('can register multiple observers', () => {
-			const filer = new Filer({paths: []});
+			const filer = ctx.create_filer({paths: []});
 			const observer1: Filer_Observer = {
 				id: 'observer1',
 				patterns: [/\.ts$/],
@@ -137,14 +78,11 @@ describe('Filer Observer System', () => {
 				on_change: vi.fn(),
 			};
 
-			const filer = new Filer({
-				paths: [TEST_SOURCE],
+			const filer = await ctx.create_ready_filer({
+				paths: [TEST_PATHS.SOURCE],
 				batch_delay: 0,
 				observers: [observer1, observer2],
 			});
-
-			setTimeout(() => mock_watcher.emit('ready'), 0);
-			await filer.ready;
 
 			const unsub1 = filer.observe({
 				id: 'observer3',
@@ -153,8 +91,8 @@ describe('Filer Observer System', () => {
 			});
 
 			// Trigger change
-			mock_watcher.emit('add', TEST_FILE_A);
-			await new Promise((resolve) => setTimeout(resolve, 10));
+			ctx.mock_watcher.emit('add', TEST_PATHS.FILE_A);
+			await wait_for_batch(10);
 
 			// All should be called initially
 			expect(vi.mocked(observer1.on_change)).toHaveBeenCalled();
@@ -165,8 +103,8 @@ describe('Filer Observer System', () => {
 			vi.mocked(observer1.on_change).mockClear();
 			vi.mocked(observer2.on_change).mockClear();
 
-			mock_watcher.emit('change', TEST_FILE_A);
-			await new Promise((resolve) => setTimeout(resolve, 10));
+			ctx.mock_watcher.emit('change', TEST_PATHS.FILE_A);
+			await wait_for_batch(10);
 
 			// Only observer2 should be called now
 			expect(vi.mocked(observer1.on_change)).toHaveBeenCalled();
@@ -187,15 +125,15 @@ describe('Filer Observer System', () => {
 				on_change: vi.fn(),
 			};
 
-			await create_ready_filer({
-				paths: [TEST_SOURCE],
+			await ctx.create_ready_filer({
+				paths: [TEST_PATHS.SOURCE],
 				batch_delay: 0,
 				observers: [ts_observer, js_observer],
 			});
 
 			// Add TypeScript file
-			mock_watcher.emit('add', TEST_FILE_A);
-			await new Promise((resolve) => setTimeout(resolve, 10));
+			ctx.mock_watcher.emit('add', TEST_PATHS.FILE_A);
+			await wait_for_batch(10);
 
 			expect(vi.mocked(ts_observer.on_change)).toHaveBeenCalled();
 			expect(vi.mocked(js_observer.on_change)).not.toHaveBeenCalled();
@@ -204,8 +142,8 @@ describe('Filer Observer System', () => {
 			vi.mocked(ts_observer.on_change).mockClear();
 			vi.mocked(js_observer.on_change).mockClear();
 
-			mock_watcher.emit('add', TEST_FILE_JS);
-			await new Promise((resolve) => setTimeout(resolve, 10));
+			ctx.mock_watcher.emit('add', TEST_PATHS.FILE_JS);
+			await wait_for_batch(10);
 
 			expect(vi.mocked(ts_observer.on_change)).not.toHaveBeenCalled();
 			expect(vi.mocked(js_observer.on_change)).toHaveBeenCalled();
@@ -218,21 +156,21 @@ describe('Filer Observer System', () => {
 				on_change: vi.fn(),
 			};
 
-			await create_ready_filer({
-				paths: [TEST_SOURCE],
+			await ctx.create_ready_filer({
+				paths: [TEST_PATHS.SOURCE],
 				batch_delay: 0,
 				observers: [observer],
 			});
 
 			// Both file types should match
-			mock_watcher.emit('add', TEST_FILE_A);
-			await new Promise((resolve) => setTimeout(resolve, 10));
+			ctx.mock_watcher.emit('add', TEST_PATHS.FILE_A);
+			await wait_for_batch(10);
 			expect(vi.mocked(observer.on_change)).toHaveBeenCalled();
 
 			vi.mocked(observer.on_change).mockClear();
 
-			mock_watcher.emit('add', TEST_FILE_JS);
-			await new Promise((resolve) => setTimeout(resolve, 10));
+			ctx.mock_watcher.emit('add', TEST_PATHS.FILE_JS);
+			await wait_for_batch(10);
 			expect(vi.mocked(observer.on_change)).toHaveBeenCalled();
 		});
 
@@ -244,17 +182,17 @@ describe('Filer Observer System', () => {
 				on_change: vi.fn(),
 			};
 
-			await create_ready_filer({
-				paths: [TEST_SOURCE],
+			await ctx.create_ready_filer({
+				paths: [TEST_PATHS.SOURCE],
 				batch_delay: 0,
 				observers: [observer],
 			});
 
 			// Add multiple .ts files - should all match despite global flag
-			mock_watcher.emit('add', TEST_FILE_A);
-			mock_watcher.emit('add', TEST_FILE_B);
-			mock_watcher.emit('add', TEST_FILE_C);
-			await new Promise((resolve) => setTimeout(resolve, 10));
+			ctx.mock_watcher.emit('add', TEST_PATHS.FILE_A);
+			ctx.mock_watcher.emit('add', TEST_PATHS.FILE_B);
+			ctx.mock_watcher.emit('add', TEST_PATHS.FILE_C);
+			await wait_for_batch(10);
 
 			// Should be called once with all three files
 			expect(vi.mocked(observer.on_change)).toHaveBeenCalledTimes(1);
@@ -271,14 +209,14 @@ describe('Filer Observer System', () => {
 				on_change: vi.fn(),
 			};
 
-			await create_ready_filer({
-				paths: [TEST_SOURCE],
+			await ctx.create_ready_filer({
+				paths: [TEST_PATHS.SOURCE],
 				batch_delay: 0,
 				observers: [observer],
 			});
 
-			mock_watcher.emit('add', TEST_FILE_A);
-			await new Promise((resolve) => setTimeout(resolve, 10));
+			ctx.mock_watcher.emit('add', TEST_PATHS.FILE_A);
+			await wait_for_batch(10);
 
 			// Should work correctly with sticky flag
 			expect(vi.mocked(observer.on_change)).toHaveBeenCalled();
@@ -289,37 +227,37 @@ describe('Filer Observer System', () => {
 		test('matches specific paths', async () => {
 			const observer: Filer_Observer = {
 				id: 'specific_paths',
-				paths: [TEST_FILE_A, TEST_FILE_B],
+				paths: [TEST_PATHS.FILE_A, TEST_PATHS.FILE_B],
 				on_change: vi.fn(),
 			};
 
-			await create_ready_filer({
-				paths: [TEST_SOURCE],
+			await ctx.create_ready_filer({
+				paths: [TEST_PATHS.SOURCE],
 				batch_delay: 0,
 				observers: [observer],
 			});
 
 			// Should match specific files
-			mock_watcher.emit('add', TEST_FILE_A);
-			await new Promise((resolve) => setTimeout(resolve, 10));
+			ctx.mock_watcher.emit('add', TEST_PATHS.FILE_A);
+			await wait_for_batch(10);
 			expect(vi.mocked(observer.on_change)).toHaveBeenCalled();
 
 			vi.mocked(observer.on_change).mockClear();
 
-			mock_watcher.emit('add', TEST_FILE_B);
-			await new Promise((resolve) => setTimeout(resolve, 10));
+			ctx.mock_watcher.emit('add', TEST_PATHS.FILE_B);
+			await wait_for_batch(10);
 			expect(vi.mocked(observer.on_change)).toHaveBeenCalled();
 
 			vi.mocked(observer.on_change).mockClear();
 
 			// Should not match other files
-			mock_watcher.emit('add', TEST_FILE_C);
-			await new Promise((resolve) => setTimeout(resolve, 10));
+			ctx.mock_watcher.emit('add', TEST_PATHS.FILE_C);
+			await wait_for_batch(10);
 			expect(vi.mocked(observer.on_change)).not.toHaveBeenCalled();
 		});
 
 		test('supports dynamic paths function', async () => {
-			let watched_files = [TEST_FILE_A];
+			let watched_files: string[] = [TEST_PATHS.FILE_A];
 
 			const observer: Filer_Observer = {
 				id: 'dynamic_paths',
@@ -327,29 +265,29 @@ describe('Filer Observer System', () => {
 				on_change: vi.fn(),
 			};
 
-			await create_ready_filer({
-				paths: [TEST_SOURCE],
+			await ctx.create_ready_filer({
+				paths: [TEST_PATHS.SOURCE],
 				batch_delay: 0,
 				observers: [observer],
 			});
 
-			// Initially should match TEST_FILE_A
-			mock_watcher.emit('add', TEST_FILE_A);
-			await new Promise((resolve) => setTimeout(resolve, 10));
+			// Initially should match TEST_PATHS.FILE_A
+			ctx.mock_watcher.emit('add', TEST_PATHS.FILE_A);
+			await wait_for_batch(10);
 			expect(vi.mocked(observer.on_change)).toHaveBeenCalled();
 
 			vi.mocked(observer.on_change).mockClear();
 
 			// Change dynamic paths
-			watched_files = [TEST_FILE_B];
+			watched_files = [TEST_PATHS.FILE_B];
 
-			// Now should match TEST_FILE_B but not TEST_FILE_A
-			mock_watcher.emit('add', TEST_FILE_A);
-			await new Promise((resolve) => setTimeout(resolve, 10));
+			// Now should match TEST_PATHS.FILE_B but not TEST_PATHS.FILE_A
+			ctx.mock_watcher.emit('add', TEST_PATHS.FILE_A);
+			await wait_for_batch(10);
 			expect(vi.mocked(observer.on_change)).not.toHaveBeenCalled();
 
-			mock_watcher.emit('add', TEST_FILE_B);
-			await new Promise((resolve) => setTimeout(resolve, 10));
+			ctx.mock_watcher.emit('add', TEST_PATHS.FILE_B);
+			await wait_for_batch(10);
 			expect(vi.mocked(observer.on_change)).toHaveBeenCalled();
 		});
 
@@ -362,7 +300,7 @@ describe('Filer Observer System', () => {
 
 			// If the resolved path doesn't match our expected path, use the expected path directly
 			// This test is more about ensuring the path matching system works with resolved paths
-			const test_path = resolved_path === TEST_FILE_A ? relative_path : TEST_FILE_A;
+			const test_path = resolved_path === TEST_PATHS.FILE_A ? relative_path : TEST_PATHS.FILE_A;
 
 			const observer: Filer_Observer = {
 				id: 'relative_paths',
@@ -370,15 +308,15 @@ describe('Filer Observer System', () => {
 				on_change: vi.fn(),
 			};
 
-			await create_ready_filer({
-				paths: [TEST_SOURCE],
+			await ctx.create_ready_filer({
+				paths: [TEST_PATHS.SOURCE],
 				batch_delay: 0,
 				observers: [observer],
 			});
 
 			// Should resolve and match absolute path
-			mock_watcher.emit('add', TEST_FILE_A);
-			await new Promise((resolve) => setTimeout(resolve, 10));
+			ctx.mock_watcher.emit('add', TEST_PATHS.FILE_A);
+			await wait_for_batch(10);
 			expect(vi.mocked(observer.on_change)).toHaveBeenCalled();
 		});
 	});
@@ -391,22 +329,22 @@ describe('Filer Observer System', () => {
 				on_change: vi.fn(),
 			};
 
-			await create_ready_filer({
-				paths: [TEST_SOURCE],
+			await ctx.create_ready_filer({
+				paths: [TEST_PATHS.SOURCE],
 				batch_delay: 0,
 				observers: [observer],
 			});
 
 			// Should match files containing 'lib'
-			mock_watcher.emit('add', TEST_FILE_LIB_D);
-			await new Promise((resolve) => setTimeout(resolve, 10));
+			ctx.mock_watcher.emit('add', TEST_PATHS.FILE_LIB_D);
+			await wait_for_batch(10);
 			expect(vi.mocked(observer.on_change)).toHaveBeenCalled();
 
 			vi.mocked(observer.on_change).mockClear();
 
 			// Should not match other files
-			mock_watcher.emit('add', TEST_FILE_A);
-			await new Promise((resolve) => setTimeout(resolve, 10));
+			ctx.mock_watcher.emit('add', TEST_PATHS.FILE_A);
+			await wait_for_batch(10);
 			expect(vi.mocked(observer.on_change)).not.toHaveBeenCalled();
 		});
 
@@ -418,14 +356,14 @@ describe('Filer Observer System', () => {
 				on_change: vi.fn(),
 			};
 
-			await create_ready_filer({
-				paths: [TEST_SOURCE],
+			await ctx.create_ready_filer({
+				paths: [TEST_PATHS.SOURCE],
 				batch_delay: 0,
 				observers: [observer],
 			});
 
-			mock_watcher.emit('add', TEST_FILE_A);
-			await new Promise((resolve) => setTimeout(resolve, 10));
+			ctx.mock_watcher.emit('add', TEST_PATHS.FILE_A);
+			await wait_for_batch(10);
 
 			// Custom function should override patterns
 			expect(vi.mocked(observer.on_change)).toHaveBeenCalled();
@@ -435,34 +373,34 @@ describe('Filer Observer System', () => {
 			const observer: Filer_Observer = {
 				id: 'multiple_strategies',
 				patterns: [/\.js$/],
-				paths: [TEST_FILE_A],
+				paths: [TEST_PATHS.FILE_A],
 				match: (node) => node.id.includes('lib'),
 				on_change: vi.fn(),
 			};
 
-			await create_ready_filer({
-				paths: [TEST_SOURCE],
+			await ctx.create_ready_filer({
+				paths: [TEST_PATHS.SOURCE],
 				batch_delay: 0,
 				observers: [observer],
 			});
 
 			// Should match via custom function
-			mock_watcher.emit('add', TEST_FILE_LIB_D);
-			await new Promise((resolve) => setTimeout(resolve, 10));
+			ctx.mock_watcher.emit('add', TEST_PATHS.FILE_LIB_D);
+			await wait_for_batch(10);
 			expect(vi.mocked(observer.on_change)).toHaveBeenCalled();
 
 			vi.mocked(observer.on_change).mockClear();
 
 			// Should match via paths
-			mock_watcher.emit('change', TEST_FILE_A);
-			await new Promise((resolve) => setTimeout(resolve, 10));
+			ctx.mock_watcher.emit('change', TEST_PATHS.FILE_A);
+			await wait_for_batch(10);
 			expect(vi.mocked(observer.on_change)).toHaveBeenCalled();
 
 			vi.mocked(observer.on_change).mockClear();
 
 			// Should match via patterns
-			mock_watcher.emit('add', TEST_FILE_JS);
-			await new Promise((resolve) => setTimeout(resolve, 10));
+			ctx.mock_watcher.emit('add', TEST_PATHS.FILE_JS);
+			await wait_for_batch(10);
 			expect(vi.mocked(observer.on_change)).toHaveBeenCalled();
 		});
 	});
@@ -483,19 +421,19 @@ describe('Filer Observer System', () => {
 				on_change: vi.fn(),
 			};
 
-			const filer = await create_ready_filer({
-				paths: [TEST_SOURCE],
+			const filer = await ctx.create_ready_filer({
+				paths: [TEST_PATHS.SOURCE],
 				batch_delay: 0,
 				observers: [internal_observer, external_observer],
 			});
 
 			// Create external node manually
-			const external_node = filer.get_disknode(TEST_EXTERNAL_FILE);
+			const external_node = filer.get_disknode(TEST_PATHS.EXTERNAL_FILE);
 			external_node.is_external = true;
 
 			// Simulate change to external file
-			mock_watcher.emit('add', TEST_EXTERNAL_FILE);
-			await new Promise((resolve) => setTimeout(resolve, 10));
+			ctx.mock_watcher.emit('add', TEST_PATHS.EXTERNAL_FILE);
+			await wait_for_batch(10);
 
 			expect(vi.mocked(internal_observer.on_change)).not.toHaveBeenCalled();
 			expect(vi.mocked(external_observer.on_change)).toHaveBeenCalled();
@@ -516,15 +454,15 @@ describe('Filer Observer System', () => {
 				on_change: vi.fn(),
 			};
 
-			await create_ready_filer({
-				paths: [TEST_SOURCE],
+			await ctx.create_ready_filer({
+				paths: [TEST_PATHS.SOURCE],
 				batch_delay: 0,
 				observers: [files_only, include_dirs],
 			});
 
 			// Add directory
-			mock_watcher.emit('addDir', TEST_DIR_LIB);
-			await new Promise((resolve) => setTimeout(resolve, 10));
+			ctx.mock_watcher.emit('addDir', TEST_PATHS.DIR_LIB);
+			await wait_for_batch(10);
 
 			expect(vi.mocked(files_only.on_change)).not.toHaveBeenCalled();
 			expect(vi.mocked(include_dirs.on_change)).toHaveBeenCalled();
@@ -539,27 +477,27 @@ describe('Filer Observer System', () => {
 				on_change: vi.fn(),
 			};
 
-			const filer = await create_ready_filer({
-				paths: [TEST_SOURCE],
+			const filer = await ctx.create_ready_filer({
+				paths: [TEST_PATHS.SOURCE],
 				batch_delay: 0,
 				observers: [restrictive_observer],
 			});
 
 			// External file should not match
-			const external_node = filer.get_disknode(TEST_EXTERNAL_FILE);
+			const external_node = filer.get_disknode(TEST_PATHS.EXTERNAL_FILE);
 			external_node.is_external = true;
-			mock_watcher.emit('add', TEST_EXTERNAL_FILE);
-			await new Promise((resolve) => setTimeout(resolve, 10));
+			ctx.mock_watcher.emit('add', TEST_PATHS.EXTERNAL_FILE);
+			await wait_for_batch(10);
 			expect(vi.mocked(restrictive_observer.on_change)).not.toHaveBeenCalled();
 
 			// Directory should not match
-			mock_watcher.emit('addDir', TEST_DIR_LIB);
-			await new Promise((resolve) => setTimeout(resolve, 10));
+			ctx.mock_watcher.emit('addDir', TEST_PATHS.DIR_LIB);
+			await wait_for_batch(10);
 			expect(vi.mocked(restrictive_observer.on_change)).not.toHaveBeenCalled();
 
 			// Internal file should match
-			mock_watcher.emit('add', TEST_FILE_A);
-			await new Promise((resolve) => setTimeout(resolve, 10));
+			ctx.mock_watcher.emit('add', TEST_PATHS.FILE_A);
+			await wait_for_batch(10);
 			expect(vi.mocked(restrictive_observer.on_change)).toHaveBeenCalled();
 		});
 	});
@@ -568,29 +506,29 @@ describe('Filer Observer System', () => {
 		test('expand_to: "self" includes only matched files', async () => {
 			const observer: Filer_Observer = {
 				id: 'self_only',
-				paths: [TEST_FILE_A],
+				paths: [TEST_PATHS.FILE_A],
 				expand_to: 'self',
 				on_change: vi.fn(),
 			};
 
-			const filer = await create_ready_filer({
-				paths: [TEST_SOURCE],
+			const filer = await ctx.create_ready_filer({
+				paths: [TEST_PATHS.SOURCE],
 				batch_delay: 0,
 				observers: [observer],
 			});
 
 			// Set up dependency
-			const node_a = filer.get_disknode(TEST_FILE_A);
-			const node_b = filer.get_disknode(TEST_FILE_B);
+			const node_a = filer.get_disknode(TEST_PATHS.FILE_A);
+			const node_b = filer.get_disknode(TEST_PATHS.FILE_B);
 			node_b.add_dependency(node_a);
 
-			mock_watcher.emit('change', TEST_FILE_A);
-			await new Promise((resolve) => setTimeout(resolve, 10));
+			ctx.mock_watcher.emit('change', TEST_PATHS.FILE_A);
+			await wait_for_batch(10);
 
 			const batch = vi.mocked(observer.on_change).mock.calls[0][0];
 			expect(batch.size).toBe(1);
-			expect(batch.has(TEST_FILE_A)).toBe(true);
-			expect(batch.has(TEST_FILE_B)).toBe(false);
+			expect(batch.has(TEST_PATHS.FILE_A)).toBe(true);
+			expect(batch.has(TEST_PATHS.FILE_B)).toBe(false);
 		});
 
 		test('expand_to: "dependents" includes files that depend on matched files', async () => {
@@ -601,26 +539,26 @@ describe('Filer Observer System', () => {
 				on_change: vi.fn(),
 			};
 
-			const filer = await create_ready_filer({
-				paths: [TEST_SOURCE],
+			const filer = await ctx.create_ready_filer({
+				paths: [TEST_PATHS.SOURCE],
 				batch_delay: 0,
 				observers: [observer],
 			});
 
 			// Set up dependency chain: A <- B <- C
-			const node_a = filer.get_disknode(TEST_FILE_A);
-			const node_b = filer.get_disknode(TEST_FILE_B);
-			const node_c = filer.get_disknode(TEST_FILE_C);
+			const node_a = filer.get_disknode(TEST_PATHS.FILE_A);
+			const node_b = filer.get_disknode(TEST_PATHS.FILE_B);
+			const node_c = filer.get_disknode(TEST_PATHS.FILE_C);
 			node_b.add_dependency(node_a);
 			node_c.add_dependency(node_b);
 
-			mock_watcher.emit('change', TEST_FILE_A);
-			await new Promise((resolve) => setTimeout(resolve, 10));
+			ctx.mock_watcher.emit('change', TEST_PATHS.FILE_A);
+			await wait_for_batch(10);
 
 			const batch = vi.mocked(observer.on_change).mock.calls[0][0];
-			expect(batch.has(TEST_FILE_A)).toBe(true);
-			expect(batch.has(TEST_FILE_B)).toBe(true);
-			expect(batch.has(TEST_FILE_C)).toBe(true);
+			expect(batch.has(TEST_PATHS.FILE_A)).toBe(true);
+			expect(batch.has(TEST_PATHS.FILE_B)).toBe(true);
+			expect(batch.has(TEST_PATHS.FILE_C)).toBe(true);
 		});
 
 		test('expand_to: "dependencies" includes files that matched files depend on', async () => {
@@ -631,91 +569,91 @@ describe('Filer Observer System', () => {
 				on_change: vi.fn(),
 			};
 
-			const filer = await create_ready_filer({
-				paths: [TEST_SOURCE],
+			const filer = await ctx.create_ready_filer({
+				paths: [TEST_PATHS.SOURCE],
 				batch_delay: 0,
 				observers: [observer],
 			});
 
 			// Set up dependency chain: A -> B -> C
-			const node_a = filer.get_disknode(TEST_FILE_A);
-			const node_b = filer.get_disknode(TEST_FILE_B);
-			const node_c = filer.get_disknode(TEST_FILE_C);
+			const node_a = filer.get_disknode(TEST_PATHS.FILE_A);
+			const node_b = filer.get_disknode(TEST_PATHS.FILE_B);
+			const node_c = filer.get_disknode(TEST_PATHS.FILE_C);
 			node_c.add_dependency(node_b);
 			node_b.add_dependency(node_a);
 
-			mock_watcher.emit('change', TEST_FILE_C);
-			await new Promise((resolve) => setTimeout(resolve, 10));
+			ctx.mock_watcher.emit('change', TEST_PATHS.FILE_C);
+			await wait_for_batch(10);
 
 			const batch = vi.mocked(observer.on_change).mock.calls[0][0];
-			expect(batch.has(TEST_FILE_A)).toBe(true);
-			expect(batch.has(TEST_FILE_B)).toBe(true);
-			expect(batch.has(TEST_FILE_C)).toBe(true);
+			expect(batch.has(TEST_PATHS.FILE_A)).toBe(true);
+			expect(batch.has(TEST_PATHS.FILE_B)).toBe(true);
+			expect(batch.has(TEST_PATHS.FILE_C)).toBe(true);
 		});
 
 		test('expand_to: "all" includes all non-external files', async () => {
 			const observer: Filer_Observer = {
 				id: 'expand_all',
-				paths: [TEST_FILE_A],
+				paths: [TEST_PATHS.FILE_A],
 				expand_to: 'all',
 				on_change: vi.fn(),
 			};
 
-			const filer = await create_ready_filer({
-				paths: [TEST_SOURCE],
+			const filer = await ctx.create_ready_filer({
+				paths: [TEST_PATHS.SOURCE],
 				batch_delay: 0,
 				observers: [observer],
 			});
 
 			// Create various disknodes
-			filer.get_disknode(TEST_FILE_A);
-			filer.get_disknode(TEST_FILE_B);
-			filer.get_disknode(TEST_FILE_C);
-			const external = filer.get_disknode(TEST_EXTERNAL_FILE);
+			filer.get_disknode(TEST_PATHS.FILE_A);
+			filer.get_disknode(TEST_PATHS.FILE_B);
+			filer.get_disknode(TEST_PATHS.FILE_C);
+			const external = filer.get_disknode(TEST_PATHS.EXTERNAL_FILE);
 			external.is_external = true;
 
-			mock_watcher.emit('change', TEST_FILE_A);
-			await new Promise((resolve) => setTimeout(resolve, 10));
+			ctx.mock_watcher.emit('change', TEST_PATHS.FILE_A);
+			await wait_for_batch(10);
 
 			const batch = vi.mocked(observer.on_change).mock.calls[0][0];
-			expect(batch.has(TEST_FILE_A)).toBe(true);
-			expect(batch.has(TEST_FILE_B)).toBe(true);
-			expect(batch.has(TEST_FILE_C)).toBe(true);
-			expect(batch.has(TEST_EXTERNAL_FILE)).toBe(false);
+			expect(batch.has(TEST_PATHS.FILE_A)).toBe(true);
+			expect(batch.has(TEST_PATHS.FILE_B)).toBe(true);
+			expect(batch.has(TEST_PATHS.FILE_C)).toBe(true);
+			expect(batch.has(TEST_PATHS.EXTERNAL_FILE)).toBe(false);
 		});
 
 		test('expansion respects track_external and track_directories', async () => {
 			const observer: Filer_Observer = {
 				id: 'filtered_expansion',
-				paths: [TEST_FILE_A],
+				paths: [TEST_PATHS.FILE_A],
 				expand_to: 'all',
 				track_external: false,
 				track_directories: false,
 				on_change: vi.fn(),
 			};
 
-			const filer = await create_ready_filer({
-				paths: [TEST_SOURCE],
+			const filer = await ctx.create_ready_filer({
+				paths: [TEST_PATHS.SOURCE],
 				batch_delay: 0,
 				observers: [observer],
 			});
 
 			// Create disknodes of different types
-			filer.get_disknode(TEST_FILE_A);
-			filer.get_disknode(TEST_FILE_B);
-			const dir_node = filer.get_disknode(TEST_DIR_LIB);
+			filer.get_disknode(TEST_PATHS.FILE_A);
+			filer.get_disknode(TEST_PATHS.FILE_B);
+			const dir_node = filer.get_disknode(TEST_PATHS.DIR_LIB);
 			dir_node.kind = 'directory';
-			const external = filer.get_disknode(TEST_EXTERNAL_FILE);
+			const external = filer.get_disknode(TEST_PATHS.EXTERNAL_FILE);
 			external.is_external = true;
 
-			mock_watcher.emit('change', TEST_FILE_A);
-			await new Promise((resolve) => setTimeout(resolve, 10));
+			ctx.mock_watcher.emit('change', TEST_PATHS.FILE_A);
+			await wait_for_batch(10);
 
 			const batch = vi.mocked(observer.on_change).mock.calls[0][0];
-			expect(batch.has(TEST_FILE_A)).toBe(true);
-			expect(batch.has(TEST_FILE_B)).toBe(true);
-			expect(batch.has(TEST_DIR_LIB)).toBe(false); // Directory excluded
-			expect(batch.has(TEST_EXTERNAL_FILE)).toBe(false); // External excluded
+			expect(batch.has(TEST_PATHS.FILE_A)).toBe(true);
+			expect(batch.has(TEST_PATHS.FILE_B)).toBe(true);
+			expect(batch.has(TEST_PATHS.DIR_LIB)).toBe(false); // Directory excluded
+			expect(batch.has(TEST_PATHS.EXTERNAL_FILE)).toBe(false); // External excluded
 		});
 	});
 
@@ -728,17 +666,17 @@ describe('Filer Observer System', () => {
 				on_change: vi.fn(),
 			};
 
-			const filer = await create_ready_filer({
-				paths: [TEST_SOURCE],
+			const filer = await ctx.create_ready_filer({
+				paths: [TEST_PATHS.SOURCE],
 				batch_delay: 0,
 				observers: [observer],
 			});
 
-			const node = filer.get_disknode(TEST_FILE_A);
+			const node = filer.get_disknode(TEST_PATHS.FILE_A);
 			const contents_spy = vi.spyOn(node, 'contents', 'get');
 
-			mock_watcher.emit('add', TEST_FILE_A);
-			await new Promise((resolve) => setTimeout(resolve, 10));
+			ctx.mock_watcher.emit('add', TEST_PATHS.FILE_A);
+			await wait_for_batch(10);
 
 			// Contents should have been accessed during observer processing
 			expect(contents_spy).toHaveBeenCalled();
@@ -752,17 +690,17 @@ describe('Filer Observer System', () => {
 				on_change: vi.fn(),
 			};
 
-			const filer = await create_ready_filer({
-				paths: [TEST_SOURCE],
+			const filer = await ctx.create_ready_filer({
+				paths: [TEST_PATHS.SOURCE],
 				batch_delay: 0,
 				observers: [observer],
 			});
 
-			const node = filer.get_disknode(TEST_FILE_A);
+			const node = filer.get_disknode(TEST_PATHS.FILE_A);
 			const stats_spy = vi.spyOn(node, 'stats', 'get');
 
-			mock_watcher.emit('add', TEST_FILE_A);
-			await new Promise((resolve) => setTimeout(resolve, 10));
+			ctx.mock_watcher.emit('add', TEST_PATHS.FILE_A);
+			await wait_for_batch(10);
 
 			// Stats should have been accessed during observer processing
 			expect(stats_spy).toHaveBeenCalled();
@@ -776,17 +714,17 @@ describe('Filer Observer System', () => {
 				on_change: vi.fn(),
 			};
 
-			const filer = await create_ready_filer({
-				paths: [TEST_SOURCE],
+			const filer = await ctx.create_ready_filer({
+				paths: [TEST_PATHS.SOURCE],
 				batch_delay: 0,
 				observers: [observer],
 			});
 
-			const node = filer.get_disknode(TEST_FILE_A);
+			const node = filer.get_disknode(TEST_PATHS.FILE_A);
 			const stats_spy = vi.spyOn(node, 'stats', 'get');
 
-			mock_watcher.emit('add', TEST_FILE_A);
-			await new Promise((resolve) => setTimeout(resolve, 10));
+			ctx.mock_watcher.emit('add', TEST_PATHS.FILE_A);
+			await wait_for_batch(10);
 
 			// Stats should not have been accessed
 			expect(stats_spy).not.toHaveBeenCalled();
@@ -800,17 +738,17 @@ describe('Filer Observer System', () => {
 				on_change: vi.fn(),
 			};
 
-			const filer = await create_ready_filer({
-				paths: [TEST_SOURCE],
+			const filer = await ctx.create_ready_filer({
+				paths: [TEST_PATHS.SOURCE],
 				batch_delay: 0,
 				observers: [observer],
 			});
 
-			const node = filer.get_disknode(TEST_FILE_A);
+			const node = filer.get_disknode(TEST_PATHS.FILE_A);
 			const imports_spy = vi.spyOn(node, 'imports', 'get');
 
-			mock_watcher.emit('add', TEST_FILE_A);
-			await new Promise((resolve) => setTimeout(resolve, 10));
+			ctx.mock_watcher.emit('add', TEST_PATHS.FILE_A);
+			await wait_for_batch(10);
 
 			// Imports should have been accessed during observer processing
 			expect(imports_spy).toHaveBeenCalled();
@@ -824,17 +762,17 @@ describe('Filer Observer System', () => {
 				on_change: vi.fn(),
 			};
 
-			const filer = await create_ready_filer({
-				paths: [TEST_SOURCE],
+			const filer = await ctx.create_ready_filer({
+				paths: [TEST_PATHS.SOURCE],
 				batch_delay: 0,
 				observers: [observer],
 			});
 
-			const node = filer.get_disknode(TEST_FILE_A);
+			const node = filer.get_disknode(TEST_PATHS.FILE_A);
 			const imports_spy = vi.spyOn(node, 'imports', 'get');
 
-			mock_watcher.emit('add', TEST_FILE_A);
-			await new Promise((resolve) => setTimeout(resolve, 10));
+			ctx.mock_watcher.emit('add', TEST_PATHS.FILE_A);
+			await wait_for_batch(10);
 
 			// Imports should have been accessed for dependency tracking
 			expect(imports_spy).toHaveBeenCalled();
@@ -848,17 +786,17 @@ describe('Filer Observer System', () => {
 				on_change: vi.fn(),
 			};
 
-			const filer = await create_ready_filer({
-				paths: [TEST_SOURCE],
+			const filer = await ctx.create_ready_filer({
+				paths: [TEST_PATHS.SOURCE],
 				batch_delay: 0,
 				observers: [observer],
 			});
 
-			const node = filer.get_disknode(TEST_FILE_A);
+			const node = filer.get_disknode(TEST_PATHS.FILE_A);
 			const imports_spy = vi.spyOn(node, 'imports', 'get');
 
-			mock_watcher.emit('add', TEST_FILE_A);
-			await new Promise((resolve) => setTimeout(resolve, 10));
+			ctx.mock_watcher.emit('add', TEST_PATHS.FILE_A);
+			await wait_for_batch(10);
 
 			// Imports should have been accessed for dependency tracking
 			expect(imports_spy).toHaveBeenCalled();
@@ -880,14 +818,14 @@ describe('Filer Observer System', () => {
 				on_change: vi.fn(),
 			};
 
-			await create_ready_filer({
-				paths: [TEST_SOURCE],
+			await ctx.create_ready_filer({
+				paths: [TEST_PATHS.SOURCE],
 				batch_delay: 0,
 				observers: [intent_observer, tracking_observer],
 			});
 
-			mock_watcher.emit('add', TEST_FILE_A);
-			await new Promise((resolve) => setTimeout(resolve, 50));
+			ctx.mock_watcher.emit('add', TEST_PATHS.FILE_A);
+			await wait_for_batch(50);
 
 			// Should only be called once (no additional invalidation)
 			expect(vi.mocked(tracking_observer.on_change)).toHaveBeenCalledTimes(1);
@@ -898,7 +836,7 @@ describe('Filer Observer System', () => {
 				id: 'with_intents',
 				patterns: [/\.ts$/],
 				returns_intents: true,
-				on_change: () => [{type: 'paths', paths: [TEST_FILE_B]}],
+				on_change: () => [{type: 'paths', paths: [TEST_PATHS.FILE_B]}],
 			};
 
 			const tracking_observer: Filer_Observer = {
@@ -907,18 +845,18 @@ describe('Filer Observer System', () => {
 				on_change: vi.fn(),
 			};
 
-			const filer = await create_ready_filer({
-				paths: [TEST_SOURCE],
+			const filer = await ctx.create_ready_filer({
+				paths: [TEST_PATHS.SOURCE],
 				batch_delay: 0,
 				observers: [intent_observer, tracking_observer],
 			});
 
 			// Create disknodes
-			filer.get_disknode(TEST_FILE_A);
-			filer.get_disknode(TEST_FILE_B);
+			filer.get_disknode(TEST_PATHS.FILE_A);
+			filer.get_disknode(TEST_PATHS.FILE_B);
 
-			mock_watcher.emit('add', TEST_FILE_A);
-			await new Promise((resolve) => setTimeout(resolve, 50));
+			ctx.mock_watcher.emit('add', TEST_PATHS.FILE_A);
+			await wait_for_batch(50);
 
 			// Should be called twice: once for A, once for invalidated B
 			expect(vi.mocked(tracking_observer.on_change)).toHaveBeenCalledTimes(2);
@@ -938,14 +876,14 @@ describe('Filer Observer System', () => {
 				on_change: vi.fn(),
 			};
 
-			await create_ready_filer({
-				paths: [TEST_SOURCE],
+			await ctx.create_ready_filer({
+				paths: [TEST_PATHS.SOURCE],
 				batch_delay: 0,
 				observers: [intent_observer, tracking_observer],
 			});
 
-			mock_watcher.emit('add', TEST_FILE_A);
-			await new Promise((resolve) => setTimeout(resolve, 50));
+			ctx.mock_watcher.emit('add', TEST_PATHS.FILE_A);
+			await wait_for_batch(50);
 
 			// Should only be called once (intents ignored by default)
 			expect(vi.mocked(tracking_observer.on_change)).toHaveBeenCalledTimes(1);
@@ -961,17 +899,17 @@ describe('Filer Observer System', () => {
 				on_change: vi.fn(),
 			};
 
-			const filer = await create_ready_filer({
-				paths: [TEST_SOURCE],
+			const filer = await ctx.create_ready_filer({
+				paths: [TEST_PATHS.SOURCE],
 				batch_delay: 0,
 				observers: [observer_no_deps],
 			});
 
-			const node = filer.get_disknode(TEST_FILE_A);
+			const node = filer.get_disknode(TEST_PATHS.FILE_A);
 			const imports_spy = vi.spyOn(node, 'imports', 'get');
 
-			mock_watcher.emit('add', TEST_FILE_A);
-			await new Promise((resolve) => setTimeout(resolve, 10));
+			ctx.mock_watcher.emit('add', TEST_PATHS.FILE_A);
+			await wait_for_batch(10);
 
 			// Imports should NOT have been accessed since no observer needs them
 			expect(imports_spy).not.toHaveBeenCalled();
@@ -992,41 +930,41 @@ describe('Filer Observer System', () => {
 				on_change: vi.fn(),
 			};
 
-			const filer = await create_ready_filer({
-				paths: [TEST_SOURCE],
+			const filer = await ctx.create_ready_filer({
+				paths: [TEST_PATHS.SOURCE],
 				batch_delay: 0,
 				observers: [observer_needs_deps, observer_no_deps],
 			});
 
-			const node = filer.get_disknode(TEST_FILE_A);
+			const node = filer.get_disknode(TEST_PATHS.FILE_A);
 			const imports_spy = vi.spyOn(node, 'imports', 'get');
 
-			mock_watcher.emit('add', TEST_FILE_A);
-			await new Promise((resolve) => setTimeout(resolve, 10));
+			ctx.mock_watcher.emit('add', TEST_PATHS.FILE_A);
+			await wait_for_batch(10);
 
 			// Imports should have been accessed since one observer needs them
 			expect(imports_spy).toHaveBeenCalled();
 		});
 
 		test('caches resolved paths for performance', async () => {
-			const paths_fn = vi.fn(() => [TEST_FILE_A, TEST_FILE_B]);
+			const paths_fn = vi.fn(() => [TEST_PATHS.FILE_A, TEST_PATHS.FILE_B]);
 			const observer: Filer_Observer = {
 				id: 'dynamic_paths_perf',
 				paths: paths_fn,
 				on_change: vi.fn(),
 			};
 
-			await create_ready_filer({
-				paths: [TEST_SOURCE],
+			await ctx.create_ready_filer({
+				paths: [TEST_PATHS.SOURCE],
 				batch_delay: 0,
 				observers: [observer],
 			});
 
 			// Trigger multiple changes in one batch
-			mock_watcher.emit('add', TEST_FILE_A);
-			mock_watcher.emit('change', TEST_FILE_B);
-			mock_watcher.emit('add', TEST_FILE_C);
-			await new Promise((resolve) => setTimeout(resolve, 10));
+			ctx.mock_watcher.emit('add', TEST_PATHS.FILE_A);
+			ctx.mock_watcher.emit('change', TEST_PATHS.FILE_B);
+			ctx.mock_watcher.emit('add', TEST_PATHS.FILE_C);
+			await wait_for_batch(10);
 
 			// Dynamic paths should only be evaluated once per batch
 			expect(paths_fn).toHaveBeenCalledTimes(1);
@@ -1050,15 +988,15 @@ describe('Filer Observer System', () => {
 				on_change: vi.fn(),
 			};
 
-			await create_ready_filer({
-				paths: [TEST_SOURCE],
+			await ctx.create_ready_filer({
+				paths: [TEST_PATHS.SOURCE],
 				batch_delay: 0,
 				observers: [failing_observer, working_observer],
 			});
 
 			// Should not crash the entire system due to continue error handling
-			mock_watcher.emit('add', TEST_FILE_A);
-			await new Promise((resolve) => setTimeout(resolve, 10));
+			ctx.mock_watcher.emit('add', TEST_PATHS.FILE_A);
+			await wait_for_batch(10);
 
 			// Working observer should still be called since failing observer continues
 			expect(vi.mocked(working_observer.on_change)).toHaveBeenCalled();
@@ -1080,15 +1018,15 @@ describe('Filer Observer System', () => {
 				on_change: vi.fn(),
 			};
 
-			await create_ready_filer({
-				paths: [TEST_SOURCE],
+			await ctx.create_ready_filer({
+				paths: [TEST_PATHS.SOURCE],
 				batch_delay: 0,
 				observers: [failing_observer, working_observer],
 			});
 
 			// Should abort processing when first observer fails
-			mock_watcher.emit('add', TEST_FILE_A);
-			await new Promise((resolve) => setTimeout(resolve, 10));
+			ctx.mock_watcher.emit('add', TEST_PATHS.FILE_A);
+			await wait_for_batch(10);
 
 			// Working observer should NOT be called since processing was aborted
 			expect(vi.mocked(working_observer.on_change)).not.toHaveBeenCalled();
@@ -1102,14 +1040,14 @@ describe('Filer Observer System', () => {
 				on_change: vi.fn(),
 			};
 
-			await create_ready_filer({
-				paths: [TEST_SOURCE],
+			await ctx.create_ready_filer({
+				paths: [TEST_PATHS.SOURCE],
 				batch_delay: 0,
 				observers: [complex_observer],
 			});
 
-			mock_watcher.emit('add', TEST_FILE_A);
-			await new Promise((resolve) => setTimeout(resolve, 10));
+			ctx.mock_watcher.emit('add', TEST_PATHS.FILE_A);
+			await wait_for_batch(10);
 
 			expect(vi.mocked(complex_observer.on_change)).toHaveBeenCalled();
 		});
@@ -1121,20 +1059,20 @@ describe('Filer Observer System', () => {
 				on_change: vi.fn(),
 			};
 
-			await create_ready_filer({
-				paths: [TEST_SOURCE],
+			await ctx.create_ready_filer({
+				paths: [TEST_PATHS.SOURCE],
 				batch_delay: 5, // Small delay to test batching
 				observers: [observer],
 			});
 
 			// Emit rapid changes
-			mock_watcher.emit('add', TEST_FILE_A);
-			mock_watcher.emit('change', TEST_FILE_A);
-			mock_watcher.emit('change', TEST_FILE_B);
-			mock_watcher.emit('add', TEST_FILE_C);
+			ctx.mock_watcher.emit('add', TEST_PATHS.FILE_A);
+			ctx.mock_watcher.emit('change', TEST_PATHS.FILE_A);
+			ctx.mock_watcher.emit('change', TEST_PATHS.FILE_B);
+			ctx.mock_watcher.emit('add', TEST_PATHS.FILE_C);
 
 			// Wait for batching to complete
-			await new Promise((resolve) => setTimeout(resolve, 20));
+			await wait_for_batch(20);
 
 			// Should batch all changes into one call
 			expect(vi.mocked(observer.on_change)).toHaveBeenCalledTimes(1);
@@ -1149,14 +1087,14 @@ describe('Filer Observer System', () => {
 				on_change: vi.fn(),
 			};
 
-			await create_ready_filer({
-				paths: [TEST_SOURCE],
+			await ctx.create_ready_filer({
+				paths: [TEST_PATHS.SOURCE],
 				batch_delay: 0,
 				observers: [observer],
 			});
 
-			mock_watcher.emit('add', TEST_FILE_A);
-			await new Promise((resolve) => setTimeout(resolve, 10));
+			ctx.mock_watcher.emit('add', TEST_PATHS.FILE_A);
+			await wait_for_batch(10);
 
 			// Should not be called since pattern doesn't match
 			expect(vi.mocked(observer.on_change)).not.toHaveBeenCalled();
@@ -1169,14 +1107,14 @@ describe('Filer Observer System', () => {
 				on_change: vi.fn(),
 			};
 
-			await create_ready_filer({
-				paths: [TEST_SOURCE],
+			await ctx.create_ready_filer({
+				paths: [TEST_PATHS.SOURCE],
 				batch_delay: 0,
 				observers: [observer],
 			});
 
-			mock_watcher.emit('add', TEST_FILE_A);
-			await new Promise((resolve) => setTimeout(resolve, 10));
+			ctx.mock_watcher.emit('add', TEST_PATHS.FILE_A);
+			await wait_for_batch(10);
 
 			// Should not be called since no matching criteria
 			expect(vi.mocked(observer.on_change)).not.toHaveBeenCalled();
@@ -1190,22 +1128,22 @@ describe('Filer Observer System', () => {
 				on_change: vi.fn(),
 			};
 
-			const filer = await create_ready_filer({
-				paths: [TEST_SOURCE],
+			const filer = await ctx.create_ready_filer({
+				paths: [TEST_PATHS.SOURCE],
 				batch_delay: 0,
 				observers: [observer],
 			});
 
 			// Create circular dependency: A -> B -> C -> A
-			const node_a = filer.get_disknode(TEST_FILE_A);
-			const node_b = filer.get_disknode(TEST_FILE_B);
-			const node_c = filer.get_disknode(TEST_FILE_C);
+			const node_a = filer.get_disknode(TEST_PATHS.FILE_A);
+			const node_b = filer.get_disknode(TEST_PATHS.FILE_B);
+			const node_c = filer.get_disknode(TEST_PATHS.FILE_C);
 			node_b.add_dependency(node_a);
 			node_c.add_dependency(node_b);
 			node_a.add_dependency(node_c);
 
-			mock_watcher.emit('change', TEST_FILE_A);
-			await new Promise((resolve) => setTimeout(resolve, 10));
+			ctx.mock_watcher.emit('change', TEST_PATHS.FILE_A);
+			await wait_for_batch(10);
 
 			// Should handle circular dependencies without infinite loop
 			const batch = vi.mocked(observer.on_change).mock.calls[0][0];
@@ -1218,7 +1156,7 @@ describe('Filer Observer System', () => {
 				patterns: [/\.ts$/],
 				timeout_ms: 10, // Very short timeout
 				on_change: async () => {
-					await new Promise((resolve) => setTimeout(resolve, 50)); // Longer than timeout
+					await wait_for_batch(50); // Longer than timeout
 				},
 				on_error: (error) => {
 					expect(error.name).toBe('ObserverTimeoutError');
@@ -1233,14 +1171,14 @@ describe('Filer Observer System', () => {
 				on_change: vi.fn(),
 			};
 
-			await create_ready_filer({
-				paths: [TEST_SOURCE],
+			await ctx.create_ready_filer({
+				paths: [TEST_PATHS.SOURCE],
 				batch_delay: 0,
 				observers: [slow_observer, other_observer],
 			});
 
-			mock_watcher.emit('add', TEST_FILE_A);
-			await new Promise((resolve) => setTimeout(resolve, 100));
+			ctx.mock_watcher.emit('add', TEST_PATHS.FILE_A);
+			await wait_for_batch(100);
 
 			// Other observer should still be called
 			expect(vi.mocked(other_observer.on_change)).toHaveBeenCalled();
@@ -1253,14 +1191,14 @@ describe('Filer Observer System', () => {
 				on_change: vi.fn(),
 			};
 
-			await create_ready_filer({
-				paths: [TEST_SOURCE],
+			await ctx.create_ready_filer({
+				paths: [TEST_PATHS.SOURCE],
 				batch_delay: 0,
 				observers: [observer],
 			});
 
-			mock_watcher.emit('add', TEST_FILE_A);
-			await new Promise((resolve) => setTimeout(resolve, 10));
+			ctx.mock_watcher.emit('add', TEST_PATHS.FILE_A);
+			await wait_for_batch(10);
 
 			// Should not be called with empty paths
 			expect(vi.mocked(observer.on_change)).not.toHaveBeenCalled();
@@ -1273,14 +1211,14 @@ describe('Filer Observer System', () => {
 				on_change: vi.fn(),
 			};
 
-			await create_ready_filer({
-				paths: [TEST_SOURCE],
+			await ctx.create_ready_filer({
+				paths: [TEST_PATHS.SOURCE],
 				batch_delay: 0,
 				observers: [observer],
 			});
 
-			mock_watcher.emit('add', TEST_FILE_A);
-			await new Promise((resolve) => setTimeout(resolve, 10));
+			ctx.mock_watcher.emit('add', TEST_PATHS.FILE_A);
+			await wait_for_batch(10);
 
 			// Should not be called with empty paths
 			expect(vi.mocked(observer.on_change)).not.toHaveBeenCalled();

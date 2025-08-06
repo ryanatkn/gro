@@ -17,6 +17,7 @@ async function runTest() {
 	const args = {a: 1, _: []};
 	let invoked_task_name;
 	let invoked_args;
+	const filer = new Filer();
 	const result = await run_task(
 		{
 			name: 'testTask',
@@ -37,9 +38,10 @@ async function runTest() {
 			return Promise.resolve();
 		},
 		await load_gro_config(),
-		new Filer(),
+		filer,
 		new Timings(),
 	);
+	filer.dispose();
 
 	const success =
 		result.ok &&

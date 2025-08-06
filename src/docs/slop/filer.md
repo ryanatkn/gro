@@ -49,6 +49,8 @@ filer.observe({
 		}
 	},
 });
+
+filer.dispose(); // clean up when done
 ```
 
 ### dependency-aware watching

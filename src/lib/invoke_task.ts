@@ -41,18 +41,26 @@ export const invoke_task = async (
 
 	const timings = initial_timings ?? new Timings();
 
+	// TODO BLOCK wrap with try/finally maybe?
 	const total_timing = create_stopwatch();
-	const finish = () => {
-		if (!initial_timings) return; // print timings only for the top-level task
-		print_timings(timings, log);
-		log.info(`🕒 ${print_ms(total_timing())}`);
+	const finish = async () => {
+		// If we own the filer, dispose of it.
+		if (!initial_filer) {
+			await filer.dispose();
+		}
+
+		// Print timings only for the top-level task.
+		if (initial_timings) {
+			print_timings(timings, log);
+			log.info(`🕒 ${print_ms(total_timing())}`);
+		}
 	};
 
 	// Check if the caller just wants to see the version.
 	if (!task_name && (args?.version || args?.v)) {
 		const gro_package_json = load_gro_package_json();
 		log.info(`${st('gray', 'v')}${st('cyan', gro_package_json.version)}`);
-		finish();
+		await finish();
 		return;
 	}
 
@@ -84,7 +92,7 @@ export const invoke_task = async (
 	if (resolved_input_files.length > 1 || resolved_input_files[0].resolved_input_path.is_directory) {
 		// The input path matches a directory. Log the tasks but don't run them.
 		log_tasks(log, loaded_tasks);
-		finish();
+		await finish();
 		return;
 	}
 
@@ -113,5 +121,5 @@ export const invoke_task = async (
 	}
 	log.info(`✓ ${st('cyan', task.name)}`);
 
-	finish();
+	await finish();
 };

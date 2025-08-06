@@ -17,7 +17,7 @@ export type Args = z.infer<typeof Args>;
 export const task: Task<Args> = {
 	summary: 'run tests with vitest',
 	Args,
-	run: async ({args, filer}): Promise<void> => {
+	run: async ({args}): Promise<void> => {
 		const {_: patterns, dir} = args;
 
 		if (has_dep(VITEST_CLI)) {
@@ -39,7 +39,5 @@ export const task: Task<Args> = {
 		}
 
 		// TODO BLOCK what if we loaded the package.json and other modules through the filer? and even stored their parsed json?
-		// TODO BLOCK how to do this correctly? all tasks hang bc of this -- need reference counting or something
-		await filer.close();
 	},
 };

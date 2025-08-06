@@ -1,12 +1,9 @@
 // @slop Claude Opus 4.1
 
-import {describe, test, expect, vi, beforeEach} from 'vitest';
-import {existsSync} from 'node:fs';
-import {watch, type FSWatcher} from 'chokidar';
+import {describe, test, expect, vi} from 'vitest';
 
-import {Filer} from './filer.ts';
 import {Disknode} from './disknode.ts';
-import type {Path_Id} from './path.ts';
+import {use_filer_test_context, TEST_PATHS} from './filer.test_helpers.ts';
 
 // Mock modules
 vi.mock('node:fs', () => ({
@@ -16,71 +13,27 @@ vi.mock('node:fs', () => ({
 	realpathSync: vi.fn(),
 }));
 
+vi.mock('node:fs/promises', () => ({
+	stat: vi.fn(),
+}));
+
 vi.mock('chokidar', () => ({
 	watch: vi.fn(),
 	// eslint-disable-next-line @typescript-eslint/no-extraneous-class
 	FSWatcher: class MockFSWatcher {},
 }));
 
-// Test constants
-const TEST_ROOT = '/test/project';
-const TEST_SOURCE = `${TEST_ROOT}/src`;
-const TEST_FILE_A: Path_Id = `${TEST_SOURCE}/a.ts`;
-const TEST_FILE_B: Path_Id = `${TEST_SOURCE}/b.ts`;
-const TEST_FILE_C: Path_Id = `${TEST_SOURCE}/c.ts`;
-const TEST_FILE_D: Path_Id = `${TEST_SOURCE}/d.ts`;
-const TEST_FILE_E: Path_Id = `${TEST_SOURCE}/e.ts`;
-const TEST_EXTERNAL_FILE: Path_Id = '/external/file.ts';
-const TEST_JSON_FILE: Path_Id = `${TEST_SOURCE}/data.json`;
-
-// Mock FSWatcher
-class Mock_Watcher implements Partial<FSWatcher> {
-	// @ts-expect-error
-	listeners: Map<string, Array<(...args: Array<any>) => void>> = new Map();
-
-	// @ts-expect-error
-	on(event: string, handler: (...args: Array<any>) => void): this {
-		const handlers = this.listeners.get(event) || [];
-		handlers.push(handler);
-		this.listeners.set(event, handlers);
-		return this;
-	}
-
-	// @ts-expect-error
-	once(event: string, handler: (...args: Array<any>) => void): this {
-		return this.on(event, handler);
-	}
-
-	// @ts-expect-error
-	emit(event: string, ...args: Array<any>): void {
-		const handlers = this.listeners.get(event) || [];
-		handlers.forEach((h) => h(...args));
-	}
-
-	close(): Promise<void> {
-		this.listeners.clear();
-		return Promise.resolve();
-	}
-}
-
 describe('Filer Dependency Tracking', () => {
-	let filer: Filer;
-
-	beforeEach(() => {
-		vi.clearAllMocks();
-		const mock_watcher = new Mock_Watcher();
-		vi.mocked(watch).mockReturnValue(mock_watcher as unknown as FSWatcher);
-		vi.mocked(existsSync).mockReturnValue(true);
-
-		filer = new Filer({paths: []});
-	});
+	const ctx = use_filer_test_context();
 
 	describe('direct dependencies', () => {
 		test('tracks immediate dependencies only', () => {
+			const filer = ctx.create_filer({paths: []});
+
 			// Set up dependency chain: A -> B -> C
-			const node_a = filer.get_disknode(TEST_FILE_A);
-			const node_b = filer.get_disknode(TEST_FILE_B);
-			const node_c = filer.get_disknode(TEST_FILE_C);
+			const node_a = filer.get_disknode(TEST_PATHS.FILE_A);
+			const node_b = filer.get_disknode(TEST_PATHS.FILE_B);
+			const node_c = filer.get_disknode(TEST_PATHS.FILE_C);
 
 			node_c.add_dependency(node_b);
 			node_b.add_dependency(node_a);
@@ -94,10 +47,12 @@ describe('Filer Dependency Tracking', () => {
 		});
 
 		test('handles multiple direct dependencies', () => {
-			const node_a = filer.get_disknode(TEST_FILE_A);
-			const node_b = filer.get_disknode(TEST_FILE_B);
-			const node_c = filer.get_disknode(TEST_FILE_C);
-			const node_d = filer.get_disknode(TEST_FILE_D);
+			const filer = ctx.create_filer({paths: []});
+
+			const node_a = filer.get_disknode(TEST_PATHS.FILE_A);
+			const node_b = filer.get_disknode(TEST_PATHS.FILE_B);
+			const node_c = filer.get_disknode(TEST_PATHS.FILE_C);
+			const node_d = filer.get_disknode(TEST_PATHS.FILE_D);
 
 			// D depends on A, B, and C
 			node_d.add_dependency(node_a);
@@ -114,7 +69,9 @@ describe('Filer Dependency Tracking', () => {
 		});
 
 		test('returns empty set when no dependencies', () => {
-			const node_a = filer.get_disknode(TEST_FILE_A);
+			const filer = ctx.create_filer({paths: []});
+
+			const node_a = filer.get_disknode(TEST_PATHS.FILE_A);
 
 			const dependencies = filer.get_dependencies(node_a, false);
 
@@ -124,11 +81,13 @@ describe('Filer Dependency Tracking', () => {
 
 	describe('transitive dependencies', () => {
 		test('tracks full dependency chain', () => {
+			const filer = ctx.create_filer({paths: []});
+
 			// Set up dependency chain: A -> B -> C -> D
-			const node_a = filer.get_disknode(TEST_FILE_A);
-			const node_b = filer.get_disknode(TEST_FILE_B);
-			const node_c = filer.get_disknode(TEST_FILE_C);
-			const node_d = filer.get_disknode(TEST_FILE_D);
+			const node_a = filer.get_disknode(TEST_PATHS.FILE_A);
+			const node_b = filer.get_disknode(TEST_PATHS.FILE_B);
+			const node_c = filer.get_disknode(TEST_PATHS.FILE_C);
+			const node_d = filer.get_disknode(TEST_PATHS.FILE_D);
 
 			node_d.add_dependency(node_c);
 			node_c.add_dependency(node_b);
@@ -144,11 +103,13 @@ describe('Filer Dependency Tracking', () => {
 		});
 
 		test('handles diamond dependency pattern', () => {
+			const filer = ctx.create_filer({paths: []});
+
 			// Set up diamond: A -> B, A -> C, B -> D, C -> D
-			const node_a = filer.get_disknode(TEST_FILE_A);
-			const node_b = filer.get_disknode(TEST_FILE_B);
-			const node_c = filer.get_disknode(TEST_FILE_C);
-			const node_d = filer.get_disknode(TEST_FILE_D);
+			const node_a = filer.get_disknode(TEST_PATHS.FILE_A);
+			const node_b = filer.get_disknode(TEST_PATHS.FILE_B);
+			const node_c = filer.get_disknode(TEST_PATHS.FILE_C);
+			const node_d = filer.get_disknode(TEST_PATHS.FILE_D);
 
 			node_d.add_dependency(node_b);
 			node_d.add_dependency(node_c);
@@ -164,10 +125,12 @@ describe('Filer Dependency Tracking', () => {
 		});
 
 		test('handles circular dependencies without infinite loop', () => {
+			const filer = ctx.create_filer({paths: []});
+
 			// Set up circular: A -> B -> C -> A
-			const node_a = filer.get_disknode(TEST_FILE_A);
-			const node_b = filer.get_disknode(TEST_FILE_B);
-			const node_c = filer.get_disknode(TEST_FILE_C);
+			const node_a = filer.get_disknode(TEST_PATHS.FILE_A);
+			const node_b = filer.get_disknode(TEST_PATHS.FILE_B);
+			const node_c = filer.get_disknode(TEST_PATHS.FILE_C);
 
 			node_a.add_dependency(node_c);
 			node_c.add_dependency(node_b);
@@ -185,10 +148,12 @@ describe('Filer Dependency Tracking', () => {
 
 	describe('direct dependents', () => {
 		test('tracks immediate dependents only', () => {
+			const filer = ctx.create_filer({paths: []});
+
 			// Set up dependency chain: A <- B <- C
-			const node_a = filer.get_disknode(TEST_FILE_A);
-			const node_b = filer.get_disknode(TEST_FILE_B);
-			const node_c = filer.get_disknode(TEST_FILE_C);
+			const node_a = filer.get_disknode(TEST_PATHS.FILE_A);
+			const node_b = filer.get_disknode(TEST_PATHS.FILE_B);
+			const node_c = filer.get_disknode(TEST_PATHS.FILE_C);
 
 			node_b.add_dependency(node_a);
 			node_c.add_dependency(node_b);
@@ -202,10 +167,12 @@ describe('Filer Dependency Tracking', () => {
 		});
 
 		test('handles multiple direct dependents', () => {
-			const node_a = filer.get_disknode(TEST_FILE_A);
-			const node_b = filer.get_disknode(TEST_FILE_B);
-			const node_c = filer.get_disknode(TEST_FILE_C);
-			const node_d = filer.get_disknode(TEST_FILE_D);
+			const filer = ctx.create_filer({paths: []});
+
+			const node_a = filer.get_disknode(TEST_PATHS.FILE_A);
+			const node_b = filer.get_disknode(TEST_PATHS.FILE_B);
+			const node_c = filer.get_disknode(TEST_PATHS.FILE_C);
+			const node_d = filer.get_disknode(TEST_PATHS.FILE_D);
 
 			// B, C, and D all depend on A
 			node_b.add_dependency(node_a);
@@ -222,7 +189,9 @@ describe('Filer Dependency Tracking', () => {
 		});
 
 		test('returns empty set when no dependents', () => {
-			const node_a = filer.get_disknode(TEST_FILE_A);
+			const filer = ctx.create_filer({paths: []});
+
+			const node_a = filer.get_disknode(TEST_PATHS.FILE_A);
 
 			const dependents = filer.get_dependents(node_a, false);
 
@@ -232,11 +201,13 @@ describe('Filer Dependency Tracking', () => {
 
 	describe('transitive dependents', () => {
 		test('tracks full dependent chain', () => {
+			const filer = ctx.create_filer({paths: []});
+
 			// Set up dependency chain: A <- B <- C <- D
-			const node_a = filer.get_disknode(TEST_FILE_A);
-			const node_b = filer.get_disknode(TEST_FILE_B);
-			const node_c = filer.get_disknode(TEST_FILE_C);
-			const node_d = filer.get_disknode(TEST_FILE_D);
+			const node_a = filer.get_disknode(TEST_PATHS.FILE_A);
+			const node_b = filer.get_disknode(TEST_PATHS.FILE_B);
+			const node_c = filer.get_disknode(TEST_PATHS.FILE_C);
+			const node_d = filer.get_disknode(TEST_PATHS.FILE_D);
 
 			node_b.add_dependency(node_a);
 			node_c.add_dependency(node_b);
@@ -252,11 +223,13 @@ describe('Filer Dependency Tracking', () => {
 		});
 
 		test('handles inverted diamond dependency pattern', () => {
+			const filer = ctx.create_filer({paths: []});
+
 			// Set up inverted diamond: A <- B, A <- C, B <- D, C <- D
-			const node_a = filer.get_disknode(TEST_FILE_A);
-			const node_b = filer.get_disknode(TEST_FILE_B);
-			const node_c = filer.get_disknode(TEST_FILE_C);
-			const node_d = filer.get_disknode(TEST_FILE_D);
+			const node_a = filer.get_disknode(TEST_PATHS.FILE_A);
+			const node_b = filer.get_disknode(TEST_PATHS.FILE_B);
+			const node_c = filer.get_disknode(TEST_PATHS.FILE_C);
+			const node_d = filer.get_disknode(TEST_PATHS.FILE_D);
 
 			node_b.add_dependency(node_a);
 			node_c.add_dependency(node_a);
@@ -272,10 +245,12 @@ describe('Filer Dependency Tracking', () => {
 		});
 
 		test('handles circular dependents without infinite loop', () => {
+			const filer = ctx.create_filer({paths: []});
+
 			// Set up circular: A <- B <- C <- A
-			const node_a = filer.get_disknode(TEST_FILE_A);
-			const node_b = filer.get_disknode(TEST_FILE_B);
-			const node_c = filer.get_disknode(TEST_FILE_C);
+			const node_a = filer.get_disknode(TEST_PATHS.FILE_A);
+			const node_b = filer.get_disknode(TEST_PATHS.FILE_B);
+			const node_c = filer.get_disknode(TEST_PATHS.FILE_C);
 
 			node_c.add_dependency(node_a);
 			node_b.add_dependency(node_c);
@@ -293,10 +268,12 @@ describe('Filer Dependency Tracking', () => {
 
 	describe('filtered dependents', () => {
 		test('filters by predicate function', () => {
-			const node_a = filer.get_disknode(TEST_FILE_A);
-			const node_b = filer.get_disknode(TEST_FILE_B);
-			const node_c = filer.get_disknode(TEST_FILE_C);
-			const node_json = filer.get_disknode(TEST_JSON_FILE);
+			const filer = ctx.create_filer({paths: []});
+
+			const node_a = filer.get_disknode(TEST_PATHS.FILE_A);
+			const node_b = filer.get_disknode(TEST_PATHS.FILE_B);
+			const node_c = filer.get_disknode(TEST_PATHS.FILE_C);
+			const node_json = filer.get_disknode(TEST_PATHS.JSON_FILE);
 
 			// Set up dependencies
 			node_b.add_dependency(node_a);
@@ -306,17 +283,19 @@ describe('Filer Dependency Tracking', () => {
 			const ts_dependents = filer.filter_dependents(node_a, (id) => id.endsWith('.ts'), false);
 
 			expect(ts_dependents.size).toBe(2);
-			expect(ts_dependents.has(TEST_FILE_B)).toBe(true);
-			expect(ts_dependents.has(TEST_FILE_C)).toBe(true);
-			expect(ts_dependents.has(TEST_JSON_FILE)).toBe(false);
+			expect(ts_dependents.has(TEST_PATHS.FILE_B)).toBe(true);
+			expect(ts_dependents.has(TEST_PATHS.FILE_C)).toBe(true);
+			expect(ts_dependents.has(TEST_PATHS.JSON_FILE)).toBe(false);
 		});
 
 		test('works with transitive dependents', () => {
+			const filer = ctx.create_filer({paths: []});
+
 			// Chain: A <- B.ts <- C.js <- D.ts
-			const node_a = filer.get_disknode(TEST_FILE_A);
-			const node_b = filer.get_disknode(TEST_FILE_B);
-			const node_c = filer.get_disknode(`${TEST_SOURCE}/c.js`);
-			const node_d = filer.get_disknode(TEST_FILE_D);
+			const node_a = filer.get_disknode(TEST_PATHS.FILE_A);
+			const node_b = filer.get_disknode(TEST_PATHS.FILE_B);
+			const node_c = filer.get_disknode(`${TEST_PATHS.SOURCE}/c.js`);
+			const node_d = filer.get_disknode(TEST_PATHS.FILE_D);
 
 			node_b.add_dependency(node_a);
 			node_c.add_dependency(node_b);
@@ -325,14 +304,16 @@ describe('Filer Dependency Tracking', () => {
 			const ts_dependents = filer.filter_dependents(node_a, (id) => id.endsWith('.ts'), true);
 
 			expect(ts_dependents.size).toBe(2);
-			expect(ts_dependents.has(TEST_FILE_B)).toBe(true);
-			expect(ts_dependents.has(TEST_FILE_D)).toBe(true);
-			expect(ts_dependents.has(`${TEST_SOURCE}/c.js`)).toBe(false);
+			expect(ts_dependents.has(TEST_PATHS.FILE_B)).toBe(true);
+			expect(ts_dependents.has(TEST_PATHS.FILE_D)).toBe(true);
+			expect(ts_dependents.has(`${TEST_PATHS.SOURCE}/c.js`)).toBe(false);
 		});
 
 		test('returns empty set when no matches', () => {
-			const node_a = filer.get_disknode(TEST_FILE_A);
-			const node_json = filer.get_disknode(TEST_JSON_FILE);
+			const filer = ctx.create_filer({paths: []});
+
+			const node_a = filer.get_disknode(TEST_PATHS.FILE_A);
+			const node_json = filer.get_disknode(TEST_PATHS.JSON_FILE);
 
 			node_json.add_dependency(node_a);
 
@@ -342,9 +323,11 @@ describe('Filer Dependency Tracking', () => {
 		});
 
 		test('returns all dependents when no filter provided', () => {
-			const node_a = filer.get_disknode(TEST_FILE_A);
-			const node_b = filer.get_disknode(TEST_FILE_B);
-			const node_c = filer.get_disknode(TEST_FILE_C);
+			const filer = ctx.create_filer({paths: []});
+
+			const node_a = filer.get_disknode(TEST_PATHS.FILE_A);
+			const node_b = filer.get_disknode(TEST_PATHS.FILE_B);
+			const node_c = filer.get_disknode(TEST_PATHS.FILE_C);
 
 			node_b.add_dependency(node_a);
 			node_c.add_dependency(node_a);
@@ -352,15 +335,17 @@ describe('Filer Dependency Tracking', () => {
 			const all_dependents = filer.filter_dependents(node_a, undefined, false);
 
 			expect(all_dependents.size).toBe(2);
-			expect(all_dependents.has(TEST_FILE_B)).toBe(true);
-			expect(all_dependents.has(TEST_FILE_C)).toBe(true);
+			expect(all_dependents.has(TEST_PATHS.FILE_B)).toBe(true);
+			expect(all_dependents.has(TEST_PATHS.FILE_C)).toBe(true);
 		});
 
 		test('handles complex predicate logic', () => {
-			const node_a = filer.get_disknode(TEST_FILE_A);
-			const node_b = filer.get_disknode(`${TEST_SOURCE}/lib/b.ts`);
-			const node_c = filer.get_disknode(`${TEST_SOURCE}/utils/c.ts`);
-			const node_d = filer.get_disknode(`${TEST_SOURCE}/lib/d.js`);
+			const filer = ctx.create_filer({paths: []});
+
+			const node_a = filer.get_disknode(TEST_PATHS.FILE_A);
+			const node_b = filer.get_disknode(`${TEST_PATHS.SOURCE}/lib/b.ts`);
+			const node_c = filer.get_disknode(`${TEST_PATHS.SOURCE}/utils/c.ts`);
+			const node_d = filer.get_disknode(`${TEST_PATHS.SOURCE}/lib/d.js`);
 
 			node_b.add_dependency(node_a);
 			node_c.add_dependency(node_a);
@@ -374,40 +359,46 @@ describe('Filer Dependency Tracking', () => {
 			);
 
 			expect(lib_ts_dependents.size).toBe(1);
-			expect(lib_ts_dependents.has(`${TEST_SOURCE}/lib/b.ts`)).toBe(true);
+			expect(lib_ts_dependents.has(`${TEST_PATHS.SOURCE}/lib/b.ts`)).toBe(true);
 		});
 	});
 
 	describe('dependency relationship management', () => {
 		test('add_dependency creates bidirectional links', () => {
-			const node_a = filer.get_disknode(TEST_FILE_A);
-			const node_b = filer.get_disknode(TEST_FILE_B);
+			const filer = ctx.create_filer({paths: []});
+
+			const node_a = filer.get_disknode(TEST_PATHS.FILE_A);
+			const node_b = filer.get_disknode(TEST_PATHS.FILE_B);
 
 			node_b.add_dependency(node_a);
 
-			expect(node_b.dependencies.has(TEST_FILE_A)).toBe(true);
-			expect(node_b.dependencies.get(TEST_FILE_A)).toBe(node_a);
-			expect(node_a.dependents.has(TEST_FILE_B)).toBe(true);
-			expect(node_a.dependents.get(TEST_FILE_B)).toBe(node_b);
+			expect(node_b.dependencies.has(TEST_PATHS.FILE_A)).toBe(true);
+			expect(node_b.dependencies.get(TEST_PATHS.FILE_A)).toBe(node_a);
+			expect(node_a.dependents.has(TEST_PATHS.FILE_B)).toBe(true);
+			expect(node_a.dependents.get(TEST_PATHS.FILE_B)).toBe(node_b);
 		});
 
 		test('remove_dependency cleans up bidirectional links', () => {
-			const node_a = filer.get_disknode(TEST_FILE_A);
-			const node_b = filer.get_disknode(TEST_FILE_B);
+			const filer = ctx.create_filer({paths: []});
+
+			const node_a = filer.get_disknode(TEST_PATHS.FILE_A);
+			const node_b = filer.get_disknode(TEST_PATHS.FILE_B);
 
 			// Add then remove
 			node_b.add_dependency(node_a);
-			expect(node_b.dependencies.has(TEST_FILE_A)).toBe(true);
-			expect(node_a.dependents.has(TEST_FILE_B)).toBe(true);
+			expect(node_b.dependencies.has(TEST_PATHS.FILE_A)).toBe(true);
+			expect(node_a.dependents.has(TEST_PATHS.FILE_B)).toBe(true);
 
 			node_b.remove_dependency(node_a);
-			expect(node_b.dependencies.has(TEST_FILE_A)).toBe(false);
-			expect(node_a.dependents.has(TEST_FILE_B)).toBe(false);
+			expect(node_b.dependencies.has(TEST_PATHS.FILE_A)).toBe(false);
+			expect(node_a.dependents.has(TEST_PATHS.FILE_B)).toBe(false);
 		});
 
 		test('adding duplicate dependency is idempotent', () => {
-			const node_a = filer.get_disknode(TEST_FILE_A);
-			const node_b = filer.get_disknode(TEST_FILE_B);
+			const filer = ctx.create_filer({paths: []});
+
+			const node_a = filer.get_disknode(TEST_PATHS.FILE_A);
+			const node_b = filer.get_disknode(TEST_PATHS.FILE_B);
 
 			node_b.add_dependency(node_a);
 			node_b.add_dependency(node_a); // Duplicate
@@ -417,8 +408,10 @@ describe('Filer Dependency Tracking', () => {
 		});
 
 		test('removing non-existent dependency is safe', () => {
-			const node_a = filer.get_disknode(TEST_FILE_A);
-			const node_b = filer.get_disknode(TEST_FILE_B);
+			const filer = ctx.create_filer({paths: []});
+
+			const node_a = filer.get_disknode(TEST_PATHS.FILE_A);
+			const node_b = filer.get_disknode(TEST_PATHS.FILE_B);
 
 			// Remove without adding first
 			expect(() => node_b.remove_dependency(node_a)).not.toThrow();
@@ -429,8 +422,10 @@ describe('Filer Dependency Tracking', () => {
 
 	describe('complex dependency scenarios', () => {
 		test('handles large dependency graphs efficiently', () => {
+			const filer = ctx.create_filer({paths: []});
+
 			// Create star pattern: A <- B1, B2, ..., B100
-			const node_a = filer.get_disknode(TEST_FILE_A);
+			const node_a = filer.get_disknode(TEST_PATHS.FILE_A);
 			const dependent_nodes: Array<Disknode> = [];
 
 			for (let i = 1; i <= 100; i++) {
@@ -448,6 +443,8 @@ describe('Filer Dependency Tracking', () => {
 		});
 
 		test('handles deep dependency chains', () => {
+			const filer = ctx.create_filer({paths: []});
+
 			// Create chain: A <- B <- C <- ... <- Z
 			const chain_length = 26;
 			const disknodes: Array<Disknode> = [];
@@ -471,9 +468,11 @@ describe('Filer Dependency Tracking', () => {
 		});
 
 		test('handles mixed internal and external dependencies', () => {
-			const internal_a = filer.get_disknode(TEST_FILE_A);
-			const internal_b = filer.get_disknode(TEST_FILE_B);
-			const external_c = filer.get_disknode(TEST_EXTERNAL_FILE);
+			const filer = ctx.create_filer({paths: []});
+
+			const internal_a = filer.get_disknode(TEST_PATHS.FILE_A);
+			const internal_b = filer.get_disknode(TEST_PATHS.FILE_B);
+			const external_c = filer.get_disknode(TEST_PATHS.EXTERNAL_FILE);
 
 			// Set up mixed dependencies
 			internal_b.add_dependency(internal_a);
@@ -487,9 +486,11 @@ describe('Filer Dependency Tracking', () => {
 		});
 
 		test('dependency updates are reflected immediately', () => {
-			const node_a = filer.get_disknode(TEST_FILE_A);
-			const node_b = filer.get_disknode(TEST_FILE_B);
-			const node_c = filer.get_disknode(TEST_FILE_C);
+			const filer = ctx.create_filer({paths: []});
+
+			const node_a = filer.get_disknode(TEST_PATHS.FILE_A);
+			const node_b = filer.get_disknode(TEST_PATHS.FILE_B);
+			const node_c = filer.get_disknode(TEST_PATHS.FILE_C);
 
 			// Initial state: B depends on A
 			node_b.add_dependency(node_a);
@@ -510,7 +511,9 @@ describe('Filer Dependency Tracking', () => {
 
 	describe('edge cases', () => {
 		test('handles self-dependencies gracefully', () => {
-			const node_a = filer.get_disknode(TEST_FILE_A);
+			const filer = ctx.create_filer({paths: []});
+
+			const node_a = filer.get_disknode(TEST_PATHS.FILE_A);
 
 			// Try to add self-dependency
 			node_a.add_dependency(node_a);
@@ -524,7 +527,9 @@ describe('Filer Dependency Tracking', () => {
 		});
 
 		test('handles empty dependency graphs', () => {
-			const node_a = filer.get_disknode(TEST_FILE_A);
+			const filer = ctx.create_filer({paths: []});
+
+			const node_a = filer.get_disknode(TEST_PATHS.FILE_A);
 
 			expect(filer.get_dependencies(node_a, true)).toEqual(new Set());
 			expect(filer.get_dependents(node_a, true)).toEqual(new Set());
@@ -532,12 +537,14 @@ describe('Filer Dependency Tracking', () => {
 		});
 
 		test('maintains consistency after bulk operations', () => {
+			const filer = ctx.create_filer({paths: []});
+
 			const disknodes = [
-				filer.get_disknode(TEST_FILE_A),
-				filer.get_disknode(TEST_FILE_B),
-				filer.get_disknode(TEST_FILE_C),
-				filer.get_disknode(TEST_FILE_D),
-				filer.get_disknode(TEST_FILE_E),
+				filer.get_disknode(TEST_PATHS.FILE_A),
+				filer.get_disknode(TEST_PATHS.FILE_B),
+				filer.get_disknode(TEST_PATHS.FILE_C),
+				filer.get_disknode(TEST_PATHS.FILE_D),
+				filer.get_disknode(TEST_PATHS.FILE_E),
 			];
 
 			// Create complex relationships
