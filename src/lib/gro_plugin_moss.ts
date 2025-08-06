@@ -80,7 +80,7 @@ export const gro_plugin_moss = ({
 			// For non-watch mode, generate once and exit
 			if (!watch) {
 				// Scan all existing files to collect classes
-				for (const node of filer.nodes.values()) {
+				for (const node of filer.disknodes.values()) {
 					if (
 						node.is_external ||
 						node.kind === 'directory' ||
@@ -174,7 +174,7 @@ export const gro_plugin_moss = ({
 			};
 
 			// Initial scan to collect all existing classes
-			for (const node of filer.nodes.values()) {
+			for (const node of filer.disknodes.values()) {
 				if (moss_observer.match!(node)) {
 					const contents = node.contents;
 					if (contents !== null) {
