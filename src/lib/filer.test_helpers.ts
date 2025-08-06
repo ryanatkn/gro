@@ -1,3 +1,5 @@
+// @slop Claude Opus 4.1
+
 import {beforeEach, afterEach, vi} from 'vitest';
 import {existsSync, type Stats} from 'node:fs';
 import {stat} from 'node:fs/promises';

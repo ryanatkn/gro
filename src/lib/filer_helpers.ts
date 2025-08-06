@@ -1,9 +1,10 @@
+// @slop Claude Opus 4.1
+
 import {z} from 'zod';
 import {resolve} from 'node:path';
 
 import type {Disknode} from './disknode.ts';
 import type {Path_Id} from './path.ts';
-
 
 /**
  * Change types as const for faster coalescing.
@@ -224,7 +225,11 @@ export interface Filer_Observer {
 	/** Change handler - can be async and return invalidation intents */
 	on_change: (
 		batch: Filer_Change_Batch,
-	) => Array<Filer_Invalidation_Intent> | void | Promise<Array<Filer_Invalidation_Intent>> | Promise<void>;
+	) =>
+		| Array<Filer_Invalidation_Intent>
+		| void
+		| Promise<Array<Filer_Invalidation_Intent>>
+		| Promise<void>;
 }
 
 export const Filer_Change_Transitions: Record<

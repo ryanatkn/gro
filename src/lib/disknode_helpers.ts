@@ -1,7 +1,9 @@
+// @slop Claude Opus 4.1
+
 import {readFileSync, type Stats} from 'node:fs';
 import {basename} from 'node:path';
 
-import type {Path_Id} from './path.js';
+import type {Path_Id} from './path.ts';
 
 /**
  * Maximum file size to cache in memory (10MB).
@@ -48,7 +50,10 @@ export const disknode_is_svelte_module = (id: Path_Id): boolean => id.includes('
  * Check if a file is importable (TypeScript, JavaScript, Svelte, or Svelte modules).
  */
 export const disknode_is_importable = (id: Path_Id): boolean =>
-	disknode_is_typescript(id) || disknode_is_js(id) || disknode_is_svelte(id) || disknode_is_svelte_module(id);
+	disknode_is_typescript(id) ||
+	disknode_is_js(id) ||
+	disknode_is_svelte(id) ||
+	disknode_is_svelte_module(id);
 
 /**
  * Update disknode kind based on stats.

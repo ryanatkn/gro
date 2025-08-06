@@ -1,3 +1,5 @@
+// @slop Claude Opus 4.1
+
 import {describe, test, expect, vi, beforeEach, afterEach} from 'vitest';
 import {readFileSync, lstatSync, realpathSync, type Stats} from 'node:fs';
 
@@ -31,8 +33,10 @@ const TEST_LARGE_FILE_PATH: Path_Id = '/test/large.txt';
 const TEST_CONTENT_TS = 'const a = 1;\nexport {a};';
 const TEST_CONTENT_JS = 'import {a} from "./a.js";\nconsole.log(a);';
 const TEST_CONTENT_SVELTE = '<script>\nimport {a} from "./a.js";\n</script>\n<div>{a}</div>';
-const TEST_CONTENT_SVELTE_TS = 'import {writable} from "svelte/store";\nexport const count = writable(0);';
-const TEST_CONTENT_SVELTE_JS = 'import {writable} from "svelte/store";\nexport const items = writable([]);';
+const TEST_CONTENT_SVELTE_TS =
+	'import {writable} from "svelte/store";\nexport const count = writable(0);';
+const TEST_CONTENT_SVELTE_JS =
+	'import {writable} from "svelte/store";\nexport const items = writable([]);';
 const TEST_CONTENT_JSON = '{"data": "test"}';
 const TEST_CONTENT_TXT = 'This is a text file.';
 const TEST_LARGE_CONTENT = 'x'.repeat(15 * 1024 * 1024); // 15MB
@@ -1010,7 +1014,7 @@ describe('Disknode', () => {
 				'/camelCase/file.svelte.ts',
 				'/PascalCase/Component.svelte.js',
 				'/numbers123/file456.svelte.ts',
-				'/special_chars/file_name.svelte.js'
+				'/special_chars/file_name.svelte.js',
 			];
 
 			for (const path of complex_paths) {

@@ -51,6 +51,12 @@ export class Filer {
 	/** All tracked disknodes by absolute path */
 	readonly disknodes: Map<Path_Id, Disknode> = new Map();
 
+	/** Tombstone cache for deleted disknodes with FIFO eviction */
+	readonly tombstones: Map<Path_Id, Disknode> = new Map();
+
+	/** Maximum number of tombstones to keep (default: 500) */
+	tombstone_limit = 500;
+
 	/** Root disknodes (top-level watched paths) */
 	readonly roots: Set<Disknode> = new Set();
 
@@ -174,6 +180,7 @@ export class Filer {
 	async #clear_state(): Promise<void> {
 		await this.#watcher?.close();
 		this.disknodes.clear();
+		this.tombstones.clear();
 		this.roots.clear();
 		this.#pending_changes.clear();
 		this.#pending_dependency_updates.clear();
@@ -251,12 +258,13 @@ export class Filer {
 				this.#pending_dependency_updates.add(disknode);
 			}
 		} else {
-			// For deletes, mark the disknode as non-existent
+			// For deletes, move to tombstones
 			disknode = this.disknodes.get(id);
 			if (disknode) {
 				disknode.exists = false;
 				disknode.invalidate();
 				disknode.clear_relationships();
+				this.#add_to_tombstones(disknode);
 			}
 		}
 
@@ -461,12 +469,45 @@ export class Filer {
 	}
 
 	/**
+	 * Add a disknode to tombstones with FIFO eviction.
+	 */
+	#add_to_tombstones(disknode: Disknode): void {
+		// Remove from main disknodes map first
+		this.disknodes.delete(disknode.id);
+
+		// Don't create tombstones if limit is 0
+		if (this.tombstone_limit === 0) {
+			return;
+		}
+
+		// Add to tombstones
+		this.tombstones.set(disknode.id, disknode);
+
+		// FIFO eviction if over limit
+		while (this.tombstones.size > this.tombstone_limit) {
+			const oldest_key = this.tombstones.keys().next().value!;
+			this.tombstones.delete(oldest_key);
+		}
+	}
+
+	/**
 	 * Get or create a disknode for the given path.
 	 */
 	get_disknode(id: Path_Id): Disknode {
 		this.#check_mounted();
 		let disknode = this.disknodes.get(id);
 		if (!disknode) {
+			// Check if in tombstones and restore if found
+			disknode = this.tombstones.get(id);
+			if (disknode) {
+				// Restore from tombstone - move back to active disknodes
+				this.tombstones.delete(id);
+				this.disknodes.set(id, disknode);
+				disknode.exists = true; // Mark as existing again
+				return disknode;
+			}
+
+			// Create new disknode
 			disknode = new Disknode(id, this);
 			this.disknodes.set(id, disknode);
 
@@ -715,7 +756,7 @@ export class Filer {
 	 * Get disknode by ID.
 	 */
 	get_by_id(id: Path_Id): Disknode | undefined {
-		return this.disknodes.get(id);
+		return this.disknodes.get(id) ?? this.tombstones.get(id);
 	}
 
 	/**
@@ -779,6 +820,7 @@ export class Filer {
 		await this.#watcher?.close();
 		this.#watcher = undefined;
 		this.disknodes.clear();
+		this.tombstones.clear();
 		this.roots.clear();
 		this.#observers.clear();
 		this.#observers_sorted = [];

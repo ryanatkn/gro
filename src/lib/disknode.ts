@@ -1,12 +1,14 @@
+// @slop Claude Opus 4.1
+
 import {type Stats, readFileSync, lstatSync, realpathSync} from 'node:fs';
 import {basename} from 'node:path';
 import {isBuiltin} from 'node:module';
 import {fileURLToPath} from 'node:url';
 
-import type {Filer} from './filer.js';
-import {parse_imports} from './parse_imports.js';
-import {resolve_specifier} from './resolve_specifier.js';
-import type {Path_Id} from './path.js';
+import type {Filer} from './filer.ts';
+import {parse_imports} from './parse_imports.ts';
+import {resolve_specifier} from './resolve_specifier.ts';
+import type {Path_Id} from './path.ts';
 import {
 	disknode_get_extension,
 	disknode_is_typescript,
@@ -17,7 +19,7 @@ import {
 	disknode_update_kind_from_stats,
 	disknode_read_contents_direct,
 	disknode_should_cache_contents,
-} from './disknode_helpers.js';
+} from './disknode_helpers.ts';
 
 /**
  * Represents a file or directory in the filesystem.
