@@ -3,10 +3,10 @@ import {basename} from 'node:path';
 import {isBuiltin} from 'node:module';
 import {fileURLToPath} from 'node:url';
 
-import type {Filer} from './filer.ts';
-import {parse_imports} from './parse_imports.ts';
-import {resolve_specifier} from './resolve_specifier.ts';
-import type {Path_Id} from './path.ts';
+import type {Filer} from './filer.js';
+import {parse_imports} from './parse_imports.js';
+import {resolve_specifier} from './resolve_specifier.js';
+import type {Path_Id} from './path.js';
 
 /**
  * Represents a file or directory in the filesystem.
@@ -94,31 +94,24 @@ export class Disknode {
 
 	/**
 	 * Set stats to avoid extra syscalls.
-	 * Only sets stats if they haven't been loaded yet.
-	 * Used by Filer when stats are already available from chokidar.
+	 * Used by Filer when stats are already available.
 	 */
-	set stats(value: Stats | null) {
-		if (this.#stats_version === this.#version) {
-			return;
-		}
+	set_stats(value: Stats): void {
+		// Only set if not already current
+		if (this.#stats_version === this.#version) return;
 
 		this.#stats = value;
 		this.#stats_version = this.#version;
 
-		if (value) {
-			// Update kind based on stats
-			if (value.isDirectory()) {
-				this.kind = 'directory';
-			} else if (value.isSymbolicLink()) {
-				this.kind = 'symlink';
-			} else {
-				this.kind = 'file';
-			}
-
-			this.exists = true;
+		// Update kind based on stats
+		if (value.isDirectory()) {
+			this.kind = 'directory';
+		} else if (value.isSymbolicLink()) {
+			this.kind = 'symlink';
 		} else {
-			this.exists = false;
+			this.kind = 'file';
 		}
+		this.exists = true;
 	}
 
 	/**
@@ -151,41 +144,44 @@ export class Disknode {
 			const stats = this.stats; // Ensure stats are fresh and kind is updated
 			if (!stats || this.kind === 'directory') {
 				this.#contents = null;
-			} else {
-				// For symlinks, check if the target is a directory
-				let target_path = this.id;
-				if (this.kind === 'symlink') {
-					target_path = this.realpath;
-					// Check if symlink target is a directory
-					try {
-						const target_stats = lstatSync(target_path);
-						if (target_stats.isDirectory()) {
-							this.#contents = null;
-							this.#contents_version = this.#version;
-							return null;
-						}
-					} catch {
-						// Target doesn't exist, treat as broken symlink
+				this.#contents_version = this.#version;
+				return null;
+			}
+
+			// For symlinks, check if the target is a directory
+			let target_path = this.id;
+			if (this.kind === 'symlink') {
+				target_path = this.realpath;
+				// Check if symlink target is a directory
+				try {
+					const target_stats = lstatSync(target_path);
+					if (target_stats.isDirectory()) {
 						this.#contents = null;
 						this.#contents_version = this.#version;
 						return null;
 					}
+				} catch {
+					// Target doesn't exist, treat as broken symlink
+					this.#contents = null;
+					this.#contents_version = this.#version;
+					return null;
 				}
+			}
 
-				if (stats.size > Disknode.MAX_CACHED_SIZE) {
-					// Don't cache large files, read on demand
-					try {
-						return readFileSync(target_path, 'utf8');
-					} catch {
-						return null;
-					}
-				} else {
-					try {
-						this.#contents = readFileSync(target_path, 'utf8');
-					} catch {
-						this.#contents = null;
-					}
+			// For large files, don't cache - return directly
+			if (stats.size > Disknode.MAX_CACHED_SIZE) {
+				try {
+					return readFileSync(target_path, 'utf8');
+				} catch {
+					return null;
 				}
+			}
+
+			// Cache small files
+			try {
+				this.#contents = readFileSync(target_path, 'utf8');
+			} catch {
+				this.#contents = null;
 			}
 			this.#contents_version = this.#version;
 		}
@@ -354,6 +350,23 @@ export class Disknode {
 	remove_dependency(dep: Disknode): void {
 		this.dependencies.delete(dep.id);
 		dep.dependents.delete(this.id);
+	}
+
+	/**
+	 * Clear all dependency relationships.
+	 * Used when node is deleted.
+	 */
+	clear_relationships(): void {
+		// Remove this node from others' maps
+		for (const dep of this.dependencies.values()) {
+			dep.dependents.delete(this.id);
+		}
+		for (const dep of this.dependents.values()) {
+			dep.dependencies.delete(this.id);
+		}
+		// Clear this node's maps
+		this.dependencies.clear();
+		this.dependents.clear();
 	}
 
 	/**

@@ -230,7 +230,7 @@ describe('Disknode', () => {
 			const mock_stats = create_mock_stats({size: 456});
 			const node = new Disknode(TEST_PATH_TS, filer);
 
-			node.stats = mock_stats;
+			node.set_stats(mock_stats);
 			expect(vi.mocked(lstatSync)).not.toHaveBeenCalled();
 			expect(node.stats).toBe(mock_stats);
 			expect(node.size).toBe(456);
