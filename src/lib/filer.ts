@@ -20,9 +20,54 @@ import {
 } from './constants.js';
 
 /**
+ * Change types as const for faster coalescing.
+ */
+export const FILER_CHANGE_TYPE = {
+	ADD: 1,
+	UPDATE: 2,
+	DELETE: 3,
+} as const;
+
+export type Filer_Change_Type = (typeof FILER_CHANGE_TYPE)[keyof typeof FILER_CHANGE_TYPE];
+
+/**
+ * Observer execution phases.
+ */
+export type Filer_Phase = 'pre' | 'main' | 'post';
+
+/**
+ * Available phases in execution order.
+ */
+export const FILER_PHASES: ReadonlyArray<Filer_Phase> = ['pre', 'main', 'post'] as const;
+
+/**
+ * Phase execution order for sorting.
+ */
+const PHASE_ORDER: Record<Filer_Phase, number> = {
+	pre: 0,
+	main: 1,
+	post: 2,
+};
+
+/**
+ * Batch expansion strategies.
+ */
+export type Filer_Expand_Strategy = 'self' | 'dependents' | 'dependencies' | 'all';
+
+/**
+ * Error handling strategies.
+ */
+export type Filer_Error_Strategy = 'continue' | 'abort';
+
+/**
+ * File system node kinds.
+ */
+export type Filer_Node_Kind = 'file' | 'directory' | 'symlink';
+
+/**
  * Invalidation intent returned by observers to trigger additional changes.
  */
-export interface Invalidation_Intent {
+export interface Filer_Invalidation_Intent {
 	type: 'all' | 'paths' | 'pattern' | 'dependents' | 'dependencies' | 'subtree';
 	paths?: Array<Path_Id>; // For 'paths' type
 	pattern?: RegExp; // For 'pattern' type
@@ -54,7 +99,7 @@ export interface Filer_Observer {
 
 	// Batch expansion strategy
 	/** How to expand the batch beyond matched files. Default: 'self' */
-	expand_to?: 'self' | 'dependents' | 'dependencies' | 'all';
+	expand_to?: Filer_Expand_Strategy;
 
 	// Intent support
 	/** Whether this observer can return invalidation intents. Default: false */
@@ -70,20 +115,20 @@ export interface Filer_Observer {
 
 	// Execution order
 	/** Execution phase. Default: 'main' */
-	phase?: 'pre' | 'main' | 'post';
+	phase?: Filer_Phase;
 	/** Priority within phase (higher = earlier). Default: 0 */
 	priority?: number;
 
 	// Error handling
 	/** How to handle errors. Default: 'abort' */
-	on_error?: (error: Error, batch: Filer_Change_Batch) => 'continue' | 'abort';
+	on_error?: (error: Error, batch: Filer_Change_Batch) => Filer_Error_Strategy;
 	/** Timeout for observer execution. Default: 30000ms */
 	timeout_ms?: number;
 
 	/** Change handler - can be async and return invalidation intents */
 	on_change: (
 		changes: Filer_Change_Batch,
-	) => void | Array<Invalidation_Intent> | Promise<void | Array<Invalidation_Intent>>;
+	) => void | Array<Filer_Invalidation_Intent> | Promise<void | Array<Filer_Invalidation_Intent>>;
 }
 
 /**
@@ -93,7 +138,7 @@ export interface Filer_Change {
 	type: 'add' | 'update' | 'delete';
 	disknode?: Disknode; // Present for add/update
 	id: Path_Id;
-	kind: 'file' | 'directory' | 'symlink';
+	kind: Filer_Node_Kind;
 }
 
 /**
@@ -101,6 +146,12 @@ export interface Filer_Change {
  */
 export class Filer_Change_Batch {
 	readonly changes: Map<Path_Id, Filer_Change> = new Map();
+
+	// Cached accessors
+	#added?: Array<Disknode>;
+	#updated?: Array<Disknode>;
+	#deleted?: Array<Path_Id>;
+	#all_disknodes?: Array<Disknode>;
 
 	constructor(changes: Iterable<Filer_Change> = []) {
 		for (const change of changes) {
@@ -110,44 +161,52 @@ export class Filer_Change_Batch {
 
 	/** Get all added disknodes */
 	get added(): Array<Disknode> {
-		const disknodes: Array<Disknode> = [];
-		for (const change of this.changes.values()) {
-			if (change.type === 'add' && change.disknode) {
-				disknodes.push(change.disknode);
+		if (!this.#added) {
+			this.#added = [];
+			for (const change of this.changes.values()) {
+				if (change.type === 'add' && change.disknode) {
+					this.#added.push(change.disknode);
+				}
 			}
 		}
-		return disknodes;
+		return this.#added;
 	}
 
 	/** Get all updated disknodes */
 	get updated(): Array<Disknode> {
-		const disknodes: Array<Disknode> = [];
-		for (const change of this.changes.values()) {
-			if (change.type === 'update' && change.disknode) {
-				disknodes.push(change.disknode);
+		if (!this.#updated) {
+			this.#updated = [];
+			for (const change of this.changes.values()) {
+				if (change.type === 'update' && change.disknode) {
+					this.#updated.push(change.disknode);
+				}
 			}
 		}
-		return disknodes;
+		return this.#updated;
 	}
 
 	/** Get all deleted disknode IDs */
 	get deleted(): Array<Path_Id> {
-		const ids: Array<Path_Id> = [];
-		for (const change of this.changes.values()) {
-			if (change.type === 'delete') {
-				ids.push(change.id);
+		if (!this.#deleted) {
+			this.#deleted = [];
+			for (const change of this.changes.values()) {
+				if (change.type === 'delete') {
+					this.#deleted.push(change.id);
+				}
 			}
 		}
-		return ids;
+		return this.#deleted;
 	}
 
 	/** Get all disknodes (added + updated) */
 	get all_disknodes(): Array<Disknode> {
-		const disknodes: Array<Disknode> = [];
-		for (const change of this.changes.values()) {
-			if (change.disknode) disknodes.push(change.disknode);
+		if (!this.#all_disknodes) {
+			this.#all_disknodes = [];
+			for (const change of this.changes.values()) {
+				if (change.disknode) this.#all_disknodes.push(change.disknode);
+			}
 		}
-		return disknodes;
+		return this.#all_disknodes;
 	}
 
 	/** Total number of changes */
@@ -197,7 +256,7 @@ const test_regex = (pattern: RegExp, str: string): boolean => {
 	return pattern.test(str);
 };
 
-// Change type transitions for coalescing
+// Change type transitions for coalescing - keep the original logic
 const COALESCE_TRANSITIONS: Record<string, Filer_Change['type'] | null> = {
 	'add:update': 'add', // add + update → add (preserve add semantic)
 	'add:delete': null, // add + delete → remove entirely
@@ -233,6 +292,9 @@ export class Filer {
 	#pending_changes: Map<Path_Id, Filer_Change> = new Map();
 	#batch_timeout: NodeJS.Timeout | undefined;
 	#batch_delay: number;
+
+	/** Pending dependency updates */
+	#pending_dependency_updates: Set<Disknode> = new Set();
 
 	/** Configuration */
 	#log?: Logger;
@@ -298,6 +360,7 @@ export class Filer {
 			this.disknodes.clear();
 			this.roots.clear();
 			this.#pending_changes.clear();
+			this.#pending_dependency_updates.clear();
 			if (this.#batch_timeout) {
 				clearTimeout(this.#batch_timeout);
 				this.#batch_timeout = undefined;
@@ -381,7 +444,7 @@ export class Filer {
 	}
 
 	/**
-	 * Coalesce change events using state machine.
+	 * Coalesce change events using lookup table.
 	 */
 	#coalesce_change(prev: Filer_Change | undefined, next: Filer_Change): Filer_Change | null {
 		if (!prev) return next;
@@ -422,6 +485,11 @@ export class Filer {
 			// Pre-populate stats if provided to avoid extra syscall
 			if (stats) {
 				disknode.set_stats(stats);
+			}
+
+			// Queue for dependency update if it's importable
+			if (disknode.is_importable) {
+				this.#pending_dependency_updates.add(disknode);
 			}
 		} else {
 			// For deletes, mark the disknode as non-existent
@@ -482,9 +550,54 @@ export class Filer {
 		const batch = new Filer_Change_Batch(this.#pending_changes.values());
 		this.#pending_changes.clear();
 
+		// Only process pending dependency updates if at least one observer needs them
+		if (this.#any_observer_needs_imports()) {
+			this.#process_pending_dependency_updates();
+		} else {
+			// Clear pending updates without processing
+			this.#pending_dependency_updates.clear();
+		}
+
 		// Process with loop prevention
 		const processed: Set<Path_Id> = new Set();
 		await this.#process_batch_with_intents(batch, processed);
+	}
+
+	/**
+	 * Check if any observer needs imports for dependency tracking.
+	 */
+	#any_observer_needs_imports(): boolean {
+		for (const observer of this.#observers.values()) {
+			if (
+				observer.needs_imports ||
+				observer.expand_to === 'dependents' ||
+				observer.expand_to === 'dependencies'
+			) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Process pending dependency updates in batch.
+	 */
+	#process_pending_dependency_updates(): void {
+		if (this.#pending_dependency_updates.size === 0) return;
+
+		for (const disknode of this.#pending_dependency_updates) {
+			// The disknode.imports getter will handle the actual updates
+			// We just need to trigger it
+			disknode.imports;
+		}
+		this.#pending_dependency_updates.clear();
+	}
+
+	/**
+	 * Queue a disknode for dependency update.
+	 */
+	queue_dependency_update(disknode: Disknode): void {
+		this.#pending_dependency_updates.add(disknode);
 	}
 
 	/**
@@ -500,10 +613,10 @@ export class Filer {
 		}
 
 		// Collect intents from all phases
-		const intents: Array<Invalidation_Intent> = [];
+		const intents: Array<Filer_Invalidation_Intent> = [];
 
 		// Execute observers by phase
-		for (const phase of ['pre', 'main', 'post'] as const) {
+		for (const phase of FILER_PHASES) {
 			const phase_intents = await this.#execute_phase(phase, batch); // eslint-disable-line no-await-in-loop
 			intents.push(...phase_intents);
 		}
@@ -522,10 +635,10 @@ export class Filer {
 	 * Execute all observers in a phase.
 	 */
 	async #execute_phase(
-		phase: 'pre' | 'main' | 'post',
+		phase: Filer_Phase,
 		batch: Filer_Change_Batch,
-	): Promise<Array<Invalidation_Intent>> {
-		const intents: Array<Invalidation_Intent> = [];
+	): Promise<Array<Filer_Invalidation_Intent>> {
+		const intents: Array<Filer_Invalidation_Intent> = [];
 		const observers = this.#get_sorted_observers();
 
 		for (const observer of observers) {
@@ -565,8 +678,8 @@ export class Filer {
 			if (observer.needs_contents) {
 				disknode.contents; // Trigger lazy load
 			}
-			if (observer.needs_stats !== false) {
-				disknode.stats; // Trigger lazy load
+			if (observer.needs_stats === true || observer.needs_stats === undefined) {
+				disknode.stats; // Trigger lazy load (default: true)
 			}
 			if (needs_imports && disknode.is_importable) {
 				disknode.imports; // Trigger import parsing
@@ -654,8 +767,7 @@ export class Filer {
 		if (this.#observers_dirty) {
 			this.#observers_sorted = Array.from(this.#observers.values()).sort((a, b) => {
 				// Sort by phase first
-				const phase_order = {pre: 0, main: 1, post: 2};
-				const phase_diff = phase_order[a.phase ?? 'main'] - phase_order[b.phase ?? 'main'];
+				const phase_diff = PHASE_ORDER[a.phase ?? 'main'] - PHASE_ORDER[b.phase ?? 'main'];
 				if (phase_diff !== 0) return phase_diff;
 
 				// Then by priority (higher first)
@@ -706,7 +818,7 @@ export class Filer {
 	 */
 	#expand_batch(
 		filtered: Map<Path_Id, Filer_Change>,
-		strategy: string,
+		strategy: Filer_Expand_Strategy,
 		observer: Filer_Observer,
 	): void {
 		const to_add: Set<Disknode> = new Set();
@@ -716,6 +828,9 @@ export class Filer {
 			if (!disknode) continue;
 
 			switch (strategy) {
+				case 'self':
+					// Nothing to add for self strategy
+					break;
 				case 'dependents':
 					for (const dep of this.traverse_relationships(disknode, 'dependents')) {
 						to_add.add(dep);
@@ -780,7 +895,7 @@ export class Filer {
 	async #execute_observer(
 		observer: Filer_Observer,
 		batch: Filer_Change_Batch,
-	): Promise<Array<Invalidation_Intent>> {
+	): Promise<Array<Filer_Invalidation_Intent>> {
 		const timeout = observer.timeout_ms ?? 30000;
 		let timer: NodeJS.Timeout | undefined;
 
@@ -802,7 +917,7 @@ export class Filer {
 	 * Resolve invalidation intents to changes.
 	 */
 	#resolve_intents(
-		intents: Array<Invalidation_Intent>,
+		intents: Array<Filer_Invalidation_Intent>,
 		processed: Set<Path_Id>,
 	): Map<Path_Id, Filer_Change> {
 		const changes: Map<Path_Id, Filer_Change> = new Map();
@@ -832,7 +947,7 @@ export class Filer {
 	/**
 	 * Resolve an invalidation intent to affected disknodes.
 	 */
-	#resolve_intent_disknodes(intent: Invalidation_Intent): Set<Disknode> {
+	#resolve_intent_disknodes(intent: Filer_Invalidation_Intent): Set<Disknode> {
 		const disknodes: Set<Disknode> = new Set();
 
 		switch (intent.type) {
@@ -979,7 +1094,7 @@ export class Filer {
 		const disknode = this.disknodes.get(id);
 		if (!disknode) return;
 
-		const intent: Invalidation_Intent = {
+		const intent: Filer_Invalidation_Intent = {
 			type: 'subtree',
 			disknode,
 			include_self: true,
@@ -1035,5 +1150,6 @@ export class Filer {
 		this.roots.clear();
 		this.#observers.clear();
 		this.#observers_sorted = [];
+		this.#pending_dependency_updates.clear();
 	}
 }
