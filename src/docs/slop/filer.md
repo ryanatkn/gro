@@ -231,24 +231,28 @@ The `Filer` orchestrates the filesystem mirror and observer system:
 class Filer {
 	// Core state
 	readonly disknodes: Map<Path_Id, Disknode>; // All tracked files
+	readonly tombstones: Map<Path_Id, Disknode>; // Deleted disknodes cache with FIFO eviction
 	readonly roots: Set<Disknode>; // Top-level watched paths
-	readonly ready: Promise<void>; // Resolves when watcher is initialized
+	tombstone_limit: number; // Maximum tombstones to keep (default: 500)
 
 	constructor(options?: {
-		paths?: Array<string>; // Paths to watch (default: source + configs)
 		batch_delay?: number; // Ms to batch changes (default: 10)
 		observers?: Array<Filer_Observer>; // Initial observers
 		log?: Logger;
 		aliases?: Array<[string, string]>; // Import alias mappings
-		chokidar_options?: ChokidarOptions;
 	});
+
+	// Lifecycle
+	mount(paths?: Array<string>, chokidar_options?: ChokidarOptions): Promise<void>; // Start watching
+	reset_watcher(paths: Array<string>, chokidar_options?: ChokidarOptions): Promise<void>; // Reset with new paths
+	dispose(): Promise<void>; // Cleanup
 
 	// Observer management
 	observe(observer: Filer_Observer): () => void; // Returns unsubscribe
 
 	// Disknode access
 	get_disknode(id: Path_Id): Disknode; // Get or create
-	get_by_id(id: Path_Id): Disknode | undefined;
+	get_by_id(id: Path_Id): Disknode | undefined; // Get from active disknodes or tombstones
 	find_disknodes(predicate: (disknode: Disknode) => boolean): Array<Disknode>;
 
 	// Dependency traversal
@@ -270,8 +274,6 @@ class Filer {
 	queue_dependency_update(disknode: Disknode): void; // Queue for import parsing
 	rescan_subtree(path: string): Promise<void>; // Force rescan
 	load_initial_stats(): Promise<void>; // Pre-warm stat cache
-	reset_watcher(paths: Array<string>, options?: ChokidarOptions): Promise<void>;
-	dispose(): Promise<void>; // Cleanup
 }
 ```
 
@@ -564,3 +566,5 @@ const filer = new Filer({
 - No content hashing (relies on mtime for change detection)
 - Symlink cycles not detected (will cause infinite loops)
 - Dynamic imports not tracked (only static ES imports)
+- Function and complex object validation is type-only (no runtime Zod validation)
+- Initial scan has 10-second timeout; mount fails if filesystem scan doesn't complete in time
