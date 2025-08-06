@@ -1,5 +1,4 @@
-import {test} from 'uvu';
-import * as assert from 'uvu/assert';
+import {test, expect} from 'vitest';
 import * as esbuild from 'esbuild';
 import {readFile, rm} from 'node:fs/promises';
 
@@ -26,13 +25,12 @@ test('build for the client', async () => {
 		bundle: true,
 		target: 'esnext',
 	});
-	assert.is(built.errors.length, 0);
-	assert.is(built.warnings.length, 0);
+	expect(built.errors.length).toBe(0);
+	expect(built.warnings.length).toBe(0);
 
 	const built_output = await readFile(outfile, 'utf8');
 	await rm(outfile); // TODO could be cleaner
-	assert.is(
-		built_output,
+	expect(built_output).toBe(
 		`// src/fixtures/modules/some_test_svelte_ts.svelte.ts
 import * as $ from "svelte/internal/client";
 var Some_Test_Svelte_Ts = class {
@@ -93,13 +91,12 @@ test('build for the server', async () => {
 		bundle: true,
 		target: 'esnext',
 	});
-	assert.is(built.errors.length, 0);
-	assert.is(built.warnings.length, 0);
+	expect(built.errors.length).toBe(0);
+	expect(built.warnings.length).toBe(0);
 
 	const built_output = await readFile(outfile, 'utf8');
 	await rm(outfile); // TODO could be cleaner
-	assert.is(
-		built_output,
+	expect(built_output).toBe(
 		`// src/fixtures/modules/some_test_svelte_ts.svelte.ts
 import * as $ from "svelte/internal/server";
 var Some_Test_Svelte_Ts = class {
@@ -130,5 +127,3 @@ export {
 `,
 	);
 });
-
-test.run();

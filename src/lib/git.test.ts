@@ -1,5 +1,4 @@
-import {test} from 'uvu';
-import * as assert from 'uvu/assert';
+import {test, expect} from 'vitest';
 
 import {
 	git_check_clean_workspace,
@@ -11,7 +10,7 @@ import {
 
 test('git_current_branch_name', async () => {
 	const branch_name = await git_current_branch_name();
-	assert.ok(branch_name);
+	expect(branch_name).toBeTruthy();
 });
 
 test('git_check_clean_workspace', async () => {
@@ -28,7 +27,5 @@ test('git_current_commit_hash', async () => {
 
 test('git_current_branch_first_commit_hash', async () => {
 	const first_commit_hash = await git_current_branch_first_commit_hash();
-	assert.ok(first_commit_hash);
+	expect(first_commit_hash).toBeTruthy();
 });
-
-test.run();
