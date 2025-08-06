@@ -20,7 +20,7 @@ export const disknode_get_extension = (id: Path_Id): string => {
 	const index = filename.lastIndexOf('.');
 	// Hidden files (starting with .) should not be considered to have extensions
 	// unless they have a second dot (e.g., .env.local has .local extension)
-	if (index <= 0 || (index === 0 && !filename.slice(1).includes('.'))) {
+	if (index <= 0 || (index === 0 && filename.indexOf('.', 1) === -1)) {
 		return '';
 	}
 	return filename.slice(index);
@@ -44,7 +44,8 @@ export const disknode_is_svelte = (id: Path_Id): boolean => id.endsWith('.svelte
 /**
  * Check if a path is a Svelte TS or JS runes module.
  */
-export const disknode_is_svelte_module = (id: Path_Id): boolean => id.includes('.svelte.');
+export const disknode_is_svelte_module = (id: Path_Id): boolean =>
+	id.includes('.svelte.') && (disknode_is_typescript(id) || disknode_is_js(id));
 
 /**
  * Check if a file is importable (TypeScript, JavaScript, Svelte, or Svelte modules).

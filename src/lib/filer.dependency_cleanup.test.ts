@@ -39,7 +39,6 @@ describe('Filer Dependency Cleanup on Delete', () => {
 					// Record what nodes ended up in the batch due to expansion
 					const batch_ids = batch.all_disknodes.map((n) => n.id).sort();
 					batch_contents.push(batch_ids);
-					console.log('Observer called with batch contents:', batch_ids);
 				},
 			};
 
@@ -54,31 +53,20 @@ describe('Filer Dependency Cleanup on Delete', () => {
 			const node_b = filer.get_disknode(TEST_PATHS.FILE_B);
 			const node_c = filer.get_disknode(TEST_PATHS.FILE_C);
 
-			console.log('Setting up dependencies...');
 			node_b.add_dependency(node_a);
 			node_c.add_dependency(node_b);
 
-			console.log('Node A dependents:', Array.from(node_a.dependents.keys()));
-			console.log('Node B dependents:', Array.from(node_b.dependents.keys()));
-			console.log('Node B dependencies:', Array.from(node_b.dependencies.keys()));
-			console.log('Node C dependencies:', Array.from(node_c.dependencies.keys()));
-
 			// Trigger initial change to capture baseline - the expansion should include dependents
-			console.log('Triggering initial change on FILE_A...');
 			ctx.mock_watcher.emit('change', TEST_PATHS.FILE_A, create_mock_stats());
 			await new Promise((resolve) => setTimeout(resolve, 10));
 
 			// Delete node B (middle of chain)
-			console.log('Deleting FILE_B...');
 			ctx.mock_watcher.emit('unlink', TEST_PATHS.FILE_B);
 			await new Promise((resolve) => setTimeout(resolve, 20));
 
 			// Trigger change on A again to test expansion after deletion
-			console.log('Triggering second change on FILE_A...');
 			ctx.mock_watcher.emit('change', TEST_PATHS.FILE_A, create_mock_stats());
 			await new Promise((resolve) => setTimeout(resolve, 20));
-
-			console.log('All batch contents:', batch_contents);
 
 			// Before deletion, expansion should include A, B, and C (A + its dependents)
 			expect(batch_contents.length).toBeGreaterThanOrEqual(2);

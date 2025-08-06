@@ -255,6 +255,7 @@ export const Filer_Change_Transitions: Record<
 
 /**
  * Helper for regex matching with automatic lastIndex reset.
+ * Ensures global/sticky regex patterns don't maintain state between calls.
  */
 export const filer_test_regex = (pattern: RegExp, str: string): boolean => {
 	if (pattern.global || pattern.sticky) {
@@ -313,14 +314,17 @@ export const filer_observer_matches = (
 	disknode: Disknode,
 	resolved_paths?: Array<Path_Id>,
 ): boolean => {
+	// Check custom match function first
 	if (observer.match?.(disknode)) return true;
 
+	// Check regex patterns
 	if (observer.patterns) {
 		for (const pattern of observer.patterns) {
 			if (filer_test_regex(pattern, disknode.id)) return true;
 		}
 	}
 
+	// Check specific paths
 	if (resolved_paths) {
 		for (const path of resolved_paths) {
 			if (disknode.id === path) return true;

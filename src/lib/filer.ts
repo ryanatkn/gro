@@ -474,8 +474,11 @@ export class Filer {
 				}
 			} catch (error) {
 				const action = observer.on_error?.(error as Error, filtered) ?? 'abort';
-				if (action === 'abort') throw error;
-				this.#log?.error(`Observer ${observer.id} failed:`, error);
+				if (action === 'abort') {
+					this.#log?.error(`Observer ${observer.id} failed and aborted batch processing:`, error);
+					throw error;
+				}
+				this.#log?.error(`Observer ${observer.id} failed (continuing):`, error);
 			}
 		}
 
@@ -547,6 +550,8 @@ export class Filer {
 			// Not filesystem root
 			const parent = this.get_disknode(parent_id);
 			disknode.parent = parent;
+			// Use basename of the disknode's path for the child map key
+			// This is the entry name as seen by the parent directory
 			parent.children.set(basename(disknode.id), disknode);
 			parent.kind = 'directory';
 		}

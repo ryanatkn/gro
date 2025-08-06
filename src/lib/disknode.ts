@@ -156,7 +156,7 @@ export class Disknode {
 						return null;
 					}
 				} catch {
-					// Target doesn't exist, treat as broken symlink
+					// Symlink target doesn't exist or is inaccessible - treat as broken symlink
 					this.#contents = null;
 					this.#contents_version = this.#version;
 					return null;
@@ -190,7 +190,7 @@ export class Disknode {
 				try {
 					this.#realpath = realpathSync(this.id);
 				} catch {
-					// Broken symlink
+					// Broken symlink - cannot resolve target, use original path
 					this.#realpath = this.id;
 				}
 			} else {
@@ -208,8 +208,15 @@ export class Disknode {
 	 */
 	get imports(): Set<string> | null {
 		if (this.#imports_version !== this.#version) {
+			// Early return if not importable - avoid contents access
+			if (!this.is_importable) {
+				this.#imports = null;
+				this.#imports_version = this.#version;
+				return null;
+			}
+
 			const contents = this.contents;
-			if (!contents || !this.is_importable) {
+			if (!contents) {
 				this.#imports = null;
 			} else {
 				// Parse imports from contents
@@ -229,9 +236,10 @@ export class Disknode {
 	 * This is called automatically when imports are accessed.
 	 */
 	#update_dependencies_from_imports(imported: Array<string>): void {
-		const dependencies_before = new Set(this.dependencies.keys());
-		const dependencies_removed = new Set(dependencies_before);
+		const current_deps = this.dependencies;
+		const new_dep_ids: Set<Path_Id> = new Set();
 
+		// Resolve all valid imports to dependency IDs
 		for (const specifier of imported) {
 			// Skip certain imports
 			if (specifier.startsWith('$app/')) continue;
@@ -251,25 +259,30 @@ export class Disknode {
 				try {
 					const file_url = new URL(this.id, 'file://');
 					resolved_id = fileURLToPath(import.meta.resolve(mapped, file_url.href));
-				} catch {
-					// Failed to resolve, skip
+				} catch (err) {
+					// Failed to resolve package import - this is common and expected for many imports
 					continue;
 				}
 			}
 
 			if (resolved_id) {
-				dependencies_removed.delete(resolved_id);
-				if (!dependencies_before.has(resolved_id)) {
-					const dep = this.filer.get_disknode(resolved_id);
-					this.add_dependency(dep);
-				}
+				new_dep_ids.add(resolved_id);
 			}
 		}
 
-		// Remove old dependencies
-		for (const dep_id of dependencies_removed) {
-			const dep = this.filer.get_disknode(dep_id);
-			this.remove_dependency(dep);
+		// Add new dependencies
+		for (const dep_id of new_dep_ids) {
+			if (!current_deps.has(dep_id)) {
+				const dep = this.filer.get_disknode(dep_id);
+				this.add_dependency(dep);
+			}
+		}
+
+		// Remove old dependencies that are no longer imported
+		for (const [dep_id, dep] of current_deps) {
+			if (!new_dep_ids.has(dep_id)) {
+				this.remove_dependency(dep);
+			}
 		}
 	}
 
@@ -279,10 +292,11 @@ export class Disknode {
 	}
 
 	get size(): number | null {
-		// Use cached stats if available and current, otherwise lazy-load
-		if (this.#stats_version === this.#version && this.#stats) {
-			return this.#stats.size;
+		// Use cached stats if available and current
+		if (this.#stats_version === this.#version) {
+			return this.#stats?.size ?? null;
 		}
+		// Lazy-load stats and return size
 		return this.stats?.size ?? null;
 	}
 
