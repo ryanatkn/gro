@@ -30,7 +30,6 @@ export const load_package_json = (
 	}
 	try {
 		package_json = JSON.parse(load_package_json_contents(dir));
-		console.log('loaded', dir, package_json.name);
 	} catch (err) {
 		log?.error(st('yellow', `Failed to load package.json in ${dir}`), err);
 		return EMPTY_PACKAGE_JSON;

@@ -4,6 +4,7 @@ import {watch, FSWatcher, type ChokidarOptions} from 'chokidar';
 import {dirname, resolve, basename} from 'node:path';
 import type {Logger} from '@ryanatkn/belt/log.js';
 import {EMPTY_OBJECT} from '@ryanatkn/belt/object.js';
+import {create_deferred, type Deferred} from '@ryanatkn/belt/async.js';
 
 import {Disknode} from './disknode.ts';
 import type {Path_Id} from './path.ts';
@@ -37,7 +38,8 @@ export interface Filer_Observer {
 	// Matching strategies (at least one required)
 	/** Regex patterns to match file paths */
 	patterns?: Array<RegExp>;
-	/** Specific paths to watch (can be a function for dynamic paths) */
+	/** Specific paths to watch (can be a function for dynamic paths - should be
+   pure and cheap) */
 	paths?: Array<Path_Id> | (() => Array<Path_Id>);
 	/** Custom matching function */
 	match?: (node: Disknode) => boolean;
@@ -48,16 +50,22 @@ export interface Filer_Observer {
 	/** Track directory changes. Default: false */
 	track_directories?: boolean;
 
-	// TODO BLOCK idk about this option's design
-	// Invalidation strategy
-	/** How to propagate changes beyond matched files */
-	invalidate?: 'self' | 'dependents' | 'dependencies' | 'all';
+	// Batch expansion strategy
+	/** How to expand the batch beyond matched files. Default: 'self' */
+	expand_to?: 'self' | 'dependents' | 'dependencies' | 'all';
+
+	// Intent support
+	/** Whether this observer can return invalidation intents. Default: false */
+	returns_intents?: boolean;
 
 	// Performance hints
 	/** Whether this observer needs file contents. Default: false */
 	needs_contents?: boolean;
 	/** Whether this observer needs file stats. Default: true */
 	needs_stats?: boolean;
+	/** Whether this observer needs parsed imports for dependency tracking. 
+  Default: false */
+	needs_imports?: boolean;
 
 	// Execution order
 	/** Execution phase. Default: 'main' */
@@ -67,20 +75,20 @@ export interface Filer_Observer {
 
 	// Error handling
 	/** How to handle errors. Default: 'abort' */
-	on_error?: (error: Error, batch: Change_Batch) => 'continue' | 'abort';
+	on_error?: (error: Error, batch: Filer_Change_Batch) => 'continue' | 'abort';
 	/** Timeout for observer execution. Default: 30000ms */
 	timeout_ms?: number;
 
 	/** Change handler - can be async and return invalidation intents */
 	on_change: (
-		changes: Change_Batch,
+		changes: Filer_Change_Batch,
 	) => void | Array<Invalidation_Intent> | Promise<void | Array<Invalidation_Intent>>;
 }
 
 /**
  * Represents a single filesystem change.
  */
-export interface File_Change {
+export interface Filer_Change {
 	type: 'add' | 'update' | 'delete';
 	node?: Disknode; // Present for add/update
 	id: Path_Id;
@@ -90,10 +98,10 @@ export interface File_Change {
 /**
  * Batch of filesystem changes delivered to observers.
  */
-export class Change_Batch {
-	readonly changes: Map<Path_Id, File_Change> = new Map();
+export class Filer_Change_Batch {
+	readonly changes: Map<Path_Id, Filer_Change> = new Map();
 
-	constructor(changes: Iterable<File_Change> = []) {
+	constructor(changes: Iterable<Filer_Change> = []) {
 		for (const change of changes) {
 			this.changes.set(change.id, change);
 		}
@@ -152,7 +160,7 @@ export class Change_Batch {
 	}
 
 	/** Get change for a specific path */
-	get(id: Path_Id): File_Change | undefined {
+	get(id: Path_Id): Filer_Change | undefined {
 		return this.changes.get(id);
 	}
 
@@ -201,7 +209,7 @@ export class Filer {
 	#observers_by_phase: Map<'pre' | 'main' | 'post', Array<Filer_Observer>> = new Map();
 
 	/** Batching */
-	#pending_changes: Map<Path_Id, File_Change> = new Map();
+	#pending_changes: Map<Path_Id, Filer_Change> = new Map();
 	#batch_timeout: NodeJS.Timeout | undefined;
 	#batch_delay: number;
 
@@ -209,11 +217,28 @@ export class Filer {
 	#log?: Logger;
 	#aliases: Array<[string, string]>;
 
+	/** Shared processed nodes for loop prevention across batch rounds */
+	#processed_nodes_global: Set<Path_Id> | undefined;
+
+	/** Promise that resolves when the filer is ready (watcher initialized) */
+	#ready_deferred: Deferred<void>;
+	get ready(): Promise<void> {
+		return this.#ready_deferred.promise;
+	}
+
 	constructor(options: Filer_Options = EMPTY_OBJECT) {
 		this.#batch_delay = options.batch_delay ?? 10;
 		this.#log = options.log;
 		this.#watched_paths = new Set();
 		this.#aliases = options.aliases ?? [];
+		this.#ready_deferred = create_deferred<void>();
+
+		// Add initial observers first
+		if (options.observers) {
+			for (const observer of options.observers) {
+				this.observe(observer);
+			}
+		}
 
 		// Default paths include source and config files
 		const default_paths = [
@@ -226,55 +251,91 @@ export class Filer {
 		].filter(existsSync);
 
 		// Initialize with provided paths
-		if (options.paths || default_paths.length > 0) {
-			void this.reset_watcher(options.paths ?? default_paths, options.chokidar_options);
-		}
-
-		// Add initial observers
-		if (options.observers) {
-			for (const observer of options.observers) {
-				this.observe(observer);
-			}
+		const paths_to_watch = options.paths ?? default_paths;
+		if (paths_to_watch.length > 0) {
+			// Start the watcher setup - ready promise will resolve when complete
+			this.reset_watcher(paths_to_watch, options.chokidar_options).catch((err) => {
+				this.#log?.error('[Filer] Failed to initialize watcher', err);
+				// Resolve ready to prevent hanging - the error was already handled in reset_watcher
+			});
+		} else {
+			// No paths to watch, immediately ready
+			this.#ready_deferred.resolve();
 		}
 	}
 
 	/**
 	 * Reset the file watcher with new paths.
 	 * Clears all existing state and rebuilds from scratch.
+	 * If called multiple times concurrently, later calls will take over.
 	 */
 	async reset_watcher(paths: Array<string>, chokidar_options?: ChokidarOptions): Promise<void> {
-		await this.#watcher?.close();
+		// Create a new deferred for this reset operation
+		const new_ready = create_deferred<void>();
+		this.#ready_deferred = new_ready;
 
-		// Clear state
-		this.nodes.clear();
-		this.roots.clear();
-		this.#pending_changes.clear();
-		if (this.#batch_timeout) {
-			clearTimeout(this.#batch_timeout);
-			this.#batch_timeout = undefined;
+		try {
+			// Close existing watcher if any
+			await this.#watcher?.close();
+
+			// Clear state
+			this.nodes.clear();
+			this.roots.clear();
+			this.#pending_changes.clear();
+			if (this.#batch_timeout) {
+				clearTimeout(this.#batch_timeout);
+				this.#batch_timeout = undefined;
+			}
+
+			// Store normalized watched paths (don't create nodes yet)
+			this.#watched_paths = new Set(paths.map((p) => resolve(p)));
+
+			// Create watcher with sensible defaults
+			this.#watcher = watch(paths, {
+				persistent: true,
+				ignoreInitial: false,
+				followSymlinks: true, // Chokidar handles symlinks
+				awaitWriteFinish: {
+					stabilityThreshold: 50,
+					pollInterval: 10,
+				},
+				...chokidar_options,
+			});
+
+			this.#setup_watcher_handlers();
+
+			// Wait for initial scan with timeout protection
+			await new Promise<void>((resolve) => {
+				// If we've been superseded, just resolve immediately
+				if (this.#ready_deferred !== new_ready) {
+					resolve();
+					return;
+				}
+
+				// Set up timeout in case watcher never becomes ready
+				const timeout = setTimeout(() => {
+					this.#log?.warn('[Filer] Watcher ready timeout after 10s');
+					resolve();
+				}, 10000);
+
+				this.#watcher!.once('ready', () => {
+					clearTimeout(timeout);
+					resolve();
+				});
+			});
+
+			// Only mark as ready if we're still the current reset
+			if (this.#ready_deferred === new_ready) {
+				new_ready.resolve();
+			}
+		} catch (err) {
+			// On error, resolve (not reject) to prevent hanging
+			// but log the error so it's not silently swallowed
+			this.#log?.error('[Filer] reset_watcher failed', err);
+			if (this.#ready_deferred === new_ready) {
+				new_ready.resolve(); // Resolve, not reject, to allow continued operation
+			}
 		}
-
-		// Store normalized watched paths
-		this.#watched_paths = new Set(paths.map((p) => resolve(p)));
-
-		// Create watcher with sensible defaults
-		this.#watcher = watch(paths, {
-			persistent: true,
-			ignoreInitial: false,
-			followSymlinks: true, // Chokidar handles symlinks
-			awaitWriteFinish: {
-				stabilityThreshold: 50,
-				pollInterval: 10,
-			},
-			...chokidar_options,
-		});
-
-		this.#setup_watcher_handlers();
-
-		// Wait for initial scan
-		await new Promise<void>((resolve) => {
-			this.#watcher!.once('ready', resolve);
-		});
 	}
 
 	/**
@@ -305,6 +366,27 @@ export class Filer {
 	}
 
 	/**
+	 * Coalesce change events properly to preserve semantic intent.
+	 */
+	#coalesce_change(prev: Filer_Change | undefined, next: Filer_Change): Filer_Change | undefined {
+		if (!prev) return next;
+
+		// add + change → add (preserve the add semantic)
+		if (prev.type === 'add' && next.type === 'update') return prev;
+
+		// add + delete → remove entry entirely (file was created and deleted in same batch)
+		if (prev.type === 'add' && next.type === 'delete') return undefined;
+
+		// delete + add → update (file was deleted then recreated)
+		if (prev.type === 'delete' && next.type === 'add') {
+			return {...next, type: 'update'};
+		}
+
+		// Everything else, latest wins
+		return next;
+	}
+
+	/**
 	 * Handle a filesystem change event.
 	 * Batches changes for efficient processing.
 	 */
@@ -322,9 +404,13 @@ export class Filer {
 			node.kind = is_directory ? 'directory' : 'file';
 			node.invalidate();
 
-			// TODO BLOCK should this always be set on the node when `stats` exists as an arg?
+			// Add to roots if this is a watched path
+			if (this.#watched_paths.has(id)) {
+				this.roots.add(node);
+			}
+
 			// Pre-populate stats if provided to avoid extra syscall
-			if (stats) {
+			if (stats && node.stats_version !== node.version) {
 				node.stats = stats;
 			}
 		} else {
@@ -333,17 +419,36 @@ export class Filer {
 			if (node) {
 				node.exists = false;
 				node.invalidate();
+				// Clean up relationships - remove this node from other nodes' maps
+				for (const [, dep] of node.dependencies) {
+					dep.dependents.delete(id);
+				}
+				for (const [, dep] of node.dependents) {
+					dep.dependencies.delete(id);
+				}
+				// Clear this node's maps
+				node.dependencies.clear();
+				node.dependents.clear();
 			}
 		}
 
-		const change: File_Change = {
+		const change: Filer_Change = {
 			type,
 			node,
 			id,
 			kind: is_directory ? 'directory' : 'file',
 		};
 
-		this.#pending_changes.set(id, change);
+		// Apply coalescing rules
+		const existing = this.#pending_changes.get(id);
+		const coalesced = this.#coalesce_change(existing, change);
+
+		if (coalesced) {
+			this.#pending_changes.set(id, coalesced);
+		} else {
+			// Remove entry entirely (e.g., add+delete)
+			this.#pending_changes.delete(id);
+		}
 
 		// Set up parent/child relationships for new nodes
 		if (type === 'add' && node) {
@@ -359,7 +464,9 @@ export class Filer {
 		if (!this.#batch_timeout) {
 			this.#batch_timeout = setTimeout(() => {
 				this.#batch_timeout = undefined;
-				void this.#flush_batch();
+				this.#flush_batch().catch((err) => {
+					this.#log?.error('[Filer] flush_batch failed', err);
+				});
 			}, this.#batch_delay);
 		}
 	}
@@ -370,10 +477,23 @@ export class Filer {
 	async #flush_batch(): Promise<void> {
 		if (this.#pending_changes.size === 0) return;
 
-		const batch = new Change_Batch(this.#pending_changes.values());
+		// Take a snapshot of pending changes before clearing
+		const batch = new Filer_Change_Batch(this.#pending_changes.values());
 		this.#pending_changes.clear();
 
-		await this.#process_batch(batch);
+		// Start a new global processed nodes set if not in a nested call
+		const is_root_flush = !this.#processed_nodes_global;
+		if (is_root_flush) {
+			this.#processed_nodes_global = new Set();
+		}
+
+		try {
+			await this.#process_batch(batch, this.#processed_nodes_global!);
+		} finally {
+			if (is_root_flush) {
+				this.#processed_nodes_global = undefined;
+			}
+		}
 	}
 
 	/**
@@ -401,22 +521,29 @@ export class Filer {
 	#setup_node_relationships(node: Disknode): void {
 		const parent_id = dirname(node.id);
 		if (parent_id !== node.id) {
-			// Not root
+			// Not filesystem root
 			const parent = this.get_node(parent_id);
 			node.parent = parent;
 			parent.children.set(basename(node.id), node);
 			parent.kind = 'directory';
-		} else {
-			// This is a root
-			this.roots.add(node);
 		}
+		// Note: roots are tracked separately when watched paths are set
 	}
 
 	/**
 	 * Check if a path is under watched directories.
 	 */
 	#is_watched_path(id: Path_Id): boolean {
+		// If no watched paths are set, consider everything as watched (internal)
+		if (this.#watched_paths.size === 0) {
+			return true;
+		}
+
 		for (const watched of this.#watched_paths) {
+			// Special case for root
+			if (watched === '/') {
+				return true;
+			}
 			if (id === watched || id.startsWith(watched + '/')) {
 				return true;
 			}
@@ -473,10 +600,9 @@ export class Filer {
 	/**
 	 * Process a batch of changes through all observers.
 	 */
-	async #process_batch(batch: Change_Batch): Promise<void> {
+	async #process_batch(batch: Filer_Change_Batch, processed_nodes: Set<Path_Id>): Promise<void> {
 		const phases: Array<'pre' | 'main' | 'post'> = ['pre', 'main', 'post'];
 		const additional_intents: Array<Invalidation_Intent> = [];
-		const processed_nodes: Set<Path_Id> = new Set(); // Prevent loops
 
 		// Track all nodes in this batch as processed
 		for (const change of batch.changes.values()) {
@@ -504,9 +630,22 @@ export class Filer {
 					}
 				}
 
+				// Pre-parse imports if needed for dependency tracking
+				if (
+					observer.needs_imports ||
+					observer.expand_to === 'dependents' ||
+					observer.expand_to === 'dependencies'
+				) {
+					for (const node of filtered.all_nodes) {
+						if (node.is_importable) {
+							node.imports; // Trigger import parsing and dependency updates
+						}
+					}
+				}
+
 				try {
 					const result = await this.#execute_observer(observer, filtered); // eslint-disable-line no-await-in-loop
-					if (result.length > 0) {
+					if (observer.returns_intents && result.length > 0) {
 						additional_intents.push(...result);
 					}
 				} catch (error) {
@@ -528,8 +667,15 @@ export class Filer {
 	/**
 	 * Filter batch changes based on observer configuration.
 	 */
-	#filter_batch_for_observer(batch: Change_Batch, observer: Filer_Observer): Change_Batch {
-		const filtered: Map<Path_Id, File_Change> = new Map();
+	#filter_batch_for_observer(
+		batch: Filer_Change_Batch,
+		observer: Filer_Observer,
+	): Filer_Change_Batch {
+		const filtered: Map<Path_Id, Filer_Change> = new Map();
+
+		// Cache dynamic paths evaluation
+		const dynamic_paths =
+			observer.paths && typeof observer.paths === 'function' ? observer.paths() : observer.paths;
 
 		// First, collect directly matching changes
 		for (const [id, change] of batch.changes) {
@@ -541,60 +687,68 @@ export class Filer {
 			if (!observer.track_directories && node.kind === 'directory') continue;
 
 			// Check matching
-			if (this.#observer_matches(observer, node)) {
+			if (this.#observer_matches(observer, node, dynamic_paths)) {
 				filtered.set(id, change);
 			}
 		}
 
-		// Then, handle invalidation strategies
-		if (observer.invalidate && observer.invalidate !== 'self') {
-			const to_add: Map<Path_Id, File_Change> = new Map();
+		// Then, handle batch expansion strategies
+		const expand_to = observer.expand_to ?? 'self';
+		if (expand_to !== 'self') {
+			const to_add: Map<Path_Id, Filer_Change> = new Map();
 
 			for (const [id, change] of filtered) {
 				const node = change.node ?? this.nodes.get(id);
 				if (!node) continue;
 
-				const invalidated = this.#get_invalidated_nodes(node, observer.invalidate);
-				for (const inv_node of invalidated) {
-					if (!filtered.has(inv_node.id) && !to_add.has(inv_node.id)) {
+				const expanded = this.#get_expanded_nodes(node, expand_to);
+				for (const exp_node of expanded) {
+					if (!filtered.has(exp_node.id) && !to_add.has(exp_node.id)) {
 						// Skip external/directories based on observer config
-						if (!observer.track_external && inv_node.is_external) continue;
-						if (!observer.track_directories && inv_node.kind === 'directory') continue;
+						if (!observer.track_external && exp_node.is_external) continue;
+						if (!observer.track_directories && exp_node.kind === 'directory') continue;
 
-						to_add.set(inv_node.id, {
+						to_add.set(exp_node.id, {
 							type: 'update',
-							node: inv_node,
-							id: inv_node.id,
-							kind: inv_node.kind,
+							node: exp_node,
+							id: exp_node.id,
+							kind: exp_node.kind,
 						});
 					}
 				}
 			}
 
-			// Merge in the invalidated nodes
+			// Merge in the expanded nodes
 			for (const [id, change] of to_add) {
 				filtered.set(id, change);
 			}
 		}
 
-		return new Change_Batch(filtered.values());
+		return new Filer_Change_Batch(filtered.values());
 	}
 
 	/**
 	 * Check if an observer matches a node.
 	 */
-	#observer_matches(observer: Filer_Observer, node: Disknode): boolean {
+	#observer_matches(
+		observer: Filer_Observer,
+		node: Disknode,
+		cached_paths?: Array<Path_Id>,
+	): boolean {
 		if (observer.match?.(node)) return true;
 
 		if (observer.patterns) {
 			for (const pattern of observer.patterns) {
+				// Reset lastIndex for stateful regexes
+				if (pattern.global || pattern.sticky) {
+					pattern.lastIndex = 0;
+				}
 				if (pattern.test(node.id)) return true;
 			}
 		}
 
-		if (observer.paths) {
-			const paths = typeof observer.paths === 'function' ? observer.paths() : observer.paths;
-			for (const path of paths) {
+		if (cached_paths) {
+			for (const path of cached_paths) {
 				if (node.id === resolve(path)) return true;
 			}
 		}
@@ -603,9 +757,9 @@ export class Filer {
 	}
 
 	/**
-	 * Get nodes to invalidate based on strategy.
+	 * Get nodes to expand to based on strategy.
 	 */
-	#get_invalidated_nodes(node: Disknode, strategy: string): Set<Disknode> {
+	#get_expanded_nodes(node: Disknode, strategy: string): Set<Disknode> {
 		const nodes: Set<Disknode> = new Set();
 
 		switch (strategy) {
@@ -638,19 +792,23 @@ export class Filer {
 	 */
 	async #execute_observer(
 		observer: Filer_Observer,
-		batch: Change_Batch,
+		batch: Filer_Change_Batch,
 	): Promise<Array<Invalidation_Intent>> {
 		const timeout = observer.timeout_ms ?? 30000;
+		let timer: NodeJS.Timeout | undefined;
 
-		const result = await Promise.race([
-			Promise.resolve(observer.on_change(batch)),
-			new Promise<never>((_, reject) =>
-				// TODO better error handling?
-				setTimeout(() => reject(new Error(`Observer ${observer.id} timed out`)), timeout),
-			),
-		]);
+		try {
+			const result = await Promise.race([
+				Promise.resolve(observer.on_change(batch)),
+				new Promise<never>((_, reject) => {
+					timer = setTimeout(() => reject(new Error(`Observer ${observer.id} timed out`)), timeout);
+				}),
+			]);
 
-		return Array.isArray(result) ? result : [];
+			return Array.isArray(result) ? result : [];
+		} finally {
+			if (timer) clearTimeout(timer);
+		}
 	}
 
 	/**
@@ -660,7 +818,7 @@ export class Filer {
 		intents: Array<Invalidation_Intent>,
 		processed_nodes: Set<Path_Id>,
 	): Promise<void> {
-		const changes: Map<Path_Id, File_Change> = new Map();
+		const changes: Map<Path_Id, Filer_Change> = new Map();
 
 		for (const intent of intents) {
 			const nodes = this.#resolve_invalidation_intent(intent);
@@ -683,7 +841,7 @@ export class Filer {
 		}
 
 		if (changes.size > 0) {
-			await this.#process_batch(new Change_Batch(changes.values()));
+			await this.#process_batch(new Filer_Change_Batch(changes.values()), processed_nodes);
 		}
 	}
 
@@ -703,17 +861,28 @@ export class Filer {
 			case 'paths':
 				if (intent.paths) {
 					for (const path of intent.paths) {
-						const node = this.nodes.get(resolve(path));
-						if (node && !node.is_external) nodes.add(node);
+						// Use get_node to create if needed (allows targeting not-yet-seen files)
+						const node = this.get_node(resolve(path));
+						if (!node.is_external) nodes.add(node);
 					}
 				}
 				break;
 
 			case 'pattern':
 				if (intent.pattern) {
+					// Reset lastIndex for stateful regexes
+					if (intent.pattern.global || intent.pattern.sticky) {
+						intent.pattern.lastIndex = 0;
+					}
 					for (const node of this.nodes.values()) {
-						if (!node.is_external && intent.pattern.test(node.id)) {
-							nodes.add(node);
+						if (!node.is_external) {
+							// Reset again before each test
+							if (intent.pattern.global || intent.pattern.sticky) {
+								intent.pattern.lastIndex = 0;
+							}
+							if (intent.pattern.test(node.id)) {
+								nodes.add(node);
+							}
 						}
 					}
 				}
@@ -875,7 +1044,8 @@ export class Filer {
 			include_self: true,
 		};
 
-		await this.#process_invalidation_intents([intent], new Set());
+		const processed_nodes: Set<Path_Id> = new Set();
+		await this.#process_invalidation_intents([intent], processed_nodes);
 	}
 
 	/**
@@ -883,7 +1053,11 @@ export class Filer {
 	 * Useful for pre-warming the cache after initial scan.
 	 */
 	async load_initial_stats(): Promise<void> {
-		const nodes = Array.from(this.nodes.values()).filter((n) => !n.is_external);
+		// When no paths are watched, treat all nodes as internal for stat loading
+		const has_watched_paths = this.#watched_paths.size > 0;
+		const nodes = Array.from(this.nodes.values()).filter(
+			(n) => !has_watched_paths || !n.is_external,
+		);
 		const batch_size = 100;
 
 		// Process in batches for parallelism without overwhelming the system
@@ -893,9 +1067,9 @@ export class Filer {
 			await Promise.all(
 				batch.map(async (node) => {
 					try {
-						const stats = await stat(node.id);
-						// Pre-populate stats to avoid later syscalls
-						node.stats = stats;
+						const file_stats = await stat(node.id);
+						// Force set stats, bypassing version check
+						node.set_stats_force(file_stats);
 					} catch {
 						// Node doesn't exist, that's okay
 						// TODO but what about other errors like permission issues?

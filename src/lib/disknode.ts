@@ -23,16 +23,34 @@ export class Disknode {
 
 	// Version counter for cache invalidation
 	#version = 0;
+	get version(): number {
+		return this.#version;
+	}
 
 	// Lazy-loaded properties with version tracking
 	#stats: Stats | null = null;
 	#stats_version = -1;
+	get stats_version(): number {
+		return this.#stats_version;
+	}
+
 	#contents: string | null = null;
 	#contents_version = -1;
+	get contents_version(): number {
+		return this.#contents_version;
+	}
+
 	#realpath: Path_Id | null = null;
 	#realpath_version = -1;
+	get realpath_version(): number {
+		return this.#realpath_version;
+	}
+
 	#imports: Set<string> | null = null;
 	#imports_version = -1;
+	get imports_version(): number {
+		return this.#imports_version;
+	}
 
 	// Relationships
 	readonly dependents: Map<Path_Id, Disknode> = new Map();
@@ -101,6 +119,26 @@ export class Disknode {
 		} else {
 			this.exists = false;
 		}
+	}
+
+	/**
+	 * Force set stats, bypassing version check.
+	 * Used for pre-populating stats in bulk operations.
+	 */
+	set_stats_force(value: Stats): void {
+		this.#stats = value;
+		this.#stats_version = this.#version;
+
+		// Update kind based on stats
+		if (value.isDirectory()) {
+			this.kind = 'directory';
+		} else if (value.isSymbolicLink()) {
+			this.kind = 'symlink';
+		} else {
+			this.kind = 'file';
+		}
+
+		this.exists = true;
 	}
 
 	/**
@@ -254,6 +292,10 @@ export class Disknode {
 	}
 
 	get size(): number | null {
+		// Use cached stats if available and current, otherwise lazy-load
+		if (this.#stats_version === this.#version && this.#stats) {
+			return this.#stats.size;
+		}
 		return this.stats?.size ?? null;
 	}
 

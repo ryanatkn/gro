@@ -30,14 +30,6 @@ export const task: Task<Args> = {
 	run: async ({args, log, filer}): Promise<void> => {
 		const {_: patterns, bail, cwd, ignore} = args;
 
-		console.log(
-			`has_dep(VITEST_CLI), VITEST_CLI, load_package_json()`,
-			has_dep(VITEST_CLI),
-			VITEST_CLI,
-			Object.keys(load_package_json(undefined, undefined, undefined, log)),
-			load_package_json()['devDependencies'],
-		);
-
 		if (has_dep(VITEST_CLI)) {
 			if (!find_cli(VITEST_CLI)) {
 				throw new Task_Error('vitest is a dependency but not installed; run `npm i`?');

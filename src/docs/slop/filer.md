@@ -87,7 +87,7 @@ interface Filer_Observer {
   on_error?: (err, batch) => 'continue' | 'abort';
 
   // Handler
-  on_change: (batch: Change_Batch) => void | Invalidation_Intent[] | Promise<...>;
+  on_change: (batch: Filer_Change_Batch) => void | Invalidation_Intent[] | Promise<...>;
 }
 ```
 
