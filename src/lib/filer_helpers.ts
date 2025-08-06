@@ -319,6 +319,15 @@ export const filer_observer_matches = (
 };
 
 /**
+ * Error thrown when a Filer observer execution times out.
+ */
+export class Filer_Observer_Timeout_Error extends Error {
+	constructor(observer_id: string, timeout_ms: number) {
+		super(`Observer ${observer_id} timed out after ${timeout_ms}ms`);
+	}
+}
+
+/**
  * Execute an observer with timeout protection.
  */
 export const filer_execute_observer = async (
@@ -333,9 +342,7 @@ export const filer_execute_observer = async (
 			Promise.resolve(observer.on_change(batch)),
 			new Promise<never>((_, reject) => {
 				timer = setTimeout(() => {
-					const error = new Error(`Observer ${observer.id} timed out after ${timeout}ms`);
-					error.name = 'ObserverTimeoutError';
-					reject(error);
+					reject(new Filer_Observer_Timeout_Error(observer.id, timeout));
 				}, timeout);
 			}),
 		]);
