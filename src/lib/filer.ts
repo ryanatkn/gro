@@ -263,7 +263,8 @@ export class Filer {
 			if (disknode) {
 				disknode.exists = false;
 				disknode.invalidate();
-				disknode.clear_relationships();
+				// Don't clear relationships yet - observers need them for expansion
+				// They will be cleared after batch processing
 				this.#add_to_tombstones(disknode);
 			}
 		}
@@ -324,6 +325,20 @@ export class Filer {
 		// Process with loop prevention
 		const processed: Set<Path_Id> = new Set();
 		await this.#process_batch_with_intents(batch, processed);
+		
+		// Clear relationships for deleted nodes after observers have processed them
+		this.#clear_deleted_node_relationships(batch);
+	}
+
+	/**
+	 * Clear relationships for deleted nodes after observers have processed the batch.
+	 */
+	#clear_deleted_node_relationships(batch: Filer_Change_Batch): void {
+		for (const change of batch.changes.values()) {
+			if (change.type === 'delete' && change.disknode && !change.disknode.exists) {
+				change.disknode.clear_relationships();
+			}
+		}
 	}
 
 	/**

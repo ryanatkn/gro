@@ -369,6 +369,9 @@ export function* filer_traverse_relationships(
 		const relationships = type === 'dependents' ? current.dependents : current.dependencies;
 
 		for (const related of relationships.values()) {
+			// Skip deleted nodes to prevent stale traversal
+			if (!related.exists) continue;
+			
 			if (!visited.has(related)) {
 				visited.add(related);
 				yield related;
