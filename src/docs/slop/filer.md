@@ -374,6 +374,57 @@ interface Filer_Change {
 
 ## design
 
+### path matching behavior
+
+Observer `paths` arrays perform **exact path matching only**. If you specify `paths: ['/src']`,
+it will only match the exact path `/src` and **not** files within that directory like `/src/file.ts`.
+
+This explicit behavior was chosen over implicit directory descendant matching for several reasons:
+
+#### why exact matching only?
+
+- **Predictable behavior**: `paths: ['/src']` has clear, unambiguous semantics
+- **Avoid conceptual confusion**: Keeps `paths` and `patterns` behaviors distinct
+- **Performance**: No additional filesystem checks or string comparisons per path
+- **Explicit over implicit**: Users must be intentional about what they match
+
+#### alternatives for directory matching
+
+If you want to watch all files in a directory, use one of these approaches:
+
+```typescript
+// Option 1: Use patterns with regex
+filer.observe({
+	id: 'directory-watcher',
+	patterns: [/^\/src\//], // Matches /src/file.ts, /src/lib/util.ts, etc.
+	on_change: (batch) => {
+		/* ... */
+	},
+});
+
+// Option 2: Use custom match function
+filer.observe({
+	id: 'directory-watcher',
+	match: (disknode) => disknode.id.startsWith('/src/'),
+	on_change: (batch) => {
+		/* ... */
+	},
+});
+
+// Option 3: Combine exact path with patterns
+filer.observe({
+	id: 'mixed-watcher',
+	paths: ['/src/index.ts'], // Exact file
+	patterns: [/^\/src\/lib\//], // Directory contents
+	on_change: (batch) => {
+		/* ... */
+	},
+});
+```
+
+This design keeps the API explicit and gives you full control over matching behavior
+without surprising implicit behaviors.
+
 ### lazy synchronous loading
 
 Disknode properties like `contents` and `stats` are loaded synchronously on first access.

@@ -1158,7 +1158,7 @@ describe('Filer Observer System', () => {
 					await wait_for_batch(50); // Longer than timeout
 				},
 				on_error: (error) => {
-					expect(error.name).toBe('ObserverTimeoutError');
+					expect(error.constructor.name).toBe('Filer_Observer_Timeout_Error');
 					expect(error.message).toContain('10ms');
 					return 'continue';
 				},
