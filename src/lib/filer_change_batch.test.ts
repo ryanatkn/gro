@@ -13,8 +13,8 @@ const TEST_DIR: Path_Id = '/test/dir';
 // Mock filer for Disknode creation
 const create_mock_filer = () =>
 	({
-		nodes: new Map(),
-		get_node: (id: Path_Id) => new Disknode(id, create_mock_filer()),
+		disknodes: new Map(),
+		get_disknode: (id: Path_Id) => new Disknode(id, create_mock_filer()),
 	}) as any;
 
 describe('Filer_Change_Batch', () => {
@@ -96,7 +96,7 @@ describe('Filer_Change_Batch', () => {
 	});
 
 	describe('categorized getters', () => {
-		test('added returns only add changes with nodes', () => {
+		test('added returns only add changes with disknodes', () => {
 			const filer = create_mock_filer();
 			const node_a = new Disknode(TEST_FILE_A, filer);
 			const node_b = new Disknode(TEST_FILE_B, filer);
@@ -114,7 +114,7 @@ describe('Filer_Change_Batch', () => {
 			expect(added[0]).toBe(node_a);
 		});
 
-		test('updated returns only update changes with nodes', () => {
+		test('updated returns only update changes with disknodes', () => {
 			const filer = create_mock_filer();
 			const node_a = new Disknode(TEST_FILE_A, filer);
 			const node_b = new Disknode(TEST_FILE_B, filer);
@@ -150,7 +150,7 @@ describe('Filer_Change_Batch', () => {
 			expect(deleted).toContain(TEST_FILE_C);
 		});
 
-		test('all_nodes returns all nodes from add and update changes', () => {
+		test('all_nodes returns all disknodes from add and update changes', () => {
 			const filer = create_mock_filer();
 			const node_a = new Disknode(TEST_FILE_A, filer);
 			const node_b = new Disknode(TEST_FILE_B, filer);
@@ -239,7 +239,7 @@ describe('Filer_Change_Batch', () => {
 	});
 
 	describe('edge cases', () => {
-		test('handles changes without nodes gracefully', () => {
+		test('handles changes without disknodes gracefully', () => {
 			const changes: Array<Filer_Change> = [
 				{type: 'add', node: undefined, id: TEST_FILE_A, kind: 'file'},
 				{type: 'update', node: undefined, id: TEST_FILE_B, kind: 'file'},

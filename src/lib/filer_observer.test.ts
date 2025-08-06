@@ -487,7 +487,7 @@ describe('Filer Observer System', () => {
 			});
 
 			// Create external node manually
-			const external_node = filer.get_node(TEST_EXTERNAL_FILE);
+			const external_node = filer.get_disknode(TEST_EXTERNAL_FILE);
 			external_node.is_external = true;
 
 			// Simulate change to external file
@@ -543,7 +543,7 @@ describe('Filer Observer System', () => {
 			});
 
 			// External file should not match
-			const external_node = filer.get_node(TEST_EXTERNAL_FILE);
+			const external_node = filer.get_disknode(TEST_EXTERNAL_FILE);
 			external_node.is_external = true;
 			mock_watcher.emit('add', TEST_EXTERNAL_FILE);
 			await new Promise((resolve) => setTimeout(resolve, 10));
@@ -577,8 +577,8 @@ describe('Filer Observer System', () => {
 			});
 
 			// Set up dependency
-			const node_a = filer.get_node(TEST_FILE_A);
-			const node_b = filer.get_node(TEST_FILE_B);
+			const node_a = filer.get_disknode(TEST_FILE_A);
+			const node_b = filer.get_disknode(TEST_FILE_B);
 			node_b.add_dependency(node_a);
 
 			mock_watcher.emit('change', TEST_FILE_A);
@@ -605,9 +605,9 @@ describe('Filer Observer System', () => {
 			});
 
 			// Set up dependency chain: A <- B <- C
-			const node_a = filer.get_node(TEST_FILE_A);
-			const node_b = filer.get_node(TEST_FILE_B);
-			const node_c = filer.get_node(TEST_FILE_C);
+			const node_a = filer.get_disknode(TEST_FILE_A);
+			const node_b = filer.get_disknode(TEST_FILE_B);
+			const node_c = filer.get_disknode(TEST_FILE_C);
 			node_b.add_dependency(node_a);
 			node_c.add_dependency(node_b);
 
@@ -635,9 +635,9 @@ describe('Filer Observer System', () => {
 			});
 
 			// Set up dependency chain: A -> B -> C
-			const node_a = filer.get_node(TEST_FILE_A);
-			const node_b = filer.get_node(TEST_FILE_B);
-			const node_c = filer.get_node(TEST_FILE_C);
+			const node_a = filer.get_disknode(TEST_FILE_A);
+			const node_b = filer.get_disknode(TEST_FILE_B);
+			const node_c = filer.get_disknode(TEST_FILE_C);
 			node_c.add_dependency(node_b);
 			node_b.add_dependency(node_a);
 
@@ -664,11 +664,11 @@ describe('Filer Observer System', () => {
 				observers: [observer],
 			});
 
-			// Create various nodes
-			filer.get_node(TEST_FILE_A);
-			filer.get_node(TEST_FILE_B);
-			filer.get_node(TEST_FILE_C);
-			const external = filer.get_node(TEST_EXTERNAL_FILE);
+			// Create various disknodes
+			filer.get_disknode(TEST_FILE_A);
+			filer.get_disknode(TEST_FILE_B);
+			filer.get_disknode(TEST_FILE_C);
+			const external = filer.get_disknode(TEST_EXTERNAL_FILE);
 			external.is_external = true;
 
 			mock_watcher.emit('change', TEST_FILE_A);
@@ -697,12 +697,12 @@ describe('Filer Observer System', () => {
 				observers: [observer],
 			});
 
-			// Create nodes of different types
-			filer.get_node(TEST_FILE_A);
-			filer.get_node(TEST_FILE_B);
-			const dir_node = filer.get_node(TEST_DIR_LIB);
+			// Create disknodes of different types
+			filer.get_disknode(TEST_FILE_A);
+			filer.get_disknode(TEST_FILE_B);
+			const dir_node = filer.get_disknode(TEST_DIR_LIB);
 			dir_node.kind = 'directory';
-			const external = filer.get_node(TEST_EXTERNAL_FILE);
+			const external = filer.get_disknode(TEST_EXTERNAL_FILE);
 			external.is_external = true;
 
 			mock_watcher.emit('change', TEST_FILE_A);
@@ -731,7 +731,7 @@ describe('Filer Observer System', () => {
 				observers: [observer],
 			});
 
-			const node = filer.get_node(TEST_FILE_A);
+			const node = filer.get_disknode(TEST_FILE_A);
 			const contents_spy = vi.spyOn(node, 'contents', 'get');
 
 			mock_watcher.emit('add', TEST_FILE_A);
@@ -755,7 +755,7 @@ describe('Filer Observer System', () => {
 				observers: [observer],
 			});
 
-			const node = filer.get_node(TEST_FILE_A);
+			const node = filer.get_disknode(TEST_FILE_A);
 			const stats_spy = vi.spyOn(node, 'stats', 'get');
 
 			mock_watcher.emit('add', TEST_FILE_A);
@@ -779,7 +779,7 @@ describe('Filer Observer System', () => {
 				observers: [observer],
 			});
 
-			const node = filer.get_node(TEST_FILE_A);
+			const node = filer.get_disknode(TEST_FILE_A);
 			const stats_spy = vi.spyOn(node, 'stats', 'get');
 
 			mock_watcher.emit('add', TEST_FILE_A);
@@ -803,7 +803,7 @@ describe('Filer Observer System', () => {
 				observers: [observer],
 			});
 
-			const node = filer.get_node(TEST_FILE_A);
+			const node = filer.get_disknode(TEST_FILE_A);
 			const imports_spy = vi.spyOn(node, 'imports', 'get');
 
 			mock_watcher.emit('add', TEST_FILE_A);
@@ -827,7 +827,7 @@ describe('Filer Observer System', () => {
 				observers: [observer],
 			});
 
-			const node = filer.get_node(TEST_FILE_A);
+			const node = filer.get_disknode(TEST_FILE_A);
 			const imports_spy = vi.spyOn(node, 'imports', 'get');
 
 			mock_watcher.emit('add', TEST_FILE_A);
@@ -851,7 +851,7 @@ describe('Filer Observer System', () => {
 				observers: [observer],
 			});
 
-			const node = filer.get_node(TEST_FILE_A);
+			const node = filer.get_disknode(TEST_FILE_A);
 			const imports_spy = vi.spyOn(node, 'imports', 'get');
 
 			mock_watcher.emit('add', TEST_FILE_A);
@@ -910,9 +910,9 @@ describe('Filer Observer System', () => {
 				observers: [intent_observer, tracking_observer],
 			});
 
-			// Create nodes
-			filer.get_node(TEST_FILE_A);
-			filer.get_node(TEST_FILE_B);
+			// Create disknodes
+			filer.get_disknode(TEST_FILE_A);
+			filer.get_disknode(TEST_FILE_B);
 
 			mock_watcher.emit('add', TEST_FILE_A);
 			await new Promise((resolve) => setTimeout(resolve, 50));

@@ -50,11 +50,11 @@ The central filesystem orchestrator that maintains the Disknode graph and notifi
 
 **Key APIs:**
 
-- `get_node(id)` - Get or create a Disknode
+- `get_disknode(id)` - Get or create a Disknode
 - `observe(observer)` - Register an observer, returns unsubscribe function
-- `find_nodes(predicate)` - Query nodes
+- `find_nodes(predicate)` - Query disknodes
 - `get_dependents(node, recursive)` - Traverse dependency graph
-- `filter_dependents(node, filter, recursive)` - Filter dependent nodes
+- `filter_dependents(node, filter, recursive)` - Filter dependent disknodes
 
 ## Observer System
 
@@ -105,8 +105,8 @@ interface Filer_Observer {
 
 Groups related filesystem changes into atomic units:
 
-- `added` - Newly created nodes
-- `updated` - Modified nodes
+- `added` - Newly created disknodes
+- `updated` - Modified disknodes
 - `deleted` - Removed node IDs
 
 ### Invalidation Strategies

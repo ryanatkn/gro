@@ -252,14 +252,14 @@ export const gro_plugin_server = ({
 				// Track all entry points
 				for (const entry of entry_points) {
 					const resolved = resolve(base_dir, entry);
-					const node = filer.get_node(resolved);
+					const node = filer.get_disknode(resolved);
 					entry_nodes.add(node);
 				}
 
 				// Track all dependencies from the build
 				for (const key in metafile.inputs) {
 					const path = resolve(base_dir, strip_before(key, ':'));
-					const node = filer.get_node(path);
+					const node = filer.get_disknode(path);
 					dependency_nodes.add(node);
 				}
 			};

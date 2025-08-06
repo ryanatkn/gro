@@ -4,12 +4,12 @@ import {spawn_cli} from '@ryanatkn/gro/cli.js';
 import {Task_Error, type Task} from './task.ts';
 import {paths} from './paths.ts';
 import {find_cli} from './cli.ts';
-import {has_dep, load_package_json} from './package_json.ts';
+import {has_dep} from './package_json.ts';
 import {serialize_args, to_forwarded_args} from './args.ts';
 import {VITEST_CLI} from './constants.ts';
 
 export const Args = z.strictObject({
-	_: z.array(z.string()).meta({description: 'file patterns to test'}).default([`\\.test\\.ts$`]), // TODO maybe use uvu's default instead of being restrictive?
+	_: z.array(z.string()).meta({description: 'file patterns to test'}).default(['.test.ts']), // TODO maybe use uvu's default instead of being restrictive?
 	bail: z
 		.boolean()
 		.meta({description: 'the bail option to uvu run, exit immediately on failure'})
@@ -27,7 +27,7 @@ export type Args = z.infer<typeof Args>;
 export const task: Task<Args> = {
 	summary: 'run tests with uvu',
 	Args,
-	run: async ({args, log, filer}): Promise<void> => {
+	run: async ({args, filer}): Promise<void> => {
 		const {_: patterns, bail, cwd, ignore} = args;
 
 		if (has_dep(VITEST_CLI)) {

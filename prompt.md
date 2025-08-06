@@ -37,14 +37,14 @@ this.#batch_timeout = setTimeout(() => {
 
 2. **“Roots” set doesn’t represent watched roots (doc mismatch & logic bug)**
    `#setup_node_relationships` only adds a node to `this.roots` when `dirname(id) === id` (i.e., `/`). That’s the OS filesystem root, not “top-level watched paths” as in the docs.
-   **Fix:** repurpose `roots` to track nodes whose `id` equals a watched path:
+   **Fix:** repurpose `roots` to track disknodes whose `id` equals a watched path:
 
 ```ts
 async reset_watcher(paths: string[], ...) {
   ...
   this.#watched_paths = new Set(paths.map(p => resolve(p)));
   this.roots.clear();
-  for (const w of this.#watched_paths) this.roots.add(this.get_node(w));
+  for (const w of this.#watched_paths) this.roots.add(this.get_disknode(w));
   ...
 }
 ```
@@ -97,10 +97,10 @@ Use when writing `#pending_changes.set(...)`.
 
 ## 🧭 Design & docs critique (what to tighten)
 
-- **“Complete filesystem mirror” vs. when nodes are created**
-  You _do_ create parents all the way up on `get_node`, but there’s no **initial crawl**; the mirror is only as complete as what Chokidar reports and what you have touched via `get_node`. The doc’s claim is a bit strong; consider clarifying to “complete mirror of **watched** paths as events are observed” or add an optional initial walk.
+- **“Complete filesystem mirror” vs. when disknodes are created**
+  You _do_ create parents all the way up on `get_disknode`, but there’s no **initial crawl**; the mirror is only as complete as what Chokidar reports and what you have touched via `get_disknode`. The doc’s claim is a bit strong; consider clarifying to “complete mirror of **watched** paths as events are observed” or add an optional initial walk.
 
-- **“Root nodes (top-level watched paths)”**
+- **“Root disknodes (top-level watched paths)”**
   As noted, implementation doesn’t track watched roots. Update either the code (recommended) or the docs.
 
 - **“Automatic dependency tracking”**
@@ -136,8 +136,8 @@ Use when writing `#pending_changes.set(...)`.
 ## 🪙 Small quality-of-life tweaks (cheap wins)
 
 - Reset `RegExp.lastIndex` before `.test()` (covered above).
-- In `#resolve_invalidation_intent('paths')`, consider `get_node(resolve(path))` instead of `nodes.get(...)` so intent can target not-yet-seen files (cheap and keeps the mirror fuller). If you do this, keep `is_external` filtering intact.
-- In `#setup_node_relationships`, relationship creation is duplicated (called in `get_node` and again on `'add'`). The extra call is harmless but unnecessary.
+- In `#resolve_invalidation_intent('paths')`, consider `get_disknode(resolve(path))` instead of `nodes.get(...)` so intent can target not-yet-seen files (cheap and keeps the mirror fuller). If you do this, keep `is_external` filtering intact.
+- In `#setup_node_relationships`, relationship creation is duplicated (called in `get_disknode` and again on `'add'`). The extra call is harmless but unnecessary.
 - `Filer_Change_Batch.added/updated`: if you coalesce, consider exposing the final **order** of changes if that matters to clients (not required, just note).
 
 ---
@@ -185,7 +185,7 @@ This is a major design flaw. Synchronous file I/O in getters can freeze the enti
 
 ### 3. **Memory Leak in Dependency Tracking**
 
-When nodes are deleted, their entries in `dependencies` and `dependents` maps of other nodes are never cleaned up. Over time, this leads to memory accumulation of dead references.
+When disknodes are deleted, their entries in `dependencies` and `dependents` maps of other disknodes are never cleaned up. Over time, this leads to memory accumulation of dead references.
 
 ### 4. **Incorrect Stats Setter Logic**
 
@@ -252,7 +252,7 @@ Errors are swallowed without distinction between "file not found" and actual I/O
 
 ### 6. **Invalidation Intent Loop Risk**
 
-While there's loop prevention for processed nodes, observers returning new invalidation intents could still cause runaway processing if they keep generating new targets.
+While there's loop prevention for processed disknodes, observers returning new invalidation intents could still cause runaway processing if they keep generating new targets.
 
 ### 7. **No Batch Transaction Support**
 

@@ -66,12 +66,12 @@ const create_mock_stats = (options: Partial<Stats> = {}): Stats =>
 // Mock filer
 const create_mock_filer = (): Filer =>
 	({
-		nodes: new Map(),
+		disknodes: new Map(),
 		roots: new Set(),
-		get_node: vi.fn((id: Path_Id) => new Disknode(id, create_mock_filer())),
+		get_disknode: vi.fn((id: Path_Id) => new Disknode(id, create_mock_filer())),
 		map_alias: vi.fn((spec: string) => spec),
 		observe: vi.fn(),
-		find_nodes: vi.fn(),
+		find_disknodes: vi.fn(),
 		get_dependents: vi.fn(),
 		get_dependencies: vi.fn(),
 		filter_dependents: vi.fn(),
@@ -96,70 +96,70 @@ describe('Disknode', () => {
 
 	describe('basic functionality', () => {
 		test('creates node with correct id and filer', () => {
-			const node = new Disknode(TEST_PATH_TS, filer);
-			expect(node.id).toBe(TEST_PATH_TS);
-			expect(node.filer).toBe(filer);
+			const disknode = new Disknode(TEST_PATH_TS, filer);
+			expect(disknode.id).toBe(TEST_PATH_TS);
+			expect(disknode.filer).toBe(filer);
 		});
 
 		test('initializes with default properties', () => {
-			const node = new Disknode(TEST_PATH_TS, filer);
-			expect(node.kind).toBe('file');
-			expect(node.is_external).toBe(false);
-			expect(node.exists).toBe(true);
-			expect(node.parent).toBe(null);
-			expect(node.dependents.size).toBe(0);
-			expect(node.dependencies.size).toBe(0);
-			expect(node.children.size).toBe(0);
+			const disknode = new Disknode(TEST_PATH_TS, filer);
+			expect(disknode.kind).toBe('file');
+			expect(disknode.is_external).toBe(false);
+			expect(disknode.exists).toBe(true);
+			expect(disknode.parent).toBe(null);
+			expect(disknode.dependents.size).toBe(0);
+			expect(disknode.dependencies.size).toBe(0);
+			expect(disknode.children.size).toBe(0);
 		});
 
 		test('detects TypeScript file extensions', () => {
-			const ts_node = new Disknode(TEST_PATH_TS, filer);
-			expect(ts_node.extension).toBe('.ts');
-			expect(ts_node.is_typescript).toBe(true);
-			expect(ts_node.is_js).toBe(false);
-			expect(ts_node.is_svelte).toBe(false);
-			expect(ts_node.is_importable).toBe(true);
+			const ts_disknode = new Disknode(TEST_PATH_TS, filer);
+			expect(ts_disknode.extension).toBe('.ts');
+			expect(ts_disknode.is_typescript).toBe(true);
+			expect(ts_disknode.is_js).toBe(false);
+			expect(ts_disknode.is_svelte).toBe(false);
+			expect(ts_disknode.is_importable).toBe(true);
 
-			const mts_node = new Disknode(TEST_PATH_MTS, filer);
-			expect(mts_node.extension).toBe('.mts');
-			expect(mts_node.is_typescript).toBe(true);
-			expect(mts_node.is_js).toBe(false);
-			expect(mts_node.is_importable).toBe(true);
+			const mts_disknode = new Disknode(TEST_PATH_MTS, filer);
+			expect(mts_disknode.extension).toBe('.mts');
+			expect(mts_disknode.is_typescript).toBe(true);
+			expect(mts_disknode.is_js).toBe(false);
+			expect(mts_disknode.is_importable).toBe(true);
 		});
 
 		test('detects JavaScript file extensions', () => {
-			const js_node = new Disknode(TEST_PATH_JS, filer);
-			expect(js_node.extension).toBe('.js');
-			expect(js_node.is_typescript).toBe(false);
-			expect(js_node.is_js).toBe(true);
-			expect(js_node.is_svelte).toBe(false);
-			expect(js_node.is_importable).toBe(true);
+			const js_disknode = new Disknode(TEST_PATH_JS, filer);
+			expect(js_disknode.extension).toBe('.js');
+			expect(js_disknode.is_typescript).toBe(false);
+			expect(js_disknode.is_js).toBe(true);
+			expect(js_disknode.is_svelte).toBe(false);
+			expect(js_disknode.is_importable).toBe(true);
 
-			const cjs_node = new Disknode(TEST_PATH_CJS, filer);
-			expect(cjs_node.extension).toBe('.cjs');
-			expect(cjs_node.is_typescript).toBe(false);
-			expect(cjs_node.is_js).toBe(true);
-			expect(cjs_node.is_importable).toBe(true);
+			const cjs_disknode = new Disknode(TEST_PATH_CJS, filer);
+			expect(cjs_disknode.extension).toBe('.cjs');
+			expect(cjs_disknode.is_typescript).toBe(false);
+			expect(cjs_disknode.is_js).toBe(true);
+			expect(cjs_disknode.is_importable).toBe(true);
 		});
 
 		test('detects Svelte files', () => {
-			const svelte_node = new Disknode(TEST_PATH_SVELTE, filer);
-			expect(svelte_node.extension).toBe('.svelte');
-			expect(svelte_node.is_typescript).toBe(false);
-			expect(svelte_node.is_js).toBe(false);
-			expect(svelte_node.is_svelte).toBe(true);
-			expect(svelte_node.is_svelte_module).toBe(true);
-			expect(svelte_node.is_importable).toBe(true);
+			const svelte_disknode = new Disknode(TEST_PATH_SVELTE, filer);
+			expect(svelte_disknode.extension).toBe('.svelte');
+			expect(svelte_disknode.is_typescript).toBe(false);
+			expect(svelte_disknode.is_js).toBe(false);
+			expect(svelte_disknode.is_svelte).toBe(true);
+			expect(svelte_disknode.is_svelte_module).toBe(true);
+			expect(svelte_disknode.is_importable).toBe(true);
 		});
 
 		test('identifies non-importable files', () => {
-			const json_node = new Disknode(TEST_PATH_JSON, filer);
-			expect(json_node.extension).toBe('.json');
-			expect(json_node.is_importable).toBe(false);
+			const json_disknode = new Disknode(TEST_PATH_JSON, filer);
+			expect(json_disknode.extension).toBe('.json');
+			expect(json_disknode.is_importable).toBe(false);
 
-			const txt_node = new Disknode(TEST_PATH_TXT, filer);
-			expect(txt_node.extension).toBe('.txt');
-			expect(txt_node.is_importable).toBe(false);
+			const txt_disknode = new Disknode(TEST_PATH_TXT, filer);
+			expect(txt_disknode.extension).toBe('.txt');
+			expect(txt_disknode.is_importable).toBe(false);
 		});
 	});
 
@@ -168,23 +168,23 @@ describe('Disknode', () => {
 			const mock_stats = create_mock_stats({size: 123, mtimeMs: 1000});
 			vi.mocked(lstatSync).mockReturnValue(mock_stats);
 
-			const node = new Disknode(TEST_PATH_TS, filer);
+			const disknode = new Disknode(TEST_PATH_TS, filer);
 			expect(vi.mocked(lstatSync)).not.toHaveBeenCalled();
 
-			const stats = node.stats;
+			const stats = disknode.stats;
 			expect(vi.mocked(lstatSync)).toHaveBeenCalledWith(TEST_PATH_TS);
 			expect(stats).toBe(mock_stats);
-			expect(node.size).toBe(123);
-			expect(node.mtime).toBe(1000);
+			expect(disknode.size).toBe(123);
+			expect(disknode.mtime).toBe(1000);
 		});
 
 		test('caches stats on subsequent accesses', () => {
 			const mock_stats = create_mock_stats();
 			vi.mocked(lstatSync).mockReturnValue(mock_stats);
 
-			const node = new Disknode(TEST_PATH_TS, filer);
-			const stats1 = node.stats;
-			const stats2 = node.stats;
+			const disknode = new Disknode(TEST_PATH_TS, filer);
+			const stats1 = disknode.stats;
+			const stats2 = disknode.stats;
 
 			expect(vi.mocked(lstatSync)).toHaveBeenCalledTimes(1);
 			expect(stats1).toBe(stats2);
@@ -221,9 +221,9 @@ describe('Disknode', () => {
 			});
 			vi.mocked(lstatSync).mockReturnValue(symlink_stats);
 
-			const symlink_node = new Disknode(TEST_SYMLINK_PATH, filer);
-			symlink_node.stats; // trigger load
-			expect(symlink_node.kind).toBe('symlink');
+			const symlink_disknode = new Disknode(TEST_SYMLINK_PATH, filer);
+			symlink_disknode.stats; // trigger load
+			expect(symlink_disknode.kind).toBe('symlink');
 		});
 
 		test('allows setting stats to avoid syscalls', () => {
@@ -547,7 +547,7 @@ describe('Disknode', () => {
 			expect(root.is_ancestor_of(unrelated)).toBe(false);
 		});
 
-		test('calculates relative paths between nodes', () => {
+		test('calculates relative paths between disknodes', () => {
 			const root = new Disknode('/test', filer);
 			const dir_a = new Disknode('/test/a', filer);
 			const dir_b = new Disknode('/test/b', filer);
@@ -565,7 +565,7 @@ describe('Disknode', () => {
 			expect(file_a.relative_to(dir_a)).toBe('..');
 		});
 
-		test('returns null for unrelated nodes', () => {
+		test('returns null for unrelated disknodes', () => {
 			const node_a = new Disknode('/test/a.ts', filer);
 			const node_b = new Disknode('/other/b.ts', filer);
 
@@ -672,8 +672,8 @@ describe('Disknode', () => {
 			const dep_a = new Disknode('/test/path/a.js', filer);
 			const dep_b = new Disknode('/test/path/b.js', filer);
 
-			// Mock filer to return our dependency nodes
-			vi.mocked(filer.get_node).mockImplementation((id: Path_Id) => {
+			// Mock filer to return our dependency disknodes
+			vi.mocked(filer.get_disknode).mockImplementation((id: Path_Id) => {
 				if (id === '/test/path/a.js') return dep_a;
 				if (id === '/test/path/b.js') return dep_b;
 				return new Disknode(id, filer);
@@ -695,8 +695,8 @@ describe('Disknode', () => {
 			const node = new Disknode(TEST_PATH_JS, filer);
 			const dep_a = new Disknode('/test/path/a.js', filer);
 
-			// Mock filer to return our dependency nodes
-			vi.mocked(filer.get_node).mockImplementation((id: Path_Id) => {
+			// Mock filer to return our dependency disknodes
+			vi.mocked(filer.get_disknode).mockImplementation((id: Path_Id) => {
 				if (id === '/test/path/a.js') return dep_a;
 				return new Disknode(id, filer);
 			});
@@ -716,8 +716,8 @@ describe('Disknode', () => {
 			const node = new Disknode(TEST_PATH_SVELTE, filer);
 			const dep_a = new Disknode('/test/path/a.js', filer);
 
-			// Mock filer to return our dependency nodes
-			vi.mocked(filer.get_node).mockImplementation((id: Path_Id) => {
+			// Mock filer to return our dependency disknodes
+			vi.mocked(filer.get_disknode).mockImplementation((id: Path_Id) => {
 				if (id === '/test/path/a.js') return dep_a;
 				return new Disknode(id, filer);
 			});
@@ -737,9 +737,9 @@ describe('Disknode', () => {
 			const node = new Disknode(TEST_PATH_TXT, filer);
 			expect(node.imports).toBe(null);
 
-			const json_node = new Disknode(TEST_PATH_JSON, filer);
+			const json_disknode = new Disknode(TEST_PATH_JSON, filer);
 			vi.mocked(readFileSync).mockReturnValue(TEST_CONTENT_JSON);
-			expect(json_node.imports).toBe(null);
+			expect(json_disknode.imports).toBe(null);
 		});
 	});
 

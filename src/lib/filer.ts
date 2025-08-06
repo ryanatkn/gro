@@ -107,26 +107,26 @@ export class Filer_Change_Batch {
 		}
 	}
 
-	/** Get all added nodes */
+	/** Get all added disknodes */
 	get added(): Array<Disknode> {
-		const nodes: Array<Disknode> = [];
+		const disknodes: Array<Disknode> = [];
 		for (const change of this.changes.values()) {
 			if (change.type === 'add' && change.node) {
-				nodes.push(change.node);
+				disknodes.push(change.node);
 			}
 		}
-		return nodes;
+		return disknodes;
 	}
 
-	/** Get all updated nodes */
+	/** Get all updated disknodes */
 	get updated(): Array<Disknode> {
-		const nodes: Array<Disknode> = [];
+		const disknodes: Array<Disknode> = [];
 		for (const change of this.changes.values()) {
 			if (change.type === 'update' && change.node) {
-				nodes.push(change.node);
+				disknodes.push(change.node);
 			}
 		}
-		return nodes;
+		return disknodes;
 	}
 
 	/** Get all deleted node IDs */
@@ -140,13 +140,13 @@ export class Filer_Change_Batch {
 		return ids;
 	}
 
-	/** Get all nodes (added + updated) */
+	/** Get all disknodes (added + updated) */
 	get all_nodes(): Array<Disknode> {
-		const nodes: Array<Disknode> = [];
+		const disknodes: Array<Disknode> = [];
 		for (const change of this.changes.values()) {
-			if (change.node) nodes.push(change.node);
+			if (change.node) disknodes.push(change.node);
 		}
-		return nodes;
+		return disknodes;
 	}
 
 	/** Total number of changes */
@@ -195,10 +195,10 @@ export interface Filer_Options {
 export class Filer {
 	#watcher: FSWatcher | undefined;
 
-	/** All tracked nodes by absolute path */
-	readonly nodes: Map<Path_Id, Disknode> = new Map();
+	/** All tracked disknodes by absolute path */
+	readonly disknodes: Map<Path_Id, Disknode> = new Map();
 
-	/** Root nodes (top-level watched paths) */
+	/** Root disknodes (top-level watched paths) */
 	readonly roots: Set<Disknode> = new Set();
 
 	/** Watched paths for external checking */
@@ -217,7 +217,7 @@ export class Filer {
 	#log?: Logger;
 	#aliases: Array<[string, string]>;
 
-	/** Shared processed nodes for loop prevention across batch rounds */
+	/** Shared processed disknodes for loop prevention across batch rounds */
 	#processed_nodes_global: Set<Path_Id> | undefined;
 
 	/** Promise that resolves when the filer is ready (watcher initialized) */
@@ -279,7 +279,7 @@ export class Filer {
 			await this.#watcher?.close();
 
 			// Clear state
-			this.nodes.clear();
+			this.disknodes.clear();
 			this.roots.clear();
 			this.#pending_changes.clear();
 			if (this.#batch_timeout) {
@@ -287,7 +287,7 @@ export class Filer {
 				this.#batch_timeout = undefined;
 			}
 
-			// Store normalized watched paths (don't create nodes yet)
+			// Store normalized watched paths (don't create disknodes yet)
 			this.#watched_paths = new Set(paths.map((p) => resolve(p)));
 
 			// Create watcher with sensible defaults
@@ -400,7 +400,7 @@ export class Filer {
 
 		let node: Disknode | undefined;
 		if (type !== 'delete') {
-			node = this.get_node(id);
+			node = this.get_disknode(id);
 			node.kind = is_directory ? 'directory' : 'file';
 			node.invalidate();
 
@@ -415,11 +415,11 @@ export class Filer {
 			}
 		} else {
 			// For deletes, mark the node as non-existent
-			node = this.nodes.get(id);
+			node = this.disknodes.get(id);
 			if (node) {
 				node.exists = false;
 				node.invalidate();
-				// Clean up relationships - remove this node from other nodes' maps
+				// Clean up relationships - remove this node from other disknodes' maps
 				for (const [, dep] of node.dependencies) {
 					dep.dependents.delete(id);
 				}
@@ -450,7 +450,7 @@ export class Filer {
 			this.#pending_changes.delete(id);
 		}
 
-		// Set up parent/child relationships for new nodes
+		// Set up parent/child relationships for new disknodes
 		if (type === 'add' && node) {
 			this.#setup_node_relationships(node);
 		}
@@ -481,7 +481,7 @@ export class Filer {
 		const batch = new Filer_Change_Batch(this.#pending_changes.values());
 		this.#pending_changes.clear();
 
-		// Start a new global processed nodes set if not in a nested call
+		// Start a new global processed disknodes set if not in a nested call
 		const is_root_flush = !this.#processed_nodes_global;
 		if (is_root_flush) {
 			this.#processed_nodes_global = new Set();
@@ -500,11 +500,11 @@ export class Filer {
 	 * Get or create a node for the given path.
 	 * Nodes are created lazily as they're referenced.
 	 */
-	get_node(id: Path_Id): Disknode {
-		let node = this.nodes.get(id);
+	get_disknode(id: Path_Id): Disknode {
+		let node = this.disknodes.get(id);
 		if (!node) {
 			node = new Disknode(id, this);
-			this.nodes.set(id, node);
+			this.disknodes.set(id, node);
 
 			// Check if external
 			node.is_external = !this.#is_watched_path(id);
@@ -522,7 +522,7 @@ export class Filer {
 		const parent_id = dirname(node.id);
 		if (parent_id !== node.id) {
 			// Not filesystem root
-			const parent = this.get_node(parent_id);
+			const parent = this.get_disknode(parent_id);
 			node.parent = parent;
 			parent.children.set(basename(node.id), node);
 			parent.kind = 'directory';
@@ -604,7 +604,7 @@ export class Filer {
 		const phases: Array<'pre' | 'main' | 'post'> = ['pre', 'main', 'post'];
 		const additional_intents: Array<Invalidation_Intent> = [];
 
-		// Track all nodes in this batch as processed
+		// Track all disknodes in this batch as processed
 		for (const change of batch.changes.values()) {
 			processed_nodes.add(change.id);
 		}
@@ -679,7 +679,7 @@ export class Filer {
 
 		// First, collect directly matching changes
 		for (const [id, change] of batch.changes) {
-			const node = change.node ?? this.nodes.get(id);
+			const node = change.node ?? this.disknodes.get(id);
 			if (!node) continue;
 
 			// Check observer filters
@@ -698,7 +698,7 @@ export class Filer {
 			const to_add: Map<Path_Id, Filer_Change> = new Map();
 
 			for (const [id, change] of filtered) {
-				const node = change.node ?? this.nodes.get(id);
+				const node = change.node ?? this.disknodes.get(id);
 				if (!node) continue;
 
 				const expanded = this.#get_expanded_nodes(node, expand_to);
@@ -718,7 +718,7 @@ export class Filer {
 				}
 			}
 
-			// Merge in the expanded nodes
+			// Merge in the expanded disknodes
 			for (const [id, change] of to_add) {
 				filtered.set(id, change);
 			}
@@ -757,34 +757,34 @@ export class Filer {
 	}
 
 	/**
-	 * Get nodes to expand to based on strategy.
+	 * Get disknodes to expand to based on strategy.
 	 */
 	#get_expanded_nodes(node: Disknode, strategy: string): Set<Disknode> {
-		const nodes: Set<Disknode> = new Set();
+		const disknodes: Set<Disknode> = new Set();
 
 		switch (strategy) {
 			case 'dependents':
 				for (const dep of this.get_dependents(node, true)) {
-					nodes.add(dep);
+					disknodes.add(dep);
 				}
 				break;
 
 			case 'dependencies':
 				for (const dep of this.get_dependencies(node, true)) {
-					nodes.add(dep);
+					disknodes.add(dep);
 				}
 				break;
 
 			case 'all':
-				for (const n of this.nodes.values()) {
+				for (const n of this.disknodes.values()) {
 					if (!n.is_external) {
-						nodes.add(n);
+						disknodes.add(n);
 					}
 				}
 				break;
 		}
 
-		return nodes;
+		return disknodes;
 	}
 
 	/**
@@ -821,9 +821,9 @@ export class Filer {
 		const changes: Map<Path_Id, Filer_Change> = new Map();
 
 		for (const intent of intents) {
-			const nodes = this.#resolve_invalidation_intent(intent);
+			const disknodes = this.#resolve_invalidation_intent(intent);
 
-			for (const node of nodes) {
+			for (const node of disknodes) {
 				// Skip already processed to prevent loops
 				if (processed_nodes.has(node.id)) continue;
 				if (node.is_external) continue;
@@ -846,24 +846,24 @@ export class Filer {
 	}
 
 	/**
-	 * Resolve an invalidation intent to affected nodes.
+	 * Resolve an invalidation intent to affected disknodes.
 	 */
 	#resolve_invalidation_intent(intent: Invalidation_Intent): Set<Disknode> {
-		const nodes: Set<Disknode> = new Set();
+		const disknodes: Set<Disknode> = new Set();
 
 		switch (intent.type) {
 			case 'all':
-				for (const node of this.nodes.values()) {
-					if (!node.is_external) nodes.add(node);
+				for (const node of this.disknodes.values()) {
+					if (!node.is_external) disknodes.add(node);
 				}
 				break;
 
 			case 'paths':
 				if (intent.paths) {
 					for (const path of intent.paths) {
-						// Use get_node to create if needed (allows targeting not-yet-seen files)
-						const node = this.get_node(resolve(path));
-						if (!node.is_external) nodes.add(node);
+						// Use get_disknode to create if needed (allows targeting not-yet-seen files)
+						const node = this.get_disknode(resolve(path));
+						if (!node.is_external) disknodes.add(node);
 					}
 				}
 				break;
@@ -874,14 +874,14 @@ export class Filer {
 					if (intent.pattern.global || intent.pattern.sticky) {
 						intent.pattern.lastIndex = 0;
 					}
-					for (const node of this.nodes.values()) {
+					for (const node of this.disknodes.values()) {
 						if (!node.is_external) {
 							// Reset again before each test
 							if (intent.pattern.global || intent.pattern.sticky) {
 								intent.pattern.lastIndex = 0;
 							}
 							if (intent.pattern.test(node.id)) {
-								nodes.add(node);
+								disknodes.add(node);
 							}
 						}
 					}
@@ -891,7 +891,7 @@ export class Filer {
 			case 'dependents':
 				if (intent.node) {
 					for (const dep of this.get_dependents(intent.node, true)) {
-						if (!dep.is_external) nodes.add(dep);
+						if (!dep.is_external) disknodes.add(dep);
 					}
 				}
 				break;
@@ -899,7 +899,7 @@ export class Filer {
 			case 'dependencies':
 				if (intent.node) {
 					for (const dep of this.get_dependencies(intent.node, true)) {
-						if (!dep.is_external) nodes.add(dep);
+						if (!dep.is_external) disknodes.add(dep);
 					}
 				}
 				break;
@@ -907,24 +907,24 @@ export class Filer {
 			case 'subtree':
 				if (intent.node) {
 					if (intent.include_self && !intent.node.is_external) {
-						nodes.add(intent.node);
+						disknodes.add(intent.node);
 					}
 					for (const desc of intent.node.get_descendants()) {
-						if (!desc.is_external) nodes.add(desc);
+						if (!desc.is_external) disknodes.add(desc);
 					}
 				}
 				break;
 		}
 
-		return nodes;
+		return disknodes;
 	}
 
 	/**
-	 * Find nodes matching a predicate.
+	 * Find disknodes matching a predicate.
 	 */
 	find_nodes(predicate: (node: Disknode) => boolean): Array<Disknode> {
 		const results: Array<Disknode> = [];
-		for (const node of this.nodes.values()) {
+		for (const node of this.disknodes.values()) {
 			if (predicate(node)) {
 				results.push(node);
 			}
@@ -933,7 +933,7 @@ export class Filer {
 	}
 
 	/**
-	 * Get all nodes that depend on the given node.
+	 * Get all disknodes that depend on the given node.
 	 * @param recursive - Whether to include transitive dependents
 	 */
 	get_dependents(node: Disknode, recursive = true): Set<Disknode> {
@@ -961,7 +961,7 @@ export class Filer {
 	}
 
 	/**
-	 * Get all nodes that the given node depends on.
+	 * Get all disknodes that the given node depends on.
 	 * @param recursive - Whether to include transitive dependencies
 	 */
 	get_dependencies(node: Disknode, recursive = true): Set<Disknode> {
@@ -1025,7 +1025,7 @@ export class Filer {
 	 * Get node by ID.
 	 */
 	get_by_id(id: Path_Id): Disknode | undefined {
-		return this.nodes.get(id);
+		return this.disknodes.get(id);
 	}
 
 	/**
@@ -1034,7 +1034,7 @@ export class Filer {
 	 */
 	async rescan_subtree(path: string): Promise<void> {
 		const id = resolve(path);
-		const node = this.nodes.get(id);
+		const node = this.disknodes.get(id);
 		if (!node) return;
 
 		// Invalidate entire subtree
@@ -1049,20 +1049,20 @@ export class Filer {
 	}
 
 	/**
-	 * Load initial stats for all nodes in parallel.
+	 * Load initial stats for all disknodes in parallel.
 	 * Useful for pre-warming the cache after initial scan.
 	 */
 	async load_initial_stats(): Promise<void> {
-		// When no paths are watched, treat all nodes as internal for stat loading
+		// When no paths are watched, treat all disknodes as internal for stat loading
 		const has_watched_paths = this.#watched_paths.size > 0;
-		const nodes = Array.from(this.nodes.values()).filter(
+		const disknodes = Array.from(this.disknodes.values()).filter(
 			(n) => !has_watched_paths || !n.is_external,
 		);
 		const batch_size = 100;
 
 		// Process in batches for parallelism without overwhelming the system
-		for (let i = 0; i < nodes.length; i += batch_size) {
-			const batch = nodes.slice(i, i + batch_size);
+		for (let i = 0; i < disknodes.length; i += batch_size) {
+			const batch = disknodes.slice(i, i + batch_size);
 			// eslint-disable-next-line no-await-in-loop
 			await Promise.all(
 				batch.map(async (node) => {
@@ -1091,7 +1091,7 @@ export class Filer {
 		await this.#watcher?.close();
 		this.#watcher = undefined;
 
-		this.nodes.clear();
+		this.disknodes.clear();
 		this.roots.clear();
 		this.#observers.clear();
 		this.#observers_by_phase.clear();

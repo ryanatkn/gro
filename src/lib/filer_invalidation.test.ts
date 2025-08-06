@@ -162,11 +162,11 @@ describe('Filer Invalidation System', () => {
 
 			const filer = await setup_test_filer({intent_observer, tracking_observer, mock_watcher});
 
-			// Create some nodes
-			filer.get_node(TEST_FILE_A);
-			filer.get_node(TEST_FILE_B);
-			filer.get_node(TEST_FILE_C);
-			const external = filer.get_node(TEST_EXTERNAL_FILE);
+			// Create some disknodes
+			filer.get_disknode(TEST_FILE_A);
+			filer.get_disknode(TEST_FILE_B);
+			filer.get_disknode(TEST_FILE_C);
+			const external = filer.get_disknode(TEST_EXTERNAL_FILE);
 			external.is_external = true;
 
 			// Trigger config change
@@ -206,10 +206,10 @@ describe('Filer Invalidation System', () => {
 
 			const filer = await setup_test_filer({intent_observer, tracking_observer, mock_watcher});
 
-			// Create nodes
-			filer.get_node(TEST_FILE_A);
-			filer.get_node(TEST_FILE_B);
-			filer.get_node(TEST_FILE_C);
+			// Create disknodes
+			filer.get_disknode(TEST_FILE_A);
+			filer.get_disknode(TEST_FILE_B);
+			filer.get_disknode(TEST_FILE_C);
 
 			// Trigger config change
 			mock_watcher.emit('change', TEST_CONFIG_FILE, create_mock_stats());
@@ -247,11 +247,11 @@ describe('Filer Invalidation System', () => {
 
 			const filer = await setup_test_filer({intent_observer, tracking_observer, mock_watcher});
 
-			// Create nodes - some with 'lib' in path
-			filer.get_node(TEST_FILE_A); // No 'lib'
-			filer.get_node(TEST_DIR_LIB); // Has 'lib'
-			filer.get_node(TEST_FILE_LIB_E); // Has 'lib'
-			filer.get_node(`${TEST_SOURCE}/other.ts`); // No 'lib'
+			// Create disknodes - some with 'lib' in path
+			filer.get_disknode(TEST_FILE_A); // No 'lib'
+			filer.get_disknode(TEST_DIR_LIB); // Has 'lib'
+			filer.get_disknode(TEST_FILE_LIB_E); // Has 'lib'
+			filer.get_disknode(`${TEST_SOURCE}/other.ts`); // No 'lib'
 
 			// Trigger config change
 			mock_watcher.emit('change', TEST_CONFIG_FILE, create_mock_stats());
@@ -267,7 +267,7 @@ describe('Filer Invalidation System', () => {
 		});
 
 		test('processes "dependents" invalidation intent', async () => {
-			let target_node: Disknode; // eslint-disable-line prefer-const
+			let target_disknode: Disknode; // eslint-disable-line prefer-const
 
 			const intent_observer: Filer_Observer = {
 				id: 'intent_source',
@@ -277,7 +277,7 @@ describe('Filer Invalidation System', () => {
 				on_change: () => [
 					{
 						type: 'dependents',
-						node: target_node,
+						node: target_disknode,
 					},
 				],
 			};
@@ -292,12 +292,12 @@ describe('Filer Invalidation System', () => {
 			const filer = await setup_test_filer({intent_observer, tracking_observer, mock_watcher});
 
 			// Set up dependency chain: A <- B <- C
-			const node_a = filer.get_node(TEST_FILE_A);
-			const node_b = filer.get_node(TEST_FILE_B);
-			const node_c = filer.get_node(TEST_FILE_C);
+			const node_a = filer.get_disknode(TEST_FILE_A);
+			const node_b = filer.get_disknode(TEST_FILE_B);
+			const node_c = filer.get_disknode(TEST_FILE_C);
 			node_b.add_dependency(node_a);
 			node_c.add_dependency(node_b);
-			target_node = node_a;
+			target_disknode = node_a;
 
 			// Trigger config change
 			mock_watcher.emit('change', TEST_CONFIG_FILE, create_mock_stats());
@@ -312,7 +312,7 @@ describe('Filer Invalidation System', () => {
 		});
 
 		test('processes "dependencies" invalidation intent', async () => {
-			let target_node: Disknode; // eslint-disable-line prefer-const
+			let target_disknode: Disknode; // eslint-disable-line prefer-const
 
 			const intent_observer: Filer_Observer = {
 				id: 'intent_source',
@@ -322,7 +322,7 @@ describe('Filer Invalidation System', () => {
 				on_change: () => [
 					{
 						type: 'dependencies',
-						node: target_node,
+						node: target_disknode,
 					},
 				],
 			};
@@ -337,12 +337,12 @@ describe('Filer Invalidation System', () => {
 			const filer = await setup_test_filer({intent_observer, tracking_observer, mock_watcher});
 
 			// Set up dependency chain: A -> B -> C
-			const node_a = filer.get_node(TEST_FILE_A);
-			const node_b = filer.get_node(TEST_FILE_B);
-			const node_c = filer.get_node(TEST_FILE_C);
+			const node_a = filer.get_disknode(TEST_FILE_A);
+			const node_b = filer.get_disknode(TEST_FILE_B);
+			const node_c = filer.get_disknode(TEST_FILE_C);
 			node_c.add_dependency(node_b);
 			node_b.add_dependency(node_a);
-			target_node = node_c;
+			target_disknode = node_c;
 
 			// Trigger config change
 			mock_watcher.emit('change', TEST_CONFIG_FILE, create_mock_stats());
@@ -357,7 +357,7 @@ describe('Filer Invalidation System', () => {
 		});
 
 		test('processes "subtree" invalidation intent', async () => {
-			let target_node: Disknode; // eslint-disable-line prefer-const
+			let target_disknode: Disknode; // eslint-disable-line prefer-const
 
 			const intent_observer: Filer_Observer = {
 				id: 'intent_source',
@@ -367,7 +367,7 @@ describe('Filer Invalidation System', () => {
 				on_change: () => [
 					{
 						type: 'subtree',
-						node: target_node,
+						node: target_disknode,
 						include_self: true,
 					},
 				],
@@ -384,17 +384,17 @@ describe('Filer Invalidation System', () => {
 			const filer = await setup_test_filer({intent_observer, tracking_observer, mock_watcher});
 
 			// Create directory structure
-			const lib_dir = filer.get_node(TEST_DIR_LIB);
-			const lib_file_e = filer.get_node(TEST_FILE_LIB_E);
-			const lib_file_f = filer.get_node(TEST_FILE_LIB_F);
-			filer.get_node(TEST_FILE_A);
+			const lib_dir = filer.get_disknode(TEST_DIR_LIB);
+			const lib_file_e = filer.get_disknode(TEST_FILE_LIB_E);
+			const lib_file_f = filer.get_disknode(TEST_FILE_LIB_F);
+			filer.get_disknode(TEST_FILE_A);
 
 			// Set up parent-child relationships manually for test
 			lib_file_e.parent = lib_dir;
 			lib_file_f.parent = lib_dir;
 			lib_dir.children.set('e.ts', lib_file_e);
 			lib_dir.children.set('f.ts', lib_file_f);
-			target_node = lib_dir;
+			target_disknode = lib_dir;
 
 			// Trigger config change
 			mock_watcher.emit('change', TEST_CONFIG_FILE, create_mock_stats());
@@ -410,7 +410,7 @@ describe('Filer Invalidation System', () => {
 		});
 
 		test('subtree intent excludes self when include_self is false', async () => {
-			let target_node: Disknode; // eslint-disable-line prefer-const
+			let target_disknode: Disknode; // eslint-disable-line prefer-const
 
 			const intent_observer: Filer_Observer = {
 				id: 'intent_source',
@@ -420,7 +420,7 @@ describe('Filer Invalidation System', () => {
 				on_change: () => [
 					{
 						type: 'subtree',
-						node: target_node,
+						node: target_disknode,
 						include_self: false,
 					},
 				],
@@ -437,11 +437,11 @@ describe('Filer Invalidation System', () => {
 			const filer = await setup_test_filer({intent_observer, tracking_observer, mock_watcher});
 
 			// Create directory structure
-			const lib_dir = filer.get_node(TEST_DIR_LIB);
-			const lib_file_e = filer.get_node(TEST_FILE_LIB_E);
+			const lib_dir = filer.get_disknode(TEST_DIR_LIB);
+			const lib_file_e = filer.get_disknode(TEST_FILE_LIB_E);
 			lib_file_e.parent = lib_dir;
 			lib_dir.children.set('e.ts', lib_file_e);
-			target_node = lib_dir;
+			target_disknode = lib_dir;
 
 			// Trigger config change
 			mock_watcher.emit('change', TEST_CONFIG_FILE, create_mock_stats());
@@ -475,11 +475,11 @@ describe('Filer Invalidation System', () => {
 
 			const filer = await setup_test_filer({intent_observer, tracking_observer, mock_watcher});
 
-			// Create nodes
-			filer.get_node(TEST_FILE_A);
-			filer.get_node(TEST_FILE_B);
-			filer.get_node(TEST_FILE_C);
-			filer.get_node(TEST_FILE_D);
+			// Create disknodes
+			filer.get_disknode(TEST_FILE_A);
+			filer.get_disknode(TEST_FILE_B);
+			filer.get_disknode(TEST_FILE_C);
+			filer.get_disknode(TEST_FILE_D);
 
 			// Trigger config change
 			mock_watcher.emit('change', TEST_CONFIG_FILE, create_mock_stats());
@@ -512,7 +512,7 @@ describe('Filer Invalidation System', () => {
 
 			const filer = await setup_test_filer({intent_observer, tracking_observer, mock_watcher});
 
-			filer.get_node(TEST_FILE_A);
+			filer.get_disknode(TEST_FILE_A);
 
 			// Trigger config change
 			mock_watcher.emit('change', TEST_CONFIG_FILE, create_mock_stats());
@@ -549,13 +549,13 @@ describe('Filer Invalidation System', () => {
 				mock_watcher,
 			});
 
-			filer.get_node(TEST_FILE_A);
+			filer.get_disknode(TEST_FILE_A);
 
 			// Trigger initial change
 			mock_watcher.emit('change', TEST_FILE_A, create_mock_stats());
 			await wait_for_batch(100);
 
-			// Should not loop infinitely - processed nodes are tracked
+			// Should not loop infinitely - processed disknodes are tracked
 			expect(call_counter.count).toBeLessThan(10);
 			expect(call_counter.count).toBeGreaterThan(0);
 		});
@@ -591,8 +591,8 @@ describe('Filer Invalidation System', () => {
 				mock_watcher,
 			});
 
-			filer.get_node(TEST_FILE_A);
-			filer.get_node(TEST_FILE_B);
+			filer.get_disknode(TEST_FILE_A);
+			filer.get_disknode(TEST_FILE_B);
 
 			// Trigger initial change
 			mock_watcher.emit('change', TEST_FILE_A, create_mock_stats());
@@ -626,8 +626,8 @@ describe('Filer Invalidation System', () => {
 				mock_watcher,
 			});
 
-			filer.get_node(TEST_FILE_A);
-			filer.get_node(TEST_FILE_B);
+			filer.get_disknode(TEST_FILE_A);
+			filer.get_disknode(TEST_FILE_B);
 
 			// First change
 			mock_watcher.emit('change', TEST_FILE_A, create_mock_stats());
@@ -668,7 +668,7 @@ describe('Filer Invalidation System', () => {
 
 			const filer = await setup_test_filer({intent_observer, tracking_observer, mock_watcher});
 
-			filer.get_node(TEST_FILE_A);
+			filer.get_disknode(TEST_FILE_A);
 
 			// Should not crash
 			mock_watcher.emit('change', TEST_CONFIG_FILE, create_mock_stats());
@@ -701,7 +701,7 @@ describe('Filer Invalidation System', () => {
 
 			const filer = await setup_test_filer({intent_observer, tracking_observer, mock_watcher});
 
-			filer.get_node(TEST_FILE_A);
+			filer.get_disknode(TEST_FILE_A);
 
 			// Should not crash
 			mock_watcher.emit('change', TEST_CONFIG_FILE, create_mock_stats());
@@ -745,7 +745,7 @@ describe('Filer Invalidation System', () => {
 			expect(second_call.has(`${TEST_SOURCE}/non_existent.ts`)).toBe(true);
 		});
 
-		test('skips external nodes in intent processing', async () => {
+		test('skips external disknodes in intent processing', async () => {
 			const intent_observer: Filer_Observer = {
 				id: 'intent_source',
 				paths: [TEST_CONFIG_FILE],
@@ -763,9 +763,9 @@ describe('Filer Invalidation System', () => {
 
 			const filer = await setup_test_filer({intent_observer, tracking_observer, mock_watcher});
 
-			// Create internal and external nodes
-			filer.get_node(TEST_FILE_A); // Internal
-			const external = filer.get_node(TEST_EXTERNAL_FILE); // External
+			// Create internal and external disknodes
+			filer.get_disknode(TEST_FILE_A); // Internal
+			const external = filer.get_disknode(TEST_EXTERNAL_FILE); // External
 			external.is_external = true;
 
 			// Trigger config change
@@ -805,9 +805,9 @@ describe('Filer Invalidation System', () => {
 			const filer = await setup_test_filer({intent_observer, tracking_observer, mock_watcher});
 
 			// Create multiple TypeScript files
-			filer.get_node(TEST_FILE_A);
-			filer.get_node(TEST_FILE_B);
-			filer.get_node(TEST_FILE_C);
+			filer.get_disknode(TEST_FILE_A);
+			filer.get_disknode(TEST_FILE_B);
+			filer.get_disknode(TEST_FILE_C);
 
 			// Trigger config change
 			mock_watcher.emit('change', TEST_CONFIG_FILE, create_mock_stats());
@@ -866,8 +866,8 @@ describe('Filer Invalidation System', () => {
 				mock_watcher,
 			});
 
-			filer.get_node(TEST_FILE_A);
-			filer.get_node(TEST_FILE_B);
+			filer.get_disknode(TEST_FILE_A);
+			filer.get_disknode(TEST_FILE_B);
 
 			// Trigger change
 			mock_watcher.emit('change', TEST_FILE_A, create_mock_stats());
@@ -915,9 +915,9 @@ describe('Filer Invalidation System', () => {
 				mock_watcher,
 			});
 
-			filer.get_node(TEST_FILE_A);
-			filer.get_node(TEST_FILE_B);
-			filer.get_node(TEST_FILE_C);
+			filer.get_disknode(TEST_FILE_A);
+			filer.get_disknode(TEST_FILE_B);
+			filer.get_disknode(TEST_FILE_C);
 
 			// Trigger change
 			mock_watcher.emit('change', TEST_FILE_A, create_mock_stats());
@@ -950,7 +950,7 @@ describe('Filer Invalidation System', () => {
 
 			const filer = await setup_test_filer({intent_observer, tracking_observer, mock_watcher});
 
-			filer.get_node(TEST_FILE_A);
+			filer.get_disknode(TEST_FILE_A);
 
 			// Should not crash
 			mock_watcher.emit('change', TEST_FILE_A, create_mock_stats());
@@ -1001,8 +1001,8 @@ describe('Filer Invalidation System', () => {
 				mock_watcher,
 			});
 
-			filer.get_node(TEST_FILE_A);
-			filer.get_node(TEST_FILE_B);
+			filer.get_disknode(TEST_FILE_A);
+			filer.get_disknode(TEST_FILE_B);
 
 			mock_watcher.emit('change', TEST_FILE_A, create_mock_stats());
 			await wait_for_batch();

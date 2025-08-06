@@ -114,7 +114,7 @@ describe('Filer Core', () => {
 	describe('initialization', () => {
 		test('creates filer with default options', () => {
 			const filer = new Filer();
-			expect(filer.nodes.size).toBe(0);
+			expect(filer.disknodes.size).toBe(0);
 			expect(filer.roots.size).toBe(0);
 		});
 
@@ -252,35 +252,35 @@ describe('Filer Core', () => {
 	});
 
 	describe('node management', () => {
-		test('creates nodes lazily with get_node', () => {
+		test('creates disknodes lazily with get_disknode', () => {
 			const filer = new Filer({paths: []});
 
-			expect(filer.nodes.size).toBe(0);
+			expect(filer.disknodes.size).toBe(0);
 
-			const node = filer.get_node(TEST_FILE_A);
+			const node = filer.get_disknode(TEST_FILE_A);
 
 			expect(node).toBeInstanceOf(Disknode);
 			expect(node.id).toBe(TEST_FILE_A);
 			expect(node.filer).toBe(filer);
-			expect(filer.nodes.size).toBe(5); // File + parent directories up to root
-			expect(filer.nodes.get(TEST_FILE_A)).toBe(node);
+			expect(filer.disknodes.size).toBe(5); // File + parent directories up to root
+			expect(filer.disknodes.get(TEST_FILE_A)).toBe(node);
 		});
 
 		test('returns existing node on subsequent calls', () => {
 			const filer = new Filer({paths: []});
 
-			const node1 = filer.get_node(TEST_FILE_A);
-			const node2 = filer.get_node(TEST_FILE_A);
+			const node1 = filer.get_disknode(TEST_FILE_A);
+			const node2 = filer.get_disknode(TEST_FILE_A);
 
 			expect(node1).toBe(node2);
-			expect(filer.nodes.size).toBe(5); // File + parent directories up to root
+			expect(filer.disknodes.size).toBe(5); // File + parent directories up to root
 		});
 
 		test('sets up parent-child relationships automatically', () => {
 			const filer = new Filer({paths: []});
 
-			const file_node = filer.get_node(TEST_FILE_A);
-			const dir_node = filer.get_node(TEST_SOURCE);
+			const file_node = filer.get_disknode(TEST_FILE_A);
+			const dir_node = filer.get_disknode(TEST_SOURCE);
 
 			expect(file_node.parent).toBe(dir_node);
 			expect(dir_node.children.get('a.ts')).toBe(file_node);
@@ -291,7 +291,7 @@ describe('Filer Core', () => {
 			const filer = new Filer({paths: []});
 			const deep_path: Path_Id = '/test/very/deep/nested/file.ts';
 
-			const file_node = filer.get_node(deep_path);
+			const file_node = filer.get_disknode(deep_path);
 			let current = file_node.parent;
 			const parent_chain = [];
 
@@ -309,21 +309,21 @@ describe('Filer Core', () => {
 			]);
 		});
 
-		test('identifies external vs internal nodes', async () => {
+		test('identifies external vs internal disknodes', async () => {
 			const filer = new Filer({paths: [TEST_SOURCE]});
 
 			// Emit ready event
 			setTimeout(() => mock_watcher.emit('ready'), 0);
 			await filer.ready;
 
-			const internal_node = filer.get_node(TEST_FILE_A);
-			const external_node = filer.get_node(TEST_EXTERNAL_FILE);
+			const internal_node = filer.get_disknode(TEST_FILE_A);
+			const external_node = filer.get_disknode(TEST_EXTERNAL_FILE);
 
 			expect(internal_node.is_external).toBe(false);
 			expect(external_node.is_external).toBe(true);
 		});
 
-		test('tracks root nodes correctly', async () => {
+		test('tracks root disknodes correctly', async () => {
 			const filer = new Filer({paths: [TEST_SOURCE, TEST_CONFIG_FILE]});
 
 			// Emit ready and add events for the watched paths
@@ -347,7 +347,7 @@ describe('Filer Core', () => {
 
 		test('handles filesystem root correctly', () => {
 			const filer = new Filer({paths: []});
-			const root_node = filer.get_node('/');
+			const root_node = filer.get_disknode('/');
 
 			expect(root_node.parent).toBeNull();
 			expect(root_node.id).toBe('/');
@@ -368,7 +368,7 @@ describe('Filer Core', () => {
 			// Wait for batch processing
 			await new Promise((resolve) => setTimeout(resolve, 10));
 
-			const node = filer.nodes.get(TEST_FILE_A);
+			const node = filer.disknodes.get(TEST_FILE_A);
 			expect(node).toBeDefined();
 			expect(node?.kind).toBe('file');
 			expect(node?.exists).toBe(true);
@@ -390,7 +390,7 @@ describe('Filer Core', () => {
 
 			await new Promise((resolve) => setTimeout(resolve, 10));
 
-			const node = filer.nodes.get(TEST_DIR_LIB);
+			const node = filer.disknodes.get(TEST_DIR_LIB);
 			expect(node).toBeDefined();
 			expect(node?.kind).toBe('directory');
 		});
@@ -406,7 +406,7 @@ describe('Filer Core', () => {
 			mock_watcher.emit('add', TEST_FILE_A, create_mock_stats());
 			await new Promise((resolve) => setTimeout(resolve, 10));
 
-			const node = filer.get_node(TEST_FILE_A);
+			const node = filer.get_disknode(TEST_FILE_A);
 			const version_before = node.version;
 
 			// Change file
@@ -429,7 +429,7 @@ describe('Filer Core', () => {
 			mock_watcher.emit('add', TEST_FILE_A, create_mock_stats());
 			await new Promise((resolve) => setTimeout(resolve, 10));
 
-			const node = filer.get_node(TEST_FILE_A);
+			const node = filer.get_disknode(TEST_FILE_A);
 			expect(node.exists).toBe(true);
 
 			// Delete file
@@ -450,7 +450,7 @@ describe('Filer Core', () => {
 			mock_watcher.emit('addDir', TEST_DIR_LIB);
 			await new Promise((resolve) => setTimeout(resolve, 10));
 
-			const node = filer.get_node(TEST_DIR_LIB);
+			const node = filer.get_disknode(TEST_DIR_LIB);
 			expect(node.exists).toBe(true);
 
 			// Delete directory
@@ -468,8 +468,8 @@ describe('Filer Core', () => {
 			await filer.ready;
 
 			// Set up dependency relationship
-			const node_a = filer.get_node(TEST_FILE_A);
-			const node_b = filer.get_node(TEST_FILE_B);
+			const node_a = filer.get_disknode(TEST_FILE_A);
+			const node_b = filer.get_disknode(TEST_FILE_B);
 			node_b.add_dependency(node_a);
 
 			expect(node_a.dependents.has(TEST_FILE_B)).toBe(true);
@@ -495,7 +495,7 @@ describe('Filer Core', () => {
 			mock_watcher.emit('add', TEST_FILE_A);
 			await new Promise((resolve) => setTimeout(resolve, 10));
 
-			const parent = filer.get_node(TEST_SOURCE);
+			const parent = filer.get_disknode(TEST_SOURCE);
 			expect(parent.children.has('a.ts')).toBe(true);
 
 			// Delete file
@@ -685,13 +685,13 @@ describe('Filer Core', () => {
 	});
 
 	describe('querying', () => {
-		test('finds nodes by predicate', () => {
+		test('finds disknodes by predicate', () => {
 			const filer = new Filer({paths: []});
 
-			filer.get_node(TEST_FILE_A);
-			filer.get_node(TEST_FILE_B);
-			filer.get_node(TEST_FILE_C);
-			filer.get_node('/test/data.json');
+			filer.get_disknode(TEST_FILE_A);
+			filer.get_disknode(TEST_FILE_B);
+			filer.get_disknode(TEST_FILE_C);
+			filer.get_disknode('/test/data.json');
 
 			const ts_files = filer.find_nodes((node) => node.id.endsWith('.ts'));
 
@@ -704,7 +704,7 @@ describe('Filer Core', () => {
 		test('gets node by id', () => {
 			const filer = new Filer({paths: []});
 
-			const created_node = filer.get_node(TEST_FILE_A);
+			const created_node = filer.get_disknode(TEST_FILE_A);
 			const retrieved_node = filer.get_by_id(TEST_FILE_A);
 
 			expect(retrieved_node).toBe(created_node);
@@ -721,8 +721,8 @@ describe('Filer Core', () => {
 		test('find_nodes returns empty array when no matches', () => {
 			const filer = new Filer({paths: []});
 
-			filer.get_node(TEST_FILE_A);
-			filer.get_node(TEST_FILE_B);
+			filer.get_disknode(TEST_FILE_A);
+			filer.get_disknode(TEST_FILE_B);
 
 			const python_files = filer.find_nodes((node) => node.id.endsWith('.py'));
 
@@ -747,9 +747,9 @@ describe('Filer Core', () => {
 			await filer.ready;
 
 			// Create some state
-			filer.get_node(TEST_FILE_A);
-			filer.get_node(TEST_FILE_B);
-			expect(filer.nodes.size).toBe(6); // 2 files + their parent directories
+			filer.get_disknode(TEST_FILE_A);
+			filer.get_disknode(TEST_FILE_B);
+			expect(filer.disknodes.size).toBe(6); // 2 files + their parent directories
 
 			// Create new mock watcher for reset
 			const new_mock_watcher = new Mock_Watcher();
@@ -767,7 +767,7 @@ describe('Filer Core', () => {
 			expect(vi.mocked(watch)).toHaveBeenCalledWith(['/new/path'], expect.any(Object));
 
 			// State should be cleared
-			expect(filer.nodes.size).toBe(0);
+			expect(filer.disknodes.size).toBe(0);
 			expect(filer.roots.size).toBe(0);
 		});
 
@@ -788,13 +788,13 @@ describe('Filer Core', () => {
 			await filer.ready;
 
 			// Create some state
-			filer.get_node(TEST_FILE_A);
-			filer.get_node(TEST_FILE_B);
+			filer.get_disknode(TEST_FILE_A);
+			filer.get_disknode(TEST_FILE_B);
 
 			await filer.close();
 
 			// Everything should be cleaned up
-			expect(filer.nodes.size).toBe(0);
+			expect(filer.disknodes.size).toBe(0);
 			expect(filer.roots.size).toBe(0);
 			expect(mock_watcher.listeners.size).toBe(0);
 		});
@@ -877,12 +877,12 @@ describe('Filer Core', () => {
 	});
 
 	describe('performance features', () => {
-		test('load_initial_stats processes nodes in batches', async () => {
+		test('load_initial_stats processes disknodes in batches', async () => {
 			const filer = new Filer({paths: []});
 
-			// Create many nodes
+			// Create many disknodes
 			for (let i = 0; i < 250; i++) {
-				filer.get_node(`/test/file${i}.ts`);
+				filer.get_disknode(`/test/file${i}.ts`);
 			}
 
 			// Mock lstatSync to prevent interference with cached stats
@@ -907,15 +907,15 @@ describe('Filer Core', () => {
 			expect(vi.mocked(stat)).toHaveBeenCalledTimes(252);
 
 			// Stats should be pre-populated
-			const node = filer.get_node('/test/file42.ts');
+			const node = filer.get_disknode('/test/file42.ts');
 			expect(node.size).toBe(42);
 		});
 
 		test('load_initial_stats handles stat errors gracefully', async () => {
 			const filer = new Filer({paths: []});
 
-			filer.get_node('/test/good.ts');
-			filer.get_node('/test/bad.ts');
+			filer.get_disknode('/test/good.ts');
+			filer.get_disknode('/test/bad.ts');
 
 			// Mock lstatSync to prevent interference with cached stats
 			const {lstatSync} = await import('node:fs');
@@ -937,30 +937,30 @@ describe('Filer Core', () => {
 			await expect(filer.load_initial_stats()).resolves.toBeUndefined();
 
 			// Good file should have stats
-			const good_node = filer.get_node('/test/good.ts');
+			const good_node = filer.get_disknode('/test/good.ts');
 			expect(good_node.size).toBe(100);
 
 			// Bad file should still exist but without pre-populated stats
-			const bad_node = filer.get_node('/test/bad.ts');
+			const bad_node = filer.get_disknode('/test/bad.ts');
 			expect(bad_node).toBeDefined();
 		});
 
 		test('load_initial_stats handles empty node collection', async () => {
 			const filer = new Filer({paths: []});
 
-			// Don't create any nodes
+			// Don't create any disknodes
 			await expect(filer.load_initial_stats()).resolves.toBeUndefined();
 
 			// Should not have called stat at all
 			expect(vi.mocked(stat)).not.toHaveBeenCalled();
 		});
 
-		test('load_initial_stats handles directory nodes correctly', async () => {
+		test('load_initial_stats handles directory disknodes correctly', async () => {
 			const filer = new Filer({paths: []});
 
-			// Create nodes with mixed types
-			filer.get_node('/test/file.ts');
-			filer.get_node('/test/dir');
+			// Create disknodes with mixed types
+			filer.get_disknode('/test/file.ts');
+			filer.get_disknode('/test/dir');
 
 			// Mock lstatSync and stat
 			const {lstatSync} = await import('node:fs');
@@ -982,36 +982,36 @@ describe('Filer Core', () => {
 
 			await filer.load_initial_stats();
 
-			// Should have called stat for all nodes including directories and parents
+			// Should have called stat for all disknodes including directories and parents
 			expect(vi.mocked(stat)).toHaveBeenCalled();
 
 			// Check that directory node is properly marked
-			const dir_node = filer.get_node('/test/dir');
+			const dir_node = filer.get_disknode('/test/dir');
 			expect(dir_node.kind).toBe('directory');
 			expect(dir_node.size).toBe(4096);
 
-			const file_node = filer.get_node('/test/file.ts');
+			const file_node = filer.get_disknode('/test/file.ts');
 			expect(file_node.kind).toBe('file');
 			expect(file_node.size).toBe(100);
 		});
 
-		test('load_initial_stats skips external nodes', async () => {
+		test('load_initial_stats skips external disknodes', async () => {
 			const filer = new Filer({paths: [TEST_SOURCE]});
 
 			// Emit ready event
 			setTimeout(() => mock_watcher.emit('ready'), 0);
 			await filer.ready;
 
-			// Create internal and external nodes
-			filer.get_node(TEST_FILE_A); // Internal
-			filer.get_node(TEST_EXTERNAL_FILE); // External (automatically detected)
+			// Create internal and external disknodes
+			filer.get_disknode(TEST_FILE_A); // Internal
+			filer.get_disknode(TEST_EXTERNAL_FILE); // External (automatically detected)
 
 			// Clear mock to count only load_initial_stats calls
 			vi.mocked(stat).mockClear();
 
 			await filer.load_initial_stats();
 
-			// Should only call stat for internal nodes (file + parent directories)
+			// Should only call stat for internal disknodes (file + parent directories)
 			// TEST_FILE_A is internal, TEST_EXTERNAL_FILE and /external are external
 			const calls = vi.mocked(stat).mock.calls.map((c) => c[0]);
 			expect(calls).toContain(TEST_FILE_A);
@@ -1038,9 +1038,9 @@ describe('Filer Core', () => {
 			await filer.ready;
 
 			// Create subtree
-			const dir = filer.get_node(TEST_DIR_LIB);
-			const file1 = filer.get_node(`${TEST_DIR_LIB}/file1.ts`);
-			const file2 = filer.get_node(`${TEST_DIR_LIB}/file2.ts`);
+			const dir = filer.get_disknode(TEST_DIR_LIB);
+			const file1 = filer.get_disknode(`${TEST_DIR_LIB}/file1.ts`);
+			const file2 = filer.get_disknode(`${TEST_DIR_LIB}/file2.ts`);
 			file1.parent = dir;
 			file2.parent = dir;
 			dir.children.set('file1.ts', file1);

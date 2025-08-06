@@ -273,7 +273,7 @@ export class Disknode {
 			if (resolved_id) {
 				dependencies_removed.delete(resolved_id);
 				if (!dependencies_before.has(resolved_id)) {
-					const dep = this.filer.get_node(resolved_id);
+					const dep = this.filer.get_disknode(resolved_id);
 					this.add_dependency(dep);
 				}
 			}
@@ -281,7 +281,7 @@ export class Disknode {
 
 		// Remove old dependencies
 		for (const dep_id of dependencies_removed) {
-			const dep = this.filer.get_node(dep_id);
+			const dep = this.filer.get_disknode(dep_id);
 			this.remove_dependency(dep);
 		}
 	}
@@ -357,7 +357,7 @@ export class Disknode {
 	}
 
 	/**
-	 * Get all ancestor nodes up to the root.
+	 * Get all ancestor disknodes up to the root.
 	 */
 	get_ancestors(): Array<Disknode> {
 		const ancestors: Array<Disknode> = [];
@@ -370,7 +370,7 @@ export class Disknode {
 	}
 
 	/**
-	 * Get all descendant nodes recursively.
+	 * Get all descendant disknodes recursively.
 	 * Uses iterative approach to avoid stack overflow on deep trees.
 	 */
 	get_descendants(): Array<Disknode> {
