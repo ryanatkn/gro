@@ -299,8 +299,8 @@ export const gro_plugin_server = ({
 						return false;
 					},
 
-					// We handle our own dependency tracking via esbuild
-					invalidate: 'self',
+					// We handle our own dependency tracking via esbuild - no expansion needed
+					expand_to: 'self',
 
 					// Need to read files for rebuild
 					needs_contents: true,

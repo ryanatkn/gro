@@ -1,3 +1,5 @@
+// @slop Claude Opus 4.1
+
 import {describe, test, expect} from 'vitest';
 
 import {Filer_Change_Batch, type Filer_Change} from './filer.ts';

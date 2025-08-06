@@ -1,3 +1,5 @@
+// @slop Claude Opus 4.1
+
 import {existsSync, type Stats} from 'node:fs';
 import {stat} from 'node:fs/promises';
 import {watch, FSWatcher, type ChokidarOptions} from 'chokidar';

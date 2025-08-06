@@ -1,3 +1,5 @@
+// @slop Claude Opus 4.1
+
 import {describe, test, expect, vi, beforeEach} from 'vitest';
 import {existsSync} from 'node:fs';
 import {watch, type FSWatcher} from 'chokidar';

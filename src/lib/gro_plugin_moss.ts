@@ -118,8 +118,8 @@ export const gro_plugin_moss = ({
 					return node.is_svelte || node.is_typescript || node.is_js;
 				},
 
-				// No special invalidation needed
-				invalidate: 'self',
+				// Batch expansion strategy - no special expansion needed
+				expand_to: 'self',
 
 				// We need file contents to extract CSS classes
 				needs_contents: true,

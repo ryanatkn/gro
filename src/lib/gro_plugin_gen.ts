@@ -98,7 +98,7 @@ export const gro_plugin_gen = ({
 				},
 
 				// Track dependencies to catch changes in imported files
-				invalidate: 'dependents',
+				expand_to: 'dependents',
 
 				// Need contents to parse imports
 				needs_contents: true,
