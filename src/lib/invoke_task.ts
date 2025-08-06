@@ -22,13 +22,6 @@ import {Filer} from './filer.ts';
  * If it matches a directory, all of the tasks within it are logged,
  * both in the current working directory and Gro.
  *
- * This code is particularly hairy because
- * we're accepting a wide range of user input
- * and trying to do the right thing.
- * Precise error messages are especially difficult and
- * there are some subtle differences in the complex logical branches.
- * The comments describe each condition.
- *
  * @param task_name - The name of the task to invoke.
  * @param args - The CLI args to pass to the task.
  * @param config - The Gro configuration.
@@ -95,13 +88,14 @@ export const invoke_task = async (
 		return;
 	}
 
-	// The input path matches a file that's presumable a task, so load and run it.
+	// The input path matches a file that's presumably a task, so load and run it.
 	if (loaded_tasks.modules.length !== 1) throw Error('expected one loaded task'); // run only one task at a time
 	const task = loaded_tasks.modules[0];
 	log.info(
 		`→ ${st('cyan', task.name)} ${(task.mod.task.summary && st('gray', task.mod.task.summary)) ?? ''}`,
 	);
 
+	// Run the task.
 	const timing_to_run_task = timings.start('run task ' + task_name);
 	const result = await run_task(
 		task,
