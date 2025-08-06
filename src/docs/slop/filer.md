@@ -40,7 +40,6 @@ Watch TypeScript files and react to changes:
 import {Filer} from '@ryanatkn/gro/filer.js';
 
 const filer = new Filer();
-await filer.ready; // Wait for initial filesystem scan
 
 filer.observe({
 	id: 'typescript-compiler',
@@ -52,7 +51,9 @@ filer.observe({
 	},
 });
 
-await filer.dispose(); // Clean up when done
+await filer.mount(); // start syncing with the filesystem
+
+await filer.dispose(); // teardown
 ```
 
 ### dependency-aware watching

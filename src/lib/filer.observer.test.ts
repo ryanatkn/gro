@@ -28,7 +28,7 @@ describe('Filer Observer System', () => {
 
 	describe('observer registration', () => {
 		test('registers observer and returns unsubscribe function', () => {
-			const filer = ctx.create_filer({paths: []});
+			const filer = ctx.create_unmounted_filer();
 			const observer: Filer_Observer = {
 				id: 'test_observer',
 				patterns: [/\.ts$/],
@@ -44,7 +44,7 @@ describe('Filer Observer System', () => {
 		});
 
 		test('can register multiple observers', () => {
-			const filer = ctx.create_filer({paths: []});
+			const filer = ctx.create_unmounted_filer();
 			const observer1: Filer_Observer = {
 				id: 'observer1',
 				patterns: [/\.ts$/],
@@ -78,7 +78,7 @@ describe('Filer Observer System', () => {
 				on_change: vi.fn(),
 			};
 
-			const filer = await ctx.create_ready_filer({
+			const filer = await ctx.create_mounted_filer({
 				paths: [TEST_PATHS.SOURCE],
 				batch_delay: 0,
 				observers: [observer1, observer2],
@@ -125,7 +125,7 @@ describe('Filer Observer System', () => {
 				on_change: vi.fn(),
 			};
 
-			await ctx.create_ready_filer({
+			await ctx.create_mounted_filer({
 				paths: [TEST_PATHS.SOURCE],
 				batch_delay: 0,
 				observers: [ts_observer, js_observer],
@@ -156,7 +156,7 @@ describe('Filer Observer System', () => {
 				on_change: vi.fn(),
 			};
 
-			await ctx.create_ready_filer({
+			await ctx.create_mounted_filer({
 				paths: [TEST_PATHS.SOURCE],
 				batch_delay: 0,
 				observers: [observer],
@@ -182,7 +182,7 @@ describe('Filer Observer System', () => {
 				on_change: vi.fn(),
 			};
 
-			await ctx.create_ready_filer({
+			await ctx.create_mounted_filer({
 				paths: [TEST_PATHS.SOURCE],
 				batch_delay: 0,
 				observers: [observer],
@@ -209,7 +209,7 @@ describe('Filer Observer System', () => {
 				on_change: vi.fn(),
 			};
 
-			await ctx.create_ready_filer({
+			await ctx.create_mounted_filer({
 				paths: [TEST_PATHS.SOURCE],
 				batch_delay: 0,
 				observers: [observer],
@@ -231,7 +231,7 @@ describe('Filer Observer System', () => {
 				on_change: vi.fn(),
 			};
 
-			await ctx.create_ready_filer({
+			await ctx.create_mounted_filer({
 				paths: [TEST_PATHS.SOURCE],
 				batch_delay: 0,
 				observers: [observer],
@@ -265,7 +265,7 @@ describe('Filer Observer System', () => {
 				on_change: vi.fn(),
 			};
 
-			await ctx.create_ready_filer({
+			await ctx.create_mounted_filer({
 				paths: [TEST_PATHS.SOURCE],
 				batch_delay: 0,
 				observers: [observer],
@@ -308,7 +308,7 @@ describe('Filer Observer System', () => {
 				on_change: vi.fn(),
 			};
 
-			await ctx.create_ready_filer({
+			await ctx.create_mounted_filer({
 				paths: [TEST_PATHS.SOURCE],
 				batch_delay: 0,
 				observers: [observer],
@@ -329,7 +329,7 @@ describe('Filer Observer System', () => {
 				on_change: vi.fn(),
 			};
 
-			await ctx.create_ready_filer({
+			await ctx.create_mounted_filer({
 				paths: [TEST_PATHS.SOURCE],
 				batch_delay: 0,
 				observers: [observer],
@@ -356,7 +356,7 @@ describe('Filer Observer System', () => {
 				on_change: vi.fn(),
 			};
 
-			await ctx.create_ready_filer({
+			await ctx.create_mounted_filer({
 				paths: [TEST_PATHS.SOURCE],
 				batch_delay: 0,
 				observers: [observer],
@@ -378,7 +378,7 @@ describe('Filer Observer System', () => {
 				on_change: vi.fn(),
 			};
 
-			await ctx.create_ready_filer({
+			await ctx.create_mounted_filer({
 				paths: [TEST_PATHS.SOURCE],
 				batch_delay: 0,
 				observers: [observer],
@@ -421,7 +421,7 @@ describe('Filer Observer System', () => {
 				on_change: vi.fn(),
 			};
 
-			const filer = await ctx.create_ready_filer({
+			const filer = await ctx.create_mounted_filer({
 				paths: [TEST_PATHS.SOURCE],
 				batch_delay: 0,
 				observers: [internal_observer, external_observer],
@@ -454,7 +454,7 @@ describe('Filer Observer System', () => {
 				on_change: vi.fn(),
 			};
 
-			await ctx.create_ready_filer({
+			await ctx.create_mounted_filer({
 				paths: [TEST_PATHS.SOURCE],
 				batch_delay: 0,
 				observers: [files_only, include_dirs],
@@ -477,7 +477,7 @@ describe('Filer Observer System', () => {
 				on_change: vi.fn(),
 			};
 
-			const filer = await ctx.create_ready_filer({
+			const filer = await ctx.create_mounted_filer({
 				paths: [TEST_PATHS.SOURCE],
 				batch_delay: 0,
 				observers: [restrictive_observer],
@@ -511,7 +511,7 @@ describe('Filer Observer System', () => {
 				on_change: vi.fn(),
 			};
 
-			const filer = await ctx.create_ready_filer({
+			const filer = await ctx.create_mounted_filer({
 				paths: [TEST_PATHS.SOURCE],
 				batch_delay: 0,
 				observers: [observer],
@@ -539,7 +539,7 @@ describe('Filer Observer System', () => {
 				on_change: vi.fn(),
 			};
 
-			const filer = await ctx.create_ready_filer({
+			const filer = await ctx.create_mounted_filer({
 				paths: [TEST_PATHS.SOURCE],
 				batch_delay: 0,
 				observers: [observer],
@@ -569,7 +569,7 @@ describe('Filer Observer System', () => {
 				on_change: vi.fn(),
 			};
 
-			const filer = await ctx.create_ready_filer({
+			const filer = await ctx.create_mounted_filer({
 				paths: [TEST_PATHS.SOURCE],
 				batch_delay: 0,
 				observers: [observer],
@@ -599,7 +599,7 @@ describe('Filer Observer System', () => {
 				on_change: vi.fn(),
 			};
 
-			const filer = await ctx.create_ready_filer({
+			const filer = await ctx.create_mounted_filer({
 				paths: [TEST_PATHS.SOURCE],
 				batch_delay: 0,
 				observers: [observer],
@@ -632,7 +632,7 @@ describe('Filer Observer System', () => {
 				on_change: vi.fn(),
 			};
 
-			const filer = await ctx.create_ready_filer({
+			const filer = await ctx.create_mounted_filer({
 				paths: [TEST_PATHS.SOURCE],
 				batch_delay: 0,
 				observers: [observer],
@@ -666,7 +666,7 @@ describe('Filer Observer System', () => {
 				on_change: vi.fn(),
 			};
 
-			const filer = await ctx.create_ready_filer({
+			const filer = await ctx.create_mounted_filer({
 				paths: [TEST_PATHS.SOURCE],
 				batch_delay: 0,
 				observers: [observer],
@@ -690,7 +690,7 @@ describe('Filer Observer System', () => {
 				on_change: vi.fn(),
 			};
 
-			const filer = await ctx.create_ready_filer({
+			const filer = await ctx.create_mounted_filer({
 				paths: [TEST_PATHS.SOURCE],
 				batch_delay: 0,
 				observers: [observer],
@@ -714,7 +714,7 @@ describe('Filer Observer System', () => {
 				on_change: vi.fn(),
 			};
 
-			const filer = await ctx.create_ready_filer({
+			const filer = await ctx.create_mounted_filer({
 				paths: [TEST_PATHS.SOURCE],
 				batch_delay: 0,
 				observers: [observer],
@@ -738,7 +738,7 @@ describe('Filer Observer System', () => {
 				on_change: vi.fn(),
 			};
 
-			const filer = await ctx.create_ready_filer({
+			const filer = await ctx.create_mounted_filer({
 				paths: [TEST_PATHS.SOURCE],
 				batch_delay: 0,
 				observers: [observer],
@@ -762,7 +762,7 @@ describe('Filer Observer System', () => {
 				on_change: vi.fn(),
 			};
 
-			const filer = await ctx.create_ready_filer({
+			const filer = await ctx.create_mounted_filer({
 				paths: [TEST_PATHS.SOURCE],
 				batch_delay: 0,
 				observers: [observer],
@@ -786,7 +786,7 @@ describe('Filer Observer System', () => {
 				on_change: vi.fn(),
 			};
 
-			const filer = await ctx.create_ready_filer({
+			const filer = await ctx.create_mounted_filer({
 				paths: [TEST_PATHS.SOURCE],
 				batch_delay: 0,
 				observers: [observer],
@@ -818,7 +818,7 @@ describe('Filer Observer System', () => {
 				on_change: vi.fn(),
 			};
 
-			await ctx.create_ready_filer({
+			await ctx.create_mounted_filer({
 				paths: [TEST_PATHS.SOURCE],
 				batch_delay: 0,
 				observers: [intent_observer, tracking_observer],
@@ -845,7 +845,7 @@ describe('Filer Observer System', () => {
 				on_change: vi.fn(),
 			};
 
-			const filer = await ctx.create_ready_filer({
+			const filer = await ctx.create_mounted_filer({
 				paths: [TEST_PATHS.SOURCE],
 				batch_delay: 0,
 				observers: [intent_observer, tracking_observer],
@@ -876,7 +876,7 @@ describe('Filer Observer System', () => {
 				on_change: vi.fn(),
 			};
 
-			await ctx.create_ready_filer({
+			await ctx.create_mounted_filer({
 				paths: [TEST_PATHS.SOURCE],
 				batch_delay: 0,
 				observers: [intent_observer, tracking_observer],
@@ -899,7 +899,7 @@ describe('Filer Observer System', () => {
 				on_change: vi.fn(),
 			};
 
-			const filer = await ctx.create_ready_filer({
+			const filer = await ctx.create_mounted_filer({
 				paths: [TEST_PATHS.SOURCE],
 				batch_delay: 0,
 				observers: [observer_no_deps],
@@ -930,7 +930,7 @@ describe('Filer Observer System', () => {
 				on_change: vi.fn(),
 			};
 
-			const filer = await ctx.create_ready_filer({
+			const filer = await ctx.create_mounted_filer({
 				paths: [TEST_PATHS.SOURCE],
 				batch_delay: 0,
 				observers: [observer_needs_deps, observer_no_deps],
@@ -954,7 +954,7 @@ describe('Filer Observer System', () => {
 				on_change: vi.fn(),
 			};
 
-			await ctx.create_ready_filer({
+			await ctx.create_mounted_filer({
 				paths: [TEST_PATHS.SOURCE],
 				batch_delay: 0,
 				observers: [observer],
@@ -988,7 +988,7 @@ describe('Filer Observer System', () => {
 				on_change: vi.fn(),
 			};
 
-			await ctx.create_ready_filer({
+			await ctx.create_mounted_filer({
 				paths: [TEST_PATHS.SOURCE],
 				batch_delay: 0,
 				observers: [failing_observer, working_observer],
@@ -1018,7 +1018,7 @@ describe('Filer Observer System', () => {
 				on_change: vi.fn(),
 			};
 
-			await ctx.create_ready_filer({
+			await ctx.create_mounted_filer({
 				paths: [TEST_PATHS.SOURCE],
 				batch_delay: 0,
 				observers: [failing_observer, working_observer],
@@ -1040,7 +1040,7 @@ describe('Filer Observer System', () => {
 				on_change: vi.fn(),
 			};
 
-			await ctx.create_ready_filer({
+			await ctx.create_mounted_filer({
 				paths: [TEST_PATHS.SOURCE],
 				batch_delay: 0,
 				observers: [complex_observer],
@@ -1059,7 +1059,7 @@ describe('Filer Observer System', () => {
 				on_change: vi.fn(),
 			};
 
-			await ctx.create_ready_filer({
+			await ctx.create_mounted_filer({
 				paths: [TEST_PATHS.SOURCE],
 				batch_delay: 5, // Small delay to test batching
 				observers: [observer],
@@ -1087,7 +1087,7 @@ describe('Filer Observer System', () => {
 				on_change: vi.fn(),
 			};
 
-			await ctx.create_ready_filer({
+			await ctx.create_mounted_filer({
 				paths: [TEST_PATHS.SOURCE],
 				batch_delay: 0,
 				observers: [observer],
@@ -1107,7 +1107,7 @@ describe('Filer Observer System', () => {
 				on_change: vi.fn(),
 			};
 
-			await ctx.create_ready_filer({
+			await ctx.create_mounted_filer({
 				paths: [TEST_PATHS.SOURCE],
 				batch_delay: 0,
 				observers: [observer],
@@ -1128,7 +1128,7 @@ describe('Filer Observer System', () => {
 				on_change: vi.fn(),
 			};
 
-			const filer = await ctx.create_ready_filer({
+			const filer = await ctx.create_mounted_filer({
 				paths: [TEST_PATHS.SOURCE],
 				batch_delay: 0,
 				observers: [observer],
@@ -1171,7 +1171,7 @@ describe('Filer Observer System', () => {
 				on_change: vi.fn(),
 			};
 
-			await ctx.create_ready_filer({
+			await ctx.create_mounted_filer({
 				paths: [TEST_PATHS.SOURCE],
 				batch_delay: 0,
 				observers: [slow_observer, other_observer],
@@ -1191,7 +1191,7 @@ describe('Filer Observer System', () => {
 				on_change: vi.fn(),
 			};
 
-			await ctx.create_ready_filer({
+			await ctx.create_mounted_filer({
 				paths: [TEST_PATHS.SOURCE],
 				batch_delay: 0,
 				observers: [observer],
@@ -1211,7 +1211,7 @@ describe('Filer Observer System', () => {
 				on_change: vi.fn(),
 			};
 
-			await ctx.create_ready_filer({
+			await ctx.create_mounted_filer({
 				paths: [TEST_PATHS.SOURCE],
 				batch_delay: 0,
 				observers: [observer],

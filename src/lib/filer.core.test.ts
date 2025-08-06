@@ -33,20 +33,20 @@ describe('Filer Core', () => {
 
 	describe('initialization', () => {
 		test('creates filer with default options', () => {
-			const filer = ctx.create_filer();
+			const filer = ctx.create_unmounted_filer();
 			expect(filer.disknodes.size).toBe(0);
 			expect(filer.roots.size).toBe(0);
 		});
 
 		test('accepts custom batch delay', () => {
-			const filer = ctx.create_filer({batch_delay: 100});
+			const filer = ctx.create_unmounted_filer({batch_delay: 100});
 			// Can't directly test batch delay without timing, but constructor should accept it
 			expect(filer.disknodes).toBeDefined();
 		});
 
 		test('initializes watcher with provided paths', async () => {
 			const paths = [TEST_PATHS.SOURCE, TEST_PATHS.CONFIG_FILE];
-			await ctx.create_ready_filer({paths});
+			await ctx.create_mounted_filer({paths});
 
 			expect(vi.mocked(watch)).toHaveBeenCalledWith(
 				paths,
@@ -72,7 +72,7 @@ describe('Filer Core', () => {
 				},
 			};
 
-			await ctx.create_ready_filer({
+			await ctx.create_mounted_filer({
 				paths: [TEST_PATHS.SOURCE],
 				chokidar_options: custom_options,
 			});
@@ -85,18 +85,18 @@ describe('Filer Core', () => {
 
 		test('sets up default paths when none provided', async () => {
 			vi.mocked(existsSync).mockImplementation((path) => {
-				// paths.source is absolute, not relative
+				const path_str = path as unknown as string;
 				return (
-					(path as unknown as string).endsWith('/src/') ||
-					DEFAULT_CONFIG_FILES.includes(path as string)
+					path_str.endsWith('/src') || // resolve(SOURCE_DIRNAME)
+					DEFAULT_CONFIG_FILES.includes(path_str)
 				);
 			});
 
-			await ctx.create_ready_filer();
+			await ctx.create_mounted_filer();
 
 			expect(vi.mocked(watch)).toHaveBeenCalledWith(
 				expect.arrayContaining([
-					expect.stringMatching(/\/src\/$/), // paths.source is absolute
+					expect.stringMatching(/\/src$/), // resolve(SOURCE_DIRNAME)
 					...DEFAULT_CONFIG_FILES,
 				]),
 				expect.any(Object),
@@ -105,13 +105,13 @@ describe('Filer Core', () => {
 
 		test('filters non-existent default paths', async () => {
 			vi.mocked(existsSync).mockImplementation((path) => {
-				return (path as unknown as string).endsWith('/src/'); // Only src exists
+				return (path as unknown as string).endsWith('/src'); // Only resolved src exists
 			});
 
-			await ctx.create_ready_filer();
+			await ctx.create_mounted_filer();
 
 			expect(vi.mocked(watch)).toHaveBeenCalledWith(
-				[expect.stringMatching(/\/src\/$/)],
+				[expect.stringMatching(/\/src$/)], // Only resolved src passes the existsSync filter
 				expect.any(Object),
 			);
 		});
@@ -122,7 +122,7 @@ describe('Filer Core', () => {
 				['$routes', './src/routes'],
 			];
 
-			const filer = ctx.create_filer({aliases});
+			const filer = ctx.create_unmounted_filer({aliases});
 			expect(filer.map_alias('$lib/utils')).toBe('./src/lib/utils');
 			expect(filer.map_alias('$routes/home')).toBe('./src/routes/home');
 		});
@@ -134,7 +134,7 @@ describe('Filer Core', () => {
 				on_change: vi.fn(),
 			};
 
-			const filer = ctx.create_filer({observers: [observer]});
+			const filer = ctx.create_unmounted_filer({observers: [observer]});
 			// Observer should be registered (verify by trying to observe another)
 			const unsub = filer.observe({
 				id: 'second_observer',
@@ -146,8 +146,8 @@ describe('Filer Core', () => {
 	});
 
 	describe('node management', () => {
-		test('creates disknodes lazily with get_disknode', () => {
-			const filer = ctx.create_filer({paths: []});
+		test('creates disknodes lazily with get_disknode', async () => {
+			const filer = await ctx.create_mounted_filer();
 
 			expect(filer.disknodes.size).toBe(0);
 
@@ -160,8 +160,8 @@ describe('Filer Core', () => {
 			expect(filer.disknodes.get(TEST_PATHS.FILE_A)).toBe(node);
 		});
 
-		test('returns existing node on subsequent calls', () => {
-			const filer = ctx.create_filer({paths: []});
+		test('returns existing node on subsequent calls', async () => {
+			const filer = await ctx.create_mounted_filer();
 
 			const node1 = filer.get_disknode(TEST_PATHS.FILE_A);
 			const node2 = filer.get_disknode(TEST_PATHS.FILE_A);
@@ -170,8 +170,8 @@ describe('Filer Core', () => {
 			expect(filer.disknodes.size).toBe(5); // File + parent directories up to root
 		});
 
-		test('sets up parent-child relationships automatically', () => {
-			const filer = ctx.create_filer({paths: []});
+		test('sets up parent-child relationships automatically', async () => {
+			const filer = await ctx.create_mounted_filer();
 
 			const file_node = filer.get_disknode(TEST_PATHS.FILE_A);
 			const dir_node = filer.get_disknode(TEST_PATHS.SOURCE);
@@ -181,8 +181,8 @@ describe('Filer Core', () => {
 			expect(dir_node.kind).toBe('directory');
 		});
 
-		test('handles deeply nested paths', () => {
-			const filer = ctx.create_filer({paths: []});
+		test('handles deeply nested paths', async () => {
+			const filer = await ctx.create_mounted_filer();
 			const deep_path = '/test/very/deep/nested/file.ts';
 
 			const file_node = filer.get_disknode(deep_path);
@@ -204,7 +204,7 @@ describe('Filer Core', () => {
 		});
 
 		test('identifies external vs internal disknodes', async () => {
-			const filer = await ctx.create_ready_filer({paths: [TEST_PATHS.SOURCE]});
+			const filer = await ctx.create_mounted_filer({paths: [TEST_PATHS.SOURCE]});
 
 			const internal_node = filer.get_disknode(TEST_PATHS.FILE_A);
 			const external_node = filer.get_disknode(TEST_PATHS.EXTERNAL_FILE);
@@ -214,7 +214,7 @@ describe('Filer Core', () => {
 		});
 
 		test('tracks root disknodes correctly', async () => {
-			const filer = await ctx.create_ready_filer({
+			const filer = await ctx.create_mounted_filer({
 				paths: [TEST_PATHS.SOURCE, TEST_PATHS.CONFIG_FILE],
 			});
 
@@ -231,8 +231,8 @@ describe('Filer Core', () => {
 			expect(root_ids).toContain(TEST_PATHS.CONFIG_FILE);
 		});
 
-		test('handles filesystem root correctly', () => {
-			const filer = ctx.create_filer({paths: []});
+		test('handles filesystem root correctly', async () => {
+			const filer = await ctx.create_mounted_filer();
 			const root_node = filer.get_disknode('/');
 
 			expect(root_node.parent).toBeNull();
@@ -242,7 +242,7 @@ describe('Filer Core', () => {
 
 	describe('filesystem events', () => {
 		test('handles file add events', async () => {
-			const filer = await ctx.create_ready_filer({paths: [TEST_PATHS.SOURCE], batch_delay: 0});
+			const filer = await ctx.create_mounted_filer({paths: [TEST_PATHS.SOURCE], batch_delay: 0});
 
 			const mock_stats = create_mock_stats();
 			ctx.mock_watcher.emit('add', TEST_PATHS.FILE_A, mock_stats);
@@ -258,7 +258,7 @@ describe('Filer Core', () => {
 		});
 
 		test('handles directory add events', async () => {
-			const filer = await ctx.create_ready_filer({paths: [TEST_PATHS.SOURCE], batch_delay: 0});
+			const filer = await ctx.create_mounted_filer({paths: [TEST_PATHS.SOURCE], batch_delay: 0});
 
 			const dir_stats = create_mock_stats({
 				isFile: () => false,
@@ -274,7 +274,7 @@ describe('Filer Core', () => {
 		});
 
 		test('handles file change events', async () => {
-			const filer = await ctx.create_ready_filer({paths: [TEST_PATHS.SOURCE], batch_delay: 0});
+			const filer = await ctx.create_mounted_filer({paths: [TEST_PATHS.SOURCE], batch_delay: 0});
 
 			// Add file first
 			ctx.mock_watcher.emit('add', TEST_PATHS.FILE_A, create_mock_stats());
@@ -293,7 +293,7 @@ describe('Filer Core', () => {
 		});
 
 		test('handles file delete events', async () => {
-			const filer = await ctx.create_ready_filer({paths: [TEST_PATHS.SOURCE], batch_delay: 0});
+			const filer = await ctx.create_mounted_filer({paths: [TEST_PATHS.SOURCE], batch_delay: 0});
 
 			// Add file first
 			ctx.mock_watcher.emit('add', TEST_PATHS.FILE_A, create_mock_stats());
@@ -310,7 +310,7 @@ describe('Filer Core', () => {
 		});
 
 		test('handles directory delete events', async () => {
-			const filer = await ctx.create_ready_filer({paths: [TEST_PATHS.SOURCE], batch_delay: 0});
+			const filer = await ctx.create_mounted_filer({paths: [TEST_PATHS.SOURCE], batch_delay: 0});
 
 			// Add directory first
 			ctx.mock_watcher.emit('addDir', TEST_PATHS.DIR_LIB);
@@ -327,7 +327,7 @@ describe('Filer Core', () => {
 		});
 
 		test('cleans up dependencies on node deletion', async () => {
-			const filer = await ctx.create_ready_filer({paths: [TEST_PATHS.SOURCE], batch_delay: 0});
+			const filer = await ctx.create_mounted_filer({paths: [TEST_PATHS.SOURCE], batch_delay: 0});
 
 			// Set up dependency relationship
 			const node_a = filer.get_disknode(TEST_PATHS.FILE_A);
@@ -347,7 +347,7 @@ describe('Filer Core', () => {
 		});
 
 		test('removes child from parent on deletion', async () => {
-			const filer = await ctx.create_ready_filer({paths: [TEST_PATHS.SOURCE], batch_delay: 0});
+			const filer = await ctx.create_mounted_filer({paths: [TEST_PATHS.SOURCE], batch_delay: 0});
 
 			// Add file
 			ctx.mock_watcher.emit('add', TEST_PATHS.FILE_A);
@@ -372,7 +372,7 @@ describe('Filer Core', () => {
 				on_change: vi.fn(),
 			};
 
-			const filer = await ctx.create_ready_filer({
+			const filer = await ctx.create_mounted_filer({
 				paths: [TEST_PATHS.SOURCE],
 				batch_delay: 50,
 				observers: [observer],
@@ -403,7 +403,7 @@ describe('Filer Core', () => {
 				on_change: vi.fn(),
 			};
 
-			const filer = await ctx.create_ready_filer({
+			const filer = await ctx.create_mounted_filer({
 				paths: [TEST_PATHS.SOURCE],
 				batch_delay: 0,
 				observers: [observer],
@@ -425,7 +425,7 @@ describe('Filer Core', () => {
 				on_change: vi.fn(),
 			};
 
-			const filer = await ctx.create_ready_filer({
+			const filer = await ctx.create_mounted_filer({
 				paths: [TEST_PATHS.SOURCE],
 				batch_delay: 50,
 				observers: [observer],
@@ -451,7 +451,7 @@ describe('Filer Core', () => {
 				on_change: vi.fn(),
 			};
 
-			const filer = await ctx.create_ready_filer({
+			const filer = await ctx.create_mounted_filer({
 				paths: [TEST_PATHS.SOURCE],
 				batch_delay: 50,
 				observers: [observer],
@@ -478,7 +478,7 @@ describe('Filer Core', () => {
 				on_change: vi.fn(),
 			};
 
-			const filer = await ctx.create_ready_filer({
+			const filer = await ctx.create_mounted_filer({
 				paths: [TEST_PATHS.SOURCE],
 				batch_delay: 50,
 				observers: [observer],
@@ -504,7 +504,7 @@ describe('Filer Core', () => {
 				on_change: vi.fn(),
 			};
 
-			const filer = await ctx.create_ready_filer({
+			const filer = await ctx.create_mounted_filer({
 				paths: [TEST_PATHS.SOURCE],
 				batch_delay: 50,
 				observers: [observer],
@@ -525,8 +525,8 @@ describe('Filer Core', () => {
 	});
 
 	describe('querying', () => {
-		test('finds disknodes by predicate', () => {
-			const filer = ctx.create_filer({paths: []});
+		test('finds disknodes by predicate', async () => {
+			const filer = await ctx.create_mounted_filer();
 
 			filer.get_disknode(TEST_PATHS.FILE_A);
 			filer.get_disknode(TEST_PATHS.FILE_B);
@@ -541,8 +541,8 @@ describe('Filer Core', () => {
 			);
 		});
 
-		test('gets node by id', () => {
-			const filer = ctx.create_filer({paths: []});
+		test('gets node by id', async () => {
+			const filer = await ctx.create_mounted_filer();
 
 			const created_node = filer.get_disknode(TEST_PATHS.FILE_A);
 			const retrieved_node = filer.get_by_id(TEST_PATHS.FILE_A);
@@ -550,16 +550,16 @@ describe('Filer Core', () => {
 			expect(retrieved_node).toBe(created_node);
 		});
 
-		test('returns undefined for non-existent id', () => {
-			const filer = ctx.create_filer({paths: []});
+		test('returns undefined for non-existent id', async () => {
+			const filer = await ctx.create_mounted_filer();
 
 			const node = filer.get_by_id('/non/existent/file.ts');
 
 			expect(node).toBeUndefined();
 		});
 
-		test('find_nodes returns empty array when no matches', () => {
-			const filer = ctx.create_filer({paths: []});
+		test('find_nodes returns empty array when no matches', async () => {
+			const filer = await ctx.create_mounted_filer();
 
 			filer.get_disknode(TEST_PATHS.FILE_A);
 			filer.get_disknode(TEST_PATHS.FILE_B);
@@ -569,8 +569,8 @@ describe('Filer Core', () => {
 			expect(python_files).toEqual([]);
 		});
 
-		test('find_nodes handles empty node collection', () => {
-			const filer = ctx.create_filer({paths: []});
+		test('find_nodes handles empty node collection', async () => {
+			const filer = await ctx.create_mounted_filer();
 
 			const results = filer.find_disknodes(() => true);
 
@@ -580,7 +580,7 @@ describe('Filer Core', () => {
 
 	describe('lifecycle management', () => {
 		test('resets watcher with new paths', async () => {
-			const filer = await ctx.create_ready_filer({paths: [TEST_PATHS.SOURCE]});
+			const filer = await ctx.create_mounted_filer({paths: [TEST_PATHS.SOURCE]});
 
 			// Create some state
 			filer.get_disknode(TEST_PATHS.FILE_A);
@@ -605,7 +605,7 @@ describe('Filer Core', () => {
 				on_change: vi.fn(),
 			};
 
-			const filer = await ctx.create_ready_filer({
+			const filer = await ctx.create_mounted_filer({
 				paths: [TEST_PATHS.SOURCE],
 				observers: [observer],
 			});
@@ -623,7 +623,7 @@ describe('Filer Core', () => {
 		});
 
 		test('handles close() when not initialized', async () => {
-			const filer = ctx.create_filer({paths: []});
+			const filer = ctx.create_unmounted_filer();
 
 			// Should not throw
 			await expect(filer.dispose()).resolves.toBeUndefined();
@@ -636,7 +636,7 @@ describe('Filer Core', () => {
 				on_change: vi.fn(),
 			};
 
-			const filer = await ctx.create_ready_filer({
+			const filer = await ctx.create_mounted_filer({
 				paths: [TEST_PATHS.SOURCE],
 				batch_delay: 100, // Long delay
 				observers: [observer],
@@ -656,22 +656,23 @@ describe('Filer Core', () => {
 		});
 
 		test('handles multiple reset_watcher calls', async () => {
-			const filer = ctx.create_filer({paths: []});
+			const filer = ctx.create_unmounted_filer();
+			await filer.mount();
 
 			// Call reset_watcher sequentially
 			await filer.reset_watcher(['/path1']);
 			await filer.reset_watcher(['/path2']);
 			await filer.reset_watcher(['/path3']);
 
-			// Should have called watch 3 times
-			expect(vi.mocked(watch)).toHaveBeenCalledTimes(3);
+			// Should have called watch 4 times (mount + 3 resets)
+			expect(vi.mocked(watch)).toHaveBeenCalledTimes(4);
 			expect(vi.mocked(watch)).toHaveBeenLastCalledWith(['/path3'], expect.any(Object));
 		});
 	});
 
 	describe('performance features', () => {
 		test('load_initial_stats handles empty node collection', async () => {
-			const filer = ctx.create_filer({paths: []});
+			const filer = await ctx.create_mounted_filer();
 
 			// No disknodes created
 			expect(filer.disknodes.size).toBe(0);
@@ -684,7 +685,7 @@ describe('Filer Core', () => {
 		});
 
 		test('load_initial_stats handles directory disknodes correctly', async () => {
-			const filer = ctx.create_filer({paths: []});
+			const filer = await ctx.create_mounted_filer({paths: []});
 
 			// Create directory node
 			const dir_node = filer.get_disknode(TEST_PATHS.DIR_LIB);
@@ -709,7 +710,7 @@ describe('Filer Core', () => {
 		});
 
 		test('load_initial_stats skips external disknodes', async () => {
-			const filer = await ctx.create_ready_filer({paths: [TEST_PATHS.SOURCE]});
+			const filer = await ctx.create_mounted_filer({paths: [TEST_PATHS.SOURCE]});
 
 			// Create internal and external disknodes
 			const internal_node = filer.get_disknode(TEST_PATHS.FILE_A);
@@ -733,7 +734,7 @@ describe('Filer Core', () => {
 		});
 
 		test('load_initial_stats processes disknodes in batches', async () => {
-			const filer = ctx.create_filer({paths: []});
+			const filer = await ctx.create_mounted_filer({paths: []});
 
 			// Create many disknodes
 			for (let i = 0; i < 250; i++) {
@@ -767,7 +768,7 @@ describe('Filer Core', () => {
 		});
 
 		test('load_initial_stats handles stat errors gracefully', async () => {
-			const filer = ctx.create_filer({paths: []});
+			const filer = await ctx.create_mounted_filer();
 
 			filer.get_disknode('/test/good.ts');
 			filer.get_disknode('/test/bad.ts');
@@ -808,7 +809,7 @@ describe('Filer Core', () => {
 				on_change: vi.fn(),
 			};
 
-			const filer = await ctx.create_ready_filer({
+			const filer = await ctx.create_mounted_filer({
 				paths: [TEST_PATHS.SOURCE],
 				batch_delay: 0,
 				observers: [observer],
@@ -837,7 +838,7 @@ describe('Filer Core', () => {
 		});
 
 		test('rescan_subtree handles non-existent node gracefully', async () => {
-			const filer = ctx.create_filer({paths: []});
+			const filer = await ctx.create_mounted_filer();
 
 			// Should not throw
 			await expect(filer.rescan_subtree('/non/existent/path')).resolves.toBeUndefined();
@@ -846,8 +847,7 @@ describe('Filer Core', () => {
 
 	describe('alias mapping', () => {
 		test('maps aliases correctly', () => {
-			const filer = ctx.create_filer({
-				paths: [],
+			const filer = ctx.create_unmounted_filer({
 				aliases: [
 					['$lib', './src/lib'],
 					['$routes', './src/routes'],
@@ -862,8 +862,7 @@ describe('Filer Core', () => {
 		});
 
 		test('returns unmapped specifiers unchanged', () => {
-			const filer = ctx.create_filer({
-				paths: [],
+			const filer = ctx.create_unmounted_filer({
 				aliases: [['$lib', './src/lib']],
 			});
 
@@ -873,8 +872,7 @@ describe('Filer Core', () => {
 		});
 
 		test('handles empty aliases array', () => {
-			const filer = ctx.create_filer({
-				paths: [],
+			const filer = ctx.create_unmounted_filer({
 				aliases: [],
 			});
 
@@ -883,8 +881,7 @@ describe('Filer Core', () => {
 		});
 
 		test('uses first matching alias', () => {
-			const filer = ctx.create_filer({
-				paths: [],
+			const filer = ctx.create_unmounted_filer({
 				aliases: [
 					['$lib', './src/lib'],
 					['$lib/special', './src/special'], // More specific but comes after
@@ -903,10 +900,10 @@ describe('Filer Core', () => {
 			});
 
 			// Should not throw during construction
-			const filer = ctx.create_filer({paths: [TEST_PATHS.SOURCE]});
+			const filer = ctx.create_unmounted_filer();
 
-			// Ready should still resolve (in error state)
-			await expect(filer.ready).resolves.toBeUndefined();
+			// Mount should throw the watcher error
+			await expect(filer.mount([TEST_PATHS.SOURCE])).rejects.toThrow('Watcher setup failed');
 		});
 
 		test('continues operation after observer errors', async () => {
@@ -925,7 +922,7 @@ describe('Filer Core', () => {
 				on_change: vi.fn(),
 			};
 
-			const filer = await ctx.create_ready_filer({
+			const filer = await ctx.create_mounted_filer({
 				paths: [TEST_PATHS.SOURCE],
 				batch_delay: 0,
 				observers: [failing_observer, working_observer],
@@ -949,7 +946,7 @@ describe('Filer Core', () => {
 				on_error: () => 'abort',
 			};
 
-			const filer = await ctx.create_ready_filer({
+			const filer = await ctx.create_mounted_filer({
 				paths: [TEST_PATHS.SOURCE],
 				batch_delay: 0,
 				observers: [failing_observer],

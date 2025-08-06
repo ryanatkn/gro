@@ -1,7 +1,7 @@
 import {beforeEach, afterEach, vi} from 'vitest';
 import {existsSync, type Stats} from 'node:fs';
 import {stat} from 'node:fs/promises';
-import {watch, type FSWatcher} from 'chokidar';
+import {watch, type ChokidarOptions, type FSWatcher} from 'chokidar';
 
 import {Filer, type Filer_Options} from './filer.ts';
 import type {Filer_Observer} from './filer_helpers.ts';
@@ -84,20 +84,25 @@ export class Filer_Test_Context {
 	}
 
 	/**
-	 * Create a new Filer instance that will be automatically disposed.
+	 * Create an unmounted Filer instance that will be automatically disposed.
+	 * Use this when you need to test behavior before mounting or need manual mount control.
 	 */
-	create_filer(options?: Filer_Options): Filer {
+	create_unmounted_filer(options?: Filer_Options): Filer {
 		const filer = new Filer(options);
 		this.#filers.add(filer);
 		return filer;
 	}
 
 	/**
-	 * Create a Filer and wait for it to be ready.
+	 * Create a mounted Filer instance that is ready to use.
+	 * This is the preferred method unless you specifically need unmounted behavior.
 	 */
-	async create_ready_filer(options?: Filer_Options): Promise<Filer> {
-		const filer = this.create_filer(options);
-		await filer.ready;
+	async create_mounted_filer(
+		options?: Filer_Options & {paths?: Array<string>; chokidar_options?: ChokidarOptions},
+	): Promise<Filer> {
+		const {paths, chokidar_options, ...filer_options} = options ?? {};
+		const filer = this.create_unmounted_filer(filer_options);
+		await filer.mount(paths, chokidar_options);
 		return filer;
 	}
 
@@ -111,14 +116,11 @@ export class Filer_Test_Context {
 	}): Promise<Filer> {
 		const {intent_observer, tracking_observer, other_observers = []} = options;
 
-		const filer = this.create_filer({
-			paths: ['/test/project/src'],
+		const filer = this.create_unmounted_filer({
 			batch_delay: 0,
 			observers: [intent_observer, tracking_observer, ...other_observers],
 		});
-
-		// Wait for filer to be ready
-		await filer.ready;
+		await filer.mount(['/test/project/src']);
 
 		return filer;
 	}
@@ -147,30 +149,27 @@ export class Filer_Test_Context {
 	}
 }
 
-let current_context: Filer_Test_Context | undefined;
-
 /**
  * Hook to set up automatic filer disposal for tests.
  * Call this once per test suite to get automatic cleanup.
+ * Each call creates a fresh, isolated test context.
  *
  * @returns The test context for creating filers
  */
 export const use_filer_test_context = (): Filer_Test_Context => {
-	if (!current_context) {
-		current_context = new Filer_Test_Context();
+	const context = new Filer_Test_Context();
 
-		beforeEach(() => {
-			vi.clearAllMocks();
-			current_context!.setup_mocks();
-		});
+	beforeEach(() => {
+		vi.clearAllMocks();
+		context.setup_mocks();
+	});
 
-		afterEach(async () => {
-			await current_context!.dispose_all();
-			vi.restoreAllMocks();
-		});
-	}
+	afterEach(async () => {
+		await context.dispose_all();
+		vi.restoreAllMocks();
+	});
 
-	return current_context;
+	return context;
 };
 
 /**

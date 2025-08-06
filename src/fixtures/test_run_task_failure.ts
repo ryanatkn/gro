@@ -16,6 +16,7 @@ async function runTest() {
 
 	let err;
 	const filer = new Filer();
+	await filer.mount();
 	const result = await run_task(
 		{
 			name: 'testTask',

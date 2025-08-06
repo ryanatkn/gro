@@ -287,7 +287,7 @@ describe('Filer_Change_Batch', () => {
 
 	describe('integration with filesystem changes', () => {
 		test('processes real filer change batch from file events', async () => {
-			const filer = await ctx.create_ready_filer({paths: [TEST_PATHS.SOURCE], batch_delay: 0});
+			const filer = await ctx.create_mounted_filer({paths: [TEST_PATHS.SOURCE], batch_delay: 0});
 
 			// Create initial state
 			ctx.mock_watcher.emit('add', TEST_PATHS.FILE_A, create_mock_stats());
@@ -308,7 +308,7 @@ describe('Filer_Change_Batch', () => {
 		});
 
 		test('handles batch with mixed external and internal nodes', async () => {
-			const filer = await ctx.create_ready_filer({paths: [TEST_PATHS.SOURCE]});
+			const filer = await ctx.create_mounted_filer({paths: [TEST_PATHS.SOURCE]});
 
 			// Create internal and external disknodes
 			const internal_node = filer.get_disknode(TEST_PATHS.FILE_A);

@@ -39,6 +39,11 @@ export const invoke_task = async (
 
 	const filer = initial_filer ?? new Filer({log});
 
+	// If we own the filer, mount it.
+	if (!initial_filer) {
+		await filer.mount();
+	}
+
 	const timings = initial_timings ?? new Timings();
 
 	// TODO BLOCK wrap with try/finally maybe?

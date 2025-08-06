@@ -18,6 +18,7 @@ async function runTest() {
 	let invoked_task_name;
 	let invoked_args;
 	const filer = new Filer();
+	await filer.mount();
 	const result = await run_task(
 		{
 			name: 'testTask',

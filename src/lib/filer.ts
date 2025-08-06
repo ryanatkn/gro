@@ -6,12 +6,10 @@ import {watch, FSWatcher, type ChokidarOptions} from 'chokidar';
 import {dirname, resolve, basename} from 'node:path';
 import type {Logger} from '@ryanatkn/belt/log.js';
 import {EMPTY_OBJECT} from '@ryanatkn/belt/object.js';
-import {create_deferred, type Deferred} from '@ryanatkn/belt/async.js';
 
 import {Disknode} from './disknode.ts';
 import type {Path_Id} from './path.ts';
-import {paths} from './paths.ts';
-import {DEFAULT_CONFIG_FILES} from './constants.ts';
+import {DEFAULT_CONFIG_FILES, SOURCE_DIRNAME} from './constants.ts';
 import {
 	Filer_Phase_Order,
 	Filer_Change_Batch,
@@ -32,10 +30,6 @@ import {
  * Options for creating a Filer instance.
  */
 export interface Filer_Options {
-	/** Paths to watch. Default: [paths.source, config files] */
-	paths?: Array<string>;
-	/** Chokidar watcher options */
-	chokidar_options?: ChokidarOptions;
 	/** Delay for batching changes in ms. Default: 10 */
 	batch_delay?: number;
 	/** Initial observers to register */
@@ -79,39 +73,51 @@ export class Filer {
 	#log?: Logger;
 	#aliases: Array<[string, string]>;
 
-	/** Promise that resolves when the filer is ready (watcher initialized) */
-	#ready_deferred: Deferred<void>;
-	get ready(): Promise<void> {
-		return this.#ready_deferred.promise;
-	}
+	/** Whether the filer has been mounted */
+	#mounted = false;
+
+	/** Whether the filer has been disposed */
+	#disposed = false;
 
 	constructor(options: Filer_Options = EMPTY_OBJECT) {
 		this.#batch_delay = options.batch_delay ?? 10;
 		this.#log = options.log;
 		this.#watched_paths = new Set();
 		this.#aliases = options.aliases ?? [];
-		this.#ready_deferred = create_deferred<void>();
 
-		// Add initial observers first
+		// Add initial observers
 		if (options.observers) {
 			for (const observer of options.observers) {
 				this.observe(observer);
 			}
 		}
+	}
 
-		// Default paths include source and config files
-		const default_paths = [paths.source, ...DEFAULT_CONFIG_FILES].filter(existsSync);
+	/**
+	 * Mount the filer to start watching the filesystem.
+	 * Must be called before using the filer.
+	 */
+	async mount(paths?: Array<string>, chokidar_options?: ChokidarOptions): Promise<void> {
+		// Check preconditions
+		if (this.#mounted) throw new Error('Filer already mounted');
+		if (this.#disposed) throw new Error('Cannot mount disposed filer');
 
-		// Initialize with provided paths
-		const paths_to_watch = options.paths ?? default_paths;
-		if (paths_to_watch.length > 0) {
-			// Start the watcher setup - ready promise will resolve when complete
-			this.reset_watcher(paths_to_watch, options.chokidar_options).catch((err) => {
-				this.#log?.error('[Filer] Failed to initialize watcher', err);
-			});
-		} else {
-			// No paths to watch, immediately ready
-			this.#ready_deferred.resolve();
+		// Mark as mounted immediately to prevent race conditions
+		this.#mounted = true;
+
+		try {
+			// Default paths include source and config files  
+			const default_paths = [resolve(SOURCE_DIRNAME), ...DEFAULT_CONFIG_FILES].filter(existsSync);
+			const final_paths = paths ?? default_paths;
+
+			// Set up watcher if needed
+			if (final_paths.length > 0) {
+				await this.#setup_watcher(final_paths, chokidar_options);
+			}
+		} catch (err) {
+			// Reset mounted state on failure
+			this.#mounted = false;
+			throw err;
 		}
 	}
 
@@ -120,72 +126,61 @@ export class Filer {
 	 * Clears all existing state and rebuilds from scratch.
 	 */
 	async reset_watcher(paths: Array<string>, chokidar_options?: ChokidarOptions): Promise<void> {
-		// Create a new deferred for this reset operation
-		const new_ready = create_deferred<void>();
-		this.#ready_deferred = new_ready;
+		this.#check_mounted();
 
-		try {
-			// Close existing watcher if any
-			await this.#watcher?.close();
+		// Clear existing state and rebuild
+		await this.#clear_state();
+		await this.#setup_watcher(paths, chokidar_options);
+	}
 
-			// Clear state
-			this.disknodes.clear();
-			this.roots.clear();
-			this.#pending_changes.clear();
-			this.#pending_dependency_updates.clear();
-			if (this.#batch_timeout) {
-				clearTimeout(this.#batch_timeout);
-				this.#batch_timeout = undefined;
-			}
+	/**
+	 * Set up the watcher with given paths.
+	 */
+	async #setup_watcher(paths: Array<string>, chokidar_options?: ChokidarOptions): Promise<void> {
+		await this.#watcher?.close();
+		this.#watched_paths = new Set(paths.map((p) => resolve(p)));
 
-			// Store normalized watched paths
-			this.#watched_paths = new Set(paths.map((p) => resolve(p)));
+		this.#watcher = watch(paths, {
+			persistent: true,
+			ignoreInitial: false,
+			followSymlinks: true,
+			awaitWriteFinish: {stabilityThreshold: 50, pollInterval: 10},
+			...chokidar_options,
+		});
 
-			// Create watcher with sensible defaults
-			this.#watcher = watch(paths, {
-				persistent: true,
-				ignoreInitial: false,
-				followSymlinks: true,
-				awaitWriteFinish: {
-					stabilityThreshold: 50,
-					pollInterval: 10,
-				},
-				...chokidar_options,
+		this.#setup_watcher_handlers();
+
+		// Wait for initial scan with timeout
+		await new Promise<void>((resolve, reject) => {
+			const timeout = setTimeout(() => reject(new Error('Watcher timeout after 10s')), 10000);
+			this.#watcher!.once('ready', () => {
+				clearTimeout(timeout);
+				resolve();
 			});
+		});
+	}
 
-			this.#setup_watcher_handlers();
-
-			// Wait for initial scan with timeout protection
-			await new Promise<void>((resolve) => {
-				// If we've been superseded, just resolve immediately
-				if (this.#ready_deferred !== new_ready) {
-					resolve();
-					return;
-				}
-
-				// Set up timeout in case watcher never becomes ready
-				const timeout = setTimeout(() => {
-					this.#log?.warn('[Filer] Watcher ready timeout after 10s');
-					resolve();
-				}, 10000);
-
-				this.#watcher!.once('ready', () => {
-					clearTimeout(timeout);
-					resolve();
-				});
-			});
-
-			// Only mark as ready if we're still the current reset
-			if (this.#ready_deferred === new_ready) {
-				new_ready.resolve();
-			}
-		} catch (err) {
-			// On error, resolve (not reject) to prevent hanging
-			this.#log?.error('[Filer] reset_watcher failed', err);
-			if (this.#ready_deferred === new_ready) {
-				new_ready.resolve();
-			}
+	/**
+	 * Clear all state.
+	 */
+	async #clear_state(): Promise<void> {
+		await this.#watcher?.close();
+		this.disknodes.clear();
+		this.roots.clear();
+		this.#pending_changes.clear();
+		this.#pending_dependency_updates.clear();
+		if (this.#batch_timeout) {
+			clearTimeout(this.#batch_timeout);
+			this.#batch_timeout = undefined;
 		}
+	}
+
+	/**
+	 * Check that the filer is mounted.
+	 */
+	#check_mounted(): void {
+		if (!this.#mounted) throw new Error('Filer not mounted - call mount() first');
+		if (this.#disposed) throw new Error('Filer disposed');
 	}
 
 	/**
@@ -451,6 +446,7 @@ export class Filer {
 	 * Get or create a disknode for the given path.
 	 */
 	get_disknode(id: Path_Id): Disknode {
+		this.#check_mounted();
 		let disknode = this.disknodes.get(id);
 		if (!disknode) {
 			disknode = new Disknode(id, this);
@@ -712,6 +708,7 @@ export class Filer {
 	 * Manually rescan a subtree for robustness.
 	 */
 	async rescan_subtree(path: string): Promise<void> {
+		this.#check_mounted();
 		const id = resolve(path);
 		const disknode = this.disknodes.get(id);
 		if (!disknode) return;
@@ -754,6 +751,7 @@ export class Filer {
 	 * Load initial stats for all disknodes in parallel.
 	 */
 	async load_initial_stats(): Promise<void> {
+		this.#check_mounted();
 		const has_watched_paths = this.#watched_paths.size > 0;
 		const disknodes = Array.from(this.disknodes.values()).filter(
 			(n) => !has_watched_paths || !n.is_external,
@@ -780,6 +778,9 @@ export class Filer {
 	 * Clean up and close the filer.
 	 */
 	async dispose(): Promise<void> {
+		if (this.#disposed) return;
+		this.#disposed = true;
+
 		if (this.#batch_timeout) {
 			clearTimeout(this.#batch_timeout);
 			this.#batch_timeout = undefined;
@@ -787,7 +788,6 @@ export class Filer {
 
 		await this.#watcher?.close();
 		this.#watcher = undefined;
-
 		this.disknodes.clear();
 		this.roots.clear();
 		this.#observers.clear();
