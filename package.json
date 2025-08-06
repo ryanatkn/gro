@@ -178,6 +178,10 @@
       "types": "./dist/dev.task.d.ts",
       "default": "./dist/dev.task.js"
     },
+    "./disknode.js": {
+      "types": "./dist/disknode.d.ts",
+      "default": "./dist/disknode.js"
+    },
     "./env.js": {
       "types": "./dist/env.d.ts",
       "default": "./dist/env.js"
@@ -257,6 +261,10 @@
     "./gro_plugin_gen.js": {
       "types": "./dist/gro_plugin_gen.d.ts",
       "default": "./dist/gro_plugin_gen.js"
+    },
+    "./gro_plugin_moss.js": {
+      "types": "./dist/gro_plugin_moss.d.ts",
+      "default": "./dist/gro_plugin_moss.js"
     },
     "./gro_plugin_server.js": {
       "types": "./dist/gro_plugin_server.d.ts",
@@ -453,10 +461,6 @@
     "./upgrade.task.js": {
       "types": "./dist/upgrade.task.d.ts",
       "default": "./dist/upgrade.task.js"
-    },
-    "./watch_dir.js": {
-      "types": "./dist/watch_dir.d.ts",
-      "default": "./dist/watch_dir.js"
     }
   }
 }
