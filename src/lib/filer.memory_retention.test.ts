@@ -671,5 +671,36 @@ describe('Filer Memory Retention (Tombstones)', () => {
 			expect(restored_node.exists).toBe(true);
 			expect(restored_node.version).toBeGreaterThan(original_version);
 		});
+
+		test('prevents parent-child relationship memory leaks', async () => {
+			const filer = await ctx.create_mounted_filer({
+				paths: [TEST_PATHS.SOURCE],
+				batch_delay: 0,
+			});
+
+			const parent = filer.get_disknode(TEST_PATHS.SOURCE);
+			const initial_children_count = parent.children.size;
+
+			// Create and delete files repeatedly
+			for (let i = 0; i < 20; i++) {
+				const path = `${TEST_PATHS.SOURCE}/leak_test${i}.ts`;
+				ctx.mock_watcher.emit('add', path, create_mock_stats());
+				ctx.mock_watcher.emit('unlink', path);
+			}
+
+			await wait_for_batch();
+
+			// Parent should not retain references to deleted children
+			expect(parent.children.size).toBe(initial_children_count);
+
+			// Verify no stale child references
+			for (const child_node of parent.children.values()) {
+				expect(child_node.exists).toBe(true);
+				expect(child_node.parent).toBe(parent);
+			}
+
+			// Verify tombstones are properly managed
+			expect(filer.tombstones.size).toBeLessThanOrEqual(filer.tombstone_limit);
+		});
 	});
 });

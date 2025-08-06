@@ -286,10 +286,6 @@ export class Filer {
 			this.#pending_changes.delete(id);
 		}
 
-		// Set up parent/child relationships for new disknodes
-		if (type === 'add' && disknode) {
-			this.#setup_disknode_relationships(disknode);
-		}
 
 		// Remove from parent on delete
 		if (type === 'delete' && disknode?.parent) {
@@ -515,6 +511,10 @@ export class Filer {
 				this.tombstones.delete(id);
 				this.disknodes.set(id, disknode);
 				disknode.exists = true; // Mark as existing again
+				
+				// Re-establish parent-child relationships
+				this.#setup_disknode_relationships(disknode);
+				
 				return disknode;
 			}
 

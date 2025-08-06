@@ -237,6 +237,55 @@ describe('Filer Core', () => {
 			expect(root_node.parent).toBeNull();
 			expect(root_node.id).toBe('/');
 		});
+
+		test('sets up relationships correctly on file add events', async () => {
+			const filer = await ctx.create_mounted_filer({paths: [TEST_PATHS.SOURCE], batch_delay: 0});
+
+			ctx.mock_watcher.emit('add', TEST_PATHS.FILE_A, create_mock_stats());
+			await new Promise((resolve) => setTimeout(resolve, 10));
+
+			const file_node = filer.get_disknode(TEST_PATHS.FILE_A);
+			const parent_node = filer.get_disknode(TEST_PATHS.SOURCE);
+			
+			// Verify relationships are set up correctly
+			expect(file_node.parent).toBe(parent_node);
+			expect(parent_node.children.get('a.ts')).toBe(file_node);
+			expect(parent_node.children.size).toBe(1);
+			
+			// Verify no duplicate entries in parent's children map
+			const child_entries = Array.from(parent_node.children.entries());
+			const unique_entries = new Set(child_entries.map(([name]) => name));
+			expect(unique_entries.size).toBe(child_entries.length);
+		});
+
+		test('maintains consistent parent-child relationships after multiple operations', async () => {
+			const filer = await ctx.create_mounted_filer({paths: [TEST_PATHS.SOURCE], batch_delay: 0});
+
+			// Add file multiple times (simulating rapid events that could trigger double setup)
+			ctx.mock_watcher.emit('add', TEST_PATHS.FILE_A, create_mock_stats());
+			ctx.mock_watcher.emit('change', TEST_PATHS.FILE_A, create_mock_stats());
+			ctx.mock_watcher.emit('add', TEST_PATHS.FILE_A, create_mock_stats()); // Duplicate add
+			await new Promise((resolve) => setTimeout(resolve, 20));
+
+			const file_node = filer.get_disknode(TEST_PATHS.FILE_A);
+			const parent_node = filer.get_disknode(TEST_PATHS.SOURCE);
+
+			// Relationships should be correct and not duplicated
+			expect(file_node.parent).toBe(parent_node);
+			expect(parent_node.children.get('a.ts')).toBe(file_node);
+			expect(parent_node.children.size).toBe(1); // No duplicates
+			
+			// Verify parent's children map is clean - no duplicate keys or values
+			const all_children = Array.from(parent_node.children.values());
+			const unique_children = new Set(all_children);
+			expect(unique_children.size).toBe(all_children.length);
+			
+			// Verify bidirectional consistency  
+			for (const [child_name, child_node] of parent_node.children) {
+				expect(child_node.parent).toBe(parent_node);
+				expect(child_node.id.endsWith(child_name)).toBe(true);
+			}
+		});
 	});
 
 	describe('filesystem events', () => {
@@ -842,6 +891,32 @@ describe('Filer Core', () => {
 			// Should not throw
 			await expect(filer.rescan_subtree('/non/existent/path')).resolves.toBeUndefined();
 		});
+
+		test('relationship setup scales efficiently with many files', async () => {
+			const filer = await ctx.create_mounted_filer({paths: [TEST_PATHS.SOURCE], batch_delay: 0});
+
+			const start = Date.now();
+
+			// Add many files at once
+			for (let i = 0; i < 100; i++) {
+				ctx.mock_watcher.emit('add', `/test/project/src/file${i}.ts`, create_mock_stats());
+			}
+			await new Promise((resolve) => setTimeout(resolve, 50));
+
+			const duration = Date.now() - start;
+
+			// Should complete reasonably fast (not exponential due to double setup)
+			expect(duration).toBeLessThan(1000);
+
+			// All relationships should be correct
+			const parent = filer.get_disknode(TEST_PATHS.SOURCE);
+			expect(parent.children.size).toBe(100);
+
+			// Verify a few random relationships
+			const node42 = filer.get_disknode('/test/project/src/file42.ts');
+			expect(node42.parent).toBe(parent);
+			expect(parent.children.get('file42.ts')).toBe(node42);
+		});
 	});
 
 	describe('alias mapping', () => {
@@ -976,6 +1051,24 @@ describe('Filer Core', () => {
 
 			// Test that the system doesn't crash - no specific assertion needed
 			expect(true).toBe(true);
+		});
+
+		test('handles rapid add/delete/add cycles without relationship corruption', async () => {
+			const filer = await ctx.create_mounted_filer({paths: [TEST_PATHS.SOURCE], batch_delay: 0});
+
+			// Rapid cycle - this tests tombstone restoration with relationship re-establishment
+			ctx.mock_watcher.emit('add', TEST_PATHS.FILE_A, create_mock_stats());
+			ctx.mock_watcher.emit('unlink', TEST_PATHS.FILE_A);
+			ctx.mock_watcher.emit('add', TEST_PATHS.FILE_A, create_mock_stats());
+			await new Promise((resolve) => setTimeout(resolve, 20));
+
+			const file_node = filer.get_disknode(TEST_PATHS.FILE_A);
+			const parent_node = filer.get_disknode(TEST_PATHS.SOURCE);
+
+			// Final state should be consistent - relationships restored from tombstone
+			expect(file_node.parent).toBe(parent_node);
+			expect(parent_node.children.get('a.ts')).toBe(file_node);
+			expect(file_node.exists).toBe(true);
 		});
 	});
 });
