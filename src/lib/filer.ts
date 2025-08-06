@@ -787,8 +787,9 @@ export class Filer {
 	): Filer_Change_Batch {
 		const filtered: Map<Path_Id, Filer_Change> = new Map();
 
-		// Cache dynamic paths evaluation
+		// Cache dynamic paths evaluation and resolve them once
 		const dynamic_paths = typeof observer.paths === 'function' ? observer.paths() : observer.paths;
+		const resolved_paths = dynamic_paths?.map((p) => resolve(p));
 
 		// First, collect directly matching changes
 		for (const [id, change] of batch.changes) {
@@ -796,11 +797,10 @@ export class Filer {
 			if (!disknode) continue;
 
 			// Check observer filters
-			if (!observer.track_external && disknode.is_external) continue;
-			if (!observer.track_directories && disknode.kind === 'directory') continue;
+			if (this.#should_filter_disknode(observer, disknode)) continue;
 
 			// Check matching
-			if (this.#observer_matches(observer, disknode, dynamic_paths)) {
+			if (this.#observer_matches(observer, disknode, resolved_paths)) {
 				filtered.set(id, change);
 			}
 		}
@@ -852,8 +852,7 @@ export class Filer {
 		// Add expanded disknodes
 		for (const disknode of to_add) {
 			if (filtered.has(disknode.id)) continue;
-			if (!observer.track_external && disknode.is_external) continue;
-			if (!observer.track_directories && disknode.kind === 'directory') continue;
+			if (this.#should_filter_disknode(observer, disknode)) continue;
 
 			filtered.set(disknode.id, {
 				type: 'update',
@@ -865,12 +864,22 @@ export class Filer {
 	}
 
 	/**
+	 * Check if disknode should be filtered out based on observer settings.
+	 */
+	#should_filter_disknode(observer: Filer_Observer, disknode: Disknode): boolean {
+		return (
+			(!observer.track_external && disknode.is_external) ||
+			(!observer.track_directories && disknode.kind === 'directory')
+		);
+	}
+
+	/**
 	 * Check if an observer matches a disknode.
 	 */
 	#observer_matches(
 		observer: Filer_Observer,
 		disknode: Disknode,
-		cached_paths?: Array<Path_Id>,
+		resolved_paths?: Array<Path_Id>,
 	): boolean {
 		if (observer.match?.(disknode)) return true;
 
@@ -880,9 +889,9 @@ export class Filer {
 			}
 		}
 
-		if (cached_paths) {
-			for (const path of cached_paths) {
-				if (disknode.id === resolve(path)) return true;
+		if (resolved_paths) {
+			for (const path of resolved_paths) {
+				if (disknode.id === path) return true;
 			}
 		}
 
@@ -903,7 +912,11 @@ export class Filer {
 			const result = await Promise.race([
 				Promise.resolve(observer.on_change(batch)),
 				new Promise<never>((_, reject) => {
-					timer = setTimeout(() => reject(new Error(`Observer ${observer.id} timed out`)), timeout);
+					timer = setTimeout(() => {
+						const error = new Error(`Observer ${observer.id} timed out after ${timeout}ms`);
+						error.name = 'ObserverTimeoutError';
+						reject(error);
+					}, timeout);
 				}),
 			]);
 
@@ -1008,24 +1021,23 @@ export class Filer {
 	}
 
 	/**
-	 * Unified relationship traversal.
+	 * Unified relationship traversal with optimized iteration.
 	 */
 	*traverse_relationships(
 		disknode: Disknode,
 		type: 'dependents' | 'dependencies',
 		recursive = true,
 	): Generator<Disknode> {
-		const visited: Set<Disknode> = new Set();
+		const visited: Set<Disknode> = new Set([disknode]);
 		const stack = [disknode];
 
 		while (stack.length > 0) {
 			const current = stack.pop()!;
-			if (visited.has(current)) continue;
-			visited.add(current);
-
 			const relationships = type === 'dependents' ? current.dependents : current.dependencies;
+
 			for (const related of relationships.values()) {
 				if (!visited.has(related)) {
+					visited.add(related);
 					yield related;
 					if (recursive) {
 						stack.push(related);

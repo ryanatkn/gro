@@ -951,6 +951,87 @@ describe('Filer Observer System', () => {
 		});
 	});
 
+	describe('performance optimization tests', () => {
+		test('only processes dependency updates when observers need them', async () => {
+			const observer_no_deps: Filer_Observer = {
+				id: 'no_deps',
+				patterns: [/\.ts$/],
+				needs_imports: false,
+				on_change: vi.fn(),
+			};
+
+			const filer = await create_ready_filer({
+				paths: [TEST_SOURCE],
+				batch_delay: 0,
+				observers: [observer_no_deps],
+			});
+
+			const node = filer.get_disknode(TEST_FILE_A);
+			const imports_spy = vi.spyOn(node, 'imports', 'get');
+
+			mock_watcher.emit('add', TEST_FILE_A);
+			await new Promise((resolve) => setTimeout(resolve, 10));
+
+			// Imports should NOT have been accessed since no observer needs them
+			expect(imports_spy).not.toHaveBeenCalled();
+			expect(vi.mocked(observer_no_deps.on_change)).toHaveBeenCalled();
+		});
+
+		test('processes dependency updates when at least one observer needs them', async () => {
+			const observer_needs_deps: Filer_Observer = {
+				id: 'needs_deps',
+				patterns: [/\.ts$/],
+				expand_to: 'dependents',
+				on_change: vi.fn(),
+			};
+
+			const observer_no_deps: Filer_Observer = {
+				id: 'no_deps',
+				patterns: [/\.js$/],
+				on_change: vi.fn(),
+			};
+
+			const filer = await create_ready_filer({
+				paths: [TEST_SOURCE],
+				batch_delay: 0,
+				observers: [observer_needs_deps, observer_no_deps],
+			});
+
+			const node = filer.get_disknode(TEST_FILE_A);
+			const imports_spy = vi.spyOn(node, 'imports', 'get');
+
+			mock_watcher.emit('add', TEST_FILE_A);
+			await new Promise((resolve) => setTimeout(resolve, 10));
+
+			// Imports should have been accessed since one observer needs them
+			expect(imports_spy).toHaveBeenCalled();
+		});
+
+		test('caches resolved paths for performance', async () => {
+			const paths_fn = vi.fn(() => [TEST_FILE_A, TEST_FILE_B]);
+			const observer: Filer_Observer = {
+				id: 'dynamic_paths_perf',
+				paths: paths_fn,
+				on_change: vi.fn(),
+			};
+
+			await create_ready_filer({
+				paths: [TEST_SOURCE],
+				batch_delay: 0,
+				observers: [observer],
+			});
+
+			// Trigger multiple changes in one batch
+			mock_watcher.emit('add', TEST_FILE_A);
+			mock_watcher.emit('change', TEST_FILE_B);
+			mock_watcher.emit('add', TEST_FILE_C);
+			await new Promise((resolve) => setTimeout(resolve, 10));
+
+			// Dynamic paths should only be evaluated once per batch
+			expect(paths_fn).toHaveBeenCalledTimes(1);
+		});
+	});
+
 	describe('edge cases and error handling', () => {
 		test('handles observer throwing exception with continue', async () => {
 			const failing_observer: Filer_Observer = {
@@ -1097,6 +1178,110 @@ describe('Filer Observer System', () => {
 			await new Promise((resolve) => setTimeout(resolve, 10));
 
 			// Should not be called since no matching criteria
+			expect(vi.mocked(observer.on_change)).not.toHaveBeenCalled();
+		});
+
+		test('handles circular dependencies gracefully', async () => {
+			const observer: Filer_Observer = {
+				id: 'circular_deps',
+				patterns: [/\.ts$/],
+				expand_to: 'dependents',
+				on_change: vi.fn(),
+			};
+
+			const filer = await create_ready_filer({
+				paths: [TEST_SOURCE],
+				batch_delay: 0,
+				observers: [observer],
+			});
+
+			// Create circular dependency: A -> B -> C -> A
+			const node_a = filer.get_disknode(TEST_FILE_A);
+			const node_b = filer.get_disknode(TEST_FILE_B);
+			const node_c = filer.get_disknode(TEST_FILE_C);
+			node_b.add_dependency(node_a);
+			node_c.add_dependency(node_b);
+			node_a.add_dependency(node_c);
+
+			mock_watcher.emit('change', TEST_FILE_A);
+			await new Promise((resolve) => setTimeout(resolve, 10));
+
+			// Should handle circular dependencies without infinite loop
+			const batch = vi.mocked(observer.on_change).mock.calls[0][0];
+			expect(batch.size).toBe(3); // All three files in the cycle
+		});
+
+		test('handles observer timeout correctly', async () => {
+			const slow_observer: Filer_Observer = {
+				id: 'slow_observer',
+				patterns: [/\.ts$/],
+				timeout_ms: 10, // Very short timeout
+				on_change: async () => {
+					await new Promise((resolve) => setTimeout(resolve, 50)); // Longer than timeout
+				},
+				on_error: (error) => {
+					expect(error.name).toBe('ObserverTimeoutError');
+					expect(error.message).toContain('10ms');
+					return 'continue';
+				},
+			};
+
+			const other_observer: Filer_Observer = {
+				id: 'other_observer',
+				patterns: [/\.ts$/],
+				on_change: vi.fn(),
+			};
+
+			await create_ready_filer({
+				paths: [TEST_SOURCE],
+				batch_delay: 0,
+				observers: [slow_observer, other_observer],
+			});
+
+			mock_watcher.emit('add', TEST_FILE_A);
+			await new Promise((resolve) => setTimeout(resolve, 100));
+
+			// Other observer should still be called
+			expect(vi.mocked(other_observer.on_change)).toHaveBeenCalled();
+		});
+
+		test('handles empty paths array correctly', async () => {
+			const observer: Filer_Observer = {
+				id: 'empty_paths',
+				paths: [],
+				on_change: vi.fn(),
+			};
+
+			await create_ready_filer({
+				paths: [TEST_SOURCE],
+				batch_delay: 0,
+				observers: [observer],
+			});
+
+			mock_watcher.emit('add', TEST_FILE_A);
+			await new Promise((resolve) => setTimeout(resolve, 10));
+
+			// Should not be called with empty paths
+			expect(vi.mocked(observer.on_change)).not.toHaveBeenCalled();
+		});
+
+		test('handles null return from dynamic paths correctly', async () => {
+			const observer: Filer_Observer = {
+				id: 'null_paths',
+				paths: () => [], // Returns empty array
+				on_change: vi.fn(),
+			};
+
+			await create_ready_filer({
+				paths: [TEST_SOURCE],
+				batch_delay: 0,
+				observers: [observer],
+			});
+
+			mock_watcher.emit('add', TEST_FILE_A);
+			await new Promise((resolve) => setTimeout(resolve, 10));
+
+			// Should not be called with empty paths
 			expect(vi.mocked(observer.on_change)).not.toHaveBeenCalled();
 		});
 	});
