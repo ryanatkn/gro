@@ -4,17 +4,6 @@ import {resolve} from 'node:path';
 import type {Disknode} from './disknode.ts';
 import type {Path_Id} from './path.ts';
 
-// TODO BLOCK move these (belt, see other helpers)
-// TODO workaround for zod 4.x not having function schemas, is there a better way to get what we want?
-export const function_schema = <T extends z.core.$ZodFunction>(
-	schema: T,
-): z.ZodCustom<Parameters<T['implement']>[0]> =>
-	z.custom<Parameters<T['implement']>[0]>((fn: any) => schema.implement(fn));
-
-export const function_schema_async = <T extends z.core.$ZodFunction>(
-	schema: T,
-): z.ZodCustom<Parameters<T['implementAsync']>[0]> =>
-	z.custom<Parameters<T['implementAsync']>[0]>((fn: any) => schema.implementAsync(fn));
 
 /**
  * Change types as const for faster coalescing.
@@ -186,82 +175,57 @@ export class Filer_Change_Batch {
 /**
  * Observer configuration for watching filesystem changes.
  */
-export const Filer_Observer = z.strictObject({
+export interface Filer_Observer {
 	/** Unique identifier for this observer */
-	id: z.string(),
+	id: string;
 
 	// Matching strategies (at least one required)
 	/** Regex patterns to match file paths */
-	patterns: z.array(z.instanceof(RegExp)).optional(),
+	patterns?: Array<RegExp>;
 	/** Specific paths to watch (can be a function for dynamic paths - should be pure and cheap) */
-	paths: z
-		.union([
-			z.array(z.string()),
-			function_schema(z.function({input: z.tuple([]), output: z.array(z.string())})),
-		])
-		.optional(),
+	paths?: Array<string> | (() => Array<string>);
 	/** Custom matching function */
-	match: function_schema(
-		z.function({input: z.tuple([z.custom<Disknode>()]), output: z.boolean()}),
-	).optional(),
+	match?: (disknode: Disknode) => boolean;
 
 	// What changes to track
 	/** Track external (non-watched) files. Default: false */
-	track_external: z.boolean().optional(),
+	track_external?: boolean;
 	/** Track directory changes. Default: false */
-	track_directories: z.boolean().optional(),
+	track_directories?: boolean;
 
 	// Batch expansion strategy
 	/** How to expand the batch beyond matched files. Default: 'self' */
-	expand_to: Filer_Expand_Strategy.optional(),
+	expand_to?: Filer_Expand_Strategy;
 
 	// Intent support
 	/** Whether this observer can return invalidation intents. Default: false */
-	returns_intents: z.boolean().optional(),
+	returns_intents?: boolean;
 
 	// Performance hints
 	/** Whether this observer needs file contents. Default: false */
-	needs_contents: z.boolean().optional(),
+	needs_contents?: boolean;
 	/** Whether this observer needs file stats. Default: true */
-	needs_stats: z.boolean().optional(),
+	needs_stats?: boolean;
 	/** Whether this observer needs parsed imports for dependency tracking. Default: false */
-	needs_imports: z.boolean().optional(),
+	needs_imports?: boolean;
 
 	// Execution order
 	/** Execution phase. Default: 'main' */
-	phase: z.enum(['pre', 'main', 'post']).optional(),
+	phase?: Filer_Phase;
 	/** Priority within phase (higher = earlier). Default: 0 */
-	priority: z.number().optional(),
+	priority?: number;
 
 	// Error handling
 	/** How to handle errors. Default: 'abort' */
-	on_error: function_schema(
-		z.function({
-			input: z.tuple([z.instanceof(Error), z.custom<Filer_Change_Batch>()]),
-			output: Filer_Error_Strategy,
-		}),
-	).optional(),
+	on_error?: (error: Error, batch: Filer_Change_Batch) => Filer_Error_Strategy;
 	/** Timeout for observer execution. Default: 30000ms */
-	timeout_ms: z.number().optional(),
+	timeout_ms?: number;
 
 	/** Change handler - can be async and return invalidation intents */
-	on_change: function_schema(
-		z.function({
-			input: z.tuple([z.custom<Filer_Change_Batch>()]),
-			output: z.union([
-				z.array(Filer_Invalidation_Intent),
-				z.void(),
-				z.promise(z.array(Filer_Invalidation_Intent)),
-				z.promise(z.void()),
-			]),
-		}),
-	),
-});
-
-/**
- * Observer configuration for watching filesystem changes.
- */
-export type Filer_Observer = z.infer<typeof Filer_Observer>;
+	on_change: (
+		batch: Filer_Change_Batch,
+	) => Array<Filer_Invalidation_Intent> | void | Promise<Array<Filer_Invalidation_Intent>> | Promise<void>;
+}
 
 export const Filer_Change_Transitions: Record<
 	Filer_Change_Type,
@@ -309,31 +273,6 @@ export const filer_coalesce_change = (
 
 	// Return coalesced change
 	return {...next, type: result};
-};
-
-/**
- * Pre-warm data for observer based on hints.
- */
-export const filer_prewarm_observer_data = (
-	batch: Filer_Change_Batch,
-	observer: Filer_Observer,
-): void => {
-	const needs_imports =
-		observer.needs_imports ||
-		observer.expand_to === 'dependents' ||
-		observer.expand_to === 'dependencies';
-
-	for (const disknode of batch.all_disknodes) {
-		if (observer.needs_contents) {
-			disknode.contents; // Trigger lazy load
-		}
-		if (observer.needs_stats === true || observer.needs_stats === undefined) {
-			disknode.stats; // Trigger lazy load (default: true)
-		}
-		if (needs_imports && disknode.is_importable) {
-			disknode.imports; // Trigger import parsing
-		}
-	}
 };
 
 /**
@@ -436,7 +375,7 @@ export const filer_resolve_intent_disknodes = (
 	intent: Filer_Invalidation_Intent,
 	disknodes: Map<Path_Id, Disknode>,
 	get_disknode: (id: Path_Id) => Disknode,
-	traverse_relationships_fn: typeof filer_traverse_relationships,
+	traverse_relationships: typeof filer_traverse_relationships,
 ): Set<Disknode> => {
 	const result_disknodes: Set<Disknode> = new Set();
 
@@ -468,7 +407,7 @@ export const filer_resolve_intent_disknodes = (
 
 		case 'dependents':
 			if (intent.disknode) {
-				for (const dep of traverse_relationships_fn(intent.disknode, 'dependents')) {
+				for (const dep of traverse_relationships(intent.disknode, 'dependents')) {
 					if (!dep.is_external) result_disknodes.add(dep);
 				}
 			}
@@ -476,7 +415,7 @@ export const filer_resolve_intent_disknodes = (
 
 		case 'dependencies':
 			if (intent.disknode) {
-				for (const dep of traverse_relationships_fn(intent.disknode, 'dependencies')) {
+				for (const dep of traverse_relationships(intent.disknode, 'dependencies')) {
 					if (!dep.is_external) result_disknodes.add(dep);
 				}
 			}

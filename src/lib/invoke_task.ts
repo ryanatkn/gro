@@ -46,6 +46,9 @@ export const invoke_task = async (
 	const finish = async () => {
 		// If we own the filer, dispose of it.
 		if (!initial_filer) {
+			// TODO BLOCK is this going to cover our cases?
+			// what about running tasks from the live system?
+			// maybe it should be based on what's passed in through `invoke.ts`?
 			await filer.dispose();
 		}
 

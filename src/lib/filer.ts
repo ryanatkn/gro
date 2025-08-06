@@ -16,7 +16,6 @@ import {
 	Filer_Phase_Order,
 	Filer_Change_Batch,
 	filer_coalesce_change,
-	filer_prewarm_observer_data,
 	filer_should_filter_disknode,
 	filer_observer_matches,
 	filer_execute_observer,
@@ -431,7 +430,7 @@ export class Filer {
 			if (filtered.is_empty) continue;
 
 			// Pre-warm data if needed
-			filer_prewarm_observer_data(filtered, observer);
+			this.#prewarm_observer_data(filtered, observer);
 
 			try {
 				const result = await filer_execute_observer(observer, filtered); // eslint-disable-line no-await-in-loop
@@ -622,6 +621,28 @@ export class Filer {
 				id: disknode.id,
 				kind: disknode.kind,
 			});
+		}
+	}
+
+	/**
+	 * Pre-warm data for observer based on hints.
+	 */
+	#prewarm_observer_data(batch: Filer_Change_Batch, observer: Filer_Observer): void {
+		const needs_imports =
+			observer.needs_imports ||
+			observer.expand_to === 'dependents' ||
+			observer.expand_to === 'dependencies';
+
+		for (const disknode of batch.all_disknodes) {
+			if (observer.needs_contents) {
+				disknode.contents; // Trigger lazy load
+			}
+			if (observer.needs_stats === true || observer.needs_stats === undefined) {
+				disknode.stats; // Trigger lazy load (default: true)
+			}
+			if (needs_imports && disknode.is_importable) {
+				disknode.imports; // Trigger import parsing
+			}
 		}
 	}
 
