@@ -25,7 +25,7 @@ export type Args = z.infer<typeof Args>;
 // TODO BLOCK need to replace uvu tests
 
 export const task: Task<Args> = {
-	summary: 'run tests with uvu',
+	summary: 'run tests with vitest',
 	Args,
 	run: async ({args, filer}): Promise<void> => {
 		const {_: patterns, bail, cwd, ignore} = args;
