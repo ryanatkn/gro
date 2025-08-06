@@ -335,11 +335,15 @@ export class Filer {
 	 */
 	#any_observer_needs_imports(): boolean {
 		for (const observer of this.#observers.values()) {
-			if (
-				observer.needs_imports ||
-				observer.expand_to === 'dependents' ||
-				observer.expand_to === 'dependencies'
-			) {
+			// Only auto-enable imports if not explicitly set to false
+			const needs_imports =
+				observer.needs_imports === false
+					? false
+					: observer.needs_imports ||
+						observer.expand_to === 'dependents' ||
+						observer.expand_to === 'dependencies';
+
+			if (needs_imports) {
 				return true;
 			}
 		}
@@ -450,7 +454,7 @@ export class Filer {
 			const filtered = this.#filter_batch_for_observer(batch, observer);
 			if (filtered.is_empty) continue;
 
-			// Pre-warm data if needed
+			// Pre-warm data if needed - do this AFTER expansion
 			this.#prewarm_observer_data(filtered, observer);
 
 			try {
@@ -679,10 +683,13 @@ export class Filer {
 	 * Pre-warm data for observer based on hints.
 	 */
 	#prewarm_observer_data(batch: Filer_Change_Batch, observer: Filer_Observer): void {
+		// Only auto-enable imports if not explicitly set to false
 		const needs_imports =
-			observer.needs_imports ||
-			observer.expand_to === 'dependents' ||
-			observer.expand_to === 'dependencies';
+			observer.needs_imports === false
+				? false
+				: observer.needs_imports ||
+					observer.expand_to === 'dependents' ||
+					observer.expand_to === 'dependencies';
 
 		for (const disknode of batch.all_disknodes) {
 			if (observer.needs_contents) {
