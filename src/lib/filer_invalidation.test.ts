@@ -277,7 +277,7 @@ describe('Filer Invalidation System', () => {
 				on_change: () => [
 					{
 						type: 'dependents',
-						node: target_disknode,
+						disknode: target_disknode,
 					},
 				],
 			};
@@ -322,7 +322,7 @@ describe('Filer Invalidation System', () => {
 				on_change: () => [
 					{
 						type: 'dependencies',
-						node: target_disknode,
+						disknode: target_disknode,
 					},
 				],
 			};
@@ -367,7 +367,7 @@ describe('Filer Invalidation System', () => {
 				on_change: () => [
 					{
 						type: 'subtree',
-						node: target_disknode,
+						disknode: target_disknode,
 						include_self: true,
 					},
 				],
@@ -420,7 +420,7 @@ describe('Filer Invalidation System', () => {
 				on_change: () => [
 					{
 						type: 'subtree',
-						node: target_disknode,
+						disknode: target_disknode,
 						include_self: false,
 					},
 				],
@@ -654,7 +654,7 @@ describe('Filer Invalidation System', () => {
 				on_change: () => [
 					{
 						type: 'dependents',
-						node: undefined as any, // Invalid node
+						disknode: undefined as any, // Invalid node
 					},
 				],
 			};

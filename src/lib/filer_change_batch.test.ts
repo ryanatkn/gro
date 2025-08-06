@@ -28,8 +28,8 @@ describe('Filer_Change_Batch', () => {
 
 		test('accepts initial changes', () => {
 			const changes: Array<Filer_Change> = [
-				{type: 'add', node: undefined, id: TEST_FILE_A, kind: 'file'},
-				{type: 'update', node: undefined, id: TEST_FILE_B, kind: 'file'},
+				{type: 'add', disknode: undefined, id: TEST_FILE_A, kind: 'file'},
+				{type: 'update', disknode: undefined, id: TEST_FILE_B, kind: 'file'},
 			];
 
 			const batch = new Filer_Change_Batch(changes);
@@ -40,8 +40,8 @@ describe('Filer_Change_Batch', () => {
 
 		test('uses last change for duplicate paths', () => {
 			const changes: Array<Filer_Change> = [
-				{type: 'add', node: undefined, id: TEST_FILE_A, kind: 'file'},
-				{type: 'update', node: undefined, id: TEST_FILE_A, kind: 'file'},
+				{type: 'add', disknode: undefined, id: TEST_FILE_A, kind: 'file'},
+				{type: 'update', disknode: undefined, id: TEST_FILE_A, kind: 'file'},
 			];
 
 			const batch = new Filer_Change_Batch(changes);
@@ -53,7 +53,7 @@ describe('Filer_Change_Batch', () => {
 	describe('change retrieval', () => {
 		test('has() checks for path existence', () => {
 			const batch = new Filer_Change_Batch([
-				{type: 'add', node: undefined, id: TEST_FILE_A, kind: 'file'},
+				{type: 'add', disknode: undefined, id: TEST_FILE_A, kind: 'file'},
 			]);
 
 			expect(batch.has(TEST_FILE_A)).toBe(true);
@@ -61,7 +61,12 @@ describe('Filer_Change_Batch', () => {
 		});
 
 		test('get() returns specific change', () => {
-			const change: Filer_Change = {type: 'add', node: undefined, id: TEST_FILE_A, kind: 'file'};
+			const change: Filer_Change = {
+				type: 'add',
+				disknode: undefined,
+				id: TEST_FILE_A,
+				kind: 'file',
+			};
 			const batch = new Filer_Change_Batch([change]);
 
 			expect(batch.get(TEST_FILE_A)).toBe(change);
@@ -72,12 +77,17 @@ describe('Filer_Change_Batch', () => {
 			const batch = new Filer_Change_Batch();
 			expect(batch.size).toBe(0);
 
-			batch.changes.set(TEST_FILE_A, {type: 'add', node: undefined, id: TEST_FILE_A, kind: 'file'});
+			batch.changes.set(TEST_FILE_A, {
+				type: 'add',
+				disknode: undefined,
+				id: TEST_FILE_A,
+				kind: 'file',
+			});
 			expect(batch.size).toBe(1);
 
 			batch.changes.set(TEST_FILE_B, {
 				type: 'update',
-				node: undefined,
+				disknode: undefined,
 				id: TEST_FILE_B,
 				kind: 'file',
 			});
@@ -89,7 +99,7 @@ describe('Filer_Change_Batch', () => {
 			expect(empty_batch.is_empty).toBe(true);
 
 			const batch = new Filer_Change_Batch([
-				{type: 'add', node: undefined, id: TEST_FILE_A, kind: 'file'},
+				{type: 'add', disknode: undefined, id: TEST_FILE_A, kind: 'file'},
 			]);
 			expect(batch.is_empty).toBe(false);
 		});
@@ -102,9 +112,9 @@ describe('Filer_Change_Batch', () => {
 			const node_b = new Disknode(TEST_FILE_B, filer);
 
 			const changes: Array<Filer_Change> = [
-				{type: 'add', node: node_a, id: TEST_FILE_A, kind: 'file'},
-				{type: 'add', node: undefined, id: TEST_FILE_B, kind: 'file'}, // No node
-				{type: 'update', node: node_b, id: TEST_FILE_C, kind: 'file'},
+				{type: 'add', disknode: node_a, id: TEST_FILE_A, kind: 'file'},
+				{type: 'add', disknode: undefined, id: TEST_FILE_B, kind: 'file'}, // No node
+				{type: 'update', disknode: node_b, id: TEST_FILE_C, kind: 'file'},
 			];
 
 			const batch = new Filer_Change_Batch(changes);
@@ -120,9 +130,9 @@ describe('Filer_Change_Batch', () => {
 			const node_b = new Disknode(TEST_FILE_B, filer);
 
 			const changes: Array<Filer_Change> = [
-				{type: 'add', node: node_a, id: TEST_FILE_A, kind: 'file'},
-				{type: 'update', node: node_b, id: TEST_FILE_B, kind: 'file'},
-				{type: 'update', node: undefined, id: TEST_FILE_C, kind: 'file'}, // No node
+				{type: 'add', disknode: node_a, id: TEST_FILE_A, kind: 'file'},
+				{type: 'update', disknode: node_b, id: TEST_FILE_B, kind: 'file'},
+				{type: 'update', disknode: undefined, id: TEST_FILE_C, kind: 'file'}, // No node
 			];
 
 			const batch = new Filer_Change_Batch(changes);
@@ -137,9 +147,9 @@ describe('Filer_Change_Batch', () => {
 			const node_a = new Disknode(TEST_FILE_A, filer);
 
 			const changes: Array<Filer_Change> = [
-				{type: 'add', node: node_a, id: TEST_FILE_A, kind: 'file'},
-				{type: 'delete', node: undefined, id: TEST_FILE_B, kind: 'file'},
-				{type: 'delete', node: undefined, id: TEST_FILE_C, kind: 'directory'},
+				{type: 'add', disknode: node_a, id: TEST_FILE_A, kind: 'file'},
+				{type: 'delete', disknode: undefined, id: TEST_FILE_B, kind: 'file'},
+				{type: 'delete', disknode: undefined, id: TEST_FILE_C, kind: 'directory'},
 			];
 
 			const batch = new Filer_Change_Batch(changes);
@@ -156,14 +166,14 @@ describe('Filer_Change_Batch', () => {
 			const node_b = new Disknode(TEST_FILE_B, filer);
 
 			const changes: Array<Filer_Change> = [
-				{type: 'add', node: node_a, id: TEST_FILE_A, kind: 'file'},
-				{type: 'update', node: node_b, id: TEST_FILE_B, kind: 'file'},
-				{type: 'delete', node: undefined, id: TEST_FILE_C, kind: 'file'},
-				{type: 'add', node: undefined, id: TEST_DIR, kind: 'directory'}, // No node
+				{type: 'add', disknode: node_a, id: TEST_FILE_A, kind: 'file'},
+				{type: 'update', disknode: node_b, id: TEST_FILE_B, kind: 'file'},
+				{type: 'delete', disknode: undefined, id: TEST_FILE_C, kind: 'file'},
+				{type: 'add', disknode: undefined, id: TEST_DIR, kind: 'directory'}, // No node
 			];
 
 			const batch = new Filer_Change_Batch(changes);
-			const all_nodes = batch.all_nodes;
+			const all_nodes = batch.all_disknodes;
 
 			expect(all_nodes).toHaveLength(2);
 			expect(all_nodes).toContain(node_a);
@@ -176,10 +186,10 @@ describe('Filer_Change_Batch', () => {
 			const dir_node = new Disknode(TEST_DIR, filer);
 
 			const changes: Array<Filer_Change> = [
-				{type: 'add', node: file_node, id: TEST_FILE_A, kind: 'file'},
-				{type: 'update', node: dir_node, id: TEST_DIR, kind: 'directory'},
-				{type: 'delete', node: undefined, id: TEST_FILE_B, kind: 'file'},
-				{type: 'delete', node: undefined, id: TEST_FILE_C, kind: 'directory'},
+				{type: 'add', disknode: file_node, id: TEST_FILE_A, kind: 'file'},
+				{type: 'update', disknode: dir_node, id: TEST_DIR, kind: 'directory'},
+				{type: 'delete', disknode: undefined, id: TEST_FILE_B, kind: 'file'},
+				{type: 'delete', disknode: undefined, id: TEST_FILE_C, kind: 'directory'},
 			];
 
 			const batch = new Filer_Change_Batch(changes);
@@ -189,7 +199,7 @@ describe('Filer_Change_Batch', () => {
 			expect(batch.deleted).toHaveLength(2);
 			expect(batch.deleted).toContain(TEST_FILE_B);
 			expect(batch.deleted).toContain(TEST_FILE_C);
-			expect(batch.all_nodes).toEqual([file_node, dir_node]);
+			expect(batch.all_disknodes).toEqual([file_node, dir_node]);
 		});
 
 		test('handles empty results', () => {
@@ -198,13 +208,13 @@ describe('Filer_Change_Batch', () => {
 			expect(batch.added).toEqual([]);
 			expect(batch.updated).toEqual([]);
 			expect(batch.deleted).toEqual([]);
-			expect(batch.all_nodes).toEqual([]);
+			expect(batch.all_disknodes).toEqual([]);
 		});
 
 		test('handles batch with only delete changes', () => {
 			const changes: Array<Filer_Change> = [
-				{type: 'delete', node: undefined, id: TEST_FILE_A, kind: 'file'},
-				{type: 'delete', node: undefined, id: TEST_FILE_B, kind: 'directory'},
+				{type: 'delete', disknode: undefined, id: TEST_FILE_A, kind: 'file'},
+				{type: 'delete', disknode: undefined, id: TEST_FILE_B, kind: 'directory'},
 			];
 
 			const batch = new Filer_Change_Batch(changes);
@@ -212,7 +222,7 @@ describe('Filer_Change_Batch', () => {
 			expect(batch.added).toEqual([]);
 			expect(batch.updated).toEqual([]);
 			expect(batch.deleted).toEqual([TEST_FILE_A, TEST_FILE_B]);
-			expect(batch.all_nodes).toEqual([]);
+			expect(batch.all_disknodes).toEqual([]);
 		});
 
 		test('maintains order from map iteration', () => {
@@ -222,9 +232,9 @@ describe('Filer_Change_Batch', () => {
 			const node_c = new Disknode(TEST_FILE_C, filer);
 
 			const changes: Array<Filer_Change> = [
-				{type: 'add', node: node_a, id: TEST_FILE_A, kind: 'file'},
-				{type: 'add', node: node_b, id: TEST_FILE_B, kind: 'file'},
-				{type: 'add', node: node_c, id: TEST_FILE_C, kind: 'file'},
+				{type: 'add', disknode: node_a, id: TEST_FILE_A, kind: 'file'},
+				{type: 'add', disknode: node_b, id: TEST_FILE_B, kind: 'file'},
+				{type: 'add', disknode: node_c, id: TEST_FILE_C, kind: 'file'},
 			];
 
 			const batch = new Filer_Change_Batch(changes);
@@ -241,15 +251,15 @@ describe('Filer_Change_Batch', () => {
 	describe('edge cases', () => {
 		test('handles changes without disknodes gracefully', () => {
 			const changes: Array<Filer_Change> = [
-				{type: 'add', node: undefined, id: TEST_FILE_A, kind: 'file'},
-				{type: 'update', node: undefined, id: TEST_FILE_B, kind: 'file'},
+				{type: 'add', disknode: undefined, id: TEST_FILE_A, kind: 'file'},
+				{type: 'update', disknode: undefined, id: TEST_FILE_B, kind: 'file'},
 			];
 
 			const batch = new Filer_Change_Batch(changes);
 
 			expect(batch.added).toEqual([]);
 			expect(batch.updated).toEqual([]);
-			expect(batch.all_nodes).toEqual([]);
+			expect(batch.all_disknodes).toEqual([]);
 			expect(batch.size).toBe(2);
 		});
 
@@ -258,8 +268,8 @@ describe('Filer_Change_Batch', () => {
 			const symlink_node = new Disknode(TEST_FILE_A, filer);
 
 			const changes: Array<Filer_Change> = [
-				{type: 'add', node: symlink_node, id: TEST_FILE_A, kind: 'symlink'},
-				{type: 'delete', node: undefined, id: TEST_FILE_B, kind: 'symlink'},
+				{type: 'add', disknode: symlink_node, id: TEST_FILE_A, kind: 'symlink'},
+				{type: 'delete', disknode: undefined, id: TEST_FILE_B, kind: 'symlink'},
 			];
 
 			const batch = new Filer_Change_Batch(changes);
@@ -274,7 +284,7 @@ describe('Filer_Change_Batch', () => {
 			for (let i = 0; i < 1000; i++) {
 				changes.push({
 					type: i % 3 === 0 ? 'add' : i % 3 === 1 ? 'update' : 'delete',
-					node: undefined,
+					disknode: undefined,
 					id: `/test/file${i}.ts`,
 					kind: 'file',
 				});

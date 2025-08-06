@@ -120,7 +120,7 @@ export const gro_plugin_gen = ({
 				// Process changes
 				on_change: (batch) => {
 					// Queue all gen files that need regeneration
-					for (const node of batch.all_nodes) {
+					for (const node of batch.all_disknodes) {
 						if (is_gen_path(node.id)) {
 							queue_gen(node.id);
 						}

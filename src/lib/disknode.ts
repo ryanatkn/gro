@@ -340,7 +340,7 @@ export class Disknode {
 
 	/**
 	 * Add a dependency relationship.
-	 * Updates both this node's dependencies and the target's dependents.
+	 * Updates both this disknode's dependencies and the target's dependents.
 	 */
 	add_dependency(dep: Disknode): void {
 		this.dependencies.set(dep.id, dep);
@@ -349,7 +349,7 @@ export class Disknode {
 
 	/**
 	 * Remove a dependency relationship.
-	 * Updates both this node's dependencies and the target's dependents.
+	 * Updates both this disknode's dependencies and the target's dependents.
 	 */
 	remove_dependency(dep: Disknode): void {
 		this.dependencies.delete(dep.id);
@@ -377,15 +377,15 @@ export class Disknode {
 		const descendants: Array<Disknode> = [];
 		const stack = Array.from(this.children.values());
 		while (stack.length > 0) {
-			const node = stack.pop()!;
-			descendants.push(node);
-			stack.push(...node.children.values());
+			const disknode = stack.pop()!;
+			descendants.push(disknode);
+			stack.push(...disknode.children.values());
 		}
 		return descendants;
 	}
 
 	/**
-	 * Get a child node by name.
+	 * Get a child disknode by name.
 	 */
 	get_child(name: string): Disknode | undefined {
 		return this.children.get(name);
@@ -394,8 +394,8 @@ export class Disknode {
 	/**
 	 * Check if this node is an ancestor of another.
 	 */
-	is_ancestor_of(node: Disknode): boolean {
-		let current = node.parent;
+	is_ancestor_of(disknode: Disknode): boolean {
+		let current = disknode.parent;
 		while (current) {
 			if (current === this) return true;
 			current = current.parent;
@@ -404,20 +404,20 @@ export class Disknode {
 	}
 
 	/**
-	 * Get the relative path from this node to another node.
+	 * Get the relative path from this disknode to another disknode.
 	 * Returns null if they're not in the same tree.
 	 */
-	relative_to(node: Disknode): string | null {
+	relative_to(disknode: Disknode): string | null {
 		// Special case: same node
-		if (this === node) return '';
+		if (this === disknode) return '';
 
 		// Find common ancestor
 		const this_ancestors = [this, ...this.get_ancestors()];
-		const node_ancestors = [node, ...node.get_ancestors()];
+		const disknode_ancestors = [disknode, ...disknode.get_ancestors()];
 
 		let common: Disknode | null = null;
 		for (const ancestor of this_ancestors) {
-			if (node_ancestors.includes(ancestor)) {
+			if (disknode_ancestors.includes(ancestor)) {
 				common = ancestor;
 				break;
 			}
@@ -435,7 +435,7 @@ export class Disknode {
 
 		// Build path down from common to target
 		const down_path: Array<string> = [];
-		let down_current = node;
+		let down_current = disknode;
 		while (down_current !== common) {
 			down_path.unshift(basename(down_current.id));
 			down_current = down_current.parent!;
@@ -455,11 +455,11 @@ export class Disknode {
 	}
 
 	/**
-	 * Get the relative path from another node to this node.
+	 * Get the relative path from another disknode to this disknode.
 	 * Returns null if they're not in the same tree.
 	 */
-	relative_from(node: Disknode): string | null {
-		return node.relative_to(this);
+	relative_from(disknode: Disknode): string | null {
+		return disknode.relative_to(this);
 	}
 
 	// Constants

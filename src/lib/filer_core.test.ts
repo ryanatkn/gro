@@ -693,7 +693,7 @@ describe('Filer Core', () => {
 			filer.get_disknode(TEST_FILE_C);
 			filer.get_disknode('/test/data.json');
 
-			const ts_files = filer.find_nodes((node) => node.id.endsWith('.ts'));
+			const ts_files = filer.find_disknodes((node) => node.id.endsWith('.ts'));
 
 			expect(ts_files).toHaveLength(3);
 			expect(ts_files.map((n) => n.id)).toEqual(
@@ -724,7 +724,7 @@ describe('Filer Core', () => {
 			filer.get_disknode(TEST_FILE_A);
 			filer.get_disknode(TEST_FILE_B);
 
-			const python_files = filer.find_nodes((node) => node.id.endsWith('.py'));
+			const python_files = filer.find_disknodes((node) => node.id.endsWith('.py'));
 
 			expect(python_files).toEqual([]);
 		});
@@ -732,7 +732,7 @@ describe('Filer Core', () => {
 		test('find_nodes handles empty node collection', () => {
 			const filer = new Filer({paths: []});
 
-			const results = filer.find_nodes(() => true);
+			const results = filer.find_disknodes(() => true);
 
 			expect(results).toEqual([]);
 		});
