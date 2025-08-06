@@ -372,39 +372,49 @@ export class Filer {
 	}
 
 	/**
-	 * Process batch and handle invalidation intents.
+	 * Process batch and handle invalidation intents iteratively to avoid deep recursion stacks.
 	 */
 	async #process_batch_with_intents(
-		batch: Filer_Change_Batch,
+		initial_batch: Filer_Change_Batch,
 		processed: Set<Path_Id>,
 	): Promise<void> {
-		// Mark all disknodes in this batch as processed
-		for (const change of batch.changes.values()) {
-			processed.add(change.id);
-		}
+		// Use a queue to process batches iteratively instead of recursively
+		const batch_queue: Array<Filer_Change_Batch> = [initial_batch];
 
-		// Collect intents from all phases
-		const intents: Array<Filer_Invalidation_Intent> = [];
+		while (batch_queue.length > 0) {
+			const batch = batch_queue.shift()!;
 
-		// Execute observers by phase
-		for (const phase of Filer_Phase.options) {
-			const phase_intents = await this.#execute_phase(phase, batch); // eslint-disable-line no-await-in-loop
-			intents.push(...phase_intents);
-		}
+			// Mark all disknodes in this batch as processed
+			for (const change of batch.changes.values()) {
+				processed.add(change.id);
+			}
 
-		// Process collected intents
-		if (intents.length > 0) {
-			await this.#process_invalidation_intents(intents, processed);
+			// Collect intents from all phases
+			const intents: Array<Filer_Invalidation_Intent> = [];
+
+			// Execute observers by phase
+			for (const phase of Filer_Phase.options) {
+				const phase_intents = await this.#execute_phase(phase, batch); // eslint-disable-line no-await-in-loop
+				intents.push(...phase_intents);
+			}
+
+			// Process collected intents and add any resulting batches to queue
+			if (intents.length > 0) {
+				const intent_batch = await this.#resolve_invalidation_intents_to_batch(intents, processed);
+				if (!intent_batch.is_empty) {
+					batch_queue.push(intent_batch);
+				}
+			}
 		}
 	}
 
 	/**
-	 * Process invalidation intents and recursively handle any new intents.
+	 * Resolve invalidation intents to a batch of changes without recursion.
 	 */
-	async #process_invalidation_intents(
+	async #resolve_invalidation_intents_to_batch(
 		intents: Array<Filer_Invalidation_Intent>,
 		processed: Set<Path_Id>,
-	): Promise<void> {
+	): Promise<Filer_Change_Batch> {
 		const intent_disknodes: Set<Disknode> = new Set();
 		for (const intent of intents) {
 			const disknodes = filer_resolve_intent_disknodes(
@@ -432,10 +442,7 @@ export class Filer {
 			});
 		}
 
-		if (intent_changes.size > 0) {
-			const intent_batch = new Filer_Change_Batch(intent_changes.values());
-			await this.#process_batch_with_intents(intent_batch, processed);
-		}
+		return new Filer_Change_Batch(intent_changes.values());
 	}
 
 	/**
@@ -782,7 +789,10 @@ export class Filer {
 		};
 
 		const processed: Set<Path_Id> = new Set();
-		await this.#process_invalidation_intents([intent], processed);
+		const intent_batch = await this.#resolve_invalidation_intents_to_batch([intent], processed);
+		if (!intent_batch.is_empty) {
+			await this.#process_batch_with_intents(intent_batch, processed);
+		}
 	}
 
 	/**

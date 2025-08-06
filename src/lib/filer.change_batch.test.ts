@@ -6,7 +6,6 @@ import {Filer_Change_Batch, type Filer_Change} from './filer_helpers.ts';
 import {Disknode} from './disknode.ts';
 import {use_filer_test_context, create_mock_stats, TEST_PATHS} from './filer.test_helpers.ts';
 
-// Mock modules
 vi.mock('node:fs', () => ({
 	existsSync: vi.fn(),
 	readFileSync: vi.fn(),

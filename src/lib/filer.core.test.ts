@@ -10,7 +10,6 @@ import {Disknode} from './disknode.ts';
 import {DEFAULT_CONFIG_FILES} from './constants.ts';
 import {use_filer_test_context, create_mock_stats, TEST_PATHS} from './filer.test_helpers.ts';
 
-// Mock modules
 vi.mock('node:fs', () => ({
 	existsSync: vi.fn(),
 	readFileSync: vi.fn(),
@@ -902,10 +901,10 @@ describe('Filer Core', () => {
 
 			// '@f' should not match '@foo/bar' - should use the @foo alias instead
 			expect(filer.map_alias('@foo/bar')).toBe('./src/foo/bar');
-			
+
 			// But '@f/something' should match '@f'
 			expect(filer.map_alias('@f/utils')).toBe('./src/f/utils');
-			
+
 			// And exact match should work
 			expect(filer.map_alias('@f')).toBe('./src/f');
 		});

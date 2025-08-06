@@ -9,7 +9,6 @@ import {
 	wait_for_batch,
 } from './filer.test_helpers.ts';
 
-// Mock modules
 vi.mock('node:fs', () => ({
 	existsSync: vi.fn(),
 	readFileSync: vi.fn(),

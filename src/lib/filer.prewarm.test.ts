@@ -5,7 +5,6 @@ import {describe, test, expect, vi} from 'vitest';
 import type {Filer_Observer} from './filer_helpers.ts';
 import {use_filer_test_context, TEST_PATHS, wait_for_batch} from './filer.test_helpers.ts';
 
-// Mock modules
 vi.mock('node:fs', () => ({
 	existsSync: vi.fn(),
 	readFileSync: vi.fn(),
