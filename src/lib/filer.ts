@@ -443,6 +443,7 @@ export class Filer {
 		});
 	}
 
+	// TODO BLOCK no `this` used here
 	/**
 	 * Coalesce change events using lookup table.
 	 */
@@ -665,6 +666,7 @@ export class Filer {
 		return intents;
 	}
 
+	// TODO BLOCK no `this` used here
 	/**
 	 * Pre-warm data for observer based on hints.
 	 */
@@ -863,6 +865,7 @@ export class Filer {
 		}
 	}
 
+	// TODO BLOCK no `this` used here
 	/**
 	 * Check if disknode should be filtered out based on observer settings.
 	 */
@@ -873,6 +876,7 @@ export class Filer {
 		);
 	}
 
+	// TODO BLOCK no `this` used here
 	/**
 	 * Check if an observer matches a disknode.
 	 */
@@ -898,6 +902,7 @@ export class Filer {
 		return false;
 	}
 
+	// TODO BLOCK no `this` used here
 	/**
 	 * Execute an observer with timeout protection.
 	 */
@@ -936,6 +941,7 @@ export class Filer {
 		const changes: Map<Path_Id, Filer_Change> = new Map();
 
 		for (const intent of intents) {
+			// TODO BLOCK maybe worth extracting a pure fn?
 			const disknodes = this.#resolve_intent_disknodes(intent);
 
 			for (const disknode of disknodes) {
@@ -1020,6 +1026,7 @@ export class Filer {
 		return disknodes;
 	}
 
+	// TODO BLOCK no `this` used here
 	/**
 	 * Unified relationship traversal with optimized iteration.
 	 */
