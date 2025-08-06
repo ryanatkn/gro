@@ -321,6 +321,7 @@ export class Filer {
 			node.kind = is_directory ? 'directory' : 'file';
 			node.invalidate();
 
+			// TODO BLOCK should this always be set on the node when `stats` exists as an arg?
 			// Pre-populate stats if provided to avoid extra syscall
 			if (stats) {
 				node.stats = stats;
