@@ -19,7 +19,7 @@ import {esbuild_plugin_sveltekit_shim_alias} from './esbuild_plugin_sveltekit_sh
 import {esbuild_plugin_external_worker} from './esbuild_plugin_external_worker.ts';
 import {esbuild_plugin_sveltekit_local_imports} from './esbuild_plugin_sveltekit_local_imports.ts';
 import {esbuild_plugin_svelte} from './esbuild_plugin_svelte.ts';
-import type {Filer_Observer} from './filer.ts';
+import type {Filer_Observer} from './filer_helpers.ts';
 import type {Disknode} from './disknode.ts';
 
 // TODO sourcemap as a hoisted option? disable for production by default - or like `outpaths`, passed a `dev` param

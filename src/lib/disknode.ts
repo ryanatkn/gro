@@ -7,6 +7,17 @@ import type {Filer} from './filer.js';
 import {parse_imports} from './parse_imports.js';
 import {resolve_specifier} from './resolve_specifier.js';
 import type {Path_Id} from './path.js';
+import {
+	disknode_get_extension,
+	disknode_is_typescript,
+	disknode_is_js,
+	disknode_is_svelte,
+	disknode_is_svelte_module,
+	disknode_is_importable,
+	disknode_update_kind_from_stats,
+	disknode_read_contents_direct,
+	disknode_should_cache_contents,
+} from './disknode_helpers.js';
 
 /**
  * Represents a file or directory in the filesystem.
@@ -74,13 +85,7 @@ export class Disknode {
 				this.#stats = lstatSync(this.id);
 
 				// Update kind based on stats
-				if (this.#stats.isDirectory()) {
-					this.kind = 'directory';
-				} else if (this.#stats.isSymbolicLink()) {
-					this.kind = 'symlink';
-				} else {
-					this.kind = 'file';
-				}
+				this.kind = disknode_update_kind_from_stats(this.#stats);
 
 				this.exists = true;
 			} catch {
@@ -104,13 +109,7 @@ export class Disknode {
 		this.#stats_version = this.#version;
 
 		// Update kind based on stats
-		if (value.isDirectory()) {
-			this.kind = 'directory';
-		} else if (value.isSymbolicLink()) {
-			this.kind = 'symlink';
-		} else {
-			this.kind = 'file';
-		}
+		this.kind = disknode_update_kind_from_stats(value);
 		this.exists = true;
 	}
 
@@ -123,13 +122,7 @@ export class Disknode {
 		this.#stats_version = this.#version;
 
 		// Update kind based on stats
-		if (value.isDirectory()) {
-			this.kind = 'directory';
-		} else if (value.isSymbolicLink()) {
-			this.kind = 'symlink';
-		} else {
-			this.kind = 'file';
-		}
+		this.kind = disknode_update_kind_from_stats(value);
 
 		this.exists = true;
 	}
@@ -169,12 +162,8 @@ export class Disknode {
 			}
 
 			// For large files, don't cache - return directly
-			if (stats.size > Disknode.MAX_CACHED_SIZE) {
-				try {
-					return readFileSync(target_path, 'utf8');
-				} catch {
-					return null;
-				}
+			if (!disknode_should_cache_contents(stats.size)) {
+				return disknode_read_contents_direct(target_path);
 			}
 
 			// Cache small files
@@ -295,35 +284,31 @@ export class Disknode {
 		return this.stats?.size ?? null;
 	}
 
+	// TODO I'm not too font of these feeling duplicative,
+	// idk, maybe it's more useful than bloating,
+	// but having 2 ways of doing the same thing isnt great
 	get extension(): string {
-		const filename = basename(this.id);
-		const index = filename.lastIndexOf('.');
-		// Hidden files (starting with .) should not be considered to have extensions
-		// unless they have a second dot (e.g., .env.local has .local extension)
-		if (index <= 0 || (index === 0 && !filename.slice(1).includes('.'))) {
-			return '';
-		}
-		return filename.slice(index);
+		return disknode_get_extension(this.id);
 	}
 
 	get is_typescript(): boolean {
-		return /\.[cm]?tsx?$/.test(this.id);
+		return disknode_is_typescript(this.id);
 	}
 
 	get is_js(): boolean {
-		return /\.[cm]?jsx?$/.test(this.id);
+		return disknode_is_js(this.id);
 	}
 
 	get is_svelte(): boolean {
-		return this.id.endsWith('.svelte');
+		return disknode_is_svelte(this.id);
 	}
 
 	get is_svelte_module(): boolean {
-		return this.id.endsWith('.svelte');
+		return disknode_is_svelte_module(this.id);
 	}
 
 	get is_importable(): boolean {
-		return this.is_typescript || this.is_js || this.is_svelte;
+		return disknode_is_importable(this.id);
 	}
 
 	/**
@@ -474,7 +459,4 @@ export class Disknode {
 	relative_from(disknode: Disknode): string | null {
 		return disknode.relative_to(this);
 	}
-
-	// Constants
-	static readonly MAX_CACHED_SIZE = 10 * 1024 * 1024; // 10MB
 }

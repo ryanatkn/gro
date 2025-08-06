@@ -4,6 +4,7 @@ import {readFileSync, lstatSync, realpathSync, type Stats} from 'node:fs';
 import {Disknode} from './disknode.ts';
 import type {Filer} from './filer.ts';
 import type {Path_Id} from './path.ts';
+import {DISKNODE_MAX_CACHED_SIZE} from './disknode_helpers.ts';
 
 // Mock filesystem modules
 vi.mock('node:fs', () => ({
@@ -17,8 +18,10 @@ vi.mock('node:fs', () => ({
 const TEST_PATH_TS: Path_Id = '/test/path/a.ts';
 const TEST_PATH_JS: Path_Id = '/test/path/b.js';
 const TEST_PATH_SVELTE: Path_Id = '/test/path/c.svelte';
-const TEST_PATH_MTS: Path_Id = '/test/path/d.mts';
-const TEST_PATH_CJS: Path_Id = '/test/path/e.cjs';
+const TEST_PATH_SVELTE_TS: Path_Id = '/test/path/d.svelte.ts';
+const TEST_PATH_SVELTE_JS: Path_Id = '/test/path/e.svelte.js';
+const TEST_PATH_MTS: Path_Id = '/test/path/f.mts';
+const TEST_PATH_CJS: Path_Id = '/test/path/g.cjs';
 const TEST_PATH_JSON: Path_Id = '/test/path/data.json';
 const TEST_PATH_TXT: Path_Id = '/test/path/readme.txt';
 const TEST_DIR_PATH: Path_Id = '/test/path';
@@ -28,6 +31,8 @@ const TEST_LARGE_FILE_PATH: Path_Id = '/test/large.txt';
 const TEST_CONTENT_TS = 'const a = 1;\nexport {a};';
 const TEST_CONTENT_JS = 'import {a} from "./a.js";\nconsole.log(a);';
 const TEST_CONTENT_SVELTE = '<script>\nimport {a} from "./a.js";\n</script>\n<div>{a}</div>';
+const TEST_CONTENT_SVELTE_TS = 'import {writable} from "svelte/store";\nexport const count = writable(0);';
+const TEST_CONTENT_SVELTE_JS = 'import {writable} from "svelte/store";\nexport const items = writable([]);';
 const TEST_CONTENT_JSON = '{"data": "test"}';
 const TEST_CONTENT_TXT = 'This is a text file.';
 const TEST_LARGE_CONTENT = 'x'.repeat(15 * 1024 * 1024); // 15MB
@@ -148,8 +153,28 @@ describe('Disknode', () => {
 			expect(svelte_disknode.is_typescript).toBe(false);
 			expect(svelte_disknode.is_js).toBe(false);
 			expect(svelte_disknode.is_svelte).toBe(true);
-			expect(svelte_disknode.is_svelte_module).toBe(true);
+			expect(svelte_disknode.is_svelte_module).toBe(false);
 			expect(svelte_disknode.is_importable).toBe(true);
+		});
+
+		test('detects Svelte TypeScript modules', () => {
+			const svelte_ts_disknode = new Disknode(TEST_PATH_SVELTE_TS, filer);
+			expect(svelte_ts_disknode.extension).toBe('.ts');
+			expect(svelte_ts_disknode.is_typescript).toBe(true);
+			expect(svelte_ts_disknode.is_js).toBe(false);
+			expect(svelte_ts_disknode.is_svelte).toBe(false);
+			expect(svelte_ts_disknode.is_svelte_module).toBe(true);
+			expect(svelte_ts_disknode.is_importable).toBe(true);
+		});
+
+		test('detects Svelte JavaScript modules', () => {
+			const svelte_js_disknode = new Disknode(TEST_PATH_SVELTE_JS, filer);
+			expect(svelte_js_disknode.extension).toBe('.js');
+			expect(svelte_js_disknode.is_typescript).toBe(false);
+			expect(svelte_js_disknode.is_js).toBe(true);
+			expect(svelte_js_disknode.is_svelte).toBe(false);
+			expect(svelte_js_disknode.is_svelte_module).toBe(true);
+			expect(svelte_js_disknode.is_importable).toBe(true);
 		});
 
 		test('identifies non-importable files', () => {
@@ -271,6 +296,28 @@ describe('Disknode', () => {
 			const contents = node.contents;
 			expect(vi.mocked(readFileSync)).toHaveBeenCalledWith(TEST_PATH_SVELTE, 'utf8');
 			expect(contents).toBe(TEST_CONTENT_SVELTE);
+		});
+
+		test('loads Svelte TypeScript module contents', () => {
+			const mock_stats = create_mock_stats({size: 100});
+			vi.mocked(lstatSync).mockReturnValue(mock_stats);
+			vi.mocked(readFileSync).mockReturnValue(TEST_CONTENT_SVELTE_TS);
+
+			const node = new Disknode(TEST_PATH_SVELTE_TS, filer);
+			const contents = node.contents;
+			expect(vi.mocked(readFileSync)).toHaveBeenCalledWith(TEST_PATH_SVELTE_TS, 'utf8');
+			expect(contents).toBe(TEST_CONTENT_SVELTE_TS);
+		});
+
+		test('loads Svelte JavaScript module contents', () => {
+			const mock_stats = create_mock_stats({size: 100});
+			vi.mocked(lstatSync).mockReturnValue(mock_stats);
+			vi.mocked(readFileSync).mockReturnValue(TEST_CONTENT_SVELTE_JS);
+
+			const node = new Disknode(TEST_PATH_SVELTE_JS, filer);
+			const contents = node.contents;
+			expect(vi.mocked(readFileSync)).toHaveBeenCalledWith(TEST_PATH_SVELTE_JS, 'utf8');
+			expect(contents).toBe(TEST_CONTENT_SVELTE_JS);
 		});
 
 		test('caches contents for small files', () => {
@@ -729,6 +776,48 @@ describe('Disknode', () => {
 			expect(imports?.has('./a.js')).toBe(true);
 		});
 
+		test('parses imports for Svelte TypeScript modules', () => {
+			const mock_stats = create_mock_stats();
+			vi.mocked(lstatSync).mockReturnValue(mock_stats);
+			vi.mocked(readFileSync).mockReturnValue(TEST_CONTENT_SVELTE_TS);
+
+			const node = new Disknode(TEST_PATH_SVELTE_TS, filer);
+			const dep_store = new Disknode('/node_modules/svelte/store/index.js', filer);
+
+			// Mock filer to return our dependency disknodes
+			vi.mocked(filer.get_disknode).mockImplementation((id: Path_Id) => {
+				if (id === '/node_modules/svelte/store/index.js') return dep_store;
+				return new Disknode(id, filer);
+			});
+
+			// Access imports to trigger parsing
+			const imports = node.imports;
+
+			expect(imports).toBeTruthy();
+			expect(imports?.has('svelte/store')).toBe(true);
+		});
+
+		test('parses imports for Svelte JavaScript modules', () => {
+			const mock_stats = create_mock_stats();
+			vi.mocked(lstatSync).mockReturnValue(mock_stats);
+			vi.mocked(readFileSync).mockReturnValue(TEST_CONTENT_SVELTE_JS);
+
+			const node = new Disknode(TEST_PATH_SVELTE_JS, filer);
+			const dep_store = new Disknode('/node_modules/svelte/store/index.js', filer);
+
+			// Mock filer to return our dependency disknodes
+			vi.mocked(filer.get_disknode).mockImplementation((id: Path_Id) => {
+				if (id === '/node_modules/svelte/store/index.js') return dep_store;
+				return new Disknode(id, filer);
+			});
+
+			// Access imports to trigger parsing
+			const imports = node.imports;
+
+			expect(imports).toBeTruthy();
+			expect(imports?.has('svelte/store')).toBe(true);
+		});
+
 		test('returns null for non-importable files', () => {
 			const mock_stats = create_mock_stats();
 			vi.mocked(lstatSync).mockReturnValue(mock_stats);
@@ -745,7 +834,7 @@ describe('Disknode', () => {
 
 	describe('constants', () => {
 		test('MAX_CACHED_SIZE is 10MB', () => {
-			expect(Disknode.MAX_CACHED_SIZE).toBe(10 * 1024 * 1024);
+			expect(DISKNODE_MAX_CACHED_SIZE).toBe(10 * 1024 * 1024);
 		});
 	});
 
@@ -798,6 +887,8 @@ describe('Disknode', () => {
 			const ts_files = ['/test/a.ts', '/test/b.tsx', '/test/c.mts', '/test/d.cts'];
 			const js_files = ['/test/a.js', '/test/b.jsx', '/test/c.mjs', '/test/d.cjs'];
 			const svelte_files = ['/test/Component.svelte'];
+			const svelte_module_ts_files = ['/test/store.svelte.ts', '/test/utils.svelte.ts'];
+			const svelte_module_js_files = ['/test/helpers.svelte.js', '/test/actions.svelte.js'];
 			const other_files = ['/test/data.json', '/test/readme.txt', '/test/image.png'];
 
 			for (const path of ts_files) {
@@ -805,6 +896,7 @@ describe('Disknode', () => {
 				expect(node.is_typescript).toBe(true);
 				expect(node.is_js).toBe(false);
 				expect(node.is_svelte).toBe(false);
+				expect(node.is_svelte_module).toBe(false);
 				expect(node.is_importable).toBe(true);
 			}
 
@@ -813,6 +905,7 @@ describe('Disknode', () => {
 				expect(node.is_typescript).toBe(false);
 				expect(node.is_js).toBe(true);
 				expect(node.is_svelte).toBe(false);
+				expect(node.is_svelte_module).toBe(false);
 				expect(node.is_importable).toBe(true);
 			}
 
@@ -821,6 +914,24 @@ describe('Disknode', () => {
 				expect(node.is_typescript).toBe(false);
 				expect(node.is_js).toBe(false);
 				expect(node.is_svelte).toBe(true);
+				expect(node.is_svelte_module).toBe(false);
+				expect(node.is_importable).toBe(true);
+			}
+
+			for (const path of svelte_module_ts_files) {
+				const node = new Disknode(path, filer);
+				expect(node.is_typescript).toBe(true);
+				expect(node.is_js).toBe(false);
+				expect(node.is_svelte).toBe(false);
+				expect(node.is_svelte_module).toBe(true);
+				expect(node.is_importable).toBe(true);
+			}
+
+			for (const path of svelte_module_js_files) {
+				const node = new Disknode(path, filer);
+				expect(node.is_typescript).toBe(false);
+				expect(node.is_js).toBe(true);
+				expect(node.is_svelte).toBe(false);
 				expect(node.is_svelte_module).toBe(true);
 				expect(node.is_importable).toBe(true);
 			}
@@ -830,6 +941,7 @@ describe('Disknode', () => {
 				expect(node.is_typescript).toBe(false);
 				expect(node.is_js).toBe(false);
 				expect(node.is_svelte).toBe(false);
+				expect(node.is_svelte_module).toBe(false);
 				expect(node.is_importable).toBe(false);
 			}
 		});
@@ -887,6 +999,63 @@ describe('Disknode', () => {
 			expect(descendants).toContain(child1);
 			expect(descendants).toContain(child2);
 			expect(descendants).toHaveLength(2);
+		});
+
+		test('handles complex Svelte module paths', () => {
+			const complex_paths = [
+				'/project/src/lib/stores/user.svelte.ts',
+				'/deep/nested/path/component.svelte.js',
+				'/test/file.with.dots.svelte.ts',
+				'/another/path/kebab-case.svelte.js',
+				'/camelCase/file.svelte.ts',
+				'/PascalCase/Component.svelte.js',
+				'/numbers123/file456.svelte.ts',
+				'/special_chars/file_name.svelte.js'
+			];
+
+			for (const path of complex_paths) {
+				const node = new Disknode(path, filer);
+				expect(node.is_svelte_module).toBe(true);
+				expect(node.is_svelte).toBe(false);
+				expect(node.is_importable).toBe(true);
+
+				if (path.endsWith('.ts')) {
+					expect(node.is_typescript).toBe(true);
+					expect(node.is_js).toBe(false);
+					expect(node.extension).toBe('.ts');
+				} else {
+					expect(node.is_typescript).toBe(false);
+					expect(node.is_js).toBe(true);
+					expect(node.extension).toBe('.js');
+				}
+			}
+		});
+
+		test('distinguishes Svelte files from Svelte modules', () => {
+			const svelte_vs_module_pairs = [
+				{svelte: '/test/Component.svelte', module: '/test/Component.svelte.ts'},
+				{svelte: '/src/Button.svelte', module: '/src/Button.svelte.js'},
+				{svelte: '/lib/Modal.svelte', module: '/lib/modal.svelte.ts'},
+			];
+
+			for (const {svelte, module} of svelte_vs_module_pairs) {
+				const svelte_node = new Disknode(svelte, filer);
+				const module_node = new Disknode(module, filer);
+
+				// Svelte file assertions
+				expect(svelte_node.is_svelte).toBe(true);
+				expect(svelte_node.is_svelte_module).toBe(false);
+				expect(svelte_node.extension).toBe('.svelte');
+
+				// Svelte module assertions
+				expect(module_node.is_svelte).toBe(false);
+				expect(module_node.is_svelte_module).toBe(true);
+				expect(module_node.extension).not.toBe('.svelte');
+
+				// Both should be importable
+				expect(svelte_node.is_importable).toBe(true);
+				expect(module_node.is_importable).toBe(true);
+			}
 		});
 	});
 });
