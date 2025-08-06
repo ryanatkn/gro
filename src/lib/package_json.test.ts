@@ -68,7 +68,7 @@ test('to_package_exports', () => {
 			'a/b/some_test_ts.ts',
 			'a/b/some_test_json.json',
 			'index.ts',
-		])
+		]),
 	).toEqual({
 		'.': {
 			default: './dist/index.js',

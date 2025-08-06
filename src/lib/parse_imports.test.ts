@@ -1,5 +1,4 @@
-import {test} from 'uvu';
-import * as assert from 'uvu/assert';
+import {test, expect} from 'vitest';
 
 import {parse_imports} from './parse_imports.ts';
 
@@ -13,7 +12,7 @@ test('parse js imports', () => {
       const b = {};
     `,
 	);
-	assert.equal(parsed, ['static_import', 'dynamic_import']);
+	expect(parsed).toEqual(['static_import', 'dynamic_import']);
 });
 
 test('parse ts imports', () => {
@@ -31,7 +30,7 @@ test('parse ts imports', () => {
       export type {G} from 'exported_import';
     `,
 	);
-	assert.equal(parsed, ['static_import', 'dynamic_import']);
+	expect(parsed).toEqual(['static_import', 'dynamic_import']);
 });
 
 test('parse ts imports and omit types', () => {
@@ -45,7 +44,7 @@ test('parse ts imports and omit types', () => {
       await import('dynamic_import');
     `,
 	);
-	assert.equal(parsed, ['mixed_type_import', 'mixed_type_import2', 'dynamic_import']);
+	expect(parsed).toEqual(['mixed_type_import', 'mixed_type_import2', 'dynamic_import']);
 });
 
 test('parse ts imports and include types', () => {
@@ -61,7 +60,7 @@ test('parse ts imports and include types', () => {
     `,
 		false,
 	);
-	assert.equal(parsed, [
+	expect(parsed).toEqual([
 		'static_import',
 		'inline_type_import',
 		'mixed_type_import',
@@ -98,7 +97,7 @@ test('parse svelte imports', () => {
       222
     `,
 	);
-	assert.equal(parsed, [
+	expect(parsed).toEqual([
 		'static_import_module_context',
 		'dynamic_import_module_context',
 		'static_import',
@@ -118,7 +117,7 @@ test('parse plain JS svelte imports', () => {
       </script>
     `,
 	);
-	assert.equal(parsed, ['static_import', 'dynamic_import']);
+	expect(parsed).toEqual(['static_import', 'dynamic_import']);
 });
 
 test('parse empty imports', () => {
@@ -135,7 +134,7 @@ test('parse empty imports', () => {
       const b: {} = {};
     `,
 	);
-	assert.equal(parsed, []);
+	expect(parsed).toEqual([]);
 });
 
 test('parse ts re-exports with type keywords', () => {
@@ -147,7 +146,7 @@ test('parse ts re-exports with type keywords', () => {
       export {type InlineType, ValueExport} from 'mixed_export';
     `,
 	);
-	assert.equal(parsed, ['value_export', 'mixed_export']);
+	expect(parsed).toEqual(['value_export', 'mixed_export']);
 });
 
 test('parse ts re-exports with type keywords (include types)', () => {
@@ -160,7 +159,7 @@ test('parse ts re-exports with type keywords (include types)', () => {
     `,
 		false,
 	);
-	assert.equal(parsed, ['value_export', 'type_export', 'mixed_export']);
+	expect(parsed).toEqual(['value_export', 'type_export', 'mixed_export']);
 });
 
 test('parse default and namespace imports', () => {
@@ -174,7 +173,7 @@ test('parse default and namespace imports', () => {
       import type * as NamespaceType from 'namespace_type_module';
     `,
 	);
-	assert.equal(parsed, ['default_module', 'namespace_module', 'mixed_default_named']);
+	expect(parsed).toEqual(['default_module', 'namespace_module', 'mixed_default_named']);
 });
 
 test('parse imports with comments and whitespace', () => {
@@ -195,7 +194,7 @@ test('parse imports with comments and whitespace', () => {
       } from 'type_with_comments';
     `,
 	);
-	assert.equal(parsed, ['module_with_comments']);
+	expect(parsed).toEqual(['module_with_comments']);
 });
 
 test('parse imports in complex svelte files', () => {
@@ -222,7 +221,7 @@ test('parse imports in complex svelte files', () => {
       </div>
     `,
 	);
-	assert.equal(parsed, ['module_helpers', './component']);
+	expect(parsed).toEqual(['module_helpers', './component']);
 });
 
 test('parse imports with string literals in different formats', () => {
@@ -233,7 +232,7 @@ test('parse imports with string literals in different formats', () => {
       import {b} from 'single_quotes';
     `,
 	);
-	assert.equal(parsed, ['double_quotes', 'single_quotes']);
+	expect(parsed).toEqual(['double_quotes', 'single_quotes']);
 });
 
 test('parse dynamic imports with expressions', () => {
@@ -247,7 +246,5 @@ test('parse dynamic imports with expressions', () => {
     `,
 	);
 	// Only the string literal should be captured
-	assert.equal(parsed, ['simple_dynamic']);
+	expect(parsed).toEqual(['simple_dynamic']);
 });
-
-test.run();
