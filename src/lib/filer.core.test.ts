@@ -9,6 +9,7 @@ import {Filer} from './filer.ts';
 import type {Filer_Observer} from './filer_helpers.ts';
 import {Disknode} from './disknode.ts';
 import type {Path_Id} from './path.ts';
+import {DEFAULT_CONFIG_FILES} from './constants.ts';
 
 // Mock modules
 vi.mock('node:fs', () => ({
@@ -183,8 +184,7 @@ describe('Filer Core', () => {
 				// paths.source is absolute, not relative
 				return (
 					(path as unknown as string).endsWith('/src/') ||
-					path === './package.json' ||
-					path === './tsconfig.json'
+					DEFAULT_CONFIG_FILES.includes(path as string)
 				);
 			});
 
@@ -199,8 +199,7 @@ describe('Filer Core', () => {
 			expect(vi.mocked(watch)).toHaveBeenCalledWith(
 				expect.arrayContaining([
 					expect.stringMatching(/\/src\/$/), // paths.source is absolute
-					'./package.json',
-					'./tsconfig.json',
+					...DEFAULT_CONFIG_FILES,
 				]),
 				expect.any(Object),
 			);

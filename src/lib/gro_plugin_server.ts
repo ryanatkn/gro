@@ -10,7 +10,7 @@ import {throttle} from '@ryanatkn/belt/throttle.js';
 
 import type {Plugin} from './plugin.ts';
 import {base_path_to_path_id, LIB_DIRNAME, paths} from './paths.ts';
-import {GRO_DEV_DIRNAME, SERVER_DIST_PATH} from './constants.ts';
+import {GRO_DEV_DIRNAME, SERVER_DIST_PATH, DEFAULT_CONFIG_FILES} from './constants.ts';
 import {parse_svelte_config, default_svelte_config} from './svelte_config.ts';
 import {esbuild_plugin_sveltekit_shim_app} from './esbuild_plugin_sveltekit_shim_app.ts';
 import {esbuild_plugin_sveltekit_shim_env} from './esbuild_plugin_sveltekit_shim_env.ts';
@@ -86,6 +86,11 @@ export interface Gro_Plugin_Server_Options {
 	 * @default dev
 	 */
 	run?: boolean;
+	/**
+	 * Configuration files that should trigger a full rebuild when changed.
+	 * @default DEFAULT_CONFIG_FILES
+	 */
+	config_files?: Array<string>;
 }
 
 export interface Outpaths {
@@ -121,6 +126,7 @@ export const gro_plugin_server = ({
 	rebuild_throttle_delay = 1000,
 	cli_command,
 	run, // `dev` default is not available in this scope
+	config_files = DEFAULT_CONFIG_FILES,
 }: Gro_Plugin_Server_Options = {}): Plugin => {
 	let build_ctx: esbuild.BuildContext | undefined;
 	let server_process: Restartable_Process | undefined;
@@ -280,18 +286,7 @@ export const gro_plugin_server = ({
 						// Dependencies match
 						if (dependency_nodes.has(node)) return true;
 
-						// TODO BLOCK extract to constants/paths? and use in gro_plugin_gen.ts too,
-						// maybe with a helper
-						// (see GRO_PATHS for similarly custom path stuff)
 						// Config files that should trigger full rebuild
-						const config_files = [
-							'package.json',
-							'tsconfig.json',
-							'svelte.config.js',
-							'vite.config.ts',
-							'gro.config.ts',
-						];
-
 						for (const config_file of config_files) {
 							if (node.id.endsWith('/' + config_file)) return true;
 						}

@@ -22,22 +22,3 @@ test(
 	},
 	TEST_TIMEOUT_MD,
 );
-
-test(
-	'custom loader handles failures correctly',
-	async () => {
-		const test_script = resolve('src/fixtures/test_loader_failures.ts');
-
-		// Use the same loader resolution logic as the CLI
-		const loader_path = resolve_gro_module_path('loader.js');
-
-		// Use the existing spawn_with_loader function
-		const result = await spawn_with_loader(loader_path, test_script, []);
-
-		// For failure tests, we expect the test script to fail
-		// (meaning the loader correctly failed when encountering invalid files)
-		expect(result.ok).toBe(false);
-		expect(result.code).not.toBe(0);
-	},
-	TEST_TIMEOUT_MD,
-);

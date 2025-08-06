@@ -11,13 +11,7 @@ import {create_deferred, type Deferred} from '@ryanatkn/belt/async.js';
 import {Disknode} from './disknode.ts';
 import type {Path_Id} from './path.ts';
 import {paths} from './paths.ts';
-import {
-	GRO_CONFIG_FILENAME,
-	PACKAGE_JSON_FILENAME,
-	SVELTE_CONFIG_FILENAME,
-	TSCONFIG_FILENAME,
-	VITE_CONFIG_FILENAME,
-} from './constants.ts';
+import {DEFAULT_CONFIG_FILES} from './constants.ts';
 import {
 	Filer_Phase_Order,
 	Filer_Change_Batch,
@@ -107,14 +101,7 @@ export class Filer {
 		}
 
 		// Default paths include source and config files
-		const default_paths = [
-			paths.source,
-			'./' + PACKAGE_JSON_FILENAME,
-			'./' + TSCONFIG_FILENAME,
-			'./' + SVELTE_CONFIG_FILENAME,
-			'./' + VITE_CONFIG_FILENAME,
-			'./' + GRO_CONFIG_FILENAME,
-		].filter(existsSync);
+		const default_paths = [paths.source, ...DEFAULT_CONFIG_FILES].filter(existsSync);
 
 		// Initialize with provided paths
 		const paths_to_watch = options.paths ?? default_paths;

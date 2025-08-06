@@ -53,3 +53,12 @@ export const SVELTE_PACKAGE_CLI = 'svelte-package';
 export const SVELTE_PACKAGE_DEP_NAME = '@sveltejs/package';
 export const VITE_CLI = 'vite';
 export const VITEST_CLI = 'vitest';
+
+/** Configuration files that affect the entire build. */
+export const DEFAULT_CONFIG_FILES: string[] = [
+	PACKAGE_JSON_FILENAME,
+	TSCONFIG_FILENAME,
+	SVELTE_CONFIG_FILENAME,
+	VITE_CONFIG_FILENAME,
+	GRO_CONFIG_FILENAME,
+];
