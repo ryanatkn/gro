@@ -188,7 +188,7 @@ filer.observe({
 	patterns: [/\.test\.ts$/],
 	invalidate: 'dependencies', // Re-run when deps change
 	on_change: async (batch) => {
-		await runTests(batch.all_nodes);
+		await runTests(batch.all_disknodes);
 	},
 });
 ```
@@ -203,7 +203,7 @@ filer.observe({
 	phase: 'pre',
 	priority: 100,
 	on_change: async (batch) => {
-		await generate(batch.all_nodes);
+		await generate(batch.all_disknodes);
 	},
 });
 
@@ -213,7 +213,7 @@ filer.observe({
 	patterns: [/\.ts$/],
 	phase: 'main',
 	on_change: async (batch) => {
-		await compile(batch.all_nodes);
+		await compile(batch.all_disknodes);
 	},
 });
 ```

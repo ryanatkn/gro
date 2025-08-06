@@ -144,7 +144,7 @@ export const gro_plugin_moss = ({
 					let changed = false;
 
 					// Process added/updated files
-					for (const node of batch.all_nodes) {
+					for (const node of batch.all_disknodes) {
 						const contents = node.contents;
 						if (contents !== null) {
 							const classes = collect_css_classes(contents);

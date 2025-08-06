@@ -160,7 +160,7 @@ describe('Filer_Change_Batch', () => {
 			expect(deleted).toContain(TEST_FILE_C);
 		});
 
-		test('all_nodes returns all disknodes from add and update changes', () => {
+		test('all_disknodes returns all disknodes from add and update changes', () => {
 			const filer = create_mock_filer();
 			const node_a = new Disknode(TEST_FILE_A, filer);
 			const node_b = new Disknode(TEST_FILE_B, filer);
@@ -173,11 +173,11 @@ describe('Filer_Change_Batch', () => {
 			];
 
 			const batch = new Filer_Change_Batch(changes);
-			const all_nodes = batch.all_disknodes;
+			const all_disknodes = batch.all_disknodes;
 
-			expect(all_nodes).toHaveLength(2);
-			expect(all_nodes).toContain(node_a);
-			expect(all_nodes).toContain(node_b);
+			expect(all_disknodes).toHaveLength(2);
+			expect(all_disknodes).toContain(node_a);
+			expect(all_disknodes).toContain(node_b);
 		});
 
 		test('handles mixed file types and change types', () => {
