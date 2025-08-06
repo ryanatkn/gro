@@ -48,6 +48,7 @@ export interface Filer_Observer {
 	/** Track directory changes. Default: false */
 	track_directories?: boolean;
 
+	// TODO BLOCK idk about this option's design
 	// Invalidation strategy
 	/** How to propagate changes beyond matched files */
 	invalidate?: 'self' | 'dependents' | 'dependencies' | 'all';
@@ -644,6 +645,7 @@ export class Filer {
 		const result = await Promise.race([
 			Promise.resolve(observer.on_change(batch)),
 			new Promise<never>((_, reject) =>
+				// TODO better error handling?
 				setTimeout(() => reject(new Error(`Observer ${observer.id} timed out`)), timeout),
 			),
 		]);
@@ -896,6 +898,7 @@ export class Filer {
 						node.stats = stats;
 					} catch {
 						// Node doesn't exist, that's okay
+						// TODO but what about other errors like permission issues?
 					}
 				}),
 			);

@@ -280,17 +280,20 @@ export const gro_plugin_server = ({
 						// Dependencies match
 						if (dependency_nodes.has(node)) return true;
 
+						// TODO BLOCK extract to constants/paths? and use in gro_plugin_gen.ts too,
+						// maybe with a helper
+						// (see GRO_PATHS for similarly custom path stuff)
 						// Config files that should trigger full rebuild
 						const config_files = [
-							'/package.json',
-							'/tsconfig.json',
-							'/svelte.config.js',
-							'/vite.config.ts',
-							'/gro.config.ts',
+							'package.json',
+							'tsconfig.json',
+							'svelte.config.js',
+							'vite.config.ts',
+							'gro.config.ts',
 						];
 
 						for (const config_file of config_files) {
-							if (node.id.endsWith(config_file)) return true;
+							if (node.id.endsWith('/' + config_file)) return true;
 						}
 
 						return false;
