@@ -2,6 +2,8 @@ import {existsSync, readFileSync, writeFileSync} from 'node:fs';
 import {join} from 'node:path';
 import ts from 'typescript';
 
+export const TEST_TIMEOUT_MD = 20_000;
+
 export const SOME_PUBLIC_ENV_VAR_NAME = 'PUBLIC_SOME_PUBLIC_ENV_VAR';
 export const SOME_PUBLIC_ENV_VAR_VALUE = 'SOME_PUBLIC_ENV_VAR';
 const name_equals = SOME_PUBLIC_ENV_VAR_NAME + '=';

@@ -1,90 +1,75 @@
-import {test} from 'uvu';
-import * as assert from 'uvu/assert';
-import {Timings} from '@ryanatkn/belt/timings.js';
+import {test, expect} from 'vitest';
+import {resolve} from 'node:path';
+import {existsSync} from 'node:fs';
 
-import {run_task} from './run_task.ts';
-import {load_gro_config} from './gro_config.ts';
-import {Filer} from './filer.ts';
+import {resolve_gro_module_path, spawn_with_loader} from './gro_helpers.ts';
+import {TEST_TIMEOUT_MD} from './test_helpers.ts';
 
-test('passes args and returns output', async () => {
-	const args = {a: 1, _: []};
-	const result = await run_task(
-		{
-			name: 'testTask',
-			id: 'foo/testTask',
-			mod: {
-				task: {
-					run: ({args}) => Promise.resolve(args),
-				},
-			},
-		},
-		args,
-		() => Promise.resolve(),
-		await load_gro_config(),
-		new Filer(),
-		new Timings(),
-	);
-	assert.ok(result.ok);
-	assert.is(result.output, args);
-});
+test(
+	'run_task passes args and returns output',
+	async () => {
+		const testScript = resolve('src/fixtures/test_run_task_basic.ts');
 
-test('invokes a sub task', async () => {
-	const args = {a: 1, _: []};
-	let invoked_task_name;
-	let invoked_args;
-	const result = await run_task(
-		{
-			name: 'testTask',
-			id: 'foo/testTask',
-			mod: {
-				task: {
-					run: async ({args, invoke_task}) => {
-						await invoke_task('bar/testTask', args);
-						return args;
-					},
-				},
-			},
-		},
-		args,
-		(invoking_task_name, invoking_args) => {
-			invoked_task_name = invoking_task_name;
-			invoked_args = invoking_args;
-			return Promise.resolve();
-		},
-		await load_gro_config(),
-		new Filer(),
-		new Timings(),
-	);
-	assert.ok(result.ok);
-	assert.is(invoked_task_name, 'bar/testTask');
-	assert.is(invoked_args, args);
-	assert.is(result.output, args);
-});
+		// Log test script path for debugging
+		// eslint-disable-next-line no-console
+		console.log('Test script path:', testScript);
+		// eslint-disable-next-line no-console
+		console.log('Test script exists:', existsSync(testScript));
 
-test('failing task', async () => {
-	let err;
-	const result = await run_task(
-		{
-			name: 'testTask',
-			id: 'foo/testTask',
-			mod: {
-				task: {
-					run: () => {
-						err = Error();
-						throw err;
-					},
-				},
-			},
-		},
-		{_: []},
-		async () => {}, // eslint-disable-line @typescript-eslint/no-empty-function
-		await load_gro_config(),
-		new Filer(),
-		new Timings(),
-	);
-	assert.ok(!result.ok);
-	assert.ok(result.reason);
-	assert.is(result.error, err);
-});
+		// Use the same loader resolution logic as the CLI
+		const loaderPath = resolve_gro_module_path('loader.js');
 
-test.run();
+		// Use the existing spawn_with_loader function
+		const result = await spawn_with_loader(loaderPath, testScript, []);
+
+		expect(result.ok).toBe(true);
+		expect(result.code).toBe(0);
+	},
+	TEST_TIMEOUT_MD,
+);
+
+test(
+	'run_task invokes sub tasks',
+	async () => {
+		const testScript = resolve('src/fixtures/test_run_task_invoke.ts');
+
+		// Log test script path for debugging
+		// eslint-disable-next-line no-console
+		console.log('Test script path:', testScript);
+		// eslint-disable-next-line no-console
+		console.log('Test script exists:', existsSync(testScript));
+
+		// Use the same loader resolution logic as the CLI
+		const loaderPath = resolve_gro_module_path('loader.js');
+
+		// Use the existing spawn_with_loader function
+		const result = await spawn_with_loader(loaderPath, testScript, []);
+
+		expect(result.ok).toBe(true);
+		expect(result.code).toBe(0);
+	},
+	TEST_TIMEOUT_MD,
+);
+
+test(
+	'run_task handles failing tasks',
+	async () => {
+		const testScript = resolve('src/fixtures/test_run_task_failure.ts');
+
+		// Log test script path for debugging
+		// eslint-disable-next-line no-console
+		console.log('Test script path:', testScript);
+		// eslint-disable-next-line no-console
+		console.log('Test script exists:', existsSync(testScript));
+
+		// Use the same loader resolution logic as the CLI
+		const loaderPath = resolve_gro_module_path('loader.js');
+
+		// Use the existing spawn_with_loader function
+		const result = await spawn_with_loader(loaderPath, testScript, []);
+
+		expect(result.ok).toBe(true);
+		expect(result.code).toBe(0);
+	},
+	TEST_TIMEOUT_MD,
+);
