@@ -2,33 +2,23 @@ import {z} from 'zod';
 import {spawn_cli} from '@ryanatkn/gro/cli.js';
 
 import {Task_Error, type Task} from './task.ts';
-import {paths} from './paths.ts';
 import {find_cli} from './cli.ts';
 import {has_dep} from './package_json.ts';
 import {serialize_args, to_forwarded_args} from './args.ts';
 import {VITEST_CLI} from './constants.ts';
+import {paths} from './paths.ts';
 
 export const Args = z.strictObject({
-	_: z.array(z.string()).meta({description: 'file patterns to test'}).default(['.test.ts']), // TODO maybe use uvu's default instead of being restrictive?
-	bail: z
-		.boolean()
-		.meta({description: 'the bail option to uvu run, exit immediately on failure'})
-		.default(false),
-	cwd: z.string().meta({description: 'the cwd option to uvu parse'}).optional(),
-	ignore: z
-		.union([z.string(), z.array(z.string())])
-		.meta({description: 'the ignore option to uvu parse'})
-		.optional(),
+	_: z.array(z.string()).meta({description: 'file patterns to test'}).default(['.test.']),
+	dir: z.string().meta({description: 'working directory for tests'}).default(paths.source),
 });
 export type Args = z.infer<typeof Args>;
-
-// TODO BLOCK need to replace uvu tests
 
 export const task: Task<Args> = {
 	summary: 'run tests with vitest',
 	Args,
 	run: async ({args, filer}): Promise<void> => {
-		const {_: patterns, bail, cwd, ignore} = args;
+		const {_: patterns, dir} = args;
 
 		if (has_dep(VITEST_CLI)) {
 			if (!find_cli(VITEST_CLI)) {
@@ -38,37 +28,17 @@ export const task: Task<Args> = {
 				'run',
 				...patterns,
 				'--dir',
-				'src',
+				dir,
 				...serialize_args(to_forwarded_args(VITEST_CLI)),
 			]); // TODO proper forwarding
 			if (!spawned?.ok) {
 				throw new Task_Error(`vitest failed with exit code ${spawned?.code}`);
 			}
-		} else if (has_dep('uvu')) {
-			if (!find_cli('uvu')) {
-				throw new Task_Error('uvu is a dependency but not installed; run `npm i`?');
-			}
-
-			const [{run}, {parse}] = await Promise.all([import('uvu/run'), import('uvu/parse')]);
-
-			// uvu doesn't work with esm loaders and TypeScript files,
-			// so we use its `parse` and `run` APIs directly instead of its CLI.
-			// To avoid surprises, we allow any number of patterns in the rest args,
-			// so we call `parse` multiple times because it supports only one.
-			const suites = [];
-			for (const pattern of patterns) {
-				const parsed = await parse(paths.source, pattern, {cwd, ignore}); // eslint-disable-line no-await-in-loop
-				suites.push(...parsed.suites);
-			}
-			await run(suites, {bail});
-			if (process.exitCode) {
-				throw new Task_Error(`uvu failed with exit code ${process.exitCode}`);
-			}
 		} else {
-			throw new Task_Error('no test runner found, install vitest or uvu');
+			throw new Task_Error('no test runner found, install vitest');
 		}
 
-		// TODO BLOCK how to do this correctly?
+		// TODO BLOCK how to do this correctly? need reference counting or something
 		await filer.close();
 	},
 };

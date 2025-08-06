@@ -2,4 +2,6 @@
 '@ryanatkn/gro': minor
 ---
 
-support vitest and fail `gro test` if no test runner installed
+- add `vitest` support
+- remove `uvu` support
+- fail `gro test` if no test runner installed
