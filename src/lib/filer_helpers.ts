@@ -17,29 +17,22 @@ export const function_schema_async = <T extends z.core.$ZodFunction>(
 
 /**
  * Change types as const for faster coalescing.
+ * Use Filer_Change_Type.options to get ['add', 'update', 'delete'] array.
  */
-export const FILER_CHANGE_TYPE = {
-	ADD: 1,
-	UPDATE: 2,
-	DELETE: 3,
-} as const;
-
-export type Filer_Change_Type = (typeof FILER_CHANGE_TYPE)[keyof typeof FILER_CHANGE_TYPE];
+export const Filer_Change_Type = z.enum(['add', 'update', 'delete']);
+export type Filer_Change_Type = z.infer<typeof Filer_Change_Type>;
 
 /**
  * Observer execution phases.
+ * Use Filer_Phase.options to get ['pre', 'main', 'post'] array.
  */
-export type Filer_Phase = 'pre' | 'main' | 'post';
-
-/**
- * Available phases in execution order.
- */
-export const FILER_PHASES: ReadonlyArray<Filer_Phase> = ['pre', 'main', 'post'] as const;
+export const Filer_Phase = z.enum(['pre', 'main', 'post']);
+export type Filer_Phase = z.infer<typeof Filer_Phase>;
 
 /**
  * Phase execution order for sorting.
  */
-export const FILER_PHASE_ORDER: Record<Filer_Phase, number> = {
+export const Filer_Phase_Order: Record<Filer_Phase, number> = {
 	pre: 0,
 	main: 1,
 	post: 2,
@@ -47,26 +40,30 @@ export const FILER_PHASE_ORDER: Record<Filer_Phase, number> = {
 
 /**
  * Batch expansion strategies.
+ * Use Filer_Expand_Strategy.options to get ['self', 'dependents', 'dependencies', 'all'] array.
  */
-export const FILER_EXPAND_STRATEGY_SCHEMA = z.enum(['self', 'dependents', 'dependencies', 'all']);
-export type Filer_Expand_Strategy = z.infer<typeof FILER_EXPAND_STRATEGY_SCHEMA>;
+export const Filer_Expand_Strategy = z.enum(['self', 'dependents', 'dependencies', 'all']);
+export type Filer_Expand_Strategy = z.infer<typeof Filer_Expand_Strategy>;
 
 /**
  * Error handling strategies.
+ * Use Filer_Error_Strategy.options to get ['continue', 'abort'] array.
  */
-export const FILER_ERROR_STRATEGY_SCHEMA = z.enum(['continue', 'abort']);
-export type Filer_Error_Strategy = z.infer<typeof FILER_ERROR_STRATEGY_SCHEMA>;
+export const Filer_Error_Strategy = z.enum(['continue', 'abort']);
+export type Filer_Error_Strategy = z.infer<typeof Filer_Error_Strategy>;
 
 /**
  * File system node kinds.
+ * Use Filer_Node_Kind.options to get ['file', 'directory', 'symlink'] array.
  */
-export const FILER_NODE_KIND_SCHEMA = z.enum(['file', 'directory', 'symlink']);
-export type Filer_Node_Kind = z.infer<typeof FILER_NODE_KIND_SCHEMA>;
+export const Filer_Node_Kind = z.enum(['file', 'directory', 'symlink']);
+export type Filer_Node_Kind = z.infer<typeof Filer_Node_Kind>;
 
 /**
  * Invalidation intent types.
+ * Use Filer_Invalidation_Intent_Type.options to get array of all values.
  */
-export const FILER_INVALIDATION_INTENT_TYPE_SCHEMA = z.enum([
+export const Filer_Invalidation_Intent_Type = z.enum([
 	'all',
 	'paths',
 	'pattern',
@@ -74,33 +71,27 @@ export const FILER_INVALIDATION_INTENT_TYPE_SCHEMA = z.enum([
 	'dependencies',
 	'subtree',
 ]);
+export type Filer_Invalidation_Intent_Type = z.infer<typeof Filer_Invalidation_Intent_Type>;
 
 /**
  * Invalidation intent returned by observers to trigger additional changes.
  */
-export const FILER_INVALIDATION_INTENT_SCHEMA = z.strictObject({
-	type: FILER_INVALIDATION_INTENT_TYPE_SCHEMA,
+export const Filer_Invalidation_Intent = z.strictObject({
+	type: Filer_Invalidation_Intent_Type,
 	paths: z.array(z.string()).optional(), // For 'paths' type
 	pattern: z.instanceof(RegExp).optional(), // For 'pattern' type
 	disknode: z.custom<Disknode>().optional(), // For 'dependents'/'dependencies'/'subtree' types
 	include_self: z.boolean().optional(), // For 'subtree' type
 });
+export type Filer_Invalidation_Intent = z.infer<typeof Filer_Invalidation_Intent>;
 
-export type Filer_Invalidation_Intent = z.infer<typeof FILER_INVALIDATION_INTENT_SCHEMA>;
-
-/**
- * Represents a single filesystem change.
- */
-export const FILER_CHANGE_TYPE_SCHEMA = z.enum(['add', 'update', 'delete']);
-
-export const FILER_CHANGE_SCHEMA = z.strictObject({
-	type: FILER_CHANGE_TYPE_SCHEMA,
+export const Filer_Change = z.strictObject({
+	type: Filer_Change_Type,
 	disknode: z.custom<Disknode>().optional(), // Present for add/update
 	id: z.string(), // Path_Id
-	kind: FILER_NODE_KIND_SCHEMA,
+	kind: Filer_Node_Kind,
 });
-
-export type Filer_Change = z.infer<typeof FILER_CHANGE_SCHEMA>;
+export type Filer_Change = z.infer<typeof Filer_Change>;
 
 /**
  * Batch of filesystem changes delivered to observers.
@@ -192,9 +183,9 @@ export class Filer_Change_Batch {
 }
 
 /**
- * Observer configuration schema for watching filesystem changes.
+ * Observer configuration for watching filesystem changes.
  */
-export const FILER_OBSERVER_SCHEMA = z.strictObject({
+export const Filer_Observer = z.strictObject({
 	/** Unique identifier for this observer */
 	id: z.string(),
 
@@ -221,7 +212,7 @@ export const FILER_OBSERVER_SCHEMA = z.strictObject({
 
 	// Batch expansion strategy
 	/** How to expand the batch beyond matched files. Default: 'self' */
-	expand_to: FILER_EXPAND_STRATEGY_SCHEMA.optional(),
+	expand_to: Filer_Expand_Strategy.optional(),
 
 	// Intent support
 	/** Whether this observer can return invalidation intents. Default: false */
@@ -246,7 +237,7 @@ export const FILER_OBSERVER_SCHEMA = z.strictObject({
 	on_error: function_schema(
 		z.function({
 			input: z.tuple([z.instanceof(Error), z.custom<Filer_Change_Batch>()]),
-			output: FILER_ERROR_STRATEGY_SCHEMA,
+			output: Filer_Error_Strategy,
 		}),
 	).optional(),
 	/** Timeout for observer execution. Default: 30000ms */
@@ -257,9 +248,9 @@ export const FILER_OBSERVER_SCHEMA = z.strictObject({
 		z.function({
 			input: z.tuple([z.custom<Filer_Change_Batch>()]),
 			output: z.union([
-				z.array(FILER_INVALIDATION_INTENT_SCHEMA),
+				z.array(Filer_Invalidation_Intent),
 				z.void(),
-				z.promise(z.array(FILER_INVALIDATION_INTENT_SCHEMA)),
+				z.promise(z.array(Filer_Invalidation_Intent)),
 				z.promise(z.void()),
 			]),
 		}),
@@ -269,11 +260,11 @@ export const FILER_OBSERVER_SCHEMA = z.strictObject({
 /**
  * Observer configuration for watching filesystem changes.
  */
-export type Filer_Observer = z.infer<typeof FILER_OBSERVER_SCHEMA>;
+export type Filer_Observer = z.infer<typeof Filer_Observer>;
 
-export const FILER_CHANGE_TRANSITIONS: Record<
-	Filer_Change['type'],
-	Record<Filer_Change['type'], Filer_Change['type'] | null>
+export const Filer_Change_Transitions: Record<
+	Filer_Change_Type,
+	Record<Filer_Change_Type, Filer_Change_Type | null>
 > = {
 	add: {
 		add: 'add', // add + add → add (shouldn't happen but handle it)
@@ -311,7 +302,7 @@ export const filer_coalesce_change = (
 ): Filer_Change | null => {
 	if (!prev) return next;
 
-	const result = FILER_CHANGE_TRANSITIONS[prev.type][next.type];
+	const result = Filer_Change_Transitions[prev.type][next.type];
 
 	if (result === null) return null; // Remove entry
 

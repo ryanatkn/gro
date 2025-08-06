@@ -8,28 +8,27 @@ import type {Logger} from '@ryanatkn/belt/log.js';
 import {EMPTY_OBJECT} from '@ryanatkn/belt/object.js';
 import {create_deferred, type Deferred} from '@ryanatkn/belt/async.js';
 
-import {Disknode} from './disknode.js';
-import type {Path_Id} from './path.js';
-import {paths} from './paths.js';
+import {Disknode} from './disknode.ts';
+import type {Path_Id} from './path.ts';
+import {paths} from './paths.ts';
 import {
 	GRO_CONFIG_FILENAME,
 	PACKAGE_JSON_FILENAME,
 	SVELTE_CONFIG_FILENAME,
 	TSCONFIG_FILENAME,
 	VITE_CONFIG_FILENAME,
-} from './constants.js';
+} from './constants.ts';
 import {
-	FILER_PHASES,
-	FILER_PHASE_ORDER,
+	Filer_Phase_Order,
 	Filer_Change_Batch,
 	filer_coalesce_change,
 	filer_prewarm_observer_data,
 	filer_should_filter_disknode,
 	filer_observer_matches,
 	filer_execute_observer,
+	Filer_Phase,
 	filer_traverse_relationships,
 	filer_resolve_intent_disknodes,
-	type Filer_Phase,
 	type Filer_Change,
 	type Filer_Observer,
 	type Filer_Expand_Strategy,
@@ -387,7 +386,7 @@ export class Filer {
 		const intents: Array<Filer_Invalidation_Intent> = [];
 
 		// Execute observers by phase
-		for (const phase of FILER_PHASES) {
+		for (const phase of Filer_Phase.options) {
 			const phase_intents = await this.#execute_phase(phase, batch); // eslint-disable-line no-await-in-loop
 			intents.push(...phase_intents);
 		}
@@ -543,7 +542,7 @@ export class Filer {
 			this.#observers_sorted = Array.from(this.#observers.values()).sort((a, b) => {
 				// Sort by phase first
 				const phase_diff =
-					FILER_PHASE_ORDER[a.phase ?? 'main'] - FILER_PHASE_ORDER[b.phase ?? 'main'];
+					Filer_Phase_Order[a.phase ?? 'main'] - Filer_Phase_Order[b.phase ?? 'main'];
 				if (phase_diff !== 0) return phase_diff;
 
 				// Then by priority (higher first)
