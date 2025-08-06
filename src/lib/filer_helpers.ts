@@ -4,7 +4,8 @@ import {resolve} from 'node:path';
 import type {Disknode} from './disknode.ts';
 import type {Path_Id} from './path.ts';
 
-// Module-local helpers for Zod function schemas (workaround for zod 4.x)
+// TODO BLOCK move these (belt, see other helpers)
+// TODO workaround for zod 4.x not having function schemas, is there a better way to get what we want?
 export const function_schema = <T extends z.core.$ZodFunction>(
 	schema: T,
 ): z.ZodCustom<Parameters<T['implement']>[0]> =>
