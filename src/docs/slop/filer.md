@@ -10,6 +10,8 @@
 - [why](#why)
 - [api](#api)
 - [design](#design)
+- [performance](#performance)
+- [limitations](#limitations)
 
 ## what
 
@@ -26,7 +28,7 @@ Filer has two main parts:
   and notifies observers when files change
 
 Think of it as a smart, shared filesystem cache that understands your code's structure
-and relationships, eliminating the need for each tool to maintain its own file watcher
+and relationships, eliminating the need for each tool to maintain its own file watcher.
 
 ## usage
 
@@ -50,7 +52,7 @@ filer.observe({
 	},
 });
 
-filer.dispose(); // clean up when done
+await filer.dispose(); // Clean up when done
 ```
 
 ### dependency-aware watching
@@ -131,6 +133,10 @@ const importers = filer.get_dependents(target);
 
 // Get all dependencies of a file
 const deps = filer.get_dependencies(target);
+
+// Check relationships
+const child = target.get_child('submodule.ts');
+const is_parent = target.is_ancestor_of(child);
 ```
 
 ## why
@@ -166,9 +172,17 @@ All properties are lazy-loaded and cached based on a version counter.
 class Disknode {
 	// Core properties
 	readonly id: Path_Id; // Absolute path
+	readonly filer: Filer; // Parent filer instance
 	kind: 'file' | 'directory' | 'symlink';
 	is_external: boolean; // Outside watched paths
 	exists: boolean; // False when deleted but still referenced
+
+	// Version tracking
+	get version(): number; // Current cache version
+	get stats_version(): number; // Version when stats were loaded
+	get contents_version(): number; // Version when contents were loaded
+	get realpath_version(): number; // Version when realpath was resolved
+	get imports_version(): number; // Version when imports were parsed
 
 	// Lazy-loaded properties (synchronous)
 	get stats(): Stats | null; // File stats
@@ -183,6 +197,7 @@ class Disknode {
 	get is_typescript(): boolean;
 	get is_js(): boolean;
 	get is_svelte(): boolean;
+	get is_svelte_module(): boolean; // .svelte.ts or .svelte.js files
 	get is_importable(): boolean;
 
 	// Relationships
@@ -193,11 +208,17 @@ class Disknode {
 
 	// Methods
 	invalidate(): void; // Clear caches
+	set_stats(value: Stats): void; // Set stats to avoid syscalls
+	set_stats_force(value: Stats): void; // Force set stats
 	add_dependency(dep: Disknode): void;
 	remove_dependency(dep: Disknode): void;
+	clear_relationships(): void; // Remove all deps/dependents
 	get_ancestors(): Array<Disknode>;
 	get_descendants(): Array<Disknode>;
+	get_child(name: string): Disknode | undefined;
+	is_ancestor_of(disknode: Disknode): boolean;
 	relative_to(disknode: Disknode): string | null;
+	relative_from(disknode: Disknode): string | null;
 }
 ```
 
@@ -237,13 +258,19 @@ class Filer {
 		filter?: (id: Path_Id) => boolean,
 		recursive?: boolean,
 	): Set<Path_Id>;
+	traverse_relationships(
+		disknode: Disknode,
+		type: 'dependents' | 'dependencies',
+		recursive?: boolean,
+	): Generator<Disknode>;
 
 	// Utilities
 	map_alias(specifier: string): string; // Apply import aliases
+	queue_dependency_update(disknode: Disknode): void; // Queue for import parsing
 	rescan_subtree(path: string): Promise<void>; // Force rescan
 	load_initial_stats(): Promise<void>; // Pre-warm stat cache
 	reset_watcher(paths: Array<string>, options?: ChokidarOptions): Promise<void>;
-	close(): Promise<void>; // Cleanup
+	dispose(): Promise<void>; // Cleanup
 }
 ```
 
@@ -257,7 +284,7 @@ interface Filer_Observer {
 
 	// Matching strategies (at least one required)
 	patterns?: Array<RegExp>; // Match file paths by regex
-	paths?: Array<Path_Id> | (() => Array<Path_Id>); // Specific paths (can be dynamic)
+	paths?: Array<string> | (() => Array<string>); // Specific paths (can be dynamic)
 	match?: (disknode: Disknode) => boolean; // Custom matching logic
 
 	// What to track
@@ -284,7 +311,7 @@ interface Filer_Observer {
 	// Handler
 	on_change: (
 		batch: Filer_Change_Batch,
-	) => void | Array<Invalidation_Intent> | Promise<void | Array<Invalidation_Intent>>;
+	) => void | Array<Filer_Invalidation_Intent> | Promise<void | Array<Filer_Invalidation_Intent>>;
 }
 ```
 
@@ -310,17 +337,37 @@ class Filer_Change_Batch {
 }
 ```
 
-### Invalidation_Intent
+### Filer_Invalidation_Intent
 
 Observers can return intents to trigger additional invalidations:
 
 ```typescript
-interface Invalidation_Intent {
+interface Filer_Invalidation_Intent {
 	type: 'all' | 'paths' | 'pattern' | 'dependents' | 'dependencies' | 'subtree';
-	paths?: Array<Path_Id>; // For 'paths' type
+	paths?: Array<string>; // For 'paths' type
 	pattern?: RegExp; // For 'pattern' type
 	disknode?: Disknode; // For 'dependents'/'dependencies'/'subtree' types
-	include_self?: boolean; // For 'subtree' type
+	include_self?: boolean; // For 'subtree' type (default: false)
+}
+```
+
+### Helper Types
+
+Additional types used throughout the system:
+
+```typescript
+type Path_Id = string; // Absolute filesystem path
+type Filer_Phase = 'pre' | 'main' | 'post';
+type Filer_Expand_Strategy = 'self' | 'dependents' | 'dependencies' | 'all';
+type Filer_Error_Strategy = 'continue' | 'abort';
+type Filer_Node_Kind = 'file' | 'directory' | 'symlink';
+type Filer_Change_Type = 'add' | 'update' | 'delete';
+
+interface Filer_Change {
+	type: Filer_Change_Type;
+	disknode?: Disknode; // Present for add/update
+	id: Path_Id;
+	kind: Filer_Node_Kind;
 }
 ```
 
@@ -373,6 +420,10 @@ Changes are batched to reduce processing overhead and properly coalesce rapid ch
 - **add + update → add** (preserve the add semantic)
 - **add + delete → remove entirely** (file created and deleted in same batch)
 - **delete + add → update** (file was recreated)
+- **update + update → update** (multiple saves)
+- **delete + delete → delete** (shouldn't happen but handled)
+
+The coalescing uses a lookup table for O(1) transition resolution.
 
 ### execution phases
 
@@ -387,13 +438,61 @@ Within each phase, observers run by priority (highest first).
 ### loop prevention
 
 The system tracks processed disknodes globally across batch rounds to prevent infinite loops
-when observers trigger additional invalidations.
+when observers trigger additional invalidations. Each disknode is only processed once per
+change event cycle.
 
 ### memory management
 
-- File contents over 10MB bypass the cache
+- File contents over 10MB bypass the cache to prevent memory bloat
 - External files (outside watched paths) are tracked but handled differently
 - The complete filesystem mirror enables fast queries without filesystem access
+- Symlink resolution is cached to avoid repeated filesystem calls
+
+### parent-child relationships
+
+Disknodes maintain bidirectional parent-child relationships for efficient tree traversal:
+
+```typescript
+// Navigate the tree
+const parent = disknode.parent;
+const child = disknode.get_child('subfile.ts');
+const ancestors = disknode.get_ancestors();
+const descendants = disknode.get_descendants();
+
+// Check relationships
+if (parent.is_ancestor_of(disknode)) {
+	const relative = disknode.relative_to(parent); // e.g., "src/lib/file.ts"
+}
+```
+
+### dynamic path resolution
+
+Observers can use dynamic paths that are evaluated at runtime:
+
+```typescript
+filer.observe({
+	id: 'dynamic-watcher',
+	paths: () => getActivePaths(), // Function called on each batch
+	on_change: async (batch) => {
+		// Only processes files matching current dynamic paths
+	},
+});
+```
+
+### import alias mapping
+
+Filer supports TypeScript/bundler import aliases:
+
+```typescript
+const filer = new Filer({
+	aliases: [
+		['$lib', '/src/lib'],
+		['@components', '/src/components'],
+	],
+});
+
+// Now imports like `import {x} from '$lib/util'` are resolved correctly
+```
 
 ## performance
 
@@ -401,13 +500,15 @@ when observers trigger additional invalidations.
 - **change detection**: O(1) per file via filesystem events
 - **dependency lookup**: O(1) via Maps
 - **tree traversal**: O(descendants) or O(ancestors)
-- **memory usage**: ~1KB per file + cached contents
+- **import parsing**: O(file_size) with caching
+- **batch coalescing**: O(1) per change via lookup table
+- **memory usage**: ~1KB per file + cached contents (small files only)
 
 ## limitations
 
-- POSIX paths only (no Windows path support)
-- Single-threaded import parsing
+- POSIX paths only (no Windows path support currently)
+- Single-threaded import parsing (no worker threads)
 - No automatic memory management for very large trees
 - No content hashing (relies on mtime for change detection)
-
-## :turtle:<sub>:turtle:</sub><sub><sub>:turtle:</sub></sub>
+- Symlink cycles not detected (will cause infinite loops)
+- Dynamic imports not tracked (only static ES imports)
