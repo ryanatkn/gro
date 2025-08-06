@@ -6,6 +6,7 @@ import {watch, FSWatcher, type ChokidarOptions} from 'chokidar';
 import {dirname, resolve, basename} from 'node:path';
 import type {Logger} from '@ryanatkn/belt/log.js';
 import {EMPTY_OBJECT} from '@ryanatkn/belt/object.js';
+import {escape_regexp} from '@ryanatkn/belt/regexp.js';
 
 import {Disknode} from './disknode.ts';
 import type {Path_Id} from './path.ts';
@@ -71,7 +72,7 @@ export class Filer {
 
 	/** Configuration */
 	#log?: Logger;
-	#aliases: Array<[string, string]>;
+	#alias_matchers: Array<{re: RegExp; from: string; to: string}>;
 
 	/** Whether the filer has been mounted */
 	#mounted = false;
@@ -83,7 +84,14 @@ export class Filer {
 		this.#batch_delay = options.batch_delay ?? 10;
 		this.#log = options.log;
 		this.#watched_paths = new Set();
-		this.#aliases = options.aliases ?? [];
+
+		// Build precompiled alias matchers
+		const aliases = options.aliases ?? [];
+		this.#alias_matchers = aliases.map(([from, to]) => ({
+			re: new RegExp(`^${escape_regexp(from)}(?:/|$)`),
+			from,
+			to,
+		}));
 
 		// Add initial observers
 		if (options.observers) {
@@ -106,7 +114,7 @@ export class Filer {
 		this.#mounted = true;
 
 		try {
-			// Default paths include source and config files  
+			// Default paths include source and config files
 			const default_paths = [resolve(SOURCE_DIRNAME), ...DEFAULT_CONFIG_FILES].filter(existsSync);
 			const final_paths = paths ?? default_paths;
 
@@ -503,12 +511,8 @@ export class Filer {
 	 * Map import specifier through aliases.
 	 */
 	map_alias(specifier: string): string {
-		for (const [from, to] of this.#aliases) {
-			if (specifier === from || specifier.startsWith(from + '/')) {
-				return to + specifier.slice(from.length);
-			}
-		}
-		return specifier;
+		const matcher = this.#alias_matchers.find((m) => m.re.test(specifier));
+		return matcher ? matcher.to + specifier.slice(matcher.from.length) : specifier;
 	}
 
 	/**

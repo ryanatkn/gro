@@ -891,6 +891,24 @@ describe('Filer Core', () => {
 			// Should use first match
 			expect(filer.map_alias('$lib/special/utils')).toBe('./src/lib/special/utils');
 		});
+
+		test('does not incorrectly match prefixes without proper segment boundaries', () => {
+			const filer = ctx.create_unmounted_filer({
+				aliases: [
+					['@f', './src/f'],
+					['@foo', './src/foo'],
+				],
+			});
+
+			// '@f' should not match '@foo/bar' - should use the @foo alias instead
+			expect(filer.map_alias('@foo/bar')).toBe('./src/foo/bar');
+			
+			// But '@f/something' should match '@f'
+			expect(filer.map_alias('@f/utils')).toBe('./src/f/utils');
+			
+			// And exact match should work
+			expect(filer.map_alias('@f')).toBe('./src/f');
+		});
 	});
 
 	describe('error handling', () => {
