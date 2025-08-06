@@ -374,37 +374,47 @@ export class Filer {
 
 		// Process collected intents
 		if (intents.length > 0) {
-			const intent_disknodes: Set<Disknode> = new Set();
-			for (const intent of intents) {
-				const disknodes = filer_resolve_intent_disknodes(
-					intent,
-					this.disknodes,
-					(id: Path_Id) => this.get_disknode(id),
-					filer_traverse_relationships,
-				);
-				for (const disknode of disknodes) {
-					intent_disknodes.add(disknode);
-				}
-			}
+			await this.#process_invalidation_intents(intents, processed);
+		}
+	}
 
-			// Convert disknodes to changes
-			const intent_changes: Map<Path_Id, Filer_Change> = new Map();
-			for (const disknode of intent_disknodes) {
-				if (processed.has(disknode.id) || disknode.is_external) continue;
-				processed.add(disknode.id);
-				disknode.invalidate();
-				intent_changes.set(disknode.id, {
-					type: 'update',
-					disknode,
-					id: disknode.id,
-					kind: disknode.kind,
-				});
+	/**
+	 * Process invalidation intents and recursively handle any new intents.
+	 */
+	async #process_invalidation_intents(
+		intents: Array<Filer_Invalidation_Intent>,
+		processed: Set<Path_Id>,
+	): Promise<void> {
+		const intent_disknodes: Set<Disknode> = new Set();
+		for (const intent of intents) {
+			const disknodes = filer_resolve_intent_disknodes(
+				intent,
+				this.disknodes,
+				(id: Path_Id) => this.get_disknode(id),
+				filer_traverse_relationships,
+			);
+			for (const disknode of disknodes) {
+				intent_disknodes.add(disknode);
 			}
+		}
 
-			if (intent_changes.size > 0) {
-				const intent_batch = new Filer_Change_Batch(intent_changes.values());
-				await this.#process_batch_with_intents(intent_batch, processed);
-			}
+		// Convert disknodes to changes
+		const intent_changes: Map<Path_Id, Filer_Change> = new Map();
+		for (const disknode of intent_disknodes) {
+			if (processed.has(disknode.id) || disknode.is_external) continue;
+			processed.add(disknode.id);
+			disknode.invalidate();
+			intent_changes.set(disknode.id, {
+				type: 'update',
+				disknode,
+				id: disknode.id,
+				kind: disknode.kind,
+			});
+		}
+
+		if (intent_changes.size > 0) {
+			const intent_batch = new Filer_Change_Batch(intent_changes.values());
+			await this.#process_batch_with_intents(intent_batch, processed);
 		}
 	}
 
@@ -720,31 +730,7 @@ export class Filer {
 		};
 
 		const processed: Set<Path_Id> = new Set();
-		const intent_disknodes = filer_resolve_intent_disknodes(
-			intent,
-			this.disknodes,
-			(id: Path_Id) => this.get_disknode(id),
-			filer_traverse_relationships,
-		);
-
-		// Convert disknodes to changes
-		const intent_changes: Map<Path_Id, Filer_Change> = new Map();
-		for (const disknode of intent_disknodes) {
-			if (processed.has(disknode.id) || disknode.is_external) continue;
-			processed.add(disknode.id);
-			disknode.invalidate();
-			intent_changes.set(disknode.id, {
-				type: 'update',
-				disknode,
-				id: disknode.id,
-				kind: disknode.kind,
-			});
-		}
-
-		if (intent_changes.size > 0) {
-			const batch = new Filer_Change_Batch(intent_changes.values());
-			await this.#process_batch_with_intents(batch, processed);
-		}
+		await this.#process_invalidation_intents([intent], processed);
 	}
 
 	/**
