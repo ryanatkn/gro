@@ -1,5 +1,4 @@
-import {test} from 'uvu';
-import * as assert from 'uvu/assert';
+import {test, expect} from 'vitest';
 import {resolve} from 'node:path';
 
 import {load_module} from './modules.ts';
@@ -15,18 +14,22 @@ test('load_module basic behavior', async () => {
 		validated_mod = mod;
 		return true;
 	});
-	assert.ok(result.ok);
-	assert.is(result.id, id);
-	assert.is(result.mod, validated_mod);
-	assert.is(result.mod, mod_test1);
+	expect(result.ok).toBe(true);
+	if (result.ok) {
+		expect(result.id).toBe(id);
+		expect(result.mod).toBe(validated_mod);
+		expect(result.mod).toBe(mod_test1);
+	}
 });
 
 test('load_module without validation', async () => {
 	const id = resolve('src/fixtures/test1.foo.js');
 	const result = await load_module(id);
-	assert.ok(result.ok);
-	assert.is(result.id, id);
-	assert.is(result.mod, mod_test1);
+	expect(result.ok).toBe(true);
+	if (result.ok) {
+		expect(result.id).toBe(id);
+		expect(result.mod).toBe(mod_test1);
+	}
 });
 
 test('load_module fails validation', async () => {
@@ -37,12 +40,12 @@ test('load_module fails validation', async () => {
 		return false;
 	};
 	const result = await load_module(id, test_validation as any);
-	assert.ok(!result.ok);
-	if (result.type === 'failed_validation') {
-		assert.is(result.validation, test_validation.name);
-		assert.is(result.id, id);
-		assert.is(result.mod, validated_mod);
-		assert.is(result.mod, mod_test1);
+	expect(result.ok).toBe(false);
+	if (!result.ok && result.type === 'failed_validation') {
+		expect(result.validation).toBe(test_validation.name);
+		expect(result.id).toBe(id);
+		expect(result.mod).toBe(validated_mod);
+		expect(result.mod).toBe(mod_test1);
 	} else {
 		throw Error('Should be invalid');
 	}
@@ -51,13 +54,11 @@ test('load_module fails validation', async () => {
 test('load_module fails to import', async () => {
 	const id = resolve('foo/test/failure');
 	const result = await load_module(id);
-	assert.ok(!result.ok);
-	if (result.type === 'failed_import') {
-		assert.is(result.id, id);
-		assert.ok(result.error instanceof Error);
+	expect(result.ok).toBe(false);
+	if (!result.ok && result.type === 'failed_import') {
+		expect(result.id).toBe(id);
+		expect(result.error instanceof Error).toBe(true);
 	} else {
 		throw Error('Should fail to import');
 	}
 });
-
-test.run();
