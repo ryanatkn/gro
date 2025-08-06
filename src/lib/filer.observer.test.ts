@@ -4,7 +4,8 @@ import {describe, test, expect, vi, beforeEach, afterEach} from 'vitest';
 import {existsSync} from 'node:fs';
 import {watch, type FSWatcher} from 'chokidar';
 
-import {Filer, type Filer_Observer, type Filer_Options} from './filer.ts';
+import {Filer, type Filer_Options} from './filer.ts';
+import type {Filer_Observer} from './filer_helpers.ts';
 import type {Path_Id} from './path.ts';
 
 // Mock modules

@@ -2,7 +2,7 @@
 
 import {describe, test, expect} from 'vitest';
 
-import {Filer_Change_Batch, type Filer_Change} from './filer.ts';
+import {Filer_Change_Batch, type Filer_Change} from './filer_helpers.ts';
 import {Disknode} from './disknode.ts';
 import type {Path_Id} from './path.ts';
 

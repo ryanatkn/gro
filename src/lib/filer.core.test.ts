@@ -5,7 +5,8 @@ import {existsSync, type Stats} from 'node:fs';
 import {stat} from 'node:fs/promises';
 import {watch, type FSWatcher} from 'chokidar';
 
-import {Filer, type Filer_Observer} from './filer.ts';
+import {Filer} from './filer.ts';
+import type {Filer_Observer} from './filer_helpers.ts';
 import {Disknode} from './disknode.ts';
 import type {Path_Id} from './path.ts';
 
