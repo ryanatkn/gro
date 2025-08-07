@@ -4,6 +4,8 @@ import {existsSync} from 'node:fs';
 import {replace_extension} from './paths.ts';
 import type {Path_Id} from './path.ts';
 
+// TODO I don't love that this exists
+
 export interface Resolved_Specifier {
 	/**
 	 * The resolved filesystem path for the specifier.

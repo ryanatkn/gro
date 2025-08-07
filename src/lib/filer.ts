@@ -58,6 +58,9 @@ export class Filer {
 	/** Maximum number of tombstones to keep (default: 500) */
 	tombstone_limit = 500;
 
+	/** Maximum number of disknodes to process in parallel for bulk operations */
+	batch_size = 100;
+
 	/** Root disknodes (top-level watched paths) */
 	readonly roots: Set<Disknode> = new Set();
 
@@ -65,21 +68,21 @@ export class Filer {
 	#watched_paths: Set<string>;
 
 	/** Observers */
-	#observers: Map<string, Filer_Observer> = new Map();
+	readonly #observers: Map<string, Filer_Observer> = new Map();
 	#observers_sorted: Array<Filer_Observer> = [];
 	#observers_dirty = true;
 
 	/** Batching */
-	#pending_changes: Map<Path_Id, Filer_Change> = new Map();
+	readonly #pending_changes: Map<Path_Id, Filer_Change> = new Map();
 	#batch_timeout: NodeJS.Timeout | undefined;
 	#batch_delay: number;
 
 	/** Pending dependency updates */
-	#pending_dependency_updates: Set<Disknode> = new Set();
+	readonly #pending_dependency_updates: Set<Disknode> = new Set();
 
 	/** Configuration */
-	#log?: Logger;
-	#alias_matchers: Array<{re: RegExp; from: string; to: string}>;
+	readonly #log?: Logger;
+	readonly #alias_matchers: Array<{re: RegExp; from: string; to: string}>;
 
 	/** Whether the filer has been mounted */
 	#mounted = false;
@@ -811,7 +814,7 @@ export class Filer {
 			(n) => !has_watched_paths || !n.is_external,
 		);
 
-		const batch_size = 100;
+		const {batch_size} = this;
 		for (let i = 0; i < disknodes.length; i += batch_size) {
 			const batch = disknodes.slice(i, i + batch_size);
 			// eslint-disable-next-line no-await-in-loop

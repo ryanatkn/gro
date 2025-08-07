@@ -300,9 +300,7 @@ export class Disknode {
 		return this.stats?.size ?? null;
 	}
 
-	// TODO I'm not too font of these feeling duplicative,
-	// idk, maybe it's more useful than bloating,
-	// but having 2 ways of doing the same thing isnt great
+	// Calling into pure helpers for reusability
 	get extension(): string {
 		return disknode_get_extension(this.id);
 	}
