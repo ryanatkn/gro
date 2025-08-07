@@ -29,6 +29,7 @@ import {
 	type Filer_Expand_Strategy,
 	type Filer_Invalidation_Intent,
 } from './filer_helpers.ts';
+import {Unreachable_Error} from '@ryanatkn/belt/error.js';
 
 /**
  * Options for creating a Filer instance.
@@ -56,7 +57,6 @@ export class Filer implements Disknode_Api {
 
 	/** Maximum number of disknodes to process in parallel for bulk operations */
 	batch_size = 100;
-
 
 	#watcher: FSWatcher | undefined;
 
@@ -700,29 +700,48 @@ export class Filer implements Disknode_Api {
 	): void {
 		const to_add: Set<Disknode> = new Set();
 
-		for (const [, change] of filtered) {
-			const disknode = change.disknode ?? this.disknodes.get(change.id);
-			if (!disknode) continue;
+		// Special handling for 'all' strategy to avoid redundant iteration
+		if (strategy === 'all') {
+			// Count non-external nodes that could be added
+			let non_external_count = 0;
+			for (const n of this.disknodes.values()) {
+				if (!n.is_external && !filer_should_filter_disknode(observer, n)) {
+					non_external_count++;
+				}
+			}
 
-			switch (strategy) {
-				case 'self':
-					// Nothing to add for self strategy
-					break;
-				case 'dependents':
-					for (const dep of filer_traverse_relationships(disknode, 'dependents')) {
-						to_add.add(dep);
-					}
-					break;
-				case 'dependencies':
-					for (const dep of filer_traverse_relationships(disknode, 'dependencies')) {
-						to_add.add(dep);
-					}
-					break;
-				case 'all':
-					for (const n of this.disknodes.values()) {
-						if (!n.is_external) to_add.add(n);
-					}
-					break;
+			// Early exit if we already have all possible nodes
+			if (filtered.size >= non_external_count) {
+				return;
+			}
+
+			// Add all non-external nodes
+			for (const n of this.disknodes.values()) {
+				if (!n.is_external) to_add.add(n);
+			}
+		} else {
+			// Process other strategies per change
+			for (const change of filtered.values()) {
+				const disknode = change.disknode ?? this.disknodes.get(change.id);
+				if (!disknode) continue;
+
+				switch (strategy) {
+					case 'self':
+						// Nothing to add for self strategy
+						break;
+					case 'dependents':
+						for (const dep of filer_traverse_relationships(disknode, 'dependents')) {
+							to_add.add(dep);
+						}
+						break;
+					case 'dependencies':
+						for (const dep of filer_traverse_relationships(disknode, 'dependencies')) {
+							to_add.add(dep);
+						}
+						break;
+					default:
+						throw new Unreachable_Error(strategy);
+				}
 			}
 		}
 
