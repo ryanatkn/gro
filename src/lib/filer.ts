@@ -7,6 +7,7 @@ import {dirname, resolve, basename} from 'node:path';
 import type {Logger} from '@ryanatkn/belt/log.js';
 import {EMPTY_OBJECT} from '@ryanatkn/belt/object.js';
 import {escape_regexp} from '@ryanatkn/belt/regexp.js';
+import {Unreachable_Error} from '@ryanatkn/belt/error.js';
 
 import {Disknode, type Disknode_Api} from './disknode.ts';
 import {resolve_specifier} from './resolve_specifier.ts';
@@ -24,13 +25,13 @@ import {
 	Filer_Phase,
 	filer_traverse_relationships,
 	filer_resolve_intent_disknodes,
+	load_resources_batch,
 	type Filer_Change,
 	type Filer_Observer,
 	type Filer_Expand_Strategy,
 	type Filer_Invalidation_Intent,
+	type Resource_Load_Options,
 } from './filer_helpers.ts';
-import {load_resources_batch, type Resource_Load_Options} from './filer_resource_loader.ts';
-import {Unreachable_Error} from '@ryanatkn/belt/error.js';
 
 /**
  * Options for creating a Filer instance.

@@ -1,8 +1,15 @@
 // @slop Claude Sonnet 4
 
-import {test, expect, describe} from 'vitest';
+import {test, expect, describe, vi} from 'vitest';
 
-import {filer_test_regexp} from './filer_helpers.ts';
+import {
+	filer_test_regexp,
+	filer_coalesce_change,
+	Filer_Change_Batch,
+	load_resources_batch,
+	type Filer_Change,
+	type Resource_Load_Options,
+} from './filer_helpers.ts';
 
 describe('filer_test_regexp', () => {
 	describe('basic functionality', () => {
@@ -206,5 +213,248 @@ describe('filer_test_regexp', () => {
 			expect(result).toBe(true);
 			expect(pattern.lastIndex).toBe(4);
 		});
+	});
+});
+
+describe('filer_coalesce_change', () => {
+	describe('basic transitions', () => {
+		test('handles add transitions', () => {
+			const base_change: Filer_Change = {
+				type: 'add',
+				id: '/test/path',
+				kind: 'file',
+			};
+
+			// add + add → add
+			expect(filer_coalesce_change(base_change, {...base_change, type: 'add'})).toEqual({
+				...base_change,
+				type: 'add',
+			});
+
+			// add + update → add
+			expect(filer_coalesce_change(base_change, {...base_change, type: 'update'})).toEqual({
+				...base_change,
+				type: 'add',
+			});
+
+			// add + delete → null (remove)
+			expect(filer_coalesce_change(base_change, {...base_change, type: 'delete'})).toBe(null);
+		});
+
+		test('handles update transitions', () => {
+			const base_change: Filer_Change = {
+				type: 'update',
+				id: '/test/path',
+				kind: 'file',
+			};
+
+			// update + add → add
+			expect(filer_coalesce_change(base_change, {...base_change, type: 'add'})).toEqual({
+				...base_change,
+				type: 'add',
+			});
+
+			// update + update → update
+			expect(filer_coalesce_change(base_change, {...base_change, type: 'update'})).toEqual({
+				...base_change,
+				type: 'update',
+			});
+
+			// update + delete → delete
+			expect(filer_coalesce_change(base_change, {...base_change, type: 'delete'})).toEqual({
+				...base_change,
+				type: 'delete',
+			});
+		});
+
+		test('handles delete transitions', () => {
+			const base_change: Filer_Change = {
+				type: 'delete',
+				id: '/test/path',
+				kind: 'file',
+			};
+
+			// delete + add → update
+			expect(filer_coalesce_change(base_change, {...base_change, type: 'add'})).toEqual({
+				...base_change,
+				type: 'update',
+			});
+
+			// delete + update → update
+			expect(filer_coalesce_change(base_change, {...base_change, type: 'update'})).toEqual({
+				...base_change,
+				type: 'update',
+			});
+
+			// delete + delete → delete
+			expect(filer_coalesce_change(base_change, {...base_change, type: 'delete'})).toEqual({
+				...base_change,
+				type: 'delete',
+			});
+		});
+	});
+
+	test('handles undefined previous change', () => {
+		const change: Filer_Change = {
+			type: 'add',
+			id: '/test/path',
+			kind: 'file',
+		};
+
+		expect(filer_coalesce_change(undefined, change)).toEqual(change);
+	});
+});
+
+describe('Filer_Change_Batch', () => {
+	describe('construction', () => {
+		test('creates empty batch', () => {
+			const batch = new Filer_Change_Batch();
+			expect(batch.is_empty).toBe(true);
+			expect(batch.size).toBe(0);
+		});
+
+		test('creates batch from changes', () => {
+			const changes: Array<Filer_Change> = [
+				{type: 'add', id: '/path/a', kind: 'file'},
+				{type: 'update', id: '/path/b', kind: 'file'},
+				{type: 'delete', id: '/path/c', kind: 'file'},
+			];
+
+			const batch = new Filer_Change_Batch(changes);
+			expect(batch.size).toBe(3);
+			expect(batch.is_empty).toBe(false);
+		});
+	});
+
+	describe('accessors', () => {
+		test('filters changes by type correctly', () => {
+			const mock_disknode_a = {id: '/path/a'} as any;
+			const mock_disknode_b = {id: '/path/b'} as any;
+
+			const changes: Array<Filer_Change> = [
+				{type: 'add', id: '/path/a', kind: 'file', disknode: mock_disknode_a},
+				{type: 'update', id: '/path/b', kind: 'file', disknode: mock_disknode_b},
+				{type: 'delete', id: '/path/c', kind: 'file'},
+			];
+
+			const batch = new Filer_Change_Batch(changes);
+
+			expect(batch.added).toEqual([mock_disknode_a]);
+			expect(batch.updated).toEqual([mock_disknode_b]);
+			expect(batch.deleted).toEqual(['/path/c']);
+			expect(batch.all_disknodes).toEqual([mock_disknode_a, mock_disknode_b]);
+		});
+
+		test('caches accessor results', () => {
+			const mock_disknode = {id: '/path/a'} as any;
+			const changes: Array<Filer_Change> = [
+				{type: 'add', id: '/path/a', kind: 'file', disknode: mock_disknode},
+			];
+
+			const batch = new Filer_Change_Batch(changes);
+
+			// First access
+			const added1 = batch.added;
+			// Second access should be same instance (cached)
+			const added2 = batch.added;
+			expect(added1).toBe(added2);
+		});
+	});
+
+	describe('methods', () => {
+		test('has() checks for path existence', () => {
+			const changes: Array<Filer_Change> = [
+				{type: 'add', id: '/path/a', kind: 'file'},
+			];
+
+			const batch = new Filer_Change_Batch(changes);
+			expect(batch.has('/path/a')).toBe(true);
+			expect(batch.has('/path/b')).toBe(false);
+		});
+
+		test('get() retrieves change by path', () => {
+			const change: Filer_Change = {type: 'add', id: '/path/a', kind: 'file'};
+			const batch = new Filer_Change_Batch([change]);
+
+			expect(batch.get('/path/a')).toEqual(change);
+			expect(batch.get('/path/b')).toBe(undefined);
+		});
+	});
+});
+
+describe('load_resources_batch', () => {
+	test('loads no resources when none specified', async () => {
+		const mock_disknode = {
+			load_stats: vi.fn(),
+			load_contents: vi.fn(),
+			load_imports: vi.fn(),
+			is_importable: true,
+		} as any;
+
+		await load_resources_batch([mock_disknode], {});
+
+		expect(mock_disknode.load_stats).not.toHaveBeenCalled();
+		expect(mock_disknode.load_contents).not.toHaveBeenCalled();
+		expect(mock_disknode.load_imports).not.toHaveBeenCalled();
+	});
+
+	test('loads specified resources', async () => {
+		const mock_disknode = {
+			load_stats: vi.fn().mockResolvedValue(undefined),
+			load_contents: vi.fn().mockResolvedValue(undefined),
+			load_imports: vi.fn().mockResolvedValue(undefined),
+			is_importable: true,
+		} as any;
+
+		const options: Resource_Load_Options = {
+			stats: true,
+			contents: true,
+			imports: true,
+		};
+
+		await load_resources_batch([mock_disknode], options);
+
+		expect(mock_disknode.load_stats).toHaveBeenCalledTimes(1);
+		expect(mock_disknode.load_contents).toHaveBeenCalledTimes(1);
+		expect(mock_disknode.load_imports).toHaveBeenCalledTimes(1);
+	});
+
+	test('skips imports for non-importable disknodes', async () => {
+		const mock_disknode = {
+			load_stats: vi.fn().mockResolvedValue(undefined),
+			load_contents: vi.fn().mockResolvedValue(undefined),
+			load_imports: vi.fn().mockResolvedValue(undefined),
+			is_importable: false,
+		} as any;
+
+		const options: Resource_Load_Options = {
+			stats: true,
+			contents: true,
+			imports: true,
+		};
+
+		await load_resources_batch([mock_disknode], options);
+
+		expect(mock_disknode.load_stats).toHaveBeenCalledTimes(1);
+		expect(mock_disknode.load_contents).toHaveBeenCalledTimes(1);
+		expect(mock_disknode.load_imports).not.toHaveBeenCalled();
+	});
+
+	test('handles multiple disknodes', async () => {
+		const mock_disknodes = [
+			{
+				load_stats: vi.fn().mockResolvedValue(undefined),
+				is_importable: false,
+			},
+			{
+				load_stats: vi.fn().mockResolvedValue(undefined),
+				is_importable: true,
+			},
+		] as any;
+
+		await load_resources_batch(mock_disknodes, {stats: true});
+
+		expect(mock_disknodes[0].load_stats).toHaveBeenCalledTimes(1);
+		expect(mock_disknodes[1].load_stats).toHaveBeenCalledTimes(1);
 	});
 });
