@@ -1,4 +1,4 @@
-// @slop Claude Sonnet 4
+// @slop Claude Opus 4.1
 
 import {existsSync, type Stats} from 'node:fs';
 import {stat} from 'node:fs/promises';
