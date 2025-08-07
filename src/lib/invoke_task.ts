@@ -45,15 +45,77 @@ export const invoke_task = async (
 	}
 
 	const timings = initial_timings ?? new Timings();
-
-	// TODO BLOCK wrap with try/finally maybe?
 	const total_timing = create_stopwatch();
-	const finish = async () => {
+
+	try {
+		// Check if the caller just wants to see the version.
+		if (!task_name && (args?.version || args?.v)) {
+			const gro_package_json = load_gro_package_json();
+			log.info(`${st('gray', 'v')}${st('cyan', gro_package_json.version)}`);
+			return;
+		}
+
+		// Resolve the input path for the provided task name.
+		const input_path = to_input_path(task_name);
+
+		const {task_root_dirs} = config;
+
+		// Find the task or directory specified by the `input_path`.
+		// Fall back to searching the Gro directory as well.
+		const found = find_tasks([input_path], task_root_dirs, config);
+		if (!found.ok) {
+			log_error_reasons(log, found.reasons);
+			throw new Silent_Error();
+		}
+
+		// Found a match either in the current working directory or Gro's directory.
+		const found_tasks = found.value;
+		const {resolved_input_files} = found_tasks;
+
+		// Load the task module.
+		const loaded = await load_tasks(found_tasks);
+		if (!loaded.ok) {
+			log_error_reasons(log, loaded.reasons);
+			throw new Silent_Error();
+		}
+		const loaded_tasks = loaded.value;
+
+		if (
+			resolved_input_files.length > 1 ||
+			resolved_input_files[0].resolved_input_path.is_directory
+		) {
+			// The input path matches a directory. Log the tasks but don't run them.
+			log_tasks(log, loaded_tasks);
+			return;
+		}
+
+		// The input path matches a file that's presumably a task, so load and run it.
+		if (loaded_tasks.modules.length !== 1) throw Error('expected one loaded task'); // run only one task at a time
+		const task = loaded_tasks.modules[0];
+		log.info(
+			`→ ${st('cyan', task.name)} ${(task.mod.task.summary && st('gray', task.mod.task.summary)) ?? ''}`,
+		);
+
+		// Run the task.
+		const timing_to_run_task = timings.start('run task ' + task_name);
+		const result = await run_task(
+			task,
+			{...args, ...to_forwarded_args(`gro ${task.name}`)},
+			invoke_task,
+			config,
+			filer,
+			timings,
+		);
+		timing_to_run_task();
+		if (!result.ok) {
+			log.info(`${st('red', '🞩')} ${st('cyan', task.name)}`);
+			log_error_reasons(log, [result.reason]);
+			throw result.error;
+		}
+		log.info(`✓ ${st('cyan', task.name)}`);
+	} finally {
 		// If we own the filer, dispose of it.
 		if (!initial_filer) {
-			// TODO BLOCK is this going to cover our cases?
-			// what about running tasks from the live system?
-			// maybe it should be based on what's passed in through `invoke.ts`?
 			await filer.dispose();
 		}
 
@@ -62,72 +124,5 @@ export const invoke_task = async (
 			print_timings(timings, log);
 			log.info(`🕒 ${print_ms(total_timing())}`);
 		}
-	};
-
-	// Check if the caller just wants to see the version.
-	if (!task_name && (args?.version || args?.v)) {
-		const gro_package_json = load_gro_package_json();
-		log.info(`${st('gray', 'v')}${st('cyan', gro_package_json.version)}`);
-		await finish();
-		return;
 	}
-
-	// Resolve the input path for the provided task name.
-	const input_path = to_input_path(task_name);
-
-	const {task_root_dirs} = config;
-
-	// Find the task or directory specified by the `input_path`.
-	// Fall back to searching the Gro directory as well.
-	const found = find_tasks([input_path], task_root_dirs, config);
-	if (!found.ok) {
-		log_error_reasons(log, found.reasons);
-		throw new Silent_Error();
-	}
-
-	// Found a match either in the current working directory or Gro's directory.
-	const found_tasks = found.value;
-	const {resolved_input_files} = found_tasks;
-
-	// Load the task module.
-	const loaded = await load_tasks(found_tasks);
-	if (!loaded.ok) {
-		log_error_reasons(log, loaded.reasons);
-		throw new Silent_Error();
-	}
-	const loaded_tasks = loaded.value;
-
-	if (resolved_input_files.length > 1 || resolved_input_files[0].resolved_input_path.is_directory) {
-		// The input path matches a directory. Log the tasks but don't run them.
-		log_tasks(log, loaded_tasks);
-		await finish();
-		return;
-	}
-
-	// The input path matches a file that's presumably a task, so load and run it.
-	if (loaded_tasks.modules.length !== 1) throw Error('expected one loaded task'); // run only one task at a time
-	const task = loaded_tasks.modules[0];
-	log.info(
-		`→ ${st('cyan', task.name)} ${(task.mod.task.summary && st('gray', task.mod.task.summary)) ?? ''}`,
-	);
-
-	// Run the task.
-	const timing_to_run_task = timings.start('run task ' + task_name);
-	const result = await run_task(
-		task,
-		{...args, ...to_forwarded_args(`gro ${task.name}`)},
-		invoke_task,
-		config,
-		filer,
-		timings,
-	);
-	timing_to_run_task();
-	if (!result.ok) {
-		log.info(`${st('red', '🞩')} ${st('cyan', task.name)}`);
-		log_error_reasons(log, [result.reason]);
-		throw result.error;
-	}
-	log.info(`✓ ${st('cyan', task.name)}`);
-
-	await finish();
 };
