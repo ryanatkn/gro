@@ -12,13 +12,14 @@
 - [design](#design)
 - [performance](#performance)
 - [limitations](#limitations)
+- [error-handling](#error-handling)
 
 ## what
 
 The Filer system provides a complete in-memory mirror of your filesystem
 with automatic dependency tracking and efficient change propagation.
-It's the foundation for Gro's build tools, enabling features like incremental builds,
-dependency-aware test running, and coordinated code generation.
+It's the foundation for Gro's developer tools, enabling features like dependency-aware task execution,
+coordinated code generation, and intelligent file watching.
 
 Filer has two main parts:
 
@@ -42,11 +43,11 @@ import {Filer} from '@ryanatkn/gro/filer.js';
 const filer = new Filer();
 
 filer.observe({
-	id: 'typescript-compiler',
+	id: 'typescript-watcher',
 	patterns: [/\.ts$/],
 	on_change: async (batch) => {
 		for (const disknode of batch.updated) {
-			await compile(disknode);
+			console.log(`File updated: ${disknode.id}`);
 		}
 	},
 });
@@ -58,22 +59,22 @@ await filer.dispose(); // teardown
 
 ### dependency-aware watching
 
-Automatically re-run tests when their dependencies change:
+Automatically track files when their dependencies change:
 
 ```typescript
 filer.observe({
-	id: 'test-runner',
+	id: 'dependency-tracker',
 	patterns: [/\.test\.ts$/],
 	expand_to: 'dependencies', // Include all imported files
 	on_change: async (batch) => {
-		await runTests(batch.all_disknodes);
+		console.log('Tests and their dependencies changed:', batch.all_disknodes);
 	},
 });
 ```
 
 ### multi-phase processing
 
-Run code generation before compilation:
+Run code generation before other processing:
 
 ```typescript
 // Generate code first
@@ -87,13 +88,13 @@ filer.observe({
 	},
 });
 
-// Then compile everything
+// Then process everything
 filer.observe({
-	id: 'compiler',
+	id: 'processor',
 	patterns: [/\.ts$/],
 	phase: 'main',
 	on_change: async (batch) => {
-		await compile(batch.all_disknodes);
+		await process(batch.all_disknodes);
 	},
 });
 ```
@@ -120,6 +121,20 @@ filer.observe({
 });
 ```
 
+### dynamic path watching
+
+Watch paths that change at runtime:
+
+```typescript
+filer.observe({
+	id: 'dynamic-watcher',
+	paths: () => getActivePaths(), // Function called on each batch
+	on_change: async (batch) => {
+		// Only processes files matching current dynamic paths
+	},
+});
+```
+
 ### querying the filesystem
 
 Find files matching specific criteria:
@@ -128,16 +143,97 @@ Find files matching specific criteria:
 // Find all test files
 const test_files = filer.find_disknodes((disknode) => disknode.id.includes('.test.'));
 
+// Get a specific disknode
+const disknode = filer.get_disknode('/path/to/module.ts');
+
+// Get disknode from active or tombstone cache
+const maybe_deleted = filer.get_by_id('/path/to/file.ts');
+
 // Get all files that import a specific module
-const target = filer.get_disknode('/path/to/module.ts');
-const importers = filer.get_dependents(target);
+const importers = filer.get_dependents(disknode);
 
 // Get all dependencies of a file
-const deps = filer.get_dependencies(target);
+const deps = filer.get_dependencies(disknode);
+
+// Filter dependents with a predicate
+const ts_dependents = filer.filter_dependents(
+	disknode,
+	(id) => id.endsWith('.ts'),
+	true, // recursive
+);
+
+// Traverse relationships lazily
+for (const dep of filer.traverse_relationships(disknode, 'dependents')) {
+	console.log(dep.id);
+}
+```
+
+### working with disknodes
+
+```typescript
+const disknode = filer.get_disknode('/src/module.ts');
+
+// File properties (lazy-loaded and cached)
+console.log(disknode.contents); // File contents
+console.log(disknode.stats); // File stats
+console.log(disknode.mtime); // Modified time
+console.log(disknode.size); // File size
+console.log(disknode.realpath); // Resolved path for symlinks
+console.log(disknode.imports); // Parsed ES imports
+
+// File type checks
+if (disknode.is_typescript) {
+	/* ... */
+}
+if (disknode.is_js) {
+	/* ... */
+}
+if (disknode.is_svelte) {
+	/* ... */
+}
+if (disknode.is_svelte_module) {
+	/* .svelte.ts or .svelte.js */
+}
+if (disknode.is_importable) {
+	/* ... */
+}
+
+// Node state
+console.log(disknode.kind); // 'file' | 'directory' | 'symlink'
+console.log(disknode.exists); // false when deleted but still referenced
+console.log(disknode.is_external); // true if outside watched paths
+
+// Tree navigation
+const parent = disknode.parent;
+const child = disknode.get_child('submodule.ts');
+const ancestors = disknode.get_ancestors();
+const descendants = disknode.get_descendants();
 
 // Check relationships
-const child = target.get_child('submodule.ts');
-const is_parent = target.is_ancestor_of(child);
+if (parent?.is_ancestor_of(disknode)) {
+	const relative = disknode.relative_to(parent); // e.g., "src/lib/file.ts"
+}
+
+// Manual cache invalidation
+disknode.invalidate(); // Clear all cached properties
+```
+
+### manual operations
+
+```typescript
+// Queue a disknode for dependency update
+filer.queue_dependency_update(disknode);
+
+// Force rescan a directory tree
+await filer.rescan_subtree('/src/lib');
+
+// Pre-load stats for all files
+await filer.load_initial_stats();
+
+// Reset watcher with new paths
+await filer.reset_watcher(['/new/path'], {
+	// Chokidar options
+});
 ```
 
 ## why
@@ -164,65 +260,6 @@ const is_parent = target.is_ancestor_of(child);
 
 ## api
 
-### Disknode
-
-A `Disknode` represents a file or directory in the filesystem.
-All properties are lazy-loaded and cached based on a version counter.
-
-```typescript
-class Disknode {
-	// Core properties
-	readonly id: Path_Id; // Absolute path
-	readonly filer: Filer; // Parent filer instance
-	kind: 'file' | 'directory' | 'symlink';
-	is_external: boolean; // Outside watched paths
-	exists: boolean; // False when deleted but still referenced
-
-	// Version tracking
-	get version(): number; // Current cache version
-	get stats_version(): number; // Version when stats were loaded
-	get contents_version(): number; // Version when contents were loaded
-	get realpath_version(): number; // Version when realpath was resolved
-	get imports_version(): number; // Version when imports were parsed
-
-	// Lazy-loaded properties (synchronous)
-	get stats(): Stats | null; // File stats
-	get contents(): string | null; // File contents (null for dirs, large files bypass cache)
-	get realpath(): Path_Id; // Resolved path for symlinks
-	get imports(): Set<string> | null; // Parsed ES imports (auto-updates dependencies)
-
-	// Computed properties
-	get mtime(): number | null;
-	get size(): number | null;
-	get extension(): string;
-	get is_typescript(): boolean;
-	get is_js(): boolean;
-	get is_svelte(): boolean;
-	get is_svelte_module(): boolean; // .svelte.ts or .svelte.js files
-	get is_importable(): boolean;
-
-	// Relationships
-	parent: Disknode | null;
-	children: Map<string, Disknode>; // For directories
-	dependencies: Map<Path_Id, Disknode>; // What this imports
-	dependents: Map<Path_Id, Disknode>; // What imports this
-
-	// Methods
-	invalidate(): void; // Clear caches
-	set_stats(value: Stats): void; // Set stats to avoid syscalls
-	set_stats_force(value: Stats): void; // Force set stats
-	add_dependency(dep: Disknode): void;
-	remove_dependency(dep: Disknode): void;
-	clear_relationships(): void; // Remove all deps/dependents
-	get_ancestors(): Array<Disknode>;
-	get_descendants(): Array<Disknode>;
-	get_child(name: string): Disknode | undefined;
-	is_ancestor_of(disknode: Disknode): boolean;
-	relative_to(disknode: Disknode): string | null;
-	relative_from(disknode: Disknode): string | null;
-}
-```
-
 ### Filer
 
 The `Filer` orchestrates the filesystem mirror and observer system:
@@ -234,12 +271,14 @@ class Filer {
 	readonly tombstones: Map<Path_Id, Disknode>; // Deleted disknodes cache with FIFO eviction
 	readonly roots: Set<Disknode>; // Top-level watched paths
 	tombstone_limit: number; // Maximum tombstones to keep (default: 500)
+	batch_size: number; // Parallel operations batch size (default: 100)
 
 	constructor(options?: {
 		batch_delay?: number; // Ms to batch changes (default: 10)
-		observers?: Array<Filer_Observer>; // Initial observers
+		observers?: Iterable<Filer_Observer>; // Initial observers
 		log?: Logger;
 		aliases?: Array<[string, string]>; // Import alias mappings
+		resolve_external_specifier?: (specifier: string, base: string) => string; // Custom resolver
 	});
 
 	// Lifecycle
@@ -269,11 +308,89 @@ class Filer {
 		recursive?: boolean,
 	): Generator<Disknode>;
 
-	// Utilities
+	// Internal operations (used by Disknode)
 	map_alias(specifier: string): string; // Apply import aliases
+	resolve_specifier(specifier: string, base: Path_Id): {path_id: Path_Id};
+	resolve_external_specifier(specifier: string, base: string): string;
+	parse_imports(id: Path_Id, contents: string, ignore_types?: boolean): Array<string>;
 	queue_dependency_update(disknode: Disknode): void; // Queue for import parsing
+
+	// Manual operations
 	rescan_subtree(path: string): Promise<void>; // Force rescan
 	load_initial_stats(): Promise<void>; // Pre-warm stat cache
+}
+```
+
+### Disknode
+
+A `Disknode` represents a file or directory in the filesystem.
+All properties are lazy-loaded and cached based on a version counter.
+
+```typescript
+class Disknode {
+	// Core properties
+	readonly id: Path_Id; // Absolute path
+	readonly api: Disknode_Api; // Parent filer interface
+	kind: 'file' | 'directory' | 'symlink';
+	is_external: boolean; // Outside watched paths
+	exists: boolean; // False when deleted but still referenced
+
+	// Version tracking (for cache invalidation)
+	get version(): number; // Current cache version
+	get stats_version(): number; // Version when stats were loaded
+	get contents_version(): number; // Version when contents were loaded
+	get realpath_version(): number; // Version when realpath was resolved
+	get imports_version(): number; // Version when imports were parsed
+
+	// Lazy-loaded properties (synchronous)
+	get stats(): Stats | null; // File stats
+	get contents(): string | null; // File contents (null for dirs, large files bypass cache)
+	get realpath(): Path_Id; // Resolved path for symlinks
+	get imports(): Set<string> | null; // Parsed ES imports (auto-updates dependencies)
+
+	// Computed properties
+	get mtime(): number | null;
+	get size(): number | null;
+	get extension(): string; // File extension including dot
+	get is_typescript(): boolean; // .ts, .tsx, .mts, .cts files
+	get is_js(): boolean; // .js, .jsx, .mjs, .cjs files
+	get is_svelte(): boolean; // .svelte files
+	get is_svelte_module(): boolean; // .svelte.ts or .svelte.js files
+	get is_importable(): boolean; // Any importable file type
+
+	// Relationships
+	parent: Disknode | null;
+	children: Map<string, Disknode>; // For directories (keyed by basename)
+	dependencies: Map<Path_Id, Disknode>; // What this imports
+	dependents: Map<Path_Id, Disknode>; // What imports this
+
+	// Methods
+	invalidate(): void; // Clear caches
+	set_stats(value: Stats): void; // Set stats to avoid syscalls
+	set_stats_force(value: Stats): void; // Force set stats (bypasses version check)
+	add_dependency(dep: Disknode): void;
+	remove_dependency(dep: Disknode): void;
+	clear_relationships(): void; // Remove all deps/dependents
+	get_ancestors(): Array<Disknode>;
+	get_descendants(): Array<Disknode>;
+	get_child(name: string): Disknode | undefined;
+	is_ancestor_of(disknode: Disknode): boolean;
+	relative_to(disknode: Disknode): string | null; // Path from this to target
+	relative_from(disknode: Disknode): string | null; // Path from target to this
+}
+```
+
+### Disknode_Api
+
+Interface that Disknode uses to communicate with its parent Filer:
+
+```typescript
+interface Disknode_Api {
+	map_alias(specifier: string): string;
+	resolve_specifier(specifier: string, base: Path_Id): {path_id: Path_Id};
+	resolve_external_specifier(specifier: string, base: string): string;
+	get_disknode(id: Path_Id): Disknode;
+	parse_imports(id: Path_Id, contents: string, ignore_types?: boolean): Array<string>;
 }
 ```
 
@@ -303,7 +420,7 @@ interface Filer_Observer {
 	// Performance hints
 	needs_contents?: boolean; // Pre-load file contents (default: false)
 	needs_stats?: boolean; // Pre-load stats (default: true)
-	needs_imports?: boolean; // Parse imports for dependency tracking (default: false)
+	needs_imports?: boolean; // Parse imports for dependency tracking (default: auto-detected)
 
 	// Execution control
 	phase?: 'pre' | 'main' | 'post'; // When to run (default: 'main')
@@ -340,6 +457,19 @@ class Filer_Change_Batch {
 }
 ```
 
+### Filer_Change
+
+Individual change record in a batch:
+
+```typescript
+interface Filer_Change {
+	type: 'add' | 'update' | 'delete';
+	disknode?: Disknode; // Present for add/update
+	id: Path_Id;
+	kind: 'file' | 'directory' | 'symlink';
+}
+```
+
 ### Filer_Invalidation_Intent
 
 Observers can return intents to trigger additional invalidations:
@@ -365,12 +495,19 @@ type Filer_Expand_Strategy = 'self' | 'dependents' | 'dependencies' | 'all';
 type Filer_Error_Strategy = 'continue' | 'abort';
 type Filer_Node_Kind = 'file' | 'directory' | 'symlink';
 type Filer_Change_Type = 'add' | 'update' | 'delete';
+```
 
-interface Filer_Change {
-	type: Filer_Change_Type;
-	disknode?: Disknode; // Present for add/update
-	id: Path_Id;
-	kind: Filer_Node_Kind;
+### Filer_Options
+
+Configuration options for creating a Filer:
+
+```typescript
+interface Filer_Options {
+	batch_delay?: number; // Delay for batching changes in ms (default: 10)
+	observers?: Iterable<Filer_Observer>; // Initial observers to register
+	log?: Logger; // Logger instance for debugging
+	aliases?: Array<[string, string]>; // Import alias mappings (e.g., ['$lib', '/src/lib'])
+	resolve_external_specifier?: (specifier: string, base: string) => string; // Custom resolver (default: import.meta.resolve)
 }
 ```
 
@@ -424,9 +561,6 @@ filer.observe({
 });
 ```
 
-This design keeps the API explicit and gives you full control over matching behavior
-without surprising implicit behaviors.
-
 ### lazy synchronous loading
 
 Disknode properties like `contents` and `stats` are loaded synchronously on first access.
@@ -438,6 +572,9 @@ console.log(disknode.contents); // Synchronously reads and caches file
 console.log(disknode.stats); // Synchronously stats and caches
 disknode.invalidate(); // Clear caches, next access will reload
 ```
+
+**Note**: Synchronous operations block the Node.js event loop. For performance-critical applications,
+consider pre-warming caches asynchronously or processing in batches.
 
 ### version-based cache invalidation
 
@@ -467,6 +604,9 @@ const imports = disknode.imports; // Parses imports and updates dependencies
 // And those modules' dependents include this disknode
 ```
 
+**Note**: The `imports` getter has side effects (updating the dependency graph).
+This is intentional to keep the graph consistent but may be unexpected.
+
 ### batch processing and change coalescing
 
 Changes are batched to reduce processing overhead and properly coalesce rapid changes:
@@ -487,16 +627,16 @@ The invalidation flow demonstrates how filesystem changes propagate through the 
 ┌────────────────────────────────────────────────────────────────────┐
 │                      Filesystem Event Triggers                      │
 └────────────────────────────────────────────────────────────────────┘
-                                  │
-                                  ▼
+                                    │
+                                    ▼
 ┌────────────────────────────────────────────────────────────────────┐
 │                     1. Filesystem Change Event                      │
 │  • File added/updated/deleted                                       │
 │  • Chokidar emits 'add'/'change'/'unlink' event                    │
 │  • Event captured by Filer.#handle_change()                        │
 └────────────────────────────────────────────────────────────────────┘
-                                  │
-                                  ▼
+                                    │
+                                    ▼
 ┌────────────────────────────────────────────────────────────────────┐
 │                    2. Disknode Cache Invalidation                   │
 │  • disknode.invalidate() increments version counter                 │
@@ -507,8 +647,8 @@ The invalidation flow demonstrates how filesystem changes propagate through the 
 │    - realpath (symlink resolution)                                  │
 │  • Next property access triggers fresh load from filesystem         │
 └────────────────────────────────────────────────────────────────────┘
-                                  │
-                                  ▼
+                                    │
+                                    ▼
 ┌────────────────────────────────────────────────────────────────────┐
 │                       3. Change Coalescing                          │
 │  • Changes added to pending_changes Map                             │
@@ -516,9 +656,9 @@ The invalidation flow demonstrates how filesystem changes propagate through the 
 │  • Batch timer started (default 10ms delay)                         │
 │  • Importable files queued for dependency update                    │
 └────────────────────────────────────────────────────────────────────┘
-                                  │
+                                    │
                             (batch delay)
-                                  ▼
+                                    ▼
 ┌────────────────────────────────────────────────────────────────────┐
 │                         4. Batch Flush                              │
 │  • Timer expires, #flush_batch() called                             │
@@ -528,8 +668,8 @@ The invalidation flow demonstrates how filesystem changes propagate through the 
 │    - Import statements parsed from fresh contents                   │
 │    - Dependencies/dependents Maps updated bidirectionally           │
 └────────────────────────────────────────────────────────────────────┘
-                                  │
-                                  ▼
+                                    │
+                                    ▼
 ┌────────────────────────────────────────────────────────────────────┐
 │                      5. Observer Processing                         │
 │  • Process by phase: 'pre' → 'main' → 'post'                       │
@@ -542,9 +682,9 @@ The invalidation flow demonstrates how filesystem changes propagate through the 
 │  d) Execute observer.on_change() with timeout protection            │
 │  e) Collect any returned invalidation intents                       │
 └────────────────────────────────────────────────────────────────────┘
-                                  │
+                                    │
                          (if intents returned)
-                                  ▼
+                                    ▼
 ┌────────────────────────────────────────────────────────────────────┐
 │                    6. Intent-Based Invalidation                     │
 │  • Resolve intents to additional disknodes:                         │
@@ -558,9 +698,9 @@ The invalidation flow demonstrates how filesystem changes propagate through the 
 │  • Creates new batch with 'update' changes                          │
 │  • Loop prevention: Skip already-processed disknodes                │
 └────────────────────────────────────────────────────────────────────┘
-                                  │
+                                    │
                             (if new batch)
-                                  ▼
+                                    ▼
 ┌────────────────────────────────────────────────────────────────────┐
 │                    7. Iterative Batch Processing                    │
 │  • Add new batch to queue (avoids deep recursion)                   │
@@ -569,8 +709,8 @@ The invalidation flow demonstrates how filesystem changes propagate through the 
 │  • Return to step 5 for observer processing                         │
 │  • Continue until queue empty                                       │
 └────────────────────────────────────────────────────────────────────┘
-                                  │
-                                  ▼
+                                    │
+                                    ▼
 ┌────────────────────────────────────────────────────────────────────┐
 │                           8. Cleanup                                │
 │  • Clear relationships for deleted nodes                            │
@@ -579,18 +719,6 @@ The invalidation flow demonstrates how filesystem changes propagate through the 
 │  • FIFO eviction if tombstones exceed limit                         │
 └────────────────────────────────────────────────────────────────────┘
 ```
-
-Key invalidation mechanisms:
-
-1. **Version-based cache invalidation**: Each Disknode has a version counter that increments on `invalidate()`. Cached properties track which version they were loaded at, automatically reloading when stale.
-
-2. **Lazy synchronous loading**: Properties like `contents` and `stats` are loaded on first access after invalidation, keeping the API synchronous while ensuring fresh data.
-
-3. **Dependency graph updates**: When `disknode.imports` is accessed after invalidation, it re-parses the file and updates bidirectional dependency relationships automatically.
-
-4. **Intent-driven propagation**: Observers can return invalidation intents to trigger broader changes (e.g., invalidating all TypeScript files when config changes).
-
-5. **Loop prevention**: Each disknode is tracked globally across batch rounds to ensure it's only processed once per change event cycle, preventing infinite loops.
 
 ### execution phases
 
@@ -614,6 +742,7 @@ change event cycle.
 - External files (outside watched paths) are tracked but handled differently
 - The complete filesystem mirror enables fast queries without filesystem access
 - Symlink resolution is cached to avoid repeated filesystem calls
+- Deleted disknodes are moved to a tombstone cache with FIFO eviction (default limit: 500)
 
 ### parent-child relationships
 
@@ -661,6 +790,15 @@ const filer = new Filer({
 // Now imports like `import {x} from '$lib/util'` are resolved correctly
 ```
 
+### tombstone cache
+
+Deleted disknodes are preserved in a tombstone cache for a limited time:
+
+- Allows recovery if files are quickly recreated
+- Preserves metadata for recently deleted files
+- FIFO eviction when limit exceeded (configurable via `tombstone_limit`)
+- Can be retrieved via `get_by_id()` but not `get_disknode()`
+
 ## performance
 
 - **initial scan**: O(n) where n = number of files
@@ -670,14 +808,75 @@ const filer = new Filer({
 - **import parsing**: O(file_size) with caching
 - **batch coalescing**: O(1) per change via lookup table
 - **memory usage**: ~1KB per file + cached contents (small files only)
+- **observer matching**: O(observers × patterns) per change
+- **batch expansion**: O(relationships) for dependency/dependent expansion
+
+### optimization strategies
+
+- Pre-warm caches with `load_initial_stats()` for known hot paths
+- Use `batch_size` to control parallel operation throughput
+- Set appropriate `batch_delay` to balance responsiveness vs efficiency
+- Limit tombstone cache size for long-running processes
+- Use `needs_imports: false` for observers that don't need dependency tracking
 
 ## limitations
 
-- POSIX paths only (no Windows path support currently)
-- Single-threaded import parsing (no worker threads)
-- No automatic memory management for very large trees
-- No content hashing (relies on mtime for change detection)
-- Symlink cycles are handled gracefully in realpath resolution (falls back to original path)
-- Dynamic imports not tracked (only static ES imports)
-- Function and complex object validation is type-only (no runtime Zod validation)
-- Initial scan has 10-second timeout; mount fails if filesystem scan doesn't complete in time
+- **POSIX paths only**: No Windows path support currently
+- **Single-threaded**: Import parsing happens on main thread (can block event loop)
+- **No automatic memory management**: Very large trees may consume significant memory
+- **mtime-based change detection**: No content hashing; relies on filesystem modification times
+- **Symlink cycles**: Handled gracefully in realpath resolution (falls back to original path)
+- **Static imports only**: Dynamic imports not tracked for dependency graph
+- **Type-only validation**: Function and complex object validation is compile-time only (no runtime Zod validation)
+- **Synchronous I/O**: All file operations are synchronous and block the event loop
+- **No partial file watching**: Cannot watch specific parts of large files
+- **No network filesystem support**: May have issues with NFS or other network-mounted filesystems
+
+## error-handling
+
+### observer errors
+
+Observers can control error handling behavior:
+
+```typescript
+filer.observe({
+	id: 'error-aware-observer',
+	patterns: [/\.ts$/],
+	on_error: (error, batch) => {
+		console.error('Observer error:', error);
+		return 'continue'; // or 'abort' to stop batch processing
+	},
+	on_change: async (batch) => {
+		// May throw errors
+	},
+});
+```
+
+### timeout protection
+
+Observers have configurable timeouts (default: 30 seconds):
+
+```typescript
+filer.observe({
+	id: 'long-running',
+	patterns: [/\.ts$/],
+	timeout_ms: 60000, // 1 minute timeout
+	on_change: async (batch) => {
+		// Long-running operation
+	},
+});
+```
+
+### filesystem errors
+
+- Non-existent files return `null` for contents/stats
+- Broken symlinks fall back to original path
+- Import resolution failures are silently skipped (dependencies not added)
+- Filesystem read errors during lazy loading return `null`
+
+### state management
+
+- Cannot mount an already mounted filer
+- Cannot mount a disposed filer
+- Operations on unmounted filer throw errors
+- Duplicate observer IDs throw errors
