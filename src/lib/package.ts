@@ -455,7 +455,13 @@ export const src_json: Src_Json = {
 				{name: 'disknode_should_cache_contents', kind: 'function'},
 			],
 		},
-		'./disknode.js': {path: 'disknode.ts', declarations: [{name: 'Disknode', kind: 'class'}]},
+		'./disknode.js': {
+			path: 'disknode.ts',
+			declarations: [
+				{name: 'Disknode_Api', kind: 'type'},
+				{name: 'Disknode', kind: 'class'},
+			],
+		},
 		'./env.js': {
 			path: 'env.ts',
 			declarations: [
@@ -532,6 +538,7 @@ export const src_json: Src_Json = {
 				{name: 'filer_test_regexp', kind: 'function'},
 				{name: 'filer_coalesce_change', kind: 'function'},
 				{name: 'filer_should_filter_disknode', kind: 'function'},
+				{name: 'filer_observer_needs_imports', kind: 'function'},
 				{name: 'filer_observer_matches', kind: 'function'},
 				{name: 'Filer_Observer_Timeout_Error', kind: 'class'},
 				{name: 'filer_execute_observer', kind: 'function'},
