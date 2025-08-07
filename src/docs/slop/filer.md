@@ -17,19 +17,23 @@
 ## what
 
 The Filer system provides a complete in-memory mirror of your filesystem
-with automatic dependency tracking and efficient change propagation.
+with automatic dependency tracking, efficient change propagation, and worker-threaded parsing.
 It's the foundation for Gro's developer tools, enabling features like dependency-aware task execution,
 coordinated code generation, and intelligent file watching.
 
 Filer has two main parts:
 
-- **`Disknode`** - represents a file or directory with lazy-loaded properties
+- **`Disknode`** - represents a file or directory with explicit resource loading
   and automatic import dependency tracking
 - **`Filer`** - orchestrates the filesystem mirror, batches changes,
   and notifies observers when files change
 
-Think of it as a smart, shared filesystem cache that understands your code's structure
-and relationships, eliminating the need for each tool to maintain its own file watcher.
+Key features:
+
+- **Worker-threaded parsing** - CPU-intensive import parsing runs in worker threads
+- **Explicit resource loading** - separate loading (async) from access (cached, sync)
+- **Batch resource pre-loading** - efficiently pre-warm data before observer execution
+- **Automatic dependency tracking** - import statements are parsed and tracked
 
 ## usage
 
@@ -66,8 +70,30 @@ filer.observe({
 	id: 'dependency-tracker',
 	patterns: [/\.test\.ts$/],
 	expand_to: 'dependencies', // Include all imported files
+	needs_imports: true, // Enable worker-threaded import parsing
 	on_change: async (batch) => {
 		console.log('Tests and their dependencies changed:', batch.all_disknodes);
+	},
+});
+```
+
+### explicit resource loading
+
+Pre-load expensive resources before processing:
+
+```typescript
+filer.observe({
+	id: 'content-processor',
+	patterns: [/\.ts$/],
+	needs_contents: true, // Pre-load file contents
+	needs_imports: true, // Pre-load parsed imports (worker-threaded)
+	on_change: async (batch) => {
+		// All resources are pre-loaded and cached
+		for (const disknode of batch.all_disknodes) {
+			const contents = disknode.contents; // Cached, synchronous access
+			const imports = disknode.imports; // Cached, synchronous access
+			await processFile(disknode, contents, imports);
+		}
 	},
 });
 ```
@@ -83,6 +109,7 @@ filer.observe({
 	patterns: [/\.gen\.ts$/],
 	phase: 'pre',
 	priority: 100,
+	needs_contents: true,
 	on_change: async (batch) => {
 		await generate(batch.all_disknodes);
 	},
@@ -93,6 +120,7 @@ filer.observe({
 	id: 'processor',
 	patterns: [/\.ts$/],
 	phase: 'main',
+	needs_imports: true, // Worker-threaded parsing
 	on_change: async (batch) => {
 		await process(batch.all_disknodes);
 	},
@@ -173,13 +201,22 @@ for (const dep of filer.traverse_relationships(disknode, 'dependents')) {
 ```typescript
 const disknode = filer.get_disknode('/src/module.ts');
 
-// File properties (lazy-loaded and cached)
-console.log(disknode.contents); // File contents
-console.log(disknode.stats); // File stats
-console.log(disknode.mtime); // Modified time
-console.log(disknode.size); // File size
+// Explicit resource loading (async)
+await disknode.load_contents(); // Load and cache file contents
+await disknode.load_imports(); // Parse and cache imports (worker-threaded)
+await disknode.load_stats(); // Load and cache file stats
+await disknode.load_realpath(); // Resolve and cache symlink path
+
+// Cached resource access (sync)
+console.log(disknode.contents); // Access cached contents
+console.log(disknode.imports); // Access cached imports
+console.log(disknode.stats); // Access cached stats
+console.log(disknode.mtime); // Derived from cached stats
+console.log(disknode.size); // Derived from cached stats
 console.log(disknode.realpath); // Resolved path for symlinks
-console.log(disknode.imports); // Parsed ES imports
+
+// Async content access for large files
+const contents = await disknode.get_contents(); // Handles large files efficiently
 
 // File type checks
 if (disknode.is_typescript) {
@@ -221,6 +258,13 @@ disknode.invalidate(); // Clear all cached properties
 ### manual operations
 
 ```typescript
+// Load specific resources for multiple disknodes
+await filer.load_resources_batch(disknodes, {
+	contents: true,
+	imports: true,
+	stats: false,
+});
+
 // Queue a disknode for dependency update
 filer.queue_dependency_update(disknode);
 
@@ -244,8 +288,8 @@ await filer.reset_watcher(['/new/path'], {
   leading to duplicated effort and inconsistent behavior
 - **no dependency tracking** - changes don't propagate through the import graph,
   requiring manual configuration or over-broad watching
-- **async everywhere** - reading files requires async calls throughout your code,
-  making simple operations complex
+- **blocking I/O** - file reading and parsing blocks the main thread,
+  degrading performance on large codebases
 - **no coordination** - multiple watchers can race or conflict when processing the same files
 
 ### how Filer solves these
@@ -253,8 +297,10 @@ await filer.reset_watcher(['/new/path'], {
 - **single source of truth** - one filesystem mirror shared by all tools
 - **automatic dependency tracking** - import statements are parsed and tracked,
   so changes propagate correctly
-- **synchronous lazy loading** - file contents and stats are cached and available synchronously,
-  loaded on first access
+- **worker-threaded parsing** - CPU-intensive import parsing runs in worker threads,
+  keeping the main thread responsive
+- **explicit resource loading** - separate loading (async, batched) from access (cached, sync),
+  avoiding async contagion while enabling performance optimizations
 - **coordinated observers** - changes are batched and processed in phases,
   preventing races and ensuring consistency
 
@@ -279,6 +325,9 @@ class Filer {
 		log?: Logger;
 		aliases?: Array<[string, string]>; // Import alias mappings
 		resolve_external_specifier?: (specifier: string, base: string) => string; // Custom resolver
+		worker_enabled?: boolean; // Enable worker threads (default: true)
+		worker_pool_size?: number; // Number of worker threads for parsing (default: 4)
+		worker_timeout_ms?: number; // Worker timeout in milliseconds (default: 5000)
 	});
 
 	// Lifecycle
@@ -293,6 +342,16 @@ class Filer {
 	get_disknode(id: Path_Id): Disknode; // Get or create
 	get_by_id(id: Path_Id): Disknode | undefined; // Get from active disknodes or tombstones
 	find_disknodes(predicate: (disknode: Disknode) => boolean): Array<Disknode>;
+
+	// Resource loading
+	load_resources_batch(
+		disknodes: Array<Disknode>,
+		options: {
+			contents?: boolean;
+			imports?: boolean;
+			stats?: boolean;
+		},
+	): Promise<void>;
 
 	// Dependency traversal
 	get_dependents(disknode: Disknode, recursive?: boolean): Set<Disknode>;
@@ -312,7 +371,11 @@ class Filer {
 	map_alias(specifier: string): string; // Apply import aliases
 	resolve_specifier(specifier: string, base: Path_Id): {path_id: Path_Id};
 	resolve_external_specifier(specifier: string, base: string): string;
-	parse_imports(id: Path_Id, contents: string, ignore_types?: boolean): Array<string>;
+	parse_imports_async(
+		id: Path_Id,
+		contents: string,
+		ignore_types?: boolean,
+	): Promise<Array<string>>;
 	queue_dependency_update(disknode: Disknode): void; // Queue for import parsing
 
 	// Manual operations
@@ -324,7 +387,7 @@ class Filer {
 ### Disknode
 
 A `Disknode` represents a file or directory in the filesystem.
-All properties are lazy-loaded and cached based on a version counter.
+Resources are loaded explicitly and cached based on a version counter.
 
 ```typescript
 class Disknode {
@@ -342,15 +405,24 @@ class Disknode {
 	get realpath_version(): number; // Version when realpath was resolved
 	get imports_version(): number; // Version when imports were parsed
 
-	// Lazy-loaded properties (synchronous)
-	get stats(): Stats | null; // File stats
-	get contents(): string | null; // File contents (null for dirs, large files bypass cache)
-	get realpath(): Path_Id; // Resolved path for symlinks
-	get imports(): Set<string> | null; // Parsed ES imports (auto-updates dependencies)
+	// Resource loading (async)
+	load_contents(): Promise<void>; // Load and cache file contents
+	load_imports(): Promise<void>; // Parse and cache imports (worker-threaded)
+	load_stats(): Promise<void>; // Load and cache file stats
+	load_realpath(): Promise<void>; // Resolve and cache symlink path
+
+	// Resource access (cached, synchronous)
+	get contents(): string | null | undefined; // Cached file contents
+	get imports(): Set<string> | null | undefined; // Cached parsed imports
+	get stats(): Stats | null | undefined; // Cached file stats
+	get realpath(): Path_Id | undefined; // Cached resolved path
+
+	// Async content access (handles large files)
+	get_contents(): Promise<string | null | undefined>;
 
 	// Computed properties
-	get mtime(): number | null;
-	get size(): number | null;
+	get mtime(): number | null | undefined;
+	get size(): number | null | undefined;
 	get extension(): string; // File extension including dot
 	get is_typescript(): boolean; // .ts, .mts, .cts files
 	get is_js(): boolean; // .js, .mjs, .cjs files
@@ -390,7 +462,15 @@ interface Disknode_Api {
 	resolve_specifier(specifier: string, base: Path_Id): {path_id: Path_Id};
 	resolve_external_specifier(specifier: string, base: string): string;
 	get_disknode(id: Path_Id): Disknode;
-	parse_imports(id: Path_Id, contents: string, ignore_types?: boolean): Array<string>;
+	parse_imports_async(
+		id: Path_Id,
+		contents: string,
+		ignore_types?: boolean,
+	): Promise<Array<string>>;
+	load_resources_batch(
+		disknodes: Array<Disknode>,
+		options: {contents?: boolean; imports?: boolean; stats?: boolean},
+	): Promise<void>;
 }
 ```
 
@@ -417,7 +497,7 @@ interface Filer_Observer {
 	// Intent support
 	returns_intents?: boolean; // Can return invalidation intents (default: false)
 
-	// Performance hints
+	// Resource pre-loading hints
 	needs_contents?: boolean; // Pre-load file contents (default: false)
 	needs_stats?: boolean; // Pre-load stats (default: true)
 	needs_imports?: boolean; // Parse imports for dependency tracking (default: auto-detected)
@@ -508,10 +588,77 @@ interface Filer_Options {
 	log?: Logger; // Logger instance for debugging
 	aliases?: Array<[string, string]>; // Import alias mappings (e.g., ['$lib', '/src/lib'])
 	resolve_external_specifier?: (specifier: string, base: string) => string; // Custom resolver (default: import.meta.resolve)
+	worker_enabled?: boolean; // Enable worker threads (default: true)
+	worker_pool_size?: number; // Number of worker threads for parsing (default: 4)
+	worker_timeout_ms?: number; // Worker timeout in milliseconds (default: 5000)
 }
 ```
 
 ## design
+
+### explicit resource loading pattern
+
+The key design improvement is separating resource **loading** (async) from **access** (cached, sync):
+
+```typescript
+const disknode = filer.get_disknode('/src/module.ts');
+
+// Explicit loading (async, potentially expensive)
+await disknode.load_contents();
+await disknode.load_imports(); // Worker-threaded parsing
+
+// Cached access (sync, fast)
+const contents = disknode.contents; // Returns cached value or undefined
+const imports = disknode.imports; // Returns cached value or undefined
+```
+
+This pattern:
+
+- ✅ Avoids async contagion in observer callbacks
+- ✅ Enables worker-threaded parsing
+- ✅ Provides explicit control over when expensive operations happen
+- ✅ Maintains cache consistency with version-based invalidation
+
+### worker-threaded import parsing
+
+CPU-intensive import parsing runs in worker threads to avoid blocking the main thread:
+
+```typescript
+// In worker thread
+const imports = parse_imports(id, contents, ignore_types);
+// Result sent back to main thread and cached
+
+// In main thread
+await disknode.load_imports(); // Delegates to worker
+const imports = disknode.imports; // Cached access
+```
+
+The worker pool:
+
+- Uses round-robin task distribution
+- Handles worker failures with automatic restart
+- Falls back to synchronous parsing if workers unavailable
+- Batches multiple parse requests for efficiency
+
+### batch resource pre-loading
+
+The Filer pre-loads resources before observer execution based on hints:
+
+```typescript
+filer.observe({
+	id: 'content-processor',
+	needs_contents: true, // Pre-load file contents
+	needs_imports: true, // Pre-load parsed imports
+	on_change: async (batch) => {
+		// All resources already loaded and cached
+		for (const disknode of batch.all_disknodes) {
+			process(disknode.contents, disknode.imports); // Synchronous access
+		}
+	},
+});
+```
+
+Pre-loading happens in parallel before any observers run, maximizing efficiency.
 
 ### path matching behavior
 
@@ -561,21 +708,6 @@ filer.observe({
 });
 ```
 
-### lazy synchronous loading
-
-Disknode properties like `contents` and `stats` are loaded synchronously on first access.
-This keeps the API simple without async contagion, and values are cached until invalidated.
-
-```typescript
-const disknode = filer.get_disknode('/path/to/file.ts');
-console.log(disknode.contents); // Synchronously reads and caches file
-console.log(disknode.stats); // Synchronously stats and caches
-disknode.invalidate(); // Clear caches, next access will reload
-```
-
-**Note**: Synchronous operations block the Node.js event loop. For performance-critical applications,
-consider pre-warming caches asynchronously or processing in batches.
-
 ### version-based cache invalidation
 
 Each Disknode has an internal version counter that increments on changes.
@@ -583,29 +715,32 @@ Cached properties track which version they were loaded at:
 
 ```typescript
 // Internally, Disknode does something like:
-get contents(): string | null {
+get contents(): string | null | undefined {
 	if (this.#contents_version !== this.#version) {
-		this.#contents = readFileSync(this.id, 'utf8');
-		this.#contents_version = this.#version;
+		return undefined; // Not loaded or stale
 	}
 	return this.#contents;
+}
+
+async load_contents(): Promise<void> {
+	if (this.#contents_version === this.#version) return; // Already current
+	this.#contents = await readFile(this.id, 'utf8');
+	this.#contents_version = this.#version;
 }
 ```
 
 ### automatic dependency tracking
 
-When you access `disknode.imports`, it parses the file's import statements
+When you call `disknode.load_imports()`, it parses the file's import statements
 and automatically updates the dependency graph:
 
 ```typescript
 const disknode = filer.get_disknode('/src/module.ts');
-const imports = disknode.imports; // Parses imports and updates dependencies
+await disknode.load_imports(); // Parses imports and updates dependencies
+const imports = disknode.imports; // Cached access to parsed imports
 // Now disknode.dependencies contains all imported modules
 // And those modules' dependents include this disknode
 ```
-
-**Note**: The `imports` getter has side effects (updating the dependency graph).
-This is intentional to keep the graph consistent but may be unexpected.
 
 ### batch processing and change coalescing
 
@@ -645,7 +780,7 @@ The invalidation flow demonstrates how filesystem changes propagate through the 
 │    - contents (file text)                                           │
 │    - imports (parsed ES imports)                                    │
 │    - realpath (symlink resolution)                                  │
-│  • Next property access triggers fresh load from filesystem         │
+│  • Next load_*() call triggers fresh load from filesystem/workers   │
 └────────────────────────────────────────────────────────────────────┘
                                     │
                                     ▼
@@ -663,10 +798,10 @@ The invalidation flow demonstrates how filesystem changes propagate through the 
 │                         4. Batch Flush                              │
 │  • Timer expires, #flush_batch() called                             │
 │  • Snapshot of pending_changes taken                                │
-│  • Dependency graph updated if any observer needs imports           │
-│    - disknode.imports getter triggered                              │
-│    - Import statements parsed from fresh contents                   │
-│    - Dependencies/dependents Maps updated bidirectionally           │
+│  • Resource pre-loading begins based on observer hints              │
+│    - Load contents for observers with needs_contents: true          │
+│    - Load imports (worker-threaded) for observers with needs_imports│
+│    - Load stats for observers with needs_stats (default: true)      │
 └────────────────────────────────────────────────────────────────────┘
                                     │
                                     ▼
@@ -678,7 +813,7 @@ The invalidation flow demonstrates how filesystem changes propagate through the 
 │  For each observer:                                                 │
 │  a) Filter batch for matching files (patterns/paths/match)          │
 │  b) Expand batch if needed (dependents/dependencies/all)            │
-│  c) Pre-warm data based on hints (contents/stats/imports)           │
+│  c) All resources pre-loaded and cached (synchronous access)        │
 │  d) Execute observer.on_change() with timeout protection            │
 │  e) Collect any returned invalidation intents                       │
 └────────────────────────────────────────────────────────────────────┘
@@ -706,7 +841,7 @@ The invalidation flow demonstrates how filesystem changes propagate through the 
 │  • Add new batch to queue (avoids deep recursion)                   │
 │  • Process next batch from queue                                    │
 │  • Mark all disknodes as processed (loop prevention)                │
-│  • Return to step 5 for observer processing                         │
+│  • Return to step 4 for resource pre-loading                        │
 │  • Continue until queue empty                                       │
 └────────────────────────────────────────────────────────────────────┘
                                     │
@@ -743,6 +878,7 @@ change event cycle.
 - The complete filesystem mirror enables fast queries without filesystem access
 - Symlink resolution is cached to avoid repeated filesystem calls
 - Deleted disknodes are moved to a tombstone cache with FIFO eviction (default limit: 500)
+- Worker threads have their own memory space, preventing main thread memory pressure from parsing
 
 ### parent-child relationships
 
@@ -799,38 +935,52 @@ Deleted disknodes are preserved in a tombstone cache for a limited time:
 - FIFO eviction when limit exceeded (configurable via `tombstone_limit`)
 - Can be retrieved via `get_by_id()` but not `get_disknode()`
 
+### worker pool management
+
+The worker pool handles CPU-intensive import parsing:
+
+- Configurable pool size (default: 4 workers)
+- Round-robin task distribution
+- Automatic worker restart on crashes
+- Graceful fallback to synchronous parsing if workers fail
+- Batched requests for efficiency
+- Proper cleanup on filer disposal
+
 ## performance
 
 - **initial scan**: O(n) where n = number of files
 - **change detection**: O(1) per file via filesystem events
 - **dependency lookup**: O(1) via Maps
 - **tree traversal**: O(descendants) or O(ancestors)
-- **import parsing**: O(file_size) with caching
+- **import parsing**: O(file_size) but worker-threaded (non-blocking)
 - **batch coalescing**: O(1) per change via lookup table
 - **memory usage**: ~1KB per file + cached contents (small files only)
 - **observer matching**: O(observers × patterns) per change
 - **batch expansion**: O(relationships) for dependency/dependent expansion
+- **worker communication**: O(message_size) serialization overhead
 
 ### optimization strategies
 
-- Pre-warm caches with `load_initial_stats()` for known hot paths
+- Pre-warm caches with resource loading methods for known hot paths
 - Use `batch_size` to control parallel operation throughput
 - Set appropriate `batch_delay` to balance responsiveness vs efficiency
 - Limit tombstone cache size for long-running processes
 - Use `needs_imports: false` for observers that don't need dependency tracking
+- Configure `worker_pool_size` based on CPU cores and workload
+- Batch multiple import parsing requests to amortize worker communication costs
 
 ## limitations
 
 - **POSIX paths only**: No Windows path support currently
-- **Single-threaded**: Import parsing happens on main thread (can block event loop)
+- **Worker thread overhead**: Small files may be slower due to serialization costs
 - **No automatic memory management**: Very large trees may consume significant memory
 - **mtime-based change detection**: No content hashing; relies on filesystem modification times
 - **Symlink cycles**: Handled gracefully in realpath resolution (falls back to original path)
 - **Static imports only**: Dynamic imports not tracked for dependency graph
 - **Type-only validation**: Function and complex object validation is compile-time only (no runtime Zod validation)
-- **Synchronous I/O**: All file operations are synchronous and block the event loop
 - **No partial file watching**: Cannot watch specific parts of large files
 - **No network filesystem support**: May have issues with NFS or other network-mounted filesystems
+- **Worker serialization**: Large file contents must be serialized to workers, adding overhead
 
 ## error-handling
 
@@ -867,12 +1017,19 @@ filer.observe({
 });
 ```
 
+### worker thread errors
+
+- Worker crashes trigger automatic restart and fallback to sync parsing
+- Parse timeouts in workers return empty results and log warnings
+- Serialization errors fall back to synchronous parsing
+- Worker pool exhaustion queues requests until workers become available
+
 ### filesystem errors
 
-- Non-existent files return `null` for contents/stats
+- Non-existent files return `null` for contents/stats after loading attempts
 - Broken symlinks fall back to original path
 - Import resolution failures are silently skipped (dependencies not added)
-- Filesystem read errors during lazy loading return `null`
+- Filesystem read errors during loading operations return `null`
 
 ### state management
 
@@ -880,3 +1037,4 @@ filer.observe({
 - Cannot mount a disposed filer
 - Operations on unmounted filer throw errors
 - Duplicate observer IDs throw errors
+- Resource loading on deleted disknodes returns empty results
