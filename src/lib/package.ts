@@ -44,7 +44,7 @@ export const package_json: Package_Json = {
 		'typescript',
 	],
 	dependencies: {
-		'@ryanatkn/belt': '^0.33.0',
+		'@ryanatkn/belt': '^0.34.1',
 		chokidar: '^4.0.3',
 		dotenv: '^17.2.1',
 		'esm-env': '^1.2.2',
@@ -56,7 +56,8 @@ export const package_json: Package_Json = {
 		tslib: '^2.8.1',
 		zod: '^4.0.14',
 	},
-	peerDependencies: {esbuild: '^0.25', svelte: '^5', typescript: '^5'},
+	peerDependencies: {'@sveltejs/kit': '^2', esbuild: '^0.25', svelte: '^5', typescript: '^5'},
+	peerDependenciesMeta: {'@sveltejs/kit': {optional: true}},
 	optionalDependencies: {'@ryanatkn/moss': '>=0.31.0', vitest: '^3'},
 	devDependencies: {
 		'@changesets/changelog-git': '^0.2.1',

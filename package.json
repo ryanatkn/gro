@@ -62,9 +62,15 @@
     "zod": "^4.0.14"
   },
   "peerDependencies": {
+    "@sveltejs/kit": "^2",
     "esbuild": "^0.25",
     "svelte": "^5",
     "typescript": "^5"
+  },
+  "peerDependenciesMeta": {
+    "@sveltejs/kit": {
+      "optional": true
+    }
   },
   "optionalDependencies": {
     "@ryanatkn/moss": ">=0.31.0",
