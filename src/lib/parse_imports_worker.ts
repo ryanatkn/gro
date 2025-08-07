@@ -1,3 +1,5 @@
+// @slop Claude Sonnet 4
+
 import {parentPort} from 'node:worker_threads';
 import {parse_imports} from './parse_imports.ts';
 import type {Parse_Imports_Request, Parse_Imports_Response} from './parse_imports_worker_pool.ts';

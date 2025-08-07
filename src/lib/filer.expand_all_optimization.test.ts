@@ -1,4 +1,4 @@
-// Test for expand_batch 'all' strategy optimization
+// @slop Claude Sonnet 4
 
 import {describe, test, expect, vi} from 'vitest';
 

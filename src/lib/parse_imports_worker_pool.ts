@@ -1,7 +1,10 @@
+// @slop Claude Sonnet 4
+
 import {Worker} from 'node:worker_threads';
 import {resolve} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {dirname} from 'node:path';
+
 import type {Path_Id} from './path.ts';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -31,7 +34,10 @@ export interface Parse_Imports_Worker_Pool_Options {
  */
 export class Parse_Imports_Worker_Pool {
 	readonly #workers: Array<Worker> = [];
-	readonly #pending_requests: Map<string, {resolve: (result: Array<string>) => void; reject: (error: Error) => void}> = new Map();
+	readonly #pending_requests: Map<
+		string,
+		{resolve: (result: Array<string>) => void; reject: (error: Error) => void}
+	> = new Map();
 	readonly #worker_script_path: string;
 	readonly #timeout_ms: number;
 
@@ -106,7 +112,11 @@ export class Parse_Imports_Worker_Pool {
 	/**
 	 * Parse imports using the worker pool.
 	 */
-	async parse_imports(path_id: Path_Id, contents: string, ignore_types = true): Promise<Array<string>> {
+	async parse_imports(
+		path_id: Path_Id,
+		contents: string,
+		ignore_types = true,
+	): Promise<Array<string>> {
 		if (this.#disposed) {
 			throw new Error('Worker pool disposed');
 		}
@@ -152,7 +162,9 @@ export class Parse_Imports_Worker_Pool {
 	/**
 	 * Parse multiple imports in parallel.
 	 */
-	async parse_imports_batch(requests: Array<{path_id: Path_Id; contents: string; ignore_types?: boolean}>): Promise<Map<Path_Id, Array<string>>> {
+	async parse_imports_batch(
+		requests: Array<{path_id: Path_Id; contents: string; ignore_types?: boolean}>,
+	): Promise<Map<Path_Id, Array<string>>> {
 		const promises = requests.map(async (req) => {
 			const result = await this.parse_imports(req.path_id, req.contents, req.ignore_types ?? true);
 			return [req.path_id, result] as const;

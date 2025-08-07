@@ -236,7 +236,6 @@ describe('Disknode Symlink Handling', () => {
 			expect(realpath).toBe(TEST_SYMLINK_PATH);
 		});
 
-
 		test('symlink to directory has null contents but valid stats', async () => {
 			const symlink_stats = create_mock_stats({
 				isFile: () => false,
@@ -579,7 +578,7 @@ describe('Disknode Symlink Handling', () => {
 			});
 
 			const common_target = '/shared/target.ts';
-			
+
 			// Mock lstat to return symlink stats for the links and file stats for the target
 			vi.mocked(lstat).mockImplementation(async (path: any) => {
 				if (path === '/test/link1' || path === '/test/link2') {
@@ -589,7 +588,7 @@ describe('Disknode Symlink Handling', () => {
 				}
 				return symlink_stats; // default
 			});
-			
+
 			vi.mocked(realpathFn).mockResolvedValue(common_target);
 			vi.mocked(readFile).mockResolvedValue('shared content');
 

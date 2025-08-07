@@ -340,14 +340,14 @@ describe('Disknode Version Tracking', () => {
 			for (let i = 0; i < 1000; i++) {
 				disknode.invalidate();
 			}
-			
+
 			expect(disknode.version).toBe(1000);
-			
+
 			// Continue incrementing
 			for (let i = 0; i < 1000; i++) {
 				disknode.invalidate();
 			}
-			
+
 			expect(disknode.version).toBe(2000);
 		});
 

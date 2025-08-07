@@ -1,3 +1,5 @@
+// @slop Claude Sonnet 4
+
 import {test, expect, describe} from 'vitest';
 import {Parse_Imports_Async} from './parse_imports_async.ts';
 

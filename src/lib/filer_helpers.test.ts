@@ -363,9 +363,7 @@ describe('Filer_Change_Batch', () => {
 
 	describe('methods', () => {
 		test('has() checks for path existence', () => {
-			const changes: Array<Filer_Change> = [
-				{type: 'add', id: '/path/a', kind: 'file'},
-			];
+			const changes: Array<Filer_Change> = [{type: 'add', id: '/path/a', kind: 'file'}];
 
 			const batch = new Filer_Change_Batch(changes);
 			expect(batch.has('/path/a')).toBe(true);

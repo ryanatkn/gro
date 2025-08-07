@@ -1,3 +1,5 @@
+// @slop Claude Sonnet 4
+
 import {parse_imports} from './parse_imports.ts';
 import {Parse_Imports_Worker_Pool} from './parse_imports_worker_pool.ts';
 import type {Path_Id} from './path.ts';
@@ -36,7 +38,11 @@ export class Parse_Imports_Async {
 	 * Parse imports from file contents.
 	 * Uses workers for large files, synchronous parsing for small files.
 	 */
-	async parse_imports(path_id: Path_Id, contents: string, ignore_types = true): Promise<Array<string>> {
+	async parse_imports(
+		path_id: Path_Id,
+		contents: string,
+		ignore_types = true,
+	): Promise<Array<string>> {
 		// Use synchronous parsing for small files to avoid worker overhead
 		if (!this.#worker_enabled || contents.length < this.#sync_threshold_bytes) {
 			return parse_imports(path_id, contents, ignore_types);
@@ -60,7 +66,9 @@ export class Parse_Imports_Async {
 	 * Parse imports for multiple files in parallel.
 	 * Efficiently batches requests to workers.
 	 */
-	async parse_imports_batch(requests: Array<{path_id: Path_Id; contents: string; ignore_types?: boolean}>): Promise<Map<Path_Id, Array<string>>> {
+	async parse_imports_batch(
+		requests: Array<{path_id: Path_Id; contents: string; ignore_types?: boolean}>,
+	): Promise<Map<Path_Id, Array<string>>> {
 		if (!this.#worker_enabled || !this.#worker_pool) {
 			// Process synchronously if workers disabled
 			const results = new Map<Path_Id, Array<string>>();
@@ -114,7 +122,9 @@ export class Parse_Imports_Async {
 	/**
 	 * Process small files synchronously.
 	 */
-	#process_small_files_sync(files: Array<{path_id: Path_Id; contents: string; ignore_types: boolean}>): Map<Path_Id, Array<string>> {
+	#process_small_files_sync(
+		files: Array<{path_id: Path_Id; contents: string; ignore_types: boolean}>,
+	): Map<Path_Id, Array<string>> {
 		const results = new Map<Path_Id, Array<string>>();
 		for (const file of files) {
 			try {
