@@ -42,6 +42,45 @@ describe('Filer Observer System', () => {
 			unsubscribe();
 		});
 
+		test('throws on duplicate observer id', () => {
+			const filer = ctx.create_unmounted_filer();
+			const observer1: Filer_Observer = {
+				id: 'duplicate_id',
+				patterns: [/\.ts$/],
+				on_change: vi.fn(),
+			};
+			const observer2: Filer_Observer = {
+				id: 'duplicate_id',
+				patterns: [/\.js$/],
+				on_change: vi.fn(),
+			};
+
+			filer.observe(observer1);
+
+			expect(() => filer.observe(observer2)).toThrow(
+				"Observer with id 'duplicate_id' already exists",
+			);
+		});
+
+		test('allows re-registration after unsubscribe', () => {
+			const filer = ctx.create_unmounted_filer();
+			const observer1: Filer_Observer = {
+				id: 'reuse_id',
+				patterns: [/\.ts$/],
+				on_change: vi.fn(),
+			};
+			const observer2: Filer_Observer = {
+				id: 'reuse_id',
+				patterns: [/\.js$/],
+				on_change: vi.fn(),
+			};
+
+			const unsubscribe = filer.observe(observer1);
+			unsubscribe();
+
+			expect(() => filer.observe(observer2)).not.toThrow();
+		});
+
 		test('can register multiple observers', () => {
 			const filer = ctx.create_unmounted_filer();
 			const observer1: Filer_Observer = {

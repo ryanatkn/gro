@@ -626,6 +626,10 @@ export class Filer implements Disknode_Api {
 	 * Returns an unsubscribe function.
 	 */
 	observe(observer: Filer_Observer): () => void {
+		if (this.#observers.has(observer.id)) {
+			throw new Error(`Observer with id '${observer.id}' already exists`);
+		}
+
 		this.#observers.set(observer.id, observer);
 		this.#observers_dirty = true;
 
