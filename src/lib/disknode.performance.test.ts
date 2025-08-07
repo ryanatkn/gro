@@ -23,6 +23,7 @@ describe('Disknode Performance Optimizations', () => {
 			disknodes: new Map(),
 			map_alias: (alias: string) => alias,
 			get_disknode: (id: string) => new Disknode(id, create_mock_filer()),
+			parse_imports: vi.fn().mockReturnValue([]),
 		}) as any;
 
 	describe('imports getter early return optimization', () => {

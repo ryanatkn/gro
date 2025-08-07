@@ -159,7 +159,7 @@ describe('Disknode_Api interface', () => {
 			disknode.imports;
 
 			// Verify custom parse_imports was called
-			expect(custom_parse_imports).toHaveBeenCalledWith(TEST_PATH_TS, '// Some file content', true);
+			expect(custom_parse_imports).toHaveBeenCalledWith(TEST_PATH_TS, '// Some file content');
 		});
 
 		test('skips builtin modules', () => {

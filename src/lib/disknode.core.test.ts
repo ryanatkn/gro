@@ -81,6 +81,7 @@ const create_mock_filer = (): Filer =>
 		map_alias: vi.fn((spec: string) => spec),
 		resolve_specifier: vi.fn(() => ({path_id: '/resolved/path.js'})),
 		resolve_external_specifier: vi.fn().mockReturnValue('file:///resolved/external.js'),
+		parse_imports: vi.fn().mockReturnValue([]),
 		observe: vi.fn(),
 		find_disknodes: vi.fn(),
 		get_dependents: vi.fn(),
@@ -725,6 +726,9 @@ describe('Disknode', () => {
 			const dep_a = new Disknode('/test/path/a.js', filer);
 			const dep_b = new Disknode('/test/path/b.js', filer);
 
+			// Mock parse_imports to return expected imports for this test
+			vi.mocked(filer.parse_imports).mockReturnValue(['./a.js', './b.js']);
+
 			// Mock filer to return our dependency disknodes
 			vi.mocked(filer.get_disknode).mockImplementation((id: Path_Id) => {
 				if (id === '/test/path/a.js') return dep_a;
@@ -748,6 +752,9 @@ describe('Disknode', () => {
 			const node = new Disknode(TEST_PATH_JS, filer);
 			const dep_a = new Disknode('/test/path/a.js', filer);
 
+			// Mock parse_imports to return expected imports for this test
+			vi.mocked(filer.parse_imports).mockReturnValue(['./a.js']);
+
 			// Mock filer to return our dependency disknodes
 			vi.mocked(filer.get_disknode).mockImplementation((id: Path_Id) => {
 				if (id === '/test/path/a.js') return dep_a;
@@ -768,6 +775,9 @@ describe('Disknode', () => {
 
 			const node = new Disknode(TEST_PATH_SVELTE, filer);
 			const dep_a = new Disknode('/test/path/a.js', filer);
+
+			// Mock parse_imports to return expected imports for this test
+			vi.mocked(filer.parse_imports).mockReturnValue(['./a.js']);
 
 			// Mock filer to return our dependency disknodes
 			vi.mocked(filer.get_disknode).mockImplementation((id: Path_Id) => {
@@ -790,6 +800,9 @@ describe('Disknode', () => {
 			const node = new Disknode(TEST_PATH_SVELTE_TS, filer);
 			const dep_store = new Disknode('/node_modules/svelte/store/index.js', filer);
 
+			// Mock parse_imports to return expected imports for this test
+			vi.mocked(filer.parse_imports).mockReturnValue(['svelte/store']);
+
 			// Mock filer to return our dependency disknodes
 			vi.mocked(filer.get_disknode).mockImplementation((id: Path_Id) => {
 				if (id === '/node_modules/svelte/store/index.js') return dep_store;
@@ -810,6 +823,9 @@ describe('Disknode', () => {
 
 			const node = new Disknode(TEST_PATH_SVELTE_JS, filer);
 			const dep_store = new Disknode('/node_modules/svelte/store/index.js', filer);
+
+			// Mock parse_imports to return expected imports for this test
+			vi.mocked(filer.parse_imports).mockReturnValue(['svelte/store']);
 
 			// Mock filer to return our dependency disknodes
 			vi.mocked(filer.get_disknode).mockImplementation((id: Path_Id) => {
