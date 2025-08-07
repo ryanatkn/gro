@@ -610,6 +610,8 @@ export class Filer implements Disknode_Api {
 		return this.#resolve_external_specifier(specifier, base);
 	}
 
+	// TODO it'd probably be useful to have types parsed too, atm they're ignored so deps are only runtime deps,
+	// but it'd be nice to understand the type depdendency graph too
 	/**
 	 * Parse imports from file contents.
 	 */

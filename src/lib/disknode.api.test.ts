@@ -5,6 +5,7 @@ import {readFileSync, lstatSync} from 'node:fs';
 
 import {Disknode, type Disknode_Api} from './disknode.ts';
 import type {Path_Id} from './path.ts';
+import {create_mock_stats, TEST_PATHS} from './filer.test_helpers.ts';
 
 // Mock filesystem modules
 vi.mock('node:fs', () => ({
@@ -15,38 +16,22 @@ vi.mock('node:fs', () => ({
 }));
 
 // Test constants
-const TEST_PATH_TS: Path_Id = '/test/path/a.ts';
+const TEST_PATH_TS: Path_Id = TEST_PATHS.FILE_A;
 const TEST_CONTENT_WITH_IMPORT =
 	'import {foo} from "./relative.js";\nimport {bar} from "external-package";';
 
-// Create mock stats
-const create_mock_stats = () => ({
-	isFile: () => true,
-	isDirectory: () => false,
-	isSymbolicLink: () => false,
-	isBlockDevice: () => false,
-	isCharacterDevice: () => false,
-	isFIFO: () => false,
-	isSocket: () => false,
-	dev: 1,
-	ino: 1,
-	mode: 33188,
-	nlink: 1,
-	uid: 1000,
-	gid: 1000,
-	rdev: 0,
-	size: 100,
-	blksize: 4096,
-	blocks: 8,
-	atimeMs: Date.now(),
-	mtimeMs: Date.now(),
-	ctimeMs: Date.now(),
-	birthtimeMs: Date.now(),
-	atime: new Date(),
-	mtime: new Date(),
-	ctime: new Date(),
-	birthtime: new Date(),
-});
+// Helper to create mock Disknode_Api with default implementations
+const create_mock_api = (overrides: Partial<Disknode_Api> = {}): Disknode_Api => {
+	const default_api: Disknode_Api = {
+		map_alias: vi.fn((spec) => spec),
+		resolve_specifier: vi.fn(() => ({path_id: '/test/resolved.js'})),
+		resolve_external_specifier: vi.fn().mockReturnValue('file:///resolved'),
+		get_disknode: vi.fn((id) => new Disknode(id, default_api)),
+		parse_imports: vi.fn().mockReturnValue([]),
+	};
+	return {...default_api, ...overrides};
+};
+
 
 describe('Disknode_Api interface', () => {
 	beforeEach(() => {
@@ -60,16 +45,14 @@ describe('Disknode_Api interface', () => {
 	describe('pluggable api functionality', () => {
 		test('uses custom resolve_external_specifier for package imports', () => {
 			const custom_resolver = vi.fn().mockReturnValue('file:///custom/resolved/path');
-			const mock_api: Disknode_Api = {
-				map_alias: vi.fn((spec) => spec),
+			const mock_api = create_mock_api({
 				resolve_specifier: vi.fn(() => ({path_id: '/test/relative.js'})),
 				resolve_external_specifier: custom_resolver,
-				get_disknode: vi.fn((id) => new Disknode(id, mock_api)),
 				parse_imports: vi.fn().mockReturnValue(['./relative.js', 'external-package']),
-			};
+			});
 
 			const mock_stats = create_mock_stats();
-			vi.mocked(lstatSync).mockReturnValue(mock_stats as any);
+			vi.mocked(lstatSync).mockReturnValue(mock_stats);
 			vi.mocked(readFileSync).mockReturnValue(TEST_CONTENT_WITH_IMPORT);
 
 			const disknode = new Disknode(TEST_PATH_TS, mock_api);
@@ -90,16 +73,14 @@ describe('Disknode_Api interface', () => {
 				return spec;
 			});
 
-			const mock_api: Disknode_Api = {
+			const mock_api = create_mock_api({
 				map_alias: custom_alias_mapper,
 				resolve_specifier: vi.fn(() => ({path_id: '/src/lib/utils.js'})),
-				resolve_external_specifier: vi.fn().mockReturnValue('file:///resolved'),
-				get_disknode: vi.fn((id) => new Disknode(id, mock_api)),
 				parse_imports: vi.fn().mockReturnValue(['$lib/utils.js']),
-			};
+			});
 
 			const mock_stats = create_mock_stats();
-			vi.mocked(lstatSync).mockReturnValue(mock_stats as any);
+			vi.mocked(lstatSync).mockReturnValue(mock_stats);
 			vi.mocked(readFileSync).mockReturnValue('import {utils} from "$lib/utils.js";');
 
 			const disknode = new Disknode(TEST_PATH_TS, mock_api);
@@ -116,16 +97,14 @@ describe('Disknode_Api interface', () => {
 			const dependency_disknode = new Disknode('/test/dep.js', {} as Disknode_Api);
 			const custom_get_disknode = vi.fn().mockReturnValue(dependency_disknode);
 
-			const mock_api: Disknode_Api = {
-				map_alias: vi.fn((spec) => spec),
+			const mock_api = create_mock_api({
 				resolve_specifier: vi.fn(() => ({path_id: '/test/dep.js'})),
-				resolve_external_specifier: vi.fn().mockReturnValue('file:///resolved'),
 				get_disknode: custom_get_disknode,
 				parse_imports: vi.fn().mockReturnValue(['./dep.js']),
-			};
+			});
 
 			const mock_stats = create_mock_stats();
-			vi.mocked(lstatSync).mockReturnValue(mock_stats as any);
+			vi.mocked(lstatSync).mockReturnValue(mock_stats);
 			vi.mocked(readFileSync).mockReturnValue('import {dep} from "./dep.js";');
 
 			const disknode = new Disknode(TEST_PATH_TS, mock_api);
@@ -141,16 +120,14 @@ describe('Disknode_Api interface', () => {
 		test('uses custom parse_imports implementation', () => {
 			const custom_parse_imports = vi.fn().mockReturnValue(['./custom.js', 'custom-package']);
 
-			const mock_api: Disknode_Api = {
-				map_alias: vi.fn((spec) => spec),
+			const mock_api = create_mock_api({
 				resolve_specifier: vi.fn(() => ({path_id: '/test/custom.js'})),
 				resolve_external_specifier: vi.fn().mockReturnValue('file:///custom-resolved'),
-				get_disknode: vi.fn((id) => new Disknode(id, mock_api)),
 				parse_imports: custom_parse_imports,
-			};
+			});
 
 			const mock_stats = create_mock_stats();
-			vi.mocked(lstatSync).mockReturnValue(mock_stats as any);
+			vi.mocked(lstatSync).mockReturnValue(mock_stats);
 			vi.mocked(readFileSync).mockReturnValue('// Some file content');
 
 			const disknode = new Disknode(TEST_PATH_TS, mock_api);
@@ -163,16 +140,15 @@ describe('Disknode_Api interface', () => {
 		});
 
 		test('skips builtin modules', () => {
-			const mock_api: Disknode_Api = {
-				map_alias: vi.fn((spec) => spec),
+			const mock_api = create_mock_api({
 				resolve_specifier: vi.fn(),
 				resolve_external_specifier: vi.fn(),
 				get_disknode: vi.fn(),
 				parse_imports: vi.fn().mockReturnValue(['node:fs', 'path']),
-			};
+			});
 
 			const mock_stats = create_mock_stats();
-			vi.mocked(lstatSync).mockReturnValue(mock_stats as any);
+			vi.mocked(lstatSync).mockReturnValue(mock_stats);
 			vi.mocked(readFileSync).mockReturnValue(
 				'import fs from "node:fs";\nimport path from "path";',
 			);
@@ -189,16 +165,15 @@ describe('Disknode_Api interface', () => {
 		});
 
 		test('skips $app/ imports', () => {
-			const mock_api: Disknode_Api = {
-				map_alias: vi.fn((spec) => spec),
+			const mock_api = create_mock_api({
 				resolve_specifier: vi.fn(),
 				resolve_external_specifier: vi.fn(),
 				get_disknode: vi.fn(),
 				parse_imports: vi.fn().mockReturnValue(['$app/stores']),
-			};
+			});
 
 			const mock_stats = create_mock_stats();
-			vi.mocked(lstatSync).mockReturnValue(mock_stats as any);
+			vi.mocked(lstatSync).mockReturnValue(mock_stats);
 			vi.mocked(readFileSync).mockReturnValue('import {page} from "$app/stores";');
 
 			const disknode = new Disknode(TEST_PATH_TS, mock_api);
@@ -217,16 +192,14 @@ describe('Disknode_Api interface', () => {
 				throw new Error('Package not found');
 			});
 
-			const mock_api: Disknode_Api = {
-				map_alias: vi.fn((spec) => spec),
+			const mock_api = create_mock_api({
 				resolve_specifier: vi.fn(() => ({path_id: '/test/relative.js'})),
 				resolve_external_specifier: failing_resolver,
-				get_disknode: vi.fn((id) => new Disknode(id, mock_api)),
 				parse_imports: vi.fn().mockReturnValue(['unknown-package']),
-			};
+			});
 
 			const mock_stats = create_mock_stats();
-			vi.mocked(lstatSync).mockReturnValue(mock_stats as any);
+			vi.mocked(lstatSync).mockReturnValue(mock_stats);
 			vi.mocked(readFileSync).mockReturnValue('import {pkg} from "unknown-package";');
 
 			const disknode = new Disknode(TEST_PATH_TS, mock_api);
@@ -243,16 +216,15 @@ describe('Disknode_Api interface', () => {
 
 		test('maintains bidirectional dependency relationships through api', () => {
 			const dep_disknode = new Disknode('/test/dep.js', {} as Disknode_Api);
-			const mock_api: Disknode_Api = {
-				map_alias: vi.fn((spec) => spec),
+			const mock_api = create_mock_api({
 				resolve_specifier: vi.fn(() => ({path_id: '/test/dep.js'})),
 				resolve_external_specifier: vi.fn(),
 				get_disknode: vi.fn().mockReturnValue(dep_disknode),
 				parse_imports: vi.fn().mockReturnValue(['./dep.js']),
-			};
+			});
 
 			const mock_stats = create_mock_stats();
-			vi.mocked(lstatSync).mockReturnValue(mock_stats as any);
+			vi.mocked(lstatSync).mockReturnValue(mock_stats);
 			vi.mocked(readFileSync).mockReturnValue('import {dep} from "./dep.js";');
 
 			const disknode = new Disknode(TEST_PATH_TS, mock_api);
@@ -270,13 +242,13 @@ describe('Disknode_Api interface', () => {
 
 	describe('api interface contract', () => {
 		test('api property is accessible and readonly', () => {
-			const mock_api: Disknode_Api = {
+			const mock_api = create_mock_api({
 				map_alias: vi.fn(),
 				resolve_specifier: vi.fn(),
 				resolve_external_specifier: vi.fn(),
 				get_disknode: vi.fn(),
 				parse_imports: vi.fn(),
-			};
+			});
 
 			const disknode = new Disknode(TEST_PATH_TS, mock_api);
 			expect(disknode.api).toBe(mock_api);
@@ -300,16 +272,15 @@ describe('Disknode_Api interface', () => {
 
 	describe('edge cases and error handling', () => {
 		test('handles empty import content', () => {
-			const mock_api: Disknode_Api = {
-				map_alias: vi.fn((spec) => spec),
+			const mock_api = create_mock_api({
 				resolve_specifier: vi.fn(),
 				resolve_external_specifier: vi.fn(),
 				get_disknode: vi.fn(),
 				parse_imports: vi.fn().mockReturnValue([]),
-			};
+			});
 
 			const mock_stats = create_mock_stats();
-			vi.mocked(lstatSync).mockReturnValue(mock_stats as any);
+			vi.mocked(lstatSync).mockReturnValue(mock_stats);
 			vi.mocked(readFileSync).mockReturnValue(''); // Empty content
 
 			const disknode = new Disknode(TEST_PATH_TS, mock_api);
@@ -324,16 +295,15 @@ describe('Disknode_Api interface', () => {
 		});
 
 		test('handles whitespace-only import content', () => {
-			const mock_api: Disknode_Api = {
-				map_alias: vi.fn((spec) => spec),
+			const mock_api = create_mock_api({
 				resolve_specifier: vi.fn(),
 				resolve_external_specifier: vi.fn(),
 				get_disknode: vi.fn(),
 				parse_imports: vi.fn().mockReturnValue([]),
-			};
+			});
 
 			const mock_stats = create_mock_stats();
-			vi.mocked(lstatSync).mockReturnValue(mock_stats as any);
+			vi.mocked(lstatSync).mockReturnValue(mock_stats);
 			vi.mocked(readFileSync).mockReturnValue('   \n  \t  \n   '); // Whitespace only
 
 			const disknode = new Disknode(TEST_PATH_TS, mock_api);
@@ -344,8 +314,7 @@ describe('Disknode_Api interface', () => {
 
 		test('handles mixed import types with failures', () => {
 			const successful_dep = new Disknode('/test/success.js', {} as Disknode_Api);
-			const mock_api: Disknode_Api = {
-				map_alias: vi.fn((spec) => spec),
+			const mock_api = create_mock_api({
 				resolve_specifier: vi.fn(() => ({path_id: '/test/success.js'})),
 				resolve_external_specifier: vi.fn().mockImplementation((spec) => {
 					if (spec === 'failing-package') throw new Error('Not found');
@@ -353,10 +322,10 @@ describe('Disknode_Api interface', () => {
 				}),
 				get_disknode: vi.fn().mockReturnValue(successful_dep),
 				parse_imports: vi.fn().mockReturnValue(['./success.js', 'good-package', 'failing-package']),
-			};
+			});
 
 			const mock_stats = create_mock_stats();
-			vi.mocked(lstatSync).mockReturnValue(mock_stats as any);
+			vi.mocked(lstatSync).mockReturnValue(mock_stats);
 			vi.mocked(readFileSync).mockReturnValue(`
 				import {local} from "./success.js";
 				import {good} from "good-package";
@@ -377,7 +346,7 @@ describe('Disknode_Api interface', () => {
 		});
 
 		test('handles complex alias patterns', () => {
-			const mock_api: Disknode_Api = {
+			const mock_api = create_mock_api({
 				map_alias: vi.fn().mockImplementation((spec) => {
 					if (spec.startsWith('@/')) return '/src' + spec.slice(1);
 					if (spec.startsWith('~/')) return '/home/user' + spec.slice(1);
@@ -386,14 +355,13 @@ describe('Disknode_Api interface', () => {
 				}),
 				resolve_specifier: vi.fn(() => ({path_id: '/mapped/path.js'})),
 				resolve_external_specifier: vi.fn(),
-				get_disknode: vi.fn((id) => new Disknode(id, mock_api)),
 				parse_imports: vi
 					.fn()
 					.mockReturnValue(['@/components/Button.svelte', '~/config/app.js', '@config']),
-			};
+			});
 
 			const mock_stats = create_mock_stats();
-			vi.mocked(lstatSync).mockReturnValue(mock_stats as any);
+			vi.mocked(lstatSync).mockReturnValue(mock_stats);
 			vi.mocked(readFileSync).mockReturnValue(`
 				import {component} from "@/components/Button.svelte";
 				import {config} from "~/config/app.js";
@@ -414,8 +382,7 @@ describe('Disknode_Api interface', () => {
 			const dep2 = new Disknode('/test/dep2.js', {} as Disknode_Api);
 			const dep3 = new Disknode('/test/dep3.js', {} as Disknode_Api);
 
-			const mock_api: Disknode_Api = {
-				map_alias: vi.fn((spec) => spec),
+			const mock_api = create_mock_api({
 				resolve_specifier: vi.fn().mockImplementation((spec) => {
 					if (spec === './dep1.js') return {path_id: '/test/dep1.js'};
 					if (spec === './dep2.js') return {path_id: '/test/dep2.js'};
@@ -433,10 +400,10 @@ describe('Disknode_Api interface', () => {
 					.fn()
 					.mockReturnValueOnce(['./dep1.js', './dep2.js']) // First call
 					.mockReturnValueOnce(['./dep2.js', './dep3.js']), // Second call
-			};
+			});
 
 			const mock_stats = create_mock_stats();
-			vi.mocked(lstatSync).mockReturnValue(mock_stats as any);
+			vi.mocked(lstatSync).mockReturnValue(mock_stats);
 
 			// Start with dep1 and dep2
 			vi.mocked(readFileSync).mockReturnValueOnce(`
@@ -470,8 +437,7 @@ describe('Disknode_Api interface', () => {
 			let disknode_a: Disknode;
 			let disknode_b: Disknode;
 
-			const mock_api: Disknode_Api = {
-				map_alias: vi.fn((spec) => spec),
+			const mock_api = create_mock_api({
 				resolve_specifier: vi.fn().mockImplementation((spec) => {
 					if (spec === './b.js') return {path_id: '/test/b.js'};
 					if (spec === './a.js') return {path_id: '/test/a.js'};
@@ -487,13 +453,13 @@ describe('Disknode_Api interface', () => {
 					.fn()
 					.mockReturnValueOnce(['./b.js']) // For disknode_a
 					.mockReturnValueOnce(['./a.js']), // For disknode_b
-			};
+			});
 
 			disknode_a = new Disknode('/test/a.js', mock_api);
 			disknode_b = new Disknode('/test/b.js', mock_api);
 
 			const mock_stats = create_mock_stats();
-			vi.mocked(lstatSync).mockReturnValue(mock_stats as any);
+			vi.mocked(lstatSync).mockReturnValue(mock_stats);
 
 			// A imports B
 			vi.mocked(readFileSync).mockReturnValueOnce('import {b} from "./b.js";');

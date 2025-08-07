@@ -1,12 +1,13 @@
 // @slop Claude Opus 4.1
 
 import {describe, test, expect, vi, beforeEach, afterEach} from 'vitest';
-import {readFileSync, lstatSync, realpathSync, type Stats} from 'node:fs';
+import {readFileSync, lstatSync, realpathSync} from 'node:fs';
 
 import {Disknode} from './disknode.ts';
 import type {Filer} from './filer.ts';
 import type {Path_Id} from './path.ts';
 import {DISKNODE_MAX_CACHED_SIZE} from './disknode_helpers.ts';
+import {create_mock_stats, TEST_PATHS} from './filer.test_helpers.ts';
 
 // Mock filesystem modules
 vi.mock('node:fs', () => ({
@@ -17,18 +18,18 @@ vi.mock('node:fs', () => ({
 }));
 
 // Test constants
-const TEST_PATH_TS: Path_Id = '/test/path/a.ts';
-const TEST_PATH_JS: Path_Id = '/test/path/b.js';
-const TEST_PATH_SVELTE: Path_Id = '/test/path/c.svelte';
-const TEST_PATH_SVELTE_TS: Path_Id = '/test/path/d.svelte.ts';
-const TEST_PATH_SVELTE_JS: Path_Id = '/test/path/e.svelte.js';
-const TEST_PATH_MTS: Path_Id = '/test/path/f.mts';
-const TEST_PATH_CJS: Path_Id = '/test/path/g.cjs';
-const TEST_PATH_JSON: Path_Id = '/test/path/data.json';
-const TEST_PATH_TXT: Path_Id = '/test/path/readme.txt';
-const TEST_DIR_PATH: Path_Id = '/test/path';
-const TEST_SYMLINK_PATH: Path_Id = '/test/symlink';
-const TEST_LARGE_FILE_PATH: Path_Id = '/test/large.txt';
+const TEST_PATH_TS: Path_Id = TEST_PATHS.FILE_A;
+const TEST_PATH_JS: Path_Id = TEST_PATHS.FILE_JS;
+const TEST_PATH_SVELTE: Path_Id = '/test/project/src/c.svelte';
+const TEST_PATH_SVELTE_TS: Path_Id = '/test/project/src/d.svelte.ts';
+const TEST_PATH_SVELTE_JS: Path_Id = '/test/project/src/e.svelte.js';
+const TEST_PATH_MTS: Path_Id = '/test/project/src/f.mts';
+const TEST_PATH_CJS: Path_Id = '/test/project/src/g.cjs';
+const TEST_PATH_JSON: Path_Id = TEST_PATHS.JSON_FILE;
+const TEST_PATH_TXT: Path_Id = '/test/project/src/readme.txt';
+const TEST_DIR_PATH: Path_Id = TEST_PATHS.SOURCE;
+const TEST_SYMLINK_PATH: Path_Id = '/test/project/src/symlink';
+const TEST_LARGE_FILE_PATH: Path_Id = '/test/project/src/large.txt';
 
 const TEST_CONTENT_TS = 'const a = 1;\nexport {a};';
 const TEST_CONTENT_JS = 'import {a} from "./a.js";\nconsole.log(a);';
@@ -41,36 +42,6 @@ const TEST_CONTENT_JSON = '{"data": "test"}';
 const TEST_CONTENT_TXT = 'This is a text file.';
 const TEST_LARGE_CONTENT = 'x'.repeat(15 * 1024 * 1024); // 15MB
 
-// Mock stats factory
-const create_mock_stats = (options: Partial<Stats> = {}): Stats =>
-	({
-		isFile: () => true,
-		isDirectory: () => false,
-		isSymbolicLink: () => false,
-		isBlockDevice: () => false,
-		isCharacterDevice: () => false,
-		isFIFO: () => false,
-		isSocket: () => false,
-		dev: 1,
-		ino: 1,
-		mode: 33188,
-		nlink: 1,
-		uid: 1000,
-		gid: 1000,
-		rdev: 0,
-		size: 100,
-		blksize: 4096,
-		blocks: 8,
-		atimeMs: Date.now(),
-		mtimeMs: Date.now(),
-		ctimeMs: Date.now(),
-		birthtimeMs: Date.now(),
-		atime: new Date(),
-		mtime: new Date(),
-		ctime: new Date(),
-		birthtime: new Date(),
-		...options,
-	}) as Stats;
 
 // Mock filer
 const create_mock_filer = (): Filer =>
