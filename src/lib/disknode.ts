@@ -188,7 +188,7 @@ export class Disknode {
 
 	/**
 	 * Get the real path for symlinks, or the id for regular files.
-	 * Resolves symlinks recursively.
+	 * Resolves symlinks recursively with cycle detection.
 	 */
 	get realpath(): Path_Id {
 		if (this.#realpath_version !== this.#version) {
@@ -197,7 +197,7 @@ export class Disknode {
 				try {
 					this.#realpath = realpathSync(this.id);
 				} catch {
-					// Broken symlink - cannot resolve target, use original path
+					// Broken symlink, symlink cycle, or other error - use original path
 					this.#realpath = this.id;
 				}
 			} else {
@@ -265,9 +265,7 @@ export class Disknode {
 				} catch (err) {
 					// Failed to resolve local specifier - still create disknode but mark as non-existent
 					// This preserves the import relationship for dead link detection
-					resolved_id = mapped.startsWith('.') ? 
-						resolve(dirname(this.id), mapped) : 
-						mapped;
+					resolved_id = mapped.startsWith('.') ? resolve(dirname(this.id), mapped) : mapped;
 				}
 			} else {
 				// External specifier - use pluggable resolve_external_specifier

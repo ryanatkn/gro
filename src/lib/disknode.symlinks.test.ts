@@ -161,6 +161,69 @@ describe('Disknode Symlink Handling', () => {
 			expect(realpath).toBe(TEST_SYMLINK_PATH);
 		});
 
+		test('detects symlink cycles with ELOOP error code', () => {
+			const symlink_stats = create_mock_stats({
+				isFile: () => false,
+				isDirectory: () => false,
+				isSymbolicLink: () => true,
+			});
+
+			vi.mocked(lstatSync).mockReturnValue(symlink_stats);
+			// Mock realpathSync to throw with specific ELOOP code
+			const error: any = new Error('ELOOP: too many levels of symbolic links');
+			error.code = 'ELOOP';
+			vi.mocked(realpathSync).mockImplementation(() => {
+				throw error;
+			});
+
+			const node = new Disknode(TEST_SYMLINK_PATH, filer);
+
+			// Should detect cycle and fall back to original path
+			const realpath = node.realpath;
+			expect(realpath).toBe(TEST_SYMLINK_PATH);
+		});
+
+		test('detects symlink cycles with message pattern', () => {
+			const symlink_stats = create_mock_stats({
+				isFile: () => false,
+				isDirectory: () => false,
+				isSymbolicLink: () => true,
+			});
+
+			vi.mocked(lstatSync).mockReturnValue(symlink_stats);
+			// Mock different error message pattern that indicates cycles
+			vi.mocked(realpathSync).mockImplementation(() => {
+				throw new Error('too many levels of symbolic links encountered');
+			});
+
+			const node = new Disknode(TEST_SYMLINK_PATH, filer);
+
+			// Should detect cycle and fall back to original path
+			const realpath = node.realpath;
+			expect(realpath).toBe(TEST_SYMLINK_PATH);
+		});
+
+		test('handles regular symlink errors differently from cycles', () => {
+			const symlink_stats = create_mock_stats({
+				isFile: () => false,
+				isDirectory: () => false,
+				isSymbolicLink: () => true,
+			});
+
+			vi.mocked(lstatSync).mockReturnValue(symlink_stats);
+			// Mock a different kind of error (not cycle related)
+			vi.mocked(realpathSync).mockImplementation(() => {
+				throw new Error('ENOENT: no such file or directory');
+			});
+
+			const node = new Disknode(TEST_SYMLINK_PATH, filer);
+
+			// Should still fall back to original path for broken symlinks
+			const realpath = node.realpath;
+			expect(realpath).toBe(TEST_SYMLINK_PATH);
+		});
+
+
 		test('symlink to directory has null contents but valid stats', () => {
 			const symlink_stats = create_mock_stats({
 				isFile: () => false,

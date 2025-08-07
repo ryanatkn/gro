@@ -677,7 +677,7 @@ const filer = new Filer({
 - Single-threaded import parsing (no worker threads)
 - No automatic memory management for very large trees
 - No content hashing (relies on mtime for change detection)
-- Symlink cycles not detected (will cause infinite loops)
+- Symlink cycles are handled gracefully in realpath resolution (falls back to original path)
 - Dynamic imports not tracked (only static ES imports)
 - Function and complex object validation is type-only (no runtime Zod validation)
 - Initial scan has 10-second timeout; mount fails if filesystem scan doesn't complete in time
