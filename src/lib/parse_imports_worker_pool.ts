@@ -4,6 +4,7 @@ import {Worker} from 'node:worker_threads';
 import {resolve} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {dirname} from 'node:path';
+import {cpus} from 'node:os';
 
 import type {Path_Id} from './path.ts';
 
@@ -45,7 +46,7 @@ export class Parse_Imports_Worker_Pool {
 	#disposed = false;
 
 	constructor(options: Parse_Imports_Worker_Pool_Options = {}) {
-		const size = options.size ?? 4;
+		const size = options.size ?? Math.max(1, Math.floor(cpus().length / 2));
 		this.#timeout_ms = options.timeout_ms ?? 5000;
 		this.#worker_script_path = resolve(__dirname, 'parse_imports_worker.js');
 
