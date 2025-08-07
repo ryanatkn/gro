@@ -668,9 +668,10 @@ export class Filer implements Disknode_Api {
 	): Filer_Change_Batch {
 		const filtered: Map<Path_Id, Filer_Change> = new Map();
 
-		// Cache dynamic paths evaluation and resolve them once
-		const dynamic_paths = typeof observer.paths === 'function' ? observer.paths() : observer.paths;
-		const resolved_paths = dynamic_paths?.map((p: string) => resolve(p));
+		// TODO BLOCK ideally resolved up front on observer registration and cached, but then specifically handled for dynamic cases
+		// Cache dynamic paths evaluation and resolve them
+		const raw_paths = typeof observer.paths === 'function' ? observer.paths() : observer.paths;
+		const resolved_paths = raw_paths?.map((p: string) => resolve(p));
 
 		// First, collect directly matching changes
 		for (const [id, change] of batch.changes) {
