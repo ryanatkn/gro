@@ -12,8 +12,6 @@ import {Task_Error, type Task_Module_Meta} from './task.ts';
 import {default_svelte_config} from './svelte_config.ts';
 import type {Filer} from './filer.ts';
 
-// TODO BLOCK what if we knew the current depth or even the full tree? could teardown the filer
-
 export type Run_Task_Result =
 	| {
 			ok: true;
