@@ -38,7 +38,7 @@ export interface Filer_Options {
 	/** Delay for batching changes in ms. Default: 10 */
 	batch_delay?: number;
 	/** Initial observers to register */
-	observers?: Array<Filer_Observer>;
+	observers?: Iterable<Filer_Observer>;
 	/** Logger instance */
 	log?: Logger;
 	/** Alias mappings for import resolution */
