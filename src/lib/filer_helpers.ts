@@ -2,6 +2,7 @@
 
 import {z} from 'zod';
 import {resolve} from 'node:path';
+import {reset_regexp} from '@ryanatkn/belt/regexp.js';
 
 import type {Disknode} from './disknode.ts';
 import type {Path_Id} from './path.ts';
@@ -237,32 +238,27 @@ export const Filer_Change_Transitions: Record<
 	Record<Filer_Change_Type, Filer_Change_Type | null>
 > = {
 	add: {
-		add: 'add', // add + add → add (shouldn't happen but handle it)
+		add: 'add', // add + add → add
 		update: 'add', // add + update → add (preserve add semantic)
 		delete: null, // add + delete → remove entirely
 	},
 	update: {
-		add: 'add', // update + add → add (shouldn't happen but handle it)
+		add: 'add', // update + add → add
 		update: 'update', // update + update → update
 		delete: 'delete', // update + delete → delete
 	},
 	delete: {
 		add: 'update', // delete + add → update (recreated)
-		update: 'update', // delete + update → update (shouldn't happen but handle it)
+		update: 'update', // delete + update → update
 		delete: 'delete', // delete + delete → delete
 	},
 };
 
 /**
- * Helper for regexp matching with automatic lastIndex reset.
- * Ensures global/sticky regexp patterns don't maintain state between calls.
+ * Test regexp pattern against string with automatic lastIndex reset.
  */
-export const filer_test_regexp = (pattern: RegExp, str: string): boolean => {
-	if (pattern.global || pattern.sticky) {
-		pattern.lastIndex = 0;
-	}
-	return pattern.test(str);
-};
+export const filer_test_regexp = (pattern: RegExp, str: string): boolean =>
+	reset_regexp(pattern).test(str);
 
 /**
  * Coalesce change events using lookup table.
