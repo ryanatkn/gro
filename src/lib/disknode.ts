@@ -5,7 +5,6 @@ import {basename} from 'node:path';
 import {isBuiltin} from 'node:module';
 import {fileURLToPath} from 'node:url';
 
-import {parse_imports} from './parse_imports.ts';
 import type {Path_Id} from './path.ts';
 import {
 	disknode_get_extension,
@@ -19,14 +18,14 @@ import {
 	disknode_should_cache_contents,
 } from './disknode_helpers.ts';
 
-// TODO think about dependency injection following the api pattern
-// with `parse_imports` and all of the node imports above extracted out
+// TODO think about dependency injection following the api pattern with all of the node imports above extracted out
 
 export interface Disknode_Api {
 	map_alias: (specifier: string) => string;
 	resolve_specifier: (specifier: string, base: Path_Id) => {path_id: Path_Id};
 	resolve_external_specifier: (specifier: string, base: string) => string;
 	get_disknode: (id: Path_Id) => Disknode;
+	parse_imports: (id: Path_Id, contents: string, ignore_types?: boolean) => Array<string>;
 }
 
 /**
@@ -228,7 +227,7 @@ export class Disknode {
 				this.#imports = null;
 			} else {
 				// Parse imports from contents
-				const imported = parse_imports(this.id, contents);
+				const imported = this.api.parse_imports(this.id, contents);
 				this.#imports = new Set(imported);
 
 				// Update dependencies based on imports

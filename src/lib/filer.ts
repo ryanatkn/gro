@@ -10,6 +10,7 @@ import {escape_regexp} from '@ryanatkn/belt/regexp.js';
 
 import {Disknode, type Disknode_Api} from './disknode.ts';
 import {resolve_specifier} from './resolve_specifier.ts';
+import {parse_imports} from './parse_imports.ts';
 import type {Path_Id} from './path.ts';
 import {DEFAULT_CONFIG_FILES, SOURCE_DIRNAME} from './constants.ts';
 import {
@@ -607,6 +608,13 @@ export class Filer implements Disknode_Api {
 	 */
 	resolve_external_specifier(specifier: string, base: string): string {
 		return this.#resolve_external_specifier(specifier, base);
+	}
+
+	/**
+	 * Parse imports from file contents.
+	 */
+	parse_imports(id: Path_Id, contents: string, ignore_types = true): Array<string> {
+		return parse_imports(id, contents, ignore_types);
 	}
 
 	/**

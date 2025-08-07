@@ -185,6 +185,35 @@ describe('Filer Disknode_Api implementation', () => {
 		});
 	});
 
+	describe('parse_imports method', () => {
+		test('delegates to parse_imports helper', () => {
+			const result = filer.parse_imports('/test/file.ts', 'import {a} from "./a.js";');
+
+			// Should call the actual parse_imports function internally
+			expect(result).toEqual(expect.arrayContaining(['./a.js']));
+		});
+
+		test('passes through ignore_types parameter', () => {
+			const content = 'import type {Type} from "./types.js";\nimport {value} from "./value.js";';
+
+			const result_with_types = filer.parse_imports('/test/file.ts', content, false);
+			const result_without_types = filer.parse_imports('/test/file.ts', content, true);
+
+			// Should handle ignore_types parameter correctly
+			expect(Array.isArray(result_with_types)).toBe(true);
+			expect(Array.isArray(result_without_types)).toBe(true);
+		});
+
+		test('defaults ignore_types to true', () => {
+			const content = 'import type {Type} from "./types.js";\nimport {value} from "./value.js";';
+
+			const result_default = filer.parse_imports('/test/file.ts', content);
+			const result_explicit = filer.parse_imports('/test/file.ts', content, true);
+
+			expect(result_default).toEqual(result_explicit);
+		});
+	});
+
 	describe('Disknode_Api interface compliance', () => {
 		test('implements all required methods', () => {
 			// Test that filer has all required Disknode_Api methods
@@ -192,6 +221,7 @@ describe('Filer Disknode_Api implementation', () => {
 			expect(typeof filer.resolve_specifier).toBe('function');
 			expect(typeof filer.resolve_external_specifier).toBe('function');
 			expect(typeof filer.get_disknode).toBe('function');
+			expect(typeof filer.parse_imports).toBe('function');
 		});
 
 		test('methods have correct signatures', () => {
