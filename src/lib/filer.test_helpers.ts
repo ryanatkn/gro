@@ -90,7 +90,8 @@ export class Filer_Test_Context {
 	 * Use this when you need to test behavior before mounting or need manual mount control.
 	 */
 	create_unmounted_filer(options?: Filer_Options): Filer {
-		const filer = new Filer(options);
+		// Disable workers by default in tests to prevent module resolution issues
+		const filer = new Filer({worker_enabled: false, ...options});
 		this.#filers.add(filer);
 		return filer;
 	}

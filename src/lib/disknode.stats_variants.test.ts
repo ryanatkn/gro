@@ -1,7 +1,7 @@
 // @slop Claude Sonnet 4
 
 import {describe, test, expect, vi, beforeEach, afterEach} from 'vitest';
-import {lstatSync} from 'node:fs';
+import {lstat} from 'node:fs/promises';
 
 import {Disknode} from './disknode.ts';
 import type {Filer} from './filer.ts';
@@ -9,10 +9,14 @@ import type {Path_Id} from './path.ts';
 import {create_mock_stats, TEST_PATHS} from './filer.test_helpers.ts';
 
 // Mock filesystem modules
+vi.mock('node:fs/promises', () => ({
+	readFile: vi.fn(),
+	lstat: vi.fn(),
+	realpath: vi.fn(),
+}));
+
+// Also mock the sync version for any remaining usage
 vi.mock('node:fs', () => ({
-	readFileSync: vi.fn(),
-	lstatSync: vi.fn(),
-	realpathSync: vi.fn(),
 	existsSync: vi.fn(),
 }));
 
@@ -28,12 +32,13 @@ const create_mock_filer = (): Filer =>
 		map_alias: vi.fn((spec: string) => spec),
 		resolve_specifier: vi.fn(() => ({path_id: '/resolved/path.js'})),
 		resolve_external_specifier: vi.fn().mockReturnValue('file:///resolved/external.js'),
-		parse_imports: vi.fn().mockReturnValue([]),
+		parse_imports_async: vi.fn().mockResolvedValue([]),
+		load_resources_batch: vi.fn().mockResolvedValue(undefined),
 	}) as unknown as Filer;
 
 const setup_stats_test = (stats_options: Record<string, any> = {}) => {
 	const mock_stats = create_mock_stats(stats_options);
-	vi.mocked(lstatSync).mockReturnValue(mock_stats);
+	vi.mocked(lstat).mockResolvedValue(mock_stats);
 	return mock_stats;
 };
 
@@ -50,30 +55,30 @@ describe('Disknode Stats Variants', () => {
 	});
 
 	describe('set_stats variants', () => {
-		test('set_stats skips if already current', () => {
+		test('set_stats skips if already current', async () => {
 			setup_stats_test({size: 100});
 			const disknode = new Disknode(TEST_PATH_TS, filer);
 
-			// Access stats to make them current
-			disknode.stats;
-			const first_call_count = vi.mocked(lstatSync).mock.calls.length;
+			// Load stats to make them current
+			await disknode.load_stats();
+			const first_call_count = vi.mocked(lstat).mock.calls.length;
 
 			// set_stats should skip since version is current
 			const new_stats = create_mock_stats({size: 200});
 			disknode.set_stats(new_stats);
 
 			// Should not have called lstat again
-			expect(vi.mocked(lstatSync).mock.calls.length).toBe(first_call_count);
+			expect(vi.mocked(lstat).mock.calls.length).toBe(first_call_count);
 			// Stats should still be the original ones
 			expect(disknode.size).toBe(100);
 		});
 
-		test('set_stats_force bypasses version check', () => {
+		test('set_stats_force bypasses version check', async () => {
 			setup_stats_test({size: 100});
 			const disknode = new Disknode(TEST_PATH_TS, filer);
 
-			// Access stats to make them current
-			disknode.stats;
+			// Load stats to make them current
+			await disknode.load_stats();
 			expect(disknode.size).toBe(100);
 
 			// set_stats_force should override even if version is current
@@ -100,7 +105,7 @@ describe('Disknode Stats Variants', () => {
 			// Subsequent stats access should use the set stats, not call lstat
 			const stats = disknode.stats;
 			expect(stats).toBe(new_stats);
-			expect(vi.mocked(lstatSync)).not.toHaveBeenCalled();
+			expect(vi.mocked(lstat)).not.toHaveBeenCalled();
 		});
 
 		test('set_stats updates kind from stats', () => {
@@ -234,18 +239,19 @@ describe('Disknode Stats Variants', () => {
 			// Access stats should return preset stats, not trigger lstat
 			const stats = disknode.stats;
 			expect(stats).toBe(preset_stats);
-			expect(vi.mocked(lstatSync)).not.toHaveBeenCalled();
+			expect(vi.mocked(lstat)).not.toHaveBeenCalled();
 		});
 
-		test('set_stats after failed stats loading', () => {
+		test('set_stats after failed stats loading', async () => {
 			// Mock lstat to fail
-			vi.mocked(lstatSync).mockImplementation(() => {
+			vi.mocked(lstat).mockImplementation(async () => {
 				throw new Error('ENOENT');
 			});
 
 			const disknode = new Disknode(TEST_PATH_TS, filer);
 
-			// Try to access stats (will fail)
+			// Try to load stats (will fail)
+			await disknode.load_stats();
 			const failed_stats = disknode.stats;
 			expect(failed_stats).toBe(null);
 			expect(disknode.exists).toBe(false);
@@ -278,12 +284,12 @@ describe('Disknode Stats Variants', () => {
 			expect(disknode.size).toBe(200); // Now changed
 		});
 
-		test('set_stats vs set_stats_force behavior comparison', () => {
+		test('set_stats vs set_stats_force behavior comparison', async () => {
 			setup_stats_test({size: 50});
 			const disknode = new Disknode(TEST_PATH_TS, filer);
 
-			// Access stats to make current
-			disknode.stats;
+			// Load stats to make current
+			await disknode.load_stats();
 			expect(disknode.size).toBe(50);
 
 			// Try regular set_stats - should be ignored
@@ -307,7 +313,7 @@ describe('Disknode Stats Variants', () => {
 			// Size getter should use cached stats without calling lstat
 			const size = disknode.size;
 			expect(size).toBe(300);
-			expect(vi.mocked(lstatSync)).not.toHaveBeenCalled();
+			expect(vi.mocked(lstat)).not.toHaveBeenCalled();
 		});
 
 		test('stats setting with null values', () => {
@@ -338,10 +344,10 @@ describe('Disknode Stats Variants', () => {
 			// Multiple accesses should return the same preset stats
 			expect(disknode.stats).toBe(preset_stats);
 			expect(disknode.stats).toBe(preset_stats);
-			expect(vi.mocked(lstatSync)).not.toHaveBeenCalled();
+			expect(vi.mocked(lstat)).not.toHaveBeenCalled();
 		});
 
-		test('stats getter after invalidation ignores old set_stats', () => {
+		test('stats getter after invalidation ignores old set_stats', async () => {
 			const filesystem_stats = create_mock_stats({size: 100});
 			setup_stats_test(filesystem_stats);
 			const disknode = new Disknode(TEST_PATH_TS, filer);
@@ -352,15 +358,16 @@ describe('Disknode Stats Variants', () => {
 			expect(disknode.stats).toBe(manual_stats);
 
 			// Clear mock call history
-			vi.mocked(lstatSync).mockClear();
+			vi.mocked(lstat).mockClear();
 
 			// Invalidate
 			disknode.invalidate();
 
-			// Next stats access should go to filesystem
+			// Load fresh stats from filesystem
+			await disknode.load_stats();
 			const fresh_stats = disknode.stats;
 			expect(fresh_stats).toEqual(filesystem_stats); // Use toEqual for content comparison
-			expect(vi.mocked(lstatSync)).toHaveBeenCalledTimes(1);
+			expect(vi.mocked(lstat)).toHaveBeenCalledTimes(1);
 		});
 	});
 });

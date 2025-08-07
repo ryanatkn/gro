@@ -5,21 +5,27 @@ import {describe, test, expect, vi} from 'vitest';
 import type {Filer_Observer} from './filer_helpers.ts';
 import {use_filer_test_context, TEST_PATHS, wait_for_batch} from './filer.test_helpers.ts';
 
-vi.mock('node:fs', () => ({
-	existsSync: vi.fn(),
-	readFileSync: vi.fn(),
-	lstatSync: vi.fn(),
-	realpathSync: vi.fn(),
+vi.mock('node:fs/promises', () => ({
+	readFile: vi.fn(),
+	lstat: vi.fn(),
+	realpath: vi.fn(),
+	stat: vi.fn(),
 }));
 
-vi.mock('node:fs/promises', () => ({
-	stat: vi.fn(),
+// Also mock the sync version for any remaining usage
+vi.mock('node:fs', () => ({
+	existsSync: vi.fn(),
 }));
 
 vi.mock('chokidar', () => ({
 	watch: vi.fn(),
 	// eslint-disable-next-line @typescript-eslint/no-extraneous-class
 	FSWatcher: class MockFSWatcher {},
+}));
+
+// Mock the synchronous parse_imports function used when workers are disabled
+vi.mock('./parse_imports.ts', () => ({
+	parse_imports: vi.fn().mockReturnValue([]),
 }));
 
 describe('Filer Prewarm + Expansion Integration', () => {
@@ -48,13 +54,13 @@ describe('Filer Prewarm + Expansion Integration', () => {
 		node_b.add_dependency(node_a);
 		node_c.add_dependency(node_b);
 
-		// Spy on properties that should be prewarmed
-		const contents_spy_a = vi.spyOn(node_a, 'contents', 'get');
-		const contents_spy_b = vi.spyOn(node_b, 'contents', 'get');
-		const contents_spy_c = vi.spyOn(node_c, 'contents', 'get');
-		const imports_spy_a = vi.spyOn(node_a, 'imports', 'get');
-		const imports_spy_b = vi.spyOn(node_b, 'imports', 'get');
-		const imports_spy_c = vi.spyOn(node_c, 'imports', 'get');
+		// Spy on loading methods that should be prewarmed
+		const load_contents_spy_a = vi.spyOn(node_a, 'load_contents');
+		const load_contents_spy_b = vi.spyOn(node_b, 'load_contents');
+		const load_contents_spy_c = vi.spyOn(node_c, 'load_contents');
+		const load_imports_spy_a = vi.spyOn(node_a, 'load_imports');
+		const load_imports_spy_b = vi.spyOn(node_b, 'load_imports');
+		const load_imports_spy_c = vi.spyOn(node_c, 'load_imports');
 
 		// Trigger change to A - this should expand to include B and C
 		ctx.mock_watcher.emit('change', TEST_PATHS.FILE_A);
@@ -69,12 +75,12 @@ describe('Filer Prewarm + Expansion Integration', () => {
 		expect(batch.has(TEST_PATHS.FILE_C)).toBe(true);
 
 		// Verify prewarm happened for ALL nodes in the expanded batch
-		expect(contents_spy_a).toHaveBeenCalled();
-		expect(contents_spy_b).toHaveBeenCalled();
-		expect(contents_spy_c).toHaveBeenCalled();
-		expect(imports_spy_a).toHaveBeenCalled();
-		expect(imports_spy_b).toHaveBeenCalled();
-		expect(imports_spy_c).toHaveBeenCalled();
+		expect(load_contents_spy_a).toHaveBeenCalled();
+		expect(load_contents_spy_b).toHaveBeenCalled();
+		expect(load_contents_spy_c).toHaveBeenCalled();
+		expect(load_imports_spy_a).toHaveBeenCalled();
+		expect(load_imports_spy_b).toHaveBeenCalled();
+		expect(load_imports_spy_c).toHaveBeenCalled();
 	});
 
 	test('prewarm only happens for nodes that match filters', async () => {
@@ -99,9 +105,9 @@ describe('Filer Prewarm + Expansion Integration', () => {
 		node_external.is_external = true;
 		node_external.add_dependency(node_a);
 
-		// Spy on properties
-		const contents_spy_a = vi.spyOn(node_a, 'contents', 'get');
-		const contents_spy_external = vi.spyOn(node_external, 'contents', 'get');
+		// Spy on loading methods that should be prewarmed
+		const load_contents_spy_a = vi.spyOn(node_a, 'load_contents');
+		const load_contents_spy_external = vi.spyOn(node_external, 'load_contents');
 
 		// Trigger change to A
 		ctx.mock_watcher.emit('change', TEST_PATHS.FILE_A);
@@ -113,8 +119,8 @@ describe('Filer Prewarm + Expansion Integration', () => {
 		expect(batch.has(TEST_PATHS.EXTERNAL_FILE)).toBe(false);
 
 		// Verify prewarm only happened for included nodes
-		expect(contents_spy_a).toHaveBeenCalled();
-		expect(contents_spy_external).not.toHaveBeenCalled();
+		expect(load_contents_spy_a).toHaveBeenCalled();
+		expect(load_contents_spy_external).not.toHaveBeenCalled();
 	});
 
 	test('prewarm respects observer performance hints', async () => {
@@ -139,13 +145,13 @@ describe('Filer Prewarm + Expansion Integration', () => {
 		const node_b = filer.get_disknode(TEST_PATHS.FILE_B);
 		node_b.add_dependency(node_a);
 
-		// Spy on properties
-		const contents_spy_a = vi.spyOn(node_a, 'contents', 'get');
-		const contents_spy_b = vi.spyOn(node_b, 'contents', 'get');
-		const stats_spy_a = vi.spyOn(node_a, 'stats', 'get');
-		const stats_spy_b = vi.spyOn(node_b, 'stats', 'get');
-		const imports_spy_a = vi.spyOn(node_a, 'imports', 'get');
-		const imports_spy_b = vi.spyOn(node_b, 'imports', 'get');
+		// Spy on loading methods that should be prewarmed
+		const load_contents_spy_a = vi.spyOn(node_a, 'load_contents');
+		const load_contents_spy_b = vi.spyOn(node_b, 'load_contents');
+		const load_stats_spy_a = vi.spyOn(node_a, 'load_stats');
+		const load_stats_spy_b = vi.spyOn(node_b, 'load_stats');
+		const load_imports_spy_a = vi.spyOn(node_a, 'load_imports');
+		const load_imports_spy_b = vi.spyOn(node_b, 'load_imports');
 
 		// Trigger change to A
 		ctx.mock_watcher.emit('change', TEST_PATHS.FILE_A);
@@ -157,12 +163,12 @@ describe('Filer Prewarm + Expansion Integration', () => {
 		expect(batch.has(TEST_PATHS.FILE_B)).toBe(true);
 
 		// Verify NO prewarm happened since observer doesn't need any data
-		expect(contents_spy_a).not.toHaveBeenCalled();
-		expect(contents_spy_b).not.toHaveBeenCalled();
-		expect(stats_spy_a).not.toHaveBeenCalled();
-		expect(stats_spy_b).not.toHaveBeenCalled();
-		expect(imports_spy_a).not.toHaveBeenCalled();
-		expect(imports_spy_b).not.toHaveBeenCalled();
+		expect(load_contents_spy_a).not.toHaveBeenCalled();
+		expect(load_contents_spy_b).not.toHaveBeenCalled();
+		expect(load_stats_spy_a).not.toHaveBeenCalled();
+		expect(load_stats_spy_b).not.toHaveBeenCalled();
+		expect(load_imports_spy_a).not.toHaveBeenCalled();
+		expect(load_imports_spy_b).not.toHaveBeenCalled();
 	});
 
 	test('expand_to automatically enables imports prewarm when not explicitly disabled', async () => {
@@ -185,9 +191,9 @@ describe('Filer Prewarm + Expansion Integration', () => {
 		const node_b = filer.get_disknode(TEST_PATHS.FILE_B);
 		node_a.add_dependency(node_b);
 
-		// Spy on imports
-		const imports_spy_a = vi.spyOn(node_a, 'imports', 'get');
-		const imports_spy_b = vi.spyOn(node_b, 'imports', 'get');
+		// Spy on imports loading methods
+		const load_imports_spy_a = vi.spyOn(node_a, 'load_imports');
+		const load_imports_spy_b = vi.spyOn(node_b, 'load_imports');
 
 		// Trigger change to A
 		ctx.mock_watcher.emit('change', TEST_PATHS.FILE_A);
@@ -199,8 +205,8 @@ describe('Filer Prewarm + Expansion Integration', () => {
 		expect(batch.has(TEST_PATHS.FILE_B)).toBe(true);
 
 		// Verify imports prewarm happened because expand_to: 'dependencies' auto-enables it
-		expect(imports_spy_a).toHaveBeenCalled();
-		expect(imports_spy_b).toHaveBeenCalled();
+		expect(load_imports_spy_a).toHaveBeenCalled();
+		expect(load_imports_spy_b).toHaveBeenCalled();
 	});
 
 	test('expand_to respects explicit needs_imports: false', async () => {
@@ -223,9 +229,9 @@ describe('Filer Prewarm + Expansion Integration', () => {
 		const node_b = filer.get_disknode(TEST_PATHS.FILE_B);
 		node_a.add_dependency(node_b);
 
-		// Spy on imports
-		const imports_spy_a = vi.spyOn(node_a, 'imports', 'get');
-		const imports_spy_b = vi.spyOn(node_b, 'imports', 'get');
+		// Spy on imports loading methods
+		const load_imports_spy_a = vi.spyOn(node_a, 'load_imports');
+		const load_imports_spy_b = vi.spyOn(node_b, 'load_imports');
 
 		// Trigger change to A
 		ctx.mock_watcher.emit('change', TEST_PATHS.FILE_A);
@@ -237,8 +243,8 @@ describe('Filer Prewarm + Expansion Integration', () => {
 		expect(batch.has(TEST_PATHS.FILE_B)).toBe(true);
 
 		// Verify imports prewarm did NOT happen because needs_imports: false overrides auto-enable
-		expect(imports_spy_a).not.toHaveBeenCalled();
-		expect(imports_spy_b).not.toHaveBeenCalled();
+		expect(load_imports_spy_a).not.toHaveBeenCalled();
+		expect(load_imports_spy_b).not.toHaveBeenCalled();
 	});
 
 	test('returns_intents auto-enables imports prewarm when not explicitly disabled', async () => {
@@ -257,14 +263,14 @@ describe('Filer Prewarm + Expansion Integration', () => {
 		});
 
 		const node_a = filer.get_disknode(TEST_PATHS.FILE_A);
-		const imports_spy_a = vi.spyOn(node_a, 'imports', 'get');
+		const load_imports_spy_a = vi.spyOn(node_a, 'load_imports');
 
 		// Trigger change to A
 		ctx.mock_watcher.emit('change', TEST_PATHS.FILE_A);
 		await wait_for_batch(10);
 
 		// Verify imports prewarm happened because returns_intents: true auto-enables it
-		expect(imports_spy_a).toHaveBeenCalled();
+		expect(load_imports_spy_a).toHaveBeenCalled();
 	});
 
 	test('returns_intents respects explicit needs_imports: false', async () => {
@@ -283,13 +289,13 @@ describe('Filer Prewarm + Expansion Integration', () => {
 		});
 
 		const node_a = filer.get_disknode(TEST_PATHS.FILE_A);
-		const imports_spy_a = vi.spyOn(node_a, 'imports', 'get');
+		const load_imports_spy_a = vi.spyOn(node_a, 'load_imports');
 
 		// Trigger change to A
 		ctx.mock_watcher.emit('change', TEST_PATHS.FILE_A);
 		await wait_for_batch(10);
 
 		// Verify imports prewarm did NOT happen because needs_imports: false overrides auto-enable
-		expect(imports_spy_a).not.toHaveBeenCalled();
+		expect(load_imports_spy_a).not.toHaveBeenCalled();
 	});
 });

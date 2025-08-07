@@ -1,6 +1,7 @@
 // @slop Claude Opus 4.1
 
-import {readFileSync, type Stats} from 'node:fs';
+import {readFile} from 'node:fs/promises';
+import type {Stats} from 'node:fs';
 import {basename} from 'node:path';
 
 import type {Path_Id} from './path.ts';
@@ -73,9 +74,11 @@ export const disknode_update_kind_from_stats = (stats: Stats): 'file' | 'directo
  * Read file contents directly without caching (for large files).
  * Returns null if the file cannot be read.
  */
-export const disknode_read_contents_direct = (target_path: Path_Id): string | null => {
+export const disknode_read_contents_direct = async (
+	target_path: Path_Id,
+): Promise<string | null> => {
 	try {
-		return readFileSync(target_path, 'utf8');
+		return await readFile(target_path, 'utf8');
 	} catch {
 		return null;
 	}

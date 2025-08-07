@@ -5,21 +5,27 @@ import {describe, test, expect, vi} from 'vitest';
 import type {Filer_Observer} from './filer_helpers.ts';
 import {use_filer_test_context, TEST_PATHS, wait_for_batch} from './filer.test_helpers.ts';
 
-vi.mock('node:fs', () => ({
-	existsSync: vi.fn(),
-	readFileSync: vi.fn(),
-	lstatSync: vi.fn(),
-	realpathSync: vi.fn(),
+vi.mock('node:fs/promises', () => ({
+	readFile: vi.fn(),
+	lstat: vi.fn(),
+	realpath: vi.fn(),
+	stat: vi.fn(),
 }));
 
-vi.mock('node:fs/promises', () => ({
-	stat: vi.fn(),
+// Also mock the sync version for any remaining usage
+vi.mock('node:fs', () => ({
+	existsSync: vi.fn(),
 }));
 
 vi.mock('chokidar', () => ({
 	watch: vi.fn(),
 	// eslint-disable-next-line @typescript-eslint/no-extraneous-class
 	FSWatcher: class MockFSWatcher {},
+}));
+
+// Mock the synchronous parse_imports function used when workers are disabled
+vi.mock('./parse_imports.ts', () => ({
+	parse_imports: vi.fn().mockReturnValue([]),
 }));
 
 describe('Filer expand_batch all strategy optimization', () => {
@@ -54,13 +60,13 @@ describe('Filer expand_batch all strategy optimization', () => {
 		// Verify observer was called with all non-external nodes
 		expect(vi.mocked(observer.on_change)).toHaveBeenCalledTimes(1);
 		const batch = vi.mocked(observer.on_change).mock.calls[0][0];
-		
+
 		// Should include all non-external nodes
 		expect(batch.has(TEST_PATHS.FILE_A)).toBe(true);
 		expect(batch.has(TEST_PATHS.FILE_B)).toBe(true);
 		expect(batch.has(TEST_PATHS.FILE_C)).toBe(true);
 		expect(batch.has(TEST_PATHS.FILE_D)).toBe(true);
-		
+
 		// Should NOT include external node
 		expect(batch.has(TEST_PATHS.EXTERNAL_FILE)).toBe(false);
 	});
@@ -93,7 +99,7 @@ describe('Filer expand_batch all strategy optimization', () => {
 		// Verify observer was called with all nodes
 		expect(vi.mocked(observer.on_change)).toHaveBeenCalledTimes(1);
 		const batch = vi.mocked(observer.on_change).mock.calls[0][0];
-		
+
 		// Should have exactly the changed nodes
 		expect(batch.size).toBe(3);
 		expect(batch.has(TEST_PATHS.FILE_A)).toBe(true);
@@ -130,11 +136,11 @@ describe('Filer expand_batch all strategy optimization', () => {
 
 		// Verify observer was called with all files but no directories
 		const batch = vi.mocked(observer.on_change).mock.calls[0][0];
-		
+
 		// Should include files
 		expect(batch.has(TEST_PATHS.FILE_A)).toBe(true);
 		expect(batch.has(TEST_PATHS.FILE_B)).toBe(true);
-		
+
 		// Should NOT include directory
 		expect(batch.has(TEST_PATHS.DIR_LIB)).toBe(false);
 	});
@@ -168,7 +174,7 @@ describe('Filer expand_batch all strategy optimization', () => {
 
 		// Verify only internal nodes are included
 		const batch = vi.mocked(observer.on_change).mock.calls[0][0];
-		
+
 		expect(batch.has(TEST_PATHS.FILE_A)).toBe(true);
 		expect(batch.has(TEST_PATHS.FILE_B)).toBe(true);
 		expect(batch.has('/external/file1.ts')).toBe(false);
@@ -200,7 +206,7 @@ describe('Filer expand_batch all strategy optimization', () => {
 		// Observer should still be called with all nodes due to expand_to: 'all'
 		expect(vi.mocked(observer.on_change)).toHaveBeenCalledTimes(1);
 		const batch = vi.mocked(observer.on_change).mock.calls[0][0];
-		
+
 		// Even though initial pattern didn't match, expand_to all should include everything
 		expect(batch.has(TEST_PATHS.FILE_A)).toBe(true);
 		expect(batch.has(TEST_PATHS.FILE_B)).toBe(true);
@@ -233,7 +239,7 @@ describe('Filer expand_batch all strategy optimization', () => {
 		for (const path of nodes) {
 			ctx.mock_watcher.emit('change', path);
 		}
-		
+
 		const start = performance.now();
 		await wait_for_batch(10);
 		const duration = performance.now() - start;
@@ -241,7 +247,7 @@ describe('Filer expand_batch all strategy optimization', () => {
 		// Verify observer was called correctly
 		expect(vi.mocked(observer.on_change)).toHaveBeenCalledTimes(1);
 		const batch = vi.mocked(observer.on_change).mock.calls[0][0];
-		
+
 		// Should have all nodes
 		expect(batch.size).toBe(nodes.length);
 		for (const path of nodes) {
@@ -284,11 +290,11 @@ describe('Filer expand_batch all strategy optimization', () => {
 		await wait_for_batch(10);
 
 		const batch = vi.mocked(observer.on_change).mock.calls[0][0];
-		
+
 		// Should include all internal files (both .ts and .js due to expand_to: 'all')
 		expect(batch.has('/test/project/src/file.ts')).toBe(true);
 		expect(batch.has('/test/project/src/file.js')).toBe(true);
-		
+
 		// Should NOT include directory or external
 		expect(batch.has('/test/project/src/dir')).toBe(false);
 		expect(batch.has('/external/file.ts')).toBe(false);

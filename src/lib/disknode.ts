@@ -1,6 +1,7 @@
 // @slop Claude Opus 4.1
 
-import {type Stats, readFileSync, lstatSync, realpathSync} from 'node:fs';
+import {readFile, lstat, realpath} from 'node:fs/promises';
+import type {Stats} from 'node:fs';
 import {basename, dirname, resolve} from 'node:path';
 import {isBuiltin} from 'node:module';
 import {fileURLToPath} from 'node:url';
@@ -25,7 +26,15 @@ export interface Disknode_Api {
 	resolve_specifier: (specifier: string, base: Path_Id) => {path_id: Path_Id};
 	resolve_external_specifier: (specifier: string, base: string) => string;
 	get_disknode: (id: Path_Id) => Disknode;
-	parse_imports: (id: Path_Id, contents: string, ignore_types?: boolean) => Array<string>;
+	parse_imports_async: (
+		id: Path_Id,
+		contents: string,
+		ignore_types?: boolean,
+	) => Promise<Array<string>>;
+	load_resources_batch: (
+		disknodes: Array<Disknode>,
+		options: {contents?: boolean; imports?: boolean; stats?: boolean},
+	) => Promise<void>;
 }
 
 /**
@@ -84,24 +93,35 @@ export class Disknode {
 	}
 
 	/**
-	 * Get file stats synchronously with lazy loading and caching.
-	 * Returns null if file doesn't exist.
+	 * Load and cache file stats.
+	 * Returns immediately if already loaded and current.
 	 */
-	get stats(): Stats | null {
+	async load_stats(): Promise<void> {
+		if (this.#stats_version === this.#version) return; // Already loaded
+
+		try {
+			// Use lstat to get symlink info
+			this.#stats = await lstat(this.id);
+
+			// Update kind based on stats
+			this.kind = disknode_update_kind_from_stats(this.#stats);
+
+			this.exists = true;
+		} catch {
+			this.#stats = null;
+			this.exists = false;
+		}
+		this.#stats_version = this.#version;
+	}
+
+	/**
+	 * Get cached file stats.
+	 * Returns undefined if not loaded, null if loaded but file doesn't exist.
+	 * Use load_stats() to populate the cache.
+	 */
+	get stats(): Stats | null | undefined {
 		if (this.#stats_version !== this.#version) {
-			try {
-				// Use lstat to get symlink info
-				this.#stats = lstatSync(this.id);
-
-				// Update kind based on stats
-				this.kind = disknode_update_kind_from_stats(this.#stats);
-
-				this.exists = true;
-			} catch {
-				this.#stats = null;
-				this.exists = false;
-			}
-			this.#stats_version = this.#version;
+			return undefined; // Not loaded
 		}
 		return this.#stats;
 	}
@@ -137,103 +157,185 @@ export class Disknode {
 	}
 
 	/**
-	 * Get file contents synchronously with lazy loading and caching.
-	 * Returns null for directories or non-existent files.
-	 * Large files bypass the cache to manage memory.
+	 * Load and cache file contents.
+	 * Returns immediately if already loaded and current.
 	 */
-	get contents(): string | null {
-		if (this.#contents_version !== this.#version) {
-			const stats = this.stats; // Ensure stats are fresh and kind is updated
-			if (!stats || this.kind === 'directory') {
-				this.#contents = null;
-				this.#contents_version = this.#version;
-				return null;
-			}
+	async load_contents(): Promise<void> {
+		if (this.#contents_version === this.#version) return; // Already loaded
 
-			// For symlinks, check if the target is a directory
-			let target_path = this.id;
-			if (this.kind === 'symlink') {
-				target_path = this.realpath;
-				// Check if symlink target is a directory
-				try {
-					const target_stats = lstatSync(target_path);
-					if (target_stats.isDirectory()) {
-						this.#contents = null;
-						this.#contents_version = this.#version;
-						return null;
+		// Ensure stats are loaded first
+		await this.load_stats();
+		const stats = this.stats;
+		if (!stats || this.kind === 'directory') {
+			this.#contents = null;
+			this.#contents_version = this.#version;
+			return;
+		}
+
+		// For symlinks, check if the target is a directory
+		let target_path = this.id;
+		if (this.kind === 'symlink') {
+			// Ensure realpath is loaded if this is a symlink
+			if (this.#realpath_version !== this.#version) {
+				if (stats && this.kind === 'symlink' && this.exists) {
+					try {
+						this.#realpath = await realpath(this.id);
+					} catch {
+						// Broken symlink, symlink cycle, or other error - use original path
+						this.#realpath = this.id;
 					}
-				} catch {
-					// Symlink target doesn't exist or is inaccessible - treat as broken symlink
+				} else {
+					this.#realpath = this.id;
+				}
+				this.#realpath_version = this.#version;
+			}
+			target_path = this.#realpath ?? this.id;
+			// Check if symlink target is a directory
+			try {
+				const target_stats = await lstat(target_path);
+				if (target_stats.isDirectory()) {
 					this.#contents = null;
 					this.#contents_version = this.#version;
-					return null;
+					return;
 				}
-			}
-
-			// For large files, don't cache - return directly
-			if (!disknode_should_cache_contents(stats.size)) {
-				return disknode_read_contents_direct(target_path);
-			}
-
-			// Cache small files
-			try {
-				this.#contents = readFileSync(target_path, 'utf8');
 			} catch {
+				// Symlink target doesn't exist or is inaccessible - treat as broken symlink
 				this.#contents = null;
+				this.#contents_version = this.#version;
+				return;
 			}
-			this.#contents_version = this.#version;
 		}
+
+		// For large files, don't cache contents
+		if (stats && !disknode_should_cache_contents(stats.size)) {
+			this.#contents = null;
+			this.#contents_version = this.#version;
+			return;
+		}
+
+		// Load and cache small files
+		try {
+			this.#contents = await readFile(target_path, 'utf8');
+		} catch {
+			this.#contents = null;
+		}
+		this.#contents_version = this.#version;
+	}
+
+	/**
+	 * Get cached file contents.
+	 * Returns undefined if not loaded, null if loaded but unavailable/directory.
+	 * Use load_contents() to populate the cache.
+	 */
+	get contents(): string | null | undefined {
+		if (this.#contents_version !== this.#version) {
+			return undefined; // Not loaded
+		}
+
+		// For large files that aren't cached, return null and require explicit loading
+		// The async disknode_read_contents_direct can only be used in async contexts
 		return this.#contents;
 	}
 
 	/**
-	 * Get the real path for symlinks, or the id for regular files.
-	 * Resolves symlinks recursively with cycle detection.
+	 * Get file contents, handling large files with direct reads.
+	 * Returns undefined if not loaded, null if unavailable/directory.
+	 * For large files, performs async direct read.
 	 */
-	get realpath(): Path_Id {
-		if (this.#realpath_version !== this.#version) {
-			const stats = this.stats; // Ensure stats are fresh and kind is updated
-			if (stats && this.kind === 'symlink' && this.exists) {
-				try {
-					this.#realpath = realpathSync(this.id);
-				} catch {
-					// Broken symlink, symlink cycle, or other error - use original path
-					this.#realpath = this.id;
-				}
-			} else {
-				this.#realpath = this.id;
-			}
-			this.#realpath_version = this.#version;
+	async get_contents(): Promise<string | null | undefined> {
+		if (this.#contents_version !== this.#version) {
+			return undefined; // Not loaded
 		}
-		return this.#realpath!;
+
+		// For large files, return direct read
+		if (this.#stats && !disknode_should_cache_contents(this.#stats.size)) {
+			let target_path = this.id;
+			if (this.kind === 'symlink') {
+				// Use cached realpath if available, otherwise use id
+				target_path =
+					this.#realpath_version === this.#version ? (this.#realpath ?? this.id) : this.id;
+			}
+			return await disknode_read_contents_direct(target_path);
+		}
+
+		return this.#contents;
 	}
 
 	/**
-	 * Get parsed imports for JS/TypeScript files.
-	 * Returns null for non-JS/TS files or directories.
-	 * Automatically updates dependencies based on imports.
+	 * Load and cache the real path for symlinks.
+	 * Returns immediately if already loaded and current.
 	 */
-	get imports(): Set<string> | null {
-		if (this.#imports_version !== this.#version) {
-			// Early return if not importable - avoid contents access
-			if (!this.is_importable) {
-				this.#imports = null;
-				this.#imports_version = this.#version;
-				return null;
-			}
+	async load_realpath(): Promise<void> {
+		if (this.#realpath_version === this.#version) return; // Already loaded
 
-			const contents = this.contents;
-			if (!contents) {
-				this.#imports = null;
-			} else {
-				// Parse imports from contents
-				const imported = this.api.parse_imports(this.id, contents);
-				this.#imports = new Set(imported);
-
-				// Update dependencies based on imports
-				this.#update_dependencies_from_imports(imported);
+		// Ensure stats are loaded first
+		await this.load_stats();
+		const stats = this.stats;
+		if (stats && this.kind === 'symlink' && this.exists) {
+			try {
+				this.#realpath = await realpath(this.id);
+			} catch {
+				// Broken symlink, symlink cycle, or other error - use original path
+				this.#realpath = this.id;
 			}
+		} else {
+			this.#realpath = this.id;
+		}
+		this.#realpath_version = this.#version;
+	}
+
+	/**
+	 * Get the real path for symlinks, or the id for regular files.
+	 * Returns undefined if not loaded, otherwise the resolved path.
+	 * Use load_realpath() to populate the cache.
+	 */
+	get realpath(): Path_Id | undefined {
+		if (this.#realpath_version !== this.#version) {
+			return undefined; // Not loaded
+		}
+		return this.#realpath ?? this.id;
+	}
+
+	/**
+	 * Load and cache parsed imports for JS/TypeScript files.
+	 * Automatically updates dependencies based on imports.
+	 * Uses async parsing with worker threads for better performance.
+	 */
+	async load_imports(): Promise<void> {
+		if (this.#imports_version === this.#version) return; // Already loaded
+
+		// Early return if not importable
+		if (!this.is_importable) {
+			this.#imports = null;
 			this.#imports_version = this.#version;
+			return;
+		}
+
+		// Ensure contents are loaded first
+		await this.load_contents();
+		// Access the loaded contents directly since load_contents() updates the cache
+		const contents = this.#contents_version === this.#version ? this.#contents : null;
+		if (!contents) {
+			this.#imports = null;
+		} else {
+			// Parse imports from contents (async, potentially worker-threaded)
+			const imported = await this.api.parse_imports_async(this.id, contents);
+			this.#imports = new Set(imported);
+
+			// Update dependencies based on imports
+			this.#update_dependencies_from_imports(imported);
+		}
+		this.#imports_version = this.#version;
+	}
+
+	/**
+	 * Get cached parsed imports.
+	 * Returns undefined if not loaded, null if loaded but not importable.
+	 * Use load_imports() to populate the cache.
+	 */
+	get imports(): Set<string> | null | undefined {
+		if (this.#imports_version !== this.#version) {
+			return undefined; // Not loaded
 		}
 		return this.#imports;
 	}
@@ -257,23 +359,24 @@ export class Disknode {
 
 			let resolved_id: Path_Id | null = null;
 
-			if (mapped[0] === '.' || mapped[0] === '/') {
-				// Relative or absolute path
+			// First try to resolve as local specifier (handles $lib, relative, and absolute paths)
+			try {
+				const resolved = this.api.resolve_specifier(mapped, this.id);
+				resolved_id = resolved.path_id;
+			} catch (err) {
+				// If resolve_specifier failed, try as external specifier
 				try {
-					const resolved = this.api.resolve_specifier(mapped, this.id);
-					resolved_id = resolved.path_id;
-				} catch (err) {
-					// Failed to resolve local specifier - still create disknode but mark as non-existent
-					// This preserves the import relationship for dead link detection
-					resolved_id = mapped.startsWith('.') ? resolve(dirname(this.id), mapped) : mapped;
-				}
-			} else {
-				// External specifier - use pluggable resolve_external_specifier
-				try {
-					resolved_id = fileURLToPath(this.api.resolve_external_specifier(mapped, this.id));
-				} catch (err) {
-					// Failed to resolve external specifier - this is common and expected for many imports
-					continue;
+					const external_resolved = this.api.resolve_external_specifier(mapped, this.id);
+					resolved_id = fileURLToPath(external_resolved);
+				} catch (external_err) {
+					// Both resolution methods failed
+					if (mapped[0] === '.' || mapped[0] === '/') {
+						// For relative/absolute paths that failed, still create dependency for dead link detection
+						resolved_id = mapped.startsWith('.') ? resolve(dirname(this.id), mapped) : mapped;
+					} else {
+						// External specifier that failed - skip
+						continue;
+					}
 				}
 			}
 
@@ -299,17 +402,19 @@ export class Disknode {
 	}
 
 	// Computed properties
-	get mtime(): number | null {
-		return this.stats?.mtimeMs ?? null;
+	get mtime(): number | null | undefined {
+		if (this.#stats_version === this.#version) {
+			return this.#stats?.mtimeMs ?? null;
+		}
+		return undefined; // Not loaded
 	}
 
-	get size(): number | null {
+	get size(): number | null | undefined {
 		// Use cached stats if available and current
 		if (this.#stats_version === this.#version) {
 			return this.#stats?.size ?? null;
 		}
-		// Lazy-load stats and return size
-		return this.stats?.size ?? null;
+		return undefined; // Not loaded
 	}
 
 	// Calling into pure helpers for reusability

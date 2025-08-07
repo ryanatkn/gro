@@ -7,21 +7,27 @@ import {use_filer_test_context, TEST_PATHS, wait_for_batch} from './filer.test_h
 
 // Test for deep invalidation chains to ensure iterative processing prevents stack overflow
 
-vi.mock('node:fs', () => ({
-	existsSync: vi.fn(),
-	readFileSync: vi.fn(),
-	lstatSync: vi.fn(),
-	realpathSync: vi.fn(),
+vi.mock('node:fs/promises', () => ({
+	readFile: vi.fn(),
+	lstat: vi.fn(),
+	realpath: vi.fn(),
+	stat: vi.fn(),
 }));
 
-vi.mock('node:fs/promises', () => ({
-	stat: vi.fn(),
+// Also mock the sync version for any remaining usage
+vi.mock('node:fs', () => ({
+	existsSync: vi.fn(),
 }));
 
 vi.mock('chokidar', () => ({
 	watch: vi.fn(),
 	// eslint-disable-next-line @typescript-eslint/no-extraneous-class
 	FSWatcher: class MockFSWatcher {},
+}));
+
+// Mock the synchronous parse_imports function used when workers are disabled
+vi.mock('./parse_imports.ts', () => ({
+	parse_imports: vi.fn().mockReturnValue([]),
 }));
 
 describe('Filer Deep Invalidation Processing', () => {

@@ -5,21 +5,27 @@ import {describe, test, expect, vi} from 'vitest';
 import type {Filer_Observer} from './filer_helpers.ts';
 import {use_filer_test_context, TEST_PATHS, wait_for_batch} from './filer.test_helpers.ts';
 
-vi.mock('node:fs', () => ({
-	existsSync: vi.fn(),
-	readFileSync: vi.fn(),
-	lstatSync: vi.fn(),
-	realpathSync: vi.fn(),
+vi.mock('node:fs/promises', () => ({
+	readFile: vi.fn(),
+	lstat: vi.fn(),
+	realpath: vi.fn(),
+	stat: vi.fn(),
 }));
 
-vi.mock('node:fs/promises', () => ({
-	stat: vi.fn(),
+// Also mock the sync version for any remaining usage
+vi.mock('node:fs', () => ({
+	existsSync: vi.fn(),
 }));
 
 vi.mock('chokidar', () => ({
 	watch: vi.fn(),
 	// eslint-disable-next-line @typescript-eslint/no-extraneous-class
 	FSWatcher: class MockFSWatcher {},
+}));
+
+// Mock the synchronous parse_imports function used when workers are disabled
+vi.mock('./parse_imports.ts', () => ({
+	parse_imports: vi.fn().mockReturnValue([]),
 }));
 
 describe('Filer Observer System', () => {
@@ -711,13 +717,13 @@ describe('Filer Observer System', () => {
 			});
 
 			const node = filer.get_disknode(TEST_PATHS.FILE_A);
-			const contents_spy = vi.spyOn(node, 'contents', 'get');
+			const load_contents_spy = vi.spyOn(node, 'load_contents');
 
 			ctx.mock_watcher.emit('add', TEST_PATHS.FILE_A);
 			await wait_for_batch(10);
 
-			// Contents should have been accessed during observer processing
-			expect(contents_spy).toHaveBeenCalled();
+			// Contents should have been loaded during observer processing
+			expect(load_contents_spy).toHaveBeenCalled();
 		});
 
 		test('needs_stats pre-loads file stats', async () => {
@@ -735,13 +741,13 @@ describe('Filer Observer System', () => {
 			});
 
 			const node = filer.get_disknode(TEST_PATHS.FILE_A);
-			const stats_spy = vi.spyOn(node, 'stats', 'get');
+			const load_stats_spy = vi.spyOn(node, 'load_stats');
 
 			ctx.mock_watcher.emit('add', TEST_PATHS.FILE_A);
 			await wait_for_batch(10);
 
-			// Stats should have been accessed during observer processing
-			expect(stats_spy).toHaveBeenCalled();
+			// Stats should have been loaded during observer processing
+			expect(load_stats_spy).toHaveBeenCalled();
 		});
 
 		test('needs_stats: false skips stats loading', async () => {
@@ -783,13 +789,13 @@ describe('Filer Observer System', () => {
 			});
 
 			const node = filer.get_disknode(TEST_PATHS.FILE_A);
-			const imports_spy = vi.spyOn(node, 'imports', 'get');
+			const load_imports_spy = vi.spyOn(node, 'load_imports');
 
 			ctx.mock_watcher.emit('add', TEST_PATHS.FILE_A);
 			await wait_for_batch(10);
 
-			// Imports should have been accessed during observer processing
-			expect(imports_spy).toHaveBeenCalled();
+			// Imports should have been loaded during observer processing
+			expect(load_imports_spy).toHaveBeenCalled();
 		});
 
 		test('expand_to: "dependents" auto-enables imports parsing', async () => {

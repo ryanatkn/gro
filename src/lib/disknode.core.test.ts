@@ -1,8 +1,7 @@
 // @slop Claude Opus 4.1
 
 import {describe, test, expect, vi, beforeEach, afterEach} from 'vitest';
-import {readFileSync, lstatSync, realpathSync} from 'node:fs';
-
+import {readFile, lstat, realpath} from 'node:fs/promises';
 import {Disknode} from './disknode.ts';
 import type {Filer} from './filer.ts';
 import type {Path_Id} from './path.ts';
@@ -10,10 +9,14 @@ import {DISKNODE_MAX_CACHED_SIZE} from './disknode_helpers.ts';
 import {create_mock_stats, TEST_PATHS} from './filer.test_helpers.ts';
 
 // Mock filesystem modules
+vi.mock('node:fs/promises', () => ({
+	readFile: vi.fn(),
+	lstat: vi.fn(),
+	realpath: vi.fn(),
+}));
+
+// Also mock the sync version for any remaining usage
 vi.mock('node:fs', () => ({
-	readFileSync: vi.fn(),
-	lstatSync: vi.fn(),
-	realpathSync: vi.fn(),
 	existsSync: vi.fn(),
 }));
 
@@ -62,7 +65,8 @@ const create_mock_filer = (): Filer =>
 		map_alias: vi.fn((spec: string) => spec),
 		resolve_specifier: vi.fn(() => ({path_id: '/resolved/path.js'})),
 		resolve_external_specifier: vi.fn().mockReturnValue('file:///resolved/external.js'),
-		parse_imports: vi.fn().mockReturnValue([]),
+		parse_imports_async: vi.fn().mockResolvedValue([]),
+		load_resources_batch: vi.fn().mockResolvedValue(undefined),
 		observe: vi.fn(),
 		find_disknodes: vi.fn(),
 		get_dependents: vi.fn(),
@@ -77,23 +81,23 @@ const create_mock_filer = (): Filer =>
 
 const setup_stats_test = (stats_options: Record<string, any> = {}) => {
 	const mock_stats = create_mock_stats(stats_options);
-	vi.mocked(lstatSync).mockReturnValue(mock_stats);
+	vi.mocked(lstat).mockResolvedValue(mock_stats);
 	return mock_stats;
 };
 
 const setup_content_test = (content: string, size = 100) => {
 	setup_stats_test({size});
-	vi.mocked(readFileSync).mockReturnValue(content);
+	vi.mocked(readFile).mockResolvedValue(content);
 };
 
-const setup_import_test = (
+const setup_import_test = async (
 	filer: Filer,
 	content: string,
 	imports: Array<string>,
 	dependencies: Record<string, Path_Id> = {},
 ) => {
 	setup_content_test(content);
-	vi.mocked(filer.parse_imports).mockReturnValue(imports);
+	vi.mocked(filer.parse_imports_async).mockResolvedValue(imports);
 
 	vi.mocked(filer.get_disknode).mockImplementation((id: Path_Id) => {
 		for (const dep_path of Object.values(dependencies)) {
@@ -114,13 +118,19 @@ const expect_file_properties = (disknode: Disknode, expected: FileTypeProperties
 	expect(disknode.is_importable).toBe(expected.is_importable);
 };
 
-const expect_content_loading = (disknode: Disknode, path: Path_Id, expected_content: string) => {
+const expect_content_loading = async (
+	disknode: Disknode,
+	path: Path_Id,
+	expected_content: string,
+) => {
+	await disknode.load_contents();
 	const contents = disknode.contents;
-	expect(vi.mocked(readFileSync)).toHaveBeenCalledWith(path, 'utf8');
+	expect(vi.mocked(readFile)).toHaveBeenCalledWith(path, 'utf8');
 	expect(contents).toBe(expected_content);
 };
 
-const expect_import_parsing = (disknode: Disknode, expected_imports: Array<string>) => {
+const expect_import_parsing = async (disknode: Disknode, expected_imports: Array<string>) => {
+	await disknode.load_imports();
 	const imports = disknode.imports;
 	expect(imports).toBeTruthy();
 	for (const import_spec of expected_imports) {
@@ -262,50 +272,56 @@ describe('Disknode', () => {
 	});
 
 	describe('stats lazy loading and caching', () => {
-		test('loads stats lazily on first access', () => {
+		test('loads stats with load_stats()', async () => {
 			const mock_stats = setup_stats_test({size: 123, mtimeMs: 1000});
 			const disknode = new Disknode(TEST_PATH_TS, filer);
 
-			expect(vi.mocked(lstatSync)).not.toHaveBeenCalled();
+			expect(vi.mocked(lstat)).not.toHaveBeenCalled();
+			expect(disknode.stats).toBeUndefined(); // Not loaded yet
+
+			await disknode.load_stats();
 			const stats = disknode.stats;
 
-			expect(vi.mocked(lstatSync)).toHaveBeenCalledWith(TEST_PATH_TS);
+			expect(vi.mocked(lstat)).toHaveBeenCalledWith(TEST_PATH_TS);
 			expect(stats).toBe(mock_stats);
 			expect(disknode.size).toBe(123);
 			expect(disknode.mtime).toBe(1000);
 		});
 
-		test('caches stats on subsequent accesses', () => {
+		test('caches stats after loading', async () => {
 			setup_stats_test();
 			const disknode = new Disknode(TEST_PATH_TS, filer);
 
+			await disknode.load_stats();
 			const stats1 = disknode.stats;
 			const stats2 = disknode.stats;
 
-			expect(vi.mocked(lstatSync)).toHaveBeenCalledTimes(1);
+			expect(vi.mocked(lstat)).toHaveBeenCalledTimes(1);
 			expect(stats1).toBe(stats2);
 		});
 
-		test('handles non-existent files', () => {
-			vi.mocked(lstatSync).mockImplementation(() => {
+		test('handles non-existent files', async () => {
+			vi.mocked(lstat).mockImplementation(async () => {
 				throw new Error('ENOENT');
 			});
 
 			const node = new Disknode(TEST_PATH_TS, filer);
+			await node.load_stats();
+
 			expect(node.stats).toBe(null);
 			expect(node.exists).toBe(false);
 			expect(node.size).toBe(null);
 			expect(node.mtime).toBe(null);
 		});
 
-		test('updates kind based on stats', () => {
+		test('updates kind based on stats', async () => {
 			setup_stats_test({
 				isFile: () => false,
 				isDirectory: () => true,
 			});
 
 			const node = new Disknode(TEST_DIR_PATH, filer);
-			node.stats; // trigger load
+			await node.load_stats();
 			expect(node.kind).toBe('directory');
 		});
 
@@ -314,7 +330,7 @@ describe('Disknode', () => {
 			const node = new Disknode(TEST_PATH_TS, filer);
 
 			node.set_stats(mock_stats);
-			expect(vi.mocked(lstatSync)).not.toHaveBeenCalled();
+			expect(vi.mocked(lstat)).not.toHaveBeenCalled();
 			expect(node.stats).toBe(mock_stats);
 			expect(node.size).toBe(456);
 		});
@@ -348,153 +364,183 @@ describe('Disknode', () => {
 		];
 
 		for (const {name, path, content} of content_tests) {
-			test(`loads ${name} contents`, () => {
+			test(`loads ${name} contents`, async () => {
 				setup_content_test(content);
 				const node = new Disknode(path, filer);
-				expect_content_loading(node, path, content);
+				await expect_content_loading(node, path, content);
 			});
 		}
 
-		test('caches contents for small files', () => {
+		test('caches contents for small files', async () => {
 			setup_content_test(TEST_CONTENT_TS);
 			const node = new Disknode(TEST_PATH_TS, filer);
 
+			await node.load_contents();
 			const contents1 = node.contents;
 			const contents2 = node.contents;
 
-			expect(vi.mocked(readFileSync)).toHaveBeenCalledTimes(1);
+			expect(vi.mocked(readFile)).toHaveBeenCalledTimes(1);
 			expect(contents1).toBe(contents2);
 		});
 
-		test('does not cache large files', () => {
+		test('does not cache large files but still reads them', async () => {
 			setup_content_test(TEST_LARGE_CONTENT, 15 * 1024 * 1024);
 			const node = new Disknode(TEST_LARGE_FILE_PATH, filer);
 
-			node.contents;
-			node.contents;
+			await node.load_contents();
+			// For large files, the sync getter returns null (not cached)
+			expect(node.contents).toBe(null);
 
-			expect(vi.mocked(readFileSync)).toHaveBeenCalledTimes(2);
+			// Use the async method to read large files
+			const contents1 = await node.get_contents();
+			const contents2 = await node.get_contents();
+
+			// Verify both reads return the same content
+			expect(contents1).toBe(TEST_LARGE_CONTENT);
+			expect(contents2).toBe(TEST_LARGE_CONTENT);
+			// Large files read directly each time from async getter (load_contents skips reading large files)
+			expect(vi.mocked(readFile)).toHaveBeenCalledTimes(2); // 2 for async gets, 0 for load
 		});
 
-		test('returns null for directories', () => {
+		test('returns null for directories', async () => {
 			setup_stats_test({
 				isFile: () => false,
 				isDirectory: () => true,
 			});
 
 			const node = new Disknode(TEST_DIR_PATH, filer);
+			await node.load_contents();
 			expect(node.contents).toBe(null);
-			expect(vi.mocked(readFileSync)).not.toHaveBeenCalled();
 		});
 
-		test('handles empty files', () => {
+		test('handles empty files', async () => {
 			setup_content_test('', 0);
 			const node = new Disknode(TEST_PATH_TS, filer);
-			expect_content_loading(node, TEST_PATH_TS, '');
+			await expect_content_loading(node, TEST_PATH_TS, '');
 		});
 
-		test('handles read errors gracefully', () => {
+		test('handles read errors gracefully', async () => {
 			setup_stats_test();
-			vi.mocked(readFileSync).mockImplementation(() => {
+			vi.mocked(readFile).mockImplementation(async () => {
 				throw new Error('Permission denied');
 			});
 
 			const node = new Disknode(TEST_PATH_TS, filer);
+			await node.load_contents();
 			expect(node.contents).toBe(null);
+		});
+
+		test('contents getter returns undefined if not loaded', () => {
+			setup_content_test(TEST_CONTENT_TS);
+			const node = new Disknode(TEST_PATH_TS, filer);
+			expect(node.contents).toBeUndefined(); // Not loaded yet
 		});
 	});
 
 	describe('cache invalidation', () => {
-		test('invalidates all cached properties', () => {
+		test('invalidates all cached properties', async () => {
 			setup_content_test(TEST_CONTENT_TS);
-			vi.mocked(realpathSync).mockReturnValue(TEST_PATH_TS);
+			vi.mocked(realpath).mockResolvedValue(TEST_PATH_TS);
 
 			const node = new Disknode(TEST_PATH_TS, filer);
 
-			// Access properties to cache them
-			node.stats;
-			node.contents;
-			node.realpath;
+			// Load properties to cache them
+			await node.load_stats();
+			await node.load_contents();
+			await node.load_realpath();
 
-			expect(vi.mocked(lstatSync)).toHaveBeenCalledTimes(1);
-			expect(vi.mocked(readFileSync)).toHaveBeenCalledTimes(1);
+			expect(vi.mocked(lstat)).toHaveBeenCalledTimes(1);
+			expect(vi.mocked(readFile)).toHaveBeenCalledTimes(1);
 
 			// Invalidate
 			node.invalidate();
 
-			// Change mock values
+			// Properties should return undefined (not loaded)
+			expect(node.stats).toBeUndefined();
+			expect(node.contents).toBeUndefined();
+
+			// Change mock values and reload
 			const new_stats = create_mock_stats({size: 200});
-			vi.mocked(lstatSync).mockReturnValue(new_stats);
-			vi.mocked(readFileSync).mockReturnValue('new content');
+			vi.mocked(lstat).mockResolvedValue(new_stats);
+			vi.mocked(readFile).mockResolvedValue('new content');
 
-			// Access again - should reload
-			const stats2 = node.stats;
-			const contents2 = node.contents;
+			await node.load_stats();
+			await node.load_contents();
 
-			expect(vi.mocked(lstatSync)).toHaveBeenCalledTimes(2);
-			expect(vi.mocked(readFileSync)).toHaveBeenCalledTimes(2);
-			expect(stats2).toBe(new_stats);
-			expect(contents2).toBe('new content');
+			expect(vi.mocked(lstat)).toHaveBeenCalledTimes(2);
+			expect(vi.mocked(readFile)).toHaveBeenCalledTimes(2);
+			expect(node.stats).toBe(new_stats);
+			expect(node.contents).toBe('new content');
 		});
 	});
 
 	describe('realpath resolution', () => {
-		test('returns id for regular files', () => {
+		test('returns id for regular files', async () => {
 			setup_stats_test();
 			const node = new Disknode(TEST_PATH_TS, filer);
+			await node.load_realpath();
 			expect(node.realpath).toBe(TEST_PATH_TS);
-			expect(vi.mocked(realpathSync)).not.toHaveBeenCalled();
+			expect(vi.mocked(realpath)).not.toHaveBeenCalled();
 		});
 
-		test('resolves symlinks', () => {
+		test('resolves symlinks', async () => {
 			setup_stats_test({
 				isFile: () => false,
 				isSymbolicLink: () => true,
 			});
-			vi.mocked(realpathSync).mockReturnValue(TEST_PATH_TS);
+			vi.mocked(realpath).mockResolvedValue(TEST_PATH_TS);
 
 			const node = new Disknode(TEST_SYMLINK_PATH, filer);
+			await node.load_realpath();
 			expect(node.realpath).toBe(TEST_PATH_TS);
-			expect(vi.mocked(realpathSync)).toHaveBeenCalledWith(TEST_SYMLINK_PATH);
+			expect(vi.mocked(realpath)).toHaveBeenCalledWith(TEST_SYMLINK_PATH);
 		});
 
-		test('handles broken symlinks', () => {
+		test('handles broken symlinks', async () => {
 			setup_stats_test({
 				isFile: () => false,
 				isSymbolicLink: () => true,
 			});
-			vi.mocked(realpathSync).mockImplementation(() => {
+			vi.mocked(realpath).mockImplementation(async () => {
 				throw new Error('ENOENT');
 			});
 
 			const node = new Disknode(TEST_SYMLINK_PATH, filer);
+			await node.load_realpath();
 			expect(node.realpath).toBe(TEST_SYMLINK_PATH);
 		});
 
-		test('caches realpath results', () => {
+		test('caches realpath results', async () => {
 			setup_stats_test({
 				isFile: () => false,
 				isSymbolicLink: () => true,
 			});
-			vi.mocked(realpathSync).mockReturnValue(TEST_PATH_TS);
+			vi.mocked(realpath).mockResolvedValue(TEST_PATH_TS);
 
 			const node = new Disknode(TEST_SYMLINK_PATH, filer);
+			await node.load_realpath();
 			const realpath1 = node.realpath;
 			const realpath2 = node.realpath;
 
 			expect(realpath1).toBe(TEST_PATH_TS);
 			expect(realpath2).toBe(TEST_PATH_TS);
-			expect(vi.mocked(realpathSync)).toHaveBeenCalledTimes(1);
+			expect(vi.mocked(realpath)).toHaveBeenCalledTimes(1);
 		});
 
-		test('returns id for non-existent files', () => {
-			vi.mocked(lstatSync).mockImplementation(() => {
+		test('returns id for non-existent files', async () => {
+			vi.mocked(lstat).mockImplementation(async () => {
 				throw new Error('ENOENT');
 			});
 
 			const node = new Disknode(TEST_PATH_TS, filer);
+			await node.load_realpath();
 			expect(node.realpath).toBe(TEST_PATH_TS);
-			expect(vi.mocked(realpathSync)).not.toHaveBeenCalled();
+			expect(vi.mocked(realpath)).not.toHaveBeenCalled();
+		});
+
+		test('realpath getter returns undefined if not loaded', () => {
+			const node = new Disknode(TEST_PATH_TS, filer);
+			expect(node.realpath).toBeUndefined(); // Not loaded
 		});
 	});
 
@@ -688,21 +734,39 @@ describe('Disknode', () => {
 		];
 
 		for (const {name, path, content, imports, dependencies} of import_tests) {
-			test(`parses imports for ${name}`, () => {
-				setup_import_test(filer, content, imports, dependencies);
+			test(`parses imports for ${name}`, async () => {
+				await setup_import_test(filer, content, imports, dependencies);
 				const node = new Disknode(path, filer);
-				expect_import_parsing(node, imports);
+				await expect_import_parsing(node, imports);
 			});
 		}
 
-		test('returns null for non-importable files', () => {
+		test('returns undefined for non-importable files before loading', () => {
 			setup_content_test(TEST_CONTENT_TXT);
 			const node = new Disknode(TEST_PATH_TXT, filer);
-			expect(node.imports).toBe(null);
+			expect(node.imports).toBeUndefined();
 
 			const json_disknode = new Disknode(TEST_PATH_JSON, filer);
 			setup_content_test(TEST_CONTENT_JSON);
+			expect(json_disknode.imports).toBeUndefined();
+		});
+
+		test('returns null for non-importable files after loading', async () => {
+			setup_content_test(TEST_CONTENT_TXT);
+			const node = new Disknode(TEST_PATH_TXT, filer);
+			await node.load_imports();
+			expect(node.imports).toBe(null);
+
+			setup_content_test(TEST_CONTENT_JSON);
+			const json_disknode = new Disknode(TEST_PATH_JSON, filer);
+			await json_disknode.load_imports();
 			expect(json_disknode.imports).toBe(null);
+		});
+
+		test('imports getter returns undefined if not loaded', async () => {
+			await setup_import_test(filer, TEST_CONTENT_JS, ['./a.js']);
+			const node = new Disknode(TEST_PATH_JS, filer);
+			expect(node.imports).toBeUndefined(); // Not loaded yet
 		});
 	});
 

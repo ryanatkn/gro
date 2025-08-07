@@ -10,7 +10,7 @@ import {escape_regexp} from '@ryanatkn/belt/regexp.js';
 
 import {Disknode, type Disknode_Api} from './disknode.ts';
 import {resolve_specifier} from './resolve_specifier.ts';
-import {parse_imports} from './parse_imports.ts';
+import {Parse_Imports_Async} from './parse_imports_async.ts';
 import type {Path_Id} from './path.ts';
 import {DEFAULT_CONFIG_FILES, SOURCE_DIRNAME} from './constants.ts';
 import {
@@ -29,6 +29,7 @@ import {
 	type Filer_Expand_Strategy,
 	type Filer_Invalidation_Intent,
 } from './filer_helpers.ts';
+import {load_resources_batch, type Resource_Load_Options} from './filer_resource_loader.ts';
 import {Unreachable_Error} from '@ryanatkn/belt/error.js';
 
 /**
@@ -45,6 +46,12 @@ export interface Filer_Options {
 	aliases?: Array<[string, string]>;
 	/** Custom external specifier resolver function. Defaults to import.meta.resolve */
 	resolve_external_specifier?: (specifier: string, base: string) => string;
+	/** Enable worker threads for import parsing. Default: true */
+	worker_enabled?: boolean;
+	/** Number of worker threads for parsing. Default: 4 */
+	worker_pool_size?: number;
+	/** Worker timeout in milliseconds. Default: 5000 */
+	worker_timeout_ms?: number;
 }
 
 /**
@@ -92,6 +99,7 @@ export class Filer implements Disknode_Api {
 	readonly #log?: Logger;
 	readonly #alias_matchers: Array<{re: RegExp; from: string; to: string}>;
 	readonly #resolve_external_specifier: (specifier: string, base: string) => string;
+	readonly #parse_imports_async: Parse_Imports_Async;
 
 	/** Whether the filer has been mounted */
 	#mounted = false;
@@ -113,6 +121,13 @@ export class Filer implements Disknode_Api {
 			from,
 			to,
 		}));
+
+		// Initialize async parsing with worker threads
+		this.#parse_imports_async = new Parse_Imports_Async({
+			worker_enabled: options.worker_enabled,
+			worker_pool_size: options.worker_pool_size,
+			worker_timeout_ms: options.worker_timeout_ms,
+		});
 
 		// Add initial observers
 		if (options.observers) {
@@ -326,7 +341,7 @@ export class Filer implements Disknode_Api {
 
 		// Only process pending dependency updates if at least one observer needs them
 		if (this.#any_observer_needs_imports()) {
-			this.#process_pending_dependency_updates();
+			await this.#process_pending_dependency_updates();
 		} else {
 			// Clear pending updates without processing
 			this.#pending_dependency_updates.clear();
@@ -475,7 +490,7 @@ export class Filer implements Disknode_Api {
 			if (filtered.is_empty) continue;
 
 			// Pre-warm data if needed - do this AFTER expansion
-			this.#prewarm_observer_data(filtered, observer);
+			await this.#prewarm_observer_data(filtered, observer);
 
 			try {
 				const result = await filer_execute_observer(observer, filtered); // eslint-disable-line no-await-in-loop
@@ -604,13 +619,20 @@ export class Filer implements Disknode_Api {
 		return this.#resolve_external_specifier(specifier, base);
 	}
 
-	// TODO it'd probably be useful to have types parsed too, atm they're ignored so deps are only runtime deps,
-	// but it'd be nice to understand the type depdendency graph too
 	/**
-	 * Parse imports from file contents.
+	 * Parse imports from file contents asynchronously.
+	 * Uses worker threads for better performance on large files.
 	 */
-	parse_imports(id: Path_Id, contents: string, ignore_types = true): Array<string> {
-		return parse_imports(id, contents, ignore_types);
+	parse_imports_async(id: Path_Id, contents: string, ignore_types = true): Promise<Array<string>> {
+		return this.#parse_imports_async.parse_imports(id, contents, ignore_types);
+	}
+
+	/**
+	 * Load resources for multiple disknodes in parallel.
+	 * Used for efficient batch pre-loading based on observer hints.
+	 */
+	load_resources_batch(disknodes: Array<Disknode>, options: Resource_Load_Options): Promise<void> {
+		return load_resources_batch(disknodes, options);
 	}
 
 	/**
@@ -802,20 +824,24 @@ export class Filer implements Disknode_Api {
 	/**
 	 * Pre-warm data for observer based on hints.
 	 */
-	#prewarm_observer_data(batch: Filer_Change_Batch, observer: Filer_Observer): void {
+	async #prewarm_observer_data(batch: Filer_Change_Batch, observer: Filer_Observer): Promise<void> {
 		const needs_imports = filer_observer_needs_imports(observer);
+
+		const load_promises = [];
 
 		for (const disknode of batch.all_disknodes) {
 			if (observer.needs_contents) {
-				disknode.contents; // Trigger lazy load
+				load_promises.push(disknode.load_contents());
 			}
 			if (observer.needs_stats === true || observer.needs_stats === undefined) {
-				disknode.stats; // Trigger lazy load (default: true)
+				load_promises.push(disknode.load_stats());
 			}
 			if (needs_imports && disknode.is_importable) {
-				disknode.imports; // Trigger import parsing
+				load_promises.push(disknode.load_imports());
 			}
 		}
+
+		await Promise.all(load_promises);
 	}
 
 	/**
@@ -941,6 +967,11 @@ export class Filer implements Disknode_Api {
 			this.#batch_timeout = undefined;
 		}
 
+		if (this.#batch_timeout) {
+			clearTimeout(this.#batch_timeout);
+			this.#batch_timeout = undefined;
+		}
+
 		await this.#watcher?.close();
 		this.#watcher = undefined;
 		this.disknodes.clear();
@@ -950,5 +981,8 @@ export class Filer implements Disknode_Api {
 		this.#observers_sorted = [];
 		this.#observer_resolved_paths.clear();
 		this.#pending_dependency_updates.clear();
+
+		// Clean up async parsing resources
+		await this.#parse_imports_async.dispose();
 	}
 }

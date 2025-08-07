@@ -1,7 +1,7 @@
 // @slop Claude Sonnet 4
 
 import {describe, test, expect, vi, beforeEach, afterEach} from 'vitest';
-import {readFileSync, lstatSync, realpathSync} from 'node:fs';
+import {readFile, lstat, realpath} from 'node:fs/promises';
 
 import {Disknode} from './disknode.ts';
 import type {Filer} from './filer.ts';
@@ -10,10 +10,14 @@ import {create_mock_stats, TEST_PATHS} from './filer.test_helpers.ts';
 import {DISKNODE_MAX_CACHED_SIZE} from './disknode_helpers.ts';
 
 // Mock filesystem modules
+vi.mock('node:fs/promises', () => ({
+	readFile: vi.fn(),
+	lstat: vi.fn(),
+	realpath: vi.fn(),
+}));
+
+// Also mock the sync version for any remaining usage
 vi.mock('node:fs', () => ({
-	readFileSync: vi.fn(),
-	lstatSync: vi.fn(),
-	realpathSync: vi.fn(),
 	existsSync: vi.fn(),
 }));
 
@@ -34,14 +38,15 @@ const create_mock_filer = (): Filer =>
 		map_alias: vi.fn((spec: string) => spec),
 		resolve_specifier: vi.fn(() => ({path_id: '/resolved/path.js'})),
 		resolve_external_specifier: vi.fn().mockReturnValue('file:///resolved/external.js'),
-		parse_imports: vi.fn().mockReturnValue([]),
+		parse_imports_async: vi.fn().mockResolvedValue([]),
+		load_resources_batch: vi.fn().mockResolvedValue(undefined),
 	}) as unknown as Filer;
 
 const setup_content_test = (content: string, size?: number) => {
 	const actual_size = size ?? content.length;
 	const mock_stats = create_mock_stats({size: actual_size});
-	vi.mocked(lstatSync).mockReturnValue(mock_stats);
-	vi.mocked(readFileSync).mockReturnValue(content);
+	vi.mocked(lstat).mockResolvedValue(mock_stats);
+	vi.mocked(readFile).mockResolvedValue(content);
 	return mock_stats;
 };
 
@@ -52,7 +57,7 @@ const setup_import_test = (
 	dependencies: Record<string, Path_Id> = {},
 ) => {
 	setup_content_test(content);
-	vi.mocked(filer.parse_imports).mockReturnValue(imports);
+	vi.mocked(filer.parse_imports_async).mockResolvedValue(imports);
 
 	vi.mocked(filer.get_disknode).mockImplementation((id: Path_Id) => {
 		for (const dep_path of Object.values(dependencies)) {
@@ -77,18 +82,23 @@ describe('Disknode Edge Cases and Error Handling', () => {
 	});
 
 	describe('edge cases and error handling', () => {
-		test('handles non-importable files in imports getter', () => {
+		test('handles non-importable files in imports getter', async () => {
 			const node = new Disknode(TEST_PATH_TXT, filer);
-			// Should not access contents for non-importable files
+			// Should return undefined before loading
+			expect(node.imports).toBeUndefined();
+			// After loading, should return null for non-importable files
+			await node.load_imports();
 			const imports = node.imports;
 			expect(imports).toBe(null);
-			expect(vi.mocked(readFileSync)).not.toHaveBeenCalled();
+			// Should not access contents for non-importable files during load_imports
+			expect(vi.mocked(readFile)).not.toHaveBeenCalled();
 		});
 
-		test('handles empty import results', () => {
+		test('handles empty import results', async () => {
 			setup_import_test(filer, TEST_CONTENT_TS, [], {});
 			const node = new Disknode(TEST_PATH_TS, filer);
 
+			await node.load_imports();
 			const imports = node.imports;
 			expect(imports).toBeTruthy();
 			expect(imports?.size).toBe(0);
@@ -100,62 +110,70 @@ describe('Disknode Edge Cases and Error Handling', () => {
 			expect(disknode.is_external).toBe(true);
 		});
 
-		test('handles extremely large files without caching', () => {
+		test('handles extremely large files without caching', async () => {
 			setup_content_test(TEST_CONTENT_LARGE, DISKNODE_MAX_CACHED_SIZE + 1000);
 			const node = new Disknode(TEST_LARGE_PATH, filer);
 
-			// First access
-			const content1 = node.contents;
+			// First access - load explicitly
+			await node.load_contents();
+			const content1 = await node.get_contents(); // Use async method for large files
 			expect(content1).toBe(TEST_CONTENT_LARGE);
 
 			// Second access should not use cache - should read again
-			const content2 = node.contents;
+			const content2 = await node.get_contents(); // Use async method for large files
 			expect(content2).toBe(TEST_CONTENT_LARGE);
-			expect(vi.mocked(readFileSync)).toHaveBeenCalledTimes(2);
+			// Large files are read directly, so we expect: 1 load_stats + 2 get_contents calls
+			expect(vi.mocked(readFile)).toHaveBeenCalledTimes(2); // 2 direct reads via get_contents
 		});
 
-		test('handles empty files gracefully', () => {
+		test('handles empty files gracefully', async () => {
 			setup_content_test('', 0);
 			const node = new Disknode(TEST_PATH_TS, filer);
 
+			await node.load_contents();
+			await node.load_stats();
 			const contents = node.contents;
 			expect(contents).toBe('');
 			expect(node.size).toBe(0);
 		});
 
-		test('handles whitespace-only files', () => {
+		test('handles whitespace-only files', async () => {
 			const whitespace = '   \n\t  \n   ';
 			setup_content_test(whitespace, whitespace.length);
 			const node = new Disknode(TEST_PATH_TS, filer);
 
+			await node.load_contents();
 			const contents = node.contents;
 			expect(contents).toBe(whitespace);
 		});
 
-		test('handles files with null bytes', () => {
+		test('handles files with null bytes', async () => {
 			const content_with_nulls = 'before\0null\0after';
 			setup_content_test(content_with_nulls);
 			const node = new Disknode(TEST_PATH_TS, filer);
 
+			await node.load_contents();
 			const contents = node.contents;
 			expect(contents).toBe(content_with_nulls);
 		});
 
-		test('handles unicode content correctly', () => {
+		test('handles unicode content correctly', async () => {
 			const unicode_content = '🚀 export const emoji = "🎉"; // 中文注释';
 			setup_content_test(unicode_content);
 			const node = new Disknode(TEST_PATH_TS, filer);
 
+			await node.load_contents();
 			const contents = node.contents;
 			expect(contents).toBe(unicode_content);
 		});
 
-		test('handles very long file paths', () => {
+		test('handles very long file paths', async () => {
 			const long_path = '/test/' + 'very_long_directory_name_'.repeat(20) + 'file.ts';
 			setup_content_test(TEST_CONTENT_TS);
 			const node = new Disknode(long_path, filer);
 
 			expect(node.id).toBe(long_path);
+			await node.load_contents();
 			const contents = node.contents;
 			expect(contents).toBe(TEST_CONTENT_TS);
 		});
@@ -171,69 +189,77 @@ describe('Disknode Edge Cases and Error Handling', () => {
 
 		test('handles concurrent property access', async () => {
 			setup_content_test(TEST_CONTENT_TS);
-			vi.mocked(realpathSync).mockReturnValue(TEST_PATH_TS);
+			vi.mocked(realpath).mockResolvedValue(TEST_PATH_TS);
 			const node = new Disknode(TEST_PATH_TS, filer);
 
-			// Access multiple properties concurrently
-			const [stats, contents, realpath, imports] = await Promise.all([
-				Promise.resolve(node.stats),
-				Promise.resolve(node.contents),
-				Promise.resolve(node.realpath),
-				Promise.resolve(node.imports),
+			// Load multiple properties concurrently
+			await Promise.all([
+				node.load_stats(),
+				node.load_contents(),
+				node.load_realpath(),
+				node.load_imports(),
 			]);
+
+			// Access after loading
+			const stats = node.stats;
+			const contents = node.contents;
+			const realpath_value = node.realpath;
+			const imports = node.imports;
 
 			expect(stats).toBeTruthy();
 			expect(contents).toBe(TEST_CONTENT_TS);
-			expect(realpath).toBe(TEST_PATH_TS);
+			expect(realpath_value).toBe(TEST_PATH_TS);
 			expect(imports).toBeTruthy();
 		});
 
-		test('handles filesystem race conditions', () => {
+		test('handles filesystem race conditions', async () => {
 			// File exists during stats but is deleted before content read
 			const mock_stats = create_mock_stats({size: 100});
-			vi.mocked(lstatSync).mockReturnValue(mock_stats);
-			vi.mocked(readFileSync).mockImplementation(() => {
+			vi.mocked(lstat).mockResolvedValue(mock_stats);
+			vi.mocked(readFile).mockImplementation(() => {
 				throw new Error('ENOENT: file deleted between stats and read');
 			});
 
 			const node = new Disknode(TEST_PATH_TS, filer);
 
+			await node.load_stats();
 			const stats = node.stats;
 			expect(stats).toBeTruthy();
 
+			await node.load_contents();
 			const contents = node.contents;
 			expect(contents).toBe(null); // Should handle gracefully
 		});
 
-		test('handles permission errors gracefully', () => {
-			vi.mocked(lstatSync).mockImplementation(() => {
+		test('handles permission errors gracefully', async () => {
+			vi.mocked(lstat).mockImplementation(() => {
 				throw new Error('EACCES: permission denied');
 			});
-			vi.mocked(readFileSync).mockImplementation(() => {
+			vi.mocked(readFile).mockImplementation(() => {
 				throw new Error('EACCES: permission denied');
 			});
 
 			const node = new Disknode('/protected/file.ts', filer);
 
+			await node.load_stats();
 			const stats = node.stats;
 			expect(stats).toBe(null);
 			expect(node.exists).toBe(false);
 
+			await node.load_contents();
 			const contents = node.contents;
 			expect(contents).toBe(null);
 		});
 
-		test('handles filesystem errors during import parsing', () => {
+		test('handles filesystem errors during import parsing', async () => {
 			// File exists and has content, but import parsing fails somehow
 			setup_content_test('import {broken} from "broken-module";');
-			vi.mocked(filer.parse_imports).mockImplementation(() => {
-				throw new Error('Parser error');
-			});
+			vi.mocked(filer.parse_imports_async).mockRejectedValue(new Error('Parser error'));
 
 			const node = new Disknode(TEST_PATH_TS, filer);
 
-			// Should not throw, but handle gracefully
-			expect(() => node.imports).toThrow('Parser error');
+			// Should handle parse errors gracefully during load_imports
+			await expect(node.load_imports()).rejects.toThrow('Parser error');
 		});
 
 		test('handles circular dependency detection', () => {
@@ -273,18 +299,19 @@ describe('Disknode Edge Cases and Error Handling', () => {
 			expect(dep_c.dependents.size).toBe(1); // only dep_b remains
 		});
 
-		test('handles malformed import specifiers', () => {
+		test('handles malformed import specifiers', async () => {
 			const malformed_imports = ['', '   ', '\n', '\t', 'http://', 'file:///', '\\invalid\\path'];
 			setup_import_test(filer, 'content with malformed imports', malformed_imports);
 			const node = new Disknode(TEST_PATH_TS, filer);
 
 			// Should handle gracefully without throwing
+			await node.load_imports();
 			const imports = node.imports;
 			expect(imports).toBeTruthy();
 			expect(imports?.size).toBe(malformed_imports.length);
 		});
 
-		test('handles import resolution failures', () => {
+		test('handles import resolution failures', async () => {
 			vi.mocked(filer.resolve_specifier).mockImplementation(() => {
 				throw new Error('Resolution failed');
 			});
@@ -299,6 +326,7 @@ describe('Disknode Edge Cases and Error Handling', () => {
 			const node = new Disknode(TEST_PATH_TS, filer);
 
 			// Should handle resolution failures gracefully
+			await node.load_imports();
 			const imports = node.imports;
 			expect(imports).toBeTruthy();
 			expect(imports?.has('./local.js')).toBe(true);
@@ -327,16 +355,17 @@ describe('Disknode Edge Cases and Error Handling', () => {
 			expect(descendants.length).toBe(100);
 		});
 
-		test('handles empty directory contents', () => {
+		test('handles empty directory contents', async () => {
 			const dir_stats = create_mock_stats({
 				isFile: () => false,
 				isDirectory: () => true,
 			});
-			vi.mocked(lstatSync).mockReturnValue(dir_stats);
+			vi.mocked(lstat).mockResolvedValue(dir_stats);
 
 			const node = new Disknode('/empty/dir', filer);
 
-			// Access contents to trigger stats loading and kind update
+			// Load contents to trigger stats loading and kind update
+			await node.load_contents();
 			const contents = node.contents;
 			expect(node.kind).toBe('directory');
 			expect(contents).toBe(null);
@@ -344,7 +373,7 @@ describe('Disknode Edge Cases and Error Handling', () => {
 			expect(node.get_descendants()).toEqual([]);
 		});
 
-		test('handles invalid file types', () => {
+		test('handles invalid file types', async () => {
 			// Mock stats for unsupported file type (e.g., device file)
 			const device_stats = create_mock_stats({
 				isFile: () => false,
@@ -352,14 +381,15 @@ describe('Disknode Edge Cases and Error Handling', () => {
 				isSymbolicLink: () => false,
 				isBlockDevice: () => true,
 			});
-			vi.mocked(lstatSync).mockReturnValue(device_stats);
-			vi.mocked(readFileSync).mockImplementation(() => {
+			vi.mocked(lstat).mockResolvedValue(device_stats);
+			vi.mocked(readFile).mockImplementation(() => {
 				throw new Error('Cannot read device file');
 			});
 
 			const node = new Disknode('/dev/sda1', filer);
 
-			// Access contents to trigger stats loading
+			// Load contents to trigger stats loading
+			await node.load_contents();
 			const contents = node.contents;
 			// Should default to 'file' for unknown types
 			expect(node.kind).toBe('file');
@@ -379,7 +409,7 @@ describe('Disknode Edge Cases and Error Handling', () => {
 		});
 
 		test('handles relative path calculations with edge cases', () => {
-			// Create the full directory structure explicitly  
+			// Create the full directory structure explicitly
 			const root = new Disknode('/', filer);
 			const a = new Disknode('/a', filer);
 			const b = new Disknode('/a/b', filer);
@@ -391,13 +421,13 @@ describe('Disknode Edge Cases and Error Handling', () => {
 			const h = new Disknode('/a/b/c/d/e/f/g/h', filer);
 			const i = new Disknode('/a/b/c/d/e/f/g/h/i', filer);
 			const j = new Disknode('/a/b/c/d/e/f/g/h/i/j', filer);
-			
+
 			const deep = new Disknode('/a/b/c/d/e/f/g/h/i/j/file.ts', filer);
 			const shallow = new Disknode('/a/other.ts', filer);
 
 			// Set up parent-child relationships
 			a.parent = root;
-			b.parent = a; 
+			b.parent = a;
 			c.parent = b;
 			d.parent = c;
 			e.parent = d;
@@ -409,7 +439,7 @@ describe('Disknode Edge Cases and Error Handling', () => {
 			deep.parent = j;
 			shallow.parent = a;
 
-			// Test complex relative path - from deep to shallow  
+			// Test complex relative path - from deep to shallow
 			const relative = deep.relative_to(shallow);
 			expect(relative).toBe('../../../../../../../../../../other.ts');
 
@@ -435,18 +465,18 @@ describe('Disknode Edge Cases and Error Handling', () => {
 	});
 
 	describe('memory and performance edge cases', () => {
-		test('handles rapid invalidation cycles', () => {
+		test('handles rapid invalidation cycles', async () => {
 			setup_content_test(TEST_CONTENT_TS);
 			const node = new Disknode(TEST_PATH_TS, filer);
 
 			// Rapid invalidation and access cycles
 			for (let i = 0; i < 1000; i++) {
 				node.invalidate();
-				node.stats; // Access to trigger reload
+				await node.load_stats(); // Load to trigger reload
 			}
 
 			expect(node.version).toBe(1000);
-			expect(vi.mocked(lstatSync)).toHaveBeenCalledTimes(1000);
+			expect(vi.mocked(lstat)).toHaveBeenCalledTimes(1000);
 		});
 
 		test('handles memory pressure with large number of dependencies', () => {
@@ -489,11 +519,11 @@ describe('Disknode Edge Cases and Error Handling', () => {
 			expect(nodes[chain_length - 1].dependents.size).toBe(1);
 		});
 
-		test('handles property access under memory pressure', () => {
+		test('handles property access under memory pressure', async () => {
 			const mock_stats = create_mock_stats({size: 1024});
 			let call_count = 0;
-			
-			vi.mocked(lstatSync).mockImplementation(() => {
+
+			vi.mocked(lstat).mockImplementation(async () => {
 				call_count++;
 				// Throw on specific call numbers to be predictable
 				if (call_count === 2 || call_count === 4) {
@@ -504,23 +534,24 @@ describe('Disknode Edge Cases and Error Handling', () => {
 
 			const node = new Disknode(TEST_PATH_TS, filer);
 
-			// Try 4 times - disknode.stats catches errors and returns null
+			// Try 4 times - disknode.load_stats catches errors and stats getter returns null
 			const results = [];
 			for (let i = 0; i < 4; i++) {
 				node.invalidate(); // Force reload
+				await node.load_stats();
 				const stats = node.stats;
 				results.push(stats ? 'success' : 'null');
 			}
 
-			// The disknode's stats getter handles errors internally and returns null
+			// The disknode's load_stats handles errors internally and stats getter returns null
 			// So we get: success, null, success, null (not thrown errors)
-			const success_count = results.filter(r => r === 'success').length;
-			const null_count = results.filter(r => r === 'null').length;
-			
+			const success_count = results.filter((r) => r === 'success').length;
+			const null_count = results.filter((r) => r === 'null').length;
+
 			expect(results.length).toBe(4);
 			expect(success_count).toBe(2); // calls 1,3 succeed and return stats
-			expect(null_count).toBe(2);    // calls 2,4 fail and return null
-			expect(call_count).toBe(4);    // All 4 calls to lstatSync were made
+			expect(null_count).toBe(2); // calls 2,4 fail and return null
+			expect(call_count).toBe(4); // All 4 calls to lstat were made
 		});
 	});
 });

@@ -4,21 +4,21 @@ import {describe, test, expect, vi} from 'vitest';
 import {existsSync} from 'node:fs';
 import {stat} from 'node:fs/promises';
 import {watch} from 'chokidar';
-
 import type {Filer_Observer} from './filer_helpers.ts';
 import {Disknode} from './disknode.ts';
 import {DEFAULT_CONFIG_FILES} from './constants.ts';
 import {use_filer_test_context, create_mock_stats, TEST_PATHS} from './filer.test_helpers.ts';
 
-vi.mock('node:fs', () => ({
-	existsSync: vi.fn(),
-	readFileSync: vi.fn(),
-	lstatSync: vi.fn(),
-	realpathSync: vi.fn(),
+// Mock filesystem modules
+vi.mock('node:fs/promises', () => ({
+	readFile: vi.fn(),
+	lstat: vi.fn(),
+	realpath: vi.fn(),
+	stat: vi.fn(),
 }));
 
-vi.mock('node:fs/promises', () => ({
-	stat: vi.fn(),
+vi.mock('node:fs', () => ({
+	existsSync: vi.fn(),
 }));
 
 vi.mock('chokidar', () => ({
@@ -26,6 +26,12 @@ vi.mock('chokidar', () => ({
 	// eslint-disable-next-line @typescript-eslint/no-extraneous-class
 	FSWatcher: class MockFSWatcher {},
 }));
+
+// Mock the synchronous parse_imports function used when workers are disabled
+vi.mock('./parse_imports.ts', () => ({
+	parse_imports: vi.fn().mockReturnValue([]),
+}));
+
 
 describe('Filer Core', () => {
 	const ctx = use_filer_test_context();
@@ -789,19 +795,19 @@ describe('Filer Core', () => {
 				filer.get_disknode(`/test/file${i}.ts`);
 			}
 
-			// Mock lstatSync to prevent interference with cached stats
-			const {lstatSync} = await import('node:fs');
-			vi.mocked(lstatSync).mockImplementation((path: any) => {
+			// Mock lstat to prevent interference with cached stats
+			const {lstat} = await import('node:fs/promises');
+			vi.mocked(lstat).mockImplementation(async (path: any) => {
 				const match = path.match(/file(\d+)/);
 				const num = match ? parseInt(match[1], 10) : 0;
 				return create_mock_stats({size: num});
 			});
 
 			// Mock stat to return different stats for each file
-			vi.mocked(stat).mockImplementation((path: any) => {
+			vi.mocked(stat).mockImplementation(async (path: any) => {
 				const match = path.match(/file(\d+)/);
 				const num = match ? parseInt(match[1], 10) : 0;
-				return Promise.resolve(create_mock_stats({size: num}));
+				return create_mock_stats({size: num});
 			});
 
 			await filer.load_initial_stats();
@@ -816,25 +822,25 @@ describe('Filer Core', () => {
 		});
 
 		test('load_initial_stats handles stat errors gracefully', async () => {
-			const filer = await ctx.create_mounted_filer();
+			const filer = await ctx.create_mounted_filer({paths: ['/test']});
 
 			filer.get_disknode('/test/good.ts');
 			filer.get_disknode('/test/bad.ts');
 
-			// Mock lstatSync to prevent interference with cached stats
-			const {lstatSync} = await import('node:fs');
-			vi.mocked(lstatSync).mockImplementation((path: any) => {
+			// Mock lstat to prevent interference with cached stats
+			const {lstat} = await import('node:fs/promises');
+			vi.mocked(lstat).mockImplementation(async (path: any) => {
 				if (path.includes('bad')) {
 					throw new Error('Permission denied');
 				}
 				return create_mock_stats({size: 100});
 			});
 
-			vi.mocked(stat).mockImplementation((path: any) => {
+			vi.mocked(stat).mockImplementation(async (path: any) => {
 				if (path.includes('bad')) {
-					return Promise.reject(new Error('Permission denied'));
+					throw new Error('Permission denied');
 				}
-				return Promise.resolve(create_mock_stats({size: 100}));
+				return create_mock_stats({size: 100});
 			});
 
 			// Should not throw

@@ -4,23 +4,44 @@ import {describe, test, expect, vi, beforeEach, afterEach} from 'vitest';
 import {Filer} from './filer.ts';
 import {resolve_specifier} from './resolve_specifier.ts';
 
+// Mock the resolve_specifier module
 vi.mock('./resolve_specifier.ts', () => ({
 	resolve_specifier: vi.fn(),
+}));
+
+// Mock all node modules to prevent real filesystem access
+vi.mock('node:fs', () => ({
+	existsSync: vi.fn().mockReturnValue(true),
+}));
+
+vi.mock('node:fs/promises', () => ({
+	stat: vi.fn(),
 }));
 
 vi.mock('chokidar', () => ({
 	watch: vi.fn().mockReturnValue({
 		on: vi.fn(),
-		once: vi.fn((_event, callback) => {
-			// Auto-trigger ready event
-			setTimeout(() => callback(), 0);
+		once: vi.fn().mockImplementation((event, callback) => {
+			if (event === 'ready') setTimeout(() => callback(), 0);
 		}),
 		close: vi.fn().mockResolvedValue(undefined),
 	}),
 }));
 
-vi.mock('node:fs', () => ({
-	existsSync: vi.fn().mockReturnValue(true),
+vi.mock('./parse_imports_async.ts', () => ({
+	Parse_Imports_Async: vi.fn().mockImplementation(() => ({
+		parse_imports: vi.fn().mockImplementation(async (_path_id, contents) => {
+			// Simple mock that extracts import specifiers from contents
+			const imports = [];
+			const importRegex = /(?:import|export).*?from\s+['"`]([^'"`]+)['"`]/g;
+			let match;
+			while ((match = importRegex.exec(contents)) !== null) {
+				imports.push(match[1]);
+			}
+			return imports;
+		}),
+		dispose: vi.fn().mockResolvedValue(undefined),
+	})),
 }));
 
 // Mock import.meta.resolve at module level
@@ -36,9 +57,11 @@ describe('Filer Disknode_Api implementation', () => {
 
 	beforeEach(async () => {
 		vi.clearAllMocks();
+
+		// Create unmounted filer for basic API tests
 		filer = new Filer();
 
-		// Create and mount a filer for tests that need it
+		// Create mounted filer for tests that need it - mocks prevent real filesystem access
 		mounted_filer = new Filer();
 		await mounted_filer.mount(['/test/src']);
 
@@ -185,32 +208,56 @@ describe('Filer Disknode_Api implementation', () => {
 		});
 	});
 
-	describe('parse_imports method', () => {
-		test('delegates to parse_imports helper', () => {
-			const result = filer.parse_imports('/test/file.ts', 'import {a} from "./a.js";');
+	describe('parse_imports_async method', () => {
+		test('delegates to async parse_imports helper', async () => {
+			const result = await filer.parse_imports_async('/test/file.ts', 'import {a} from "./a.js";');
 
-			// Should call the actual parse_imports function internally
+			// Should call the actual parse_imports_async function internally
 			expect(result).toEqual(expect.arrayContaining(['./a.js']));
 		});
 
-		test('passes through ignore_types parameter', () => {
+		test('passes through ignore_types parameter', async () => {
 			const content = 'import type {Type} from "./types.js";\nimport {value} from "./value.js";';
 
-			const result_with_types = filer.parse_imports('/test/file.ts', content, false);
-			const result_without_types = filer.parse_imports('/test/file.ts', content, true);
+			const result_with_types = await filer.parse_imports_async('/test/file.ts', content, false);
+			const result_without_types = await filer.parse_imports_async('/test/file.ts', content, true);
 
 			// Should handle ignore_types parameter correctly
 			expect(Array.isArray(result_with_types)).toBe(true);
 			expect(Array.isArray(result_without_types)).toBe(true);
 		});
 
-		test('defaults ignore_types to true', () => {
+		test('defaults ignore_types to true', async () => {
 			const content = 'import type {Type} from "./types.js";\nimport {value} from "./value.js";';
 
-			const result_default = filer.parse_imports('/test/file.ts', content);
-			const result_explicit = filer.parse_imports('/test/file.ts', content, true);
+			const result_default = await filer.parse_imports_async('/test/file.ts', content);
+			const result_explicit = await filer.parse_imports_async('/test/file.ts', content, true);
 
 			expect(result_default).toEqual(result_explicit);
+		});
+	});
+
+	describe('load_resources_batch method', () => {
+		test('delegates to load_resources_batch helper', async () => {
+			const mockDisknode1 = mounted_filer.get_disknode('/test/file1.ts');
+			const mockDisknode2 = mounted_filer.get_disknode('/test/file2.ts');
+
+			// Should not throw and handle the batch loading
+			await expect(
+				filer.load_resources_batch([mockDisknode1, mockDisknode2], {
+					contents: true,
+					imports: false,
+					stats: true,
+				}),
+			).resolves.not.toThrow();
+		});
+
+		test('handles empty disknode array', async () => {
+			await expect(
+				filer.load_resources_batch([], {
+					contents: true,
+				}),
+			).resolves.not.toThrow();
 		});
 	});
 
@@ -221,7 +268,8 @@ describe('Filer Disknode_Api implementation', () => {
 			expect(typeof filer.resolve_specifier).toBe('function');
 			expect(typeof filer.resolve_external_specifier).toBe('function');
 			expect(typeof filer.get_disknode).toBe('function');
-			expect(typeof filer.parse_imports).toBe('function');
+			expect(typeof filer.parse_imports_async).toBe('function');
+			expect(typeof filer.load_resources_batch).toBe('function');
 		});
 
 		test('methods have correct signatures', () => {
