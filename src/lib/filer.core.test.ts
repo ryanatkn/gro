@@ -154,7 +154,7 @@ describe('Filer Core', () => {
 
 			expect(node).toBeInstanceOf(Disknode);
 			expect(node.id).toBe(TEST_PATHS.FILE_A);
-			expect(node.filer).toBe(filer);
+			expect(node.api).toBe(filer);
 			expect(filer.disknodes.size).toBe(5); // File + parent directories up to root
 			expect(filer.disknodes.get(TEST_PATHS.FILE_A)).toBe(node);
 		});

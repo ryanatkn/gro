@@ -5,9 +5,7 @@ import {basename} from 'node:path';
 import {isBuiltin} from 'node:module';
 import {fileURLToPath} from 'node:url';
 
-import type {Filer} from './filer.ts';
 import {parse_imports} from './parse_imports.ts';
-import {resolve_specifier} from './resolve_specifier.ts';
 import type {Path_Id} from './path.ts';
 import {
 	disknode_get_extension,
@@ -21,13 +19,23 @@ import {
 	disknode_should_cache_contents,
 } from './disknode_helpers.ts';
 
+// TODO think about dependency injection following the api pattern
+// with `parse_imports` and all of the node imports above extracted out
+
+export interface Disknode_Api {
+	map_alias: (specifier: string) => string;
+	resolve_specifier: (specifier: string, base: Path_Id) => {path_id: Path_Id};
+	resolve_specifier_builtin: (specifier: string, base: string) => string;
+	get_disknode: (id: Path_Id) => Disknode;
+}
+
 /**
  * Represents a file or directory in the filesystem.
  * Provides lazy-loaded properties with version-based cache invalidation.
  */
 export class Disknode {
 	readonly id: Path_Id;
-	readonly filer: Filer;
+	readonly api: Disknode_Api;
 
 	// Node type and state
 	kind: 'file' | 'directory' | 'symlink' = 'file';
@@ -71,9 +79,9 @@ export class Disknode {
 	readonly children: Map<string, Disknode> = new Map(); // For directories
 	parent: Disknode | null = null;
 
-	constructor(id: Path_Id, filer: Filer) {
+	constructor(id: Path_Id, api: Disknode_Api) {
 		this.id = id;
-		this.filer = filer;
+		this.api = api;
 	}
 
 	/**
@@ -246,19 +254,18 @@ export class Disknode {
 			if (isBuiltin(specifier)) continue;
 
 			// Map aliases if needed
-			const mapped = this.filer.map_alias(specifier);
+			const mapped = this.api.map_alias(specifier);
 
 			let resolved_id: Path_Id | null = null;
 
 			if (mapped[0] === '.' || mapped[0] === '/') {
 				// Relative or absolute path
-				const resolved = resolve_specifier(mapped, this.id);
+				const resolved = this.api.resolve_specifier(mapped, this.id);
 				resolved_id = resolved.path_id;
 			} else {
-				// Package import - use import.meta.resolve
+				// Package import - use pluggable resolve_specifier_builtin
 				try {
-					const file_url = new URL(this.id, 'file://');
-					resolved_id = fileURLToPath(import.meta.resolve(mapped, file_url.href));
+					resolved_id = fileURLToPath(this.api.resolve_specifier_builtin(mapped, this.id));
 				} catch (err) {
 					// Failed to resolve package import - this is common and expected for many imports
 					continue;
@@ -273,7 +280,7 @@ export class Disknode {
 		// Add new dependencies
 		for (const dep_id of new_dep_ids) {
 			if (!current_deps.has(dep_id)) {
-				const dep = this.filer.get_disknode(dep_id);
+				const dep = this.api.get_disknode(dep_id);
 				this.add_dependency(dep);
 			}
 		}

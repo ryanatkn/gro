@@ -8,7 +8,8 @@ import type {Logger} from '@ryanatkn/belt/log.js';
 import {EMPTY_OBJECT} from '@ryanatkn/belt/object.js';
 import {escape_regexp} from '@ryanatkn/belt/regexp.js';
 
-import {Disknode} from './disknode.ts';
+import {Disknode, type Disknode_Api} from './disknode.ts';
+import {resolve_specifier} from './resolve_specifier.ts';
 import type {Path_Id} from './path.ts';
 import {DEFAULT_CONFIG_FILES, SOURCE_DIRNAME} from './constants.ts';
 import {
@@ -46,7 +47,16 @@ export interface Filer_Options {
  * Complete in-memory filesystem mirror with dependency tracking.
  * Provides efficient file watching, querying, and change propagation.
  */
-export class Filer {
+export class Filer implements Disknode_Api {
+	/** Maximum number of tombstones to keep (default: 500) */
+	tombstone_limit = 500;
+
+	/** Maximum number of disknodes to process in parallel for bulk operations */
+	batch_size = 100;
+
+	/** Timeout for watcher to become ready in ms (default: 10000) */
+	ready_timeout_ms = 10000;
+
 	#watcher: FSWatcher | undefined;
 
 	/** All tracked disknodes by absolute path */
@@ -54,12 +64,6 @@ export class Filer {
 
 	/** Tombstone cache for deleted disknodes with FIFO eviction */
 	readonly tombstones: Map<Path_Id, Disknode> = new Map();
-
-	/** Maximum number of tombstones to keep (default: 500) */
-	tombstone_limit = 500;
-
-	/** Maximum number of disknodes to process in parallel for bulk operations */
-	batch_size = 100;
 
 	/** Root disknodes (top-level watched paths) */
 	readonly roots: Set<Disknode> = new Set();
@@ -170,7 +174,10 @@ export class Filer {
 
 		// Wait for initial scan with timeout
 		await new Promise<void>((resolve, reject) => {
-			const timeout = setTimeout(() => reject(new Error('Watcher timeout after 10s')), 10000);
+			const timeout = setTimeout(
+				() => reject(new Error(`Watcher timeout after ${this.ready_timeout_ms}ms`)),
+				this.ready_timeout_ms,
+			);
 			this.#watcher!.once('ready', () => {
 				clearTimeout(timeout);
 				resolve();
@@ -580,6 +587,22 @@ export class Filer {
 	map_alias(specifier: string): string {
 		const matcher = this.#alias_matchers.find((m) => m.re.test(specifier));
 		return matcher ? matcher.to + specifier.slice(matcher.from.length) : specifier;
+	}
+
+	/**
+	 * Resolve specifier to path for relative/absolute imports.
+	 */
+	resolve_specifier(specifier: string, base: Path_Id): {path_id: Path_Id} {
+		return resolve_specifier(specifier, base);
+	}
+
+	/**
+	 * Resolve builtin specifier using pluggable resolver.
+	 * Defaults to import.meta.resolve for package imports.
+	 */
+	resolve_specifier_builtin(specifier: string, base: string): string {
+		const file_url = new URL(base, 'file://');
+		return import.meta.resolve(specifier, file_url.href);
 	}
 
 	/**

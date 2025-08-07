@@ -79,6 +79,8 @@ const create_mock_filer = (): Filer =>
 		roots: new Set(),
 		get_disknode: vi.fn((id: Path_Id) => new Disknode(id, create_mock_filer())),
 		map_alias: vi.fn((spec: string) => spec),
+		resolve_specifier: vi.fn(() => ({path_id: '/resolved/path.js'})),
+		resolve_specifier_builtin: vi.fn().mockReturnValue('file:///resolved/builtin.js'),
 		observe: vi.fn(),
 		find_disknodes: vi.fn(),
 		get_dependents: vi.fn(),
@@ -107,7 +109,7 @@ describe('Disknode', () => {
 		test('creates node with correct id and filer', () => {
 			const disknode = new Disknode(TEST_PATH_TS, filer);
 			expect(disknode.id).toBe(TEST_PATH_TS);
-			expect(disknode.filer).toBe(filer);
+			expect(disknode.api).toBe(filer);
 		});
 
 		test('initializes with default properties', () => {
