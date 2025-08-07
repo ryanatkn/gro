@@ -237,7 +237,10 @@ describe('Filer Disknode_Api implementation', () => {
 				resolve_external_specifier: custom_resolver,
 			});
 
-			const result = filer_with_custom_resolver.resolve_external_specifier('test-package', '/base.ts');
+			const result = filer_with_custom_resolver.resolve_external_specifier(
+				'test-package',
+				'/base.ts',
+			);
 
 			expect(custom_resolver).toHaveBeenCalledWith('test-package', '/base.ts');
 			expect(result).toBe('file:///custom/resolved.js');
@@ -268,13 +271,19 @@ describe('Filer Disknode_Api implementation', () => {
 			});
 
 			// First matching alias should win
-			expect(filer_with_overlapping.map_alias('@lib/utils/helper.ts')).toBe('/src/lib/utils/helper.ts');
-			// '@/components' would match '@' since the regex is ^@(?:/|$), but '@components' does not
-			expect(filer_with_overlapping.map_alias('@/components/Button.svelte')).toBe('/src/components/Button.svelte');
-			expect(filer_with_overlapping.map_alias('@components/Button.svelte')).toBe('@components/Button.svelte'); // No match
+			expect(filer_with_overlapping.map_alias('@lib/utils/helper.ts')).toBe(
+				'/src/lib/utils/helper.ts',
+			);
+			// '@/components' would match '@' since the regexp is ^@(?:/|$), but '@components' does not
+			expect(filer_with_overlapping.map_alias('@/components/Button.svelte')).toBe(
+				'/src/components/Button.svelte',
+			);
+			expect(filer_with_overlapping.map_alias('@components/Button.svelte')).toBe(
+				'@components/Button.svelte',
+			); // No match
 		});
 
-		test('handles aliases with special regex characters', () => {
+		test('handles aliases with special regexp characters', () => {
 			const filer_with_special_chars = new Filer({
 				aliases: [
 					['$lib', '/src/lib'],
@@ -291,7 +300,7 @@ describe('Filer Disknode_Api implementation', () => {
 		test('handles extremely long specifier paths', () => {
 			const long_path = 'a/'.repeat(1000) + 'file.js';
 			const long_alias_to = '/very/deep/nested/path/' + 'level/'.repeat(500);
-			
+
 			const filer_with_long_paths = new Filer({
 				aliases: [['@long', long_alias_to]],
 			});
@@ -325,9 +334,9 @@ describe('Filer Disknode_Api implementation', () => {
 
 		test('dispose cleans up mounted filer completely', async () => {
 			expect(mounted_filer.disknodes.size).toBeGreaterThanOrEqual(0);
-			
+
 			await mounted_filer.dispose();
-			
+
 			// After disposal, new operations should not work
 			expect(() => {
 				mounted_filer.get_disknode('/test/new.ts');
@@ -337,10 +346,10 @@ describe('Filer Disknode_Api implementation', () => {
 		test('multiple mount attempts fail gracefully', async () => {
 			const test_filer = new Filer();
 			await test_filer.mount(['/test']);
-			
+
 			// Second mount should fail
 			await expect(test_filer.mount(['/test2'])).rejects.toThrow('Filer already mounted');
-			
+
 			await test_filer.dispose();
 		});
 
@@ -351,7 +360,7 @@ describe('Filer Disknode_Api implementation', () => {
 
 			// All operations should fail after disposal
 			expect(() => test_filer.get_disknode('/test/file.ts')).toThrow('Filer disposed');
-			
+
 			// But interface methods that don't require mounting should still work
 			expect(test_filer.map_alias('test')).toBe('test');
 			expect(typeof test_filer.resolve_external_specifier).toBe('function');
@@ -359,15 +368,15 @@ describe('Filer Disknode_Api implementation', () => {
 
 		test('handles concurrent disknode access', () => {
 			const path = '/test/concurrent.ts';
-			
+
 			// Multiple concurrent calls should return same instance
-			const promises = Array.from({length: 10}, () => 
-				Promise.resolve(mounted_filer.get_disknode(path))
+			const promises = Array.from({length: 10}, () =>
+				Promise.resolve(mounted_filer.get_disknode(path)),
 			);
-			
+
 			return Promise.all(promises).then((disknodes) => {
 				const first = disknodes[0];
-				expect(disknodes.every(d => d === first)).toBe(true);
+				expect(disknodes.every((d) => d === first)).toBe(true);
 				expect(mounted_filer.disknodes.get(path)).toBe(first);
 			});
 		});

@@ -136,7 +136,7 @@ export const parse_imports = (
 	};
 
 	if (is_svelte) {
-		// Reset the regex state between calls
+		// Reset the regexp state between calls
 		SVELTE_SCRIPT_MATCHER.lastIndex = 0;
 
 		// Capture script tags at the top level (not nested in HTML)

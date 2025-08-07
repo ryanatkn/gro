@@ -254,10 +254,10 @@ export const Filer_Change_Transitions: Record<
 };
 
 /**
- * Helper for regex matching with automatic lastIndex reset.
- * Ensures global/sticky regex patterns don't maintain state between calls.
+ * Helper for regexp matching with automatic lastIndex reset.
+ * Ensures global/sticky regexp patterns don't maintain state between calls.
  */
-export const filer_test_regex = (pattern: RegExp, str: string): boolean => {
+export const filer_test_regexp = (pattern: RegExp, str: string): boolean => {
 	if (pattern.global || pattern.sticky) {
 		pattern.lastIndex = 0;
 	}
@@ -317,10 +317,10 @@ export const filer_observer_matches = (
 	// Check custom match function first
 	if (observer.match?.(disknode)) return true;
 
-	// Check regex patterns
+	// Check regexp patterns
 	if (observer.patterns) {
 		for (const pattern of observer.patterns) {
-			if (filer_test_regex(pattern, disknode.id)) return true;
+			if (filer_test_regexp(pattern, disknode.id)) return true;
 		}
 	}
 
@@ -436,7 +436,7 @@ export const filer_resolve_intent_disknodes = (
 		case 'pattern':
 			if (intent.pattern) {
 				for (const disknode of disknodes.values()) {
-					if (!disknode.is_external && filer_test_regex(intent.pattern, disknode.id)) {
+					if (!disknode.is_external && filer_test_regexp(intent.pattern, disknode.id)) {
 						result_disknodes.add(disknode);
 					}
 				}

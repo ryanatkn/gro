@@ -672,7 +672,7 @@ describe('Filer Invalidation System', () => {
 			expect(second_call.has(TEST_PATHS.EXTERNAL_FILE)).toBe(false); // External excluded by intent processor
 		});
 
-		test('handles regex state correctly for global patterns in intents', async () => {
+		test('handles regexp state correctly for global patterns in intents', async () => {
 			const global_pattern = /\.ts$/g;
 
 			const intent_observer: Filer_Observer = {

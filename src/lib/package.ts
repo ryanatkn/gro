@@ -529,7 +529,7 @@ export const src_json: Src_Json = {
 				{name: 'Filer_Change_Batch', kind: 'class'},
 				{name: 'Filer_Observer', kind: 'type'},
 				{name: 'Filer_Change_Transitions', kind: 'variable'},
-				{name: 'filer_test_regex', kind: 'function'},
+				{name: 'filer_test_regexp', kind: 'function'},
 				{name: 'filer_coalesce_change', kind: 'function'},
 				{name: 'filer_should_filter_disknode', kind: 'function'},
 				{name: 'filer_observer_matches', kind: 'function'},

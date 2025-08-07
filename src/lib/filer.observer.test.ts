@@ -112,7 +112,7 @@ describe('Filer Observer System', () => {
 	});
 
 	describe('pattern matching', () => {
-		test('matches files by regex patterns', async () => {
+		test('matches files by regexp patterns', async () => {
 			const ts_observer: Filer_Observer = {
 				id: 'ts_observer',
 				patterns: [/\.ts$/],
@@ -173,7 +173,7 @@ describe('Filer Observer System', () => {
 			expect(vi.mocked(observer.on_change)).toHaveBeenCalled();
 		});
 
-		test('handles global regex patterns correctly', async () => {
+		test('handles global regexp patterns correctly', async () => {
 			const global_pattern = /\.ts$/g;
 			const observer: Filer_Observer = {
 				id: 'global_regex',
@@ -199,7 +199,7 @@ describe('Filer Observer System', () => {
 			expect(batch.size).toBe(3);
 		});
 
-		test('handles sticky regex patterns correctly', async () => {
+		test('handles sticky regexp patterns correctly', async () => {
 			// Use a sticky pattern that can actually match from position 0
 			const sticky_pattern = /\/test\/project\/src\/.*\.ts$/y;
 			const observer: Filer_Observer = {
@@ -1061,8 +1061,8 @@ describe('Filer Observer System', () => {
 			expect(vi.mocked(working_observer.on_change)).not.toHaveBeenCalled();
 		});
 
-		test('handles malformed regex patterns safely', async () => {
-			// This test ensures the system doesn't crash with complex regex patterns
+		test('handles malformed regexp patterns safely', async () => {
+			// This test ensures the system doesn't crash with complex regexp patterns
 			const complex_observer: Filer_Observer = {
 				id: 'complex_regex',
 				patterns: [/(?=.*\.ts$)(?=.*\/src\/).*/], // Positive lookahead
