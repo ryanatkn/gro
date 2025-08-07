@@ -59,7 +59,7 @@ export const to_src_modules = (
 
 	// Create a TypeScript program for all TypeScript files
 	const ts_files = file_paths
-		.filter(({file_path}) => file_path.endsWith('.ts') || file_path.endsWith('.tsx'))
+		.filter(({file_path}) => file_path.endsWith('.ts'))
 		.map(({file_path}) => file_path);
 
 	let program: ts.Program | undefined;

@@ -21,7 +21,6 @@ describe('disknode_get_extension', () => {
 	test('returns compound extension for nested extensions', () => {
 		expect(disknode_get_extension('/path/to/file.d.ts')).toBe('.ts');
 		expect(disknode_get_extension('/path/to/file.test.js')).toBe('.js');
-		expect(disknode_get_extension('/path/to/file.spec.tsx')).toBe('.tsx');
 		expect(disknode_get_extension('/path/to/config.development.json')).toBe('.json');
 	});
 
@@ -76,16 +75,6 @@ describe('disknode_is_svelte_module', () => {
 		expect(disknode_is_svelte_module('/path/to/Component.svelte.js')).toBe(true);
 		expect(disknode_is_svelte_module('/path/Component.svelte.js')).toBe(true);
 		expect(disknode_is_svelte_module('Component.svelte.js')).toBe(true);
-	});
-
-	test('correctly identifies Svelte TSX modules', () => {
-		expect(disknode_is_svelte_module('/path/to/Component.svelte.tsx')).toBe(true);
-		expect(disknode_is_svelte_module('Component.svelte.tsx')).toBe(true);
-	});
-
-	test('correctly identifies Svelte JSX modules', () => {
-		expect(disknode_is_svelte_module('/path/to/Component.svelte.jsx')).toBe(true);
-		expect(disknode_is_svelte_module('Component.svelte.jsx')).toBe(true);
 	});
 
 	test('correctly identifies CommonJS/ES6 variants', () => {

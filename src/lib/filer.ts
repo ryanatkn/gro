@@ -136,8 +136,8 @@ export class Filer implements Disknode_Api {
 
 		try {
 			// Default paths include source and config files
-			const default_paths = [resolve(SOURCE_DIRNAME), ...DEFAULT_CONFIG_FILES].filter(existsSync);
-			const final_paths = paths ?? default_paths;
+			const final_paths =
+				paths ?? [resolve(SOURCE_DIRNAME), ...DEFAULT_CONFIG_FILES].filter(existsSync);
 
 			// Set up watcher if needed
 			if (final_paths.length > 0) {

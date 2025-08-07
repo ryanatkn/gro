@@ -352,8 +352,8 @@ class Disknode {
 	get mtime(): number | null;
 	get size(): number | null;
 	get extension(): string; // File extension including dot
-	get is_typescript(): boolean; // .ts, .tsx, .mts, .cts files
-	get is_js(): boolean; // .js, .jsx, .mjs, .cjs files
+	get is_typescript(): boolean; // .ts, .mts, .cts files
+	get is_js(): boolean; // .js, .mjs, .cjs files
 	get is_svelte(): boolean; // .svelte files
 	get is_svelte_module(): boolean; // .svelte.ts or .svelte.js files
 	get is_importable(): boolean; // Any importable file type

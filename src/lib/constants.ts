@@ -33,8 +33,8 @@ export const GITHUB_DIRNAME = '.github';
 export const GIT_DIRNAME = '.git';
 export const TSCONFIG_FILENAME = 'tsconfig.json';
 
-export const TS_MATCHER = /\.(ts|tsx|mts|cts)$/;
-export const JS_MATCHER = /\.(js|jsx|mjs|cjs)$/;
+export const TS_MATCHER = /\.(ts|mts|cts)$/;
+export const JS_MATCHER = /\.(js|mjs|cjs)$/;
 export const JSON_MATCHER = /\.json$/;
 export const SVELTE_MATCHER = /\.svelte$/;
 export const SVELTE_RUNES_MATCHER = /\.svelte\.(js|ts)$/; // TODO probably let `.svelte.` appear anywhere - https://github.com/sveltejs/svelte/issues/11536

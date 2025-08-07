@@ -29,12 +29,12 @@ export const disknode_get_extension = (id: Path_Id): string => {
 /**
  * Check if a path is a TypeScript file.
  */
-export const disknode_is_typescript = (id: Path_Id): boolean => /\.[cm]?tsx?$/.test(id);
+export const disknode_is_typescript = (id: Path_Id): boolean => /\.[cm]?ts$/.test(id);
 
 /**
  * Check if a path is a JS file.
  */
-export const disknode_is_js = (id: Path_Id): boolean => /\.[cm]?jsx?$/.test(id);
+export const disknode_is_js = (id: Path_Id): boolean => /\.[cm]?js$/.test(id);
 
 /**
  * Check if a path is a Svelte file.
