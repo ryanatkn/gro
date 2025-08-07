@@ -37,10 +37,11 @@ export const invoke_task = async (
 	const log = new System_Logger(print_log_label(task_name || 'gro'));
 	log.info('invoking', task_name ? st('cyan', task_name) : 'gro');
 
-	const filer = initial_filer ?? new Filer({log});
+	const filer = initial_filer || new Filer({log});
+	const scope_owns_filer = !initial_filer;
 
 	// If we own the filer, mount it.
-	if (!initial_filer) {
+	if (scope_owns_filer) {
 		await filer.mount();
 	}
 
@@ -115,7 +116,7 @@ export const invoke_task = async (
 		log.info(`✓ ${st('cyan', task.name)}`);
 	} finally {
 		// If we own the filer, dispose of it.
-		if (!initial_filer) {
+		if (scope_owns_filer) {
 			await filer.dispose();
 		}
 
