@@ -77,6 +77,9 @@ export class Filer implements Disknode_Api {
 	#observers_sorted: Array<Filer_Observer> = [];
 	#observers_dirty = true;
 
+	/** Cached resolved paths for observers */
+	readonly #observer_resolved_paths: Map<string, Array<Path_Id>> = new Map();
+
 	/** Batching */
 	readonly #pending_changes: Map<Path_Id, Filer_Change> = new Map();
 	#batch_timeout: NodeJS.Timeout | undefined;
@@ -633,11 +636,46 @@ export class Filer implements Disknode_Api {
 		this.#observers.set(observer.id, observer);
 		this.#observers_dirty = true;
 
+		// Cache resolved paths for static paths
+		this.#cache_observer_paths(observer);
+
 		// Return unsubscribe function
 		return () => {
 			this.#observers.delete(observer.id);
 			this.#observers_dirty = true;
+			this.#observer_resolved_paths.delete(observer.id);
 		};
+	}
+
+	/**
+	 * Cache resolved paths for an observer.
+	 */
+	#cache_observer_paths(observer: Filer_Observer): void {
+		if (!observer.paths || !Array.isArray(observer.paths)) {
+			return;
+		}
+
+		// Static paths - resolve once and cache
+		const resolved_paths = observer.paths.map((p) => resolve(p));
+		this.#observer_resolved_paths.set(observer.id, resolved_paths);
+	}
+
+	/**
+	 * Get cached resolved paths for an observer.
+	 */
+	#get_cached_resolved_paths(observer: Filer_Observer): Array<Path_Id> | undefined {
+		if (!observer.paths) {
+			return undefined;
+		}
+
+		// For static paths, return cached value
+		if (Array.isArray(observer.paths)) {
+			return this.#observer_resolved_paths.get(observer.id);
+		}
+
+		// For dynamic paths, compute fresh each time
+		const raw_paths = observer.paths();
+		return raw_paths.map((p) => resolve(p));
 	}
 
 	/**
@@ -668,10 +706,7 @@ export class Filer implements Disknode_Api {
 	): Filer_Change_Batch {
 		const filtered: Map<Path_Id, Filer_Change> = new Map();
 
-		// TODO BLOCK ideally resolved up front on observer registration and cached, but then specifically handled for dynamic cases
-		// Cache dynamic paths evaluation and resolve them
-		const raw_paths = typeof observer.paths === 'function' ? observer.paths() : observer.paths;
-		const resolved_paths = raw_paths?.map((p: string) => resolve(p));
+		const resolved_paths = this.#get_cached_resolved_paths(observer);
 
 		// First, collect directly matching changes
 		for (const [id, change] of batch.changes) {
@@ -913,6 +948,7 @@ export class Filer implements Disknode_Api {
 		this.roots.clear();
 		this.#observers.clear();
 		this.#observers_sorted = [];
+		this.#observer_resolved_paths.clear();
 		this.#pending_dependency_updates.clear();
 	}
 }
