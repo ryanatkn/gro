@@ -209,7 +209,7 @@ export class Disknode {
 	}
 
 	/**
-	 * Get parsed imports for JavaScript/TypeScript files.
+	 * Get parsed imports for JS/TypeScript files.
 	 * Returns null for non-JS/TS files or directories.
 	 * Automatically updates dependencies based on imports.
 	 */

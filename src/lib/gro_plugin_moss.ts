@@ -114,7 +114,7 @@ export const gro_plugin_moss = ({
 					// Apply user filter
 					if (filter_file && !filter_file(node.id)) return false;
 
-					// Check for Svelte, TypeScript, and JavaScript files
+					// Check for Svelte, TypeScript, and JS files
 					return node.is_svelte || node.is_typescript || node.is_js;
 				},
 

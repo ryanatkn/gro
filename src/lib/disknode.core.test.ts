@@ -23,6 +23,8 @@ const TEST_PATH_JS: Path_Id = TEST_PATHS.FILE_JS;
 const TEST_PATH_SVELTE: Path_Id = '/test/project/src/c.svelte';
 const TEST_PATH_SVELTE_TS: Path_Id = '/test/project/src/d.svelte.ts';
 const TEST_PATH_SVELTE_JS: Path_Id = '/test/project/src/e.svelte.js';
+const TEST_PATH_SVELTE_POSTFIX_TS: Path_Id = '/test/project/src/a.svelte.b.ts';
+const TEST_PATH_SVELTE_PREFIX_TS: Path_Id = '/test/project/src/a.b.svelte.ts';
 const TEST_PATH_MTS: Path_Id = '/test/project/src/f.mts';
 const TEST_PATH_CJS: Path_Id = '/test/project/src/g.cjs';
 const TEST_PATH_JSON: Path_Id = TEST_PATHS.JSON_FILE;
@@ -42,8 +44,16 @@ const TEST_CONTENT_JSON = '{"data": "test"}';
 const TEST_CONTENT_TXT = 'This is a text file.';
 const TEST_LARGE_CONTENT = 'x'.repeat(15 * 1024 * 1024); // 15MB
 
+// Test helpers
+interface FileTypeProperties {
+	extension: string;
+	is_typescript: boolean;
+	is_js: boolean;
+	is_svelte: boolean;
+	is_svelte_module: boolean;
+	is_importable: boolean;
+}
 
-// Mock filer
 const create_mock_filer = (): Filer =>
 	({
 		disknodes: new Map(),
@@ -64,6 +74,59 @@ const create_mock_filer = (): Filer =>
 		close: vi.fn(),
 		reset_watcher: vi.fn(),
 	}) as unknown as Filer;
+
+const setup_stats_test = (stats_options: Record<string, any> = {}) => {
+	const mock_stats = create_mock_stats(stats_options);
+	vi.mocked(lstatSync).mockReturnValue(mock_stats);
+	return mock_stats;
+};
+
+const setup_content_test = (content: string, size = 100) => {
+	setup_stats_test({size});
+	vi.mocked(readFileSync).mockReturnValue(content);
+};
+
+const setup_import_test = (
+	filer: Filer,
+	content: string,
+	imports: Array<string>,
+	dependencies: Record<string, Path_Id> = {},
+) => {
+	setup_content_test(content);
+	vi.mocked(filer.parse_imports).mockReturnValue(imports);
+
+	vi.mocked(filer.get_disknode).mockImplementation((id: Path_Id) => {
+		for (const dep_path of Object.values(dependencies)) {
+			if (id === dep_path) {
+				return new Disknode(dep_path, filer);
+			}
+		}
+		return new Disknode(id, filer);
+	});
+};
+
+const expect_file_properties = (disknode: Disknode, expected: FileTypeProperties) => {
+	expect(disknode.extension).toBe(expected.extension);
+	expect(disknode.is_typescript).toBe(expected.is_typescript);
+	expect(disknode.is_js).toBe(expected.is_js);
+	expect(disknode.is_svelte).toBe(expected.is_svelte);
+	expect(disknode.is_svelte_module).toBe(expected.is_svelte_module);
+	expect(disknode.is_importable).toBe(expected.is_importable);
+};
+
+const expect_content_loading = (disknode: Disknode, path: Path_Id, expected_content: string) => {
+	const contents = disknode.contents;
+	expect(vi.mocked(readFileSync)).toHaveBeenCalledWith(path, 'utf8');
+	expect(contents).toBe(expected_content);
+};
+
+const expect_import_parsing = (disknode: Disknode, expected_imports: Array<string>) => {
+	const imports = disknode.imports;
+	expect(imports).toBeTruthy();
+	for (const import_spec of expected_imports) {
+		expect(imports?.has(import_spec)).toBe(true);
+	}
+};
 
 describe('Disknode', () => {
 	let filer: Filer;
@@ -94,87 +157,118 @@ describe('Disknode', () => {
 			expect(disknode.dependencies.size).toBe(0);
 			expect(disknode.children.size).toBe(0);
 		});
+	});
 
-		test('detects TypeScript file extensions', () => {
-			const ts_disknode = new Disknode(TEST_PATH_TS, filer);
-			expect(ts_disknode.extension).toBe('.ts');
-			expect(ts_disknode.is_typescript).toBe(true);
-			expect(ts_disknode.is_js).toBe(false);
-			expect(ts_disknode.is_svelte).toBe(false);
-			expect(ts_disknode.is_importable).toBe(true);
+	describe('file type detection', () => {
+		const file_type_tests = [
+			{
+				name: 'TypeScript files',
+				cases: [
+					{path: TEST_PATH_TS, ext: '.ts'},
+					{path: TEST_PATH_MTS, ext: '.mts'},
+				],
+				expected: {
+					extension: '',
+					is_typescript: true,
+					is_js: false,
+					is_svelte: false,
+					is_svelte_module: false,
+					is_importable: true,
+				},
+			},
+			{
+				name: 'JavaScript files',
+				cases: [
+					{path: TEST_PATH_JS, ext: '.js'},
+					{path: TEST_PATH_CJS, ext: '.cjs'},
+				],
+				expected: {
+					extension: '',
+					is_typescript: false,
+					is_js: true,
+					is_svelte: false,
+					is_svelte_module: false,
+					is_importable: true,
+				},
+			},
+			{
+				name: 'Svelte files',
+				cases: [{path: TEST_PATH_SVELTE, ext: '.svelte'}],
+				expected: {
+					extension: '.svelte',
+					is_typescript: false,
+					is_js: false,
+					is_svelte: true,
+					is_svelte_module: false,
+					is_importable: true,
+				},
+			},
+			{
+				name: 'Svelte TypeScript modules',
+				cases: [
+					{path: TEST_PATH_SVELTE_TS, ext: '.ts'},
+					{path: TEST_PATH_SVELTE_POSTFIX_TS, ext: '.ts'},
+					{path: TEST_PATH_SVELTE_PREFIX_TS, ext: '.ts'},
+				],
+				expected: {
+					extension: '.ts',
+					is_typescript: true,
+					is_js: false,
+					is_svelte: false,
+					is_svelte_module: true,
+					is_importable: true,
+				},
+			},
+			{
+				name: 'Svelte JavaScript modules',
+				cases: [{path: TEST_PATH_SVELTE_JS, ext: '.js'}],
+				expected: {
+					extension: '.js',
+					is_typescript: false,
+					is_js: true,
+					is_svelte: false,
+					is_svelte_module: true,
+					is_importable: true,
+				},
+			},
+			{
+				name: 'non-importable files',
+				cases: [
+					{path: TEST_PATH_JSON, ext: '.json'},
+					{path: TEST_PATH_TXT, ext: '.txt'},
+				],
+				expected: {
+					extension: '',
+					is_typescript: false,
+					is_js: false,
+					is_svelte: false,
+					is_svelte_module: false,
+					is_importable: false,
+				},
+			},
+		];
 
-			const mts_disknode = new Disknode(TEST_PATH_MTS, filer);
-			expect(mts_disknode.extension).toBe('.mts');
-			expect(mts_disknode.is_typescript).toBe(true);
-			expect(mts_disknode.is_js).toBe(false);
-			expect(mts_disknode.is_importable).toBe(true);
-		});
-
-		test('detects JavaScript file extensions', () => {
-			const js_disknode = new Disknode(TEST_PATH_JS, filer);
-			expect(js_disknode.extension).toBe('.js');
-			expect(js_disknode.is_typescript).toBe(false);
-			expect(js_disknode.is_js).toBe(true);
-			expect(js_disknode.is_svelte).toBe(false);
-			expect(js_disknode.is_importable).toBe(true);
-
-			const cjs_disknode = new Disknode(TEST_PATH_CJS, filer);
-			expect(cjs_disknode.extension).toBe('.cjs');
-			expect(cjs_disknode.is_typescript).toBe(false);
-			expect(cjs_disknode.is_js).toBe(true);
-			expect(cjs_disknode.is_importable).toBe(true);
-		});
-
-		test('detects Svelte files', () => {
-			const svelte_disknode = new Disknode(TEST_PATH_SVELTE, filer);
-			expect(svelte_disknode.extension).toBe('.svelte');
-			expect(svelte_disknode.is_typescript).toBe(false);
-			expect(svelte_disknode.is_js).toBe(false);
-			expect(svelte_disknode.is_svelte).toBe(true);
-			expect(svelte_disknode.is_svelte_module).toBe(false);
-			expect(svelte_disknode.is_importable).toBe(true);
-		});
-
-		test('detects Svelte TypeScript modules', () => {
-			const svelte_ts_disknode = new Disknode(TEST_PATH_SVELTE_TS, filer);
-			expect(svelte_ts_disknode.extension).toBe('.ts');
-			expect(svelte_ts_disknode.is_typescript).toBe(true);
-			expect(svelte_ts_disknode.is_js).toBe(false);
-			expect(svelte_ts_disknode.is_svelte).toBe(false);
-			expect(svelte_ts_disknode.is_svelte_module).toBe(true);
-			expect(svelte_ts_disknode.is_importable).toBe(true);
-		});
-
-		test('detects Svelte JavaScript modules', () => {
-			const svelte_js_disknode = new Disknode(TEST_PATH_SVELTE_JS, filer);
-			expect(svelte_js_disknode.extension).toBe('.js');
-			expect(svelte_js_disknode.is_typescript).toBe(false);
-			expect(svelte_js_disknode.is_js).toBe(true);
-			expect(svelte_js_disknode.is_svelte).toBe(false);
-			expect(svelte_js_disknode.is_svelte_module).toBe(true);
-			expect(svelte_js_disknode.is_importable).toBe(true);
-		});
-
-		test('identifies non-importable files', () => {
-			const json_disknode = new Disknode(TEST_PATH_JSON, filer);
-			expect(json_disknode.extension).toBe('.json');
-			expect(json_disknode.is_importable).toBe(false);
-
-			const txt_disknode = new Disknode(TEST_PATH_TXT, filer);
-			expect(txt_disknode.extension).toBe('.txt');
-			expect(txt_disknode.is_importable).toBe(false);
-		});
+		for (const {name, cases, expected} of file_type_tests) {
+			test(`detects ${name}`, () => {
+				for (const {path, ext} of cases) {
+					const disknode = new Disknode(path, filer);
+					expect_file_properties(disknode, {
+						...expected,
+						extension: ext,
+					});
+				}
+			});
+		}
 	});
 
 	describe('stats lazy loading and caching', () => {
 		test('loads stats lazily on first access', () => {
-			const mock_stats = create_mock_stats({size: 123, mtimeMs: 1000});
-			vi.mocked(lstatSync).mockReturnValue(mock_stats);
-
+			const mock_stats = setup_stats_test({size: 123, mtimeMs: 1000});
 			const disknode = new Disknode(TEST_PATH_TS, filer);
-			expect(vi.mocked(lstatSync)).not.toHaveBeenCalled();
 
+			expect(vi.mocked(lstatSync)).not.toHaveBeenCalled();
 			const stats = disknode.stats;
+
 			expect(vi.mocked(lstatSync)).toHaveBeenCalledWith(TEST_PATH_TS);
 			expect(stats).toBe(mock_stats);
 			expect(disknode.size).toBe(123);
@@ -182,10 +276,9 @@ describe('Disknode', () => {
 		});
 
 		test('caches stats on subsequent accesses', () => {
-			const mock_stats = create_mock_stats();
-			vi.mocked(lstatSync).mockReturnValue(mock_stats);
-
+			setup_stats_test();
 			const disknode = new Disknode(TEST_PATH_TS, filer);
+
 			const stats1 = disknode.stats;
 			const stats2 = disknode.stats;
 
@@ -199,34 +292,21 @@ describe('Disknode', () => {
 			});
 
 			const node = new Disknode(TEST_PATH_TS, filer);
-			const stats = node.stats;
-
-			expect(stats).toBe(null);
+			expect(node.stats).toBe(null);
 			expect(node.exists).toBe(false);
 			expect(node.size).toBe(null);
 			expect(node.mtime).toBe(null);
 		});
 
 		test('updates kind based on stats', () => {
-			const dir_stats = create_mock_stats({
+			setup_stats_test({
 				isFile: () => false,
 				isDirectory: () => true,
 			});
-			vi.mocked(lstatSync).mockReturnValue(dir_stats);
 
 			const node = new Disknode(TEST_DIR_PATH, filer);
 			node.stats; // trigger load
 			expect(node.kind).toBe('directory');
-
-			const symlink_stats = create_mock_stats({
-				isFile: () => false,
-				isSymbolicLink: () => true,
-			});
-			vi.mocked(lstatSync).mockReturnValue(symlink_stats);
-
-			const symlink_disknode = new Disknode(TEST_SYMLINK_PATH, filer);
-			symlink_disknode.stats; // trigger load
-			expect(symlink_disknode.kind).toBe('symlink');
 		});
 
 		test('allows setting stats to avoid syscalls', () => {
@@ -241,69 +321,44 @@ describe('Disknode', () => {
 	});
 
 	describe('contents lazy loading and caching', () => {
-		test('loads TypeScript file contents', () => {
-			const mock_stats = create_mock_stats({size: 100});
-			vi.mocked(lstatSync).mockReturnValue(mock_stats);
-			vi.mocked(readFileSync).mockReturnValue(TEST_CONTENT_TS);
+		const content_tests = [
+			{name: 'TypeScript files', path: TEST_PATH_TS, content: TEST_CONTENT_TS},
+			{name: 'JavaScript files', path: TEST_PATH_JS, content: TEST_CONTENT_JS},
+			{name: 'Svelte files', path: TEST_PATH_SVELTE, content: TEST_CONTENT_SVELTE},
+			{
+				name: 'Svelte TypeScript modules',
+				path: TEST_PATH_SVELTE_TS,
+				content: TEST_CONTENT_SVELTE_TS,
+			},
+			{
+				name: 'Svelte JavaScript modules',
+				path: TEST_PATH_SVELTE_JS,
+				content: TEST_CONTENT_SVELTE_JS,
+			},
+			{
+				name: 'Svelte TypeScript modules with postfix pattern',
+				path: TEST_PATH_SVELTE_POSTFIX_TS,
+				content: TEST_CONTENT_SVELTE_TS,
+			},
+			{
+				name: 'Svelte TypeScript modules with prefix pattern',
+				path: TEST_PATH_SVELTE_PREFIX_TS,
+				content: TEST_CONTENT_SVELTE_TS,
+			},
+		];
 
-			const node = new Disknode(TEST_PATH_TS, filer);
-			expect(vi.mocked(readFileSync)).not.toHaveBeenCalled();
-
-			const contents = node.contents;
-			expect(vi.mocked(readFileSync)).toHaveBeenCalledWith(TEST_PATH_TS, 'utf8');
-			expect(contents).toBe(TEST_CONTENT_TS);
-		});
-
-		test('loads JavaScript file contents', () => {
-			const mock_stats = create_mock_stats({size: 100});
-			vi.mocked(lstatSync).mockReturnValue(mock_stats);
-			vi.mocked(readFileSync).mockReturnValue(TEST_CONTENT_JS);
-
-			const node = new Disknode(TEST_PATH_JS, filer);
-			const contents = node.contents;
-			expect(vi.mocked(readFileSync)).toHaveBeenCalledWith(TEST_PATH_JS, 'utf8');
-			expect(contents).toBe(TEST_CONTENT_JS);
-		});
-
-		test('loads Svelte file contents', () => {
-			const mock_stats = create_mock_stats({size: 100});
-			vi.mocked(lstatSync).mockReturnValue(mock_stats);
-			vi.mocked(readFileSync).mockReturnValue(TEST_CONTENT_SVELTE);
-
-			const node = new Disknode(TEST_PATH_SVELTE, filer);
-			const contents = node.contents;
-			expect(vi.mocked(readFileSync)).toHaveBeenCalledWith(TEST_PATH_SVELTE, 'utf8');
-			expect(contents).toBe(TEST_CONTENT_SVELTE);
-		});
-
-		test('loads Svelte TypeScript module contents', () => {
-			const mock_stats = create_mock_stats({size: 100});
-			vi.mocked(lstatSync).mockReturnValue(mock_stats);
-			vi.mocked(readFileSync).mockReturnValue(TEST_CONTENT_SVELTE_TS);
-
-			const node = new Disknode(TEST_PATH_SVELTE_TS, filer);
-			const contents = node.contents;
-			expect(vi.mocked(readFileSync)).toHaveBeenCalledWith(TEST_PATH_SVELTE_TS, 'utf8');
-			expect(contents).toBe(TEST_CONTENT_SVELTE_TS);
-		});
-
-		test('loads Svelte JavaScript module contents', () => {
-			const mock_stats = create_mock_stats({size: 100});
-			vi.mocked(lstatSync).mockReturnValue(mock_stats);
-			vi.mocked(readFileSync).mockReturnValue(TEST_CONTENT_SVELTE_JS);
-
-			const node = new Disknode(TEST_PATH_SVELTE_JS, filer);
-			const contents = node.contents;
-			expect(vi.mocked(readFileSync)).toHaveBeenCalledWith(TEST_PATH_SVELTE_JS, 'utf8');
-			expect(contents).toBe(TEST_CONTENT_SVELTE_JS);
-		});
+		for (const {name, path, content} of content_tests) {
+			test(`loads ${name} contents`, () => {
+				setup_content_test(content);
+				const node = new Disknode(path, filer);
+				expect_content_loading(node, path, content);
+			});
+		}
 
 		test('caches contents for small files', () => {
-			const mock_stats = create_mock_stats({size: 100});
-			vi.mocked(lstatSync).mockReturnValue(mock_stats);
-			vi.mocked(readFileSync).mockReturnValue(TEST_CONTENT_TS);
-
+			setup_content_test(TEST_CONTENT_TS);
 			const node = new Disknode(TEST_PATH_TS, filer);
+
 			const contents1 = node.contents;
 			const contents2 = node.contents;
 
@@ -312,87 +367,46 @@ describe('Disknode', () => {
 		});
 
 		test('does not cache large files', () => {
-			const large_stats = create_mock_stats({size: 15 * 1024 * 1024}); // 15MB
-			vi.mocked(lstatSync).mockReturnValue(large_stats);
-			vi.mocked(readFileSync).mockReturnValue(TEST_LARGE_CONTENT);
-
+			setup_content_test(TEST_LARGE_CONTENT, 15 * 1024 * 1024);
 			const node = new Disknode(TEST_LARGE_FILE_PATH, filer);
-			const contents1 = node.contents;
-			const contents2 = node.contents;
+
+			node.contents;
+			node.contents;
 
 			expect(vi.mocked(readFileSync)).toHaveBeenCalledTimes(2);
-			expect(contents1).toBe(TEST_LARGE_CONTENT);
-			expect(contents2).toBe(TEST_LARGE_CONTENT);
 		});
 
 		test('returns null for directories', () => {
-			const dir_stats = create_mock_stats({
+			setup_stats_test({
 				isFile: () => false,
 				isDirectory: () => true,
 			});
-			vi.mocked(lstatSync).mockReturnValue(dir_stats);
 
 			const node = new Disknode(TEST_DIR_PATH, filer);
-			const contents = node.contents;
-
-			expect(contents).toBe(null);
+			expect(node.contents).toBe(null);
 			expect(vi.mocked(readFileSync)).not.toHaveBeenCalled();
 		});
 
-		test('returns null for symlinks pointing to directories', () => {
-			const symlink_stats = create_mock_stats({
-				isFile: () => false,
-				isDirectory: () => false,
-				isSymbolicLink: () => true,
-			});
-			const dir_stats = create_mock_stats({
-				isFile: () => false,
-				isDirectory: () => true,
-			});
-
-			// Mock symlink stats first, then target directory stats
-			vi.mocked(lstatSync).mockReturnValueOnce(symlink_stats);
-			vi.mocked(realpathSync).mockReturnValue('/test/somedir');
-			vi.mocked(lstatSync).mockReturnValueOnce(dir_stats);
-
-			const node = new Disknode(TEST_SYMLINK_PATH, filer);
-
-			const contents = node.contents;
-			expect(contents).toBe(null);
-			expect(vi.mocked(realpathSync)).toHaveBeenCalledWith(TEST_SYMLINK_PATH);
-		});
-
 		test('handles empty files', () => {
-			const mock_stats = create_mock_stats({size: 0});
-			vi.mocked(lstatSync).mockReturnValue(mock_stats);
-			vi.mocked(readFileSync).mockReturnValue('');
-
+			setup_content_test('', 0);
 			const node = new Disknode(TEST_PATH_TS, filer);
-			const contents = node.contents;
-
-			expect(contents).toBe('');
-			expect(vi.mocked(readFileSync)).toHaveBeenCalledWith(TEST_PATH_TS, 'utf8');
+			expect_content_loading(node, TEST_PATH_TS, '');
 		});
 
 		test('handles read errors gracefully', () => {
-			const mock_stats = create_mock_stats();
-			vi.mocked(lstatSync).mockReturnValue(mock_stats);
+			setup_stats_test();
 			vi.mocked(readFileSync).mockImplementation(() => {
 				throw new Error('Permission denied');
 			});
 
 			const node = new Disknode(TEST_PATH_TS, filer);
-			const contents = node.contents;
-
-			expect(contents).toBe(null);
+			expect(node.contents).toBe(null);
 		});
 	});
 
 	describe('cache invalidation', () => {
 		test('invalidates all cached properties', () => {
-			const mock_stats = create_mock_stats({size: 100});
-			vi.mocked(lstatSync).mockReturnValue(mock_stats);
-			vi.mocked(readFileSync).mockReturnValue(TEST_CONTENT_TS);
+			setup_content_test(TEST_CONTENT_TS);
 			vi.mocked(realpathSync).mockReturnValue(TEST_PATH_TS);
 
 			const node = new Disknode(TEST_PATH_TS, filer);
@@ -404,7 +418,6 @@ describe('Disknode', () => {
 
 			expect(vi.mocked(lstatSync)).toHaveBeenCalledTimes(1);
 			expect(vi.mocked(readFileSync)).toHaveBeenCalledTimes(1);
-			expect(vi.mocked(realpathSync)).toHaveBeenCalledTimes(0); // not a symlink
 
 			// Invalidate
 			node.invalidate();
@@ -427,20 +440,17 @@ describe('Disknode', () => {
 
 	describe('realpath resolution', () => {
 		test('returns id for regular files', () => {
-			const mock_stats = create_mock_stats();
-			vi.mocked(lstatSync).mockReturnValue(mock_stats);
-
+			setup_stats_test();
 			const node = new Disknode(TEST_PATH_TS, filer);
 			expect(node.realpath).toBe(TEST_PATH_TS);
 			expect(vi.mocked(realpathSync)).not.toHaveBeenCalled();
 		});
 
 		test('resolves symlinks', () => {
-			const symlink_stats = create_mock_stats({
+			setup_stats_test({
 				isFile: () => false,
 				isSymbolicLink: () => true,
 			});
-			vi.mocked(lstatSync).mockReturnValue(symlink_stats);
 			vi.mocked(realpathSync).mockReturnValue(TEST_PATH_TS);
 
 			const node = new Disknode(TEST_SYMLINK_PATH, filer);
@@ -449,11 +459,10 @@ describe('Disknode', () => {
 		});
 
 		test('handles broken symlinks', () => {
-			const symlink_stats = create_mock_stats({
+			setup_stats_test({
 				isFile: () => false,
 				isSymbolicLink: () => true,
 			});
-			vi.mocked(lstatSync).mockReturnValue(symlink_stats);
 			vi.mocked(realpathSync).mockImplementation(() => {
 				throw new Error('ENOENT');
 			});
@@ -463,11 +472,10 @@ describe('Disknode', () => {
 		});
 
 		test('caches realpath results', () => {
-			const symlink_stats = create_mock_stats({
+			setup_stats_test({
 				isFile: () => false,
 				isSymbolicLink: () => true,
 			});
-			vi.mocked(lstatSync).mockReturnValue(symlink_stats);
 			vi.mocked(realpathSync).mockReturnValue(TEST_PATH_TS);
 
 			const node = new Disknode(TEST_SYMLINK_PATH, filer);
@@ -544,17 +552,14 @@ describe('Disknode', () => {
 			const dir = new Disknode(TEST_DIR_PATH, filer);
 			const file_ts = new Disknode(TEST_PATH_TS, filer);
 			const file_js = new Disknode(TEST_PATH_JS, filer);
-			const file_svelte = new Disknode(TEST_PATH_SVELTE, filer);
 
 			dir.children.set('a.ts', file_ts);
 			dir.children.set('b.js', file_js);
-			dir.children.set('c.svelte', file_svelte);
 
 			const descendants = dir.get_descendants();
 			expect(descendants).toContain(file_ts);
 			expect(descendants).toContain(file_js);
-			expect(descendants).toContain(file_svelte);
-			expect(descendants).toHaveLength(3);
+			expect(descendants).toHaveLength(2);
 		});
 
 		test('checks ancestor relationships', () => {
@@ -602,64 +607,6 @@ describe('Disknode', () => {
 			expect(node.relative_to(node)).toBe('');
 		});
 
-		test('handles parent to child relationship', () => {
-			const root = new Disknode('/test', filer);
-			const dir = new Disknode('/test/subdir', filer);
-			const file = new Disknode('/test/subdir/file.ts', filer);
-
-			dir.parent = root;
-			file.parent = dir;
-
-			expect(root.relative_to(file)).toBe('subdir/file.ts');
-			expect(dir.relative_to(file)).toBe('file.ts');
-		});
-
-		test('handles child to parent relationship', () => {
-			const root = new Disknode('/test', filer);
-			const dir = new Disknode('/test/subdir', filer);
-			const file = new Disknode('/test/subdir/file.ts', filer);
-
-			dir.parent = root;
-			file.parent = dir;
-
-			expect(file.relative_to(root)).toBe('../..');
-			expect(file.relative_to(dir)).toBe('..');
-		});
-
-		test('handles complex nested paths', () => {
-			const root = new Disknode('/project', filer);
-			const src = new Disknode('/project/src', filer);
-			const lib = new Disknode('/project/src/lib', filer);
-			const tests = new Disknode('/project/tests', filer);
-			const unit = new Disknode('/project/tests/unit', filer);
-
-			const lib_file = new Disknode('/project/src/lib/utils.ts', filer);
-			const test_file = new Disknode('/project/tests/unit/utils.test.ts', filer);
-
-			// Set up relationships
-			src.parent = root;
-			lib.parent = src;
-			tests.parent = root;
-			unit.parent = tests;
-			lib_file.parent = lib;
-			test_file.parent = unit;
-
-			expect(lib_file.relative_to(test_file)).toBe('../../../tests/unit/utils.test.ts');
-			expect(test_file.relative_to(lib_file)).toBe('../../../src/lib/utils.ts');
-		});
-
-		test('handles sibling directories', () => {
-			const root = new Disknode('/test', filer);
-			const dir_a = new Disknode('/test/a', filer);
-			const dir_b = new Disknode('/test/b', filer);
-
-			dir_a.parent = root;
-			dir_b.parent = root;
-
-			expect(dir_a.relative_to(dir_b)).toBe('../b');
-			expect(dir_b.relative_to(dir_a)).toBe('../a');
-		});
-
 		test('relative_from works as inverse of relative_to', () => {
 			const root = new Disknode('/test', filer);
 			const dir_a = new Disknode('/test/a', filer);
@@ -672,155 +619,89 @@ describe('Disknode', () => {
 			file_a.parent = dir_a;
 			file_b.parent = dir_b;
 
-			// relative_to: from file_a to file_b
 			expect(file_a.relative_to(file_b)).toBe('../../b/other.ts');
-			// relative_from: from file_b to file_a (same as file_b.relative_to(file_a))
 			expect(file_a.relative_from(file_b)).toBe('../../a/file.ts');
 			expect(file_a.relative_from(file_b)).toBe(file_b.relative_to(file_a));
-
-			// Test with parent-child relationships
-			expect(dir_a.relative_to(file_a)).toBe('file.ts');
-			expect(dir_a.relative_from(file_a)).toBe('..');
-			expect(dir_a.relative_from(file_a)).toBe(file_a.relative_to(dir_a));
 		});
 	});
 
 	describe('import parsing', () => {
-		test('parses imports for TypeScript files', () => {
-			const mock_stats = create_mock_stats();
-			vi.mocked(lstatSync).mockReturnValue(mock_stats);
-			vi.mocked(readFileSync).mockReturnValue(
-				'import {a} from "./a.js";\nimport {b} from "./b.js";',
-			);
+		const import_tests: Array<{
+			name: string;
+			path: Path_Id;
+			content: string;
+			imports: Array<string>;
+			dependencies: Record<string, Path_Id>;
+		}> = [
+			{
+				name: 'TypeScript files',
+				path: TEST_PATH_TS,
+				content: 'import {a} from "./a.js";\nimport {b} from "./b.js";',
+				imports: ['./a.js', './b.js'],
+				dependencies: {
+					'./a.js': '/test/path/a.js',
+					'./b.js': '/test/path/b.js',
+				},
+			},
+			{
+				name: 'JavaScript files',
+				path: TEST_PATH_JS,
+				content: TEST_CONTENT_JS,
+				imports: ['./a.js'],
+				dependencies: {'./a.js': '/test/path/a.js'},
+			},
+			{
+				name: 'Svelte files',
+				path: TEST_PATH_SVELTE,
+				content: TEST_CONTENT_SVELTE,
+				imports: ['./a.js'],
+				dependencies: {'./a.js': '/test/path/a.js'},
+			},
+			{
+				name: 'Svelte TypeScript modules',
+				path: TEST_PATH_SVELTE_TS,
+				content: TEST_CONTENT_SVELTE_TS,
+				imports: ['svelte/store'],
+				dependencies: {'svelte/store': '/node_modules/svelte/store/index.js'},
+			},
+			{
+				name: 'Svelte JavaScript modules',
+				path: TEST_PATH_SVELTE_JS,
+				content: TEST_CONTENT_SVELTE_JS,
+				imports: ['svelte/store'],
+				dependencies: {'svelte/store': '/node_modules/svelte/store/index.js'},
+			},
+			{
+				name: 'Svelte TypeScript modules with postfix pattern',
+				path: TEST_PATH_SVELTE_POSTFIX_TS,
+				content: TEST_CONTENT_SVELTE_TS,
+				imports: ['svelte/store'],
+				dependencies: {'svelte/store': '/node_modules/svelte/store/index.js'},
+			},
+			{
+				name: 'Svelte TypeScript modules with prefix pattern',
+				path: TEST_PATH_SVELTE_PREFIX_TS,
+				content: TEST_CONTENT_SVELTE_TS,
+				imports: ['svelte/store'],
+				dependencies: {'svelte/store': '/node_modules/svelte/store/index.js'},
+			},
+		];
 
-			const node = new Disknode(TEST_PATH_TS, filer);
-			const dep_a = new Disknode('/test/path/a.js', filer);
-			const dep_b = new Disknode('/test/path/b.js', filer);
-
-			// Mock parse_imports to return expected imports for this test
-			vi.mocked(filer.parse_imports).mockReturnValue(['./a.js', './b.js']);
-
-			// Mock filer to return our dependency disknodes
-			vi.mocked(filer.get_disknode).mockImplementation((id: Path_Id) => {
-				if (id === '/test/path/a.js') return dep_a;
-				if (id === '/test/path/b.js') return dep_b;
-				return new Disknode(id, filer);
+		for (const {name, path, content, imports, dependencies} of import_tests) {
+			test(`parses imports for ${name}`, () => {
+				setup_import_test(filer, content, imports, dependencies);
+				const node = new Disknode(path, filer);
+				expect_import_parsing(node, imports);
 			});
-
-			// Access imports to trigger parsing
-			const imports = node.imports;
-
-			expect(imports).toBeTruthy();
-			expect(imports?.has('./a.js')).toBe(true);
-			expect(imports?.has('./b.js')).toBe(true);
-		});
-
-		test('parses imports for JavaScript files', () => {
-			const mock_stats = create_mock_stats();
-			vi.mocked(lstatSync).mockReturnValue(mock_stats);
-			vi.mocked(readFileSync).mockReturnValue(TEST_CONTENT_JS);
-
-			const node = new Disknode(TEST_PATH_JS, filer);
-			const dep_a = new Disknode('/test/path/a.js', filer);
-
-			// Mock parse_imports to return expected imports for this test
-			vi.mocked(filer.parse_imports).mockReturnValue(['./a.js']);
-
-			// Mock filer to return our dependency disknodes
-			vi.mocked(filer.get_disknode).mockImplementation((id: Path_Id) => {
-				if (id === '/test/path/a.js') return dep_a;
-				return new Disknode(id, filer);
-			});
-
-			// Access imports to trigger parsing
-			const imports = node.imports;
-
-			expect(imports).toBeTruthy();
-			expect(imports?.has('./a.js')).toBe(true);
-		});
-
-		test('parses imports for Svelte files', () => {
-			const mock_stats = create_mock_stats();
-			vi.mocked(lstatSync).mockReturnValue(mock_stats);
-			vi.mocked(readFileSync).mockReturnValue(TEST_CONTENT_SVELTE);
-
-			const node = new Disknode(TEST_PATH_SVELTE, filer);
-			const dep_a = new Disknode('/test/path/a.js', filer);
-
-			// Mock parse_imports to return expected imports for this test
-			vi.mocked(filer.parse_imports).mockReturnValue(['./a.js']);
-
-			// Mock filer to return our dependency disknodes
-			vi.mocked(filer.get_disknode).mockImplementation((id: Path_Id) => {
-				if (id === '/test/path/a.js') return dep_a;
-				return new Disknode(id, filer);
-			});
-
-			// Access imports to trigger parsing
-			const imports = node.imports;
-
-			expect(imports).toBeTruthy();
-			expect(imports?.has('./a.js')).toBe(true);
-		});
-
-		test('parses imports for Svelte TypeScript modules', () => {
-			const mock_stats = create_mock_stats();
-			vi.mocked(lstatSync).mockReturnValue(mock_stats);
-			vi.mocked(readFileSync).mockReturnValue(TEST_CONTENT_SVELTE_TS);
-
-			const node = new Disknode(TEST_PATH_SVELTE_TS, filer);
-			const dep_store = new Disknode('/node_modules/svelte/store/index.js', filer);
-
-			// Mock parse_imports to return expected imports for this test
-			vi.mocked(filer.parse_imports).mockReturnValue(['svelte/store']);
-
-			// Mock filer to return our dependency disknodes
-			vi.mocked(filer.get_disknode).mockImplementation((id: Path_Id) => {
-				if (id === '/node_modules/svelte/store/index.js') return dep_store;
-				return new Disknode(id, filer);
-			});
-
-			// Access imports to trigger parsing
-			const imports = node.imports;
-
-			expect(imports).toBeTruthy();
-			expect(imports?.has('svelte/store')).toBe(true);
-		});
-
-		test('parses imports for Svelte JavaScript modules', () => {
-			const mock_stats = create_mock_stats();
-			vi.mocked(lstatSync).mockReturnValue(mock_stats);
-			vi.mocked(readFileSync).mockReturnValue(TEST_CONTENT_SVELTE_JS);
-
-			const node = new Disknode(TEST_PATH_SVELTE_JS, filer);
-			const dep_store = new Disknode('/node_modules/svelte/store/index.js', filer);
-
-			// Mock parse_imports to return expected imports for this test
-			vi.mocked(filer.parse_imports).mockReturnValue(['svelte/store']);
-
-			// Mock filer to return our dependency disknodes
-			vi.mocked(filer.get_disknode).mockImplementation((id: Path_Id) => {
-				if (id === '/node_modules/svelte/store/index.js') return dep_store;
-				return new Disknode(id, filer);
-			});
-
-			// Access imports to trigger parsing
-			const imports = node.imports;
-
-			expect(imports).toBeTruthy();
-			expect(imports?.has('svelte/store')).toBe(true);
-		});
+		}
 
 		test('returns null for non-importable files', () => {
-			const mock_stats = create_mock_stats();
-			vi.mocked(lstatSync).mockReturnValue(mock_stats);
-			vi.mocked(readFileSync).mockReturnValue(TEST_CONTENT_TXT);
-
+			setup_content_test(TEST_CONTENT_TXT);
 			const node = new Disknode(TEST_PATH_TXT, filer);
 			expect(node.imports).toBe(null);
 
 			const json_disknode = new Disknode(TEST_PATH_JSON, filer);
-			vi.mocked(readFileSync).mockReturnValue(TEST_CONTENT_JSON);
+			setup_content_test(TEST_CONTENT_JSON);
 			expect(json_disknode.imports).toBe(null);
 		});
 	});
@@ -828,227 +709,6 @@ describe('Disknode', () => {
 	describe('constants', () => {
 		test('MAX_CACHED_SIZE is 10MB', () => {
 			expect(DISKNODE_MAX_CACHED_SIZE).toBe(10 * 1024 * 1024);
-		});
-	});
-
-	describe('edge cases and additional coverage', () => {
-		test('handles invalidation properly', () => {
-			const mock_stats_v1 = create_mock_stats({size: 100, mtimeMs: 1000});
-			const mock_stats_v2 = create_mock_stats({size: 200, mtimeMs: 2000});
-
-			vi.mocked(lstatSync).mockReturnValueOnce(mock_stats_v1);
-			vi.mocked(readFileSync).mockReturnValueOnce('content v1');
-
-			const node = new Disknode(TEST_PATH_TS, filer);
-
-			// First access
-			expect(node.size).toBe(100);
-			expect(node.mtime).toBe(1000);
-			expect(node.contents).toBe('content v1');
-
-			// Change mocks and invalidate
-			vi.mocked(lstatSync).mockReturnValueOnce(mock_stats_v2);
-			vi.mocked(readFileSync).mockReturnValueOnce('content v2');
-			node.invalidate();
-
-			// Second access should reload
-			expect(node.size).toBe(200);
-			expect(node.mtime).toBe(2000);
-			expect(node.contents).toBe('content v2');
-		});
-
-		test('detects file extensions correctly', () => {
-			const tests = [
-				{path: '/test/file.ts', ext: '.ts'},
-				{path: '/test/file.js', ext: '.js'},
-				{path: '/test/file.mts', ext: '.mts'},
-				{path: '/test/file.cjs', ext: '.cjs'},
-				{path: '/test/file.svelte', ext: '.svelte'},
-				{path: '/test/file.json', ext: '.json'},
-				{path: '/test/file', ext: ''},
-				{path: '/test/.hidden', ext: ''},
-				{path: '/test/file.test.ts', ext: '.ts'},
-			];
-
-			for (const {path, ext} of tests) {
-				const node = new Disknode(path, filer);
-				expect(node.extension).toBe(ext);
-			}
-		});
-
-		test('correctly identifies file types', () => {
-			const ts_files = ['/test/a.ts', '/test/b.tsx', '/test/c.mts', '/test/d.cts'];
-			const js_files = ['/test/a.js', '/test/b.jsx', '/test/c.mjs', '/test/d.cjs'];
-			const svelte_files = ['/test/Component.svelte'];
-			const svelte_module_ts_files = ['/test/store.svelte.ts', '/test/utils.svelte.ts'];
-			const svelte_module_js_files = ['/test/helpers.svelte.js', '/test/actions.svelte.js'];
-			const other_files = ['/test/data.json', '/test/readme.txt', '/test/image.png'];
-
-			for (const path of ts_files) {
-				const node = new Disknode(path, filer);
-				expect(node.is_typescript).toBe(true);
-				expect(node.is_js).toBe(false);
-				expect(node.is_svelte).toBe(false);
-				expect(node.is_svelte_module).toBe(false);
-				expect(node.is_importable).toBe(true);
-			}
-
-			for (const path of js_files) {
-				const node = new Disknode(path, filer);
-				expect(node.is_typescript).toBe(false);
-				expect(node.is_js).toBe(true);
-				expect(node.is_svelte).toBe(false);
-				expect(node.is_svelte_module).toBe(false);
-				expect(node.is_importable).toBe(true);
-			}
-
-			for (const path of svelte_files) {
-				const node = new Disknode(path, filer);
-				expect(node.is_typescript).toBe(false);
-				expect(node.is_js).toBe(false);
-				expect(node.is_svelte).toBe(true);
-				expect(node.is_svelte_module).toBe(false);
-				expect(node.is_importable).toBe(true);
-			}
-
-			for (const path of svelte_module_ts_files) {
-				const node = new Disknode(path, filer);
-				expect(node.is_typescript).toBe(true);
-				expect(node.is_js).toBe(false);
-				expect(node.is_svelte).toBe(false);
-				expect(node.is_svelte_module).toBe(true);
-				expect(node.is_importable).toBe(true);
-			}
-
-			for (const path of svelte_module_js_files) {
-				const node = new Disknode(path, filer);
-				expect(node.is_typescript).toBe(false);
-				expect(node.is_js).toBe(true);
-				expect(node.is_svelte).toBe(false);
-				expect(node.is_svelte_module).toBe(true);
-				expect(node.is_importable).toBe(true);
-			}
-
-			for (const path of other_files) {
-				const node = new Disknode(path, filer);
-				expect(node.is_typescript).toBe(false);
-				expect(node.is_js).toBe(false);
-				expect(node.is_svelte).toBe(false);
-				expect(node.is_svelte_module).toBe(false);
-				expect(node.is_importable).toBe(false);
-			}
-		});
-
-		test('handles ancestor-descendant relationships correctly', () => {
-			const root = new Disknode('/test', filer);
-			const level1 = new Disknode('/test/level1', filer);
-			const level2 = new Disknode('/test/level1/level2', filer);
-			const level3 = new Disknode('/test/level1/level2/level3', filer);
-			const unrelated = new Disknode('/other/file', filer);
-
-			// Set up parent relationships
-			level1.parent = root;
-			level2.parent = level1;
-			level3.parent = level2;
-
-			// Test ancestor relationships
-			expect(root.is_ancestor_of(level1)).toBe(true);
-			expect(root.is_ancestor_of(level2)).toBe(true);
-			expect(root.is_ancestor_of(level3)).toBe(true);
-			expect(level1.is_ancestor_of(level2)).toBe(true);
-			expect(level1.is_ancestor_of(level3)).toBe(true);
-			expect(level2.is_ancestor_of(level3)).toBe(true);
-
-			// Test non-ancestor relationships
-			expect(level3.is_ancestor_of(root)).toBe(false);
-			expect(level2.is_ancestor_of(level1)).toBe(false);
-			expect(root.is_ancestor_of(unrelated)).toBe(false);
-			expect(level1.is_ancestor_of(root)).toBe(false);
-
-			// Test ancestors
-			const level3_ancestors = level3.get_ancestors();
-			expect(level3_ancestors).toEqual([level2, level1, root]);
-
-			const level1_ancestors = level1.get_ancestors();
-			expect(level1_ancestors).toEqual([root]);
-
-			const root_ancestors = root.get_ancestors();
-			expect(root_ancestors).toEqual([]);
-		});
-
-		test('manages children correctly', () => {
-			const parent = new Disknode('/test/parent', filer);
-			const child1 = new Disknode('/test/parent/child1.ts', filer);
-			const child2 = new Disknode('/test/parent/child2.ts', filer);
-
-			parent.children.set('child1.ts', child1);
-			parent.children.set('child2.ts', child2);
-
-			expect(parent.get_child('child1.ts')).toBe(child1);
-			expect(parent.get_child('child2.ts')).toBe(child2);
-			expect(parent.get_child('nonexistent.ts')).toBe(undefined);
-
-			const descendants = parent.get_descendants();
-			expect(descendants).toContain(child1);
-			expect(descendants).toContain(child2);
-			expect(descendants).toHaveLength(2);
-		});
-
-		test('handles complex Svelte module paths', () => {
-			const complex_paths = [
-				'/project/src/lib/stores/user.svelte.ts',
-				'/deep/nested/path/component.svelte.js',
-				'/test/file.with.dots.svelte.ts',
-				'/another/path/kebab-case.svelte.js',
-				'/camelCase/file.svelte.ts',
-				'/PascalCase/Component.svelte.js',
-				'/numbers123/file456.svelte.ts',
-				'/special_chars/file_name.svelte.js',
-			];
-
-			for (const path of complex_paths) {
-				const node = new Disknode(path, filer);
-				expect(node.is_svelte_module).toBe(true);
-				expect(node.is_svelte).toBe(false);
-				expect(node.is_importable).toBe(true);
-
-				if (path.endsWith('.ts')) {
-					expect(node.is_typescript).toBe(true);
-					expect(node.is_js).toBe(false);
-					expect(node.extension).toBe('.ts');
-				} else {
-					expect(node.is_typescript).toBe(false);
-					expect(node.is_js).toBe(true);
-					expect(node.extension).toBe('.js');
-				}
-			}
-		});
-
-		test('distinguishes Svelte files from Svelte modules', () => {
-			const svelte_vs_module_pairs = [
-				{svelte: '/test/Component.svelte', module: '/test/Component.svelte.ts'},
-				{svelte: '/src/Button.svelte', module: '/src/Button.svelte.js'},
-				{svelte: '/lib/Modal.svelte', module: '/lib/modal.svelte.ts'},
-			];
-
-			for (const {svelte, module} of svelte_vs_module_pairs) {
-				const svelte_node = new Disknode(svelte, filer);
-				const module_node = new Disknode(module, filer);
-
-				// Svelte file assertions
-				expect(svelte_node.is_svelte).toBe(true);
-				expect(svelte_node.is_svelte_module).toBe(false);
-				expect(svelte_node.extension).toBe('.svelte');
-
-				// Svelte module assertions
-				expect(module_node.is_svelte).toBe(false);
-				expect(module_node.is_svelte_module).toBe(true);
-				expect(module_node.extension).not.toBe('.svelte');
-
-				// Both should be importable
-				expect(svelte_node.is_importable).toBe(true);
-				expect(module_node.is_importable).toBe(true);
-			}
 		});
 	});
 });

@@ -32,7 +32,7 @@ export const disknode_get_extension = (id: Path_Id): string => {
 export const disknode_is_typescript = (id: Path_Id): boolean => /\.[cm]?tsx?$/.test(id);
 
 /**
- * Check if a path is a JavaScript file.
+ * Check if a path is a JS file.
  */
 export const disknode_is_js = (id: Path_Id): boolean => /\.[cm]?jsx?$/.test(id);
 
@@ -48,7 +48,7 @@ export const disknode_is_svelte_module = (id: Path_Id): boolean =>
 	id.includes('.svelte.') && (disknode_is_typescript(id) || disknode_is_js(id));
 
 /**
- * Check if a file is importable (TypeScript, JavaScript, Svelte, or Svelte modules).
+ * Check if a file is importable (TypeScript, JS, Svelte, or Svelte modules).
  */
 export const disknode_is_importable = (id: Path_Id): boolean =>
 	disknode_is_typescript(id) ||

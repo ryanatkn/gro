@@ -137,7 +137,7 @@ describe('Filer Observer System', () => {
 			expect(vi.mocked(ts_observer.on_change)).toHaveBeenCalled();
 			expect(vi.mocked(js_observer.on_change)).not.toHaveBeenCalled();
 
-			// Reset and add JavaScript file
+			// Reset and add JS file
 			vi.mocked(ts_observer.on_change).mockClear();
 			vi.mocked(js_observer.on_change).mockClear();
 
