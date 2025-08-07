@@ -299,10 +299,9 @@ export const filer_should_filter_disknode = (
  * Auto-enables for expand_to or returns_intents unless explicitly disabled.
  */
 export const filer_observer_needs_imports = (observer: Filer_Observer): boolean =>
-	observer.needs_imports === false
-		? false
-		: observer.needs_imports ||
-			observer.expand_to === 'dependents' ||
+	observer.needs_imports !== undefined
+		? observer.needs_imports // Use explicit value
+		: observer.expand_to === 'dependents' ||
 			observer.expand_to === 'dependencies' ||
 			!!observer.returns_intents; // Intent types may require the graph
 

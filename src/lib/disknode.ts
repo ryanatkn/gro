@@ -1,7 +1,7 @@
 // @slop Claude Opus 4.1
 
 import {type Stats, readFileSync, lstatSync, realpathSync} from 'node:fs';
-import {basename} from 'node:path';
+import {basename, dirname, resolve} from 'node:path';
 import {isBuiltin} from 'node:module';
 import {fileURLToPath} from 'node:url';
 
@@ -259,8 +259,16 @@ export class Disknode {
 
 			if (mapped[0] === '.' || mapped[0] === '/') {
 				// Relative or absolute path
-				const resolved = this.api.resolve_specifier(mapped, this.id);
-				resolved_id = resolved.path_id;
+				try {
+					const resolved = this.api.resolve_specifier(mapped, this.id);
+					resolved_id = resolved.path_id;
+				} catch (err) {
+					// Failed to resolve local specifier - still create disknode but mark as non-existent
+					// This preserves the import relationship for dead link detection
+					resolved_id = mapped.startsWith('.') ? 
+						resolve(dirname(this.id), mapped) : 
+						mapped;
+				}
 			} else {
 				// External specifier - use pluggable resolve_external_specifier
 				try {
