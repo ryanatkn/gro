@@ -218,7 +218,7 @@ export interface Filer_Observer {
 	priority?: number;
 
 	// Error handling
-	/** How to handle errors. Default: 'abort' */
+	/** How to handle errors. Default: 'continue' */
 	on_error?: (error: Error, batch: Filer_Change_Batch) => Filer_Error_Strategy;
 	/** Timeout for observer execution. Default: 30000ms */
 	timeout_ms?: number;

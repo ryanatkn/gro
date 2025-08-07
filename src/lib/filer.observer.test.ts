@@ -1076,14 +1076,14 @@ describe('Filer Observer System', () => {
 			expect(vi.mocked(working_observer.on_change)).toHaveBeenCalled();
 		});
 
-		test('handles observer throwing exception with abort (default)', async () => {
+		test('handles observer throwing exception with continue (default)', async () => {
 			const failing_observer: Filer_Observer = {
 				id: 'failing_observer',
 				patterns: [/\.ts$/],
 				on_change: vi.fn().mockImplementation(() => {
 					throw new Error('Observer failed');
 				}),
-				// No on_error handler - defaults to 'abort'
+				// No on_error handler - defaults to 'continue'
 			};
 
 			const working_observer: Filer_Observer = {
@@ -1098,7 +1098,37 @@ describe('Filer Observer System', () => {
 				observers: [failing_observer, working_observer],
 			});
 
-			// Should abort processing when first observer fails
+			// Should continue processing when first observer fails
+			ctx.mock_watcher.emit('add', TEST_PATHS.FILE_A);
+			await wait_for_batch(10);
+
+			// Working observer SHOULD be called since processing continued
+			expect(vi.mocked(working_observer.on_change)).toHaveBeenCalled();
+		});
+
+		test('handles observer throwing exception with explicit abort', async () => {
+			const failing_observer: Filer_Observer = {
+				id: 'failing_observer',
+				patterns: [/\.ts$/],
+				on_change: vi.fn().mockImplementation(() => {
+					throw new Error('Observer failed');
+				}),
+				on_error: () => 'abort', // Explicitly abort
+			};
+
+			const working_observer: Filer_Observer = {
+				id: 'working_observer',
+				patterns: [/\.ts$/],
+				on_change: vi.fn(),
+			};
+
+			await ctx.create_mounted_filer({
+				paths: [TEST_PATHS.SOURCE],
+				batch_delay: 0,
+				observers: [failing_observer, working_observer],
+			});
+
+			// Should abort processing when first observer explicitly aborts
 			ctx.mock_watcher.emit('add', TEST_PATHS.FILE_A);
 			await wait_for_batch(10);
 

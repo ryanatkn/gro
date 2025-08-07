@@ -499,7 +499,7 @@ export class Filer implements Disknode_Api {
 					intents.push(...result);
 				}
 			} catch (error) {
-				const action = observer.on_error?.(error as Error, filtered) ?? 'abort';
+				const action = observer.on_error?.(error, filtered) ?? 'continue';
 				if (action === 'abort') {
 					this.#log?.error(`Observer ${observer.id} failed and aborted batch processing:`, error);
 					throw error;
