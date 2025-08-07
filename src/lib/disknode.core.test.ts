@@ -80,7 +80,7 @@ const create_mock_filer = (): Filer =>
 		get_disknode: vi.fn((id: Path_Id) => new Disknode(id, create_mock_filer())),
 		map_alias: vi.fn((spec: string) => spec),
 		resolve_specifier: vi.fn(() => ({path_id: '/resolved/path.js'})),
-		resolve_specifier_builtin: vi.fn().mockReturnValue('file:///resolved/builtin.js'),
+		resolve_external_specifier: vi.fn().mockReturnValue('file:///resolved/external.js'),
 		observe: vi.fn(),
 		find_disknodes: vi.fn(),
 		get_dependents: vi.fn(),

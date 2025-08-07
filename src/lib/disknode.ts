@@ -25,7 +25,7 @@ import {
 export interface Disknode_Api {
 	map_alias: (specifier: string) => string;
 	resolve_specifier: (specifier: string, base: Path_Id) => {path_id: Path_Id};
-	resolve_specifier_builtin: (specifier: string, base: string) => string;
+	resolve_external_specifier: (specifier: string, base: string) => string;
 	get_disknode: (id: Path_Id) => Disknode;
 }
 
@@ -263,11 +263,11 @@ export class Disknode {
 				const resolved = this.api.resolve_specifier(mapped, this.id);
 				resolved_id = resolved.path_id;
 			} else {
-				// Package import - use pluggable resolve_specifier_builtin
+				// External specifier - use pluggable resolve_external_specifier
 				try {
-					resolved_id = fileURLToPath(this.api.resolve_specifier_builtin(mapped, this.id));
+					resolved_id = fileURLToPath(this.api.resolve_external_specifier(mapped, this.id));
 				} catch (err) {
-					// Failed to resolve package import - this is common and expected for many imports
+					// Failed to resolve external specifier - this is common and expected for many imports
 					continue;
 				}
 			}

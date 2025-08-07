@@ -1,4 +1,4 @@
-// @slop Claude Opus 4.1
+// @slop Claude Sonnet 4
 
 import {existsSync, type Stats} from 'node:fs';
 import {stat} from 'node:fs/promises';
@@ -41,6 +41,8 @@ export interface Filer_Options {
 	log?: Logger;
 	/** Alias mappings for import resolution */
 	aliases?: Array<[string, string]>;
+	/** Custom external specifier resolver function. Defaults to import.meta.resolve */
+	resolve_external_specifier?: (specifier: string, base: string) => string;
 }
 
 /**
@@ -87,6 +89,7 @@ export class Filer implements Disknode_Api {
 	/** Configuration */
 	readonly #log?: Logger;
 	readonly #alias_matchers: Array<{re: RegExp; from: string; to: string}>;
+	readonly #resolve_external_specifier: (specifier: string, base: string) => string;
 
 	/** Whether the filer has been mounted */
 	#mounted = false;
@@ -98,6 +101,8 @@ export class Filer implements Disknode_Api {
 		this.#batch_delay = options.batch_delay ?? 10;
 		this.#log = options.log;
 		this.#watched_paths = new Set();
+		this.#resolve_external_specifier =
+			options.resolve_external_specifier ?? this.#default_resolve_external_specifier;
 
 		// Build precompiled alias matchers
 		const aliases = options.aliases ?? [];
@@ -593,15 +598,25 @@ export class Filer implements Disknode_Api {
 	 * Resolve specifier to path for relative/absolute imports.
 	 */
 	resolve_specifier(specifier: string, base: Path_Id): {path_id: Path_Id} {
-		return resolve_specifier(specifier, base);
+		const resolved = resolve_specifier(specifier, base);
+		return {path_id: resolved.path_id};
 	}
 
 	/**
-	 * Resolve builtin specifier using pluggable resolver.
-	 * Defaults to import.meta.resolve for package imports.
+	 * Resolve external specifier using pluggable resolver.
 	 */
-	resolve_specifier_builtin(specifier: string, base: string): string {
+	resolve_external_specifier(specifier: string, base: string): string {
+		return this.#resolve_external_specifier(specifier, base);
+	}
+
+	/**
+	 * Default external specifier resolver using import.meta.resolve.
+	 */
+	#default_resolve_external_specifier(specifier: string, base: string): string {
 		const file_url = new URL(base, 'file://');
+		if (typeof import.meta.resolve !== 'function') {
+			throw new Error('import.meta.resolve is not available');
+		}
 		return import.meta.resolve(specifier, file_url.href);
 	}
 
