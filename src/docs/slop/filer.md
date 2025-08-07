@@ -287,7 +287,7 @@ interface Filer_Observer {
 
 	// Matching strategies (at least one required)
 	patterns?: Array<RegExp>; // Match file paths by regex
-	paths?: Array<string> | (() => Array<string>); // Specific paths (can be dynamic)
+	paths?: Array<string> | (() => Array<string>); // Specific paths (can be dynamic - should be pure and cheap)
 	match?: (disknode: Disknode) => boolean; // Custom matching logic
 
 	// What to track
@@ -478,6 +478,119 @@ Changes are batched to reduce processing overhead and properly coalesce rapid ch
 - **delete + delete → delete** (shouldn't happen but handled)
 
 The coalescing uses a lookup table for O(1) transition resolution.
+
+### invalidation flow
+
+The invalidation flow demonstrates how filesystem changes propagate through the system:
+
+```
+┌────────────────────────────────────────────────────────────────────┐
+│                      Filesystem Event Triggers                      │
+└────────────────────────────────────────────────────────────────────┘
+                                  │
+                                  ▼
+┌────────────────────────────────────────────────────────────────────┐
+│                     1. Filesystem Change Event                      │
+│  • File added/updated/deleted                                       │
+│  • Chokidar emits 'add'/'change'/'unlink' event                    │
+│  • Event captured by Filer.#handle_change()                        │
+└────────────────────────────────────────────────────────────────────┘
+                                  │
+                                  ▼
+┌────────────────────────────────────────────────────────────────────┐
+│                    2. Disknode Cache Invalidation                   │
+│  • disknode.invalidate() increments version counter                 │
+│  • All cached properties marked stale:                              │
+│    - stats (file metadata)                                          │
+│    - contents (file text)                                           │
+│    - imports (parsed ES imports)                                    │
+│    - realpath (symlink resolution)                                  │
+│  • Next property access triggers fresh load from filesystem         │
+└────────────────────────────────────────────────────────────────────┘
+                                  │
+                                  ▼
+┌────────────────────────────────────────────────────────────────────┐
+│                       3. Change Coalescing                          │
+│  • Changes added to pending_changes Map                             │
+│  • Multiple rapid changes coalesced (add+update→add, etc)          │
+│  • Batch timer started (default 10ms delay)                         │
+│  • Importable files queued for dependency update                    │
+└────────────────────────────────────────────────────────────────────┘
+                                  │
+                            (batch delay)
+                                  ▼
+┌────────────────────────────────────────────────────────────────────┐
+│                         4. Batch Flush                              │
+│  • Timer expires, #flush_batch() called                             │
+│  • Snapshot of pending_changes taken                                │
+│  • Dependency graph updated if any observer needs imports           │
+│    - disknode.imports getter triggered                              │
+│    - Import statements parsed from fresh contents                   │
+│    - Dependencies/dependents Maps updated bidirectionally           │
+└────────────────────────────────────────────────────────────────────┘
+                                  │
+                                  ▼
+┌────────────────────────────────────────────────────────────────────┐
+│                      5. Observer Processing                         │
+│  • Process by phase: 'pre' → 'main' → 'post'                       │
+│  • Within phase, sort by priority (highest first)                   │
+│                                                                      │
+│  For each observer:                                                 │
+│  a) Filter batch for matching files (patterns/paths/match)          │
+│  b) Expand batch if needed (dependents/dependencies/all)            │
+│  c) Pre-warm data based on hints (contents/stats/imports)           │
+│  d) Execute observer.on_change() with timeout protection            │
+│  e) Collect any returned invalidation intents                       │
+└────────────────────────────────────────────────────────────────────┘
+                                  │
+                         (if intents returned)
+                                  ▼
+┌────────────────────────────────────────────────────────────────────┐
+│                    6. Intent-Based Invalidation                     │
+│  • Resolve intents to additional disknodes:                         │
+│    - 'all': Every non-external disknode                             │
+│    - 'paths': Specific file paths                                   │
+│    - 'pattern': Files matching regex                                │
+│    - 'dependents': All files importing target                       │
+│    - 'dependencies': All files imported by target                   │
+│    - 'subtree': Target and all descendants                          │
+│  • Each resolved disknode gets disknode.invalidate()                │
+│  • Creates new batch with 'update' changes                          │
+│  • Loop prevention: Skip already-processed disknodes                │
+└────────────────────────────────────────────────────────────────────┘
+                                  │
+                            (if new batch)
+                                  ▼
+┌────────────────────────────────────────────────────────────────────┐
+│                    7. Iterative Batch Processing                    │
+│  • Add new batch to queue (avoids deep recursion)                   │
+│  • Process next batch from queue                                    │
+│  • Mark all disknodes as processed (loop prevention)                │
+│  • Return to step 5 for observer processing                         │
+│  • Continue until queue empty                                       │
+└────────────────────────────────────────────────────────────────────┘
+                                  │
+                                  ▼
+┌────────────────────────────────────────────────────────────────────┐
+│                           8. Cleanup                                │
+│  • Clear relationships for deleted nodes                            │
+│  • Update parent-child relationships                                │
+│  • Move deleted disknodes to tombstone cache                        │
+│  • FIFO eviction if tombstones exceed limit                         │
+└────────────────────────────────────────────────────────────────────┘
+```
+
+Key invalidation mechanisms:
+
+1. **Version-based cache invalidation**: Each Disknode has a version counter that increments on `invalidate()`. Cached properties track which version they were loaded at, automatically reloading when stale.
+
+2. **Lazy synchronous loading**: Properties like `contents` and `stats` are loaded on first access after invalidation, keeping the API synchronous while ensuring fresh data.
+
+3. **Dependency graph updates**: When `disknode.imports` is accessed after invalidation, it re-parses the file and updates bidirectional dependency relationships automatically.
+
+4. **Intent-driven propagation**: Observers can return invalidation intents to trigger broader changes (e.g., invalidating all TypeScript files when config changes).
+
+5. **Loop prevention**: Each disknode is tracked globally across batch rounds to ensure it's only processed once per change event cycle, preventing infinite loops.
 
 ### execution phases
 

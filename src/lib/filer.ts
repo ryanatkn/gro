@@ -57,8 +57,6 @@ export class Filer implements Disknode_Api {
 	/** Maximum number of disknodes to process in parallel for bulk operations */
 	batch_size = 100;
 
-	/** Timeout for watcher to become ready in ms (default: 10000) */
-	ready_timeout_ms = 10000;
 
 	#watcher: FSWatcher | undefined;
 
@@ -178,16 +176,9 @@ export class Filer implements Disknode_Api {
 
 		this.#setup_watcher_handlers();
 
-		// Wait for initial scan with timeout
-		await new Promise<void>((resolve, reject) => {
-			const timeout = setTimeout(
-				() => reject(new Error(`Watcher timeout after ${this.ready_timeout_ms}ms`)),
-				this.ready_timeout_ms,
-			);
-			this.#watcher!.once('ready', () => {
-				clearTimeout(timeout);
-				resolve();
-			});
+		// Wait for initial scan
+		await new Promise<void>((resolve) => {
+			this.#watcher!.once('ready', resolve);
 		});
 	}
 
