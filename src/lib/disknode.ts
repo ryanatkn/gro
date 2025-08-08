@@ -298,11 +298,13 @@ export class Disknode {
 
 	/**
 	 * Load and cache parsed imports for JS/TypeScript files.
-	 * Automatically updates dependencies based on imports.
+	 * Dependencies are automatically updated from parsed imports.
 	 * Uses async parsing with worker threads for better performance.
 	 */
 	async load_imports(): Promise<void> {
-		if (this.#imports_version === this.#version) return; // Already loaded
+		if (this.#imports_version === this.#version) {
+			return; // Already loaded
+		}
 
 		// Early return if not importable
 		if (!this.is_importable) {
@@ -315,14 +317,15 @@ export class Disknode {
 		await this.load_contents();
 		// Access the loaded contents directly since load_contents() updates the cache
 		const contents = this.#contents_version === this.#version ? this.#contents : null;
-		if (!contents) {
+
+		if (contents === null) {
 			this.#imports = null;
 		} else {
 			// Parse imports from contents (async, potentially worker-threaded)
 			const imported = await this.api.parse_imports_async(this.id, contents);
 			this.#imports = new Set(imported);
 
-			// Update dependencies based on imports
+			// Always update dependencies from imports
 			this.#update_dependencies_from_imports(imported);
 		}
 		this.#imports_version = this.#version;
@@ -361,7 +364,7 @@ export class Disknode {
 
 			// First try to resolve as local specifier (handles $lib, relative, and absolute paths)
 			try {
-				const resolved = this.api.resolve_specifier(mapped, this.id);
+				const resolved = this.api.resolve_specifier(mapped, dirname(this.id));
 				resolved_id = resolved.path_id;
 			} catch (err) {
 				// If resolve_specifier failed, try as external specifier

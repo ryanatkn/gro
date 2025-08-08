@@ -23,17 +23,14 @@ vi.mock('chokidar', () => ({
 	FSWatcher: class MockFSWatcher {},
 }));
 
-// Mock the synchronous parse_imports function used when workers are disabled
-vi.mock('./parse_imports.ts', () => ({
-	parse_imports: vi.fn().mockReturnValue([]),
-}));
+// Let the real import parser run - we'll mock at filesystem level instead
 
-describe('Filer Prewarm + Expansion Integration', () => {
+describe('Filer Eager Loading + Expansion Integration', () => {
 	const ctx = use_filer_test_context();
 
-	test('expansion and prewarm work together correctly', async () => {
+	test('expansion and eager loading work together correctly', async () => {
 		const observer: Filer_Observer = {
-			id: 'expansion_prewarm_test',
+			id: 'expansion_eager_loading_test',
 			patterns: [/\.ts$/],
 			expand_to: 'dependents',
 			needs_contents: true,
@@ -47,12 +44,28 @@ describe('Filer Prewarm + Expansion Integration', () => {
 			observers: [observer],
 		});
 
-		// Set up dependency chain: A <- B <- C
+		// Set up import-based dependency chain using file contents
+		const file_contents = new Map([
+			[TEST_PATHS.FILE_A, 'export const a = "value";'],
+			[TEST_PATHS.FILE_B, 'import {a} from "./a.js"; export const b = a;'],
+			[TEST_PATHS.FILE_C, 'import {b} from "./b.js"; export const c = b;'],
+		]);
+		ctx.set_file_contents(file_contents);
+
+		// Mock specifier resolution (base is now directory path, not file path)
+		vi.spyOn(filer, 'resolve_specifier').mockImplementation((specifier, base) => {
+			if (specifier === './a.js' && base === TEST_PATHS.SOURCE) {
+				return {path_id: TEST_PATHS.FILE_A};
+			}
+			if (specifier === './b.js' && base === TEST_PATHS.SOURCE) {
+				return {path_id: TEST_PATHS.FILE_B};
+			}
+			throw new Error(`Unexpected specifier: ${specifier} from ${base}`);
+		});
+
 		const node_a = filer.get_disknode(TEST_PATHS.FILE_A);
 		const node_b = filer.get_disknode(TEST_PATHS.FILE_B);
 		const node_c = filer.get_disknode(TEST_PATHS.FILE_C);
-		node_b.add_dependency(node_a);
-		node_c.add_dependency(node_b);
 
 		// Spy on loading methods that should be prewarmed
 		const load_contents_spy_a = vi.spyOn(node_a, 'load_contents');
@@ -62,7 +75,15 @@ describe('Filer Prewarm + Expansion Integration', () => {
 		const load_imports_spy_b = vi.spyOn(node_b, 'load_imports');
 		const load_imports_spy_c = vi.spyOn(node_c, 'load_imports');
 
-		// Trigger change to A - this should expand to include B and C
+		// Trigger changes to B and C first so their imports get loaded and dependencies established
+		ctx.mock_watcher.emit('change', TEST_PATHS.FILE_B);
+		ctx.mock_watcher.emit('change', TEST_PATHS.FILE_C);
+		await wait_for_batch(10);
+
+		// Clear the observer calls from the setup
+		vi.mocked(observer.on_change).mockClear();
+
+		// Now trigger change to A - this should expand to include its dependents B and C
 		ctx.mock_watcher.emit('change', TEST_PATHS.FILE_A);
 		await wait_for_batch(10);
 
@@ -74,7 +95,7 @@ describe('Filer Prewarm + Expansion Integration', () => {
 		expect(batch.has(TEST_PATHS.FILE_B)).toBe(true);
 		expect(batch.has(TEST_PATHS.FILE_C)).toBe(true);
 
-		// Verify prewarm happened for ALL nodes in the expanded batch
+		// Verify eager loading happened for ALL nodes in the expanded batch
 		expect(load_contents_spy_a).toHaveBeenCalled();
 		expect(load_contents_spy_b).toHaveBeenCalled();
 		expect(load_contents_spy_c).toHaveBeenCalled();
@@ -83,9 +104,9 @@ describe('Filer Prewarm + Expansion Integration', () => {
 		expect(load_imports_spy_c).toHaveBeenCalled();
 	});
 
-	test('prewarm only happens for nodes that match filters', async () => {
+	test('data loading only happens for nodes that match filters', async () => {
 		const observer: Filer_Observer = {
-			id: 'filtered_prewarm_test',
+			id: 'filtered_data_loading_test',
 			patterns: [/\.ts$/],
 			expand_to: 'dependents',
 			track_external: false, // Don't track external files
@@ -118,19 +139,16 @@ describe('Filer Prewarm + Expansion Integration', () => {
 		expect(batch.has(TEST_PATHS.FILE_A)).toBe(true);
 		expect(batch.has(TEST_PATHS.EXTERNAL_FILE)).toBe(false);
 
-		// Verify prewarm only happened for included nodes
+		// Verify data loading only happened for included nodes
 		expect(load_contents_spy_a).toHaveBeenCalled();
 		expect(load_contents_spy_external).not.toHaveBeenCalled();
 	});
 
-	test('prewarm respects observer performance hints', async () => {
+	test('eager loading loads imports for all importable files regardless of observer hints', async () => {
 		const minimal_observer: Filer_Observer = {
-			id: 'minimal_prewarm_test',
+			id: 'minimal_observer_test',
 			patterns: [/\.ts$/],
-			expand_to: 'dependents',
-			needs_contents: false,
-			needs_stats: false,
-			needs_imports: false,
+			// No expand_to, so observer doesn't use imports, but eager loading still loads them
 			on_change: vi.fn(),
 		};
 
@@ -140,43 +158,34 @@ describe('Filer Prewarm + Expansion Integration', () => {
 			observers: [minimal_observer],
 		});
 
-		// Set up dependency chain
 		const node_a = filer.get_disknode(TEST_PATHS.FILE_A);
-		const node_b = filer.get_disknode(TEST_PATHS.FILE_B);
-		node_b.add_dependency(node_a);
-
-		// Spy on loading methods that should be prewarmed
-		const load_contents_spy_a = vi.spyOn(node_a, 'load_contents');
-		const load_contents_spy_b = vi.spyOn(node_b, 'load_contents');
-		const load_stats_spy_a = vi.spyOn(node_a, 'load_stats');
-		const load_stats_spy_b = vi.spyOn(node_b, 'load_stats');
 		const load_imports_spy_a = vi.spyOn(node_a, 'load_imports');
-		const load_imports_spy_b = vi.spyOn(node_b, 'load_imports');
 
 		// Trigger change to A
 		ctx.mock_watcher.emit('change', TEST_PATHS.FILE_A);
 		await wait_for_batch(10);
 
-		// Verify expansion worked
+		// Verify observer was called
+		expect(vi.mocked(minimal_observer.on_change)).toHaveBeenCalled();
 		const batch = vi.mocked(minimal_observer.on_change).mock.calls[0][0];
 		expect(batch.has(TEST_PATHS.FILE_A)).toBe(true);
-		expect(batch.has(TEST_PATHS.FILE_B)).toBe(true);
 
-		// Verify NO prewarm happened since observer doesn't need any data
-		expect(load_contents_spy_a).not.toHaveBeenCalled();
-		expect(load_contents_spy_b).not.toHaveBeenCalled();
-		expect(load_stats_spy_a).not.toHaveBeenCalled();
-		expect(load_stats_spy_b).not.toHaveBeenCalled();
-		expect(load_imports_spy_a).not.toHaveBeenCalled();
-		expect(load_imports_spy_b).not.toHaveBeenCalled();
+		// With eager loading, imports are loaded for all importable files
+		expect(load_imports_spy_a).toHaveBeenCalled();
 	});
 
-	test('expand_to automatically enables imports prewarm when not explicitly disabled', async () => {
+	test('expand_to works with eager import loading when not explicitly disabled', async () => {
+		// Set up file contents with import relationships
+		const file_contents = new Map([
+			[TEST_PATHS.FILE_A, 'export const a = "value";'],
+			[TEST_PATHS.FILE_B, 'import {a} from "./a.js"; export const b = a;'],
+		]);
+		ctx.set_file_contents(file_contents);
+
 		const auto_imports_observer: Filer_Observer = {
-			id: 'auto_imports_prewarm_test',
+			id: 'auto_imports_expansion_test',
 			patterns: [/\.ts$/],
-			expand_to: 'dependencies', // Should auto-enable imports
-			// needs_imports is undefined, so auto-enable should work
+			expand_to: 'dependencies', // Should expand to include dependencies
 			on_change: vi.fn(),
 		};
 
@@ -186,35 +195,47 @@ describe('Filer Prewarm + Expansion Integration', () => {
 			observers: [auto_imports_observer],
 		});
 
-		// Set up dependency chain
 		const node_a = filer.get_disknode(TEST_PATHS.FILE_A);
 		const node_b = filer.get_disknode(TEST_PATHS.FILE_B);
-		node_a.add_dependency(node_b);
 
 		// Spy on imports loading methods
 		const load_imports_spy_a = vi.spyOn(node_a, 'load_imports');
 		const load_imports_spy_b = vi.spyOn(node_b, 'load_imports');
 
-		// Trigger change to A
-		ctx.mock_watcher.emit('change', TEST_PATHS.FILE_A);
+		// Trigger change to B first to establish its dependency on A
+		ctx.mock_watcher.emit('add', TEST_PATHS.FILE_B);
+		await wait_for_batch(10);
+
+		// Clear observer calls from setup
+		vi.mocked(auto_imports_observer.on_change).mockClear();
+
+		// Trigger change to B again - this should expand to include A (dependency)
+		ctx.mock_watcher.emit('change', TEST_PATHS.FILE_B);
 		await wait_for_batch(10);
 
 		// Verify expansion worked
 		const batch = vi.mocked(auto_imports_observer.on_change).mock.calls[0][0];
-		expect(batch.has(TEST_PATHS.FILE_A)).toBe(true);
-		expect(batch.has(TEST_PATHS.FILE_B)).toBe(true);
+		expect(batch.has(TEST_PATHS.FILE_B)).toBe(true); // Direct match
+		expect(batch.has(TEST_PATHS.FILE_A)).toBe(true); // Expanded to dependency
 
-		// Verify imports prewarm happened because expand_to: 'dependencies' auto-enables it
+		// Verify imports are loaded with eager loading regardless of observer hints
 		expect(load_imports_spy_a).toHaveBeenCalled();
 		expect(load_imports_spy_b).toHaveBeenCalled();
 	});
 
-	test('expand_to respects explicit needs_imports: false', async () => {
+	test('expand_to works with eager loading even when needs_imports: false', async () => {
+		// Set up file contents with import relationships
+		const file_contents = new Map([
+			[TEST_PATHS.FILE_A, 'export const a = "value";'],
+			[TEST_PATHS.FILE_B, 'import {a} from "./a.js"; export const b = a;'],
+		]);
+		ctx.set_file_contents(file_contents);
+
 		const explicit_no_imports_observer: Filer_Observer = {
 			id: 'explicit_no_imports_test',
 			patterns: [/\.ts$/],
 			expand_to: 'dependencies',
-			needs_imports: false, // Explicitly disabled - should not auto-enable
+			needs_imports: false, // Observer doesn't need imports, but eager loading provides them
 			on_change: vi.fn(),
 		};
 
@@ -224,32 +245,37 @@ describe('Filer Prewarm + Expansion Integration', () => {
 			observers: [explicit_no_imports_observer],
 		});
 
-		// Set up dependency chain
 		const node_a = filer.get_disknode(TEST_PATHS.FILE_A);
 		const node_b = filer.get_disknode(TEST_PATHS.FILE_B);
-		node_a.add_dependency(node_b);
 
 		// Spy on imports loading methods
 		const load_imports_spy_a = vi.spyOn(node_a, 'load_imports');
 		const load_imports_spy_b = vi.spyOn(node_b, 'load_imports');
 
-		// Trigger change to A
-		ctx.mock_watcher.emit('change', TEST_PATHS.FILE_A);
+		// Trigger change to B first to establish its dependency on A
+		ctx.mock_watcher.emit('add', TEST_PATHS.FILE_B);
 		await wait_for_batch(10);
 
-		// Verify expansion worked
-		const batch = vi.mocked(explicit_no_imports_observer.on_change).mock.calls[0][0];
-		expect(batch.has(TEST_PATHS.FILE_A)).toBe(true);
-		expect(batch.has(TEST_PATHS.FILE_B)).toBe(true);
+		// Clear observer calls from setup
+		vi.mocked(explicit_no_imports_observer.on_change).mockClear();
 
-		// Verify imports prewarm did NOT happen because needs_imports: false overrides auto-enable
-		expect(load_imports_spy_a).not.toHaveBeenCalled();
-		expect(load_imports_spy_b).not.toHaveBeenCalled();
+		// Trigger change to B again - this should expand to include A (dependency)
+		ctx.mock_watcher.emit('change', TEST_PATHS.FILE_B);
+		await wait_for_batch(10);
+
+		// Verify observer was called and expansion works because dependencies exist
+		const batch = vi.mocked(explicit_no_imports_observer.on_change).mock.calls[0][0];
+		expect(batch.has(TEST_PATHS.FILE_B)).toBe(true); // Direct match
+		expect(batch.has(TEST_PATHS.FILE_A)).toBe(true); // Expansion works because dependency exists
+
+		// With eager loading, imports are loaded regardless of observer needs
+		expect(load_imports_spy_a).toHaveBeenCalled();
+		expect(load_imports_spy_b).toHaveBeenCalled();
 	});
 
-	test('returns_intents auto-enables imports prewarm when not explicitly disabled', async () => {
+	test('returns_intents works with eager import loading when not explicitly disabled', async () => {
 		const auto_imports_observer: Filer_Observer = {
-			id: 'auto_imports_intents_test',
+			id: 'returns_intents_eager_test',
 			patterns: [/\.ts$/],
 			returns_intents: true, // Should auto-enable imports
 			// needs_imports is undefined, so auto-enable should work
@@ -269,16 +295,16 @@ describe('Filer Prewarm + Expansion Integration', () => {
 		ctx.mock_watcher.emit('change', TEST_PATHS.FILE_A);
 		await wait_for_batch(10);
 
-		// Verify imports prewarm happened because returns_intents: true auto-enables it
+		// Verify imports are loaded with eager loading
 		expect(load_imports_spy_a).toHaveBeenCalled();
 	});
 
-	test('returns_intents respects explicit needs_imports: false', async () => {
+	test('eager loading works even when returns_intents: true and needs_imports: false', async () => {
 		const explicit_no_imports_observer: Filer_Observer = {
 			id: 'explicit_no_imports_intents_test',
 			patterns: [/\.ts$/],
 			returns_intents: true,
-			needs_imports: false, // Explicitly disabled - should not auto-enable
+			needs_imports: false, // Observer doesn't need imports, but eager loading provides them
 			on_change: vi.fn(() => []),
 		};
 
@@ -295,7 +321,7 @@ describe('Filer Prewarm + Expansion Integration', () => {
 		ctx.mock_watcher.emit('change', TEST_PATHS.FILE_A);
 		await wait_for_batch(10);
 
-		// Verify imports prewarm did NOT happen because needs_imports: false overrides auto-enable
-		expect(load_imports_spy_a).not.toHaveBeenCalled();
+		// With eager loading, imports are loaded regardless of observer needs
+		expect(load_imports_spy_a).toHaveBeenCalled();
 	});
 });

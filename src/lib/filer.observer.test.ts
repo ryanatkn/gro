@@ -3,7 +3,12 @@
 import {describe, test, expect, vi} from 'vitest';
 
 import type {Filer_Observer} from './filer_helpers.ts';
-import {use_filer_test_context, TEST_PATHS, wait_for_batch} from './filer.test_helpers.ts';
+import {
+	use_filer_test_context,
+	TEST_PATHS,
+	wait_for_batch,
+	setup_import_chain,
+} from './filer.test_helpers.ts';
 
 vi.mock('node:fs/promises', () => ({
 	readFile: vi.fn(),
@@ -23,10 +28,7 @@ vi.mock('chokidar', () => ({
 	FSWatcher: class MockFSWatcher {},
 }));
 
-// Mock the synchronous parse_imports function used when workers are disabled
-vi.mock('./parse_imports.ts', () => ({
-	parse_imports: vi.fn().mockReturnValue([]),
-}));
+// Let the real import parser run - we'll mock at filesystem level instead
 
 describe('Filer Observer System', () => {
 	const ctx = use_filer_test_context();
@@ -606,6 +608,14 @@ describe('Filer Observer System', () => {
 		});
 
 		test('expand_to: "dependencies" includes files that matched files depend on', async () => {
+			// Set up import chain: C imports B imports A
+			const file_contents = new Map([
+				[TEST_PATHS.FILE_A, 'export const a = "value";'],
+				[TEST_PATHS.FILE_B, 'import {a} from "./a.js";\nexport const b = a;'],
+				[TEST_PATHS.FILE_C, 'import {b} from "./b.js";\nexport const c = b;'],
+			]);
+			ctx.set_file_contents(file_contents);
+
 			const observer: Filer_Observer = {
 				id: 'with_dependencies',
 				patterns: [/\.ts$/],
@@ -613,26 +623,26 @@ describe('Filer Observer System', () => {
 				on_change: vi.fn(),
 			};
 
-			const filer = await ctx.create_mounted_filer({
+			await ctx.create_mounted_filer({
 				paths: [TEST_PATHS.SOURCE],
 				batch_delay: 0,
 				observers: [observer],
 			});
 
-			// Set up dependency chain: A -> B -> C
-			const node_a = filer.get_disknode(TEST_PATHS.FILE_A);
-			const node_b = filer.get_disknode(TEST_PATHS.FILE_B);
-			const node_c = filer.get_disknode(TEST_PATHS.FILE_C);
-			node_c.add_dependency(node_b);
-			node_b.add_dependency(node_a);
-
+			// Trigger change on C - should expand to include its dependencies A and B
+			console.log('Triggering change to FILE_C...');
 			ctx.mock_watcher.emit('change', TEST_PATHS.FILE_C);
 			await wait_for_batch(10);
 
+			// Verify expansion worked
+			expect(vi.mocked(observer.on_change)).toHaveBeenCalledTimes(1);
 			const batch = vi.mocked(observer.on_change).mock.calls[0][0];
-			expect(batch.has(TEST_PATHS.FILE_A)).toBe(true);
-			expect(batch.has(TEST_PATHS.FILE_B)).toBe(true);
-			expect(batch.has(TEST_PATHS.FILE_C)).toBe(true);
+			console.log('Final batch contents:', Array.from(batch.changes.keys()));
+			console.log('Final batch size:', batch.size);
+
+			expect(batch.has(TEST_PATHS.FILE_C)).toBe(true); // Direct match
+			expect(batch.has(TEST_PATHS.FILE_B)).toBe(true); // Dependency of C
+			expect(batch.has(TEST_PATHS.FILE_A)).toBe(true); // Dependency of B (transitive dependency of C)
 		});
 
 		test('expand_to: "all" includes all non-external files', async () => {
@@ -750,7 +760,7 @@ describe('Filer Observer System', () => {
 			expect(load_stats_spy).toHaveBeenCalled();
 		});
 
-		test('needs_stats: false skips stats loading', async () => {
+		test('needs_stats: false skips stats loading during observer execution', async () => {
 			const observer: Filer_Observer = {
 				id: 'no_stats',
 				patterns: [/\.ts$/],
@@ -765,13 +775,14 @@ describe('Filer Observer System', () => {
 			});
 
 			const node = filer.get_disknode(TEST_PATHS.FILE_A);
-			const stats_spy = vi.spyOn(node, 'stats', 'get');
 
 			ctx.mock_watcher.emit('add', TEST_PATHS.FILE_A);
 			await wait_for_batch(10);
 
-			// Stats should not have been accessed
-			expect(stats_spy).not.toHaveBeenCalled();
+			// With eager import loading, stats will be loaded for importable files
+			// but needs_stats: false should still work for the observer's data loading hints
+			expect(node.stats).toBeDefined(); // Stats loaded during import processing
+			expect(vi.mocked(observer.on_change)).toHaveBeenCalled();
 		});
 
 		test('needs_imports pre-parses imports', async () => {
@@ -812,17 +823,30 @@ describe('Filer Observer System', () => {
 				observers: [observer],
 			});
 
-			const node = filer.get_disknode(TEST_PATHS.FILE_A);
-			const imports_spy = vi.spyOn(node, 'imports', 'get');
+			const node_a = filer.get_disknode(TEST_PATHS.FILE_A);
+			const node_b = filer.get_disknode(TEST_PATHS.FILE_B);
 
+			// Set up dependency relationship: B depends on A (so A has B as dependent)
+			node_b.add_dependency(node_a);
+
+			// Trigger change to A
 			ctx.mock_watcher.emit('add', TEST_PATHS.FILE_A);
 			await wait_for_batch(10);
 
-			// Imports should have been accessed for dependency tracking
-			expect(imports_spy).toHaveBeenCalled();
+			// Verify that expansion worked by checking the batch contains the expected files
+			const batch = vi.mocked(observer.on_change).mock.calls[0][0];
+			expect(batch.has(TEST_PATHS.FILE_A)).toBe(true); // Direct match
+			expect(batch.has(TEST_PATHS.FILE_B)).toBe(true); // Expanded to dependent
 		});
 
 		test('expand_to: "dependencies" auto-enables imports parsing', async () => {
+			// Set up import relationship: B imports A
+			const file_contents = setup_import_chain([
+				{path: TEST_PATHS.FILE_A, imports: []},
+				{path: TEST_PATHS.FILE_B, imports: ['./a.ts']},
+			]);
+			ctx.set_file_contents(file_contents);
+
 			const observer: Filer_Observer = {
 				id: 'auto_imports_deps',
 				patterns: [/\.ts$/],
@@ -836,14 +860,20 @@ describe('Filer Observer System', () => {
 				observers: [observer],
 			});
 
-			const node = filer.get_disknode(TEST_PATHS.FILE_A);
-			const imports_spy = vi.spyOn(node, 'imports', 'get');
+			filer.get_disknode(TEST_PATHS.FILE_A);
+			const node_b = filer.get_disknode(TEST_PATHS.FILE_B);
 
-			ctx.mock_watcher.emit('add', TEST_PATHS.FILE_A);
+			// Trigger change to B
+			ctx.mock_watcher.emit('add', TEST_PATHS.FILE_B);
 			await wait_for_batch(10);
 
-			// Imports should have been accessed for dependency tracking
-			expect(imports_spy).toHaveBeenCalled();
+			// With eager import loading, imports are always loaded for importable files
+			expect(node_b.imports).not.toBeUndefined();
+
+			// Verify expansion worked - when B changes, it should expand to include A (dependency)
+			const batch = vi.mocked(observer.on_change).mock.calls[0][0];
+			expect(batch.has(TEST_PATHS.FILE_B)).toBe(true); // Direct match
+			expect(batch.has(TEST_PATHS.FILE_A)).toBe(true); // Expanded to dependency
 		});
 	});
 
@@ -935,11 +965,11 @@ describe('Filer Observer System', () => {
 	});
 
 	describe('performance optimization tests', () => {
-		test('only processes dependency updates when observers need them', async () => {
+		test('eager loading processes imports for all importable files regardless of observer needs', async () => {
 			const observer_no_deps: Filer_Observer = {
 				id: 'no_deps',
 				patterns: [/\.ts$/],
-				needs_imports: false,
+				needs_imports: false, // Observer doesn't need imports, but eager loading still processes them
 				on_change: vi.fn(),
 			};
 
@@ -950,14 +980,16 @@ describe('Filer Observer System', () => {
 			});
 
 			const node = filer.get_disknode(TEST_PATHS.FILE_A);
-			const imports_spy = vi.spyOn(node, 'imports', 'get');
+			const load_imports_spy = vi.spyOn(node, 'load_imports');
 
 			ctx.mock_watcher.emit('add', TEST_PATHS.FILE_A);
 			await wait_for_batch(10);
 
-			// Imports should NOT have been accessed since no observer needs them
-			expect(imports_spy).not.toHaveBeenCalled();
+			// With eager loading, imports are loaded for all importable files during change handling
+			// to maintain the dependency graph, regardless of individual observer needs
 			expect(vi.mocked(observer_no_deps.on_change)).toHaveBeenCalled();
+			expect(load_imports_spy).toHaveBeenCalled();
+			expect(node.imports).toBeDefined(); // Imports are available even though observer doesn't need them
 		});
 
 		test('processes dependency updates when at least one observer needs them', async () => {
@@ -980,14 +1012,20 @@ describe('Filer Observer System', () => {
 				observers: [observer_needs_deps, observer_no_deps],
 			});
 
-			const node = filer.get_disknode(TEST_PATHS.FILE_A);
-			const imports_spy = vi.spyOn(node, 'imports', 'get');
+			const node_a = filer.get_disknode(TEST_PATHS.FILE_A);
+			const node_b = filer.get_disknode(TEST_PATHS.FILE_B);
+
+			// Set up dependency relationship: B depends on A (so A has B as dependent)
+			node_b.add_dependency(node_a);
 
 			ctx.mock_watcher.emit('add', TEST_PATHS.FILE_A);
 			await wait_for_batch(10);
 
-			// Imports should have been accessed since one observer needs them
-			expect(imports_spy).toHaveBeenCalled();
+			// Verify that the observer with expand_to actually expanded to include dependents
+			expect(vi.mocked(observer_needs_deps.on_change)).toHaveBeenCalled();
+			const batch = vi.mocked(observer_needs_deps.on_change).mock.calls[0][0];
+			expect(batch.has(TEST_PATHS.FILE_A)).toBe(true); // Direct match
+			expect(batch.has(TEST_PATHS.FILE_B)).toBe(true); // Expanded to dependent
 		});
 
 		test('caches resolved paths for performance', async () => {

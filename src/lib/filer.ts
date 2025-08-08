@@ -20,7 +20,6 @@ import {
 	filer_coalesce_change,
 	filer_should_filter_disknode,
 	filer_observer_matches,
-	filer_observer_needs_imports,
 	filer_execute_observer,
 	Filer_Phase,
 	filer_traverse_relationships,
@@ -280,9 +279,11 @@ export class Filer implements Disknode_Api {
 				disknode.set_stats(stats);
 			}
 
-			// Queue for dependency update if it's importable
-			if (disknode.is_importable) {
-				this.#pending_dependency_updates.add(disknode);
+			// Eagerly load imports for importable files to build dependency graph
+			// Only if imports haven't been loaded yet (don't overwrite manual setup)
+			if (disknode.is_importable && !disknode.is_external && disknode.imports === undefined) {
+				// Queue for batch processing to ensure imports are loaded before observers run
+				this.queue_dependency_update(disknode);
 			}
 		} else {
 			// For deletes, move to tombstones
@@ -340,13 +341,8 @@ export class Filer implements Disknode_Api {
 		const batch = new Filer_Change_Batch(this.#pending_changes.values());
 		this.#pending_changes.clear();
 
-		// Only process pending dependency updates if at least one observer needs them
-		if (this.#any_observer_needs_imports()) {
-			await this.#process_pending_dependency_updates();
-		} else {
-			// Clear pending updates without processing
-			this.#pending_dependency_updates.clear();
-		}
+		// With eager loading, pending updates should be minimal since imports load immediately
+		await this.#process_pending_dependency_updates();
 
 		// Process with loop prevention
 		const processed: Set<Path_Id> = new Set();
@@ -368,36 +364,60 @@ export class Filer implements Disknode_Api {
 	}
 
 	/**
-	 * Check if any observer needs imports for dependency tracking.
+	 * Load data for observer based on its needs.
 	 */
-	#any_observer_needs_imports(): boolean {
-		for (const observer of this.#observers.values()) {
-			if (filer_observer_needs_imports(observer)) {
-				return true;
+	async #load_observer_data(batch: Filer_Change_Batch, observer: Filer_Observer): Promise<void> {
+		const load_promises = [];
+
+		for (const disknode of batch.all_disknodes) {
+			if (observer.needs_contents) {
+				load_promises.push(disknode.load_contents());
 			}
+			if (observer.needs_stats !== false) {
+				// Default to true
+				load_promises.push(disknode.load_stats());
+			}
+			// Imports are always loaded eagerly for importable files
 		}
-		return false;
+
+		await Promise.all(load_promises);
 	}
 
 	/**
 	 * Process pending dependency updates in batch.
 	 */
-	#process_pending_dependency_updates(): void {
+	async #process_pending_dependency_updates(): Promise<void> {
 		if (this.#pending_dependency_updates.size === 0) return;
 
+		const load_promises: Array<Promise<void>> = [];
 		for (const disknode of this.#pending_dependency_updates) {
-			// The disknode.imports getter will handle the actual updates
-			// We just need to trigger it
-			disknode.imports;
+			load_promises.push(disknode.load_imports());
 		}
+
+		await Promise.all(load_promises);
 		this.#pending_dependency_updates.clear();
 	}
 
 	/**
 	 * Queue a disknode for dependency update.
+	 * Imports will be loaded when batch is processed if observers need them.
 	 */
 	queue_dependency_update(disknode: Disknode): void {
 		this.#pending_dependency_updates.add(disknode);
+	}
+
+	/**
+	 * Explicitly load the dependency graph for specific disknodes.
+	 * Use this for manual control over when imports are parsed and relationships built.
+	 */
+	async load_dependency_graph(disknodes: Array<Disknode>): Promise<void> {
+		const load_promises: Array<Promise<void>> = [];
+		for (const disknode of disknodes) {
+			if (disknode.is_importable) {
+				load_promises.push(disknode.load_imports());
+			}
+		}
+		await Promise.all(load_promises);
 	}
 
 	/**
@@ -487,11 +507,11 @@ export class Filer implements Disknode_Api {
 		for (const observer of observers) {
 			if ((observer.phase ?? 'main') !== phase) continue;
 
-			const filtered = this.#filter_batch_for_observer(batch, observer);
+			const filtered = await this.#filter_batch_for_observer(batch, observer);
 			if (filtered.is_empty) continue;
 
-			// Pre-warm data if needed - do this AFTER expansion
-			await this.#prewarm_observer_data(filtered, observer);
+			// Pre-load data based on observer needs
+			await this.#load_observer_data(filtered, observer);
 
 			try {
 				const result = await filer_execute_observer(observer, filtered); // eslint-disable-line no-await-in-loop
@@ -723,10 +743,10 @@ export class Filer implements Disknode_Api {
 	/**
 	 * Filter batch changes based on observer configuration.
 	 */
-	#filter_batch_for_observer(
+	async #filter_batch_for_observer(
 		batch: Filer_Change_Batch,
 		observer: Filer_Observer,
-	): Filer_Change_Batch {
+	): Promise<Filer_Change_Batch> {
 		const filtered: Map<Path_Id, Filer_Change> = new Map();
 
 		const resolved_paths = this.#get_cached_resolved_paths(observer);
@@ -747,7 +767,7 @@ export class Filer implements Disknode_Api {
 
 		// Handle batch expansion
 		if (observer.expand_to && observer.expand_to !== 'self') {
-			this.#expand_batch(filtered, observer.expand_to, observer);
+			await this.#expand_batch(filtered, observer.expand_to, observer);
 		}
 
 		return new Filer_Change_Batch(filtered.values());
@@ -756,13 +776,11 @@ export class Filer implements Disknode_Api {
 	/**
 	 * Expand batch based on strategy.
 	 */
-	#expand_batch(
+	async #expand_batch(
 		filtered: Map<Path_Id, Filer_Change>,
 		strategy: Filer_Expand_Strategy,
 		observer: Filer_Observer,
-	): void {
-		const to_add: Set<Disknode> = new Set();
-
+	): Promise<void> {
 		// Special handling for 'all' strategy to avoid redundant iteration
 		if (strategy === 'all') {
 			// Count non-external nodes that could be added
@@ -780,69 +798,69 @@ export class Filer implements Disknode_Api {
 
 			// Add all non-external nodes
 			for (const n of this.disknodes.values()) {
-				if (!n.is_external) to_add.add(n);
+				if (!n.is_external && !filtered.has(n.id) && !filer_should_filter_disknode(observer, n)) {
+					filtered.set(n.id, {
+						type: 'update',
+						disknode: n,
+						id: n.id,
+						kind: n.kind,
+					});
+				}
 			}
 		} else {
-			// Process other strategies per change
+			// Use iterative expansion to handle transitive dependencies properly
+			const processed: Set<Path_Id> = new Set(filtered.keys());
+			const queue: Array<Disknode> = [];
+
+			// Start with nodes already in the filtered batch
 			for (const change of filtered.values()) {
 				const disknode = change.disknode ?? this.disknodes.get(change.id);
-				if (!disknode) continue;
+				if (disknode) queue.push(disknode);
+			}
 
+			while (queue.length > 0) {
+				const current = queue.shift()!;
+
+				// Ensure imports are loaded for transitive traversal
+				if (current.is_importable && current.imports === undefined) {
+					await current.load_imports();
+				}
+
+				// Find related nodes based on strategy
+				const related_nodes: Array<Disknode> = [];
 				switch (strategy) {
 					case 'self':
 						// Nothing to add for self strategy
 						break;
 					case 'dependents':
-						for (const dep of filer_traverse_relationships(disknode, 'dependents')) {
-							to_add.add(dep);
+						for (const dep of filer_traverse_relationships(current, 'dependents')) {
+							related_nodes.push(dep);
 						}
 						break;
 					case 'dependencies':
-						for (const dep of filer_traverse_relationships(disknode, 'dependencies')) {
-							to_add.add(dep);
+						for (const dep of filer_traverse_relationships(current, 'dependencies')) {
+							related_nodes.push(dep);
 						}
 						break;
 					default:
 						throw new Unreachable_Error(strategy);
 				}
+
+				// Add newly discovered nodes to the batch and queue
+				for (const node of related_nodes) {
+					if (!processed.has(node.id) && !filer_should_filter_disknode(observer, node)) {
+						processed.add(node.id);
+						filtered.set(node.id, {
+							type: 'update',
+							disknode: node,
+							id: node.id,
+							kind: node.kind,
+						});
+						queue.push(node); // Continue expansion from this node
+					}
+				}
 			}
 		}
-
-		// Add expanded disknodes
-		for (const disknode of to_add) {
-			if (filtered.has(disknode.id)) continue;
-			if (filer_should_filter_disknode(observer, disknode)) continue;
-
-			filtered.set(disknode.id, {
-				type: 'update',
-				disknode,
-				id: disknode.id,
-				kind: disknode.kind,
-			});
-		}
-	}
-
-	/**
-	 * Pre-warm data for observer based on hints.
-	 */
-	async #prewarm_observer_data(batch: Filer_Change_Batch, observer: Filer_Observer): Promise<void> {
-		const needs_imports = filer_observer_needs_imports(observer);
-
-		const load_promises = [];
-
-		for (const disknode of batch.all_disknodes) {
-			if (observer.needs_contents) {
-				load_promises.push(disknode.load_contents());
-			}
-			if (observer.needs_stats === true || observer.needs_stats === undefined) {
-				load_promises.push(disknode.load_stats());
-			}
-			if (needs_imports && disknode.is_importable) {
-				load_promises.push(disknode.load_imports());
-			}
-		}
-
-		await Promise.all(load_promises);
 	}
 
 	/**
@@ -962,11 +980,6 @@ export class Filer implements Disknode_Api {
 	async dispose(): Promise<void> {
 		if (this.#disposed) return;
 		this.#disposed = true;
-
-		if (this.#batch_timeout) {
-			clearTimeout(this.#batch_timeout);
-			this.#batch_timeout = undefined;
-		}
 
 		if (this.#batch_timeout) {
 			clearTimeout(this.#batch_timeout);

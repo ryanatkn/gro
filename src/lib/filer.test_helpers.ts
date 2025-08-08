@@ -2,7 +2,7 @@
 
 import {beforeEach, afterEach, vi} from 'vitest';
 import {existsSync, type Stats} from 'node:fs';
-import {stat} from 'node:fs/promises';
+import {stat, lstat, readFile} from 'node:fs/promises';
 import {watch, type ChokidarOptions, type FSWatcher} from 'chokidar';
 
 import {Filer, type Filer_Options} from './filer.ts';
@@ -130,16 +130,39 @@ export class Filer_Test_Context {
 
 	/**
 	 * Set up mocks for the current test context.
+	 * Can optionally provide file contents for specific paths.
 	 */
-	setup_mocks(): void {
+	setup_mocks(file_contents?: Map<string, string>): void {
+		// Reset the mock watcher for each test to ensure clean state
+		this.#mock_watcher = new Mock_Watcher();
+
 		vi.mocked(watch).mockImplementation(() => {
-			// Always return the same mock watcher instance so tests can emit events on it
+			// Always return the current mock watcher instance so tests can emit events on it
 			// Auto-emit ready after a short delay to prevent hanging
 			setTimeout(() => this.#mock_watcher.emit('ready'), 0);
 			return this.#mock_watcher as unknown as FSWatcher;
 		});
 		vi.mocked(existsSync).mockReturnValue(true);
 		vi.mocked(stat).mockResolvedValue(create_mock_stats());
+		vi.mocked(lstat).mockResolvedValue(create_mock_stats());
+
+		// Set up readFile mock with specific contents or default to empty
+		vi.mocked(readFile).mockImplementation(async (path) => {
+			if (file_contents?.has(path.toString())) {
+				return file_contents.get(path.toString())!;
+			}
+			return ''; // Default empty file contents
+		});
+	}
+
+	/**
+	 * Set up file contents for specific paths.
+	 * Must be called after setup_mocks but before file operations.
+	 */
+	set_file_contents(file_contents: Map<string, string>): void {
+		vi.mocked(readFile).mockImplementation(async (path) => {
+			return file_contents.get(path.toString()) ?? '';
+		});
 	}
 
 	/**
@@ -148,6 +171,8 @@ export class Filer_Test_Context {
 	async dispose_all(): Promise<void> {
 		await Promise.all(Array.from(this.#filers).map((filer) => filer.dispose()));
 		this.#filers.clear();
+		// Close the current mock watcher to clean up any lingering event handlers
+		await this.#mock_watcher.close();
 		this.#mock_watcher = new Mock_Watcher();
 	}
 }
@@ -163,13 +188,19 @@ export const use_filer_test_context = (): Filer_Test_Context => {
 	const context = new Filer_Test_Context();
 
 	beforeEach(() => {
-		vi.clearAllMocks();
+		// Create fresh mock implementations for each test
 		context.setup_mocks();
 	});
 
 	afterEach(async () => {
 		await context.dispose_all();
-		vi.restoreAllMocks();
+		// Don't restore all mocks - this can interfere with test-specific mocks
+		// Only restore the specific mocks we manage
+		vi.mocked(watch).mockRestore();
+		vi.mocked(existsSync).mockRestore();
+		vi.mocked(stat).mockRestore();
+		vi.mocked(lstat).mockRestore();
+		vi.mocked(readFile).mockRestore();
 	});
 
 	return context;
@@ -179,6 +210,28 @@ export const use_filer_test_context = (): Filer_Test_Context => {
  * Helper to wait for batch processing.
  */
 export const wait_for_batch = (ms = 50) => new Promise((resolve) => setTimeout(resolve, ms));
+
+/**
+ * Helper to create realistic file contents with import statements.
+ */
+export const create_file_with_imports = (imports: Array<string>): string => {
+	const import_statements = imports.map((imp, i) => `import {value${i}} from '${imp}';`).join('\n');
+	return `${import_statements}\n\n// Mock file content\nexport const value = 42;\n`;
+};
+
+/**
+ * Helper to set up a dependency chain using import-based relationships.
+ * Sets up file contents with actual import statements instead of manual relationships.
+ */
+export const setup_import_chain = (file_chain: Array<{path: string; imports: Array<string>}>) => {
+	const file_contents = new Map<string, string>();
+
+	for (const {path, imports} of file_chain) {
+		file_contents.set(path, create_file_with_imports(imports));
+	}
+
+	return file_contents;
+};
 
 /**
  * Common test constants.
