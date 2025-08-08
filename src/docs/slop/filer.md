@@ -265,7 +265,10 @@ await filer.load_resources_batch(disknodes, {
 	stats: false,
 });
 
-// Queue a disknode for dependency update
+// Explicitly load the dependency graph for specific disknodes
+await filer.load_dependency_graph(disknodes);
+
+// Queue a disknode for dependency update (usually automatic for importable files)
 filer.queue_dependency_update(disknode);
 
 // Force rescan a directory tree
@@ -328,6 +331,7 @@ class Filer {
 		worker_enabled?: boolean; // Enable worker threads (default: true)
 		worker_pool_size?: number; // Number of worker threads for parsing (default: 4)
 		worker_timeout_ms?: number; // Worker timeout in milliseconds (default: 5000)
+		sync_threshold_bytes?: number; // Use sync parsing for files smaller than this (default: 1024)
 	});
 
 	// Lifecycle
@@ -376,9 +380,11 @@ class Filer {
 		contents: string,
 		ignore_types?: boolean,
 	): Promise<Array<string>>;
+	load_dependency_graph(disknodes: Array<Disknode>): Promise<void>; // Explicitly load imports
 	queue_dependency_update(disknode: Disknode): void; // Queue for import parsing
 
 	// Manual operations
+	load_dependency_graph(disknodes: Array<Disknode>): Promise<void>; // Explicitly load imports
 	rescan_subtree(path: string): Promise<void>; // Force rescan
 	load_initial_stats(): Promise<void>; // Pre-warm stat cache
 }
@@ -388,6 +394,7 @@ class Filer {
 
 A `Disknode` represents a file or directory in the filesystem.
 Resources are loaded explicitly and cached based on a version counter.
+For symlinks, content loading automatically resolves the target path.
 
 ```typescript
 class Disknode {
@@ -406,7 +413,7 @@ class Disknode {
 	get imports_version(): number; // Version when imports were parsed
 
 	// Resource loading (async)
-	load_contents(): Promise<void>; // Load and cache file contents
+	load_contents(): Promise<void>; // Load and cache file contents (resolves symlinks)
 	load_imports(): Promise<void>; // Parse and cache imports (worker-threaded)
 	load_stats(): Promise<void>; // Load and cache file stats
 	load_realpath(): Promise<void>; // Resolve and cache symlink path
@@ -417,7 +424,7 @@ class Disknode {
 	get stats(): Stats | null | undefined; // Cached file stats
 	get realpath(): Path_Id | undefined; // Cached resolved path
 
-	// Async content access (handles large files)
+	// Async content access (handles large files with direct reads)
 	get_contents(): Promise<string | null | undefined>;
 
 	// Computed properties
@@ -500,7 +507,7 @@ interface Filer_Observer {
 	// Resource pre-loading hints
 	needs_contents?: boolean; // Pre-load file contents (default: false)
 	needs_stats?: boolean; // Pre-load stats (default: true)
-	needs_imports?: boolean; // Parse imports for dependency tracking (default: auto-detected)
+	needs_imports?: boolean; // Parse imports for dependency tracking (default: auto-detected based on expand_to and returns_intents)
 
 	// Execution control
 	phase?: 'pre' | 'main' | 'post'; // When to run (default: 'main')
@@ -591,6 +598,7 @@ interface Filer_Options {
 	worker_enabled?: boolean; // Enable worker threads (default: true)
 	worker_pool_size?: number; // Number of worker threads for parsing (default: 4)
 	worker_timeout_ms?: number; // Worker timeout in milliseconds (default: 5000)
+	sync_threshold_bytes?: number; // Use sync parsing for files smaller than this (default: 1024)
 }
 ```
 
@@ -624,13 +632,15 @@ This pattern:
 CPU-intensive import parsing runs in worker threads to avoid blocking the main thread:
 
 ```typescript
-// In worker thread
+// In worker thread (for large files)
 const imports = parse_imports(id, contents, ignore_types);
 // Result sent back to main thread and cached
 
 // In main thread
-await disknode.load_imports(); // Delegates to worker
+await disknode.load_imports(); // Delegates to worker for large files
 const imports = disknode.imports; // Cached access
+
+// Small files (< 1KB) are processed synchronously to avoid worker overhead
 ```
 
 The worker pool:
@@ -639,6 +649,7 @@ The worker pool:
 - Handles worker failures with automatic restart
 - Falls back to synchronous parsing if workers unavailable
 - Batches multiple parse requests for efficiency
+- Optimizes by processing small files synchronously
 
 ### batch resource pre-loading
 
@@ -648,7 +659,7 @@ The Filer pre-loads resources before observer execution based on hints:
 filer.observe({
 	id: 'content-processor',
 	needs_contents: true, // Pre-load file contents
-	needs_imports: true, // Pre-load parsed imports
+	needs_imports: true, // Pre-load parsed imports (auto-detected if not specified)
 	on_change: async (batch) => {
 		// All resources already loaded and cached
 		for (const disknode of batch.all_disknodes) {
@@ -659,6 +670,10 @@ filer.observe({
 ```
 
 Pre-loading happens in parallel before any observers run, maximizing efficiency.
+
+Note: `needs_imports` defaults to auto-detection based on `expand_to` and `returns_intents`.
+It's automatically enabled for `expand_to: 'dependents'` or `'dependencies'`, or when
+`returns_intents: true` is set.
 
 ### path matching behavior
 
@@ -731,8 +746,8 @@ async load_contents(): Promise<void> {
 
 ### automatic dependency tracking
 
-When you call `disknode.load_imports()`, it parses the file's import statements
-and automatically updates the dependency graph:
+Imports are eagerly loaded for importable files during filesystem changes to maintain
+the dependency graph. You can also manually load imports:
 
 ```typescript
 const disknode = filer.get_disknode('/src/module.ts');
@@ -740,7 +755,13 @@ await disknode.load_imports(); // Parses imports and updates dependencies
 const imports = disknode.imports; // Cached access to parsed imports
 // Now disknode.dependencies contains all imported modules
 // And those modules' dependents include this disknode
+
+// For manual control over dependency loading:
+await filer.load_dependency_graph(disknodes); // Load imports for multiple nodes
 ```
+
+The system automatically queues importable files for dependency updates when they change,
+ensuring the import graph stays current without manual intervention.
 
 ### batch processing and change coalescing
 
@@ -781,6 +802,7 @@ The invalidation flow demonstrates how filesystem changes propagate through the 
 │    - imports (parsed ES imports)                                    │
 │    - realpath (symlink resolution)                                  │
 │  • Next load_*() call triggers fresh load from filesystem/workers   │
+│  • Importable files are automatically queued for dependency updates │
 └────────────────────────────────────────────────────────────────────┘
                                     │
                                     ▼
@@ -789,7 +811,7 @@ The invalidation flow demonstrates how filesystem changes propagate through the 
 │  • Changes added to pending_changes Map                             │
 │  • Multiple rapid changes coalesced (add+update→add, etc)          │
 │  • Batch timer started (default 10ms delay)                         │
-│  • Importable files queued for dependency update                    │
+│  • Importable files automatically queued for dependency updates     │
 └────────────────────────────────────────────────────────────────────┘
                                     │
                             (batch delay)
@@ -944,6 +966,7 @@ The worker pool handles CPU-intensive import parsing:
 - Automatic worker restart on crashes
 - Graceful fallback to synchronous parsing if workers fail
 - Batched requests for efficiency
+- Small files (< 1KB by default) processed synchronously to avoid worker overhead
 - Proper cleanup on filer disposal
 
 ## performance
@@ -965,9 +988,10 @@ The worker pool handles CPU-intensive import parsing:
 - Use `batch_size` to control parallel operation throughput
 - Set appropriate `batch_delay` to balance responsiveness vs efficiency
 - Limit tombstone cache size for long-running processes
-- Use `needs_imports: false` for observers that don't need dependency tracking
+- Set `needs_imports: false` explicitly to disable auto-detection for observers
 - Configure `worker_pool_size` based on CPU cores and workload
 - Batch multiple import parsing requests to amortize worker communication costs
+- Small files (< 1KB) are parsed synchronously to avoid worker overhead
 
 ## limitations
 
