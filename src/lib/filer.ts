@@ -187,8 +187,7 @@ export class Filer implements Disknode_Api {
 		this.#watcher = watch(paths, {
 			persistent: true,
 			ignoreInitial: false,
-			followSymlinks: true,
-			awaitWriteFinish: {stabilityThreshold: 50, pollInterval: 10},
+			followSymlinks: false,
 			...chokidar_options,
 		});
 

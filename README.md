@@ -182,6 +182,7 @@ including shims for [SvelteKit modules](https://kit.svelte.dev/docs/modules):
 ```bash
 gro test # run all tests for `*.test.ts` files with `vitest`
 gro test filepattern1 some.test another.test
+gro test optional_pattern -t "optional search string for test name"
 gro test -- vitest --forwarded_args 'to vitest'
 ```
 

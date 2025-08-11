@@ -57,11 +57,7 @@ describe('Filer Core', () => {
 				expect.objectContaining({
 					persistent: true,
 					ignoreInitial: false,
-					followSymlinks: true,
-					awaitWriteFinish: {
-						stabilityThreshold: 50,
-						pollInterval: 10,
-					},
+					followSymlinks: false,
 				}),
 			);
 		});
