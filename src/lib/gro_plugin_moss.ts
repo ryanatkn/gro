@@ -82,12 +82,16 @@ export const gro_plugin_moss = ({
 				// Scan all existing files to collect classes
 				for (const node of filer.disknodes.values()) {
 					if (
-						node.is_external ||
 						node.kind === 'directory' ||
 						(filter_file && !filter_file(node.id)) ||
 						(!node.is_svelte && !node.is_typescript && !node.is_js)
 					) {
 						continue;
+					}
+
+					// Load contents for external files if not already loaded
+					if (node.contents === undefined) {
+						await node.load_contents();
 					}
 
 					const contents = node.contents;
@@ -108,8 +112,8 @@ export const gro_plugin_moss = ({
 
 				// Match files we want to extract CSS classes from
 				match: (node) => {
-					// Skip external files and directories
-					if (node.is_external || node.kind === 'directory') return false;
+					// Skip directories
+					if (node.kind === 'directory') return false;
 
 					// Apply user filter
 					if (filter_file && !filter_file(node.id)) return false;
@@ -129,8 +133,8 @@ export const gro_plugin_moss = ({
 				phase: 'main',
 				priority: 10,
 
-				// Don't track external files or directories
-				track_external: false,
+				// Track external files for dependency-based CSS extraction
+				track_external: true,
 				track_directories: false,
 
 				// Handle errors gracefully
@@ -176,6 +180,11 @@ export const gro_plugin_moss = ({
 			// Initial scan to collect all existing classes
 			for (const node of filer.disknodes.values()) {
 				if (moss_observer.match!(node)) {
+					// Load contents for external files if not already loaded
+					if (node.contents === undefined) {
+						await node.load_contents();
+					}
+
 					const contents = node.contents;
 					if (contents !== null) {
 						const classes = collect_css_classes(contents);
