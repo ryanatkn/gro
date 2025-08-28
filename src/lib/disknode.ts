@@ -1,6 +1,7 @@
 import type {Path_Id} from './path.ts';
 
-// TODO BLOCK probably a union for dirs
+// TODO extract more here from Filer
+
 export interface Disknode {
 	id: Path_Id;
 	// TODO figure out the best API that makes this lazy
