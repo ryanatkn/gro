@@ -49,7 +49,7 @@ export const to_src_modules = (
 				continue;
 			}
 
-			// TODO BLOCK still an error for unknown files running `gro gen`, can it use the filer to invalidate correctly?
+			// TODO still an error for unknown files running `gro gen`, can it use the filer to invalidate correctly?
 			throw Error(
 				`Failed to infer source file from package.json export path ${k} - the inferred file ${source_file_id} does not exist`,
 			);

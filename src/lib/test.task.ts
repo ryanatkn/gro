@@ -45,7 +45,5 @@ export const task: Task<Args> = {
 		} else {
 			throw new Task_Error('no test runner found, install vitest');
 		}
-
-		// TODO BLOCK what if we loaded the package.json and other modules through the filer? and even stored their parsed json?
 	},
 };
