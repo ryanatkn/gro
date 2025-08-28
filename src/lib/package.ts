@@ -169,10 +169,6 @@ export const package_json: Package_Json = {
 			types: './dist/gro_plugin_gen.d.ts',
 			default: './dist/gro_plugin_gen.js',
 		},
-		'./gro_plugin_moss.js': {
-			types: './dist/gro_plugin_moss.d.ts',
-			default: './dist/gro_plugin_moss.js',
-		},
 		'./gro_plugin_server.js': {
 			types: './dist/gro_plugin_server.d.ts',
 			default: './dist/gro_plugin_server.js',
@@ -624,14 +620,6 @@ export const src_json: Src_Json = {
 				{name: 'Task_Args', kind: 'type'},
 				{name: 'Gro_Plugin_Gen_Options', kind: 'type'},
 				{name: 'gro_plugin_gen', kind: 'function'},
-			],
-		},
-		'./gro_plugin_moss.js': {
-			path: 'gro_plugin_moss.ts',
-			declarations: [
-				{name: 'Task_Args', kind: 'type'},
-				{name: 'Gro_Plugin_Moss_Options', kind: 'type'},
-				{name: 'gro_plugin_moss', kind: 'function'},
 			],
 		},
 		'./gro_plugin_server.js': {
