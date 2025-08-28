@@ -44,7 +44,7 @@ export const package_json: Package_Json = {
 		'typescript',
 	],
 	dependencies: {
-		'@ryanatkn/belt': '^0.33.0',
+		'@ryanatkn/belt': '^0.34.1',
 		chokidar: '^4.0.3',
 		dotenv: '^17.2.1',
 		'esm-env': '^1.2.2',
@@ -56,8 +56,15 @@ export const package_json: Package_Json = {
 		tslib: '^2.8.1',
 		zod: '^4.0.14',
 	},
-	peerDependencies: {esbuild: '^0.25', svelte: '^5', typescript: '^5'},
-	optionalDependencies: {'@ryanatkn/moss': '>=0.31.0'},
+	peerDependencies: {
+		'@sveltejs/kit': '^2',
+		esbuild: '^0.25',
+		svelte: '^5',
+		typescript: '^5',
+		vitest: '^3',
+	},
+	peerDependenciesMeta: {'@sveltejs/kit': {optional: true}, vitest: {optional: true}},
+	optionalDependencies: {'@ryanatkn/moss': '>=0.31.0', vitest: '^3'},
 	devDependencies: {
 		'@changesets/changelog-git': '^0.2.1',
 		'@changesets/types': '^6.1.0',
@@ -76,7 +83,7 @@ export const package_json: Package_Json = {
 		'svelte-check': '^4.3.0',
 		typescript: '^5.8.3',
 		'typescript-eslint': '^8.38.0',
-		uvu: '^0.5.6',
+		vitest: '^3.2.4',
 	},
 	prettier: {
 		plugins: ['prettier-plugin-svelte'],
@@ -114,6 +121,7 @@ export const package_json: Package_Json = {
 		'./constants.js': {types: './dist/constants.d.ts', default: './dist/constants.js'},
 		'./deploy.task.js': {types: './dist/deploy.task.d.ts', default: './dist/deploy.task.js'},
 		'./dev.task.js': {types: './dist/dev.task.d.ts', default: './dist/dev.task.js'},
+		'./disknode.js': {types: './dist/disknode.d.ts', default: './dist/disknode.js'},
 		'./env.js': {types: './dist/env.d.ts', default: './dist/env.js'},
 		'./esbuild_helpers.js': {
 			types: './dist/esbuild_helpers.d.ts',
@@ -160,6 +168,10 @@ export const package_json: Package_Json = {
 		'./gro_plugin_gen.js': {
 			types: './dist/gro_plugin_gen.d.ts',
 			default: './dist/gro_plugin_gen.js',
+		},
+		'./gro_plugin_moss.js': {
+			types: './dist/gro_plugin_moss.d.ts',
+			default: './dist/gro_plugin_moss.js',
 		},
 		'./gro_plugin_server.js': {
 			types: './dist/gro_plugin_server.d.ts',
@@ -377,11 +389,12 @@ export const src_json: Src_Json = {
 				{name: 'SOURCE_DIR', kind: 'variable'},
 				{name: 'GRO_DIR', kind: 'variable'},
 				{name: 'GRO_DEV_DIR', kind: 'variable'},
-				{name: 'GRO_CONFIG_PATH', kind: 'variable'},
+				{name: 'GRO_CONFIG_FILENAME', kind: 'variable'},
 				{name: 'README_FILENAME', kind: 'variable'},
 				{name: 'SVELTE_CONFIG_FILENAME', kind: 'variable'},
 				{name: 'VITE_CONFIG_FILENAME', kind: 'variable'},
 				{name: 'NODE_MODULES_DIRNAME', kind: 'variable'},
+				{name: 'PACKAGE_JSON_FILENAME', kind: 'variable'},
 				{name: 'LOCKFILE_FILENAME', kind: 'variable'},
 				{name: 'SVELTEKIT_DEV_DIRNAME', kind: 'variable'},
 				{name: 'SVELTEKIT_BUILD_DIRNAME', kind: 'variable'},
@@ -425,6 +438,7 @@ export const src_json: Src_Json = {
 				{name: 'task', kind: 'variable'},
 			],
 		},
+		'./disknode.js': {path: 'disknode.ts', declarations: [{name: 'Disknode', kind: 'type'}]},
 		'./env.js': {
 			path: 'env.ts',
 			declarations: [
@@ -485,7 +499,6 @@ export const src_json: Src_Json = {
 		'./filer.js': {
 			path: 'filer.ts',
 			declarations: [
-				{name: 'Source_File', kind: 'type'},
 				{name: 'Cleanup_Watch', kind: 'type'},
 				{name: 'On_Filer_Change', kind: 'type'},
 				{name: 'Filer_Options', kind: 'type'},
@@ -611,6 +624,14 @@ export const src_json: Src_Json = {
 				{name: 'Task_Args', kind: 'type'},
 				{name: 'Gro_Plugin_Gen_Options', kind: 'type'},
 				{name: 'gro_plugin_gen', kind: 'function'},
+			],
+		},
+		'./gro_plugin_moss.js': {
+			path: 'gro_plugin_moss.ts',
+			declarations: [
+				{name: 'Task_Args', kind: 'type'},
+				{name: 'Gro_Plugin_Moss_Options', kind: 'type'},
+				{name: 'gro_plugin_moss', kind: 'function'},
 			],
 		},
 		'./gro_plugin_server.js': {
@@ -995,6 +1016,7 @@ export const src_json: Src_Json = {
 		'./test_helpers.js': {
 			path: 'test_helpers.ts',
 			declarations: [
+				{name: 'TEST_TIMEOUT_MD', kind: 'variable'},
 				{name: 'SOME_PUBLIC_ENV_VAR_NAME', kind: 'variable'},
 				{name: 'SOME_PUBLIC_ENV_VAR_VALUE', kind: 'variable'},
 				{name: 'init_test_env', kind: 'function'},

@@ -4,6 +4,8 @@ import {existsSync} from 'node:fs';
 import {replace_extension} from './paths.ts';
 import type {Path_Id} from './path.ts';
 
+// TODO ideally this module doesnt exist, but import.meta.resolve doesn't work in loaders last I tried
+
 export interface Resolved_Specifier {
 	/**
 	 * The resolved filesystem path for the specifier.

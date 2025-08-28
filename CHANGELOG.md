@@ -303,7 +303,7 @@
 
 ### Patch Changes
 
-- add `mtime` to `Source_File` ([becb071](https://github.com/ryanatkn/gro/commit/becb071))
+- add `mtime` to `Disknode` ([becb071](https://github.com/ryanatkn/gro/commit/becb071))
 
 ## 0.140.6
 

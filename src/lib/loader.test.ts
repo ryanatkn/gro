@@ -1,5 +1,4 @@
-import {test} from 'uvu';
-import * as assert from 'uvu/assert';
+import {test, expect} from 'vitest';
 import {resolve} from 'node:path';
 import {readFileSync} from 'node:fs';
 
@@ -8,37 +7,37 @@ const JSON_WITHOUT_EXTENSION_FIXTURE = 'src/fixtures/modules/some_test_json_with
 
 test('import .js', async () => {
 	const imported = await import(resolve('src/fixtures/modules/some_test_ts.js'));
-	assert.ok(imported);
-	assert.is(imported.a, 'ok');
+	expect(imported).toBeTruthy();
+	expect(imported.a).toBe('ok');
 });
 
 test('import .ts', async () => {
 	const imported = await import(resolve('src/fixtures/modules/some_test_ts.ts'));
-	assert.ok(imported);
-	assert.is(imported.a, 'ok');
+	expect(imported).toBeTruthy();
+	expect(imported.a).toBe('ok');
 });
 
 test('import raw .ts', async () => {
 	const path = resolve('src/fixtures/modules/some_test_ts.ts');
 	const imported = await import(path + '?raw');
-	assert.ok(imported);
-	assert.equal(imported.default, readFileSync(path, 'utf8'));
+	expect(imported).toBeTruthy();
+	expect(imported.default).toEqual(readFileSync(path, 'utf8'));
 });
 
 test('import .json', async () => {
 	const path = resolve(JSON_FIXTURE);
 	const imported = await import(path, {with: {type: 'json'}}); // import attribute is required
-	assert.ok(imported);
-	assert.is(imported.default.a, 'ok');
-	assert.equal(imported.default, JSON.parse(readFileSync(path, 'utf8')));
+	expect(imported).toBeTruthy();
+	expect(imported.default.a).toBe('ok');
+	expect(imported.default).toEqual(JSON.parse(readFileSync(path, 'utf8')));
 });
 
 test('import json that doesnt end with .json', async () => {
 	const path = resolve(JSON_WITHOUT_EXTENSION_FIXTURE);
 	const imported = await import(path, {with: {type: 'json'}}); // import attribute means `.json` is not required
-	assert.ok(imported);
-	assert.ok(imported.default.some_test_json_without_extension);
-	assert.equal(imported.default, JSON.parse(readFileSync(path, 'utf8')));
+	expect(imported).toBeTruthy();
+	expect(imported.default.some_test_json_without_extension).toBeTruthy();
+	expect(imported.default).toEqual(JSON.parse(readFileSync(path, 'utf8')));
 });
 
 test('fail to import .json without the import attribute', async () => {
@@ -49,42 +48,40 @@ test('fail to import .json without the import attribute', async () => {
 	} catch (error) {
 		err = error;
 	}
-	assert.ok(err);
-	assert.not.ok(imported);
+	expect(err).toBeTruthy();
+	expect(imported).toBeFalsy();
 });
 
 test('import raw .css', async () => {
 	const path = resolve('src/fixtures/modules/some_test_css.css');
 	const imported = await import(path);
-	assert.is(typeof imported.default, 'string');
-	assert.equal(imported.default, readFileSync(path, 'utf8'));
+	expect(typeof imported.default).toBe('string');
+	expect(imported.default).toEqual(readFileSync(path, 'utf8'));
 });
 
 test('import .svelte', async () => {
 	const imported = await import(resolve('src/fixtures/modules/Some_Test_Svelte.svelte'));
-	assert.ok(imported);
-	assert.is(imported.a, 'ok');
+	expect(imported).toBeTruthy();
+	expect(imported.a).toBe('ok');
 });
 
 test('import raw .svelte', async () => {
 	const path = resolve('src/fixtures/modules/Some_Test_Svelte.svelte');
 	const imported = await import(path + '?raw');
-	assert.ok(imported);
-	assert.equal(imported.default, readFileSync(path, 'utf8'));
+	expect(imported).toBeTruthy();
+	expect(imported.default).toEqual(readFileSync(path, 'utf8'));
 });
 
 test('import .svelte.js', async () => {
 	const imported = await import(resolve('src/fixtures/modules/some_test_svelte_js.svelte.js'));
-	assert.ok(imported.Some_Test_Svelte_Js);
+	expect(imported.Some_Test_Svelte_Js).toBeTruthy();
 	const instance = new imported.Some_Test_Svelte_Js();
-	assert.is(instance.a, 'ok');
+	expect(instance.a).toBe('ok');
 });
 
 test('import .svelte.ts', async () => {
 	const imported = await import(resolve('src/fixtures/modules/some_test_svelte_ts.svelte.ts'));
-	assert.ok(imported.Some_Test_Svelte_Ts);
+	expect(imported.Some_Test_Svelte_Ts).toBeTruthy();
 	const instance = new imported.Some_Test_Svelte_Ts();
-	assert.is(instance.a, 'ok');
+	expect(instance.a).toBe('ok');
 });
-
-test.run();

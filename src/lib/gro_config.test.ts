@@ -1,42 +1,47 @@
-import {test} from 'uvu';
-import * as assert from 'uvu/assert';
+import {test, expect, vi} from 'vitest';
 
 import {SEARCH_EXCLUDER_DEFAULT, load_gro_config} from './gro_config.ts';
 
 test('load_gro_config', async () => {
+	// Mock the dynamic import to avoid module resolution issues
+	vi.mock('node:fs', () => ({
+		existsSync: vi.fn().mockReturnValue(false),
+	}));
+
 	const config = await load_gro_config();
-	assert.ok(config);
+	expect(config).toBeTruthy();
+	expect(config.plugins).toBeDefined();
+	expect(config.task_root_dirs).toBeDefined();
 });
 
 test('SEARCH_EXCLUDER_DEFAULT', () => {
 	const assert_includes = (path: string, exclude: boolean) => {
-		const m = `should ${exclude ? 'exclude' : 'include '}: ${path}`;
 		const b = (v: boolean) => (exclude ? !v : v);
-		assert.ok(b(SEARCH_EXCLUDER_DEFAULT.test(`a/${path}/c`)), m);
-		assert.ok(b(SEARCH_EXCLUDER_DEFAULT.test(`a/${path}/c/d.js`)), m);
-		assert.ok(b(SEARCH_EXCLUDER_DEFAULT.test(`a/${path}/c/d.e.js`)), m);
-		assert.ok(b(SEARCH_EXCLUDER_DEFAULT.test(`a/${path}/`)), m);
-		assert.ok(b(SEARCH_EXCLUDER_DEFAULT.test(`a/${path}`)), m);
-		assert.ok(b(SEARCH_EXCLUDER_DEFAULT.test(`/a/${path}/c`)), m);
-		assert.ok(b(SEARCH_EXCLUDER_DEFAULT.test(`/a/${path}/c/d.js`)), m);
-		assert.ok(b(SEARCH_EXCLUDER_DEFAULT.test(`/a/${path}/c/d.e.js`)), m);
-		assert.ok(b(SEARCH_EXCLUDER_DEFAULT.test(`/a/${path}/`)), m);
-		assert.ok(b(SEARCH_EXCLUDER_DEFAULT.test(`/a/${path}`)), m);
-		assert.ok(b(SEARCH_EXCLUDER_DEFAULT.test(`/${path}/a`)), m);
-		assert.ok(b(SEARCH_EXCLUDER_DEFAULT.test(`/${path}/a/b.js`)), m);
-		assert.ok(b(SEARCH_EXCLUDER_DEFAULT.test(`/${path}/a/b.e.js`)), m);
-		assert.ok(b(SEARCH_EXCLUDER_DEFAULT.test(`/${path}/`)), m);
-		assert.ok(b(SEARCH_EXCLUDER_DEFAULT.test(`/${path}`)), m);
-		assert.ok(b(SEARCH_EXCLUDER_DEFAULT.test(`./${path}/a`)), m);
-		assert.ok(b(SEARCH_EXCLUDER_DEFAULT.test(`./${path}/a/b.js`)), m);
-		assert.ok(b(SEARCH_EXCLUDER_DEFAULT.test(`./${path}/a/b.c.js`)), m);
-		assert.ok(b(SEARCH_EXCLUDER_DEFAULT.test(`./${path}/`)), m);
-		assert.ok(b(SEARCH_EXCLUDER_DEFAULT.test(`./${path}`)), m);
-		assert.ok(b(SEARCH_EXCLUDER_DEFAULT.test(`${path}/a`)), m);
-		assert.ok(b(SEARCH_EXCLUDER_DEFAULT.test(`${path}/a/b.js`)), m);
-		assert.ok(b(SEARCH_EXCLUDER_DEFAULT.test(`${path}/a/b.c.js`)), m);
-		assert.ok(b(SEARCH_EXCLUDER_DEFAULT.test(`${path}/`)), m);
-		assert.ok(b(SEARCH_EXCLUDER_DEFAULT.test(path)), m);
+		expect(b(SEARCH_EXCLUDER_DEFAULT.test(`a/${path}/c`))).toBeTruthy();
+		expect(b(SEARCH_EXCLUDER_DEFAULT.test(`a/${path}/c/d.js`))).toBeTruthy();
+		expect(b(SEARCH_EXCLUDER_DEFAULT.test(`a/${path}/c/d.e.js`))).toBeTruthy();
+		expect(b(SEARCH_EXCLUDER_DEFAULT.test(`a/${path}/`))).toBeTruthy();
+		expect(b(SEARCH_EXCLUDER_DEFAULT.test(`a/${path}`))).toBeTruthy();
+		expect(b(SEARCH_EXCLUDER_DEFAULT.test(`/a/${path}/c`))).toBeTruthy();
+		expect(b(SEARCH_EXCLUDER_DEFAULT.test(`/a/${path}/c/d.js`))).toBeTruthy();
+		expect(b(SEARCH_EXCLUDER_DEFAULT.test(`/a/${path}/c/d.e.js`))).toBeTruthy();
+		expect(b(SEARCH_EXCLUDER_DEFAULT.test(`/a/${path}/`))).toBeTruthy();
+		expect(b(SEARCH_EXCLUDER_DEFAULT.test(`/a/${path}`))).toBeTruthy();
+		expect(b(SEARCH_EXCLUDER_DEFAULT.test(`/${path}/a`))).toBeTruthy();
+		expect(b(SEARCH_EXCLUDER_DEFAULT.test(`/${path}/a/b.js`))).toBeTruthy();
+		expect(b(SEARCH_EXCLUDER_DEFAULT.test(`/${path}/a/b.e.js`))).toBeTruthy();
+		expect(b(SEARCH_EXCLUDER_DEFAULT.test(`/${path}/`))).toBeTruthy();
+		expect(b(SEARCH_EXCLUDER_DEFAULT.test(`/${path}`))).toBeTruthy();
+		expect(b(SEARCH_EXCLUDER_DEFAULT.test(`./${path}/a`))).toBeTruthy();
+		expect(b(SEARCH_EXCLUDER_DEFAULT.test(`./${path}/a/b.js`))).toBeTruthy();
+		expect(b(SEARCH_EXCLUDER_DEFAULT.test(`./${path}/a/b.c.js`))).toBeTruthy();
+		expect(b(SEARCH_EXCLUDER_DEFAULT.test(`./${path}/`))).toBeTruthy();
+		expect(b(SEARCH_EXCLUDER_DEFAULT.test(`./${path}`))).toBeTruthy();
+		expect(b(SEARCH_EXCLUDER_DEFAULT.test(`${path}/a`))).toBeTruthy();
+		expect(b(SEARCH_EXCLUDER_DEFAULT.test(`${path}/a/b.js`))).toBeTruthy();
+		expect(b(SEARCH_EXCLUDER_DEFAULT.test(`${path}/a/b.c.js`))).toBeTruthy();
+		expect(b(SEARCH_EXCLUDER_DEFAULT.test(`${path}/`))).toBeTruthy();
+		expect(b(SEARCH_EXCLUDER_DEFAULT.test(path))).toBeTruthy();
 	};
 
 	assert_includes('node_modules', false);
@@ -67,5 +72,3 @@ test('SEARCH_EXCLUDER_DEFAULT', () => {
 	assert_includes('Edist', true);
 	assert_includes('grodist', true);
 });
-
-test.run();

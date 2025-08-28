@@ -23,30 +23,13 @@ import {resolve_specifier} from './resolve_specifier.ts';
 import {default_svelte_config} from './svelte_config.ts';
 import {map_sveltekit_aliases} from './sveltekit_helpers.ts';
 import {SVELTEKIT_GLOBAL_SPECIFIER} from './constants.ts';
+import type {Disknode} from './disknode.ts';
 
 const aliases = Object.entries(default_svelte_config.alias);
 
-export interface Source_File {
-	id: Path_Id;
-	// TODO figure out the best API that makes this lazy
-	/**
-	 * `null` contents means it doesn't exist.
-	 * We create the file in memory to track its dependents regardless of its existence on disk.
-	 */
-	contents: string | null;
-	/**
-	 * Is the source file outside of the `root_dir` or excluded by `watch_dir_options.filter`?
-	 */
-	external: boolean;
-	ctime: number | null;
-	mtime: number | null;
-	dependents: Map<Path_Id, Source_File>;
-	dependencies: Map<Path_Id, Source_File>;
-}
-
 export type Cleanup_Watch = () => Promise<void>;
 
-export type On_Filer_Change = (change: Watcher_Change, source_file: Source_File) => void;
+export type On_Filer_Change = (change: Watcher_Change, source_file: Disknode) => void;
 
 export interface Filer_Options {
 	watch_dir?: typeof watch_dir;
@@ -58,7 +41,7 @@ export interface Filer_Options {
 export class Filer {
 	readonly root_dir: Path_Id;
 
-	readonly files: Map<Path_Id, Source_File> = new Map();
+	readonly files: Map<Path_Id, Disknode> = new Map();
 
 	#watch_dir: typeof watch_dir;
 	#watch_dir_options: Partial<Watch_Dir_Options>;
@@ -81,14 +64,14 @@ export class Filer {
 
 	#ready = false;
 
-	get_by_id = (id: Path_Id): Source_File | undefined => {
+	get_by_id = (id: Path_Id): Disknode | undefined => {
 		return this.files.get(id);
 	};
 
-	get_or_create = (id: Path_Id): Source_File => {
+	get_or_create = (id: Path_Id): Disknode => {
 		const existing = this.get_by_id(id);
 		if (existing) return existing;
-		const file: Source_File = {
+		const file: Disknode = {
 			id,
 			contents: null,
 			external: this.#is_external(id), // TODO maybe filter externals by default? the user needs to configure the filer then
@@ -105,14 +88,14 @@ export class Filer {
 		return file;
 	};
 
-	#update(id: Path_Id): Source_File | null {
+	#update(id: Path_Id): Disknode | null {
 		const file = this.get_or_create(id);
 
 		const stats = existsSync(id) ? statSync(id) : null;
 		file.ctime = stats?.ctimeMs ?? null;
 		file.mtime = stats?.mtimeMs ?? null;
 
-		const new_contents = stats ? readFileSync(id, 'utf8') : null; // TODO need to lazily load contents, probably turn `Source_File` into a class
+		const new_contents = stats ? readFileSync(id, 'utf8') : null; // TODO need to lazily load contents, probably turn `Disknode` into a class
 
 		if (file.contents === new_contents) {
 			return null;
@@ -164,7 +147,7 @@ export class Filer {
 		return file;
 	}
 
-	#remove(id: Path_Id): Source_File | null {
+	#remove(id: Path_Id): Disknode | null {
 		const file = this.get_by_id(id);
 		if (!file) return null; // this is safe because the object would exist if any other file referenced it as a dependency or dependent
 
@@ -189,7 +172,7 @@ export class Filer {
 		}
 	}
 
-	#notify_change(change: Watcher_Change, source_file: Source_File): void {
+	#notify_change(change: Watcher_Change, source_file: Disknode): void {
 		if (!this.#ready) return;
 		for (const listener of this.#listeners) {
 			listener(change, source_file);
@@ -224,7 +207,7 @@ export class Filer {
 
 	#on_change: Watcher_Change_Callback = (change) => {
 		if (change.is_directory) return; // TODO manage directories?
-		let source_file: Source_File | null;
+		let source_file: Disknode | null;
 		switch (change.type) {
 			case 'add':
 			case 'update': {
@@ -263,10 +246,10 @@ export class Filer {
 	}
 }
 
-// TODO maybe `Source_File` class?
+// TODO maybe `Disknode` class?
 export const filter_dependents = (
-	source_file: Source_File,
-	get_by_id: (id: Path_Id) => Source_File | undefined,
+	source_file: Disknode,
+	get_by_id: (id: Path_Id) => Disknode | undefined,
 	filter?: File_Filter,
 	results: Set<string> = new Set(),
 	searched: Set<string> = new Set(),

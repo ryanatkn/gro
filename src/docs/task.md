@@ -290,16 +290,16 @@ Running `gro dosomething --help` prints the schema information in a friendly for
 Some builtin Gro tasks call external commands like
 [`svelte-kit`](https://github.com/sveltejs/kit),
 [`vite`](https://github.com/vitejs/vite),
-[`uvu`](https://github.com/lukeed/uvu),
+[`vitest`](https://github.com/vitest-dev/vitest),
 [`tsc`](https://github.com/microsoft/typescript),
 and [`prettier`](https://github.com/prettier/prettier).
 Gro supports generic agnostic args forwarding to these tasks via the `--` pattern:
-for example, to forward args to `svelte-kit` and `uvu`, no matter which task invokes them,
-use `gro taskname --taskname-arg -- uvu --arg1 neat --arg2 22 -- svelte-kit --arg3`.
+for example, to forward args to `svelte-kit` and `vitest`, no matter which task invokes them,
+use `gro taskname --taskname-arg -- vitest --arg1 neat --arg2 22 -- svelte-kit --arg3`.
 
 Any number of sections separated by `--` may be defined, and the first arg
 that appears after each `--` is assumed to be the CLI command.
-If `gro taskname` or its invoked tasks don't call `uvu` or `svelte-kit`,
+If `gro taskname` or its invoked tasks don't call `vitest` or `svelte-kit`,
 the `--` args will be ignored.
 
 There's one special case for task args forwarding: running Gro tasks.

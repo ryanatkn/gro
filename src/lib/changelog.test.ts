@@ -1,5 +1,4 @@
-import {test} from 'uvu';
-import * as assert from 'uvu/assert';
+import {test, expect} from 'vitest';
 import {Logger} from '@ryanatkn/belt/log.js';
 import {readFile, writeFile} from 'node:fs/promises';
 import type {Fetch_Value_Cache} from '@ryanatkn/belt/fetch.js';
@@ -34,9 +33,8 @@ test('update_changelog', async () => {
 	);
 	const updated = await readFile(fixture_path, 'utf8');
 	await writeFile(fixture_path, original, 'utf8');
-	assert.ok(result);
-	assert.is(
-		updated,
+	expect(result).toBeTruthy();
+	expect(updated).toBe(
 		`# @ryanatkn/gro
 
 ## 0.6.0
@@ -133,5 +131,3 @@ test('update_changelog', async () => {
 `,
 	);
 });
-
-test.run();

@@ -3,7 +3,7 @@ import {existsSync} from 'node:fs';
 
 import {GRO_DIST_DIR, IS_THIS_GRO, paths} from './paths.ts';
 import {
-	GRO_CONFIG_PATH,
+	GRO_CONFIG_FILENAME,
 	JS_CLI_DEFAULT,
 	NODE_MODULES_DIRNAME,
 	PM_CLI_DEFAULT,
@@ -156,7 +156,7 @@ export interface Gro_Config_Module {
 export const load_gro_config = async (dir = paths.root): Promise<Gro_Config> => {
 	const default_config = cook_gro_config(await create_default_config(create_empty_gro_config()));
 
-	const config_path = join(dir, GRO_CONFIG_PATH);
+	const config_path = join(dir, GRO_CONFIG_FILENAME);
 	if (!existsSync(config_path)) {
 		// No user config file found, so return the default.
 		return default_config;

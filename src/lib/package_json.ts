@@ -7,7 +7,7 @@ import {styleText as st} from 'node:util';
 import {Package_Json, Package_Json_Exports} from '@ryanatkn/belt/package_json.js';
 
 import {paths, gro_paths, IS_THIS_GRO, replace_extension} from './paths.ts';
-import {SVELTEKIT_DIST_DIRNAME} from './constants.ts';
+import {PACKAGE_JSON_FILENAME, SVELTEKIT_DIST_DIRNAME} from './constants.ts';
 import {search_fs} from './search_fs.ts';
 import {has_sveltekit_library} from './sveltekit_helpers.ts';
 import {GITHUB_REPO_MATCHER} from './github.ts';
@@ -22,6 +22,7 @@ export const load_package_json = (
 	dir = IS_THIS_GRO ? gro_paths.root : paths.root,
 	cache?: Record<string, Package_Json>,
 	parse = true, // TODO pass `false` here in more places, especially anything perf-sensitive like work on startup
+	log?: Logger,
 ): Package_Json => {
 	let package_json: Package_Json;
 	if (cache && dir in cache) {
@@ -29,7 +30,8 @@ export const load_package_json = (
 	}
 	try {
 		package_json = JSON.parse(load_package_json_contents(dir));
-	} catch (_err) {
+	} catch (err) {
+		log?.error(st('yellow', `Failed to load package.json in ${dir}`), err);
 		return EMPTY_PACKAGE_JSON;
 	}
 	if (parse) {
@@ -80,10 +82,10 @@ export const load_gro_package_json = (): Package_Json => load_package_json(gro_p
 
 // TODO probably make this nullable and make callers handle failures
 const load_package_json_contents = (dir: string): string =>
-	readFileSync(join(dir, 'package.json'), 'utf8');
+	readFileSync(join(dir, PACKAGE_JSON_FILENAME), 'utf8');
 
 export const write_package_json = (serialized_package_json: string): void => {
-	writeFileSync(join(paths.root, 'package.json'), serialized_package_json);
+	writeFileSync(join(paths.root, PACKAGE_JSON_FILENAME), serialized_package_json);
 };
 
 export const serialize_package_json = (package_json: Package_Json): string =>
@@ -186,7 +188,7 @@ export const parse_repo_url = (
  * Parses a `Package_Json` object but preserves the order of the original keys.
  */
 const parse_package_json = (schema: typeof Package_Json, value: any): Package_Json => {
-	const parsed = parse_or_throw_formatted_error('package.json', schema, value);
+	const parsed = parse_or_throw_formatted_error(PACKAGE_JSON_FILENAME, schema, value);
 	const keys = Object.keys(value);
 	return Object.fromEntries(
 		Object.entries(parsed).sort(([a], [b]) => keys.indexOf(a) - keys.indexOf(b)),

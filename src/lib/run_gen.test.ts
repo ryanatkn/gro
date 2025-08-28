@@ -1,5 +1,4 @@
-import {test} from 'uvu';
-import * as assert from 'uvu/assert';
+import {test, expect, assert} from 'vitest';
 import {resolve, join} from 'node:path';
 import {Timings} from '@ryanatkn/belt/timings.js';
 import {Logger} from '@ryanatkn/belt/log.js';
@@ -21,7 +20,7 @@ test('basic behavior', async () => {
 		id: path_id_a,
 		mod: {
 			gen: (ctx) => {
-				assert.is(ctx.origin_id, path_id_a);
+				expect(ctx.origin_id).toBe(path_id_a);
 				if (file_a) throw Error('Already generated file_a');
 				file_a = {
 					filename: 'foo.ts',
@@ -35,7 +34,7 @@ test('basic behavior', async () => {
 		id: join(path_id_bc, 'mod_b.gen.ts'),
 		mod: {
 			gen: (ctx) => {
-				assert.is(ctx.origin_id, mod_b.id);
+				expect(ctx.origin_id).toBe(mod_b.id);
 				if (file_b) throw Error('Already generated file_b');
 				file_b = {
 					filename: 'output_b.ts',
@@ -49,7 +48,7 @@ test('basic behavior', async () => {
 		id: join(path_id_bc, 'mod_c.gen.ts'),
 		mod: {
 			gen: (ctx) => {
-				assert.is(ctx.origin_id, mod_c.id);
+				expect(ctx.origin_id).toBe(mod_c.id);
 				if (file_c1) throw Error('Already generated file_c1');
 				if (file_c2) throw Error('Already generated file_c2');
 				file_c1 = {
@@ -73,19 +72,19 @@ test('basic behavior', async () => {
 		(content, opts) =>
 			Promise.resolve(opts.filepath!.endsWith('output_b.ts') ? `${content}/*FORMATTED*/` : content),
 	);
-	assert.is(gen_results.input_count, 3);
-	assert.is(gen_results.output_count, 4);
-	assert.is(gen_results.successes.length, 3);
-	assert.is(gen_results.failures.length, 0);
-	assert.is(gen_results.results.length, 3);
-	assert.is(gen_results.results[0], gen_results.successes[0]);
-	assert.is(gen_results.results[1], gen_results.successes[1]);
-	assert.is(gen_results.results[2], gen_results.successes[2]);
+	expect(gen_results.input_count).toBe(3);
+	expect(gen_results.output_count).toBe(4);
+	expect(gen_results.successes.length).toBe(3);
+	expect(gen_results.failures.length).toBe(0);
+	expect(gen_results.results.length).toBe(3);
+	expect(gen_results.results[0]).toBe(gen_results.successes[0]);
+	expect(gen_results.results[1]).toBe(gen_results.successes[1]);
+	expect(gen_results.results[2]).toBe(gen_results.successes[2]);
 
 	const result_a = gen_results.results[0];
 	assert.ok(result_a.ok);
 	assert.ok(file_a);
-	assert.equal(result_a.files, [
+	expect(result_a.files).toEqual([
 		{
 			content: file_a.content,
 			id: join(mod_a.id, '../', file_a.filename),
@@ -97,7 +96,7 @@ test('basic behavior', async () => {
 	const result_b = gen_results.results[1];
 	assert.ok(result_b.ok);
 	assert.ok(file_b);
-	assert.equal(result_b.files, [
+	expect(result_b.files).toEqual([
 		{
 			content: `${file_b.content}/*FORMATTED*/`,
 			id: join(mod_b.id, '../', file_b.filename),
@@ -109,7 +108,7 @@ test('basic behavior', async () => {
 	assert.ok(result_c.ok);
 	assert.ok(file_c1);
 	assert.ok(file_c2);
-	assert.equal(result_c.files, [
+	expect(result_c.files).equals([
 		{
 			content: file_c1.content,
 			id: join(mod_c.id, '../', file_c1.filename),
@@ -145,7 +144,7 @@ test('failing gen function', async () => {
 		id: join(path_idB, 'mod_b.gen.ts'),
 		mod: {
 			gen: (ctx) => {
-				assert.is(ctx.origin_id, mod_b.id);
+				expect(ctx.origin_id).toBe(mod_b.id);
 				if (file_b) throw Error('Already generated file_b');
 				file_b = {
 					filename: 'output_b.ts',
@@ -162,13 +161,13 @@ test('failing gen function', async () => {
 		log,
 		new Timings(),
 	);
-	assert.is(gen_results.input_count, 2);
-	assert.is(gen_results.output_count, 1);
-	assert.is(gen_results.successes.length, 1);
-	assert.is(gen_results.failures.length, 1);
-	assert.is(gen_results.results.length, 2);
-	assert.is(gen_results.results[0], gen_results.failures[0]);
-	assert.is(gen_results.results[1], gen_results.successes[0]);
+	expect(gen_results.input_count).toBe(2);
+	expect(gen_results.output_count).toBe(1);
+	expect(gen_results.successes.length).toBe(1);
+	expect(gen_results.failures.length).toBe(1);
+	expect(gen_results.results.length).toBe(2);
+	expect(gen_results.results[0]).toBe(gen_results.failures[0]);
+	expect(gen_results.results[1]).toBe(gen_results.successes[0]);
 
 	const result_a = gen_results.results[0];
 	assert.ok(result_a);
@@ -179,7 +178,7 @@ test('failing gen function', async () => {
 	const result_b = gen_results.results[1];
 	assert.ok(result_b.ok);
 	assert.ok(file_b);
-	assert.equal(result_b.files, [
+	expect(result_b.files).toEqual([
 		{
 			content: file_b.content,
 			id: join(mod_b.id, '../', file_b.filename),
@@ -188,5 +187,3 @@ test('failing gen function', async () => {
 		},
 	]);
 });
-
-test.run();
