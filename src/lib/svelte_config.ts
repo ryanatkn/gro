@@ -5,6 +5,9 @@ import {EMPTY_OBJECT} from '@ryanatkn/belt/object.js';
 
 import {SVELTE_CONFIG_FILENAME} from './constants.ts';
 
+/* eslint-disable @typescript-eslint/no-deprecated */
+// see https://github.com/sveltejs/kit/discussions/14240
+
 /*
 
 This module is intended to have minimal dependencies to avoid over-imports in the CLI.

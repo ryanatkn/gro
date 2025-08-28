@@ -20,7 +20,7 @@ export type Git_Branch = Flavored<string, 'Git_Branch'>;
 export const git_current_branch_name = async (options?: SpawnOptions): Promise<Git_Branch> => {
 	const {stdout} = await spawn_out('git', ['rev-parse', '--abbrev-ref', 'HEAD'], options);
 	if (!stdout) throw Error('git_current_branch_name failed');
-	const branch_name = stdout.toString().trim() as Git_Branch;
+	const branch_name = stdout.trim() as Git_Branch;
 	return branch_name;
 };
 
@@ -251,7 +251,7 @@ export const git_current_commit_hash = async (
 	const final_branch = branch ?? (await git_current_branch_name(options));
 	const {stdout} = await spawn_out('git', ['show-ref', '-s', final_branch], options);
 	if (!stdout) return null; // TODO hack for CI
-	return stdout.toString().split('\n')[0].trim();
+	return stdout.split('\n')[0].trim();
 };
 
 /**
@@ -266,7 +266,7 @@ export const git_current_branch_first_commit_hash = async (
 		options,
 	);
 	if (!stdout) throw Error('git_current_branch_first_commit_hash failed');
-	return stdout.toString().trim();
+	return stdout.trim();
 };
 
 /**
