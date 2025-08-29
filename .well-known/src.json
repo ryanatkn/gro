@@ -1,6 +1,6 @@
 {
   "name": "@ryanatkn/gro",
-  "version": "0.161.2",
+  "version": "0.162.0",
   "modules": {
     ".": {
       "path": "index.ts",
@@ -291,7 +291,7 @@
           "kind": "variable"
         },
         {
-          "name": "GRO_CONFIG_PATH",
+          "name": "GRO_CONFIG_FILENAME",
           "kind": "variable"
         },
         {
@@ -308,6 +308,10 @@
         },
         {
           "name": "NODE_MODULES_DIRNAME",
+          "kind": "variable"
+        },
+        {
+          "name": "PACKAGE_JSON_FILENAME",
           "kind": "variable"
         },
         {
@@ -367,6 +371,14 @@
           "kind": "variable"
         },
         {
+          "name": "SVELTEKIT_ENV_MATCHER",
+          "kind": "variable"
+        },
+        {
+          "name": "SVELTEKIT_GLOBAL_SPECIFIER",
+          "kind": "variable"
+        },
+        {
           "name": "EVERYTHING_MATCHER",
           "kind": "variable"
         },
@@ -380,6 +392,30 @@
         },
         {
           "name": "PRETTIER_CLI_DEFAULT",
+          "kind": "variable"
+        },
+        {
+          "name": "SVELTEKIT_CLI",
+          "kind": "variable"
+        },
+        {
+          "name": "SVELTE_CHECK_CLI",
+          "kind": "variable"
+        },
+        {
+          "name": "SVELTE_PACKAGE_CLI",
+          "kind": "variable"
+        },
+        {
+          "name": "SVELTE_PACKAGE_DEP_NAME",
+          "kind": "variable"
+        },
+        {
+          "name": "VITE_CLI",
+          "kind": "variable"
+        },
+        {
+          "name": "VITEST_CLI",
           "kind": "variable"
         }
       ]
@@ -411,6 +447,15 @@
         {
           "name": "task",
           "kind": "variable"
+        }
+      ]
+    },
+    "./disknode.js": {
+      "path": "disknode.ts",
+      "declarations": [
+        {
+          "name": "Disknode",
+          "kind": "type"
         }
       ]
     },
@@ -533,10 +578,6 @@
     "./filer.js": {
       "path": "filer.ts",
       "declarations": [
-        {
-          "name": "Source_File",
-          "kind": "type"
-        },
         {
           "name": "Cleanup_Watch",
           "kind": "type"
@@ -863,7 +904,7 @@
           "kind": "variable"
         },
         {
-          "name": "normalize_gro_config",
+          "name": "cook_gro_config",
           "kind": "function"
         },
         {
@@ -1566,34 +1607,6 @@
       "path": "sveltekit_helpers.ts",
       "declarations": [
         {
-          "name": "SVELTEKIT_CLI",
-          "kind": "variable"
-        },
-        {
-          "name": "SVELTE_CHECK_CLI",
-          "kind": "variable"
-        },
-        {
-          "name": "SVELTE_PACKAGE_CLI",
-          "kind": "variable"
-        },
-        {
-          "name": "SVELTE_PACKAGE_DEP_NAME",
-          "kind": "variable"
-        },
-        {
-          "name": "VITE_CLI",
-          "kind": "variable"
-        },
-        {
-          "name": "SVELTEKIT_ENV_MATCHER",
-          "kind": "variable"
-        },
-        {
-          "name": "SVELTEKIT_GLOBAL_SPECIFIER",
-          "kind": "variable"
-        },
-        {
           "name": "has_sveltekit_app",
           "kind": "function"
         },
@@ -1896,6 +1909,10 @@
     "./test_helpers.js": {
       "path": "test_helpers.ts",
       "declarations": [
+        {
+          "name": "TEST_TIMEOUT_MD",
+          "kind": "variable"
+        },
         {
           "name": "SOME_PUBLIC_ENV_VAR_NAME",
           "kind": "variable"
