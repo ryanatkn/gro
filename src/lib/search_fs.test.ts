@@ -20,6 +20,7 @@ describe('search_fs', () => {
 			'test_ts.ts',
 			'test_task_module.task_fixture.ts',
 			'test_sveltekit_env.ts',
+			'test_sveltekit_env_subprocess.ts',
 			'test_run_task_invoke.ts',
 			'test_run_task_failure.ts',
 			'test_run_task_basic.ts',

@@ -1,32 +1,29 @@
 import {describe, test, expect} from 'vitest';
 import {resolve} from 'node:path';
-import {init_test_env} from './test_helpers.ts';
+import {existsSync} from 'node:fs';
 
-init_test_env();
-
-const VALUE = 'SOME_PUBLIC_ENV_VAR';
-
-// dynamic import paths are needed to avoid building .d.ts and .d.ts.map files, could be fixed in the build process
+import {resolve_gro_module_path, spawn_with_loader} from './gro_helpers.ts';
+import {TEST_TIMEOUT_MD} from './test_helpers.ts';
 
 describe('sveltekit shim env', () => {
-	test('shims static SvelteKit $env imports', async () => {
-		console.log(
-			`[DEBUG] Loading test fixture from: ${resolve('src/fixtures/test_sveltekit_env.ts')}`,
-		);
-		const mod: any = await import(resolve('src/fixtures/test_sveltekit_env.ts'));
-		console.log(`[DEBUG] Fixture module exports:`, Object.keys(mod));
-		console.log(`[DEBUG] exported_env_static_public value:`, mod.exported_env_static_public);
-		console.log(`[DEBUG] Expected value:`, VALUE);
-		expect(mod.exported_env_static_public).toBe(VALUE);
-	});
+	test(
+		'shims SvelteKit $env imports',
+		async () => {
+			const testScript = resolve('src/fixtures/test_sveltekit_env_subprocess.ts');
 
-	test('shims dynamic SvelteKit $env imports', async () => {
-		console.log(`[DEBUG] Loading $env/static/public module`);
-		const mod: any = await import('$env/static/public');
-		console.log(`[DEBUG] $env/static/public module exports:`, Object.keys(mod));
-		console.log(`[DEBUG] PUBLIC_SOME_PUBLIC_ENV_VAR value:`, mod.PUBLIC_SOME_PUBLIC_ENV_VAR);
-		console.log(`[DEBUG] Expected value:`, VALUE);
-		// @ts-ignore
-		expect(mod.PUBLIC_SOME_PUBLIC_ENV_VAR).toBe(VALUE);
-	});
+			// Log test script path for debugging
+			console.log('Test script path:', testScript);
+			console.log('Test script exists:', existsSync(testScript));
+
+			// Use the same loader resolution logic as the CLI
+			const loaderPath = resolve_gro_module_path('loader.js');
+
+			// Use the existing spawn_with_loader function
+			const result = await spawn_with_loader(loaderPath, testScript, []);
+
+			expect(result.ok).toBe(true);
+			expect(result.code).toBe(0);
+		},
+		TEST_TIMEOUT_MD,
+	);
 });

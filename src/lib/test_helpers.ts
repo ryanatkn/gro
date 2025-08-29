@@ -9,35 +9,27 @@ export const SOME_PUBLIC_ENV_VAR_VALUE = 'SOME_PUBLIC_ENV_VAR';
 const name_equals = SOME_PUBLIC_ENV_VAR_NAME + '=';
 const line = name_equals + SOME_PUBLIC_ENV_VAR_VALUE;
 
-let inited = false;
-
 /**
  * Hacky global helper to init the test env.
+ * Ensures the test environment variable is available both in .env file and process.env.
  *
  * @returns boolean indicating if the env file was created or not
  */
 export const init_test_env = (dir = process.cwd(), env_filename = '.env'): boolean => {
-	console.log(`[DEBUG] init_test_env called with dir=${dir}, env_filename=${env_filename}, inited=${inited}`);
-	if (inited) {
-		console.log(`[DEBUG] init_test_env already inited, returning false`);
-		return false;
-	}
-	inited = true;
+	// Always ensure the environment variable is set in process.env
+	// This is crucial because the loader reads from process.env when resolving $env imports
+	process.env[SOME_PUBLIC_ENV_VAR_NAME] = SOME_PUBLIC_ENV_VAR_VALUE;
 
 	const env_file = join(dir, env_filename);
-	console.log(`[DEBUG] env_file path: ${env_file}`);
 
 	if (!existsSync(env_file)) {
-		console.log(`[DEBUG] env file doesn't exist, creating with content: ${line}`);
 		writeFileSync(env_file, line + '\n', 'utf8');
 		return true;
 	}
 
 	const contents = readFileSync(env_file, 'utf8');
-	console.log(`[DEBUG] existing env file contents: ${JSON.stringify(contents)}`);
 	const lines = contents.split('\n');
 	if (lines.includes(line)) {
-		console.log(`[DEBUG] env file already contains required line: ${line}`);
 		return false; // already exists
 	}
 
@@ -46,11 +38,9 @@ export const init_test_env = (dir = process.cwd(), env_filename = '.env'): boole
 	if (found_index === -1) {
 		// if the line does not exist, add it
 		new_contents = contents + (contents.endsWith('\n') ? '' : '\n') + line + '\n';
-		console.log(`[DEBUG] adding line to env file, new content: ${JSON.stringify(new_contents)}`);
 	} else {
 		// if the line exists but with a different value, replace it
 		new_contents = contents.replace(new RegExp(`${SOME_PUBLIC_ENV_VAR_NAME}=.*`), line);
-		console.log(`[DEBUG] replacing existing line in env file, new content: ${JSON.stringify(new_contents)}`);
 	}
 	writeFileSync(env_file, new_contents, 'utf8');
 

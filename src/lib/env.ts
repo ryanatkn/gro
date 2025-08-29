@@ -11,21 +11,11 @@ export const load_env = (
 	env_files = ['.env', '.env.' + (dev ? 'development' : 'production')],
 	ambient_env = process.env,
 ): Record<string, string> => {
-	console.log(`[DEBUG] load_env called: dev=${dev}, visibility=${visibility}, public_prefix=${public_prefix}, env_dir=${env_dir}, env_files=${JSON.stringify(env_files)}`);
 	const envs: Array<Record<string, string | undefined>> = env_files
-		.map((path) => {
-			const full_path = env_dir === undefined ? path : resolve(env_dir, path);
-			console.log(`[DEBUG] Attempting to load env file: ${full_path}`);
-			const loaded = load(full_path);
-			console.log(`[DEBUG] Loaded env from ${full_path}:`, loaded);
-			return loaded;
-		})
+		.map((path) => load(env_dir === undefined ? path : resolve(env_dir, path)))
 		.filter((v) => v !== undefined);
 	envs.push(ambient_env);
-	console.log(`[DEBUG] All loaded envs:`, envs);
-	const result = merge_envs(envs, visibility, public_prefix, private_prefix);
-	console.log(`[DEBUG] Final merged env result:`, result);
-	return result;
+	return merge_envs(envs, visibility, public_prefix, private_prefix);
 };
 
 const load = (path: string): Record<string, string> | undefined => {
