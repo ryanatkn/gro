@@ -13,7 +13,7 @@ describe('sveltekit shim env', () => {
 		console.log(
 			`[DEBUG] Loading test fixture from: ${resolve('src/fixtures/test_sveltekit_env.ts')}`,
 		);
-		const mod = await import(resolve('src/fixtures/test_sveltekit_env.ts'));
+		const mod: any = await import(resolve('src/fixtures/test_sveltekit_env.ts'));
 		console.log(`[DEBUG] Fixture module exports:`, Object.keys(mod));
 		console.log(`[DEBUG] exported_env_static_public value:`, mod.exported_env_static_public);
 		console.log(`[DEBUG] Expected value:`, VALUE);
