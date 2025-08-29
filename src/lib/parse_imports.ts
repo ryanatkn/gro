@@ -124,7 +124,7 @@ export const parse_imports = (
 
 				// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
 				if (node.source.type === 'Literal') {
-					const value = String(node.source.value);
+					const value = node.source.value;
 					if (value) {
 						specifiers.push(value);
 					}
@@ -136,7 +136,7 @@ export const parse_imports = (
 	};
 
 	if (is_svelte) {
-		// Reset the regex state between calls
+		// Reset the regexp state between calls
 		SVELTE_SCRIPT_MATCHER.lastIndex = 0;
 
 		// Capture script tags at the top level (not nested in HTML)

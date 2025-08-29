@@ -1,90 +1,24 @@
-import {test} from 'uvu';
-import * as assert from 'uvu/assert';
+import {test, expect} from 'vitest';
 import {resolve} from 'node:path';
-import {readFileSync} from 'node:fs';
 
-const JSON_FIXTURE = 'src/fixtures/modules/some_test_json.json';
-const JSON_WITHOUT_EXTENSION_FIXTURE = 'src/fixtures/modules/some_test_json_without_extension';
+import {resolve_gro_module_path, spawn_with_loader} from './gro_helpers.ts';
+import {TEST_TIMEOUT_MD} from './test_helpers.ts';
 
-test('import .js', async () => {
-	const imported = await import(resolve('src/fixtures/modules/some_test_ts.js'));
-	assert.ok(imported);
-	assert.is(imported.a, 'ok');
-});
+test(
+	'custom loader works in separate process',
+	async () => {
+		const test_script = resolve('src/fixtures/test_loader.ts');
 
-test('import .ts', async () => {
-	const imported = await import(resolve('src/fixtures/modules/some_test_ts.ts'));
-	assert.ok(imported);
-	assert.is(imported.a, 'ok');
-});
+		// Use the same loader resolution logic as the CLI
+		const loader_path = resolve_gro_module_path('loader.js');
 
-test('import raw .ts', async () => {
-	const path = resolve('src/fixtures/modules/some_test_ts.ts');
-	const imported = await import(path + '?raw');
-	assert.ok(imported);
-	assert.equal(imported.default, readFileSync(path, 'utf8'));
-});
+		// Use the existing spawn_with_loader function
+		const result = await spawn_with_loader(loader_path, test_script, []);
 
-test('import .json', async () => {
-	const path = resolve(JSON_FIXTURE);
-	const imported = await import(path, {with: {type: 'json'}}); // import attribute is required
-	assert.ok(imported);
-	assert.is(imported.default.a, 'ok');
-	assert.equal(imported.default, JSON.parse(readFileSync(path, 'utf8')));
-});
-
-test('import json that doesnt end with .json', async () => {
-	const path = resolve(JSON_WITHOUT_EXTENSION_FIXTURE);
-	const imported = await import(path, {with: {type: 'json'}}); // import attribute means `.json` is not required
-	assert.ok(imported);
-	assert.ok(imported.default.some_test_json_without_extension);
-	assert.equal(imported.default, JSON.parse(readFileSync(path, 'utf8')));
-});
-
-test('fail to import .json without the import attribute', async () => {
-	let imported;
-	let err;
-	try {
-		imported = await import(resolve(JSON_FIXTURE)); // intentionally missing the import attribute and expecting failure
-	} catch (error) {
-		err = error;
-	}
-	assert.ok(err);
-	assert.not.ok(imported);
-});
-
-test('import raw .css', async () => {
-	const path = resolve('src/fixtures/modules/some_test_css.css');
-	const imported = await import(path);
-	assert.is(typeof imported.default, 'string');
-	assert.equal(imported.default, readFileSync(path, 'utf8'));
-});
-
-test('import .svelte', async () => {
-	const imported = await import(resolve('src/fixtures/modules/Some_Test_Svelte.svelte'));
-	assert.ok(imported);
-	assert.is(imported.a, 'ok');
-});
-
-test('import raw .svelte', async () => {
-	const path = resolve('src/fixtures/modules/Some_Test_Svelte.svelte');
-	const imported = await import(path + '?raw');
-	assert.ok(imported);
-	assert.equal(imported.default, readFileSync(path, 'utf8'));
-});
-
-test('import .svelte.js', async () => {
-	const imported = await import(resolve('src/fixtures/modules/some_test_svelte_js.svelte.js'));
-	assert.ok(imported.Some_Test_Svelte_Js);
-	const instance = new imported.Some_Test_Svelte_Js();
-	assert.is(instance.a, 'ok');
-});
-
-test('import .svelte.ts', async () => {
-	const imported = await import(resolve('src/fixtures/modules/some_test_svelte_ts.svelte.ts'));
-	assert.ok(imported.Some_Test_Svelte_Ts);
-	const instance = new imported.Some_Test_Svelte_Ts();
-	assert.is(instance.a, 'ok');
-});
-
-test.run();
+		// The spawn_with_loader function handles output automatically
+		// Just check if the process succeeded
+		expect(result.ok).toBe(true);
+		expect(result.code).toBe(0);
+	},
+	TEST_TIMEOUT_MD,
+);

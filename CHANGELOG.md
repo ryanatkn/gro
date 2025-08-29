@@ -303,7 +303,7 @@
 
 ### Patch Changes
 
-- add `mtime` to `Source_File` ([becb071](https://github.com/ryanatkn/gro/commit/becb071))
+- add `mtime` to `Disknode` ([becb071](https://github.com/ryanatkn/gro/commit/becb071))
 
 ## 0.140.6
 
@@ -517,7 +517,7 @@
 
 - rename gro config helpers to include `gro_` for clarity ([#487](https://github.com/ryanatkn/gro/pull/487))
   - rename `load_gro_config` from `load_config`
-  - rename `normalize_gro_config` from `normalize_config`
+  - rename `cook_gro_config` from `normalize_config`
   - rename `create_empty_gro_config ` from `create_empty_config `
   - rename `validate_gro_config_module` from `validate_config_module`
 

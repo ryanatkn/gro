@@ -4,7 +4,7 @@ import {ensure_end, strip_end} from '@ryanatkn/belt/string.js';
 import {styleText as st} from 'node:util';
 
 import {
-	GRO_CONFIG_PATH,
+	GRO_CONFIG_FILENAME,
 	GRO_DEV_DIR,
 	GRO_DIR,
 	SOURCE_DIR,
@@ -49,7 +49,7 @@ export const create_paths = (root_dir: string): Paths => {
 		lib: root + LIB_DIR,
 		build: root + GRO_DIR,
 		build_dev: root + GRO_DEV_DIR,
-		config: root + GRO_CONFIG_PATH,
+		config: root + GRO_CONFIG_FILENAME,
 	};
 };
 

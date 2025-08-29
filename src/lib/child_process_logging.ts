@@ -29,7 +29,7 @@ export const configure_colored_output_with_path_replacement = (
 	replacement: string = '.',
 	cwd: string = process.cwd(),
 ): void => {
-	// Escape special characters in the cwd for regex safety
+	// Escape special characters in the cwd for regexp safety
 	const cwd_escaped = strip_end(cwd, '/').replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 	const cwd_reg_exp = new RegExp(cwd_escaped, 'g');
 

@@ -33,7 +33,8 @@ const config: Create_Gro_Config = async (cfg, svelte_config) => {
 
 	const local_moss_plugin_path = find_first_existing_file([
 		'./src/lib/gro_plugin_moss.ts',
-		'./src/routes/gro_plugin_moss.ts',
+		'./src/gro_plugin_moss.ts',
+		'./src/routes/gro_plugin_moss.ts', // TODO probably remove this
 	]);
 
 	// put things that generate files before SvelteKit so it can see them

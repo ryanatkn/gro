@@ -8,7 +8,7 @@ import {
 	SVELTE_CONFIG_FILENAME,
 	VITE_CONFIG_FILENAME,
 	TSCONFIG_FILENAME,
-	GRO_CONFIG_PATH,
+	GRO_CONFIG_FILENAME,
 	PM_CLI_DEFAULT,
 	PRETTIER_CLI_DEFAULT,
 } from './constants.ts';
@@ -18,7 +18,7 @@ import {spawn_cli, to_cli_name, type Cli} from './cli.ts';
 const EXTENSIONS_DEFAULT = 'ts,js,json,svelte,html,css,md,yml';
 const ROOT_PATHS_DEFAULT = `${[
 	README_FILENAME,
-	GRO_CONFIG_PATH,
+	GRO_CONFIG_FILENAME,
 	SVELTE_CONFIG_FILENAME,
 	VITE_CONFIG_FILENAME,
 	TSCONFIG_FILENAME,

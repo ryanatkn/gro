@@ -18,11 +18,12 @@ export const SOURCE_DIR = SOURCE_DIRNAME + '/';
 export const GRO_DIR = GRO_DIRNAME + '/';
 /** @trailing_slash */
 export const GRO_DEV_DIR = GRO_DEV_DIRNAME + '/';
-export const GRO_CONFIG_PATH = 'gro.config.ts';
+export const GRO_CONFIG_FILENAME = 'gro.config.ts';
 export const README_FILENAME = 'README.md';
 export const SVELTE_CONFIG_FILENAME = 'svelte.config.js';
 export const VITE_CONFIG_FILENAME = 'vite.config.ts';
 export const NODE_MODULES_DIRNAME = 'node_modules';
+export const PACKAGE_JSON_FILENAME = 'package.json';
 export const LOCKFILE_FILENAME = 'package-lock.json';
 export const SVELTEKIT_DEV_DIRNAME = '.svelte-kit'; // TODO use Svelte config value `outDir`
 export const SVELTEKIT_BUILD_DIRNAME = 'build';
@@ -32,8 +33,8 @@ export const GITHUB_DIRNAME = '.github';
 export const GIT_DIRNAME = '.git';
 export const TSCONFIG_FILENAME = 'tsconfig.json';
 
-export const TS_MATCHER = /\.(ts|tsx|mts|cts)$/;
-export const JS_MATCHER = /\.(js|jsx|mjs|cjs)$/;
+export const TS_MATCHER = /\.(ts|mts|cts)$/;
+export const JS_MATCHER = /\.(js|mjs|cjs)$/;
 export const JSON_MATCHER = /\.json$/;
 export const SVELTE_MATCHER = /\.svelte$/;
 export const SVELTE_RUNES_MATCHER = /\.svelte\.(js|ts)$/; // TODO probably let `.svelte.` appear anywhere - https://github.com/sveltejs/svelte/issues/11536

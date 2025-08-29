@@ -1,5 +1,4 @@
-import {test} from 'uvu';
-import * as assert from 'uvu/assert';
+import {test, expect} from 'vitest';
 import {resolve} from 'node:path';
 
 import {
@@ -14,18 +13,18 @@ import {GRO_DIST_DIR, paths} from './paths.ts';
 import type {Resolved_Path} from './path.ts';
 
 test('to_input_path', () => {
-	assert.is(to_input_path(resolve('foo.ts')), resolve('foo.ts'));
-	assert.is(to_input_path('./foo.ts'), resolve('foo.ts'));
-	assert.is(to_input_path('foo.ts'), 'foo.ts');
-	assert.is(to_input_path('gro/foo'), GRO_DIST_DIR + 'foo');
+	expect(to_input_path(resolve('foo.ts'))).toBe(resolve('foo.ts'));
+	expect(to_input_path('./foo.ts')).toBe(resolve('foo.ts'));
+	expect(to_input_path('foo.ts')).toBe('foo.ts');
+	expect(to_input_path('gro/foo')).toBe(GRO_DIST_DIR + 'foo');
 	// trailing slashes are preserved:
-	assert.is(to_input_path(resolve('foo/bar/')), resolve('foo/bar/'));
-	assert.is(to_input_path('./foo/bar/'), resolve('foo/bar/'));
-	assert.is(to_input_path('foo/bar/'), 'foo/bar/');
+	expect(to_input_path(resolve('foo/bar/'))).toBe(resolve('foo/bar/'));
+	expect(to_input_path('./foo/bar/')).toBe(resolve('foo/bar/'));
+	expect(to_input_path('foo/bar/')).toBe('foo/bar/');
 });
 
 test('to_input_paths', () => {
-	assert.equal(to_input_paths([resolve('foo/bar.ts'), './baz', 'foo']), [
+	expect(to_input_paths([resolve('foo/bar.ts'), './baz', 'foo'])).toEqual([
 		resolve('foo/bar.ts'),
 		resolve('baz'),
 		'foo',
@@ -34,60 +33,59 @@ test('to_input_paths', () => {
 
 test('get_possible_paths with an implicit relative path', () => {
 	const input_path = 'src/foo/bar';
-	assert.equal(
+	expect(
 		get_possible_paths(
 			input_path,
 			[resolve('src/foo'), resolve('src/baz'), resolve('src'), resolve('.')],
 			['.ext.ts'],
 		),
-		[
-			{
-				id: resolve('src/foo/src/foo/bar'),
-				input_path: 'src/foo/bar',
-				root_dir: resolve('src/foo'),
-			},
-			{
-				id: resolve('src/foo/src/foo/bar.ext.ts'),
-				input_path: 'src/foo/bar',
-				root_dir: resolve('src/foo'),
-			},
-			{
-				id: resolve('src/baz/src/foo/bar'),
-				input_path: 'src/foo/bar',
-				root_dir: resolve('src/baz'),
-			},
-			{
-				id: resolve('src/baz/src/foo/bar.ext.ts'),
-				input_path: 'src/foo/bar',
-				root_dir: resolve('src/baz'),
-			},
-			{
-				id: resolve('src/src/foo/bar'),
-				input_path: 'src/foo/bar',
-				root_dir: resolve('src'),
-			},
-			{
-				id: resolve('src/src/foo/bar.ext.ts'),
-				input_path: 'src/foo/bar',
-				root_dir: resolve('src'),
-			},
-			{
-				id: resolve('src/foo/bar'),
-				input_path: 'src/foo/bar',
-				root_dir: resolve('.'),
-			},
-			{
-				id: resolve('src/foo/bar.ext.ts'),
-				input_path: 'src/foo/bar',
-				root_dir: resolve('.'),
-			},
-		],
-	);
+	).toEqual([
+		{
+			id: resolve('src/foo/src/foo/bar'),
+			input_path: 'src/foo/bar',
+			root_dir: resolve('src/foo'),
+		},
+		{
+			id: resolve('src/foo/src/foo/bar.ext.ts'),
+			input_path: 'src/foo/bar',
+			root_dir: resolve('src/foo'),
+		},
+		{
+			id: resolve('src/baz/src/foo/bar'),
+			input_path: 'src/foo/bar',
+			root_dir: resolve('src/baz'),
+		},
+		{
+			id: resolve('src/baz/src/foo/bar.ext.ts'),
+			input_path: 'src/foo/bar',
+			root_dir: resolve('src/baz'),
+		},
+		{
+			id: resolve('src/src/foo/bar'),
+			input_path: 'src/foo/bar',
+			root_dir: resolve('src'),
+		},
+		{
+			id: resolve('src/src/foo/bar.ext.ts'),
+			input_path: 'src/foo/bar',
+			root_dir: resolve('src'),
+		},
+		{
+			id: resolve('src/foo/bar'),
+			input_path: 'src/foo/bar',
+			root_dir: resolve('.'),
+		},
+		{
+			id: resolve('src/foo/bar.ext.ts'),
+			input_path: 'src/foo/bar',
+			root_dir: resolve('.'),
+		},
+	]);
 });
 
 test('get_possible_paths in the gro directory', () => {
 	const input_path = resolve('src/foo/bar');
-	assert.equal(get_possible_paths(input_path, [], ['.ext.ts']), [
+	expect(get_possible_paths(input_path, [], ['.ext.ts'])).toEqual([
 		{id: input_path, input_path: resolve('src/foo/bar'), root_dir: resolve('src/foo')},
 		{id: input_path + '.ext.ts', input_path: resolve('src/foo/bar'), root_dir: resolve('src/foo')},
 	]);
@@ -95,21 +93,21 @@ test('get_possible_paths in the gro directory', () => {
 
 test('get_possible_paths does not repeat the extension', () => {
 	const input_path = resolve('src/foo/bar.ext.ts');
-	assert.equal(get_possible_paths(input_path, [], ['.ext.ts']), [
+	expect(get_possible_paths(input_path, [], ['.ext.ts'])).toEqual([
 		{id: input_path, input_path: resolve('src/foo/bar.ext.ts'), root_dir: resolve('src/foo')},
 	]);
 });
 
 test('get_possible_paths does not repeat with the same root directory', () => {
 	const input_path = resolve('src/foo/bar.ext.ts');
-	assert.equal(get_possible_paths(input_path, [paths.root, paths.root], ['.ext.ts']), [
+	expect(get_possible_paths(input_path, [paths.root, paths.root], ['.ext.ts'])).toEqual([
 		{id: input_path, input_path: resolve('src/foo/bar.ext.ts'), root_dir: resolve('src/foo')},
 	]);
 });
 
 test('get_possible_paths implied to be a directory by trailing slash', () => {
 	const input_path = resolve('src/foo/bar') + '/';
-	assert.equal(get_possible_paths(input_path, [], ['.ext.ts']), [
+	expect(get_possible_paths(input_path, [], ['.ext.ts'])).toEqual([
 		{id: input_path, input_path: resolve('src/foo/bar') + '/', root_dir: resolve('src/foo')},
 	]);
 });
@@ -207,7 +205,7 @@ test('resolve_input_files', () => {
 		{id: 'fake2/test.ext.ts', input_path: f.input_path, resolved_input_path: f},
 		{id: 'fake3/test.ext.ts', input_path: h.input_path, resolved_input_path: h},
 	];
-	assert.equal(result, {
+	expect(result).toEqual({
 		resolved_input_files,
 		resolved_input_files_by_root_dir: new Map([
 			[
@@ -226,5 +224,3 @@ test('resolve_input_files', () => {
 		input_directories_with_no_files: [e.input_path],
 	});
 });
-
-test.run();

@@ -1,23 +1,24 @@
-import {test} from 'uvu';
-import * as assert from 'uvu/assert';
+import {describe, test, expect} from 'vitest';
 import {resolve} from 'node:path';
-import {init_test_env} from './test_helpers.ts';
 
-init_test_env();
+import {resolve_gro_module_path, spawn_with_loader} from './gro_helpers.ts';
+import {TEST_TIMEOUT_MD} from './test_helpers.ts';
 
-const VALUE = 'SOME_PUBLIC_ENV_VAR';
+describe('sveltekit shim env', () => {
+	test(
+		'shims SvelteKit $env imports',
+		async () => {
+			const testScript = resolve('src/fixtures/test_sveltekit_env_subprocess.ts');
 
-// dynamic import paths are needed to avoid building .d.ts and .d.ts.map files, could be fixed in the build process
+			// Use the same loader resolution logic as the CLI
+			const loaderPath = resolve_gro_module_path('loader.js');
 
-test('shims static SvelteKit $env imports', async () => {
-	const mod = await import(resolve('src/fixtures/test_sveltekit_env.ts'));
-	assert.is(mod.exported_env_static_public, VALUE);
+			// Use the existing spawn_with_loader function
+			const result = await spawn_with_loader(loaderPath, testScript, []);
+
+			expect(result.ok).toBe(true);
+			expect(result.code).toBe(0);
+		},
+		TEST_TIMEOUT_MD,
+	);
 });
-
-test('shims dynamic SvelteKit $env imports', async () => {
-	const mod = await import('$env/static/public');
-	// @ts-ignore
-	assert.is(mod.PUBLIC_SOME_PUBLIC_ENV_VAR, VALUE);
-});
-
-test.run();

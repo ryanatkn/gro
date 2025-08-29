@@ -56,7 +56,7 @@ It includes:
     - see [`fuz_template`](https://github.com/fuz-dev/fuz_template)
       for a simple starter project example, and
       [`@feltjs/felt`](https://github.com/feltjs/felt) for a more complex example with custom tasks
-- [testing](/src/docs/test.md) with [`uvu`](https://github.com/lukeed/uvu)
+- [testing](/src/docs/test.md) with [`vitest`](https://github.com/vitest-dev/vitest)
 - codegen by convention with [`gen`](/src/docs/gen.md)
 - linting with [ESLint](https://github.com/eslint/eslint)
   (I also maintain [`@feltjs/eslint-config`](https://github.com/feltjs/eslint-config))
@@ -72,7 +72,7 @@ It includes:
   - [publish](/src/docs/publish.md) to npm
 - [`Task`](/src/docs/task.md) runner
   - builtin [tasks](/src/docs/tasks.md) list
-- [testing](/src/docs/test.md) with [`uvu`](https://github.com/lukeed/uvu)
+- [testing](/src/docs/test.md) with [`vitest`](https://github.com/vitest-dev/vitest)
 - [`gen`](/src/docs/gen.md) code generation
 - [`public` package](/src/docs/package_json.md#public-packages) features (nonstandard)
 - full [docs index](/src/docs#readme)
@@ -128,7 +128,7 @@ release    publish and deploy
 resolve    diagnostic that logs resolved filesystem info for the given input paths
 run        execute a file with the loader, like `node` but works for TypeScript
 sync       run `gro gen`, update `package.json`, and optionally install packages to sync up
-test       run tests with uvu
+test       run tests with vitest
 typecheck  run svelte-check or tsc on the project without emitting any files
 upgrade    upgrade deps
 ```
@@ -176,13 +176,14 @@ gro dev -- vite --port 3003 # forward args by separating sections with --
 gro build # build everything for production
 ```
 
-[Testing](/src/docs/test.md) with [`uvu`](https://github.com/lukeed/uvu),
+[Testing](/src/docs/test.md) with [`vitest`](https://github.com/vitest-dev/vitest),
 including shims for [SvelteKit modules](https://kit.svelte.dev/docs/modules):
 
 ```bash
-gro test # run all tests for `*.test.ts` files with `uvu`
+gro test # run all tests for `*.test.ts` files with `vitest`
 gro test filepattern1 some.test another.test
-gro test -- uvu --forwarded_args 'to uvu'
+gro test optional_pattern -t "optional search string for test name"
+gro test -- vitest --forwarded_args 'to vitest'
 ```
 
 Check all the things:
@@ -260,7 +261,7 @@ Gro builds on
 [SvelteKit](https://github.com/sveltejs/kit) ∙
 [Vite](https://github.com/vitejs/vite) ∙
 [esbuild](https://github.com/evanw/esbuild) ∙
-[uvu](https://github.com/lukeed/uvu) ∙
+[Vitest](https://github.com/vitest-dev/vitest) ∙
 [mri](https://github.com/lukeed/mri) ∙
 [chokidar](https://github.com/paulmillr/chokidar) ∙
 [zod](https://github.com/colinhacks/zod) ∙

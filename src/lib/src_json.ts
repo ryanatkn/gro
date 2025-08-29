@@ -7,6 +7,7 @@ import {Src_Json, Src_Modules} from '@ryanatkn/belt/src_json.js';
 
 import {paths, replace_extension} from './paths.ts';
 import {parse_exports} from './parse_exports.ts';
+import {TS_MATCHER} from './constants.ts';
 
 export type Map_Src_Json = (src_json: Src_Json) => Src_Json | null | Promise<Src_Json | null>;
 
@@ -48,6 +49,7 @@ export const to_src_modules = (
 				continue;
 			}
 
+			// TODO still an error for unknown files running `gro gen`, can it use the filer to invalidate correctly?
 			throw Error(
 				`Failed to infer source file from package.json export path ${k} - the inferred file ${source_file_id} does not exist`,
 			);
@@ -58,7 +60,7 @@ export const to_src_modules = (
 
 	// Create a TypeScript program for all TypeScript files
 	const ts_files = file_paths
-		.filter(({file_path}) => file_path.endsWith('.ts') || file_path.endsWith('.tsx'))
+		.filter(({file_path}) => TS_MATCHER.test(file_path))
 		.map(({file_path}) => file_path);
 
 	let program: ts.Program | undefined;
