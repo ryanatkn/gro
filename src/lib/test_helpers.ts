@@ -2,23 +2,21 @@ import {existsSync, readFileSync, writeFileSync} from 'node:fs';
 import {join} from 'node:path';
 import ts from 'typescript';
 
-export const TEST_TIMEOUT_MD = 20_000;
-
 export const SOME_PUBLIC_ENV_VAR_NAME = 'PUBLIC_SOME_PUBLIC_ENV_VAR';
 export const SOME_PUBLIC_ENV_VAR_VALUE = 'SOME_PUBLIC_ENV_VAR';
 const name_equals = SOME_PUBLIC_ENV_VAR_NAME + '=';
 const line = name_equals + SOME_PUBLIC_ENV_VAR_VALUE;
 
+let inited = false;
+
 /**
  * Hacky global helper to init the test env.
- * Ensures the test environment variable is available both in .env file and process.env.
  *
  * @returns boolean indicating if the env file was created or not
  */
 export const init_test_env = (dir = process.cwd(), env_filename = '.env'): boolean => {
-	// Always ensure the environment variable is set in process.env
-	// This is crucial because the loader reads from process.env when resolving $env imports
-	process.env[SOME_PUBLIC_ENV_VAR_NAME] = SOME_PUBLIC_ENV_VAR_VALUE;
+	if (inited) return false;
+	inited = true;
 
 	const env_file = join(dir, env_filename);
 
