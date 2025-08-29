@@ -1,5 +1,24 @@
 # @ryanatkn/gro
 
+## 0.162.0
+
+### Minor Changes
+
+- rename `cook_gro_config` from `normalize_gro_config` ([#553](https://github.com/ryanatkn/gro/pull/553))
+- change fn signature of `update_package_json` ([#552](https://github.com/ryanatkn/gro/pull/552))
+- move `Source_File` from filer.ts and rename to `Disknode` in disknode.ts ([#553](https://github.com/ryanatkn/gro/pull/553))
+- rearrange some constants ([#551](https://github.com/ryanatkn/gro/pull/551))
+- - add `vitest` support ([#551](https://github.com/ryanatkn/gro/pull/551))
+  - remove `uvu` support
+  - fail `gro test` if no test runner installed
+- add @sveltejs/kit as peer dep ([#553](https://github.com/ryanatkn/gro/pull/553))
+- feat: change sync task to not install by default ([#549](https://github.com/ryanatkn/gro/pull/549))
+- invert the `write` boolean arg of `sync_package_json` from `check` ([#552](https://github.com/ryanatkn/gro/pull/552))
+
+### Patch Changes
+
+- support NO_COLOR env var ([#551](https://github.com/ryanatkn/gro/pull/551))
+
 ## 0.161.2
 
 ### Patch Changes
