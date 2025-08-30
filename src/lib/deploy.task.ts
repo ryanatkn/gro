@@ -71,6 +71,8 @@ export const Args = z.strictObject({
 		.default(false),
 	build: z.boolean().meta({description: 'dual of no-build'}).default(true),
 	'no-build': z.boolean().meta({description: 'opt out of building'}).default(false),
+	pull: z.boolean().meta({description: 'dual of no-pull'}).default(true),
+	'no-pull': z.boolean().meta({description: 'opt out of git pull'}).default(false),
 });
 export type Args = z.infer<typeof Args>;
 
@@ -78,8 +80,19 @@ export const task: Task<Args> = {
 	summary: 'deploy to a branch',
 	Args,
 	run: async ({args, log, invoke_task}): Promise<void> => {
-		const {source, target, origin, build_dir, deploy_dir, dry, force, dangerous, reset, build} =
-			args;
+		const {
+			source,
+			target,
+			origin,
+			build_dir,
+			deploy_dir,
+			dry,
+			force,
+			dangerous,
+			reset,
+			build,
+			pull,
+		} = args;
 
 		// Checks
 		if (!force && target !== TARGET_BRANCH) {
@@ -119,7 +132,9 @@ export const task: Task<Args> = {
 
 		// Prepare the source branch in the cwd
 		await git_checkout(source);
-		await git_pull(origin, source);
+		if (pull) {
+			await git_pull(origin, source);
+		}
 		if (await git_check_clean_workspace()) {
 			throw new Task_Error(
 				'Deploy failed because the local source branch is out of sync with the remote one,' +
