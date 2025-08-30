@@ -1,5 +1,11 @@
 # @ryanatkn/gro
 
+## 0.162.1
+
+### Patch Changes
+
+- add no-pull option to `gro deploy` ([a56eb3f](https://github.com/ryanatkn/gro/commit/a56eb3f))
+
 ## 0.162.0
 
 ### Minor Changes
