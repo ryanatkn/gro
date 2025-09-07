@@ -1,5 +1,5 @@
 ---
-'@ryanatkn/gro': minor
+'@ryanatkn/gro': patch
 ---
 
-change `gro test` to have no default filter and add `include` arg that defaults to `'**/*.test.ts'`
+fix `gro test` to exit gracefully if there are no test files
