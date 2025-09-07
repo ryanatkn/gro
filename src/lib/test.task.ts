@@ -11,6 +11,10 @@ import {paths} from './paths.ts';
 export const Args = z.strictObject({
 	_: z.array(z.string()).meta({description: 'file patterns to filter tests'}).default(['.test.']),
 	dir: z.string().meta({description: 'working directory for tests'}).default(paths.source),
+	fail_without_tests: z
+		.boolean()
+		.meta({description: 'opt out of `passWithNoTests`'})
+		.default(false),
 	t: z
 		.string()
 		.meta({description: 'search pattern for test names, same as vitest -t and --testNamePattern'})
@@ -22,7 +26,7 @@ export const task: Task<Args> = {
 	summary: 'run tests with vitest',
 	Args,
 	run: async ({args}): Promise<void> => {
-		const {_: patterns, dir, t} = args;
+		const {_: patterns, dir, fail_without_tests, t} = args;
 
 		if (!has_dep(VITEST_CLI)) {
 			throw new Task_Error('no test runner found, install vitest');
@@ -35,6 +39,9 @@ export const task: Task<Args> = {
 		const vitest_args = ['run', ...patterns];
 		if (dir) {
 			vitest_args.push('--dir', dir);
+		}
+		if (!fail_without_tests) {
+			vitest_args.push('--passWithNoTests');
 		}
 		if (t) {
 			vitest_args.push('-t', t);
