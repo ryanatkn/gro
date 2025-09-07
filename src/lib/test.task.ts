@@ -43,7 +43,6 @@ export const task: Task<Args> = {
 
 		const spawned = await spawn_cli(VITEST_CLI, vitest_args);
 		if (!spawned?.ok) {
-			console.log(`spawned`, spawned);
 			throw new Task_Error(`vitest failed with exit code ${spawned?.code}`);
 		}
 	},
