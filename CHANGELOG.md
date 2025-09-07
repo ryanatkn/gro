@@ -1,5 +1,11 @@
 # @ryanatkn/gro
 
+## 0.162.2
+
+### Patch Changes
+
+- fix `gro test` to exit gracefully if there are no test files, opt out with arg `--fail_without_tests` ([#555](https://github.com/ryanatkn/gro/pull/555))
+
 ## 0.162.1
 
 ### Patch Changes
