@@ -1,5 +1,15 @@
 # @ryanatkn/gro
 
+## 0.163.0
+
+### Minor Changes
+
+- upgrade deps ([b9a5727](https://github.com/ryanatkn/gro/commit/b9a5727))
+
+### Patch Changes
+
+- shim `asset` for `$app/paths` ([ac5be5b](https://github.com/ryanatkn/gro/commit/ac5be5b))
+
 ## 0.162.2
 
 ### Patch Changes
