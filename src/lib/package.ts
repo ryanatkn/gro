@@ -936,6 +936,7 @@ export const src_json: Src_Json = {
 				{name: 'base', kind: 'variable'},
 				{name: 'resolve', kind: 'function'},
 				{name: 'resolveRoute', kind: 'function'},
+				{name: 'asset', kind: 'function'},
 			],
 		},
 		'./sveltekit_shim_app_state.js': {
