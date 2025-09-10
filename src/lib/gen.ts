@@ -19,6 +19,8 @@ import {
 	type Resolved_Input_Path,
 } from './input_path.ts';
 import {search_fs} from './search_fs.ts';
+import type {Filer} from './filer.ts';
+import type {Args} from './args.ts';
 
 export const GEN_FILE_PATTERN_TEXT = 'gen';
 export const GEN_FILE_PATTERN = '.' + GEN_FILE_PATTERN_TEXT + '.';
@@ -40,6 +42,10 @@ export type Gen = (ctx: Gen_Context) => Raw_Gen_Result | Promise<Raw_Gen_Result>
 export interface Gen_Context {
 	config: Gro_Config;
 	svelte_config: Parsed_Svelte_Config;
+	filer: Filer;
+	log: Logger;
+	timings: Timings;
+	invoke_task: (task_name: string, args?: Args, config?: Gro_Config) => Promise<void>;
 	/**
 	 * Same as `import.meta.url` but in path form.
 	 */
@@ -48,8 +54,8 @@ export interface Gen_Context {
 	 * The `origin_id` relative to the root dir.
 	 */
 	origin_path: string;
-	log: Logger;
 }
+
 // TODO consider other return data - metadata? effects? non-file build artifacts?
 export type Raw_Gen_Result = string | Raw_Gen_File | null | Array<Raw_Gen_Result>;
 export interface Raw_Gen_File {

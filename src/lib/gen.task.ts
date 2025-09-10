@@ -35,12 +35,10 @@ export const Args = z.strictObject({
 });
 export type Args = z.infer<typeof Args>;
 
-// TODO test - especially making sure nothing gets genned
-// if there's any validation or import errors
 export const task: Task<Args> = {
 	summary: 'run code generation scripts',
 	Args,
-	run: async ({args, log, timings, config}): Promise<void> => {
+	run: async ({args, filer, log, timings, config, invoke_task}): Promise<void> => {
 		const {_: raw_input_paths, root_dirs, check} = args;
 
 		const input_paths = to_input_paths(raw_input_paths);
@@ -71,7 +69,15 @@ export const task: Task<Args> = {
 
 		// run `gen` on each of the modules
 		const timing_to_generate_code = timings.start('generate code'); // TODO this ignores `gen_results.elapsed` - should it return `Timings` instead?
-		const gen_results = await run_gen(loaded_genfiles.modules, config, log, timings, format_file);
+		const gen_results = await run_gen(
+			loaded_genfiles.modules,
+			config,
+			filer,
+			log,
+			timings,
+			invoke_task,
+			format_file,
+		);
 		timing_to_generate_code();
 
 		const fail_count = gen_results.failures.length;
