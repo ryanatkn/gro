@@ -153,14 +153,12 @@ export class Filer {
 
 		file.contents = null; // clear contents in case it gets re-added later, we want the change to be detected
 
-		let found = false;
-		for (const d of this.files.values()) {
-			if (d.dependencies.has(file.id)) {
-				found = true;
-				break;
-			}
+		file.dependencies.clear();
+
+		// keep the file in memory if other files still depend on it
+		if (file.dependents.size === 0) {
+			this.files.delete(id);
 		}
-		if (!found) this.files.delete(id);
 
 		return file;
 	}
@@ -234,6 +232,7 @@ export class Filer {
 	async close(): Promise<void> {
 		this.#ready = false;
 		this.#listeners.clear();
+		this.files.clear();
 		if (this.#watching) {
 			await this.#watching.close();
 			this.#watching = undefined;
