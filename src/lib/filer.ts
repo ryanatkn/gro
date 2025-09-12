@@ -29,7 +29,7 @@ const aliases = Object.entries(default_svelte_config.alias);
 
 export type Cleanup_Watch = () => Promise<void>;
 
-export type On_Filer_Change = (change: Watcher_Change, source_file: Disknode) => void;
+export type On_Filer_Change = (change: Watcher_Change, disknode: Disknode) => void;
 
 export interface Filer_Options {
 	watch_dir?: typeof watch_dir;
@@ -165,15 +165,15 @@ export class Filer {
 
 	#sync_listener_with_files(listener: On_Filer_Change): void {
 		if (!this.#ready) return;
-		for (const source_file of this.files.values()) {
-			listener({type: 'add', path: source_file.id, is_directory: false}, source_file);
+		for (const disknode of this.files.values()) {
+			listener({type: 'add', path: disknode.id, is_directory: false}, disknode);
 		}
 	}
 
-	#notify_change(change: Watcher_Change, source_file: Disknode): void {
+	#notify_change(change: Watcher_Change, disknode: Disknode): void {
 		if (!this.#ready) return;
 		for (const listener of this.#listeners) {
-			listener(change, source_file);
+			listener(change, disknode);
 		}
 	}
 
@@ -205,22 +205,22 @@ export class Filer {
 
 	#on_change: Watcher_Change_Callback = (change) => {
 		if (change.is_directory) return; // TODO manage directories?
-		let source_file: Disknode | null;
+		let disknode: Disknode | null;
 		switch (change.type) {
 			case 'add':
 			case 'update': {
-				source_file = this.#update(change.path);
+				disknode = this.#update(change.path);
 				break;
 			}
 			case 'delete': {
-				source_file = this.#remove(change.path);
+				disknode = this.#remove(change.path);
 				break;
 			}
 			default:
 				throw new Unreachable_Error(change.type);
 		}
-		if (source_file) {
-			this.#notify_change(change, source_file);
+		if (disknode) {
+			this.#notify_change(change, disknode);
 		}
 	};
 
@@ -247,28 +247,28 @@ export class Filer {
 
 // TODO maybe `Disknode` class?
 export const filter_dependents = (
-	source_file: Disknode,
+	disknode: Disknode,
 	get_by_id: (id: Path_Id) => Disknode | undefined,
 	filter?: File_Filter,
 	results: Set<string> = new Set(),
 	searched: Set<string> = new Set(),
 	log?: Logger,
 ): Set<string> => {
-	const {dependents} = source_file;
+	const {dependents} = disknode;
 	for (const dependent_id of dependents.keys()) {
 		if (searched.has(dependent_id)) continue;
 		searched.add(dependent_id);
 		if (!filter || filter(dependent_id)) {
 			results.add(dependent_id);
 		}
-		const dependent_source_file = get_by_id(dependent_id);
-		if (!dependent_source_file) {
+		const dependent_disknode = get_by_id(dependent_id);
+		if (!dependent_disknode) {
 			log?.warn(
-				`[filer.filter_dependents] dependent source file ${dependent_id} not found for ${source_file.id}`,
+				`[filer.filter_dependents] dependent source file ${dependent_id} not found for ${disknode.id}`,
 			);
 			continue;
 		}
-		filter_dependents(dependent_source_file, get_by_id, filter, results, searched);
+		filter_dependents(dependent_disknode, get_by_id, filter, results, searched);
 	}
 	return results;
 };
