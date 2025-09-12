@@ -27,9 +27,12 @@ export const gen: Gen = async ({filer, log}) => {
 
 	// Gather statistics
 	for (const disknode of filer.files.values()) {
-		// Count by extension
-		const ext = disknode.id.substring(disknode.id.lastIndexOf('.'));
-		stats.by_extension.set(ext, (stats.by_extension.get(ext) || 0) + 1);
+		// Count by extension (only for files that have extensions)
+		const dot_index = disknode.id.lastIndexOf('.');
+		if (dot_index !== -1 && dot_index < disknode.id.length - 1) {
+			const ext = disknode.id.substring(dot_index);
+			stats.by_extension.set(ext, (stats.by_extension.get(ext) || 0) + 1);
+		}
 
 		// Track files with most dependencies
 		if (disknode.dependencies.size > 0) {
