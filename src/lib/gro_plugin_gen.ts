@@ -7,7 +7,7 @@ import type {Args} from './args.ts';
 import {paths} from './paths.ts';
 import {find_genfiles, is_gen_path} from './gen.ts';
 import {spawn_cli} from './cli.ts';
-import {filter_dependents, type Cleanup_Watch} from './filer.ts';
+import {filter_dependents} from './filer.ts';
 
 const FLUSH_DEBOUNCE_DELAY = 500;
 
@@ -49,7 +49,7 @@ export const gro_plugin_gen = ({
 	// TODO do this in-process - will it cause caching issues with the current impl?
 	const gen = (files: Array<string> = []) => spawn_cli('gro', ['gen', ...files]);
 
-	let cleanup_watch: Cleanup_Watch | undefined;
+	let cleanup_watch: (() => void) | undefined;
 
 	return {
 		name: 'gro_plugin_gen',
