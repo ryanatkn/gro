@@ -2,7 +2,6 @@ import {EMPTY_OBJECT} from '@ryanatkn/belt/object.js';
 import {existsSync, readFileSync, statSync} from 'node:fs';
 import {dirname, resolve} from 'node:path';
 import type {Omit_Strict} from '@ryanatkn/belt/types.js';
-import {wait} from '@ryanatkn/belt/async.js';
 import {isBuiltin} from 'node:module';
 import {fileURLToPath, pathToFileURL} from 'node:url';
 import {Unreachable_Error} from '@ryanatkn/belt/error.js';
@@ -61,8 +60,8 @@ export class Filer {
 
 	#watching: Watch_Node_Fs | undefined;
 	#listeners: Set<On_Filer_Change> = new Set();
-
-	#ready = false;
+	#initializing: Promise<void> | undefined;
+	#closing: Promise<void> | undefined;
 
 	get_by_id = (id: Path_Id): Disknode | undefined => {
 		return this.files.get(id);
@@ -164,46 +163,43 @@ export class Filer {
 	}
 
 	#sync_listener_with_files(listener: On_Filer_Change): void {
-		if (!this.#ready) return;
 		for (const disknode of this.files.values()) {
-			listener({type: 'add', path: disknode.id, is_directory: false}, disknode);
+			try {
+				listener({type: 'add', path: disknode.id, is_directory: false}, disknode);
+			} catch (err) {
+				this.#log?.error('[filer] Listener error during sync:', err);
+			}
 		}
 	}
 
 	#notify_change(change: Watcher_Change, disknode: Disknode): void {
-		if (!this.#ready) return;
 		for (const listener of this.#listeners) {
-			listener(change, disknode);
+			try {
+				listener(change, disknode);
+			} catch (err) {
+				this.#log?.error('[filer] Listener error during change notification:', err);
+			}
 		}
 	}
 
 	async #add_listener(listener: On_Filer_Change): Promise<void> {
 		this.#listeners.add(listener);
-		if (this.#watching) {
-			// if already watching, call the listener for all existing files after init
-			await this.#watching.init();
-			await wait(); // wait a tick to ensure the `this.#ready` value is updated below first
-			this.#sync_listener_with_files(listener);
-			return;
-		}
-		this.#watching = this.#watch_dir({
-			...this.#watch_dir_options,
-			dir: this.root_dir,
-			on_change: this.#on_change,
-		});
-		await this.#watching.init();
-		this.#ready = true;
+
+		// ensure initialized
+		await this.init();
+
+		// notify of existing files
 		this.#sync_listener_with_files(listener);
 	}
 
 	async #remove_listener(listener: On_Filer_Change): Promise<void> {
 		this.#listeners.delete(listener);
-		if (this.#listeners.size === 0) {
-			await this.close(); // TODO is this right? should `watch` be async?
-		}
+		// keep watching active even with no listeners
+		// only close() should tear down
 	}
 
 	#on_change: Watcher_Change_Callback = (change) => {
+		if (this.#closing) return; // ignore changes during close
 		if (change.is_directory) return; // TODO manage directories?
 		let disknode: Disknode | null;
 		switch (change.type) {
@@ -219,24 +215,126 @@ export class Filer {
 			default:
 				throw new Unreachable_Error(change.type);
 		}
-		if (disknode) {
+		if (disknode && this.#listeners.size > 0) {
 			this.#notify_change(change, disknode);
 		}
 	};
+
+	/**
+	 * Initialize the filer to populate files without watching.
+	 * Safe to call multiple times - subsequent calls are no-ops.
+	 * Used by gen files to access the file graph.
+	 */
+	async init(): Promise<void> {
+		// if already initializing, return the existing promise
+		if (this.#initializing) return this.#initializing;
+
+		// if already initialized, just ensure ready
+		if (this.#watching) {
+			return this.#watching.init();
+		}
+
+		// start new initialization
+		this.#initializing = this.#do_init();
+		try {
+			await this.#initializing;
+		} catch (err) {
+			// use shared cleanup logic
+			this.#cleanup();
+			throw err;
+		} finally {
+			this.#initializing = undefined;
+		}
+	}
+
+	async #do_init(): Promise<void> {
+		const watcher = this.#watch_dir({
+			...this.#watch_dir_options,
+			dir: this.root_dir,
+			on_change: this.#on_change,
+		});
+
+		try {
+			await watcher.init();
+
+			// check if close() was called during init
+			if (this.#closing) {
+				await watcher.close();
+				return;
+			}
+
+			// only set after successful init and not closing
+			this.#watching = watcher;
+		} catch (err) {
+			// clean up watcher on error, but don't let close error mask init error
+			try {
+				await watcher.close();
+			} catch {
+				// ignore close errors - init error is more important
+			}
+			throw err;
+		}
+	}
+
+	get inited(): boolean {
+		return this.#watching !== undefined;
+	}
 
 	async watch(listener: On_Filer_Change): Promise<Cleanup_Watch> {
 		await this.#add_listener(listener);
 		return () => this.#remove_listener(listener);
 	}
 
-	async close(): Promise<void> {
-		this.#ready = false;
+	/**
+	 * Internal cleanup of all state - can be called safely from anywhere
+	 */
+	#cleanup(): void {
 		this.#listeners.clear();
 		this.files.clear();
+		this.#watching = undefined;
+		// #initializing is handled in finally block of init()
+	}
+
+	close(): Promise<void> {
+		// if already closing, return existing promise
+		if (this.#closing) return this.#closing;
+
+		// if already closed and not initializing, nothing to do
+		if (!this.#watching && !this.#initializing) return Promise.resolve();
+
+		// start new close operation
+		const close_promise = this.#do_close();
+		this.#closing = close_promise;
+		// Clean up after completion, but don't change the returned promise
+		// Use void to ensure we don't accidentally return the .then() promise
+		void close_promise.then(
+			() => {
+				this.#closing = undefined;
+			},
+			() => {
+				this.#closing = undefined;
+			},
+		);
+		return this.#closing;
+	}
+
+	async #do_close(): Promise<void> {
+		// wait for any pending initialization to complete
+		if (this.#initializing) {
+			try {
+				await this.#initializing;
+			} catch {
+				// ignore errors during close
+			}
+		}
+
+		// close watcher if it exists
 		if (this.#watching) {
 			await this.#watching.close();
-			this.#watching = undefined;
 		}
+
+		// clean up all state
+		this.#cleanup();
 	}
 
 	#is_external(id: string): boolean {

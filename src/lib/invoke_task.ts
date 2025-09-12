@@ -44,13 +44,22 @@ export const invoke_task = async (
 	const log = new System_Logger(print_log_label(task_name || 'gro'));
 	log.info('invoking', task_name ? st('cyan', task_name) : 'gro');
 
+	// track if we created the filer
+	const owns_filer = !initial_filer;
 	const filer = initial_filer ?? new Filer({log});
 
+	const owns_timings = !initial_timings;
 	const timings = initial_timings ?? new Timings();
 
 	const total_timing = create_stopwatch();
-	const finish = () => {
-		if (!initial_timings) return; // print timings only for the top-level task
+	const finish = async () => {
+		// cleanup filer only if we created it and it was initialized
+		if (owns_filer && filer.inited) {
+			await filer.close();
+		}
+
+		// TODO BLOCK double check this logic, it's opposite of `owns_timings`?
+		if (owns_timings) return; // print timings only for the top-level task
 		print_timings(timings, log);
 		log.info(`🕒 ${print_ms(total_timing())}`);
 	};
@@ -59,7 +68,7 @@ export const invoke_task = async (
 	if (!task_name && (args?.version || args?.v)) {
 		const gro_package_json = load_gro_package_json();
 		log.info(`${st('gray', 'v')}${st('cyan', gro_package_json.version)}`);
-		finish();
+		await finish();
 		return;
 	}
 
@@ -91,7 +100,7 @@ export const invoke_task = async (
 	if (resolved_input_files.length > 1 || resolved_input_files[0].resolved_input_path.is_directory) {
 		// The input path matches a directory. Log the tasks but don't run them.
 		log_tasks(log, loaded_tasks);
-		finish();
+		await finish();
 		return;
 	}
 
@@ -119,5 +128,5 @@ export const invoke_task = async (
 	}
 	log.info(`✓ ${st('cyan', task.name)}`);
 
-	finish();
+	await finish();
 };
