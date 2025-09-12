@@ -20,7 +20,7 @@ import {
 } from './input_path.ts';
 import {search_fs} from './search_fs.ts';
 import type {Filer} from './filer.ts';
-import type {Args} from './args.ts';
+import type {Invoke_Task} from './task.ts';
 
 export const GEN_FILE_PATTERN_TEXT = 'gen';
 export const GEN_FILE_PATTERN = '.' + GEN_FILE_PATTERN_TEXT + '.';
@@ -45,7 +45,7 @@ export interface Gen_Context {
 	filer: Filer;
 	log: Logger;
 	timings: Timings;
-	invoke_task: (task_name: string, args?: Args, config?: Gro_Config) => Promise<void>;
+	invoke_task: Invoke_Task;
 	/**
 	 * Same as `import.meta.url` but in path form.
 	 */
