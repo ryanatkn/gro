@@ -495,7 +495,6 @@ export const src_json: Src_Json = {
 		'./filer.js': {
 			path: 'filer.ts',
 			declarations: [
-				{name: 'Cleanup_Watch', kind: 'type'},
 				{name: 'On_Filer_Change', kind: 'type'},
 				{name: 'Filer_Options', kind: 'type'},
 				{name: 'Filer', kind: 'class'},
