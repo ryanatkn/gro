@@ -58,8 +58,7 @@ export const invoke_task = async (
 			await filer.close();
 		}
 
-		// TODO BLOCK double check this logic, it's opposite of `owns_timings`?
-		if (owns_timings) return; // print timings only for the top-level task
+		if (owns_timings) return; // kinda weird, print timings only for the top-level task
 		print_timings(timings, log);
 		log.info(`🕒 ${print_ms(total_timing())}`);
 	};

@@ -1,5 +1,4 @@
-import {test, assert} from 'vitest';
-import {vi} from 'vitest';
+import {test, assert, vi} from 'vitest';
 import type {Watch_Node_Fs} from './watch_dir.js';
 import {Filer} from './filer.js';
 
@@ -222,7 +221,7 @@ test('listener can safely remove itself during callback', async () => {
 	const mock_watch_dir = create_mock_watch_dir();
 	const filer = new Filer({watch_dir: mock_watch_dir});
 
-	let cleanup_fn: (() => Promise<void>) | null = null;
+	let cleanup_fn: (() => void) | null = null;
 	let callback_count = 0;
 
 	cleanup_fn = await filer.watch(async () => {
@@ -471,7 +470,7 @@ test('listeners can be added/removed during notification', async () => {
 	const filer = new Filer({watch_dir: mock_watch_dir});
 
 	const events: string[] = [];
-	let cleanup2: (() => Promise<void>) | null = null as any;
+	let cleanup2: (() => void) | null = null as any;
 
 	// First listener adds a second listener on first event
 	const cleanup1 = await filer.watch((_change) => {
@@ -487,7 +486,7 @@ test('listeners can be added/removed during notification', async () => {
 	});
 
 	// Third listener removes itself on second event
-	let cleanup3: (() => Promise<void>) | null = null;
+	let cleanup3: (() => void) | null = null;
 	cleanup3 = await filer.watch(async (_change) => {
 		events.push('listener3');
 		if (events.length >= 6 && cleanup3) {

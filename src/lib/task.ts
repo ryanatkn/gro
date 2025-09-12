@@ -42,9 +42,7 @@ export interface Task_Context<T_Args = object> {
 	invoke_task: Invoke_Task;
 }
 
-export interface Invoke_Task {
-	(task_name: string, args?: Args, config?: Gro_Config): Promise<void>;
-}
+export type Invoke_Task = (task_name: string, args?: Args, config?: Gro_Config) => Promise<void>;
 
 export const TASK_FILE_SUFFIX_TS = '.task.ts';
 export const TASK_FILE_SUFFIX_JS = '.task.js';

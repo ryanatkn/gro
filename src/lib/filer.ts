@@ -26,8 +26,6 @@ import type {Disknode} from './disknode.ts';
 
 const aliases = Object.entries(default_svelte_config.alias);
 
-export type Cleanup_Watch = () => Promise<void>;
-
 export type On_Filer_Change = (change: Watcher_Change, disknode: Disknode) => void;
 
 export interface Filer_Options {
@@ -147,9 +145,11 @@ export class Filer {
 		}
 	}
 
-	async watch(listener: On_Filer_Change): Promise<Cleanup_Watch> {
+	async watch(listener: On_Filer_Change): Promise<() => void> {
 		await this.#add_listener(listener);
-		return () => this.#remove_listener(listener);
+		return () => {
+			this.#remove_listener(listener);
+		};
 	}
 
 	/**
@@ -309,7 +309,7 @@ export class Filer {
 		this.#sync_listener_with_files(listener);
 	}
 
-	async #remove_listener(listener: On_Filer_Change): Promise<void> {
+	#remove_listener(listener: On_Filer_Change): void {
 		this.#listeners.delete(listener);
 		// keep watching active even with no listeners, only close() tears down
 	}
