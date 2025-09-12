@@ -63,6 +63,10 @@ export class Filer {
 	#initializing: Promise<void> | undefined;
 	#closing: Promise<void> | undefined;
 
+	get inited(): boolean {
+		return this.#watching !== undefined;
+	}
+
 	get_by_id = (id: Path_Id): Disknode | undefined => {
 		return this.files.get(id);
 	};
@@ -86,6 +90,119 @@ export class Filer {
 		}
 		return file;
 	};
+
+	/**
+	 * Initialize the filer to populate files without watching.
+	 * Safe to call multiple times - subsequent calls are no-ops.
+	 * Used by gen files to access the file graph.
+	 */
+	async init(): Promise<void> {
+		// if already initializing, return the existing promise
+		if (this.#initializing) return this.#initializing;
+
+		// if already initialized, just ensure ready
+		if (this.#watching) {
+			return this.#watching.init();
+		}
+
+		// start new initialization
+		this.#initializing = this.#init();
+		try {
+			await this.#initializing;
+		} catch (err) {
+			// use shared cleanup logic
+			this.#cleanup();
+			throw err;
+		} finally {
+			this.#initializing = undefined;
+		}
+	}
+
+	async #init(): Promise<void> {
+		const watcher = this.#watch_dir({
+			...this.#watch_dir_options,
+			dir: this.root_dir,
+			on_change: this.#on_change,
+		});
+
+		try {
+			await watcher.init();
+
+			// check if close() was called during init
+			if (this.#closing) {
+				await watcher.close();
+				return;
+			}
+
+			// only set after successful init and not closing
+			this.#watching = watcher;
+		} catch (err) {
+			// clean up watcher on error, but don't let close error mask init error
+			try {
+				await watcher.close();
+			} catch {
+				// ignore close errors - init error is more important
+			}
+			throw err;
+		}
+	}
+
+	async watch(listener: On_Filer_Change): Promise<Cleanup_Watch> {
+		await this.#add_listener(listener);
+		return () => this.#remove_listener(listener);
+	}
+
+	/**
+	 * Internal cleanup of all state - can be called safely from anywhere
+	 */
+	#cleanup(): void {
+		this.#listeners.clear();
+		this.files.clear();
+		this.#watching = undefined;
+		// #initializing is handled in finally block of init()
+	}
+
+	close(): Promise<void> {
+		// if already closing, return existing promise
+		if (this.#closing) return this.#closing;
+
+		// if already closed and not initializing, nothing to do
+		if (!this.#watching && !this.#initializing) return Promise.resolve();
+
+		// start new close operation
+		const close_promise = this.#close();
+		this.#closing = close_promise;
+		// Clean up after completion, but don't change the returned promise
+		// Use void to ensure we don't accidentally return the .then() promise
+		void close_promise.then(
+			() => {
+				this.#closing = undefined;
+			},
+			() => {
+				this.#closing = undefined;
+			},
+		);
+		return this.#closing;
+	}
+
+	async #close(): Promise<void> {
+		// wait for any pending initialization to complete
+		if (this.#initializing) {
+			try {
+				await this.#initializing;
+			} catch {
+				// ignore errors during close
+			}
+		}
+
+		// close watcher if it exists
+		if (this.#watching) {
+			await this.#watching.close();
+		}
+
+		// clean up all state
+		this.#cleanup();
+	}
 
 	#update(id: Path_Id): Disknode | null {
 		const file = this.get_or_create(id);
@@ -219,123 +336,6 @@ export class Filer {
 			this.#notify_change(change, disknode);
 		}
 	};
-
-	/**
-	 * Initialize the filer to populate files without watching.
-	 * Safe to call multiple times - subsequent calls are no-ops.
-	 * Used by gen files to access the file graph.
-	 */
-	async init(): Promise<void> {
-		// if already initializing, return the existing promise
-		if (this.#initializing) return this.#initializing;
-
-		// if already initialized, just ensure ready
-		if (this.#watching) {
-			return this.#watching.init();
-		}
-
-		// start new initialization
-		this.#initializing = this.#do_init();
-		try {
-			await this.#initializing;
-		} catch (err) {
-			// use shared cleanup logic
-			this.#cleanup();
-			throw err;
-		} finally {
-			this.#initializing = undefined;
-		}
-	}
-
-	async #do_init(): Promise<void> {
-		const watcher = this.#watch_dir({
-			...this.#watch_dir_options,
-			dir: this.root_dir,
-			on_change: this.#on_change,
-		});
-
-		try {
-			await watcher.init();
-
-			// check if close() was called during init
-			if (this.#closing) {
-				await watcher.close();
-				return;
-			}
-
-			// only set after successful init and not closing
-			this.#watching = watcher;
-		} catch (err) {
-			// clean up watcher on error, but don't let close error mask init error
-			try {
-				await watcher.close();
-			} catch {
-				// ignore close errors - init error is more important
-			}
-			throw err;
-		}
-	}
-
-	get inited(): boolean {
-		return this.#watching !== undefined;
-	}
-
-	async watch(listener: On_Filer_Change): Promise<Cleanup_Watch> {
-		await this.#add_listener(listener);
-		return () => this.#remove_listener(listener);
-	}
-
-	/**
-	 * Internal cleanup of all state - can be called safely from anywhere
-	 */
-	#cleanup(): void {
-		this.#listeners.clear();
-		this.files.clear();
-		this.#watching = undefined;
-		// #initializing is handled in finally block of init()
-	}
-
-	close(): Promise<void> {
-		// if already closing, return existing promise
-		if (this.#closing) return this.#closing;
-
-		// if already closed and not initializing, nothing to do
-		if (!this.#watching && !this.#initializing) return Promise.resolve();
-
-		// start new close operation
-		const close_promise = this.#do_close();
-		this.#closing = close_promise;
-		// Clean up after completion, but don't change the returned promise
-		// Use void to ensure we don't accidentally return the .then() promise
-		void close_promise.then(
-			() => {
-				this.#closing = undefined;
-			},
-			() => {
-				this.#closing = undefined;
-			},
-		);
-		return this.#closing;
-	}
-
-	async #do_close(): Promise<void> {
-		// wait for any pending initialization to complete
-		if (this.#initializing) {
-			try {
-				await this.#initializing;
-			} catch {
-				// ignore errors during close
-			}
-		}
-
-		// close watcher if it exists
-		if (this.#watching) {
-			await this.#watching.close();
-		}
-
-		// clean up all state
-		this.#cleanup();
-	}
 
 	#is_external(id: string): boolean {
 		const {filter} = this.#watch_dir_options;
