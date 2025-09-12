@@ -40,12 +40,18 @@ export interface Filer_Options {
 export class Filer {
 	readonly root_dir: Path_Id;
 
+	// TODO rename everything to `disknode`
 	readonly files: Map<Path_Id, Disknode> = new Map();
 
 	#watch_dir: typeof watch_dir;
 	#watch_dir_options: Partial<Watch_Dir_Options>;
 
 	#log?: Logger;
+
+	#listeners: Set<On_Filer_Change> = new Set();
+	#watching: Watch_Node_Fs | undefined;
+	#initing: Promise<void> | undefined;
+	#closing: Promise<void> | undefined;
 
 	constructor(options: Filer_Options = EMPTY_OBJECT) {
 		this.#watch_dir = options.watch_dir ?? watch_dir;
@@ -57,12 +63,6 @@ export class Filer {
 		// package.json/gro.config.ts/tsconfig.json/svelte.config.js/vite.config.ts to invalidate everything
 		this.#log = options.log;
 	}
-
-	#watching: Watch_Node_Fs | undefined;
-	#listeners: Set<On_Filer_Change> = new Set();
-	#initializing: Promise<void> | undefined;
-	#closing: Promise<void> | undefined;
-
 	get inited(): boolean {
 		return this.#watching !== undefined;
 	}
@@ -97,8 +97,8 @@ export class Filer {
 	 * Used by gen files to access the file graph.
 	 */
 	async init(): Promise<void> {
-		// if already initializing, return the existing promise
-		if (this.#initializing) return this.#initializing;
+		// if already initing, return the existing promise
+		if (this.#initing) return this.#initing;
 
 		// if already initialized, just ensure ready
 		if (this.#watching) {
@@ -106,15 +106,15 @@ export class Filer {
 		}
 
 		// start new initialization
-		this.#initializing = this.#init();
+		this.#initing = this.#init();
 		try {
-			await this.#initializing;
+			await this.#initing;
 		} catch (err) {
 			// use shared cleanup logic
 			this.#cleanup();
 			throw err;
 		} finally {
-			this.#initializing = undefined;
+			this.#initing = undefined;
 		}
 	}
 
@@ -159,22 +159,22 @@ export class Filer {
 		this.#listeners.clear();
 		this.files.clear();
 		this.#watching = undefined;
-		// #initializing is handled in finally block of init()
+		// #initing is handled in finally block of init()
 	}
 
 	close(): Promise<void> {
 		// if already closing, return existing promise
 		if (this.#closing) return this.#closing;
 
-		// if already closed and not initializing, nothing to do
-		if (!this.#watching && !this.#initializing) return Promise.resolve();
+		// if already closed and not initing, nothing to do
+		if (!this.#watching && !this.#initing) return Promise.resolve();
 
 		// start new close operation
-		const close_promise = this.#close();
-		this.#closing = close_promise;
+		const closing = this.#close();
+		this.#closing = closing;
 		// Clean up after completion, but don't change the returned promise
 		// Use void to ensure we don't accidentally return the .then() promise
-		void close_promise.then(
+		void closing.then(
 			() => {
 				this.#closing = undefined;
 			},
@@ -187,9 +187,9 @@ export class Filer {
 
 	async #close(): Promise<void> {
 		// wait for any pending initialization to complete
-		if (this.#initializing) {
+		if (this.#initing) {
 			try {
-				await this.#initializing;
+				await this.#initing;
 			} catch {
 				// ignore errors during close
 			}
@@ -311,8 +311,7 @@ export class Filer {
 
 	async #remove_listener(listener: On_Filer_Change): Promise<void> {
 		this.#listeners.delete(listener);
-		// keep watching active even with no listeners
-		// only close() should tear down
+		// keep watching active even with no listeners, only close() tears down
 	}
 
 	#on_change: Watcher_Change_Callback = (change) => {
