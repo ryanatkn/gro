@@ -981,6 +981,7 @@ export const src_json: Src_Json = {
 			declarations: [
 				{name: 'Task', kind: 'type'},
 				{name: 'Task_Context', kind: 'type'},
+				{name: 'Invoke_Task', kind: 'type'},
 				{name: 'TASK_FILE_SUFFIX_TS', kind: 'variable'},
 				{name: 'TASK_FILE_SUFFIX_JS', kind: 'variable'},
 				{name: 'TASK_FILE_SUFFIXES', kind: 'variable'},
