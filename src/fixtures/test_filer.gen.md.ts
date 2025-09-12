@@ -55,17 +55,38 @@ export const gen: Gen = async ({filer, log}) => {
 		}
 	}
 
-	// Sort and limit results
-	stats.most_dependencies.sort((a, b) => b.dep_count - a.dep_count);
-	stats.most_dependencies = stats.most_dependencies.slice(0, 5);
+	// Helper function for stable sorting with secondary sort by name
+	const sort_by_count_then_name = <T>(
+		items: T[],
+		get_count: (item: T) => number,
+		get_name: (item: T) => string,
+	) => {
+		return items.sort((a, b) => {
+			const count_diff = get_count(b) - get_count(a);
+			if (count_diff !== 0) return count_diff;
+			return get_name(a).localeCompare(get_name(b));
+		});
+	};
 
-	stats.largest_files.sort((a, b) => b.size - a.size);
-	stats.largest_files = stats.largest_files.slice(0, 5);
+	// Sort and limit results with stable sorting
+	stats.most_dependencies = sort_by_count_then_name(
+		stats.most_dependencies,
+		(f) => f.dep_count,
+		(f) => f.id,
+	).slice(0, 5);
 
-	// Format extension stats
-	const ext_entries = Array.from(stats.by_extension.entries())
-		.sort((a, b) => b[1] - a[1])
-		.slice(0, 10);
+	stats.largest_files = sort_by_count_then_name(
+		stats.largest_files,
+		(f) => f.size,
+		(f) => f.id,
+	).slice(0, 5);
+
+	// Format extension stats with stable sorting
+	const ext_entries = sort_by_count_then_name(
+		Array.from(stats.by_extension.entries()),
+		([_ext, count]) => count,
+		([ext, _count]) => ext,
+	).slice(0, 10);
 
 	log.info(`Analyzed ${stats.total_files} files`);
 

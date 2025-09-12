@@ -244,6 +244,10 @@
       "types": "./dist/fs.d.ts",
       "default": "./dist/fs.js"
     },
+    "./gen_moss_css.js": {
+      "types": "./dist/gen_moss_css.d.ts",
+      "default": "./dist/gen_moss_css.js"
+    },
     "./gen.task.js": {
       "types": "./dist/gen.task.d.ts",
       "default": "./dist/gen.task.js"

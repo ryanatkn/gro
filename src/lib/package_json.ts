@@ -115,6 +115,9 @@ export const update_package_json = async (
 
 const is_index = (path: string): boolean => path === 'index.ts' || path === 'index.js';
 
+// TODO support subpath patterns as the main concise way to do things
+// https://nodejs.org/api/packages.html#subpath-patterns
+
 export const to_package_exports = (paths: Array<string>): Package_Json_Exports => {
 	const sorted = paths
 		.slice()
