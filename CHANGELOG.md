@@ -1,5 +1,11 @@
 # @ryanatkn/gro
 
+## 0.164.1
+
+### Patch Changes
+
+- fix moss upgrade ([92dc22d](https://github.com/ryanatkn/gro/commit/92dc22d))
+
 ## 0.164.0
 
 ### Minor Changes
