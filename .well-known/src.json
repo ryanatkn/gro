@@ -1,6 +1,6 @@
 {
   "name": "@ryanatkn/gro",
-  "version": "0.163.0",
+  "version": "0.164.0",
   "modules": {
     ".": {
       "path": "index.ts",
@@ -578,10 +578,6 @@
     "./filer.js": {
       "path": "filer.ts",
       "declarations": [
-        {
-          "name": "Cleanup_Watch",
-          "kind": "type"
-        },
         {
           "name": "On_Filer_Change",
           "kind": "type"
@@ -1830,6 +1826,10 @@
         },
         {
           "name": "Task_Context",
+          "kind": "type"
+        },
+        {
+          "name": "Invoke_Task",
           "kind": "type"
         },
         {
