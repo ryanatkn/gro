@@ -41,7 +41,7 @@ const run_test = async () => {
 		new Filer(),
 		log,
 		new Timings(),
-		(() => {}) as any,
+		Function.prototype as any,
 	);
 
 	if (gen_results.input_count !== 1) {

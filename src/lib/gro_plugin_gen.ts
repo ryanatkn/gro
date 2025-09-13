@@ -105,9 +105,9 @@ export const gro_plugin_gen = ({
 				}
 			});
 		},
-		teardown: async () => {
+		teardown: () => {
 			if (cleanup_watch) {
-				await cleanup_watch();
+				cleanup_watch();
 				cleanup_watch = undefined;
 			}
 		},

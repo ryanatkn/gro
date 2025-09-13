@@ -60,7 +60,7 @@ export const gen: Gen = async ({filer, log}) => {
 
 	// Helper function for stable sorting with secondary sort by name
 	const sort_by_count_then_name = <T>(
-		items: T[],
+		items: Array<T>,
 		get_count: (item: T) => number,
 		get_name: (item: T) => string,
 	) => {

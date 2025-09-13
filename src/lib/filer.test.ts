@@ -1,6 +1,10 @@
 import {test, assert, vi} from 'vitest';
-import type {Watch_Node_Fs} from './watch_dir.js';
-import {Filer} from './filer.js';
+
+import type {Watch_Node_Fs} from './watch_dir.ts';
+import {Filer} from './filer.ts';
+
+/* eslint-disable @typescript-eslint/require-await */
+/* eslint-disable @typescript-eslint/no-empty-function */
 
 // Create a simple mock watch_dir that simulates file discovery
 const create_mock_watch_dir = () => {
@@ -131,7 +135,7 @@ test('watch() initializes and notifies listeners', async () => {
 	assert.equal(changes.length, 3);
 	assert.ok(changes.some((c) => c.path === '/test/file1.ts'));
 
-	await cleanup();
+	cleanup();
 });
 
 test('close() during init() handles gracefully', async () => {
@@ -184,12 +188,12 @@ test('multiple listeners receive notifications independently', async () => {
 	assert.deepEqual(listener1_changes.sort(), listener2_changes.sort());
 
 	// Remove first listener
-	await cleanup1();
+	cleanup1();
 
 	// Second listener should still be active
 	// (would need to trigger a change to test, but structure is validated)
 
-	await cleanup2();
+	cleanup2();
 });
 
 test('watch() after init() reuses existing file state', async () => {
@@ -214,7 +218,7 @@ test('watch() after init() reuses existing file state', async () => {
 	// watch_dir should only be called once
 	assert.equal(mock_watch_dir.mock.calls.length, 1);
 
-	await cleanup();
+	cleanup();
 });
 
 test('listener can safely remove itself during callback', async () => {
@@ -228,7 +232,7 @@ test('listener can safely remove itself during callback', async () => {
 		callback_count++;
 		// Remove self on second callback
 		if (callback_count === 2 && cleanup_fn) {
-			await cleanup_fn();
+			cleanup_fn();
 		}
 	});
 
@@ -286,8 +290,8 @@ test('listener error does not affect other listeners', async () => {
 	assert.ok(bad_listener_called);
 	assert.equal(good_listener_changes.length, 3);
 
-	await cleanup1();
-	await cleanup2();
+	cleanup1();
+	cleanup2();
 });
 
 test('file state remains consistent across operations', async () => {
@@ -300,7 +304,7 @@ test('file state remains consistent across operations', async () => {
 
 	// Add and remove listener
 	const cleanup = await filer.watch(() => {});
-	await cleanup();
+	cleanup();
 
 	// State should be unchanged
 	const state2 = Array.from(filer.files.keys()).sort();
@@ -330,7 +334,7 @@ test('init() after watch() is idempotent', async () => {
 	// watch_dir should only be called once
 	assert.equal(mock_watch_dir.mock.calls.length, 1);
 
-	await cleanup();
+	cleanup();
 });
 
 test('multiple close() calls are safe', async () => {
@@ -469,15 +473,15 @@ test('listeners can be added/removed during notification', async () => {
 	const mock_watch_dir = create_mock_watch_dir();
 	const filer = new Filer({watch_dir: mock_watch_dir});
 
-	const events: string[] = [];
+	const events: Array<string> = [];
 	let cleanup2: (() => void) | null = null as any;
 
 	// First listener adds a second listener on first event
-	const cleanup1 = await filer.watch((_change) => {
+	const cleanup1 = await filer.watch(async (_change) => {
 		events.push('listener1');
 		if (events.length === 1) {
 			// Add second listener during notification
-			filer
+			await filer
 				.watch((_change) => {
 					events.push('listener2');
 				})
@@ -490,7 +494,7 @@ test('listeners can be added/removed during notification', async () => {
 	cleanup3 = await filer.watch(async (_change) => {
 		events.push('listener3');
 		if (events.length >= 6 && cleanup3) {
-			await cleanup3();
+			cleanup3();
 		}
 	});
 
@@ -499,8 +503,8 @@ test('listeners can be added/removed during notification', async () => {
 	assert.ok(events.includes('listener1'));
 	assert.ok(events.includes('listener3'));
 
-	await cleanup1();
-	if (cleanup2) await cleanup2();
+	cleanup1();
+	if (cleanup2) cleanup2();
 });
 
 test('closing flag is reset even if close throws', async () => {
@@ -720,7 +724,7 @@ test('can recover from multiple consecutive init errors', async () => {
 test('concurrent close() calls share same promise', async () => {
 	let close_call_count = 0;
 	let close_resolve: () => void;
-	const close_promise = new Promise<void>((resolve) => {
+	const close_promise: Promise<void> = new Promise((resolve) => {
 		close_resolve = resolve;
 	});
 
