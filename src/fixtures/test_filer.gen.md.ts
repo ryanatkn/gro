@@ -18,7 +18,7 @@ export const gen: Gen = async ({filer, log}) => {
 
 	// Analyze project structure
 	const stats = {
-		total_files: filer.files.size,
+		total_files: 0, // Will count only non-external files
 		by_extension: new Map<string, number>(),
 		largest_files: [] as Array<{id: string; size: number}>,
 		most_dependencies: [] as Array<{id: string; dep_count: number}>,
@@ -27,6 +27,16 @@ export const gen: Gen = async ({filer, log}) => {
 
 	// Gather statistics
 	for (const disknode of filer.files.values()) {
+		// Skip external files for all statistics except external deps tracking
+		if (disknode.external) {
+			// Still track external dependencies for the count
+			stats.external_deps.add(disknode.id);
+			continue;
+		}
+
+		// Count non-external files
+		stats.total_files++;
+
 		// Count by extension (only for files that have extensions)
 		const dot_index = disknode.id.lastIndexOf('.');
 		if (dot_index !== -1 && dot_index < disknode.id.length - 1) {
@@ -42,19 +52,23 @@ export const gen: Gen = async ({filer, log}) => {
 			});
 		}
 
-		// Track external dependencies
-		for (const dep of disknode.dependencies.values()) {
-			if (dep.external) {
-				stats.external_deps.add(dep.id);
-			}
-		}
-
 		// Track file sizes (by content length as proxy)
 		if (disknode.contents) {
 			stats.largest_files.push({
 				id: disknode.id,
 				size: disknode.contents.length,
 			});
+		}
+	}
+
+	// Also count external dependencies from non-external files' dependencies
+	for (const disknode of filer.files.values()) {
+		if (!disknode.external) {
+			for (const dep of disknode.dependencies.values()) {
+				if (dep.external) {
+					stats.external_deps.add(dep.id);
+				}
+			}
 		}
 	}
 
