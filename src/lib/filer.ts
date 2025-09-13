@@ -2,7 +2,6 @@ import {EMPTY_OBJECT} from '@ryanatkn/belt/object.js';
 import {existsSync, readFileSync, statSync} from 'node:fs';
 import {dirname, resolve} from 'node:path';
 import type {Omit_Strict} from '@ryanatkn/belt/types.js';
-import {wait} from '@ryanatkn/belt/async.js';
 import {isBuiltin} from 'node:module';
 import {fileURLToPath, pathToFileURL} from 'node:url';
 import {Unreachable_Error} from '@ryanatkn/belt/error.js';
@@ -27,9 +26,7 @@ import type {Disknode} from './disknode.ts';
 
 const aliases = Object.entries(default_svelte_config.alias);
 
-export type Cleanup_Watch = () => Promise<void>;
-
-export type On_Filer_Change = (change: Watcher_Change, source_file: Disknode) => void;
+export type On_Filer_Change = (change: Watcher_Change, disknode: Disknode) => void;
 
 export interface Filer_Options {
 	watch_dir?: typeof watch_dir;
@@ -41,12 +38,18 @@ export interface Filer_Options {
 export class Filer {
 	readonly root_dir: Path_Id;
 
+	// TODO rename everything to `disknode`
 	readonly files: Map<Path_Id, Disknode> = new Map();
 
 	#watch_dir: typeof watch_dir;
 	#watch_dir_options: Partial<Watch_Dir_Options>;
 
 	#log?: Logger;
+
+	#listeners: Set<On_Filer_Change> = new Set();
+	#watching: Watch_Node_Fs | undefined;
+	#initing: Promise<void> | undefined;
+	#closing: Promise<void> | undefined;
 
 	constructor(options: Filer_Options = EMPTY_OBJECT) {
 		this.#watch_dir = options.watch_dir ?? watch_dir;
@@ -58,11 +61,9 @@ export class Filer {
 		// package.json/gro.config.ts/tsconfig.json/svelte.config.js/vite.config.ts to invalidate everything
 		this.#log = options.log;
 	}
-
-	#watching: Watch_Node_Fs | undefined;
-	#listeners: Set<On_Filer_Change> = new Set();
-
-	#ready = false;
+	get inited(): boolean {
+		return this.#watching !== undefined;
+	}
 
 	get_by_id = (id: Path_Id): Disknode | undefined => {
 		return this.files.get(id);
@@ -87,6 +88,121 @@ export class Filer {
 		}
 		return file;
 	};
+
+	/**
+	 * Initialize the filer to populate files without watching.
+	 * Safe to call multiple times - subsequent calls are no-ops.
+	 * Used by gen files to access the file graph.
+	 */
+	async init(): Promise<void> {
+		// if already initing, return the existing promise
+		if (this.#initing) return this.#initing;
+
+		// if already initialized, just ensure ready
+		if (this.#watching) {
+			return this.#watching.init();
+		}
+
+		// start new initialization
+		this.#initing = this.#init();
+		try {
+			await this.#initing;
+		} catch (err) {
+			// use shared cleanup logic
+			this.#cleanup();
+			throw err;
+		} finally {
+			this.#initing = undefined;
+		}
+	}
+
+	async #init(): Promise<void> {
+		const watcher = this.#watch_dir({
+			...this.#watch_dir_options,
+			dir: this.root_dir,
+			on_change: this.#on_change,
+		});
+
+		try {
+			await watcher.init();
+
+			// check if close() was called during init
+			if (this.#closing) {
+				await watcher.close();
+				return;
+			}
+
+			// only set after successful init and not closing
+			this.#watching = watcher;
+		} catch (err) {
+			// clean up watcher on error, but don't let close error mask init error
+			try {
+				await watcher.close();
+			} catch {
+				// ignore close errors - init error is more important
+			}
+			throw err;
+		}
+	}
+
+	async watch(listener: On_Filer_Change): Promise<() => void> {
+		await this.#add_listener(listener);
+		return () => {
+			this.#remove_listener(listener);
+		};
+	}
+
+	/**
+	 * Internal cleanup of all state - can be called safely from anywhere
+	 */
+	#cleanup(): void {
+		this.#listeners.clear();
+		this.files.clear();
+		this.#watching = undefined;
+		// #initing is handled in finally block of init()
+	}
+
+	close(): Promise<void> {
+		// if already closing, return existing promise
+		if (this.#closing) return this.#closing;
+
+		// if already closed and not initing, nothing to do
+		if (!this.#watching && !this.#initing) return Promise.resolve();
+
+		// start new close operation
+		const closing = this.#close();
+		this.#closing = closing;
+		// Clean up after completion, but don't change the returned promise
+		// Use void to ensure we don't accidentally return the .then() promise
+		void closing.then(
+			() => {
+				this.#closing = undefined;
+			},
+			() => {
+				this.#closing = undefined;
+			},
+		);
+		return this.#closing;
+	}
+
+	async #close(): Promise<void> {
+		// wait for any pending initialization to complete
+		if (this.#initing) {
+			try {
+				await this.#initing;
+			} catch {
+				// ignore errors during close
+			}
+		}
+
+		// close watcher if it exists
+		if (this.#watching) {
+			await this.#watching.close();
+		}
+
+		// clean up all state
+		this.#cleanup();
+	}
 
 	#update(id: Path_Id): Disknode | null {
 		const file = this.get_or_create(id);
@@ -153,92 +269,72 @@ export class Filer {
 
 		file.contents = null; // clear contents in case it gets re-added later, we want the change to be detected
 
-		let found = false;
-		for (const d of this.files.values()) {
-			if (d.dependencies.has(file.id)) {
-				found = true;
-				break;
-			}
+		file.dependencies.clear();
+
+		// keep the file in memory if other files still depend on it
+		if (file.dependents.size === 0) {
+			this.files.delete(id);
 		}
-		if (!found) this.files.delete(id);
 
 		return file;
 	}
 
 	#sync_listener_with_files(listener: On_Filer_Change): void {
-		if (!this.#ready) return;
-		for (const source_file of this.files.values()) {
-			listener({type: 'add', path: source_file.id, is_directory: false}, source_file);
+		for (const disknode of this.files.values()) {
+			try {
+				listener({type: 'add', path: disknode.id, is_directory: false}, disknode);
+			} catch (err) {
+				this.#log?.error('[filer] Listener error during sync:', err);
+			}
 		}
 	}
 
-	#notify_change(change: Watcher_Change, source_file: Disknode): void {
-		if (!this.#ready) return;
+	#notify_change(change: Watcher_Change, disknode: Disknode): void {
 		for (const listener of this.#listeners) {
-			listener(change, source_file);
+			try {
+				listener(change, disknode);
+			} catch (err) {
+				this.#log?.error('[filer] Listener error during change notification:', err);
+			}
 		}
 	}
 
 	async #add_listener(listener: On_Filer_Change): Promise<void> {
 		this.#listeners.add(listener);
-		if (this.#watching) {
-			// if already watching, call the listener for all existing files after init
-			await this.#watching.init();
-			await wait(); // wait a tick to ensure the `this.#ready` value is updated below first
-			this.#sync_listener_with_files(listener);
-			return;
-		}
-		this.#watching = this.#watch_dir({
-			...this.#watch_dir_options,
-			dir: this.root_dir,
-			on_change: this.#on_change,
-		});
-		await this.#watching.init();
-		this.#ready = true;
+
+		// ensure initialized
+		await this.init();
+
+		// notify of existing files
 		this.#sync_listener_with_files(listener);
 	}
 
-	async #remove_listener(listener: On_Filer_Change): Promise<void> {
+	#remove_listener(listener: On_Filer_Change): void {
 		this.#listeners.delete(listener);
-		if (this.#listeners.size === 0) {
-			await this.close(); // TODO is this right? should `watch` be async?
-		}
+		// keep watching active even with no listeners, only close() tears down
 	}
 
 	#on_change: Watcher_Change_Callback = (change) => {
+		if (this.#closing) return; // ignore changes during close
 		if (change.is_directory) return; // TODO manage directories?
-		let source_file: Disknode | null;
+		let disknode: Disknode | null;
 		switch (change.type) {
 			case 'add':
 			case 'update': {
-				source_file = this.#update(change.path);
+				disknode = this.#update(change.path);
 				break;
 			}
 			case 'delete': {
-				source_file = this.#remove(change.path);
+				disknode = this.#remove(change.path);
 				break;
 			}
 			default:
 				throw new Unreachable_Error(change.type);
 		}
-		if (source_file) {
-			this.#notify_change(change, source_file);
+		if (disknode && this.#listeners.size > 0) {
+			this.#notify_change(change, disknode);
 		}
 	};
-
-	async watch(listener: On_Filer_Change): Promise<Cleanup_Watch> {
-		await this.#add_listener(listener);
-		return () => this.#remove_listener(listener);
-	}
-
-	async close(): Promise<void> {
-		this.#ready = false;
-		this.#listeners.clear();
-		if (this.#watching) {
-			await this.#watching.close();
-			this.#watching = undefined;
-		}
-	}
 
 	#is_external(id: string): boolean {
 		const {filter} = this.#watch_dir_options;
@@ -248,28 +344,28 @@ export class Filer {
 
 // TODO maybe `Disknode` class?
 export const filter_dependents = (
-	source_file: Disknode,
+	disknode: Disknode,
 	get_by_id: (id: Path_Id) => Disknode | undefined,
 	filter?: File_Filter,
 	results: Set<string> = new Set(),
 	searched: Set<string> = new Set(),
 	log?: Logger,
 ): Set<string> => {
-	const {dependents} = source_file;
+	const {dependents} = disknode;
 	for (const dependent_id of dependents.keys()) {
 		if (searched.has(dependent_id)) continue;
 		searched.add(dependent_id);
 		if (!filter || filter(dependent_id)) {
 			results.add(dependent_id);
 		}
-		const dependent_source_file = get_by_id(dependent_id);
-		if (!dependent_source_file) {
+		const dependent_disknode = get_by_id(dependent_id);
+		if (!dependent_disknode) {
 			log?.warn(
-				`[filer.filter_dependents] dependent source file ${dependent_id} not found for ${source_file.id}`,
+				`[filer.filter_dependents] dependent source file ${dependent_id} not found for ${disknode.id}`,
 			);
 			continue;
 		}
-		filter_dependents(dependent_source_file, get_by_id, filter, results, searched);
+		filter_dependents(dependent_disknode, get_by_id, filter, results, searched);
 	}
 	return results;
 };

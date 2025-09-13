@@ -166,7 +166,7 @@ export interface Task_Context<T_Args = object> {
 	svelte_config: Parsed_Svelte_Config;
 	log: Logger;
 	timings: Timings;
-	invoke_task: (task_name: string, args?: Args, config?: Gro_Config) => Promise<void>;
+	invoke_task: Invoke_Task;
 }
 ```
 

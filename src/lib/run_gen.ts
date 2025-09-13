@@ -15,14 +15,18 @@ import {print_path, to_root_path} from './paths.ts';
 import type {format_file as base_format_file} from './format_file.ts';
 import type {Gro_Config} from './gro_config.ts';
 import {default_svelte_config} from './svelte_config.ts';
+import type {Filer} from './filer.ts';
+import type {Invoke_Task} from './task.ts';
 
 export const GEN_NO_PROD_MESSAGE = 'gen runs only during development';
 
 export const run_gen = async (
 	gen_modules: Array<Genfile_Module_Meta>,
 	config: Gro_Config,
+	filer: Filer,
 	log: Logger,
 	timings: Timings,
+	invoke_task: Invoke_Task,
 	format_file?: typeof base_format_file,
 ): Promise<Gen_Results> => {
 	let input_count = 0;
@@ -38,9 +42,12 @@ export const run_gen = async (
 			const gen_ctx: Gen_Context = {
 				config,
 				svelte_config: default_svelte_config,
+				filer,
+				log,
+				timings,
+				invoke_task,
 				origin_id: id,
 				origin_path: to_root_path(id),
-				log,
 			};
 			let raw_gen_result: Raw_Gen_Result;
 			try {

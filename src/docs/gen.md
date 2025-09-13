@@ -106,6 +106,10 @@ The `Gen` function receives one argument, the `Gen_Context` object:
 export interface Gen_Context {
 	config: Gro_Config;
 	svelte_config: Parsed_Svelte_Config;
+	filer: Filer;
+	log: Logger;
+	timings: Timings;
+	invoke_task: Invoke_Task;
 	/**
 	 * Same as `import.meta.url` but in path form.
 	 */
@@ -114,7 +118,6 @@ export interface Gen_Context {
 	 * The `origin_id` relative to the root dir.
 	 */
 	origin_path: string;
-	log: Logger;
 }
 // export const gen: Gen = ({config, svelte_config, origin_id, origin_path, log}) => {
 ```

@@ -495,7 +495,6 @@ export const src_json: Src_Json = {
 		'./filer.js': {
 			path: 'filer.ts',
 			declarations: [
-				{name: 'Cleanup_Watch', kind: 'type'},
 				{name: 'On_Filer_Change', kind: 'type'},
 				{name: 'Filer_Options', kind: 'type'},
 				{name: 'Filer', kind: 'class'},
@@ -981,6 +980,7 @@ export const src_json: Src_Json = {
 			declarations: [
 				{name: 'Task', kind: 'type'},
 				{name: 'Task_Context', kind: 'type'},
+				{name: 'Invoke_Task', kind: 'type'},
 				{name: 'TASK_FILE_SUFFIX_TS', kind: 'variable'},
 				{name: 'TASK_FILE_SUFFIX_JS', kind: 'variable'},
 				{name: 'TASK_FILE_SUFFIXES', kind: 'variable'},
