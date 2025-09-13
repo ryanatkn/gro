@@ -28,9 +28,6 @@ Gro's builtin plugins:
   see [the docs](./gro_plugin_sveltekit_app.md)
 - [`@ryanatkn/gro/gro_plugin_gen.js`](../lib/gro_plugin_gen.ts) - watch `src/`
   and efficiently run `gen` when genfiles or their deps change
-- [`@ryanatkn/moss/gro_plugin_moss.js`](https://github.com/ryanatkn/moss/tree/main/src/lib/gro_plugin_moss.ts) - generate the optimized
-  [Moss](https://moss.ryanatkn.com/) classes file `$routes/moss.css`,
-  efficiently watching `src/` and the deps
 
 > TODO add docs for the above
 

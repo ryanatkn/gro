@@ -1,13 +1,10 @@
-import {resolve} from 'node:path';
-
 import type {Create_Gro_Config} from './gro_config.ts';
 import {gro_plugin_sveltekit_library} from './gro_plugin_sveltekit_library.ts';
 import {has_server, gro_plugin_server} from './gro_plugin_server.ts';
 import {gro_plugin_sveltekit_app} from './gro_plugin_sveltekit_app.ts';
 import {has_sveltekit_app, has_sveltekit_library} from './sveltekit_helpers.ts';
 import {gro_plugin_gen} from './gro_plugin_gen.ts';
-import {has_dep, load_package_json} from './package_json.ts';
-import {find_first_existing_file} from './search_fs.ts';
+import {load_package_json} from './package_json.ts';
 
 // TODO hacky, maybe extract utils?
 
@@ -23,29 +20,16 @@ import {find_first_existing_file} from './search_fs.ts';
 const config: Create_Gro_Config = async (cfg, svelte_config) => {
 	const package_json = load_package_json(); // TODO gets wastefully loaded by some plugins, maybe put in plugin/task context? how does that interact with `map_package_json`?
 
-	const [has_moss_dep, has_server_result, has_sveltekit_library_result, has_sveltekit_app_result] =
+	const [has_server_result, has_sveltekit_library_result, has_sveltekit_app_result] =
 		await Promise.all([
-			has_dep('@ryanatkn/moss', package_json),
 			has_server(),
 			has_sveltekit_library(package_json, svelte_config),
 			has_sveltekit_app(),
 		]);
 
-	const local_moss_plugin_path = find_first_existing_file([
-		'./src/lib/gro_plugin_moss.ts',
-		'./src/gro_plugin_moss.ts',
-		'./src/routes/gro_plugin_moss.ts', // TODO probably remove this
-	]);
-
 	// put things that generate files before SvelteKit so it can see them
-	cfg.plugins = async () =>
+	cfg.plugins = () =>
 		[
-			// TODO probably belongs in the gen system
-			local_moss_plugin_path
-				? (await import(resolve(local_moss_plugin_path))).gro_plugin_moss()
-				: has_moss_dep
-					? (await import('@ryanatkn/moss/gro_plugin_moss.js')).gro_plugin_moss()
-					: null, // lazy load to avoid errors if it's not installed
 			gro_plugin_gen(),
 			has_server_result.ok ? gro_plugin_server() : null,
 			has_sveltekit_library_result.ok ? gro_plugin_sveltekit_library() : null,
