@@ -28,8 +28,6 @@ describe('search_fs', () => {
 			'test_loader.ts',
 			'test_js.js',
 			'test_invalid_task_module.ts',
-			'test_filer.md',
-			'test_filer.gen.md.ts',
 			'test_file.other.ext',
 			'test_failing_task_module.ts',
 			'some_test_side_effect.ts',
