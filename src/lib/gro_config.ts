@@ -1,5 +1,6 @@
 import {join, resolve} from 'node:path';
 import {existsSync} from 'node:fs';
+import {identity} from '@ryanatkn/belt/function.js';
 
 import {GRO_DIST_DIR, IS_THIS_GRO, paths} from './paths.ts';
 import {
@@ -76,7 +77,7 @@ export type Create_Gro_Config = (
 
 export const create_empty_gro_config = (): Gro_Config => ({
 	plugins: () => [],
-	map_package_json: default_map_package_json,
+	map_package_json: identity,
 	task_root_dirs: [
 		// TODO maybe disable if no SvelteKit `lib` directory? or other detection to improve defaults
 		paths.lib,
@@ -105,15 +106,6 @@ export const SEARCH_EXCLUDER_DEFAULT = new RegExp(
 	})($|/)`,
 	'u',
 );
-
-const default_map_package_json: Map_Package_Json = (package_json) => {
-	if (package_json.exports) {
-		package_json.exports = Object.fromEntries(
-			Object.entries(package_json.exports).filter(([k]) => !EXPORTS_EXCLUDER_DEFAULT.test(k)),
-		);
-	}
-	return package_json;
-};
 
 export const EXPORTS_EXCLUDER_DEFAULT = /(\.md|\.(test|ignore)\.|\/(test|fixtures|ignore)\/)/;
 

@@ -57,35 +57,29 @@ test('serialize_package_json fails with bad data', () => {
 test('to_package_exports', () => {
 	expect(to_package_exports(['a/b.ts'])).toEqual({
 		'./package.json': './package.json',
-		'./a/b.js': {
-			default: './dist/a/b.js',
-			types: './dist/a/b.d.ts',
+		'./*.js': {
+			default: './dist/*.js',
+			types: './dist/*.d.ts',
 		},
 	});
-	expect(
-		to_package_exports([
-			'a/b/Some_Test_Svelte.svelte',
-			'a/b/some_test_ts.ts',
-			'a/b/some_test_json.json',
-			'index.ts',
-		]),
-	).toEqual({
+	expect(to_package_exports(['*.svelte', '*.ts', '*.json', 'index.ts'])).toEqual({
 		'.': {
 			default: './dist/index.js',
 			types: './dist/index.d.ts',
 		},
 		'./package.json': './package.json',
-		'./a/b/some_test_json.json': {
-			default: './dist/a/b/some_test_json.json',
+		'./*.json': {
+			default: './dist/*.json',
+			types: './dist/*.json.d.ts',
 		},
-		'./a/b/Some_Test_Svelte.svelte': {
-			svelte: './dist/a/b/Some_Test_Svelte.svelte',
-			default: './dist/a/b/Some_Test_Svelte.svelte',
-			types: './dist/a/b/Some_Test_Svelte.svelte.d.ts',
+		'./*.svelte': {
+			svelte: './dist/*.svelte',
+			default: './dist/*.svelte',
+			types: './dist/*.svelte.d.ts',
 		},
-		'./a/b/some_test_ts.js': {
-			default: './dist/a/b/some_test_ts.js',
-			types: './dist/a/b/some_test_ts.d.ts',
+		'./*.js': {
+			default: './dist/*.js',
+			types: './dist/*.d.ts',
 		},
 	});
 });

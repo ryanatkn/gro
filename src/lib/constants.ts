@@ -38,6 +38,7 @@ export const JS_MATCHER = /\.(js|mjs|cjs)$/;
 export const JSON_MATCHER = /\.json$/;
 export const SVELTE_MATCHER = /\.svelte$/;
 export const SVELTE_RUNES_MATCHER = /\.svelte\.(js|ts)$/; // TODO probably let `.svelte.` appear anywhere - https://github.com/sveltejs/svelte/issues/11536
+export const CSS_MATCHER = /\.css$/;
 /** Extracts the script content from Svelte files. */
 export const SVELTE_SCRIPT_MATCHER = /<script(?:\s+[^>]*)?>([\s\S]*?)<\/script>/gim; // TODO maybe this shouldnt be global? or make a getter?
 export const SVELTEKIT_ENV_MATCHER = /^\$env\/(static|dynamic)\/(public|private)$/;

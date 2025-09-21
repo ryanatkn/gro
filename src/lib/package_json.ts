@@ -6,8 +6,16 @@ import type {Logger} from '@ryanatkn/belt/log.js';
 import {styleText as st} from 'node:util';
 import {Package_Json, Package_Json_Exports} from '@ryanatkn/belt/package_json.js';
 
-import {paths, gro_paths, IS_THIS_GRO, replace_extension} from './paths.ts';
-import {PACKAGE_JSON_FILENAME, SVELTEKIT_DIST_DIRNAME} from './constants.ts';
+import {paths, gro_paths, IS_THIS_GRO} from './paths.ts';
+import {
+	PACKAGE_JSON_FILENAME,
+	SVELTEKIT_DIST_DIRNAME,
+	TS_MATCHER,
+	JS_MATCHER,
+	SVELTE_MATCHER,
+	JSON_MATCHER,
+	CSS_MATCHER,
+} from './constants.ts';
 import {search_fs} from './search_fs.ts';
 import {has_sveltekit_library} from './sveltekit_helpers.ts';
 import {GITHUB_REPO_MATCHER} from './github.ts';
@@ -55,8 +63,7 @@ export const sync_package_json = async (
 	const updated = await update_package_json(
 		async (package_json) => {
 			if (has_sveltekit_library(package_json).ok) {
-				const exports = to_package_exports(exported_paths);
-				package_json.exports = exports;
+				package_json.exports = to_package_exports(exported_paths);
 			}
 			const mapped = await map_package_json(package_json);
 			return mapped ? parse_package_json(Package_Json, mapped) : mapped;
@@ -115,53 +122,52 @@ export const update_package_json = async (
 
 const is_index = (path: string): boolean => path === 'index.ts' || path === 'index.js';
 
-// TODO support subpath patterns as the main concise way to do things
-// https://nodejs.org/api/packages.html#subpath-patterns
-
 export const to_package_exports = (paths: Array<string>): Package_Json_Exports => {
-	const sorted = paths
-		.slice()
-		.sort((a, b) => (is_index(a) ? -1 : is_index(b) ? 1 : a.localeCompare(b)));
-	// Add the package.json after the index, if one exists.
-	// Including the `./` here ensures we don't conflict with any potential `$lib/package.json`.
-	const final_sorted = is_index(sorted[0])
-		? [sorted[0]].concat('./package.json', sorted.slice(1))
-		: ['./package.json'].concat(sorted);
-	const exports: Package_Json_Exports = {};
-	for (const path of final_sorted) {
-		if (path === './package.json') {
-			exports['./package.json'] = './package.json';
-		} else if (path.endsWith('.json.d.ts')) {
-			const json_path = path.substring(0, path.length - 5);
-			exports['./' + json_path] = {
-				types: IMPORT_PREFIX + path,
-				default: IMPORT_PREFIX + json_path, // assuming a matching json file
-			};
-		} else if (path.endsWith('.ts') && !path.endsWith('.d.ts')) {
-			const js_path = replace_extension(path, '.js');
-			const key = is_index(path) ? '.' : './' + js_path;
-			exports[key] = {
-				types: IMPORT_PREFIX + replace_extension(path, '.d.ts'),
-				default: IMPORT_PREFIX + js_path,
-			};
-		} else if (path.endsWith('.js')) {
-			const key = is_index(path) ? '.' : './' + path;
-			exports[key] = {
-				types: IMPORT_PREFIX + replace_extension(path, '.d.ts'), // assuming JSDoc types
-				default: IMPORT_PREFIX + path,
-			};
-		} else if (path.endsWith('.svelte')) {
-			exports['./' + path] = {
-				types: IMPORT_PREFIX + path + '.d.ts',
-				svelte: IMPORT_PREFIX + path,
-				default: IMPORT_PREFIX + path, // needed for loader imports
-			};
-		} else {
-			exports['./' + path] = {
-				default: IMPORT_PREFIX + path,
-			};
-		}
+	const has_index = paths.some(is_index);
+	const has_js = paths.some((p) => TS_MATCHER.test(p) || JS_MATCHER.test(p));
+	const has_svelte = paths.some((p) => SVELTE_MATCHER.test(p));
+	const has_json = paths.some((p) => JSON_MATCHER.test(p));
+	const has_css = paths.some((p) => CSS_MATCHER.test(p));
+
+	const exports: Package_Json_Exports = {
+		'./package.json': './package.json',
+	};
+
+	if (has_index) {
+		exports['.'] = {
+			types: IMPORT_PREFIX + 'index.d.ts',
+			default: IMPORT_PREFIX + 'index.js',
+		};
 	}
+
+	if (has_js) {
+		exports['./*.js'] = {
+			types: IMPORT_PREFIX + '*.d.ts',
+			default: IMPORT_PREFIX + '*.js',
+		};
+	}
+
+	if (has_svelte) {
+		exports['./*.svelte'] = {
+			types: IMPORT_PREFIX + '*.svelte.d.ts',
+			svelte: IMPORT_PREFIX + '*.svelte',
+			default: IMPORT_PREFIX + '*.svelte',
+		};
+	}
+
+	if (has_json) {
+		exports['./*.json'] = {
+			types: IMPORT_PREFIX + '*.json.d.ts',
+			default: IMPORT_PREFIX + '*.json',
+		};
+	}
+
+	if (has_css) {
+		exports['./*.css'] = {
+			default: IMPORT_PREFIX + '*.css',
+		};
+	}
+
 	return parse_or_throw_formatted_error('package.json#exports', Package_Json_Exports, exports);
 };
 
