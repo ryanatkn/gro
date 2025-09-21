@@ -102,20 +102,6 @@ export const task: Task<Args> = {
 							)} ${analyzed.is_new ? 'is new' : 'has changed'}.`,
 						),
 					);
-
-					// DEBUG HACK: Show current vs changed content
-					if (!analyzed.is_new) {
-						log.info(
-							`\n=== CURRENT CONTENT (${print_path(analyzed.file.id)}) ===\n${analyzed.existing_content}\n=== END CURRENT ===`,
-						);
-						log.info(
-							`\n=== CHANGED CONTENT (${print_path(analyzed.file.id)}) ===\n${analyzed.file.content}\n=== END CHANGED ===`,
-						);
-					} else {
-						log.info(
-							`\n=== NEW FILE CONTENT (${print_path(analyzed.file.id)}) ===\n${analyzed.file.content}\n=== END NEW ===`,
-						);
-					}
 				}
 				if (has_unexpected_changes) {
 					throw new Task_Error(
