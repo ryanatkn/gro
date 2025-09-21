@@ -1,4 +1,4 @@
-import {join, extname} from 'node:path';
+import {join} from 'node:path';
 import {ensure_end, strip_start} from '@ryanatkn/belt/string.js';
 import {existsSync} from 'node:fs';
 import ts from 'typescript';
@@ -40,35 +40,24 @@ export const to_src_modules = (
 		// Check if this is a pattern export
 		if (k.includes('*')) {
 			// Handle pattern exports by finding matching files in lib
-			const pattern = strip_start(k, './');
-
-			// Determine the source extension based on pattern
-			let source_pattern: string;
-			if (pattern.endsWith('*.js')) {
-				source_pattern = pattern.replace('*.js', '*.ts');
-			} else {
-				source_pattern = pattern;
-			}
-
-			// Find matching files in lib directory
 			const matching_files = search_fs(lib_path, {
 				file_filter: (path) => {
 					const relative = path.replace(ensure_end(lib_path, '/'), '');
 					// Only match files in the root directory (no subdirectories)
 					if (relative.includes('/')) return false;
 
-					// Match the pattern (simple wildcard matching)
-					if (source_pattern === '*.ts') {
+					// Match based on the export pattern
+					if (k === './*.js') {
 						return (
 							TS_MATCHER.test(relative) &&
 							!relative.endsWith('.d.ts') &&
 							!relative.endsWith('.test.ts')
 						);
-					} else if (source_pattern === '*.svelte') {
+					} else if (k === './*.svelte') {
 						return SVELTE_MATCHER.test(relative);
-					} else if (source_pattern === '*.json') {
+					} else if (k === './*.json') {
 						return JSON_MATCHER.test(relative);
-					} else if (source_pattern === '*.css') {
+					} else if (k === './*.css') {
 						return CSS_MATCHER.test(relative);
 					}
 					return false;
@@ -97,8 +86,7 @@ export const to_src_modules = (
 			// Check if file exists
 			if (!existsSync(source_file_id)) {
 				// Handle non-TypeScript files (Svelte, CSS, JSON)
-				const extension = extname(source_file_id);
-				if (extension === '.svelte' || extension === '.css' || extension === '.json') {
+				if (SVELTE_MATCHER.test(source_file_id) || CSS_MATCHER.test(source_file_id) || JSON_MATCHER.test(source_file_id)) {
 					file_paths.push({export_key: k, file_path: source_file_id});
 					continue;
 				}

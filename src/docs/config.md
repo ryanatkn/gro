@@ -154,7 +154,8 @@ The motivation is to streamline package publishing by supplementing
 By default `package_json.exports` includes everything from `$lib/`
 except for some ignored files like tests and markdown,
 and you can provide your own `map_package_json` hook to
-mutate the `package_json`, return new data, or return `null` to be a no-op.
+mutate the `package_json`, return a new one,
+or return `null` to opt out of transforming it.
 
 ### using `map_package_json`
 

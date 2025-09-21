@@ -63,8 +63,7 @@ export const sync_package_json = async (
 	const updated = await update_package_json(
 		async (package_json) => {
 			if (has_sveltekit_library(package_json).ok) {
-				const exports = to_package_exports(exported_paths);
-				package_json.exports = exports;
+				package_json.exports = to_package_exports(exported_paths);
 			}
 			const mapped = await map_package_json(package_json);
 			return mapped ? parse_package_json(Package_Json, mapped) : mapped;
