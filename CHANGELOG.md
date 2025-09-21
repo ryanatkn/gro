@@ -1,5 +1,11 @@
 # @ryanatkn/gro
 
+## 0.165.0
+
+### Minor Changes
+
+- switch to subpath patterns from explicit module listings in package.json ([#558](https://github.com/ryanatkn/gro/pull/558))
+
 ## 0.164.1
 
 ### Patch Changes
