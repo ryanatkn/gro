@@ -1,6 +1,6 @@
 {
   "name": "@ryanatkn/gro",
-  "version": "0.164.1",
+  "version": "0.165.0",
   "modules": {
     ".": {
       "path": "index.ts",
@@ -44,15 +44,6 @@
         {
           "name": "Task_Error",
           "kind": "class"
-        }
-      ]
-    },
-    "./package.json": {
-      "path": "package.json",
-      "declarations": [
-        {
-          "name": "default",
-          "kind": "json"
         }
       ]
     },
@@ -364,6 +355,10 @@
         },
         {
           "name": "SVELTE_RUNES_MATCHER",
+          "kind": "variable"
+        },
+        {
+          "name": "CSS_MATCHER",
           "kind": "variable"
         },
         {
@@ -1028,6 +1023,51 @@
         {
           "name": "to_hash",
           "kind": "function"
+        }
+      ]
+    },
+    "./index.js": {
+      "path": "index.ts",
+      "declarations": [
+        {
+          "name": "Gro_Config",
+          "kind": "type"
+        },
+        {
+          "name": "Create_Gro_Config",
+          "kind": "type"
+        },
+        {
+          "name": "Raw_Gro_Config",
+          "kind": "type"
+        },
+        {
+          "name": "Plugin",
+          "kind": "type"
+        },
+        {
+          "name": "replace_plugin",
+          "kind": "function"
+        },
+        {
+          "name": "Gen",
+          "kind": "type"
+        },
+        {
+          "name": "Gen_Context",
+          "kind": "type"
+        },
+        {
+          "name": "Task",
+          "kind": "type"
+        },
+        {
+          "name": "Task_Context",
+          "kind": "type"
+        },
+        {
+          "name": "Task_Error",
+          "kind": "class"
         }
       ]
     },
