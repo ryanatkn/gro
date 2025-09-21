@@ -86,7 +86,11 @@ export const to_src_modules = (
 			// Check if file exists
 			if (!existsSync(source_file_id)) {
 				// Handle non-TypeScript files (Svelte, CSS, JSON)
-				if (SVELTE_MATCHER.test(source_file_id) || CSS_MATCHER.test(source_file_id) || JSON_MATCHER.test(source_file_id)) {
+				if (
+					SVELTE_MATCHER.test(source_file_id) ||
+					CSS_MATCHER.test(source_file_id) ||
+					JSON_MATCHER.test(source_file_id)
+				) {
 					file_paths.push({export_key: k, file_path: source_file_id});
 					continue;
 				}
