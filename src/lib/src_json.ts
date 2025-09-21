@@ -59,7 +59,11 @@ export const to_src_modules = (
 
 					// Match the pattern (simple wildcard matching)
 					if (source_pattern === '*.ts') {
-						return TS_MATCHER.test(relative) && !relative.endsWith('.d.ts') && !relative.endsWith('.test.ts');
+						return (
+							TS_MATCHER.test(relative) &&
+							!relative.endsWith('.d.ts') &&
+							!relative.endsWith('.test.ts')
+						);
 					} else if (source_pattern === '*.svelte') {
 						return SVELTE_MATCHER.test(relative);
 					} else if (source_pattern === '*.json') {
@@ -99,7 +103,6 @@ export const to_src_modules = (
 					continue;
 				}
 
-				// TODO still an error for unknown files running `gro gen`, can it use the filer to invalidate correctly?
 				throw Error(
 					`Failed to infer source file from package.json export path ${k} - the inferred file ${source_file_id} does not exist`,
 				);
