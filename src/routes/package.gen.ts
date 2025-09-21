@@ -1,6 +1,6 @@
-import {load_package_json} from './package_json.ts';
-import {create_src_json} from './src_json.ts';
-import type {Gen} from './gen.ts';
+import {load_package_json} from '../lib/package_json.ts';
+import {create_src_json} from '../lib/src_json.ts';
+import type {Gen} from '../lib/gen.ts';
 
 // TODO rename? `Package_Json + Src_Json = package.ts` currently, idk
 

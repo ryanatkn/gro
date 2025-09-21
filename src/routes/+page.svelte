@@ -9,7 +9,7 @@
 	import Hidden_Personal_Links from '@ryanatkn/fuz/Hidden_Personal_Links.svelte';
 	import {parse_pkg} from '@ryanatkn/belt/pkg.js';
 
-	import {package_json, src_json} from '../lib/package.ts';
+	import {package_json, src_json} from './package.ts';
 
 	// TODO add website, rewriting the markdown docs as Svelte
 
