@@ -50,7 +50,6 @@
   ],
   "dependencies": {
     "@ryanatkn/belt": "^0.34.1",
-    "@ryanatkn/fuz_code": "^0.25.0",
     "chokidar": "^4.0.3",
     "dotenv": "^17.2.2",
     "esm-env": "^1.2.2",
