@@ -154,7 +154,7 @@ The motivation is to streamline package publishing by supplementing
 By default `package_json.exports` uses subpath wildcard patterns to include everything from `$lib/`
 except for some ignored files like tests and markdown,
 and you can provide your own `map_package_json` hook to
-mutate the `package_json`, return a new one,
+mutate and return the `package_json`, return a new one,
 or return `null` to opt out of transforming it completely.
 
 ### using `map_package_json`
