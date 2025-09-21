@@ -50,6 +50,7 @@
   ],
   "dependencies": {
     "@ryanatkn/belt": "^0.34.1",
+    "@ryanatkn/fuz_code": "^0.25.0",
     "chokidar": "^4.0.3",
     "dotenv": "^17.2.2",
     "esm-env": "^1.2.2",
@@ -84,8 +85,8 @@
     "@changesets/changelog-git": "^0.2.1",
     "@changesets/types": "^6.1.0",
     "@ryanatkn/eslint-config": "^0.8.0",
-    "@ryanatkn/fuz": "^0.145.0",
-    "@ryanatkn/moss": "^0.33.0",
+    "@ryanatkn/fuz": "^0.146.0",
+    "@ryanatkn/moss": "^0.34.0",
     "@sveltejs/adapter-static": "^3.0.9",
     "@sveltejs/kit": "^2.37.1",
     "@sveltejs/package": "^2.5.0",
