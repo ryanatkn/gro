@@ -24,16 +24,52 @@ export const serialize_src_json = (src_json: Src_Json): string => {
 	return JSON.stringify(parsed, null, 2) + '\n';
 };
 
-export const to_src_modules = (
-	exports: Package_Json_Exports | undefined,
-	lib_path = paths.lib,
-): Src_Modules | undefined => {
-	if (!exports) return;
+const infer_source_from_export = (export_path: string, lib_path: string): string | null => {
+	// Handle index specially
+	if (export_path === '.' || export_path === './') {
+		const index_ts = join(lib_path, 'index.ts');
+		if (existsSync(index_ts)) return index_ts;
+		const index_js = join(lib_path, 'index.js');
+		if (existsSync(index_js)) return index_js;
+		return null;
+	}
 
-	// Prepare a list of files to analyze
+	const clean_path = strip_start(export_path, './');
+
+	// For .js exports, try .ts first
+	if (clean_path.endsWith('.js')) {
+		const ts_path = join(lib_path, replace_extension(clean_path, '.ts'));
+		if (existsSync(ts_path)) return ts_path;
+	}
+
+	// Try the exact path
+	const exact_path = join(lib_path, clean_path);
+	if (existsSync(exact_path)) return exact_path;
+
+	return null;
+};
+
+const collect_file_paths = (
+	exports: Package_Json_Exports,
+	lib_path: string,
+): Array<{export_key: string; file_path: string}> => {
 	const file_paths: Array<{export_key: string; file_path: string}> = [];
 
-	for (const [k, _v] of Object.entries(exports)) {
+	// Handle string exports (single default export)
+	if (typeof exports === 'string') {
+		const source_file = infer_source_from_export(exports, lib_path);
+		if (source_file) {
+			file_paths.push({export_key: '.', file_path: source_file});
+		} else {
+			throw Error(
+				`Failed to infer source file from package.json string export "${exports}" - no matching file found in ${lib_path}`,
+			);
+		}
+		return file_paths;
+	}
+
+	// Handle object exports
+	for (const k in exports) {
 		// Skip package.json
 		if (k === './package.json') continue;
 
@@ -42,23 +78,19 @@ export const to_src_modules = (
 			// Handle pattern exports by finding matching files in lib
 			const matching_files = search_fs(lib_path, {
 				file_filter: (path) => {
-					const relative = path.replace(ensure_end(lib_path, '/'), '');
+					const p = path.replace(ensure_end(lib_path, '/'), '');
 					// Only match files in the root directory (no subdirectories)
-					if (relative.includes('/')) return false;
+					if (p.includes('/')) return false;
 
 					// Match based on the export pattern
 					if (k === './*.js') {
-						return (
-							TS_MATCHER.test(relative) &&
-							!relative.endsWith('.d.ts') &&
-							!relative.endsWith('.test.ts')
-						);
+						return TS_MATCHER.test(p) && !p.endsWith('.d.ts') && !p.endsWith('.test.ts');
 					} else if (k === './*.svelte') {
-						return SVELTE_MATCHER.test(relative);
+						return SVELTE_MATCHER.test(p);
 					} else if (k === './*.json') {
-						return JSON_MATCHER.test(relative);
+						return JSON_MATCHER.test(p);
 					} else if (k === './*.css') {
-						return CSS_MATCHER.test(relative);
+						return CSS_MATCHER.test(p);
 					}
 					return false;
 				},
@@ -76,33 +108,27 @@ export const to_src_modules = (
 			}
 		} else {
 			// Handle explicit exports (non-patterns)
-			const source_file_path =
-				k === '.' || k === './'
-					? 'index.ts'
-					: strip_start(k.endsWith('.js') ? replace_extension(k, '.ts') : k, './');
-
-			const source_file_id = join(lib_path, source_file_path);
-
-			// Check if file exists
-			if (!existsSync(source_file_id)) {
-				// Handle non-TypeScript files (Svelte, CSS, JSON)
-				if (
-					SVELTE_MATCHER.test(source_file_id) ||
-					CSS_MATCHER.test(source_file_id) ||
-					JSON_MATCHER.test(source_file_id)
-				) {
-					file_paths.push({export_key: k, file_path: source_file_id});
-					continue;
-				}
-
+			const source_file = infer_source_from_export(k, lib_path);
+			if (source_file) {
+				file_paths.push({export_key: k, file_path: source_file});
+			} else {
 				throw Error(
-					`Failed to infer source file from package.json export path ${k} - the inferred file ${source_file_id} does not exist`,
+					`Failed to infer source file from package.json export path ${k} - no matching file found in ${lib_path}`,
 				);
 			}
-
-			file_paths.push({export_key: k, file_path: source_file_id});
 		}
 	}
+
+	return file_paths;
+};
+
+export const to_src_modules = (
+	exports: Package_Json_Exports | undefined,
+	lib_path = paths.lib,
+): Src_Modules | undefined => {
+	if (!exports) return;
+
+	const file_paths = collect_file_paths(exports, lib_path);
 
 	// Create a TypeScript program for all TypeScript files
 	const ts_files = file_paths
