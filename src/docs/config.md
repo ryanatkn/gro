@@ -151,7 +151,7 @@ the `"exports"` property of your root `package.json`.
 The motivation is to streamline package publishing by supplementing
 [`@sveltejs/package`](https://kit.svelte.dev/docs/packaging).
 
-By default `package_json.exports` includes everything from `$lib/`
+By default `package_json.exports` uses subpath wildcard patterns to include everything from `$lib/`
 except for some ignored files like tests and markdown,
 and you can provide your own `map_package_json` hook to
 mutate the `package_json`, return a new one,
@@ -163,6 +163,9 @@ or return `null` to opt out of transforming it.
 // gro.config.ts
 const config: Gro_Config = {
 	// ...other config
+
+	// default behavior is the identity function:
+	map_package_json: (p) => p,
 
 	// disable mapping `package.json` with automated `exports`:
 	map_package_json: null,
