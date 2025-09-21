@@ -24,29 +24,53 @@ export const serialize_src_json = (src_json: Src_Json): string => {
 	return JSON.stringify(parsed, null, 2) + '\n';
 };
 
-const infer_source_from_export = (export_path: string, lib_path: string): string | null => {
-	// Handle index specially
-	if (export_path === '.' || export_path === './') {
-		const index_ts = join(lib_path, 'index.ts');
-		if (existsSync(index_ts)) return index_ts;
-		const index_js = join(lib_path, 'index.js');
-		if (existsSync(index_js)) return index_js;
-		return null;
+export const to_src_modules = (
+	exports: Package_Json_Exports | undefined,
+	lib_path = paths.lib,
+): Src_Modules | undefined => {
+	if (!exports) return;
+
+	const file_paths = collect_file_paths(exports, lib_path);
+
+	// Create a TypeScript program for all TypeScript files
+	const ts_files = file_paths
+		.filter(({file_path}) => TS_MATCHER.test(file_path))
+		.map(({file_path}) => file_path);
+
+	let program: ts.Program | undefined;
+	if (ts_files.length > 0) {
+		program = ts.createProgram(
+			ts_files,
+			// TODO get from tsconfig?
+			{
+				target: ts.ScriptTarget.ESNext,
+				module: ts.ModuleKind.ESNext,
+				moduleResolution: ts.ModuleResolutionKind.NodeNext,
+				verbatimModuleSyntax: true,
+				isolatedModules: true,
+			},
+		);
 	}
 
-	const clean_path = strip_start(export_path, './');
+	const result: Src_Modules = {};
 
-	// For .js exports, try .ts first
-	if (clean_path.endsWith('.js')) {
-		const ts_path = join(lib_path, replace_extension(clean_path, '.ts'));
-		if (existsSync(ts_path)) return ts_path;
+	// Process each file
+	for (const {export_key, file_path} of file_paths) {
+		const relative_path = file_path.replace(ensure_end(lib_path, '/'), '');
+
+		const declarations = parse_exports(file_path, program).map(({name, kind}) => ({name, kind}));
+
+		result[export_key] = declarations.length
+			? {
+					path: relative_path,
+					declarations,
+				}
+			: {
+					path: relative_path,
+				};
 	}
 
-	// Try the exact path
-	const exact_path = join(lib_path, clean_path);
-	if (existsSync(exact_path)) return exact_path;
-
-	return null;
+	return result;
 };
 
 const collect_file_paths = (
@@ -122,51 +146,27 @@ const collect_file_paths = (
 	return file_paths;
 };
 
-export const to_src_modules = (
-	exports: Package_Json_Exports | undefined,
-	lib_path = paths.lib,
-): Src_Modules | undefined => {
-	if (!exports) return;
-
-	const file_paths = collect_file_paths(exports, lib_path);
-
-	// Create a TypeScript program for all TypeScript files
-	const ts_files = file_paths
-		.filter(({file_path}) => TS_MATCHER.test(file_path))
-		.map(({file_path}) => file_path);
-
-	let program: ts.Program | undefined;
-	if (ts_files.length > 0) {
-		program = ts.createProgram(
-			ts_files,
-			// TODO get from tsconfig?
-			{
-				target: ts.ScriptTarget.ESNext,
-				module: ts.ModuleKind.ESNext,
-				moduleResolution: ts.ModuleResolutionKind.NodeNext,
-				verbatimModuleSyntax: true,
-				isolatedModules: true,
-			},
-		);
+const infer_source_from_export = (export_path: string, lib_path: string): string | null => {
+	// Handle index specially
+	if (export_path === '.' || export_path === './') {
+		const index_ts = join(lib_path, 'index.ts');
+		if (existsSync(index_ts)) return index_ts;
+		const index_js = join(lib_path, 'index.js');
+		if (existsSync(index_js)) return index_js;
+		return null;
 	}
 
-	const result: Src_Modules = {};
+	const clean_path = strip_start(export_path, './');
 
-	// Process each file
-	for (const {export_key, file_path} of file_paths) {
-		const relative_path = file_path.replace(ensure_end(lib_path, '/'), '');
-
-		const declarations = parse_exports(file_path, program).map(({name, kind}) => ({name, kind}));
-
-		result[export_key] = declarations.length
-			? {
-					path: relative_path,
-					declarations,
-				}
-			: {
-					path: relative_path,
-				};
+	// For .js exports, try .ts first
+	if (clean_path.endsWith('.js')) {
+		const ts_path = join(lib_path, replace_extension(clean_path, '.ts'));
+		if (existsSync(ts_path)) return ts_path;
 	}
 
-	return result;
+	// Try the exact path
+	const exact_path = join(lib_path, clean_path);
+	if (existsSync(exact_path)) return exact_path;
+
+	return null;
 };
