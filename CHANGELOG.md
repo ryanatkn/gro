@@ -1,5 +1,11 @@
 # @ryanatkn/gro
 
+## 0.165.1
+
+### Patch Changes
+
+- remove debug logging from gen ([#560](https://github.com/ryanatkn/gro/pull/560))
+
 ## 0.165.0
 
 ### Minor Changes
