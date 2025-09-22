@@ -94,7 +94,7 @@
     "eslint": "^9.35.0",
     "eslint-plugin-svelte": "^3.12.2",
     "svelte": "^5.38.7",
-    "svelte-check": "^4.3.1",
+    "svelte-check": "^4.3.2",
     "typescript": "^5.9.2",
     "typescript-eslint": "^8.42.0",
     "vitest": "^3.2.4"
