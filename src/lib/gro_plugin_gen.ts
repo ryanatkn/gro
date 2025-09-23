@@ -104,6 +104,7 @@ export const gro_plugin_gen = ({
 						const gen_files = filer.filter((d) => !d.external && is_gen_path(d.id));
 						if (gen_files) {
 							for (const gen_file of gen_files) {
+								// eslint-disable-next-line no-await-in-loop
 								const should_trigger = await should_trigger_gen(
 									gen_file.id,
 									source_file.id,
@@ -113,7 +114,7 @@ export const gro_plugin_gen = ({
 									timings,
 									invoke_task,
 									gen_dependencies_cache,
-								); // eslint-disable-line no-await-in-loop
+								);
 								if (should_trigger) {
 									queue_gen(gen_file.id);
 								}
