@@ -7,7 +7,7 @@ import type {Args} from './args.ts';
 import {paths} from './paths.ts';
 import {find_genfiles, is_gen_path} from './gen.ts';
 import {filter_dependents} from './filer.ts';
-import {should_trigger_gen} from './gro_helpers.ts';
+import {should_trigger_gen} from './gen_helpers.ts';
 import {spawn_cli} from './cli.ts';
 
 const FLUSH_DEBOUNCE_DELAY = 500;
@@ -89,11 +89,10 @@ export const gro_plugin_gen = ({
 							queue_gen(source_file.id);
 						}
 
-						// TODO BLOCK do this more efficiently using the filer's cache?
 						// Find all current gen files and check their dependencies
-						const found = find_genfiles(input_paths, root_dirs, config);
-						if (found.ok) {
-							for (const gen_file of found.value.resolved_input_files) {
+						const gen_files = filer.filter((d) => !d.external && is_gen_path(d.id));
+						if (gen_files) {
+							for (const gen_file of gen_files) {
 								const should_trigger = await should_trigger_gen(
 									gen_file.id,
 									source_file.id,

@@ -42,7 +42,7 @@ export type Gen_Dependencies = 'all' | Gen_Dependencies_Config | Gen_Dependencie
 
 export interface Gen_Dependencies_Config {
 	patterns?: Array<RegExp>;
-	files?: Array<string>;
+	files?: Array<Path_Id>;
 }
 
 export type Gen_Dependencies_Resolver = (

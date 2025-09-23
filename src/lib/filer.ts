@@ -89,6 +89,16 @@ export class Filer {
 		return file;
 	};
 
+	filter(predicate: (disknode: Disknode) => boolean): Array<Disknode> | null {
+		let found: Array<Disknode> | null = null;
+		for (const disknode of this.files.values()) {
+			if (predicate(disknode)) {
+				(found ??= []).push(disknode);
+			}
+		}
+		return found;
+	}
+
 	/**
 	 * Initialize the filer to populate files without watching.
 	 * Safe to call multiple times - subsequent calls are no-ops.
@@ -337,7 +347,7 @@ export class Filer {
 		}
 	};
 
-	#is_external(id: string): boolean {
+	#is_external(id: Path_Id): boolean {
 		const {filter} = this.#watch_dir_options;
 		return !id.startsWith(this.root_dir + '/') || (!!filter && !filter(id, false));
 	}
@@ -348,10 +358,10 @@ export const filter_dependents = (
 	disknode: Disknode,
 	get_by_id: (id: Path_Id) => Disknode | undefined,
 	filter?: File_Filter,
-	results: Set<string> = new Set(),
-	searched: Set<string> = new Set(),
+	results: Set<Path_Id> = new Set(),
+	searched: Set<Path_Id> = new Set(),
 	log?: Logger,
-): Set<string> => {
+): Set<Path_Id> => {
 	const {dependents} = disknode;
 	for (const dependent_id of dependents.keys()) {
 		if (searched.has(dependent_id)) continue;

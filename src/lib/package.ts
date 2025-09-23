@@ -349,6 +349,10 @@ export const src_json: Src_Json = {
 			],
 		},
 		'./fs.js': {path: 'fs.ts', declarations: [{name: 'empty_dir', kind: 'function'}]},
+		'./gen_helpers.js': {
+			path: 'gen_helpers.ts',
+			declarations: [{name: 'should_trigger_gen', kind: 'function'}],
+		},
 		'./gen.task.js': {
 			path: 'gen.task.ts',
 			declarations: [
@@ -449,7 +453,6 @@ export const src_json: Src_Json = {
 			declarations: [
 				{name: 'resolve_gro_module_path', kind: 'function'},
 				{name: 'spawn_with_loader', kind: 'function'},
-				{name: 'should_trigger_gen', kind: 'function'},
 			],
 		},
 		'./gro_plugin_gen.js': {
