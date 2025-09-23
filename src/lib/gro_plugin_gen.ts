@@ -32,7 +32,6 @@ export const gro_plugin_gen = ({
 	root_dirs = [paths.source],
 	flush_debounce_delay = FLUSH_DEBOUNCE_DELAY,
 }: Gro_Plugin_Gen_Options = EMPTY_OBJECT): Plugin => {
-	let flushing_timeout: NodeJS.Timeout | undefined;
 	const queued_files: Set<string> = new Set();
 
 	// Cache for gen file declared dependencies to avoid repeated imports
@@ -47,17 +46,28 @@ export const gro_plugin_gen = ({
 			// which should be checked by CI via `gro check` which calls `gro gen --check`.
 			if (!dev) return;
 
+			// Do we need to just generate everything once and exit?
+			if (!watch) {
+				log.info('[gen] generating and exiting early');
+
+				// Run `gen`, first checking if there are any modules to avoid a console error.
+				// Some parts of the build may have already happened,
+				// making us miss `build` events for gen dependencies,
+				// so we run a full `gen` here even if it's usually wasteful.
+				const found = find_genfiles(input_paths, root_dirs, config);
+				if (found.ok && found.value.resolved_input_files.length > 0) {
+					await gen();
+				}
+				return;
+			}
+
 			const queue_gen = (gen_file_id: string) => {
 				if (!queued_files.has(gen_file_id)) {
 					log.info('[gen] queued', gen_file_id);
 				}
 				queued_files.add(gen_file_id);
-				if (flushing_timeout === undefined) {
-					flushing_timeout = setTimeout(() => {
-						flushing_timeout = undefined;
-						void flush_gen_queue();
-					}); // the timeout batches synchronously
-				}
+				log.info('[gen] calling flush_gen_queue, queue size:', queued_files.size);
+				void flush_gen_queue();
 			};
 
 			const flush_gen_queue = throttle(
@@ -70,24 +80,19 @@ export const gro_plugin_gen = ({
 					);
 					queued_files.clear();
 					await gen(files);
+
+					// run again?
+					if (queued_files.size > 0) {
+						log.info(
+							`[gen] re-running for ${queued_files.size} more queued file${queued_files.size === 1 ? '' : 's'}`,
+						);
+						setTimeout(flush_gen_queue); // setTimeout is needed bc of throttle behavior
+					} else {
+						log.info('[gen] queue empty, done');
+					}
 				},
-				{delay: flush_debounce_delay},
+				{delay: flush_debounce_delay, when: 'trailing'},
 			);
-
-			// Do we need to just generate everything once and exit?
-			if (!watch) {
-				log.info('generating and exiting early');
-
-				// Run `gen`, first checking if there are any modules to avoid a console error.
-				// Some parts of the build may have already happened,
-				// making us miss `build` events for gen dependencies,
-				// so we run a full `gen` here even if it's usually wasteful.
-				const found = find_genfiles(input_paths, root_dirs, config);
-				if (found.ok && found.value.resolved_input_files.length > 0) {
-					await gen();
-				}
-				return;
-			}
 
 			// When a file builds, check it and its tree of dependents
 			// for any `.gen.` files that need to run.
