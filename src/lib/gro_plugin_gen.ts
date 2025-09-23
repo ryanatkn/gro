@@ -48,6 +48,9 @@ export const gro_plugin_gen = ({
 			if (!dev) return;
 
 			const queue_gen = (gen_file_id: string) => {
+				if (!queued_files.has(gen_file_id)) {
+					log.info('[gen] queued', gen_file_id);
+				}
 				queued_files.add(gen_file_id);
 				if (flushing_timeout === undefined) {
 					flushing_timeout = setTimeout(() => {
@@ -60,6 +63,11 @@ export const gro_plugin_gen = ({
 			const flush_gen_queue = throttle(
 				async () => {
 					const files = Array.from(queued_files);
+					log.info(
+						files.length === 0
+							? '[gen] generating all files'
+							: `[gen] generating ${files.length} file${files.length === 1 ? '' : 's'}`,
+					);
 					queued_files.clear();
 					await gen(files);
 				},

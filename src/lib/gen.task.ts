@@ -112,6 +112,7 @@ export const task: Task<Args> = {
 				log.info('check passed, no files have changed');
 			}
 		} else {
+			// TODO BLOCK improve logging to be away of successes, either here or in `write_gen_results`
 			// write generated files to disk
 			log.info('writing generated files to disk');
 			const timing_to_output_results = timings.start('output results');
