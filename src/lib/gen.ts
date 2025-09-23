@@ -41,8 +41,8 @@ export interface Gen_File {
 export type Gen_Dependencies = 'all' | Gen_Dependencies_Config | Gen_Dependencies_Resolver;
 
 export interface Gen_Dependencies_Config {
-	patterns?: RegExp[];
-	files?: string[];
+	patterns?: Array<RegExp>;
+	files?: Array<string>;
 }
 
 export type Gen_Dependencies_Resolver = (

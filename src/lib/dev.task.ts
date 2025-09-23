@@ -39,6 +39,7 @@ export const task: Task<Args> = {
 		if (!watch) {
 			await plugins.teardown();
 		} else {
+			// TODO maybe redesign for this API to be explicitly cancelable?
 			// Keep the task running indefinitely in watch mode.
 			// This prevents invoke_task from calling finish() and closing the filer.
 			await new Promise(() => {
