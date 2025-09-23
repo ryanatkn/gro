@@ -38,6 +38,12 @@ export const task: Task<Args> = {
 		await plugins.setup();
 		if (!watch) {
 			await plugins.teardown();
+		} else {
+			// Keep the task running indefinitely in watch mode.
+			// This prevents invoke_task from calling finish() and closing the filer.
+			await new Promise(() => {
+				// Never resolves - keeps filer and listeners alive.
+			});
 		}
 	},
 };

@@ -208,12 +208,13 @@ export class Filer {
 		const file = this.get_or_create(id);
 
 		const stats = existsSync(id) ? statSync(id) : null;
+		const old_mtime = file.mtime;
 		file.ctime = stats?.ctimeMs ?? null;
 		file.mtime = stats?.mtimeMs ?? null;
 
 		const new_contents = stats ? readFileSync(id, 'utf8') : null; // TODO need to lazily load contents, probably turn `Disknode` into a class
 
-		if (file.contents === new_contents) {
+		if (file.mtime === old_mtime && file.contents === new_contents) {
 			return null;
 		}
 

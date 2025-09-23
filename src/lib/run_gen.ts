@@ -10,6 +10,7 @@ import {
 	type Genfile_Module_Meta,
 	to_gen_result,
 	type Raw_Gen_Result,
+	normalize_gen_config,
 } from './gen.ts';
 import {print_path, to_root_path} from './paths.ts';
 import type {format_file as base_format_file} from './format_file.ts';
@@ -38,7 +39,7 @@ export const run_gen = async (
 			const {id} = module_meta;
 			const timing_for_module = timings.start(id);
 
-			// Perform code generation by calling `gen` on the module.
+			const gen_config = normalize_gen_config(module_meta.mod.gen);
 			const gen_ctx: Gen_Context = {
 				config,
 				svelte_config: default_svelte_config,
@@ -51,7 +52,7 @@ export const run_gen = async (
 			};
 			let raw_gen_result: Raw_Gen_Result;
 			try {
-				raw_gen_result = await module_meta.mod.gen(gen_ctx);
+				raw_gen_result = await gen_config.generate(gen_ctx);
 			} catch (err) {
 				return {
 					ok: false,

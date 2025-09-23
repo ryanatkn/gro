@@ -38,7 +38,28 @@ export interface Gen_File {
 	format: boolean;
 }
 
-export type Gen = (ctx: Gen_Context) => Raw_Gen_Result | Promise<Raw_Gen_Result>;
+export type Gen_Dependencies = 'all' | Gen_Dependencies_Config | Gen_Dependencies_Resolver;
+
+export interface Gen_Dependencies_Config {
+	patterns?: RegExp[];
+	files?: string[];
+}
+
+export type Gen_Dependencies_Resolver = (
+	ctx: Gen_Context,
+) => Gen_Dependencies_Config | 'all' | Promise<Gen_Dependencies_Config | 'all'>;
+
+export type Gen = Gen_Function | Gen_Config;
+
+export type Gen_Function = (ctx: Gen_Context) => Raw_Gen_Result | Promise<Raw_Gen_Result>;
+
+export interface Gen_Config {
+	generate: Gen_Function;
+	dependencies?: Gen_Dependencies;
+	// TODO think about what could be added
+	// cache?: boolean;
+}
+
 export interface Gen_Context {
 	config: Gro_Config;
 	svelte_config: Parsed_Svelte_Config;
@@ -362,5 +383,13 @@ export const load_genfiles = async (
 	};
 };
 
-export const validate_gen_module = (mod: Record<string, any>): mod is Genfile_Module =>
-	typeof mod.gen === 'function';
+export const validate_gen_module = (mod: Record<string, any>): mod is Genfile_Module => {
+	if (typeof mod.gen === 'function') return true;
+	if (typeof mod.gen === 'object' && mod.gen !== null && typeof mod.gen.generate === 'function') {
+		return true;
+	}
+	return false;
+};
+
+export const normalize_gen_config = (gen: Gen): Gen_Config =>
+	typeof gen === 'function' ? {generate: gen} : gen;

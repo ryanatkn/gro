@@ -64,7 +64,7 @@ export const package_json: Package_Json = {
 		vitest: '^3',
 	},
 	peerDependenciesMeta: {'@sveltejs/kit': {optional: true}, vitest: {optional: true}},
-	optionalDependencies: {'@ryanatkn/moss': '>=0.33.0', vitest: '^3'},
+	optionalDependencies: {vitest: '^3'},
 	devDependencies: {
 		'@changesets/changelog-git': '^0.2.1',
 		'@changesets/types': '^6.1.0',
@@ -80,7 +80,7 @@ export const package_json: Package_Json = {
 		eslint: '^9.35.0',
 		'eslint-plugin-svelte': '^3.12.2',
 		svelte: '^5.38.7',
-		'svelte-check': '^4.3.1',
+		'svelte-check': '^4.3.2',
 		typescript: '^5.9.2',
 		'typescript-eslint': '^8.42.0',
 		vitest: '^3.2.4',
@@ -364,7 +364,12 @@ export const src_json: Src_Json = {
 				{name: 'is_gen_path', kind: 'function'},
 				{name: 'Gen_Result', kind: 'type'},
 				{name: 'Gen_File', kind: 'type'},
+				{name: 'Gen_Dependencies', kind: 'type'},
+				{name: 'Gen_Dependencies_Config', kind: 'type'},
+				{name: 'Gen_Dependencies_Resolver', kind: 'type'},
 				{name: 'Gen', kind: 'type'},
+				{name: 'Gen_Function', kind: 'type'},
+				{name: 'Gen_Config', kind: 'type'},
 				{name: 'Gen_Context', kind: 'type'},
 				{name: 'Raw_Gen_Result', kind: 'type'},
 				{name: 'Raw_Gen_File', kind: 'type'},
@@ -389,6 +394,7 @@ export const src_json: Src_Json = {
 				{name: 'Load_Genfiles_Failure', kind: 'type'},
 				{name: 'load_genfiles', kind: 'function'},
 				{name: 'validate_gen_module', kind: 'function'},
+				{name: 'normalize_gen_config', kind: 'function'},
 			],
 		},
 		'./git.js': {
@@ -443,6 +449,7 @@ export const src_json: Src_Json = {
 			declarations: [
 				{name: 'resolve_gro_module_path', kind: 'function'},
 				{name: 'spawn_with_loader', kind: 'function'},
+				{name: 'should_trigger_gen', kind: 'function'},
 			],
 		},
 		'./gro_plugin_gen.js': {
