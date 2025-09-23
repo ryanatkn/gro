@@ -35,7 +35,7 @@ export const gro_plugin_gen = ({
 	const queued_files: Set<string> = new Set();
 
 	// Cache for gen file declared dependencies to avoid repeated imports
-	const gen_dependencies_cache = new Map<Path_Id, Gen_Dependencies | null>();
+	const gen_dependencies_cache: Map<Path_Id, Gen_Dependencies | null> = new Map();
 
 	let cleanup_watch: (() => void) | undefined;
 
@@ -113,7 +113,7 @@ export const gro_plugin_gen = ({
 									timings,
 									invoke_task,
 									gen_dependencies_cache,
-								);
+								); // eslint-disable-line no-await-in-loop
 								if (should_trigger) {
 									queue_gen(gen_file.id);
 								}
