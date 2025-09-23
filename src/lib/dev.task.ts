@@ -31,7 +31,7 @@ export const task: Task<Args> = {
 
 		if (sync || install) {
 			if (!sync) log.warn('sync is false but install is true, so ignoring the sync option');
-			await invoke_task('sync', {install});
+			await invoke_task('sync', {install, gen: !watch});
 		}
 
 		const plugins = await Plugins.create({...ctx, dev: true, watch});

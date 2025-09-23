@@ -48,8 +48,6 @@ export const gro_plugin_gen = ({
 
 			// Do we need to just generate everything once and exit?
 			if (!watch) {
-				log.info('[gen] generating and exiting early');
-
 				// Run `gen`, first checking if there are any modules to avoid a console error.
 				// Some parts of the build may have already happened,
 				// making us miss `build` events for gen dependencies,
@@ -62,11 +60,7 @@ export const gro_plugin_gen = ({
 			}
 
 			const queue_gen = (gen_file_id: string) => {
-				if (!queued_files.has(gen_file_id)) {
-					log.info('[gen] queued', gen_file_id);
-				}
 				queued_files.add(gen_file_id);
-				log.info('[gen] calling flush_gen_queue, queue size:', queued_files.size);
 				void flush_gen_queue();
 			};
 
