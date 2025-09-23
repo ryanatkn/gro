@@ -26,32 +26,43 @@ export const should_trigger_gen = async (
 	log: Logger,
 	timings: Timings,
 	invoke_task: Invoke_Task,
+	dependencies_cache: Map<Path_Id, Gen_Dependencies | null>,
 ): Promise<boolean> => {
 	// Always trigger if the gen file itself changed
-	if (gen_file_id === changed_file_id) return true;
+	if (gen_file_id === changed_file_id) {
+		// Invalidate cache for this gen file
+		dependencies_cache.delete(gen_file_id);
+		return true;
+	}
 
-	const deps = await resolve_gen_dependencies(
-		gen_file_id,
-		config,
-		filer,
-		log,
-		timings,
-		invoke_task,
-	);
+	let dependencies: Gen_Dependencies | null | undefined;
+	if (!dependencies_cache.has(gen_file_id)) {
+		dependencies = await resolve_gen_dependencies(
+			gen_file_id,
+			config,
+			filer,
+			log,
+			timings,
+			invoke_task,
+		);
+		dependencies_cache.set(gen_file_id, dependencies);
+	} else {
+		dependencies = dependencies_cache.get(gen_file_id);
+	}
 
-	if (!deps) return false;
+	if (!dependencies) return false;
 
-	if (deps === 'all') return true;
+	if (dependencies === 'all') return true;
 
-	if (typeof deps !== 'function') {
-		if (deps.patterns) {
-			if (deps.patterns.some((p) => p.test(changed_file_id))) {
+	if (typeof dependencies !== 'function') {
+		if (dependencies.patterns) {
+			if (dependencies.patterns.some((p) => p.test(changed_file_id))) {
 				return true;
 			}
 		}
 
-		if (deps.files) {
-			if (deps.files.includes(changed_file_id)) {
+		if (dependencies.files) {
+			if (dependencies.files.includes(changed_file_id)) {
 				return true;
 			}
 		}
@@ -72,22 +83,22 @@ const resolve_gen_dependencies = async (
 	log: Logger,
 	timings: Timings,
 	invoke_task: Invoke_Task,
-): Promise<Gen_Dependencies | undefined> => {
+): Promise<Gen_Dependencies | null> => {
 	try {
 		const url = pathToFileURL(gen_file_id);
 		url.searchParams.set('t', Date.now().toString());
 		const module = await import(url.href);
 		if (!validate_gen_module(module)) {
-			return undefined;
+			return null;
 		}
 
 		const gen_config = normalize_gen_config(module.gen);
 		if (!gen_config.dependencies) {
-			return undefined;
+			return null;
 		}
 
-		let deps = gen_config.dependencies;
-		if (typeof deps === 'function') {
+		let dependencies = gen_config.dependencies;
+		if (typeof dependencies === 'function') {
 			const gen_ctx: Gen_Context = {
 				config,
 				svelte_config: default_svelte_config,
@@ -98,12 +109,12 @@ const resolve_gen_dependencies = async (
 				origin_id: gen_file_id,
 				origin_path: to_root_path(gen_file_id),
 			};
-			deps = await deps(gen_ctx);
+			dependencies = await dependencies(gen_ctx);
 		}
 
-		return deps;
+		return dependencies;
 	} catch (err) {
 		log.error(`Failed to resolve dependencies for ${gen_file_id}:`, err);
-		return undefined;
+		return null;
 	}
 };

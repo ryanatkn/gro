@@ -5,10 +5,11 @@ import {Unreachable_Error} from '@ryanatkn/belt/error.js';
 import type {Plugin} from './plugin.ts';
 import type {Args} from './args.ts';
 import {paths} from './paths.ts';
-import {find_genfiles, is_gen_path} from './gen.ts';
+import {find_genfiles, is_gen_path, type Gen_Dependencies} from './gen.ts';
 import {filter_dependents} from './filer.ts';
 import {should_trigger_gen} from './gen_helpers.ts';
 import {spawn_cli} from './cli.ts';
+import type {Path_Id} from './path.ts';
 
 const FLUSH_DEBOUNCE_DELAY = 500;
 
@@ -33,6 +34,9 @@ export const gro_plugin_gen = ({
 }: Gro_Plugin_Gen_Options = EMPTY_OBJECT): Plugin => {
 	let flushing_timeout: NodeJS.Timeout | undefined;
 	const queued_files: Set<string> = new Set();
+
+	// Cache for gen file declared dependencies to avoid repeated imports
+	const gen_dependencies_cache = new Map<Path_Id, Gen_Dependencies | null>();
 
 	let cleanup_watch: (() => void) | undefined;
 
@@ -101,6 +105,7 @@ export const gro_plugin_gen = ({
 									log,
 									timings,
 									invoke_task,
+									gen_dependencies_cache,
 								);
 								if (should_trigger) {
 									queue_gen(gen_file.id);
@@ -123,6 +128,9 @@ export const gro_plugin_gen = ({
 						break;
 					}
 					case 'delete': {
+						if (is_gen_path(source_file.id)) {
+							gen_dependencies_cache.delete(source_file.id);
+						}
 						// I think for the gen plugin this is best as a no-op? avoids broken attempts
 						break;
 					}
