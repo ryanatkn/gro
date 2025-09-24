@@ -1,5 +1,11 @@
 # @ryanatkn/gro
 
+## 0.166.0
+
+### Minor Changes
+
+- fix gen watch and improve the gen watch API with manual controls ([#561](https://github.com/ryanatkn/gro/pull/561))
+
 ## 0.165.1
 
 ### Patch Changes

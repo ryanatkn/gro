@@ -5,7 +5,7 @@ import type {Src_Json} from '@ryanatkn/belt/src_json.js';
 
 export const package_json: Package_Json = {
 	name: '@ryanatkn/gro',
-	version: '0.165.1',
+	version: '0.166.0',
 	description: 'task runner and toolkit extending SvelteKit',
 	motto: 'generate, run, optimize',
 	glyph: '🌰',
@@ -104,7 +104,7 @@ export const package_json: Package_Json = {
 
 export const src_json: Src_Json = {
 	name: '@ryanatkn/gro',
-	version: '0.165.1',
+	version: '0.166.0',
 	modules: {
 		'.': {
 			path: 'index.ts',
