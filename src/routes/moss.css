@@ -54,7 +54,7 @@
 	font-weight: 500;
 	padding-left: var(--space_xs);
 	padding-right: var(--space_xs);
-	background-color: var(--fg_1);
+	background-color: var(--bg_1);
 	border-radius: var(--border_radius_xs);
 }
 a.chip {
