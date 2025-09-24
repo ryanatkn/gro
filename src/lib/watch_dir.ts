@@ -63,7 +63,9 @@ export const watch_dir = ({
 			watcher.on('change', (path, s) => {
 				const stats = s ?? statSync(path);
 				const final_path = absolute ? path : relative(dir, path);
-				if (filter && !filter(final_path, stats.isDirectory())) return;
+				if (filter && !filter(final_path, stats.isDirectory())) {
+					return;
+				}
 				on_change({type: 'update', path: final_path, is_directory: stats.isDirectory()});
 			});
 			watcher.on('unlink', (path) => {

@@ -31,13 +31,20 @@ export const task: Task<Args> = {
 
 		if (sync || install) {
 			if (!sync) log.warn('sync is false but install is true, so ignoring the sync option');
-			await invoke_task('sync', {install});
+			await invoke_task('sync', {install, gen: !watch});
 		}
 
 		const plugins = await Plugins.create({...ctx, dev: true, watch});
 		await plugins.setup();
 		if (!watch) {
 			await plugins.teardown();
+		} else {
+			// TODO maybe redesign for this API to be explicitly cancelable?
+			// Keep the task running indefinitely in watch mode.
+			// This prevents invoke_task from calling finish() and closing the filer.
+			await new Promise(() => {
+				// Never resolves - keeps filer and listeners alive.
+			});
 		}
 	},
 };
