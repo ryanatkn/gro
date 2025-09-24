@@ -1,6 +1,6 @@
 {
   "name": "@ryanatkn/gro",
-  "version": "0.165.1",
+  "version": "0.166.0",
   "modules": {
     ".": {
       "path": "index.ts",
@@ -631,6 +631,15 @@
         }
       ]
     },
+    "./gen_helpers.js": {
+      "path": "gen_helpers.ts",
+      "declarations": [
+        {
+          "name": "should_trigger_gen",
+          "kind": "function"
+        }
+      ]
+    },
     "./gen.task.js": {
       "path": "gen.task.ts",
       "declarations": [
@@ -668,7 +677,27 @@
           "kind": "type"
         },
         {
+          "name": "Gen_Dependencies",
+          "kind": "type"
+        },
+        {
+          "name": "Gen_Dependencies_Config",
+          "kind": "type"
+        },
+        {
+          "name": "Gen_Dependencies_Resolver",
+          "kind": "type"
+        },
+        {
           "name": "Gen",
+          "kind": "type"
+        },
+        {
+          "name": "Gen_Function",
+          "kind": "type"
+        },
+        {
+          "name": "Gen_Config",
           "kind": "type"
         },
         {
@@ -765,6 +794,10 @@
         },
         {
           "name": "validate_gen_module",
+          "kind": "function"
+        },
+        {
+          "name": "normalize_gen_config",
           "kind": "function"
         }
       ]
