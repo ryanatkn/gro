@@ -47,7 +47,7 @@ export interface Gen_Dependencies_Config {
 
 export type Gen_Dependencies_Resolver = (
 	ctx: Gen_Context,
-) => Gen_Dependencies_Config | 'all' | Promise<Gen_Dependencies_Config | 'all'>;
+) => Gen_Dependencies_Config | 'all' | null | Promise<Gen_Dependencies_Config | 'all' | null>;
 
 export type Gen = Gen_Function | Gen_Config;
 

@@ -280,7 +280,7 @@ export const gen: Gen_Config = {
 	dependencies: (ctx) => {
 		return ctx.changed_file_id?.endsWith('.json')
 			? {files: ['package.json', ctx.changed_file_id]}
-			: {files: ['package.json']};
+			: null; // same as `{}` and `{patterns: [], files: []}`
 	},
 };
 ```

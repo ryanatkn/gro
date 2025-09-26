@@ -745,3 +745,118 @@ test('should_trigger_gen only calls filter_dependents when changed_disknode exis
 
 	expect(mock_filter_dependents).not.toHaveBeenCalled();
 });
+
+test('should_trigger_gen handles null return from dependency resolver', async () => {
+	const files: Map<string, Disknode> = new Map();
+	files.set(TEST_JSON_FILE, create_disknode(TEST_JSON_FILE));
+
+	// Mock load_module with dependency resolver that returns null
+	vi.mocked(modules.load_module).mockResolvedValue({
+		ok: true,
+		id: TEST_GEN_FILE,
+		mod: {
+			gen: {
+				generate: () => 'content',
+				dependencies: (_ctx: any) => null,
+			},
+		},
+	});
+
+	const result = await should_trigger_gen(
+		TEST_GEN_FILE,
+		TEST_JSON_FILE,
+		create_mock_config(),
+		create_mock_filer(files),
+		create_mock_logger(),
+		create_mock_timings(),
+		create_mock_invoke_task(),
+	);
+
+	// null dependencies means no additional dependencies, so should not trigger
+	expect(result).toBe(false);
+});
+
+test('should_trigger_gen treats empty object and null as equivalent', async () => {
+	const files: Map<string, Disknode> = new Map();
+	files.set(TEST_JSON_FILE, create_disknode(TEST_JSON_FILE));
+
+	// Test with empty object
+	vi.mocked(modules.load_module).mockResolvedValue({
+		ok: true,
+		id: TEST_GEN_FILE,
+		mod: {
+			gen: {
+				generate: () => 'content',
+				dependencies: (_ctx: any) => ({}),
+			},
+		},
+	});
+
+	const result_empty = await should_trigger_gen(
+		TEST_GEN_FILE,
+		TEST_JSON_FILE,
+		create_mock_config(),
+		create_mock_filer(files),
+		create_mock_logger(),
+		create_mock_timings(),
+		create_mock_invoke_task(),
+	);
+
+	// Test with null
+	vi.mocked(modules.load_module).mockResolvedValue({
+		ok: true,
+		id: TEST_GEN_FILE,
+		mod: {
+			gen: {
+				generate: () => 'content',
+				dependencies: (_ctx: any) => null,
+			},
+		},
+	});
+
+	const result_null = await should_trigger_gen(
+		TEST_GEN_FILE,
+		TEST_JSON_FILE,
+		create_mock_config(),
+		create_mock_filer(files),
+		create_mock_logger(),
+		create_mock_timings(),
+		create_mock_invoke_task(),
+	);
+
+	// Both should have the same behavior
+	expect(result_empty).toBe(false);
+	expect(result_null).toBe(false);
+});
+
+test('should_trigger_gen handles async null return from dependency resolver', async () => {
+	const files: Map<string, Disknode> = new Map();
+	files.set(TEST_JSON_FILE, create_disknode(TEST_JSON_FILE));
+
+	// Mock load_module with async dependency resolver that returns null
+	vi.mocked(modules.load_module).mockResolvedValue({
+		ok: true,
+		id: TEST_GEN_FILE,
+		mod: {
+			gen: {
+				generate: () => 'content',
+				dependencies: async (_ctx: any) => {
+					await new Promise((resolve) => setTimeout(resolve, 0));
+					return null;
+				},
+			},
+		},
+	});
+
+	const result = await should_trigger_gen(
+		TEST_GEN_FILE,
+		TEST_JSON_FILE,
+		create_mock_config(),
+		create_mock_filer(files),
+		create_mock_logger(),
+		create_mock_timings(),
+		create_mock_invoke_task(),
+	);
+
+	expect(result).toBe(false);
+});

@@ -9,6 +9,7 @@ import {
 	normalize_gen_config,
 	validate_gen_module,
 	type Gen_Context,
+	type Gen_Dependencies,
 	type Gen_Dependencies_Config,
 } from './gen.ts';
 import {default_svelte_config} from './svelte_config.ts';
@@ -95,7 +96,7 @@ const resolve_gen_dependencies = async (
 		return null;
 	}
 
-	let {dependencies} = gen_config;
+	let dependencies: Gen_Dependencies | null = gen_config.dependencies;
 	if (typeof dependencies === 'function') {
 		const gen_ctx: Gen_Context = {
 			config,
@@ -111,8 +112,18 @@ const resolve_gen_dependencies = async (
 		dependencies = await dependencies(gen_ctx);
 	}
 
+	if (dependencies === null || dependencies === 'all') {
+		return dependencies;
+	}
+
+	// At this point, dependencies is either 'all' or Gen_Dependencies_Config
+	// For static dependencies, also normalize empty objects
+	if (!dependencies.patterns?.length && !dependencies.files?.length) {
+		return null;
+	}
+
 	// Normalize file paths to absolute paths
-	if (dependencies !== 'all' && dependencies.files) {
+	if (dependencies.files) {
 		dependencies.files = dependencies.files.map((f) => resolve(f));
 	}
 
