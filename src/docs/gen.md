@@ -260,12 +260,3 @@ export const task: Task = {
 Gro uses this in [`check.task.ts`](/src/lib/check.task.ts)
 which is called during `gro publish`, and it's recommended in CI.
 (see [Gro's example `check.yml`](/.github/workflows/check.yml))
-
-## todo
-
-- [x] basic functionality
-- [x] format output with Prettier
-- [x] watch mode and build integration - [#492](https://github.com/ryanatkn/gro/pull/492)
-- [ ] change the exported `gen` function to an object with a `summary` and other properties like `watch`
-- [ ] better support for generating non-text files
-- [ ] better sourcemap support
