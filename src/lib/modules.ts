@@ -2,6 +2,7 @@ import type {Timings} from '@ryanatkn/belt/timings.js';
 import {Unreachable_Error} from '@ryanatkn/belt/error.js';
 import type {Result} from '@ryanatkn/belt/result.js';
 import {print_error} from '@ryanatkn/belt/print.js';
+import {pathToFileURL} from 'node:url';
 
 import type {Resolved_Input_File} from './input_path.ts';
 import {print_path} from './paths.ts';
@@ -29,10 +30,17 @@ export type Load_Module_Failure =
 export const load_module = async <T_Module extends Record<string, any>>(
 	id: Path_Id,
 	validate?: (mod: Record<string, any>) => mod is T_Module,
+	bust_cache?: boolean,
 ): Promise<Load_Module_Result<T_Module>> => {
 	let mod;
 	try {
-		mod = await import(id);
+		let import_path = id;
+		if (bust_cache) {
+			const url = pathToFileURL(id);
+			url.searchParams.set('t', Date.now().toString());
+			import_path = url.href;
+		}
+		mod = await import(import_path);
 	} catch (err) {
 		return {ok: false, type: 'failed_import', id, error: err};
 	}
