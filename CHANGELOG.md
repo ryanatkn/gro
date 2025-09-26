@@ -1,5 +1,11 @@
 # @ryanatkn/gro
 
+## 0.167.1
+
+### Patch Changes
+
+- support `null` as return value from `Gen_Dependencies_Resolver` ([1955bb5](https://github.com/ryanatkn/gro/commit/1955bb5))
+
 ## 0.167.0
 
 ### Minor Changes
