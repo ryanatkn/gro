@@ -1,4 +1,5 @@
 import {pathToFileURL} from 'node:url';
+import {resolve} from 'node:path';
 import type {Logger} from '@ryanatkn/belt/log.js';
 import type {Timings} from '@ryanatkn/belt/timings.js';
 
@@ -110,6 +111,11 @@ const resolve_gen_dependencies = async (
 				origin_path: to_root_path(gen_file_id),
 			};
 			dependencies = await dependencies(gen_ctx);
+		}
+
+		// Normalize file paths to absolute paths
+		if (dependencies !== 'all' && dependencies.files) {
+			dependencies.files = dependencies.files.map((f) => resolve(f));
 		}
 
 		return dependencies;
