@@ -1,20 +1,20 @@
-import {pathToFileURL} from 'node:url';
 import {resolve} from 'node:path';
 import type {Logger} from '@ryanatkn/belt/log.js';
 import type {Timings} from '@ryanatkn/belt/timings.js';
 
 import type {Gro_Config} from './gro_config.ts';
-import type {Filer} from './filer.ts';
+import {filter_dependents, type Filer} from './filer.ts';
 import type {Invoke_Task} from './task.ts';
 import {
 	normalize_gen_config,
 	validate_gen_module,
 	type Gen_Context,
-	type Gen_Dependencies,
+	type Gen_Dependencies_Config,
 } from './gen.ts';
 import {default_svelte_config} from './svelte_config.ts';
 import {to_root_path} from './paths.ts';
 import type {Path_Id} from './path.ts';
+import {load_module} from './modules.ts';
 
 /**
  * Check if a file change should trigger a gen file.
@@ -27,100 +27,94 @@ export const should_trigger_gen = async (
 	log: Logger,
 	timings: Timings,
 	invoke_task: Invoke_Task,
-	dependencies_cache: Map<Path_Id, Gen_Dependencies | null>,
 ): Promise<boolean> => {
 	// Always trigger if the gen file itself changed
-	if (gen_file_id === changed_file_id) {
-		// Invalidate cache for this gen file
-		dependencies_cache.delete(gen_file_id);
-		return true;
+	const is_self_change = gen_file_id === changed_file_id;
+	if (is_self_change) return true;
+
+	// Check if gen file depends on the changed file (directly or transitively)
+	const changed_disknode = filer.get_by_id(changed_file_id);
+	let should_bust_cache = false;
+	if (changed_disknode) {
+		const dependents = filter_dependents(
+			changed_disknode,
+			filer.get_by_id,
+			(id) => id === gen_file_id, // filter for just our gen file
+		);
+		should_bust_cache = dependents.has(gen_file_id);
 	}
 
-	let dependencies: Gen_Dependencies | null | undefined;
-	if (!dependencies_cache.has(gen_file_id)) {
-		dependencies = await resolve_gen_dependencies(
-			gen_file_id,
-			config,
-			filer,
-			log,
-			timings,
-			invoke_task,
-		);
-		dependencies_cache.set(gen_file_id, dependencies);
-	} else {
-		dependencies = dependencies_cache.get(gen_file_id);
-	}
+	// Resolve dependencies (with cache busting if the changed file is a dependency of the gen file)
+	const dependencies = await resolve_gen_dependencies(
+		gen_file_id,
+		changed_file_id,
+		should_bust_cache,
+		config,
+		filer,
+		log,
+		timings,
+		invoke_task,
+	);
 
 	if (!dependencies) return false;
 
-	if (dependencies === 'all') return true;
-
-	if (typeof dependencies !== 'function') {
-		if (dependencies.patterns) {
-			if (dependencies.patterns.some((p) => p.test(changed_file_id))) {
-				return true;
-			}
-		}
-
-		if (dependencies.files) {
-			if (dependencies.files.includes(changed_file_id)) {
-				return true;
-			}
-		}
-	}
-
-	return false;
+	return (
+		dependencies === 'all' ||
+		dependencies.patterns?.some((p) => p.test(changed_file_id)) ||
+		dependencies.files?.includes(changed_file_id) ||
+		false
+	);
 };
 
 /**
  * Resolve dependencies for a gen file.
- * Uses cache-busting to get fresh imports, allowing dependency
- * declarations to update during watch mode without restart.
+ * Uses cache-busting only when the gen file itself changes,
+ * otherwise relies on Node's module caching.
  */
 const resolve_gen_dependencies = async (
 	gen_file_id: string,
+	changed_file_id: Path_Id | undefined,
+	bust_cache: boolean,
 	config: Gro_Config,
 	filer: Filer,
 	log: Logger,
 	timings: Timings,
 	invoke_task: Invoke_Task,
-): Promise<Gen_Dependencies | null> => {
-	try {
-		const url = pathToFileURL(gen_file_id);
-		url.searchParams.set('t', Date.now().toString());
-		const module = await import(url.href);
-		if (!validate_gen_module(module)) {
-			return null;
-		}
+): Promise<Gen_Dependencies_Config | 'all' | null> => {
+	const result = await load_module(gen_file_id, validate_gen_module, bust_cache);
 
-		const gen_config = normalize_gen_config(module.gen);
-		if (!gen_config.dependencies) {
-			return null;
+	if (!result.ok) {
+		if (result.type === 'failed_import') {
+			log.error(`Failed to import ${gen_file_id}:`, result.error);
 		}
-
-		let dependencies = gen_config.dependencies;
-		if (typeof dependencies === 'function') {
-			const gen_ctx: Gen_Context = {
-				config,
-				svelte_config: default_svelte_config,
-				filer,
-				log,
-				timings,
-				invoke_task,
-				origin_id: gen_file_id,
-				origin_path: to_root_path(gen_file_id),
-			};
-			dependencies = await dependencies(gen_ctx);
-		}
-
-		// Normalize file paths to absolute paths
-		if (dependencies !== 'all' && dependencies.files) {
-			dependencies.files = dependencies.files.map((f) => resolve(f));
-		}
-
-		return dependencies;
-	} catch (err) {
-		log.error(`Failed to resolve dependencies for ${gen_file_id}:`, err);
 		return null;
 	}
+
+	const gen_config = normalize_gen_config(result.mod.gen);
+	if (!gen_config.dependencies) {
+		return null;
+	}
+
+	let {dependencies} = gen_config;
+	if (typeof dependencies === 'function') {
+		const gen_ctx: Gen_Context = {
+			config,
+			svelte_config: default_svelte_config,
+			filer,
+			log,
+			timings,
+			invoke_task,
+			origin_id: gen_file_id,
+			origin_path: to_root_path(gen_file_id),
+			changed_file_id,
+		};
+		dependencies = await dependencies(gen_ctx);
+	}
+
+	// Normalize file paths to absolute paths
+	if (dependencies !== 'all' && dependencies.files) {
+		dependencies.files = dependencies.files.map((f) => resolve(f));
+	}
+
+	return dependencies;
 };

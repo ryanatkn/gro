@@ -17,13 +17,12 @@ and whether or not it's a wise thing to do,
 By convention, `gro gen` looks through `src/`
 for any TypeScript files with `.gen.` in the file name,
 and it outputs a file stripped of `.gen.` to the same directory.
-The `*.gen.*` origin files export a `gen` function
-More flexibility is available when needed
-including multiple custom output files.
+The `*.gen.*` origin files export a `gen` function or config object with a `generate` function.
+More flexibility is available when needed including multiple custom output files.
 
-`gen` is implemented as [a task](/src/lib/gen.task.ts)
-and [a plugin](/src/lib/gro_plugin_gen.ts),
-and runs only during development, not for production builds.
+`gen` is implemented in Gro as [a task](/src/lib/gen.task.ts)
+and [a plugin](/src/lib/gro_plugin_gen.ts).
+By default it runs during development with `gro dev` and for production in `gro build`.
 
 Normally you'll want to commit generated files to git,
 but you can always gitignore a specific pattern like `*.ignore.*`
@@ -98,9 +97,24 @@ Outputs `src/script.ts`:
 console.log('generated a string');
 ```
 
-### gen context
+### gen types
 
-The `Gen` function receives one argument, the `Gen_Context` object:
+Gen files export either a function or object with a `generate` function:
+
+```ts
+import type {Gen} from '@ryanatkn/gro';
+
+export const gen: Gen = (ctx) => {
+	return 'generated content';
+};
+
+export const gen: Gen = {
+	generate: (ctx) => 'generated content',
+	dependencies, // optional, see docs below
+};
+```
+
+The generate function receives a `Gen_Context` object:
 
 ```ts
 export interface Gen_Context {
@@ -118,6 +132,12 @@ export interface Gen_Context {
 	 * The `origin_id` relative to the root dir.
 	 */
 	origin_path: string;
+	/**
+	 * The file that triggered dependency checking.
+	 * Only available when resolving dependencies dynamically.
+	 * `undefined` during actual generation.
+	 */
+	changed_file_id: Path_Id | undefined;
 }
 // export const gen: Gen = ({config, svelte_config, origin_id, origin_path, log}) => {
 ```
@@ -235,8 +255,43 @@ and `src/data/thing.json`:
 }
 ```
 
-It's often helpful to check if any generated files are new or have changed.
-We don't want to forget to regenerate files before committing or publishing!
+### dependencies
+
+Gen files can declare dependencies to control when they regenerate in watch mode.
+By default, they regenerate only when their imported dependencies or the file itself change.
+The `dependencies` option provides fine-grained control:
+
+```ts
+import type {Gen_Config} from '@ryanatkn/gro';
+
+export const gen: Gen_Config = {
+	generate: () => 'returns generated contents',
+
+	// regenerate on all file changes
+	dependencies: 'all',
+
+	// static configuration
+	dependencies: {
+		patterns: [/\.json$/, /config\//], // regex patterns to match file paths
+		files: ['src/data/schema.ts', 'package.json'], // specific file paths
+	},
+
+	// dynamic resolver function
+	dependencies: (ctx) => {
+		return ctx.changed_file_id?.endsWith('.json')
+			? {files: ['package.json', ctx.changed_file_id]}
+			: {files: ['package.json']};
+	},
+};
+```
+
+### checking generated files
+
+Generating code directly in your git-committed source is powerful and transparent,
+but a downside is that generated artifacts can become stale
+outside of normal `gro dev` and `gro build` workflows.
+It's often helpful to check if any generated files are new or different than what's on disk,
+like in CI or before publishing a build.
 The `check` CLI argument can be passed to perform this check
 instead of writing the generated files to disk.
 

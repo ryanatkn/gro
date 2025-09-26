@@ -75,6 +75,12 @@ export interface Gen_Context {
 	 * The `origin_id` relative to the root dir.
 	 */
 	origin_path: string;
+	/**
+	 * The file that triggered dependency checking.
+	 * Only available when resolving dependencies dynamically.
+	 * `undefined` during actual generation.
+	 */
+	changed_file_id: Path_Id | undefined;
 }
 
 // TODO consider other return data - metadata? effects? non-file build artifacts?
