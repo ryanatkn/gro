@@ -1,5 +1,11 @@
 # @ryanatkn/gro
 
+## 0.166.1
+
+### Patch Changes
+
+- resolve `files` of gen dependencies ([#562](https://github.com/ryanatkn/gro/pull/562))
+
 ## 0.166.0
 
 ### Minor Changes
