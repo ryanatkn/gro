@@ -1,5 +1,15 @@
 # @ryanatkn/gro
 
+## 0.167.0
+
+### Minor Changes
+
+- add `changed_file_id` to gen context for dependency resolution ([#563](https://github.com/ryanatkn/gro/pull/563))
+
+### Patch Changes
+
+- fix gen dependency cache busting ([#563](https://github.com/ryanatkn/gro/pull/563))
+
 ## 0.166.1
 
 ### Patch Changes
