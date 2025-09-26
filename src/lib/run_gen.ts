@@ -49,6 +49,7 @@ export const run_gen = async (
 				invoke_task,
 				origin_id: id,
 				origin_path: to_root_path(id),
+				changed_file_id: undefined,
 			};
 			let raw_gen_result: Raw_Gen_Result;
 			try {

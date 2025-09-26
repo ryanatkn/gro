@@ -10,7 +10,7 @@ import {
 	normalize_gen_config,
 	validate_gen_module,
 	type Gen_Context,
-	type Gen_Dependencies,
+	type Gen_Dependencies_Config,
 } from './gen.ts';
 import {default_svelte_config} from './svelte_config.ts';
 import {to_root_path} from './paths.ts';
@@ -27,46 +27,33 @@ export const should_trigger_gen = async (
 	log: Logger,
 	timings: Timings,
 	invoke_task: Invoke_Task,
-	dependencies_cache: Map<Path_Id, Gen_Dependencies | null>,
 ): Promise<boolean> => {
 	// Always trigger if the gen file itself changed
-	if (gen_file_id === changed_file_id) {
-		// Invalidate cache for this gen file
-		dependencies_cache.delete(gen_file_id);
-		return true;
-	}
+	const is_self_change = gen_file_id === changed_file_id;
+	if (is_self_change) return true;
 
-	let dependencies: Gen_Dependencies | null | undefined;
-	if (!dependencies_cache.has(gen_file_id)) {
-		dependencies = await resolve_gen_dependencies(
-			gen_file_id,
-			config,
-			filer,
-			log,
-			timings,
-			invoke_task,
-		);
-		dependencies_cache.set(gen_file_id, dependencies);
-	} else {
-		dependencies = dependencies_cache.get(gen_file_id);
-	}
+	// Resolve dependencies (no cache busting needed since gen file didn't change)
+	const dependencies = await resolve_gen_dependencies(
+		gen_file_id,
+		changed_file_id,
+		is_self_change,
+		config,
+		filer,
+		log,
+		timings,
+		invoke_task,
+	);
 
 	if (!dependencies) return false;
 
 	if (dependencies === 'all') return true;
 
-	if (typeof dependencies !== 'function') {
-		if (dependencies.patterns) {
-			if (dependencies.patterns.some((p) => p.test(changed_file_id))) {
-				return true;
-			}
-		}
+	if (dependencies.patterns?.some((p) => p.test(changed_file_id))) {
+		return true;
+	}
 
-		if (dependencies.files) {
-			if (dependencies.files.includes(changed_file_id)) {
-				return true;
-			}
-		}
+	if (dependencies.files?.includes(changed_file_id)) {
+		return true;
 	}
 
 	return false;
@@ -74,20 +61,25 @@ export const should_trigger_gen = async (
 
 /**
  * Resolve dependencies for a gen file.
- * Uses cache-busting to get fresh imports, allowing dependency
- * declarations to update during watch mode without restart.
+ * Uses cache-busting only when the gen file itself changes,
+ * otherwise relies on Node's module caching.
  */
 const resolve_gen_dependencies = async (
 	gen_file_id: string,
+	changed_file_id: Path_Id | undefined,
+	bust_cache: boolean,
 	config: Gro_Config,
 	filer: Filer,
 	log: Logger,
 	timings: Timings,
 	invoke_task: Invoke_Task,
-): Promise<Gen_Dependencies | null> => {
+): Promise<Gen_Dependencies_Config | 'all' | null> => {
 	try {
 		const url = pathToFileURL(gen_file_id);
-		url.searchParams.set('t', Date.now().toString());
+		if (bust_cache) {
+			// Only cache bust when the gen file itself changed
+			url.searchParams.set('t', Date.now().toString());
+		}
 		const module = await import(url.href);
 		if (!validate_gen_module(module)) {
 			return null;
@@ -109,6 +101,7 @@ const resolve_gen_dependencies = async (
 				invoke_task,
 				origin_id: gen_file_id,
 				origin_path: to_root_path(gen_file_id),
+				changed_file_id,
 			};
 			dependencies = await dependencies(gen_ctx);
 		}
