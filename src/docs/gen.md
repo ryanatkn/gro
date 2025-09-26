@@ -278,9 +278,9 @@ export const gen: Gen_Config = {
 
 	// dynamic resolver function
 	dependencies: (ctx) => {
-		return {
-			files: ctx.config.plugins?.map((p) => p.name + '.ts') ?? [],
-		};
+		return ctx.changed_file_id?.endsWith('.json')
+			? {files: ['package.json', ctx.changed_file_id]}
+			: {files: ['package.json']};
 	},
 };
 ```
