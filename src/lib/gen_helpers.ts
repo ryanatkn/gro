@@ -4,6 +4,7 @@ import type {Timings} from '@ryanatkn/belt/timings.js';
 
 import type {Gro_Config} from './gro_config.ts';
 import type {Filer} from './filer.ts';
+import {filter_dependents} from './filer.ts';
 import type {Invoke_Task} from './task.ts';
 import {
 	normalize_gen_config,
@@ -32,11 +33,23 @@ export const should_trigger_gen = async (
 	const is_self_change = gen_file_id === changed_file_id;
 	if (is_self_change) return true;
 
-	// Resolve dependencies (no cache busting needed since gen file didn't change)
+	// Check if gen file depends on the changed file (directly or transitively)
+	const changed_disknode = filer.get_by_id(changed_file_id);
+	let should_bust_cache = false;
+	if (changed_disknode) {
+		const dependents = filter_dependents(
+			changed_disknode,
+			filer.get_by_id,
+			(id) => id === gen_file_id, // filter for just our gen file
+		);
+		should_bust_cache = dependents.has(gen_file_id);
+	}
+
+	// Resolve dependencies (with cache busting if the changed file is a dependency of the gen file)
 	const dependencies = await resolve_gen_dependencies(
 		gen_file_id,
 		changed_file_id,
-		is_self_change,
+		should_bust_cache,
 		config,
 		filer,
 		log,
@@ -46,17 +59,12 @@ export const should_trigger_gen = async (
 
 	if (!dependencies) return false;
 
-	if (dependencies === 'all') return true;
-
-	if (dependencies.patterns?.some((p) => p.test(changed_file_id))) {
-		return true;
-	}
-
-	if (dependencies.files?.includes(changed_file_id)) {
-		return true;
-	}
-
-	return false;
+	return (
+		dependencies === 'all' ||
+		dependencies.patterns?.some((p) => p.test(changed_file_id)) ||
+		dependencies.files?.includes(changed_file_id) ||
+		false
+	);
 };
 
 /**
