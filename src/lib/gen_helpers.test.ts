@@ -37,7 +37,11 @@ const TEST_JSON_FILE = resolve('src/data.json');
 const TEST_OTHER_FILE = resolve('src/other.ts');
 
 // Helper to create mock disknode
-const create_disknode = (id: string, deps: string[] = [], dependents: string[] = []): Disknode => {
+const create_disknode = (
+	id: string,
+	deps: Array<string> = [],
+	dependents: Array<string> = [],
+): Disknode => {
 	const node: Disknode = {
 		id,
 		contents: null,
@@ -100,7 +104,7 @@ beforeEach(() => {
 test('should_trigger_gen returns true for self-change', async () => {
 	const changed_file_id = TEST_GEN_FILE; // same file
 
-	const files = new Map<string, Disknode>();
+	const files: Map<string, Disknode> = new Map();
 	files.set(TEST_GEN_FILE, create_disknode(TEST_GEN_FILE));
 
 	const result = await should_trigger_gen(
@@ -119,7 +123,7 @@ test('should_trigger_gen returns true for self-change', async () => {
 });
 
 test('should_trigger_gen returns true for dependencies="all"', async () => {
-	const files = new Map<string, Disknode>();
+	const files: Map<string, Disknode> = new Map();
 	files.set(TEST_GEN_FILE, create_disknode(TEST_GEN_FILE));
 	files.set(TEST_OTHER_FILE, create_disknode(TEST_OTHER_FILE));
 
@@ -149,7 +153,7 @@ test('should_trigger_gen returns true for dependencies="all"', async () => {
 });
 
 test('should_trigger_gen matches pattern dependencies', async () => {
-	const files = new Map<string, Disknode>();
+	const files: Map<string, Disknode> = new Map();
 	files.set(TEST_GEN_FILE, create_disknode(TEST_GEN_FILE));
 	files.set(TEST_JSON_FILE, create_disknode(TEST_JSON_FILE));
 	files.set(TEST_OTHER_FILE, create_disknode(TEST_OTHER_FILE));
@@ -196,7 +200,7 @@ test('should_trigger_gen matches pattern dependencies', async () => {
 test('should_trigger_gen matches specific file dependencies', async () => {
 	const other_file_id = resolve('src/other.json');
 
-	const files = new Map<string, Disknode>();
+	const files: Map<string, Disknode> = new Map();
 	files.set(TEST_GEN_FILE, create_disknode(TEST_GEN_FILE));
 	files.set(TEST_JSON_FILE, create_disknode(TEST_JSON_FILE));
 	files.set(other_file_id, create_disknode(other_file_id));
@@ -241,7 +245,7 @@ test('should_trigger_gen matches specific file dependencies', async () => {
 });
 
 test('should_trigger_gen returns false when no dependencies and not self-change', async () => {
-	const files = new Map<string, Disknode>();
+	const files: Map<string, Disknode> = new Map();
 	files.set(TEST_GEN_FILE, create_disknode(TEST_GEN_FILE));
 	files.set(TEST_OTHER_FILE, create_disknode(TEST_OTHER_FILE));
 
@@ -272,7 +276,7 @@ test('should_trigger_gen busts cache when gen file imports changed file', async 
 	const helper_node = create_disknode(TEST_HELPER_FILE);
 	const other_node = create_disknode(TEST_OTHER_FILE);
 
-	const files = new Map<string, Disknode>();
+	const files: Map<string, Disknode> = new Map();
 	files.set(TEST_HELPER_FILE, helper_node);
 	files.set(TEST_OTHER_FILE, other_node);
 
@@ -290,7 +294,7 @@ test('should_trigger_gen busts cache when gen file imports changed file', async 
 
 	// Mock filter_dependents to return gen file when helper changes (gen imports helper)
 	vi.mocked(filer.filter_dependents).mockImplementation((disknode, _get_by_id, filter) => {
-		const results = new Set<string>();
+		const results: Set<string> = new Set();
 		if (disknode === helper_node && filter) {
 			// Simulate that gen file depends on helper
 			if (filter(TEST_GEN_FILE)) {
@@ -337,7 +341,7 @@ test('should_trigger_gen busts cache when gen file imports changed file', async 
 });
 
 test('should_trigger_gen passes changed_file_id to dynamic dependencies resolver', async () => {
-	const files = new Map<string, Disknode>();
+	const files: Map<string, Disknode> = new Map();
 	files.set(TEST_GEN_FILE, create_disknode(TEST_GEN_FILE));
 	files.set(TEST_JSON_FILE, create_disknode(TEST_JSON_FILE));
 
@@ -375,7 +379,7 @@ test('should_trigger_gen passes changed_file_id to dynamic dependencies resolver
 });
 
 test('should_trigger_gen handles load_module failures gracefully', async () => {
-	const files = new Map<string, Disknode>();
+	const files: Map<string, Disknode> = new Map();
 	files.set(TEST_GEN_FILE, create_disknode(TEST_GEN_FILE));
 	files.set(TEST_OTHER_FILE, create_disknode(TEST_OTHER_FILE));
 
@@ -410,7 +414,7 @@ test('should_trigger_gen handles missing changed file in filer gracefully', asyn
 	const changed_file_id = resolve('src/missing.ts');
 
 	// Changed file doesn't exist in filer
-	const files = new Map<string, Disknode>();
+	const files: Map<string, Disknode> = new Map();
 
 	// Mock load_module
 	vi.mocked(modules.load_module).mockResolvedValue({
@@ -447,7 +451,7 @@ test('should_trigger_gen detects transitive dependencies via filter_dependents',
 	// Create files: gen → helper → utils (transitive)
 	const utils_node = create_disknode(TEST_UTILS_FILE);
 
-	const files = new Map<string, Disknode>();
+	const files: Map<string, Disknode> = new Map();
 	files.set(TEST_UTILS_FILE, utils_node);
 
 	// Mock load_module
@@ -465,7 +469,7 @@ test('should_trigger_gen detects transitive dependencies via filter_dependents',
 	// Mock filter_dependents to simulate transitive dependency
 	// gen imports helper, helper imports utils
 	vi.mocked(filer.filter_dependents).mockImplementation((disknode, _get_by_id, filter) => {
-		const results = new Set<string>();
+		const results: Set<string> = new Set();
 		if (disknode === utils_node && filter) {
 			// Simulate that gen file transitively depends on utils
 			if (filter(TEST_GEN_FILE)) {
@@ -491,7 +495,7 @@ test('should_trigger_gen detects transitive dependencies via filter_dependents',
 
 test('should_trigger_gen calls filter_dependents with correct parameters', async () => {
 	const changed_node = create_disknode(TEST_HELPER_FILE);
-	const files = new Map<string, Disknode>();
+	const files: Map<string, Disknode> = new Map();
 	files.set(TEST_HELPER_FILE, changed_node);
 
 	// Mock load_module
@@ -539,7 +543,7 @@ test('should_trigger_gen calls filter_dependents with correct parameters', async
 test('should_trigger_gen handles combined patterns and files dependencies', async () => {
 	const specific_file_id = resolve('src/specific.ts');
 
-	const files = new Map<string, Disknode>();
+	const files: Map<string, Disknode> = new Map();
 	files.set(TEST_JSON_FILE, create_disknode(TEST_JSON_FILE));
 	files.set(specific_file_id, create_disknode(specific_file_id));
 	files.set(TEST_OTHER_FILE, create_disknode(TEST_OTHER_FILE));
@@ -597,7 +601,7 @@ test('should_trigger_gen handles combined patterns and files dependencies', asyn
 });
 
 test('should_trigger_gen handles dynamic dependency returning all', async () => {
-	const files = new Map<string, Disknode>();
+	const files: Map<string, Disknode> = new Map();
 	files.set(TEST_OTHER_FILE, create_disknode(TEST_OTHER_FILE));
 
 	// Mock load_module with dynamic dependency that returns 'all'
@@ -626,7 +630,7 @@ test('should_trigger_gen handles dynamic dependency returning all', async () => 
 });
 
 test('should_trigger_gen handles validation failure from load_module', async () => {
-	const files = new Map<string, Disknode>();
+	const files: Map<string, Disknode> = new Map();
 	files.set(TEST_OTHER_FILE, create_disknode(TEST_OTHER_FILE));
 
 	// Mock load_module to return validation failure
@@ -656,7 +660,7 @@ test('should_trigger_gen handles validation failure from load_module', async () 
 });
 
 test('should_trigger_gen handles async dependency resolver', async () => {
-	const files = new Map<string, Disknode>();
+	const files: Map<string, Disknode> = new Map();
 	files.set(TEST_JSON_FILE, create_disknode(TEST_JSON_FILE));
 
 	let resolver_called = false;
@@ -697,7 +701,7 @@ test('should_trigger_gen handles async dependency resolver', async () => {
 test('should_trigger_gen only calls filter_dependents when changed_disknode exists', async () => {
 	const missing_file_id = resolve('src/missing.ts');
 
-	const files = new Map<string, Disknode>();
+	const files: Map<string, Disknode> = new Map();
 	files.set(TEST_HELPER_FILE, create_disknode(TEST_HELPER_FILE));
 	// missing_file_id is intentionally not in the map
 

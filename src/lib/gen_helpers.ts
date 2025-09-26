@@ -3,8 +3,7 @@ import type {Logger} from '@ryanatkn/belt/log.js';
 import type {Timings} from '@ryanatkn/belt/timings.js';
 
 import type {Gro_Config} from './gro_config.ts';
-import type {Filer} from './filer.ts';
-import {filter_dependents} from './filer.ts';
+import {filter_dependents, type Filer} from './filer.ts';
 import type {Invoke_Task} from './task.ts';
 import {
 	normalize_gen_config,
