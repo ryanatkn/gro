@@ -22,7 +22,7 @@ More flexibility is available when needed including multiple custom output files
 
 `gen` is implemented in Gro as [a task](/src/lib/gen.task.ts)
 and [a plugin](/src/lib/gro_plugin_gen.ts).
-The plugin runs automatically during development with `gro dev` for production in `gro build`.
+By default it runs during development with `gro dev` and for production in `gro build`.
 
 Normally you'll want to commit generated files to git,
 but you can always gitignore a specific pattern like `*.ignore.*`
