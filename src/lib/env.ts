@@ -18,6 +18,22 @@ export const load_env = (
 	return merge_envs(envs, visibility, public_prefix, private_prefix);
 };
 
+/**
+ * Loads a single env value without merging it into `process.env`.
+ * By default searches process.env, then a local `.env` if one exists, then `../.env` if it exists.
+ * Empty strings are semantically the same as `undefined` for more ergonomic fallbacks.
+ */
+export const load_from_env = (key: string, paths = ['.env', '../.env']): string | undefined => {
+	let v = process.env[key];
+	if (v) return v;
+	for (const path of paths) {
+		const env = load(path);
+		v = env?.[key];
+		if (v) return v;
+	}
+	return undefined;
+};
+
 const load = (path: string): Record<string, string> | undefined => {
 	if (!existsSync(path)) return;
 	const loaded = readFileSync(path, 'utf8');
@@ -60,16 +76,3 @@ export const is_public_env = (
 	private_prefix: string,
 ): boolean =>
 	key.startsWith(public_prefix) && (private_prefix === '' || !key.startsWith(private_prefix));
-
-/**
- * Loads a single env value without merging it into `process.env`.
- * By default searches process.env, then a local `.env` if one exists, then `../.env` if it exists.
- */
-export const load_from_env = (key: string, paths = ['.env', '../.env']): string | undefined => {
-	if (process.env[key]) return process.env[key];
-	for (const path of paths) {
-		const env = load(path);
-		if (env?.[key]) return env[key];
-	}
-	return undefined;
-};
