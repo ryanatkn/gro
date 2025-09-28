@@ -11,13 +11,13 @@ import type {Gen} from './gen.ts';
  * which mirrors `package.json` but in TypeScript,
  * allowing apps to import typesafe data from their own `package.json`.
  */
-export const gen: Gen = ({origin_path}) => {
+export const gen: Gen = ({origin_path, log}) => {
 	const package_json = load_package_json();
 	// TODO this can error with bad json data, do we need to update the package.json here first?
 	// similarly do this in other places too?
 	// part of the problem is that the package_json actually has a dependency on each of its exports and their deps,
 	// but only when they're added/removed right? see gro_plugin_gen for details
-	const src_json = create_src_json(package_json, undefined);
+	const src_json = create_src_json(package_json, undefined, log);
 
 	const is_this_belt = package_json.name === '@ryanatkn/belt'; // TODO more robust?
 

@@ -4,6 +4,7 @@ import {existsSync} from 'node:fs';
 import ts from 'typescript';
 import type {Package_Json, Package_Json_Exports} from '@ryanatkn/belt/package_json.js';
 import {Src_Json, Src_Modules} from '@ryanatkn/belt/src_json.js';
+import type {Logger} from '@ryanatkn/belt/log.js';
 
 import {paths, replace_extension} from './paths.ts';
 import {parse_exports} from './parse_exports.ts';
@@ -12,11 +13,15 @@ import {search_fs} from './search_fs.ts';
 
 export type Map_Src_Json = (src_json: Src_Json) => Src_Json | null | Promise<Src_Json | null>;
 
-export const create_src_json = (package_json: Package_Json, lib_path?: string): Src_Json =>
+export const create_src_json = (
+	package_json: Package_Json,
+	lib_path?: string,
+	log?: Logger,
+): Src_Json =>
 	Src_Json.parse({
 		name: package_json.name,
 		version: package_json.version,
-		modules: to_src_modules(package_json.exports, lib_path),
+		modules: to_src_modules(package_json.exports, lib_path, log),
 	});
 
 export const serialize_src_json = (src_json: Src_Json): string => {
@@ -27,6 +32,7 @@ export const serialize_src_json = (src_json: Src_Json): string => {
 export const to_src_modules = (
 	exports: Package_Json_Exports | undefined,
 	lib_path = paths.lib,
+	log?: Logger,
 ): Src_Modules | undefined => {
 	if (!exports) return;
 
@@ -58,7 +64,10 @@ export const to_src_modules = (
 	for (const {export_key, file_path} of file_paths) {
 		const relative_path = file_path.replace(ensure_end(lib_path, '/'), '');
 
-		const declarations = parse_exports(file_path, program).map(({name, kind}) => ({name, kind}));
+		const declarations = parse_exports(file_path, program, undefined, log).map(({name, kind}) => ({
+			name,
+			kind,
+		}));
 
 		result[export_key] = declarations.length
 			? {

@@ -18,8 +18,8 @@
 	let show_detail = $state(false);
 </script>
 
-<main class="box w_100">
-	<div class="box width_md">
+<main class="box width_100">
+	<div class="box width_upto_md">
 		<section class="box">
 			<h1>gro</h1>
 			<a class="panel p_md box mb_xl3" title="source repo" href="https://github.com/ryanatkn/gro">
@@ -31,7 +31,7 @@
 				<a href="https://github.com/ryanatkn/gro">the source repo</a>.
 			</aside>
 		</section>
-		<section class="panel mb_lg p_md w_100 position_relative">
+		<section class="panel mb_lg p_md width_100 position_relative">
 			<button
 				type="button"
 				class="toggle icon_button deselectable"
@@ -40,7 +40,7 @@
 				onclick={() => (show_detail = !show_detail)}>🪜</button
 			>
 			{#if show_detail}
-				<div class="box w_100" transition:slide>
+				<div class="box width_100" transition:slide>
 					<Package_Detail {pkg} />
 				</div>
 			{:else}

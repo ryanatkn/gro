@@ -14,7 +14,7 @@
 	align-items: center;
 }
 
-.width_md {
+.width_upto_md {
 	width: 100%;
 	max-width: var(--distance_md);
 }
@@ -64,11 +64,9 @@ a.chip {
 .position_relative {
 	position: relative;
 }
-/** Same as `display: inline flow-root`. */
 .display_inline_block {
 	display: inline-block;
 }
-/** Same as `display: block flex`. */
 .display_flex {
 	display: flex;
 }
@@ -82,11 +80,8 @@ a.chip {
 	box-shadow: var(--shadow_inset_xs)
 		color-mix(in hsl, var(--shadow_color) var(--shadow_alpha, var(--shadow_alpha_1)), transparent);
 }
-.w_100 {
+.width_100 {
 	width: 100%;
-}
-.h_100 {
-	height: 100%;
 }
 .p_md {
 	padding: var(--space_md);
