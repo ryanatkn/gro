@@ -1,6 +1,8 @@
 import {fileURLToPath, type URL} from 'node:url';
 import type {Flavored} from '@ryanatkn/belt/types.js';
 
+// TODO BLOCK move to belt
+
 /**
  * An absolute path on the filesystem. Named "id" to be consistent with Rollup.
  */
