@@ -2,7 +2,7 @@ import {styleText as st} from 'node:util';
 import {print_log_label} from '@ryanatkn/belt/print.js';
 import {System_Logger} from '@ryanatkn/belt/log.js';
 import type {Timings} from '@ryanatkn/belt/timings.js';
-import z from 'zod';
+import {z} from 'zod';
 
 import {parse_args, type Args} from './args.ts';
 import type {invoke_task as base_invoke_task} from './invoke_task.ts';
