@@ -34,12 +34,12 @@ export interface Watch_Dir_Options {
 	 */
 	absolute?: boolean;
 	/**
-	 * Pattern to ignore temporary files.
-	 * - `undefined` (default): ignores files matching `.tmp.` pattern
-	 * - `null`: no default ignore pattern
-	 * - Custom pattern: use the provided pattern
+	 * Pattern to ignore files, merged into `chokidar.ignored` if also provided.
+	 * - `undefined` (default) ignores files matching `.tmp.` pattern
+	 * - `null` sets no default ignore pattern
+	 * - or some custom pattern
 	 */
-	ignore_tmp_files?: Matcher | null;
+	ignored?: Matcher | null;
 }
 
 /**
@@ -51,7 +51,7 @@ export const watch_dir = ({
 	filter,
 	absolute = true,
 	chokidar,
-	ignore_tmp_files = TMP_FILE_PATTERN,
+	ignored = TMP_FILE_PATTERN,
 }: Watch_Dir_Options): Watch_Node_Fs => {
 	let watcher: FSWatcher | undefined;
 	let initing: Deferred<void> | undefined;
@@ -60,7 +60,7 @@ export const watch_dir = ({
 		init: async () => {
 			if (initing) return initing.promise;
 			initing = create_deferred();
-			watcher = watch(dir, resolve_chokidar_options(chokidar, ignore_tmp_files));
+			watcher = watch(dir, resolve_chokidar_options(chokidar, ignored));
 			watcher.on('add', (path) => {
 				const final_path = absolute ? path : relative(dir, path);
 				if (filter && !filter(final_path, false)) return;
@@ -103,18 +103,14 @@ export const watch_dir = ({
 
 const resolve_chokidar_options = (
 	options: ChokidarOptions | undefined,
-	pattern: Matcher | null,
+	ignored: Matcher | null,
 ): ChokidarOptions | undefined => {
-	if (!pattern) return options;
+	if (!ignored) return options;
 
-	const {ignored, ...rest} = options ?? EMPTY_OBJECT;
+	const {ignored: i, ...rest} = options ?? EMPTY_OBJECT;
 
 	const resolved_ignored =
-		ignored === undefined
-			? pattern
-			: Array.isArray(ignored)
-				? [...ignored, pattern]
-				: [ignored, pattern];
+		i === undefined ? ignored : Array.isArray(i) ? [...i, ignored] : [i, ignored];
 
 	return {...rest, ignored: resolved_ignored};
 };
