@@ -105,7 +105,7 @@ const resolve_chokidar_options = (
 	options: ChokidarOptions | undefined,
 	ignored: Matcher | null,
 ): ChokidarOptions | undefined => {
-	if (!ignored) return options;
+	if (ignored === null) return options;
 
 	const {ignored: i, ...rest} = options ?? EMPTY_OBJECT;
 
