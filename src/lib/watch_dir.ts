@@ -1,4 +1,4 @@
-import {watch, type ChokidarOptions, type FSWatcher} from 'chokidar';
+import {watch, type ChokidarOptions, type FSWatcher, type Matcher} from 'chokidar';
 import {relative} from 'node:path';
 import {statSync} from 'node:fs';
 import {create_deferred, type Deferred} from '@ryanatkn/belt/async.js';
@@ -34,10 +34,12 @@ export interface Watch_Dir_Options {
 	 */
 	absolute?: boolean;
 	/**
-	 * When `true`, ignores files matching `.tmp.` pattern.
-	 * @default true
+	 * Pattern to ignore temporary files.
+	 * - `undefined` (default): ignores files matching `.tmp.` pattern
+	 * - `null`: no default ignore pattern
+	 * - Custom pattern: use the provided pattern
 	 */
-	ignore_tmp_files?: boolean;
+	ignore_tmp_files?: Matcher | null;
 }
 
 /**
@@ -49,7 +51,7 @@ export const watch_dir = ({
 	filter,
 	absolute = true,
 	chokidar,
-	ignore_tmp_files = true,
+	ignore_tmp_files = TMP_FILE_PATTERN,
 }: Watch_Dir_Options): Watch_Node_Fs => {
 	let watcher: FSWatcher | undefined;
 	let initing: Deferred<void> | undefined;
@@ -101,18 +103,18 @@ export const watch_dir = ({
 
 const resolve_chokidar_options = (
 	options: ChokidarOptions | undefined,
-	ignore_tmp_files: boolean,
-): ChokidarOptions => {
-	if (!ignore_tmp_files) return options ?? EMPTY_OBJECT;
+	pattern: Matcher | null,
+): ChokidarOptions | undefined => {
+	if (!pattern) return options;
 
 	const {ignored, ...rest} = options ?? EMPTY_OBJECT;
 
 	const resolved_ignored =
 		ignored === undefined
-			? TMP_FILE_PATTERN
+			? pattern
 			: Array.isArray(ignored)
-				? [...ignored, TMP_FILE_PATTERN]
-				: [ignored, TMP_FILE_PATTERN];
+				? [...ignored, pattern]
+				: [ignored, pattern];
 
 	return {...rest, ignored: resolved_ignored};
 };
