@@ -1,6 +1,6 @@
 {
   "name": "@ryanatkn/gro",
-  "version": "0.167.1",
+  "version": "0.168.0",
   "modules": {
     ".": {
       "path": "index.ts",
@@ -462,6 +462,10 @@
           "kind": "function"
         },
         {
+          "name": "load_from_env",
+          "kind": "function"
+        },
+        {
           "name": "merge_envs",
           "kind": "function"
         },
@@ -471,10 +475,6 @@
         },
         {
           "name": "is_public_env",
-          "kind": "function"
-        },
-        {
-          "name": "load_from_env",
           "kind": "function"
         }
       ]
