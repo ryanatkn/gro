@@ -1,6 +1,7 @@
 import {join, resolve} from 'node:path';
 import {existsSync} from 'node:fs';
 import {identity} from '@ryanatkn/belt/function.js';
+import type {Path_Filter, Path_Id} from '@ryanatkn/belt/path.js';
 
 import {GRO_DIST_DIR, IS_THIS_GRO, paths} from './paths.ts';
 import {
@@ -15,7 +16,6 @@ import {
 import create_default_config from './gro.config.default.ts';
 import type {Create_Config_Plugins} from './plugin.ts';
 import type {Map_Package_Json} from './package_json.ts';
-import type {Path_Filter, Path_Id} from './path.ts';
 import type {Parsed_Svelte_Config} from './svelte_config.ts';
 
 /**

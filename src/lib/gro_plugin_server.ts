@@ -7,10 +7,10 @@ import {strip_before, strip_end} from '@ryanatkn/belt/string.js';
 import type {Result} from '@ryanatkn/belt/result.js';
 import {existsSync} from 'node:fs';
 import {throttle} from '@ryanatkn/belt/throttle.js';
+import type {Path_Id} from '@ryanatkn/belt/path.js';
 
 import type {Plugin} from './plugin.ts';
 import {base_path_to_path_id, LIB_DIRNAME, paths} from './paths.ts';
-import type {Path_Id} from './path.ts';
 import {GRO_DEV_DIRNAME, SERVER_DIST_PATH} from './constants.ts';
 import {parse_svelte_config, default_svelte_config} from './svelte_config.ts';
 import {esbuild_plugin_sveltekit_shim_app} from './esbuild_plugin_sveltekit_shim_app.ts';

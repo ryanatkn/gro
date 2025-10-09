@@ -1,6 +1,7 @@
 import {resolve} from 'node:path';
 import type {Logger} from '@ryanatkn/belt/log.js';
 import type {Timings} from '@ryanatkn/belt/timings.js';
+import type {Path_Id} from '@ryanatkn/belt/path.js';
 
 import type {Gro_Config} from './gro_config.ts';
 import {filter_dependents, type Filer} from './filer.ts';
@@ -14,7 +15,6 @@ import {
 } from './gen.ts';
 import {default_svelte_config} from './svelte_config.ts';
 import {to_root_path} from './paths.ts';
-import type {Path_Id} from './path.ts';
 import {load_module} from './modules.ts';
 
 /**

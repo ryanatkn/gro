@@ -2,8 +2,7 @@ import {watch, type ChokidarOptions, type FSWatcher} from 'chokidar';
 import {relative} from 'node:path';
 import {statSync} from 'node:fs';
 import {create_deferred, type Deferred} from '@ryanatkn/belt/async.js';
-
-import type {Path_Filter} from './path.ts';
+import type {Path_Filter} from '@ryanatkn/belt/path.js';
 
 // TODO pretty hacky
 

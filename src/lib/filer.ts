@@ -7,8 +7,8 @@ import {fileURLToPath, pathToFileURL} from 'node:url';
 import {Unreachable_Error} from '@ryanatkn/belt/error.js';
 import type {Logger} from '@ryanatkn/belt/log.js';
 import type {Package_Json} from '@ryanatkn/belt/package_json.js';
+import type {File_Filter, Path_Id} from '@ryanatkn/belt/path.js';
 
-import type {File_Filter, Path_Id} from './path.ts';
 import {
 	watch_dir,
 	type Watch_Node_Fs,

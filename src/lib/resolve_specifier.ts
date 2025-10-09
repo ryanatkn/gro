@@ -1,8 +1,8 @@
 import {extname, isAbsolute, join, relative} from 'node:path';
 import {existsSync} from 'node:fs';
+import type {Path_Id} from '@ryanatkn/belt/path.js';
 
 import {replace_extension} from './paths.ts';
-import type {Path_Id} from './path.ts';
 
 // TODO ideally this module doesnt exist, but import.meta.resolve doesn't work in loaders last I tried
 

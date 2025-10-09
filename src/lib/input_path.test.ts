@@ -1,5 +1,6 @@
 import {test, expect} from 'vitest';
 import {resolve} from 'node:path';
+import type {Resolved_Path} from '@ryanatkn/belt/path.js';
 
 import {
 	to_input_path,
@@ -10,7 +11,6 @@ import {
 	type Resolved_Input_File,
 } from './input_path.ts';
 import {GRO_DIST_DIR, paths} from './paths.ts';
-import type {Resolved_Path} from './path.ts';
 
 test('to_input_path', () => {
 	expect(to_input_path(resolve('foo.ts'))).toBe(resolve('foo.ts'));

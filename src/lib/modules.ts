@@ -3,10 +3,10 @@ import {Unreachable_Error} from '@ryanatkn/belt/error.js';
 import type {Result} from '@ryanatkn/belt/result.js';
 import {print_error} from '@ryanatkn/belt/print.js';
 import {pathToFileURL} from 'node:url';
+import type {Path_Id} from '@ryanatkn/belt/path.js';
 
 import type {Resolved_Input_File} from './input_path.ts';
 import {print_path} from './paths.ts';
-import type {Path_Id} from './path.ts';
 
 export interface Module_Meta<T_Module extends Record<string, any> = Record<string, any>> {
 	id: Path_Id;

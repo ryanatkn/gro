@@ -9,9 +9,9 @@ import {join} from 'node:path';
 import {existsSync} from 'node:fs';
 import {fileURLToPath, type URL} from 'node:url';
 import type {Logger} from '@ryanatkn/belt/log.js';
+import type {Path_Id} from '@ryanatkn/belt/path.js';
 
 import {NODE_MODULES_DIRNAME} from './constants.ts';
-import type {Path_Id} from './path.ts';
 import {print_command_args} from './args.ts';
 
 // TODO maybe upstream to Belt?
