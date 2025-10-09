@@ -1,6 +1,6 @@
 {
   "name": "@ryanatkn/gro",
-  "version": "0.169.0",
+  "version": "0.169.1",
   "modules": {
     ".": {
       "path": "index.ts",
@@ -84,6 +84,10 @@
         },
         {
           "name": "to_forwarded_args_by_command",
+          "kind": "function"
+        },
+        {
+          "name": "to_implicit_forwarded_args",
           "kind": "function"
         },
         {
