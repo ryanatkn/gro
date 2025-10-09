@@ -3,9 +3,9 @@ import {existsSync, statSync} from 'node:fs';
 import {strip_start} from '@ryanatkn/belt/string.js';
 import {z} from 'zod';
 import type {Flavored} from '@ryanatkn/belt/types.js';
+import type {Path_Info, Path_Id, Resolved_Path} from '@ryanatkn/belt/path.js';
 
 import {GRO_PACKAGE_DIR, GRO_DIST_DIR} from './paths.ts';
-import type {Path_Info, Path_Id, Resolved_Path} from './path.ts';
 import {search_fs} from './search_fs.ts';
 import {TASK_FILE_SUFFIX_JS} from './task.ts';
 

@@ -2,6 +2,7 @@ import * as esbuild from 'esbuild';
 import type {Logger} from '@ryanatkn/belt/log.js';
 import {basename} from 'node:path';
 import type {CompileOptions, ModuleCompileOptions, PreprocessorGroup} from 'svelte/compiler';
+import type {Path_Id} from '@ryanatkn/belt/path.js';
 
 import {print_build_result, to_define_import_meta_env} from './esbuild_helpers.ts';
 import {resolve_specifier} from './resolve_specifier.ts';
@@ -11,7 +12,6 @@ import {esbuild_plugin_sveltekit_shim_app} from './esbuild_plugin_sveltekit_shim
 import {esbuild_plugin_sveltekit_local_imports} from './esbuild_plugin_sveltekit_local_imports.ts';
 import {esbuild_plugin_svelte} from './esbuild_plugin_svelte.ts';
 import type {Parsed_Svelte_Config} from './svelte_config.ts';
-import type {Path_Id} from './path.ts';
 
 export interface Esbuild_Plugin_External_Worker_Options {
 	dev: boolean;

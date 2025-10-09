@@ -1,4 +1,4 @@
-import type {Path_Id} from './path.ts';
+import type {Path_Id} from '@ryanatkn/belt/path.js';
 
 // TODO extract more here from Filer
 

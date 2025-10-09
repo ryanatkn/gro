@@ -5,9 +5,9 @@ import type {Timings} from '@ryanatkn/belt/timings.js';
 import {styleText as st} from 'node:util';
 import type {Result} from '@ryanatkn/belt/result.js';
 import {isAbsolute, join, relative} from 'node:path';
+import type {Path_Id} from '@ryanatkn/belt/path.js';
 
 import type {Args} from './args.ts';
-import type {Path_Id} from './path.ts';
 import type {Gro_Config} from './gro_config.ts';
 import type {Parsed_Svelte_Config} from './svelte_config.ts';
 import {

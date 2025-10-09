@@ -2,6 +2,7 @@ import {join, extname, relative, basename} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {ensure_end, strip_end} from '@ryanatkn/belt/string.js';
 import {styleText as st} from 'node:util';
+import type {Path_Id} from '@ryanatkn/belt/path.js';
 
 import {
 	GRO_CONFIG_FILENAME,
@@ -11,7 +12,6 @@ import {
 	SVELTEKIT_DIST_DIRNAME,
 } from './constants.ts';
 import {default_svelte_config} from './svelte_config.ts';
-import type {Path_Id} from './path.ts';
 
 /*
 

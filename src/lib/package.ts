@@ -44,7 +44,7 @@ export const package_json: Package_Json = {
 		'typescript',
 	],
 	dependencies: {
-		'@ryanatkn/belt': '^0.34.1',
+		'@ryanatkn/belt': '^0.35.1',
 		chokidar: '^4.0.3',
 		dotenv: '^17.2.2',
 		'esm-env': '^1.2.2',
@@ -401,30 +401,6 @@ export const src_json: Src_Json = {
 				{name: 'normalize_gen_config', kind: 'function'},
 			],
 		},
-		'./git.js': {
-			path: 'git.ts',
-			declarations: [
-				{name: 'Git_Origin', kind: 'variable'},
-				{name: 'Git_Branch', kind: 'variable'},
-				{name: 'git_current_branch_name', kind: 'function'},
-				{name: 'git_remote_branch_exists', kind: 'function'},
-				{name: 'git_local_branch_exists', kind: 'function'},
-				{name: 'git_check_clean_workspace', kind: 'function'},
-				{name: 'git_check_fully_staged_workspace', kind: 'function'},
-				{name: 'git_fetch', kind: 'function'},
-				{name: 'git_checkout', kind: 'function'},
-				{name: 'git_pull', kind: 'function'},
-				{name: 'git_push', kind: 'function'},
-				{name: 'git_push_to_create', kind: 'function'},
-				{name: 'git_delete_local_branch', kind: 'function'},
-				{name: 'git_delete_remote_branch', kind: 'function'},
-				{name: 'git_reset_branch_to_first_commit', kind: 'function'},
-				{name: 'git_current_commit_hash', kind: 'function'},
-				{name: 'git_current_branch_first_commit_hash', kind: 'function'},
-				{name: 'git_check_setting_pull_rebase', kind: 'function'},
-				{name: 'git_clone_locally', kind: 'function'},
-			],
-		},
 		'./github.js': {
 			path: 'github.ts',
 			declarations: [
@@ -612,17 +588,6 @@ export const src_json: Src_Json = {
 			declarations: [
 				{name: 'Import_Specifier', kind: 'type'},
 				{name: 'parse_imports', kind: 'function'},
-			],
-		},
-		'./path.js': {
-			path: 'path.ts',
-			declarations: [
-				{name: 'Path_Id', kind: 'type'},
-				{name: 'Path_Info', kind: 'type'},
-				{name: 'Resolved_Path', kind: 'type'},
-				{name: 'Path_Filter', kind: 'type'},
-				{name: 'File_Filter', kind: 'type'},
-				{name: 'to_file_path', kind: 'function'},
 			],
 		},
 		'./paths.js': {

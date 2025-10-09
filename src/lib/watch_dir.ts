@@ -2,9 +2,8 @@ import {watch, type ChokidarOptions, type FSWatcher, type Matcher} from 'chokida
 import {relative} from 'node:path';
 import {statSync} from 'node:fs';
 import {create_deferred, type Deferred} from '@ryanatkn/belt/async.js';
+import type {Path_Filter} from '@ryanatkn/belt/path.js';
 import {EMPTY_OBJECT} from '@ryanatkn/belt/object.js';
-
-import type {Path_Filter} from './path.ts';
 
 const TMP_FILE_PATTERN = /\.tmp\./;
 

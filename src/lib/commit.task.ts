@@ -1,8 +1,8 @@
 import {spawn} from '@ryanatkn/belt/process.js';
 import {z} from 'zod';
+import {Git_Origin, git_current_branch_name, git_push} from '@ryanatkn/belt/git.js';
 
 import type {Task} from './task.ts';
-import {Git_Origin, git_current_branch_name, git_push} from './git.ts';
 
 export const Args = z.strictObject({
 	_: z

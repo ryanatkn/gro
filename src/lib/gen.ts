@@ -5,9 +5,9 @@ import type {Result} from '@ryanatkn/belt/result.js';
 import type {Timings} from '@ryanatkn/belt/timings.js';
 import {styleText as st} from 'node:util';
 import {existsSync} from 'node:fs';
+import type {Path_Id} from '@ryanatkn/belt/path.js';
 
 import {print_path} from './paths.ts';
-import type {Path_Id} from './path.ts';
 import type {Gro_Config} from './gro_config.ts';
 import type {Parsed_Svelte_Config} from './svelte_config.ts';
 import {load_modules, type Load_Modules_Failure, type Module_Meta} from './modules.ts';
