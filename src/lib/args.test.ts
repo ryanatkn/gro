@@ -163,9 +163,7 @@ describe('to_implicit_forwarded_args', () => {
 	});
 
 	test('parses all args after first -- (mri handles -- separator)', () => {
-		const raw_rest_args = to_raw_rest_args(
-			'gro test -- --watch -- eslint --fix'.split(' '),
-		);
+		const raw_rest_args = to_raw_rest_args('gro test -- --watch -- eslint --fix'.split(' '));
 		// mri treats everything after first -- as input, and filters internal -- separators
 		expect(to_implicit_forwarded_args(undefined, raw_rest_args)).toEqual({
 			_: ['eslint', '--fix'],
@@ -185,9 +183,7 @@ describe('to_implicit_forwarded_args', () => {
 	});
 
 	test('command stripping with multiple -- sections', () => {
-		const raw_rest_args = to_raw_rest_args(
-			'gro test -- vitest --watch -- other --flag'.split(' '),
-		);
+		const raw_rest_args = to_raw_rest_args('gro test -- vitest --watch -- other --flag'.split(' '));
 		// Strips 'vitest', mri handles the rest
 		expect(to_implicit_forwarded_args('vitest', raw_rest_args)).toEqual({
 			_: ['other', '--flag'],
@@ -207,9 +203,7 @@ describe('to_implicit_forwarded_args', () => {
 	});
 
 	test('wrong command to strip with multiple sections', () => {
-		const raw_rest_args = to_raw_rest_args(
-			'gro test -- eslint --fix -- vitest --watch'.split(' '),
-		);
+		const raw_rest_args = to_raw_rest_args('gro test -- eslint --fix -- vitest --watch'.split(' '));
 		// command_to_strip='vitest' but first arg is 'eslint', so nothing stripped
 		// mri parses --fix as a flag, not a positional
 		expect(to_implicit_forwarded_args('vitest', raw_rest_args)).toEqual({
