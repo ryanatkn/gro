@@ -187,7 +187,6 @@ export const to_implicit_forwarded_args = (
 
 	let argv = raw_rest_args.slice(start + 1);
 
-	// Backward compat: if first arg matches command, remove it
 	if (command_to_strip && argv[0] === command_to_strip) {
 		argv = argv.slice(1);
 	}
