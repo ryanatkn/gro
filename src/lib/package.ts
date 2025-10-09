@@ -134,6 +134,7 @@ export const src_json: Src_Json = {
 				{name: 'to_raw_rest_args', kind: 'function'},
 				{name: 'to_forwarded_args', kind: 'function'},
 				{name: 'to_forwarded_args_by_command', kind: 'function'},
+				{name: 'to_implicit_forwarded_args', kind: 'function'},
 				{name: 'print_command_args', kind: 'function'},
 			],
 		},
