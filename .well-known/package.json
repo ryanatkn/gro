@@ -1,6 +1,6 @@
 {
   "name": "@ryanatkn/gro",
-  "version": "0.168.0",
+  "version": "0.169.0",
   "description": "task runner and toolkit extending SvelteKit",
   "motto": "generate, run, optimize",
   "glyph": "🌰",
@@ -49,7 +49,7 @@
     "typescript"
   ],
   "dependencies": {
-    "@ryanatkn/belt": "^0.34.1",
+    "@ryanatkn/belt": "^0.35.1",
     "chokidar": "^4.0.3",
     "dotenv": "^17.2.2",
     "esm-env": "^1.2.2",
@@ -132,6 +132,10 @@
       "default": "./dist/index.js"
     },
     "./*.js": {
+      "types": "./dist/*.d.ts",
+      "default": "./dist/*.js"
+    },
+    "./*.ts": {
       "types": "./dist/*.d.ts",
       "default": "./dist/*.js"
     }
