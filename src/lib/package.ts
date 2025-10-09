@@ -44,7 +44,7 @@ export const package_json: Package_Json = {
 		'typescript',
 	],
 	dependencies: {
-		'@ryanatkn/belt': '^0.35.0',
+		'@ryanatkn/belt': '^0.35.1',
 		chokidar: '^4.0.3',
 		dotenv: '^17.2.2',
 		'esm-env': '^1.2.2',
