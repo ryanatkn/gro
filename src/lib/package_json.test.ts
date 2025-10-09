@@ -61,6 +61,10 @@ test('to_package_exports', () => {
 			default: './dist/*.js',
 			types: './dist/*.d.ts',
 		},
+		'./*.ts': {
+			default: './dist/*.js',
+			types: './dist/*.d.ts',
+		},
 	});
 	expect(to_package_exports(['*.svelte', '*.ts', '*.json', 'index.ts'])).toEqual({
 		'.': {
@@ -78,6 +82,10 @@ test('to_package_exports', () => {
 			types: './dist/*.svelte.d.ts',
 		},
 		'./*.js': {
+			default: './dist/*.js',
+			types: './dist/*.d.ts',
+		},
+		'./*.ts': {
 			default: './dist/*.js',
 			types: './dist/*.d.ts',
 		},
