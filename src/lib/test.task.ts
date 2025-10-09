@@ -4,7 +4,7 @@ import {spawn_cli} from '@ryanatkn/gro/cli.js';
 import {Task_Error, type Task} from './task.ts';
 import {find_cli} from './cli.ts';
 import {has_dep} from './package_json.ts';
-import {serialize_args, to_forwarded_args} from './args.ts';
+import {serialize_args, to_implicit_forwarded_args} from './args.ts';
 import {VITEST_CLI} from './constants.ts';
 import {paths} from './paths.ts';
 
@@ -46,7 +46,7 @@ export const task: Task<Args> = {
 		if (t) {
 			vitest_args.push('-t', t);
 		}
-		vitest_args.push(...serialize_args(to_forwarded_args(VITEST_CLI)));
+		vitest_args.push(...serialize_args(to_implicit_forwarded_args(VITEST_CLI)));
 
 		const spawned = await spawn_cli(VITEST_CLI, vitest_args);
 		if (!spawned?.ok) {
