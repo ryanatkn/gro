@@ -1,5 +1,16 @@
 # @ryanatkn/gro
 
+## 0.168.0
+
+### Minor Changes
+
+- rename `create_src_modules` from `to_src_modules` ([2c5f99e](https://github.com/ryanatkn/gro/commit/2c5f99e))
+
+### Patch Changes
+
+- ignore `.tmp.` files in `watch_dir` by default ([#566](https://github.com/ryanatkn/gro/pull/566))
+- add optional `log` param to `create_src_json` and `create_src_modules` ([2c5f99e](https://github.com/ryanatkn/gro/commit/2c5f99e))
+
 ## 0.167.1
 
 ### Patch Changes
