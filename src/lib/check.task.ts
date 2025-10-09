@@ -1,9 +1,9 @@
 import {z} from 'zod';
 import {spawn} from '@ryanatkn/belt/process.js';
 import {styleText as st} from 'node:util';
+import {git_check_clean_workspace} from '@ryanatkn/belt/git.js';
 
 import {Task_Error, type Task} from './task.ts';
-import {git_check_clean_workspace} from './git.ts';
 import {sync_package_json} from './package_json.ts';
 
 export const Args = z.strictObject({
