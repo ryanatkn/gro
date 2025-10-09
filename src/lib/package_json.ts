@@ -145,6 +145,10 @@ export const to_package_exports = (paths: Array<string>): Package_Json_Exports =
 			types: IMPORT_PREFIX + '*.d.ts',
 			default: IMPORT_PREFIX + '*.js',
 		};
+		exports['./*.ts'] = {
+			types: IMPORT_PREFIX + '*.d.ts',
+			default: IMPORT_PREFIX + '*.js',
+		};
 	}
 
 	if (has_svelte) {

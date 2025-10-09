@@ -99,6 +99,7 @@ export const package_json: Package_Json = {
 		'./package.json': './package.json',
 		'.': {types: './dist/index.d.ts', default: './dist/index.js'},
 		'./*.js': {types: './dist/*.d.ts', default: './dist/*.js'},
+		'./*.ts': {types: './dist/*.d.ts', default: './dist/*.js'},
 	},
 } as any;
 
