@@ -1,5 +1,11 @@
 # @ryanatkn/gro
 
+## 0.169.1
+
+### Patch Changes
+
+- add `to_implicit_forwarded_args` to support better args forwarding for `gro test` ([#568](https://github.com/ryanatkn/gro/pull/568))
+
 ## 0.169.0
 
 ### Minor Changes
