@@ -25,6 +25,15 @@ id_rsa
 *.ignore.*
 ignore
 
+# Temporary files
+tmp/
+*.tmp
+.tmp*
+*.bak
+
+# Log files
+*.log
+
 # Workflow
 /worktree
 
