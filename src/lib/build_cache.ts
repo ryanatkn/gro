@@ -7,6 +7,7 @@ import {git_current_commit_hash} from '@ryanatkn/belt/git.js';
 import {to_hash} from './hash.ts';
 import type {Gro_Config} from './gro_config.ts';
 import {paths} from './paths.ts';
+import {SVELTEKIT_BUILD_DIRNAME, SVELTEKIT_DIST_DIRNAME, GRO_DIST_PREFIX} from './constants.ts';
 
 const BUILD_CACHE_METADATA_FILENAME = 'build.json';
 const BUILD_CACHE_VERSION = '1';
@@ -196,7 +197,7 @@ export const is_build_cache_valid = async (config: Gro_Config, log: Logger): Pro
  * @param max_files Optional limit on total files to hash across all directories
  */
 export const hash_build_outputs = async (
-	build_dirs: string[],
+	build_dirs: Array<string>,
 	max_files: number | null = null,
 ): Promise<Record<string, string>> => {
 	const output_hashes: Record<string, string> = {};
@@ -253,6 +254,33 @@ export const hash_build_outputs = async (
 };
 
 /**
+ * Discovers all build output directories in the current working directory.
+ * Returns an array of directory names that exist: build/, dist/, dist_*
+ */
+export const discover_build_output_dirs = (): Array<string> => {
+	const build_dirs: Array<string> = [];
+
+	// Check for SvelteKit app output (build/)
+	if (existsSync(SVELTEKIT_BUILD_DIRNAME)) {
+		build_dirs.push(SVELTEKIT_BUILD_DIRNAME);
+	}
+
+	// Check for SvelteKit library output (dist/)
+	if (existsSync(SVELTEKIT_DIST_DIRNAME)) {
+		build_dirs.push(SVELTEKIT_DIST_DIRNAME);
+	}
+
+	// Check for server and other plugin outputs (dist_*)
+	const root_entries = readdirSync('.');
+	const dist_dirs = root_entries.filter(
+		(p) => p.startsWith(GRO_DIST_PREFIX) && statSync(p).isDirectory(),
+	);
+	build_dirs.push(...dist_dirs);
+
+	return build_dirs;
+};
+
+/**
  * Creates build cache metadata after a successful build.
  * Automatically discovers all build output directories (build/, dist/, dist_*).
  */
@@ -261,25 +289,7 @@ export const create_build_cache_metadata = async (
 	log: Logger,
 ): Promise<Build_Cache_Metadata> => {
 	const cache_key = await compute_build_cache_key(config, log);
-
-	// Discover all build output directories
-	const build_dirs: string[] = [];
-
-	// Check for SvelteKit app output (build/)
-	if (existsSync('build')) {
-		build_dirs.push('build');
-	}
-
-	// Check for SvelteKit library output (dist/)
-	if (existsSync('dist')) {
-		build_dirs.push('dist');
-	}
-
-	// Check for server and other plugin outputs (dist_*)
-	const root_entries = readdirSync('.');
-	const dist_dirs = root_entries.filter((p) => p.startsWith('dist_') && statSync(p).isDirectory());
-	build_dirs.push(...dist_dirs);
-
+	const build_dirs = discover_build_output_dirs();
 	const output_hashes = await hash_build_outputs(build_dirs);
 
 	return {

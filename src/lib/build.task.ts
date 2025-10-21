@@ -1,7 +1,7 @@
 import {z} from 'zod';
 import {styleText as st} from 'node:util';
 import {git_check_clean_workspace} from '@ryanatkn/belt/git.js';
-import {rmSync, existsSync, readdirSync} from 'node:fs';
+import {rmSync, existsSync} from 'node:fs';
 import {join} from 'node:path';
 
 import type {Task} from './task.ts';
@@ -11,8 +11,8 @@ import {
 	is_build_cache_valid,
 	create_build_cache_metadata,
 	save_build_cache_metadata,
+	discover_build_output_dirs,
 } from './build_cache.ts';
-import {GRO_DIST_PREFIX, SVELTEKIT_DIST_DIRNAME} from './constants.ts';
 import {paths} from './paths.ts';
 
 export const Args = z.strictObject({
@@ -61,15 +61,13 @@ export const task: Task<Args> = {
 			if (existsSync(cache_path)) {
 				rmSync(cache_path, {force: true});
 			}
-			// Delete dist/ directory (SvelteKit library output)
-			if (existsSync(SVELTEKIT_DIST_DIRNAME)) {
-				rmSync(SVELTEKIT_DIST_DIRNAME, {recursive: true, force: true});
-			}
-			// Delete all dist_* directories (server and other plugin outputs)
-			const dist_dirs = readdirSync('.').filter((p) => p.startsWith(GRO_DIST_PREFIX));
-			for (const dir of dist_dirs) {
+
+			// Delete all build output directories
+			const build_dirs = discover_build_output_dirs();
+			for (const dir of build_dirs) {
 				rmSync(dir, {recursive: true, force: true});
 			}
+
 			log.info(st('yellow', 'Workspace has uncommitted changes - skipping build cache'));
 		} else {
 			log.info(st('yellow', 'Forcing fresh build, ignoring cache'));

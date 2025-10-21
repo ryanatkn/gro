@@ -9,9 +9,12 @@ import {
 	is_build_cache_valid,
 	hash_build_outputs,
 	create_build_cache_metadata,
+	discover_build_output_dirs,
 	type Build_Cache_Metadata,
 } from './build_cache.ts';
 import type {Gro_Config} from './gro_config.ts';
+
+/* eslint-disable @typescript-eslint/require-await */
 
 // Mock dependencies
 vi.mock('@ryanatkn/belt/git.js', () => ({
@@ -145,7 +148,7 @@ describe('compute_build_cache_key', () => {
 		vi.mocked(to_hash).mockResolvedValue('hash123');
 
 		const config = create_mock_config({
-			build_cache_config: async () => ({feature_flag: true}), // eslint-disable-line @typescript-eslint/require-await
+			build_cache_config: async () => ({feature_flag: true}),
 		});
 		const log = create_mock_logger();
 
@@ -256,7 +259,6 @@ describe('validate_build_cache', () => {
 		vi.mocked(readFileSync).mockReturnValue(Buffer.from('content'));
 
 		let call_count = 0;
-		// eslint-disable-line @typescript-eslint/require-await
 		vi.mocked(to_hash).mockImplementation(async () => {
 			call_count++;
 			return call_count === 1 ? 'hash1' : 'hash2';
@@ -392,6 +394,77 @@ describe('is_build_cache_valid', () => {
 	});
 });
 
+describe('discover_build_output_dirs', () => {
+	beforeEach(() => {
+		vi.clearAllMocks();
+	});
+
+	test('returns all existing build directories', async () => {
+		const {existsSync, readdirSync, statSync} = await import('node:fs');
+
+		// Mock all directories exist
+		vi.mocked(existsSync).mockReturnValue(true);
+		vi.mocked(readdirSync).mockReturnValue([
+			'dist_server',
+			'dist_worker',
+			'node_modules',
+			'src',
+		] as any);
+		vi.mocked(statSync).mockReturnValue({isDirectory: () => true} as any);
+
+		const result = discover_build_output_dirs();
+
+		expect(result).toEqual(['build', 'dist', 'dist_server', 'dist_worker']);
+	});
+
+	test('returns only directories that exist', async () => {
+		const {existsSync, readdirSync, statSync} = await import('node:fs');
+
+		// Only dist and dist_server exist
+		vi.mocked(existsSync).mockImplementation((path: any) => {
+			return path === 'dist';
+		});
+		vi.mocked(readdirSync).mockReturnValue(['dist_server', 'other'] as any);
+		vi.mocked(statSync).mockReturnValue({isDirectory: () => true} as any);
+
+		const result = discover_build_output_dirs();
+
+		expect(result).toEqual(['dist', 'dist_server']);
+	});
+
+	test('returns empty array when no build directories exist', async () => {
+		const {existsSync, readdirSync} = await import('node:fs');
+
+		vi.mocked(existsSync).mockReturnValue(false);
+		vi.mocked(readdirSync).mockReturnValue([] as any);
+
+		const result = discover_build_output_dirs();
+
+		expect(result).toEqual([]);
+	});
+
+	test('filters out non-directory dist_ entries', async () => {
+		const {existsSync, readdirSync, statSync} = await import('node:fs');
+
+		vi.mocked(existsSync).mockImplementation((path: any) => path === 'build');
+		vi.mocked(readdirSync).mockReturnValue([
+			'dist_server',
+			'dist_readme.md', // file, not directory
+		] as any);
+		vi.mocked(statSync).mockImplementation((path: any) => {
+			if (String(path) === 'dist_server') {
+				return {isDirectory: () => true} as any;
+			}
+			return {isDirectory: () => false} as any;
+		});
+
+		const result = discover_build_output_dirs();
+
+		expect(result).toEqual(['build', 'dist_server']);
+		expect(result).not.toContain('dist_readme.md');
+	});
+});
+
 describe('hash_build_outputs', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
@@ -409,7 +482,7 @@ describe('hash_build_outputs', () => {
 		vi.mocked(readFileSync).mockReturnValue(Buffer.from('content'));
 
 		let hash_count = 0;
-		vi.mocked(to_hash).mockImplementation(async () => `hash${++hash_count}`); // eslint-disable-line @typescript-eslint/require-await
+		vi.mocked(to_hash).mockImplementation(async () => `hash${++hash_count}`);
 
 		const result = await hash_build_outputs(['build']);
 
@@ -511,7 +584,7 @@ describe('hash_build_outputs', () => {
 		vi.mocked(readFileSync).mockReturnValue(Buffer.from('content'));
 
 		let hash_count = 0;
-		vi.mocked(to_hash).mockImplementation(async () => `hash${++hash_count}`); // eslint-disable-line @typescript-eslint/require-await
+		vi.mocked(to_hash).mockImplementation(async () => `hash${++hash_count}`);
 
 		const result = await hash_build_outputs(['build', 'dist', 'dist_server']);
 

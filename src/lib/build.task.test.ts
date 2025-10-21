@@ -227,22 +227,26 @@ describe('build.task integration tests', () => {
 	describe('dirty workspace behavior', () => {
 		test('deletes cache and dist outputs when workspace is dirty', async () => {
 			const {git_check_clean_workspace} = vi.mocked(await import('@ryanatkn/belt/git.js'));
-			const {existsSync, rmSync, readdirSync} = await import('node:fs');
+			const {existsSync, rmSync, readdirSync, statSync} = await import('node:fs');
 
 			// Workspace has uncommitted changes
 			vi.mocked(git_check_clean_workspace).mockResolvedValue('Modified files:\n  src/foo.ts');
 
-			// Cache file exists
+			// Cache file and all build dirs exist
 			vi.mocked(existsSync).mockReturnValue(true);
 
-			// Mock dist directories
+			// Mock discover_build_output_dirs() internals
 			vi.mocked(readdirSync).mockReturnValue(['dist_server', 'dist_worker', 'other'] as any);
+			vi.mocked(statSync).mockReturnValue({isDirectory: () => true} as any);
 
 			const ctx = create_mock_context();
 			await build_task.run(ctx);
 
 			// Should delete cache file
 			expect(rmSync).toHaveBeenCalledWith(join('./.gro/', 'build.json'), {force: true});
+
+			// Should delete build/ directory (via discover_build_output_dirs)
+			expect(rmSync).toHaveBeenCalledWith('build', {recursive: true, force: true});
 
 			// Should delete dist/ directory
 			expect(rmSync).toHaveBeenCalledWith('dist', {recursive: true, force: true});
@@ -251,7 +255,7 @@ describe('build.task integration tests', () => {
 			expect(rmSync).toHaveBeenCalledWith('dist_server', {recursive: true, force: true});
 			expect(rmSync).toHaveBeenCalledWith('dist_worker', {recursive: true, force: true});
 
-			// Should not delete non-dist directories
+			// Should not delete non-build directories
 			expect(rmSync).not.toHaveBeenCalledWith('other', expect.anything());
 
 			// Should log dirty workspace message
@@ -299,19 +303,20 @@ describe('build.task integration tests', () => {
 
 		test('handles missing cache file gracefully when workspace is dirty', async () => {
 			const {git_check_clean_workspace} = vi.mocked(await import('@ryanatkn/belt/git.js'));
-			const {existsSync, rmSync, readdirSync} = await import('node:fs');
+			const {existsSync, rmSync, readdirSync, statSync} = await import('node:fs');
 
 			// Workspace has uncommitted changes
 			vi.mocked(git_check_clean_workspace).mockResolvedValue('Modified files:\n  src/foo.ts');
 
-			// Cache file does not exist, dist dirs exist
+			// Cache file does not exist, but build dirs do
 			vi.mocked(existsSync).mockImplementation((path: any) => {
 				const path_str = String(path);
 				if (path_str.includes('build.json')) return false; // Cache file doesn't exist
-				return true; // dist dirs exist
+				return true; // build dirs exist
 			});
 
 			vi.mocked(readdirSync).mockReturnValue([]);
+			vi.mocked(statSync).mockReturnValue({isDirectory: () => true} as any);
 
 			const ctx = create_mock_context();
 			await build_task.run(ctx);
@@ -319,7 +324,8 @@ describe('build.task integration tests', () => {
 			// Should NOT delete cache file since it doesn't exist
 			expect(rmSync).not.toHaveBeenCalledWith(join('./.gro/', 'build.json'), {force: true});
 
-			// Should still delete dist/ (since it exists)
+			// Should still delete build outputs (since they exist via discover_build_output_dirs)
+			expect(rmSync).toHaveBeenCalledWith('build', {recursive: true, force: true});
 			expect(rmSync).toHaveBeenCalledWith('dist', {recursive: true, force: true});
 
 			// Should not throw
@@ -333,14 +339,14 @@ describe('build.task integration tests', () => {
 			// Workspace has uncommitted changes
 			vi.mocked(git_check_clean_workspace).mockResolvedValue('Modified files:\n  src/foo.ts');
 
-			// Cache file exists, dist directories don't exist
+			// Cache file exists, no build directories exist
 			vi.mocked(existsSync).mockImplementation((path: any) => {
 				const path_str = String(path);
 				if (path_str.includes('build.json')) return true; // Cache file exists
-				return false; // Dist dirs don't exist
+				return false; // No build dirs exist
 			});
 
-			vi.mocked(readdirSync).mockReturnValue([]);
+			vi.mocked(readdirSync).mockReturnValue([]); // No dist_* directories
 
 			const ctx = create_mock_context();
 			await build_task.run(ctx);
@@ -348,8 +354,9 @@ describe('build.task integration tests', () => {
 			// Should delete cache file (since it exists)
 			expect(rmSync).toHaveBeenCalledWith(join('./.gro/', 'build.json'), {force: true});
 
-			// Should NOT delete dist/ since it doesn't exist
-			expect(rmSync).not.toHaveBeenCalledWith('dist', {recursive: true, force: true});
+			// Should NOT delete build/dist since they don't exist (discover_build_output_dirs returns empty)
+			expect(rmSync).not.toHaveBeenCalledWith('build', expect.anything());
+			expect(rmSync).not.toHaveBeenCalledWith('dist', expect.anything());
 
 			// Should not throw
 			expect(mock_plugins.setup).toHaveBeenCalled();
@@ -412,17 +419,19 @@ describe('build.task integration tests', () => {
 
 		test('still deletes dist when force_build with dirty workspace', async () => {
 			const {git_check_clean_workspace} = vi.mocked(await import('@ryanatkn/belt/git.js'));
-			const {existsSync, rmSync, readdirSync} = await import('node:fs');
+			const {existsSync, rmSync, readdirSync, statSync} = await import('node:fs');
 
 			// Workspace is dirty, force_build is true
 			vi.mocked(git_check_clean_workspace).mockResolvedValue('Modified files:\n  src/foo.ts');
 			vi.mocked(existsSync).mockReturnValue(true); // All files exist
 			vi.mocked(readdirSync).mockReturnValue(['dist_server'] as any);
+			vi.mocked(statSync).mockReturnValue({isDirectory: () => true} as any);
 
 			const ctx = create_mock_context({force_build: true});
 			await build_task.run(ctx);
 
-			// Should still delete dist outputs (dirty workspace protection)
+			// Should still delete all build outputs (dirty workspace protection via discover_build_output_dirs)
+			expect(rmSync).toHaveBeenCalledWith('build', {recursive: true, force: true});
 			expect(rmSync).toHaveBeenCalledWith('dist', {recursive: true, force: true});
 			expect(rmSync).toHaveBeenCalledWith('dist_server', {recursive: true, force: true});
 		});
