@@ -190,8 +190,8 @@ export const is_build_cache_valid = async (config: Gro_Config, log: Logger): Pro
  * Hashes critical files in build output directories for validation.
  * Returns a map of relative file paths (with directory prefix) to their hashes.
  *
- * Note: Hashes all files by default. For very large builds (>1000 files),
- * this may take a few seconds but ensures complete cache validation.
+ * Note: Hashes all files by default. For very large builds, this may take
+ * a few seconds but ensures complete cache validation.
  *
  * @param build_dirs Array of output directories to hash (e.g., ['build', 'dist', 'dist_server'])
  * @param max_files Optional limit on total files to hash across all directories
