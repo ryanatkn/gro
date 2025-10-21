@@ -229,7 +229,7 @@ describe('save_build_cache_metadata', () => {
 
 		const metadata = create_mock_metadata();
 
-		save_build_cache_metadata(metadata, 'build');
+		save_build_cache_metadata(metadata);
 
 		expect(mkdirSync).toHaveBeenCalledWith('./.gro/', {recursive: true});
 		expect(writeFileSync).toHaveBeenCalledWith(
@@ -244,7 +244,7 @@ describe('save_build_cache_metadata', () => {
 
 		const metadata = create_mock_metadata();
 
-		save_build_cache_metadata(metadata, 'build');
+		save_build_cache_metadata(metadata);
 
 		const written_content = vi.mocked(writeFileSync).mock.calls[0][1] as string;
 		expect(written_content).toContain('\t');
@@ -525,3 +525,7 @@ describe('create_build_cache_metadata', () => {
 		expect(new Date(result.timestamp).getTime()).toBeGreaterThan(0);
 	});
 });
+
+// Note: Integration tests for dirty workspace behavior (cache deletion, dist/ cleanup)
+// belong in build.task.test.ts since that logic lives in build.task.ts, not here.
+// The tests above cover the core build_cache module functions in isolation.

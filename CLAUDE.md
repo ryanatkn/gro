@@ -287,7 +287,11 @@ export default config;
 - `dev` - Start dev server with watch mode (SvelteKit + Vite via plugins) ([docs](src/docs/dev.md))
 - `test` - Run Vitest tests matching `.test.` pattern ([docs](src/docs/test.md))
 - `gen` - Run code generation ([docs](src/docs/gen.md))
-- `build` - Production build (runs plugin lifecycle: setup → adapt → teardown) ([docs](src/docs/build.md))
+- `build` - Production build with intelligent caching (runs plugin lifecycle: setup → adapt → teardown) ([docs](src/docs/build.md))
+  - **Build caching**: Skips expensive rebuilds when nothing changed, using git commit hash + optional custom config
+  - Cache stored at `.gro/build.json`, survives manual deletion of `build/`
+  - Dirty workspace (uncommitted changes) → always rebuilds, deletes cache + `dist/` outputs to prevent stale state
+  - Force rebuild: `gro build --force_build`
 - `check` - Run all checks (test, gen --check, format --check, lint, typecheck)
 - `sync` - Run gen, update package.json exports, optionally install packages
 - `publish` - Version with Changesets, publish to npm, push to git ([docs](src/docs/publish.md))

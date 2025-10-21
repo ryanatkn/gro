@@ -121,12 +121,8 @@ export const load_build_cache_metadata = (build_dir: string): Build_Cache_Metada
 
 /**
  * Saves build cache metadata to .gro/ directory.
- * The build_dir parameter is kept for API consistency but the file is always written to .gro/.
  */
-export const save_build_cache_metadata = (
-	metadata: Build_Cache_Metadata,
-	_build_dir: string,
-): void => {
+export const save_build_cache_metadata = (metadata: Build_Cache_Metadata): void => {
 	// Ensure .gro directory exists
 	mkdirSync(paths.build, {recursive: true});
 
