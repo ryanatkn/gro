@@ -232,11 +232,7 @@ describe('save_build_cache_metadata', () => {
 		save_build_cache_metadata(metadata);
 
 		expect(mkdirSync).toHaveBeenCalledWith('./.gro/', {recursive: true});
-		expect(writeFileSync).toHaveBeenCalledWith(
-			'.gro/build.json',
-			expect.any(String),
-			'utf-8',
-		);
+		expect(writeFileSync).toHaveBeenCalledWith('.gro/build.json', expect.any(String), 'utf-8');
 	});
 
 	test('uses proper JSON formatting with tabs', async () => {

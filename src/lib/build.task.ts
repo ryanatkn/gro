@@ -72,9 +72,7 @@ export const task: Task<Args> = {
 			for (const dir of dist_dirs) {
 				rmSync(dir, {recursive: true, force: true});
 			}
-			log.info(
-				st('yellow', 'Workspace has uncommitted changes - skipping build cache'),
-			);
+			log.info(st('yellow', 'Workspace has uncommitted changes - skipping build cache'));
 		} else {
 			log.info(st('yellow', 'Forcing fresh build, ignoring cache'));
 		}
