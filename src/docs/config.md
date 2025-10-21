@@ -232,3 +232,100 @@ The CLI to use that's compatible with `node`.
 
 The CLI to use that's compatible with `npm install` and `npm link`.
 Defaults to `'npm'`.
+
+## `build_cache_config`
+
+The `build_cache_config` option allows you to define **custom** build inputs
+that invalidate the [build cache](build.md#build-caching) when they change.
+Gro automatically tracks your source code (git commit hash), dependencies (lock files),
+and standard config files—use `build_cache_config` when your build depends on
+**additional factors** like environment variables, external data, or feature flags.
+
+**Important:** This value is hashed before being stored in the cache metadata.
+The raw value is never logged or written to disk, protecting sensitive information.
+
+### when to use `build_cache_config`
+
+Gro's build cache automatically invalidates when your **source code, dependencies, or
+config files** change (see [build caching](build.md#build-caching) for details).
+Use `build_cache_config` to add custom factors when your build output also depends on:
+
+- **Environment variables** baked into the build (API endpoints, feature flags)
+- **External data files** that affect the build (content databases, configuration data)
+- **Runtime feature flags** that change build behavior
+- **Build-time constants** from non-standard sources
+
+### basic usage
+
+```ts
+// gro.config.ts
+import type {Gro_Config} from '@ryanatkn/gro';
+import {readFileSync} from 'node:fs';
+
+export default {
+	build_cache_config: {
+		// Environment variables that affect the build
+		api_endpoint: process.env.PUBLIC_API_URL,
+		analytics_key: process.env.PUBLIC_ANALYTICS_KEY,
+
+		// External data that influences the build
+		data_version: readFileSync('data/version.txt', 'utf-8'),
+
+		// Feature flags
+		features: {
+			enable_analytics: true,
+			enable_beta_ui: false,
+		},
+	},
+} satisfies Gro_Config;
+```
+
+Any change to these values will trigger a fresh build, even if source code hasn't changed.
+
+### async function usage
+
+For complex scenarios, you can provide an async function:
+
+```ts
+// gro.config.ts
+export default {
+	build_cache_config: async () => {
+		const config_data = await fetch('https://api.example.com/build-config').then((r) => r.json());
+
+		return {
+			remote_config_version: config_data.version,
+			feature_flags: config_data.flags,
+		};
+	},
+} satisfies Gro_Config;
+```
+
+### security considerations
+
+The `build_cache_config` value is **hashed** before being written to `build/.build-meta.json`.
+Only the hash is stored, never the raw values, so it's safe to include:
+
+- API keys (though using them at build time should be carefully considered)
+- Internal URLs
+- Configuration secrets
+
+However, be aware that these values may still appear in:
+
+- Build outputs if your code embeds them
+- Build logs if explicitly logged elsewhere
+- The config file itself (ensure `gro.config.ts` is not publicly committed if it contains secrets)
+
+### how it works
+
+The build cache validates multiple factors to determine if a rebuild is needed
+(see [build caching](build.md#build-caching)). For `build_cache_config` specifically, Gro:
+
+1. Resolves `build_cache_config` (calls it if it's a function)
+2. Serializes the result to JSON
+3. Hashes the JSON string using SHA-256
+4. Compares the hash against the previous build's hash
+5. If this hash **or any other cache factor** differs, invalidates the cache and rebuilds
+
+This ensures builds are correct while protecting sensitive configuration.
+All cache factors (git commit, lock files, config files, build args, and `build_cache_config`)
+are combined—if any single factor changes, the cache is invalidated.

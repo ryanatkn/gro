@@ -138,6 +138,19 @@ export const src_json: Src_Json = {
 				{name: 'print_command_args', kind: 'function'},
 			],
 		},
+		'./build_cache.js': {
+			path: 'build_cache.ts',
+			declarations: [
+				{name: 'Build_Cache_Metadata', kind: 'type'},
+				{name: 'compute_build_cache_key', kind: 'function'},
+				{name: 'load_build_cache_metadata', kind: 'function'},
+				{name: 'save_build_cache_metadata', kind: 'function'},
+				{name: 'validate_build_cache', kind: 'function'},
+				{name: 'is_build_cache_valid', kind: 'function'},
+				{name: 'hash_build_outputs', kind: 'function'},
+				{name: 'create_build_cache_metadata', kind: 'function'},
+			],
+		},
 		'./build.task.js': {
 			path: 'build.task.ts',
 			declarations: [
@@ -402,6 +415,10 @@ export const src_json: Src_Json = {
 				{name: 'validate_gen_module', kind: 'function'},
 				{name: 'normalize_gen_config', kind: 'function'},
 			],
+		},
+		'./git.js': {
+			path: 'git.ts',
+			declarations: [{name: 'git_current_commit_hash', kind: 'function'}],
 		},
 		'./github.js': {
 			path: 'github.ts',
