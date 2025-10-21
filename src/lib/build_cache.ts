@@ -209,10 +209,13 @@ export const is_build_cache_valid = async (
 /**
  * Hashes critical files in the build output directory for validation.
  * Returns a map of relative file paths to their hashes.
+ *
+ * Note: Hashes all files by default. For very large builds (>1000 files),
+ * this may take a few seconds but ensures complete cache validation.
  */
 export const hash_build_outputs = async (
 	build_dir: string,
-	max_files = 100,
+	max_files: number | null = null,
 ): Promise<Record<string, string>> => {
 	const output_hashes: Record<string, string> = {};
 
@@ -220,16 +223,18 @@ export const hash_build_outputs = async (
 		return output_hashes;
 	}
 
+	let file_count = 0;
+
 	// Recursively hash files
 	const hash_directory = async (dir: string, relative_base = ''): Promise<void> => {
-		if (Object.keys(output_hashes).length >= max_files) {
-			return; // Limit to avoid hashing too many files
+		if (max_files !== null && file_count >= max_files) {
+			return; // Limit reached
 		}
 
 		const entries = readdirSync(dir, {withFileTypes: true});
 
 		for (const entry of entries) {
-			if (Object.keys(output_hashes).length >= max_files) {
+			if (max_files !== null && file_count >= max_files) {
 				break;
 			}
 
@@ -247,6 +252,7 @@ export const hash_build_outputs = async (
 				const contents = readFileSync(full_path);
 				const hash = await to_hash(contents); // eslint-disable-line no-await-in-loop
 				output_hashes[relative_path] = hash;
+				file_count++;
 			}
 		}
 	};

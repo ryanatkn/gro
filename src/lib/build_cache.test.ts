@@ -473,7 +473,7 @@ describe('hash_build_outputs', () => {
 		expect(result).toEqual({});
 	});
 
-	test('respects max_files limit', async () => {
+	test('respects max_files limit when set', async () => {
 		const {existsSync, readdirSync, readFileSync} = await import('node:fs');
 		const {to_hash} = await import('./hash.ts');
 
@@ -489,6 +489,28 @@ describe('hash_build_outputs', () => {
 		const result = await hash_build_outputs('build', 2);
 
 		expect(Object.keys(result).length).toBeLessThanOrEqual(2);
+	});
+
+	test('hashes all files when max_files is null (default)', async () => {
+		const {existsSync, readdirSync, readFileSync} = await import('node:fs');
+		const {to_hash} = await import('./hash.ts');
+
+		vi.mocked(existsSync).mockReturnValue(true);
+		vi.mocked(readdirSync).mockReturnValue([
+			{name: 'file1.js', isDirectory: () => false, isFile: () => true},
+			{name: 'file2.js', isDirectory: () => false, isFile: () => true},
+			{name: 'file3.js', isDirectory: () => false, isFile: () => true},
+		] as any);
+		vi.mocked(readFileSync).mockReturnValue(Buffer.from('content'));
+		vi.mocked(to_hash).mockResolvedValue('hash');
+
+		const result = await hash_build_outputs('build'); // No max_files specified
+
+		// Should hash all 3 files
+		expect(Object.keys(result).length).toBe(3);
+		expect(result).toHaveProperty('file1.js');
+		expect(result).toHaveProperty('file2.js');
+		expect(result).toHaveProperty('file3.js');
 	});
 });
 
