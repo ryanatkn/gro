@@ -23,15 +23,14 @@ gro build -- vite --config my-config.js
 ## build caching
 
 Gro automatically caches builds to skip expensive rebuilds when nothing has changed.
-The cache is **enabled by default** and validates these factors:
+The cache is **enabled by default** and uses your **git commit hash** as the primary cache key.
 
-- Git commit hash (your source code)
-- Lock file hash (your dependencies: `package-lock.json`, `pnpm-lock.yaml`, or `yarn.lock`)
-- Config file hashes (build configuration: `svelte.config.js`, `gro.config.ts`, `vite.config.ts`)
-- Build args (task arguments like `--sync`, `--install`)
-- Custom `build_cache_config` from your `gro.config.ts` (see [config.md](config.md))
+The cache invalidates when:
 
-If all factors match and build outputs are validated, the build is skipped:
+- **Git commit changes** - Any change to source code, dependencies (when committed), or config files
+- **Custom `build_cache_config`** changes (optional) - External inputs like environment variables or feature flags (see [config.md](config.md#build_cache_config))
+
+When the cache is valid, the build is skipped:
 
 ```bash
 gro build
@@ -47,8 +46,19 @@ gro build --force_build
 
 ### cache storage
 
-Build cache metadata is stored at `build/.build-meta.json` alongside your build outputs.
-When you run `gro clean`, the cache is deleted along with the build directory.
+Build cache metadata is stored at `.gro/build.json` in Gro's internal directory.
+This location is independent of your build outputs, so the cache survives manual deletion of `build/`.
+When you run `gro clean`, the cache is deleted along with the `.gro/` directory.
+
+### dirty workspace behavior
+
+**The build cache only works with a clean git workspace.** If you have uncommitted changes:
+
+- Cache checking is **skipped** - builds always run with uncommitted changes
+- Cache **won't be saved** - no `.gro/build.json` is written after the build
+- You'll see: `Workspace has uncommitted changes - skipping build cache`
+
+This ensures builds always reflect your working directory changes during development.
 
 ### custom cache invalidation
 
@@ -68,7 +78,17 @@ export default {
 
 The config is hashed (never logged) to protect sensitive values. Any change triggers a rebuild.
 
-See [config.md](config.md) for more details on `build_cache_config`.
+See [config.md](config.md#build_cache_config) for more details on `build_cache_config`.
+
+### best practices
+
+For reliable caching:
+
+- **Commit before building** - The cache only works with a clean workspace, so commit all changes before building for production
+- **Use `build_cache_config`** for external inputs - Environment variables, remote configs, or feature flags that affect the build but aren't in git
+- **CI workflow** - Use `gro check --workspace` to enforce clean git state before building
+
+**Development:** Uncommitted changes automatically disable caching, so builds always reflect your working directory. This prevents stale caches during development while still providing caching benefits in CI and production.
 
 ## plugins
 

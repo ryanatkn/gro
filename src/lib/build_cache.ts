@@ -1,4 +1,4 @@
-import {existsSync, readdirSync, readFileSync, statSync, writeFileSync} from 'node:fs';
+import {existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync} from 'node:fs';
 import {join} from 'node:path';
 import type {Logger} from '@ryanatkn/belt/log.js';
 import {styleText as st} from 'node:util';
@@ -6,12 +6,13 @@ import {styleText as st} from 'node:util';
 import {to_hash} from './hash.ts';
 import {git_current_commit_hash} from './git.ts';
 import type {Gro_Config} from './gro_config.ts';
+import {paths} from './paths.ts';
 
-const BUILD_CACHE_METADATA_FILENAME = '.build-meta.json';
+const BUILD_CACHE_METADATA_FILENAME = 'build.json';
 const BUILD_CACHE_VERSION = '1';
 
 /**
- * Metadata stored in the build directory to track cache validity.
+ * Metadata stored in .gro/ directory to track build cache validity.
  */
 export interface Build_Cache_Metadata {
 	/**
@@ -23,21 +24,9 @@ export interface Build_Cache_Metadata {
 	 */
 	git_commit: string | null;
 	/**
-	 * Hash of the lock file (package-lock.json, pnpm-lock.yaml, or yarn.lock).
-	 */
-	lock_file_hash: string | null;
-	/**
-	 * Hash of config files that affect the build.
-	 */
-	config_files_hash: string;
-	/**
 	 * Hash of user's custom build_cache_config from gro.config.ts.
 	 */
 	build_cache_config_hash: string;
-	/**
-	 * Hash of build task arguments.
-	 */
-	build_args_hash: string;
 	/**
 	 * Timestamp when build completed.
 	 */
@@ -58,76 +47,25 @@ export interface Build_Cache_Metadata {
  */
 export const compute_build_cache_key = async (
 	config: Gro_Config,
-	args: Record<string, unknown>,
 	log: Logger,
 ): Promise<{
 	git_commit: string | null;
-	lock_file_hash: string | null;
-	config_files_hash: string;
 	build_cache_config_hash: string;
-	build_args_hash: string;
 }> => {
-	// 1. Git commit hash - most conservative check
+	// 1. Git commit hash - primary cache key
 	const git_commit = await git_current_commit_hash();
 	if (!git_commit) {
 		log.warn('Not in a git repository - build cache will use null git commit');
 	}
 
-	// 2. Lock file hash - detect dependency changes
-	const lock_file_hash = await hash_lock_file();
-
-	// 3. Config files hash - detect config changes
-	const config_files_hash = await hash_config_files();
-
-	// 4. Build cache config hash - user-defined custom inputs
+	// 2. Build cache config hash - for external/dynamic inputs
 	// IMPORTANT: We hash this value and never log/write the raw value (may contain secrets)
 	const build_cache_config_hash = await hash_build_cache_config(config);
 
-	// 5. Build args hash - different args = different build
-	const build_args_hash = await to_hash(Buffer.from(JSON.stringify(args), 'utf-8'));
-
 	return {
 		git_commit,
-		lock_file_hash,
-		config_files_hash,
 		build_cache_config_hash,
-		build_args_hash,
 	};
-};
-
-/**
- * Finds and hashes the lock file (package-lock.json, pnpm-lock.yaml, or yarn.lock).
- */
-const hash_lock_file = async (): Promise<string | null> => {
-	const lock_files = ['package-lock.json', 'pnpm-lock.yaml', 'yarn.lock'];
-
-	for (const lock_file of lock_files) {
-		if (existsSync(lock_file)) {
-			const contents = readFileSync(lock_file);
-			return await to_hash(contents);
-		}
-	}
-
-	return null;
-};
-
-/**
- * Hashes critical config files that affect builds.
- */
-const hash_config_files = async (): Promise<string> => {
-	const config_files = ['svelte.config.js', 'gro.config.ts', 'vite.config.ts', 'vite.config.js'];
-	const hashes: string[] = [];
-
-	for (const config_file of config_files) {
-		if (existsSync(config_file)) {
-			const contents = readFileSync(config_file);
-			const hash = await to_hash(contents);
-			hashes.push(`${config_file}:${hash}`);
-		}
-	}
-
-	// Hash the combined hashes
-	return await to_hash(Buffer.from(hashes.join(','), 'utf-8'));
 };
 
 /**
@@ -151,10 +89,11 @@ const hash_build_cache_config = async (config: Gro_Config): Promise<string> => {
 };
 
 /**
- * Loads build cache metadata from the build directory.
+ * Loads build cache metadata from .gro/ directory.
+ * The build_dir parameter is used to validate the metadata matches the expected build directory.
  */
 export const load_build_cache_metadata = (build_dir: string): Build_Cache_Metadata | null => {
-	const metadata_path = join(build_dir, BUILD_CACHE_METADATA_FILENAME);
+	const metadata_path = join(paths.build, BUILD_CACHE_METADATA_FILENAME);
 
 	if (!existsSync(metadata_path)) {
 		return null;
@@ -169,6 +108,11 @@ export const load_build_cache_metadata = (build_dir: string): Build_Cache_Metada
 			return null;
 		}
 
+		// Validate build_dir matches
+		if (metadata.build_dir !== build_dir) {
+			return null;
+		}
+
 		return metadata;
 	} catch {
 		return null;
@@ -176,13 +120,17 @@ export const load_build_cache_metadata = (build_dir: string): Build_Cache_Metada
 };
 
 /**
- * Saves build cache metadata to the build directory.
+ * Saves build cache metadata to .gro/ directory.
+ * The build_dir parameter is kept for API consistency but the file is always written to .gro/.
  */
 export const save_build_cache_metadata = (
 	metadata: Build_Cache_Metadata,
-	build_dir: string,
+	_build_dir: string,
 ): void => {
-	const metadata_path = join(build_dir, BUILD_CACHE_METADATA_FILENAME);
+	// Ensure .gro directory exists
+	mkdirSync(paths.build, {recursive: true});
+
+	const metadata_path = join(paths.build, BUILD_CACHE_METADATA_FILENAME);
 	writeFileSync(metadata_path, JSON.stringify(metadata, null, '\t'), 'utf-8');
 };
 
@@ -210,7 +158,7 @@ export const validate_build_cache = async (
 		const stat = statSync(full_path);
 		if (stat.isFile()) {
 			const contents = readFileSync(full_path);
-			const actual_hash = await to_hash(contents);
+			const actual_hash = await to_hash(contents); // eslint-disable-line no-await-in-loop
 
 			if (actual_hash !== expected_hash) {
 				return false;
@@ -227,7 +175,6 @@ export const validate_build_cache = async (
  */
 export const is_build_cache_valid = async (
 	config: Gro_Config,
-	args: Record<string, unknown>,
 	build_dir: string,
 	log: Logger,
 ): Promise<boolean> => {
@@ -239,31 +186,16 @@ export const is_build_cache_valid = async (
 	}
 
 	// Compute current cache key
-	const current = await compute_build_cache_key(config, args, log);
+	const current = await compute_build_cache_key(config, log);
 
-	// Check if any cache keys have changed
+	// Check if cache keys have changed
 	if (metadata.git_commit !== current.git_commit) {
 		log.debug('Build cache invalid: git commit changed');
 		return false;
 	}
 
-	if (metadata.lock_file_hash !== current.lock_file_hash) {
-		log.debug('Build cache invalid: lock file changed');
-		return false;
-	}
-
-	if (metadata.config_files_hash !== current.config_files_hash) {
-		log.debug('Build cache invalid: config files changed');
-		return false;
-	}
-
 	if (metadata.build_cache_config_hash !== current.build_cache_config_hash) {
 		log.debug('Build cache invalid: build_cache_config changed');
-		return false;
-	}
-
-	if (metadata.build_args_hash !== current.build_args_hash) {
-		log.debug('Build cache invalid: build args changed');
 		return false;
 	}
 
@@ -314,10 +246,10 @@ export const hash_build_outputs = async (
 			const relative_path = relative_base ? join(relative_base, entry.name) : entry.name;
 
 			if (entry.isDirectory()) {
-				await hash_directory(full_path, relative_path);
+				await hash_directory(full_path, relative_path); // eslint-disable-line no-await-in-loop
 			} else if (entry.isFile()) {
 				const contents = readFileSync(full_path);
-				const hash = await to_hash(contents);
+				const hash = await to_hash(contents); // eslint-disable-line no-await-in-loop
 				output_hashes[relative_path] = hash;
 			}
 		}
@@ -332,11 +264,10 @@ export const hash_build_outputs = async (
  */
 export const create_build_cache_metadata = async (
 	config: Gro_Config,
-	args: Record<string, unknown>,
 	build_dir: string,
 	log: Logger,
 ): Promise<Build_Cache_Metadata> => {
-	const cache_key = await compute_build_cache_key(config, args, log);
+	const cache_key = await compute_build_cache_key(config, log);
 	const output_hashes = await hash_build_outputs(build_dir);
 
 	return {

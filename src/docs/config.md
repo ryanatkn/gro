@@ -237,18 +237,19 @@ Defaults to `'npm'`.
 
 The `build_cache_config` option allows you to define **custom** build inputs
 that invalidate the [build cache](build.md#build-caching) when they change.
-Gro automatically tracks your source code (git commit hash), dependencies (lock files),
-and standard config files—use `build_cache_config` when your build depends on
-**additional factors** like environment variables, external data, or feature flags.
+Gro's build cache uses your **git commit hash** to detect when code, dependencies, or
+configs change, and **only works with a clean workspace** (see [dirty workspace behavior](build.md#dirty-workspace-behavior)).
+Use `build_cache_config` when your build **also** depends on external
+factors like environment variables, remote data, or feature flags.
 
 **Important:** This value is hashed before being stored in the cache metadata.
 The raw value is never logged or written to disk, protecting sensitive information.
 
 ### when to use `build_cache_config`
 
-Gro's build cache automatically invalidates when your **source code, dependencies, or
-config files** change (see [build caching](build.md#build-caching) for details).
-Use `build_cache_config` to add custom factors when your build output also depends on:
+The build cache automatically invalidates on any git commit (source code, dependencies,
+configs—assuming you commit changes before building). Use `build_cache_config` when
+your build **also** depends on:
 
 - **Environment variables** baked into the build (API endpoints, feature flags)
 - **External data files** that affect the build (content databases, configuration data)
@@ -302,7 +303,7 @@ export default {
 
 ### security considerations
 
-The `build_cache_config` value is **hashed** before being written to `build/.build-meta.json`.
+The `build_cache_config` value is **hashed** before being written to `.gro/build.json`.
 Only the hash is stored, never the raw values, so it's safe to include:
 
 - API keys (though using them at build time should be carefully considered)
@@ -320,12 +321,13 @@ However, be aware that these values may still appear in:
 The build cache validates multiple factors to determine if a rebuild is needed
 (see [build caching](build.md#build-caching)). For `build_cache_config` specifically, Gro:
 
-1. Resolves `build_cache_config` (calls it if it's a function)
-2. Serializes the result to JSON
-3. Hashes the JSON string using SHA-256
-4. Compares the hash against the previous build's hash
-5. If this hash **or any other cache factor** differs, invalidates the cache and rebuilds
+1. Checks if workspace has uncommitted changes (if dirty, skips cache entirely)
+2. Resolves `build_cache_config` (calls it if it's a function)
+3. Serializes the result to JSON
+4. Hashes the JSON string using SHA-256
+5. Compares the hash against the previous build's hash from `.gro/build.json`
+6. If this hash **or any other cache factor** differs, invalidates the cache and rebuilds
 
 This ensures builds are correct while protecting sensitive configuration.
-All cache factors (git commit, lock files, config files, build args, and `build_cache_config`)
-are combined—if any single factor changes, the cache is invalidated.
+Both cache factors (git commit and `build_cache_config`) are checked—if either changes,
+the cache is invalidated.

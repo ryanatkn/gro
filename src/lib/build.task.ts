@@ -1,5 +1,6 @@
 import {z} from 'zod';
 import {styleText as st} from 'node:util';
+import {git_check_clean_workspace} from '@ryanatkn/belt/git.js';
 
 import type {Task} from './task.ts';
 import {Plugins} from './plugin.ts';
@@ -38,14 +39,14 @@ export const task: Task<Args> = {
 			await invoke_task('sync', {install});
 		}
 
-		// TODO possibly detect if the git workspace is clean, and ask for confirmation if not,
-		// because we're not doing things like `gro gen` here because that's a dev/CI concern
-
 		const build_dir = SVELTEKIT_BUILD_DIRNAME;
 
-		// Check build cache unless force_build is set
-		if (!force_build) {
-			const cache_valid = await is_build_cache_valid(config, args, build_dir, log);
+		// Check if workspace has uncommitted changes
+		const workspace_dirty = !!(await git_check_clean_workspace());
+
+		// Check build cache unless force_build is set or workspace is dirty
+		if (!workspace_dirty && !force_build) {
+			const cache_valid = await is_build_cache_valid(config, build_dir, log);
 			if (cache_valid) {
 				log.info(
 					st('cyan', 'Skipping build, cache is valid'),
@@ -53,6 +54,10 @@ export const task: Task<Args> = {
 				);
 				return;
 			}
+		} else if (workspace_dirty) {
+			log.info(
+				st('yellow', 'Workspace has uncommitted changes - skipping build cache'),
+			);
 		} else {
 			log.info(st('yellow', 'Forcing fresh build, ignoring cache'));
 		}
@@ -64,9 +69,11 @@ export const task: Task<Args> = {
 		await plugins.adapt();
 		await plugins.teardown();
 
-		// Save build cache metadata after successful build
-		const metadata = await create_build_cache_metadata(config, args, build_dir, log);
-		save_build_cache_metadata(metadata, build_dir);
-		log.debug('Build cache metadata saved');
+		// Save build cache metadata after successful build (only if workspace is clean)
+		if (!workspace_dirty) {
+			const metadata = await create_build_cache_metadata(config, build_dir, log);
+			save_build_cache_metadata(metadata, build_dir);
+			log.debug('Build cache metadata saved');
+		}
 	},
 };

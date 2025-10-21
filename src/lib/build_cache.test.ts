@@ -18,10 +18,22 @@ vi.mock('./git.ts', () => ({
 	git_current_commit_hash: vi.fn(),
 }));
 
+vi.mock('./paths.ts', () => ({
+	paths: {
+		root: './',
+		source: './src/',
+		lib: './src/lib/',
+		build: './.gro/',
+		build_dev: './.gro/dev/',
+		config: './gro.config.ts',
+	},
+}));
+
 vi.mock('node:fs', () => ({
 	existsSync: vi.fn(),
 	readFileSync: vi.fn(),
 	writeFileSync: vi.fn(),
+	mkdirSync: vi.fn(),
 	statSync: vi.fn(),
 	readdirSync: vi.fn(),
 }));
@@ -60,10 +72,7 @@ const create_mock_metadata = (
 ): Build_Cache_Metadata => ({
 	version: '1',
 	git_commit: 'abc123',
-	lock_file_hash: 'def456',
-	config_files_hash: 'ghi789',
 	build_cache_config_hash: 'jkl012',
-	build_args_hash: 'mno345',
 	timestamp: '2025-10-21T10:00:00.000Z',
 	build_dir: 'build',
 	output_hashes: {},
@@ -77,83 +86,51 @@ describe('compute_build_cache_key', () => {
 
 	test('returns consistent hash components for same inputs', async () => {
 		const {git_current_commit_hash} = await import('./git.ts');
-		const {existsSync, readFileSync} = await import('node:fs');
 		const {to_hash} = await import('./hash.ts');
 
 		vi.mocked(git_current_commit_hash).mockResolvedValue('abc123');
-		vi.mocked(existsSync).mockReturnValue(true);
-		vi.mocked(readFileSync).mockReturnValue(Buffer.from('content'));
 		vi.mocked(to_hash).mockResolvedValue('hash123');
 
 		const config = create_mock_config();
-		const args = {sync: true};
 		const log = create_mock_logger();
 
-		const result1 = await compute_build_cache_key(config, args, log);
-		const result2 = await compute_build_cache_key(config, args, log);
+		const result1 = await compute_build_cache_key(config, log);
+		const result2 = await compute_build_cache_key(config, log);
 
 		expect(result1).toEqual(result2);
+		expect(result1.git_commit).toBe('abc123');
+		expect(result1.build_cache_config_hash).toBe('hash123');
 	});
 
 	test('handles missing git repository', async () => {
 		const {git_current_commit_hash} = await import('./git.ts');
-		const {existsSync} = await import('node:fs');
 		const {to_hash} = await import('./hash.ts');
 
 		vi.mocked(git_current_commit_hash).mockResolvedValue(null);
-		vi.mocked(existsSync).mockReturnValue(false);
 		vi.mocked(to_hash).mockResolvedValue('hash123');
 
 		const config = create_mock_config();
-		const args = {};
 		const log = create_mock_logger();
 
-		const result = await compute_build_cache_key(config, args, log);
+		const result = await compute_build_cache_key(config, log);
 
 		expect(result.git_commit).toBeNull();
 		expect(log.warn).toHaveBeenCalledWith(expect.stringContaining('Not in a git repository'));
 	});
 
-	test('handles missing lock file', async () => {
-		const {git_current_commit_hash} = await import('./git.ts');
-		const {existsSync} = await import('node:fs');
-		const {to_hash} = await import('./hash.ts');
-
-		vi.mocked(git_current_commit_hash).mockResolvedValue('abc123');
-		vi.mocked(existsSync).mockReturnValue(false); // No lock files
-		vi.mocked(to_hash).mockResolvedValue('hash123');
-
-		const config = create_mock_config();
-		const args = {};
-		const log = create_mock_logger();
-
-		const result = await compute_build_cache_key(config, args, log);
-
-		expect(result.lock_file_hash).toBeNull();
-	});
-
 	test('hashes build_cache_config when provided', async () => {
 		const {git_current_commit_hash} = await import('./git.ts');
-		const {existsSync} = await import('node:fs');
 		const {to_hash} = await import('./hash.ts');
 
 		vi.mocked(git_current_commit_hash).mockResolvedValue('abc123');
-		vi.mocked(existsSync).mockReturnValue(false);
-
-		let hash_call_count = 0;
-		// eslint-disable-next-line @typescript-eslint/require-await
-		vi.mocked(to_hash).mockImplementation(async () => {
-			hash_call_count++;
-			return `hash${hash_call_count}`;
-		});
+		vi.mocked(to_hash).mockResolvedValue('custom_hash');
 
 		const config = create_mock_config({
 			build_cache_config: {api_url: 'https://example.com'},
 		});
-		const args = {};
 		const log = create_mock_logger();
 
-		const result = await compute_build_cache_key(config, args, log);
+		const result = await compute_build_cache_key(config, log);
 
 		expect(result.build_cache_config_hash).toBeTruthy();
 		expect(to_hash).toHaveBeenCalledWith(
@@ -163,20 +140,17 @@ describe('compute_build_cache_key', () => {
 
 	test('handles async build_cache_config function', async () => {
 		const {git_current_commit_hash} = await import('./git.ts');
-		const {existsSync} = await import('node:fs');
 		const {to_hash} = await import('./hash.ts');
 
 		vi.mocked(git_current_commit_hash).mockResolvedValue('abc123');
-		vi.mocked(existsSync).mockReturnValue(false);
 		vi.mocked(to_hash).mockResolvedValue('hash123');
 
 		const config = create_mock_config({
 			build_cache_config: async () => ({feature_flag: true}), // eslint-disable-line @typescript-eslint/require-await
 		});
-		const args = {};
 		const log = create_mock_logger();
 
-		const result = await compute_build_cache_key(config, args, log);
+		const result = await compute_build_cache_key(config, log);
 
 		expect(result.build_cache_config_hash).toBeTruthy();
 	});
@@ -231,6 +205,18 @@ describe('load_build_cache_metadata', () => {
 
 		expect(result).toBeNull();
 	});
+
+	test('returns null when build_dir does not match', async () => {
+		const {existsSync, readFileSync} = await import('node:fs');
+
+		const metadata = create_mock_metadata({build_dir: 'different-build'});
+		vi.mocked(existsSync).mockReturnValue(true);
+		vi.mocked(readFileSync).mockReturnValue(JSON.stringify(metadata));
+
+		const result = load_build_cache_metadata('build');
+
+		expect(result).toBeNull();
+	});
 });
 
 describe('save_build_cache_metadata', () => {
@@ -239,14 +225,15 @@ describe('save_build_cache_metadata', () => {
 	});
 
 	test('writes metadata to correct path', async () => {
-		const {writeFileSync} = await import('node:fs');
+		const {writeFileSync, mkdirSync} = await import('node:fs');
 
 		const metadata = create_mock_metadata();
 
 		save_build_cache_metadata(metadata, 'build');
 
+		expect(mkdirSync).toHaveBeenCalledWith('./.gro/', {recursive: true});
 		expect(writeFileSync).toHaveBeenCalledWith(
-			'build/.build-meta.json',
+			'.gro/build.json',
 			expect.any(String),
 			'utf-8',
 		);
@@ -347,49 +334,30 @@ describe('is_build_cache_valid', () => {
 		vi.clearAllMocks();
 	});
 
-	test('returns true when all cache keys match and outputs valid', async () => {
+	test('returns true when cache keys match and outputs valid', async () => {
 		const {git_current_commit_hash} = await import('./git.ts');
 		const {existsSync, readFileSync} = await import('node:fs');
 		const {to_hash} = await import('./hash.ts');
 
 		const metadata = create_mock_metadata({
 			git_commit: 'abc123',
-			lock_file_hash: null, // No lock file
-			config_files_hash: 'ghi789',
 			build_cache_config_hash: 'jkl012',
-			build_args_hash: 'mno345',
-			output_hashes: {},
 		});
 
-		// Mock existsSync to control which files are found
-		// - metadata file: true
-		// - build dir: true (for validation)
-		// - lock files: false (no lock file)
-		// - config files: false (no config files for simplicity)
 		vi.mocked(existsSync).mockImplementation((path: any) => {
-			if (path === 'build/.build-meta.json') return true;
-			if (path === 'build') return true; // build dir exists
-			return false; // No lock or config files
+			if (path === '.gro/build.json') return true;
+			if (path === 'build') return true;
+			return false;
 		});
 
-		vi.mocked(readFileSync).mockImplementation((path: any) => {
-			if (path === 'build/.build-meta.json') return JSON.stringify(metadata);
-			return Buffer.from('');
-		});
-
+		vi.mocked(readFileSync).mockReturnValue(JSON.stringify(metadata));
 		vi.mocked(git_current_commit_hash).mockResolvedValue('abc123');
-
-		// Mock hash computation to return matching values
-		// Order: config_files combined hash, build_cache_config hash, build args hash
-		const hash_values = ['ghi789', 'jkl012', 'mno345'];
-		let hash_index = 0;
-		vi.mocked(to_hash).mockImplementation(async () => hash_values[hash_index++] || 'hash'); // eslint-disable-line @typescript-eslint/require-await
+		vi.mocked(to_hash).mockResolvedValue('jkl012');
 
 		const config = create_mock_config();
-		const args = {};
 		const log = create_mock_logger();
 
-		const result = await is_build_cache_valid(config, args, 'build', log);
+		const result = await is_build_cache_valid(config, 'build', log);
 
 		expect(result).toBe(true);
 		expect(log.info).toHaveBeenCalledWith(
@@ -404,10 +372,9 @@ describe('is_build_cache_valid', () => {
 		vi.mocked(existsSync).mockReturnValue(false);
 
 		const config = create_mock_config();
-		const args = {};
 		const log = create_mock_logger();
 
-		const result = await is_build_cache_valid(config, args, 'build', log);
+		const result = await is_build_cache_valid(config, 'build', log);
 
 		expect(result).toBe(false);
 		expect(log.debug).toHaveBeenCalledWith('No build cache metadata found');
@@ -416,48 +383,20 @@ describe('is_build_cache_valid', () => {
 	test('returns false when git commit differs', async () => {
 		const {git_current_commit_hash} = await import('./git.ts');
 		const {existsSync, readFileSync} = await import('node:fs');
-		const {to_hash} = await import('./hash.ts');
 
 		const metadata = create_mock_metadata({git_commit: 'old_commit'});
 
 		vi.mocked(existsSync).mockReturnValue(true);
 		vi.mocked(readFileSync).mockReturnValue(JSON.stringify(metadata));
 		vi.mocked(git_current_commit_hash).mockResolvedValue('new_commit');
-		vi.mocked(to_hash).mockResolvedValue('hash');
 
 		const config = create_mock_config();
-		const args = {};
 		const log = create_mock_logger();
 
-		const result = await is_build_cache_valid(config, args, 'build', log);
+		const result = await is_build_cache_valid(config, 'build', log);
 
 		expect(result).toBe(false);
 		expect(log.debug).toHaveBeenCalledWith('Build cache invalid: git commit changed');
-	});
-
-	test('returns false when lock file hash differs', async () => {
-		const {git_current_commit_hash} = await import('./git.ts');
-		const {existsSync, readFileSync} = await import('node:fs');
-		const {to_hash} = await import('./hash.ts');
-
-		const metadata = create_mock_metadata({
-			git_commit: 'abc123',
-			lock_file_hash: 'old_hash',
-		});
-
-		vi.mocked(existsSync).mockReturnValue(true);
-		vi.mocked(readFileSync).mockReturnValue(JSON.stringify(metadata));
-		vi.mocked(git_current_commit_hash).mockResolvedValue('abc123');
-		vi.mocked(to_hash).mockResolvedValue('new_hash');
-
-		const config = create_mock_config();
-		const args = {};
-		const log = create_mock_logger();
-
-		const result = await is_build_cache_valid(config, args, 'build', log);
-
-		expect(result).toBe(false);
-		expect(log.debug).toHaveBeenCalledWith('Build cache invalid: lock file changed');
 	});
 
 	test('returns false when build_cache_config hash differs', async () => {
@@ -467,36 +406,20 @@ describe('is_build_cache_valid', () => {
 
 		const metadata = create_mock_metadata({
 			git_commit: 'abc123',
-			lock_file_hash: null,
-			config_files_hash: 'config_hash',
 			build_cache_config_hash: 'old_config_hash',
 		});
 
-		// Mock existsSync to return true only for metadata file, false for lock/config files
-		vi.mocked(existsSync).mockImplementation((path: any) => {
-			if (path === 'build/.build-meta.json') return true;
-			return false; // No lock or config files
-		});
-
-		vi.mocked(readFileSync).mockImplementation((path: any) => {
-			if (path === 'build/.build-meta.json') return JSON.stringify(metadata);
-			return Buffer.from('');
-		});
-
+		vi.mocked(existsSync).mockReturnValue(true);
+		vi.mocked(readFileSync).mockReturnValue(JSON.stringify(metadata));
 		vi.mocked(git_current_commit_hash).mockResolvedValue('abc123');
-
-		// Order of hash calls: config_files combined, build_cache_config, build_args
-		const hash_values = ['config_hash', 'new_config_hash', 'args_hash'];
-		let hash_index = 0;
-		vi.mocked(to_hash).mockImplementation(async () => hash_values[hash_index++] || 'hash'); // eslint-disable-line @typescript-eslint/require-await
+		vi.mocked(to_hash).mockResolvedValue('new_config_hash');
 
 		const config = create_mock_config({
 			build_cache_config: {changed: true},
 		});
-		const args = {};
 		const log = create_mock_logger();
 
-		const result = await is_build_cache_valid(config, args, 'build', log);
+		const result = await is_build_cache_valid(config, 'build', log);
 
 		expect(result).toBe(false);
 		expect(log.debug).toHaveBeenCalledWith('Build cache invalid: build_cache_config changed');
@@ -530,18 +453,18 @@ describe('hash_build_outputs', () => {
 		});
 	});
 
-	test('skips .build-meta.json file', async () => {
+	test('skips build.json file', async () => {
 		const {existsSync, readdirSync} = await import('node:fs');
 
 		vi.mocked(existsSync).mockReturnValue(true);
 		vi.mocked(readdirSync).mockReturnValue([
-			{name: '.build-meta.json', isDirectory: () => false, isFile: () => true},
+			{name: 'build.json', isDirectory: () => false, isFile: () => true},
 			{name: 'index.html', isDirectory: () => false, isFile: () => true},
 		] as any);
 
 		const result = await hash_build_outputs('build');
 
-		expect(result).not.toHaveProperty('.build-meta.json');
+		expect(result).not.toHaveProperty('build.json');
 	});
 
 	test('returns empty object for non-existent directory', async () => {
@@ -584,15 +507,14 @@ describe('create_build_cache_metadata', () => {
 		const {to_hash} = await import('./hash.ts');
 
 		vi.mocked(git_current_commit_hash).mockResolvedValue('abc123');
-		vi.mocked(existsSync).mockReturnValue(false); // No lock file or config files
+		vi.mocked(existsSync).mockReturnValue(false);
 		vi.mocked(readdirSync).mockReturnValue([]);
 		vi.mocked(to_hash).mockResolvedValue('hash123');
 
 		const config = create_mock_config();
-		const args = {sync: true};
 		const log = create_mock_logger();
 
-		const result = await create_build_cache_metadata(config, args, 'build', log);
+		const result = await create_build_cache_metadata(config, 'build', log);
 
 		expect(result).toMatchObject({
 			version: '1',
