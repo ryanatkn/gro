@@ -74,7 +74,6 @@ const create_mock_metadata = (
 	git_commit: 'abc123',
 	build_cache_config_hash: 'jkl012',
 	timestamp: '2025-10-21T10:00:00.000Z',
-	build_dir: 'build',
 	output_hashes: {},
 	...overrides,
 });
@@ -168,7 +167,7 @@ describe('load_build_cache_metadata', () => {
 		vi.mocked(existsSync).mockReturnValue(true);
 		vi.mocked(readFileSync).mockReturnValue(JSON.stringify(metadata));
 
-		const result = load_build_cache_metadata('build');
+		const result = load_build_cache_metadata();
 
 		expect(result).toEqual(metadata);
 	});
@@ -178,7 +177,7 @@ describe('load_build_cache_metadata', () => {
 
 		vi.mocked(existsSync).mockReturnValue(false);
 
-		const result = load_build_cache_metadata('build');
+		const result = load_build_cache_metadata();
 
 		expect(result).toBeNull();
 	});
@@ -189,7 +188,7 @@ describe('load_build_cache_metadata', () => {
 		vi.mocked(existsSync).mockReturnValue(true);
 		vi.mocked(readFileSync).mockReturnValue('invalid json{');
 
-		const result = load_build_cache_metadata('build');
+		const result = load_build_cache_metadata();
 
 		expect(result).toBeNull();
 	});
@@ -201,19 +200,7 @@ describe('load_build_cache_metadata', () => {
 		vi.mocked(existsSync).mockReturnValue(true);
 		vi.mocked(readFileSync).mockReturnValue(JSON.stringify(metadata));
 
-		const result = load_build_cache_metadata('build');
-
-		expect(result).toBeNull();
-	});
-
-	test('returns null when build_dir does not match', async () => {
-		const {existsSync, readFileSync} = await import('node:fs');
-
-		const metadata = create_mock_metadata({build_dir: 'different-build'});
-		vi.mocked(existsSync).mockReturnValue(true);
-		vi.mocked(readFileSync).mockReturnValue(JSON.stringify(metadata));
-
-		const result = load_build_cache_metadata('build');
+		const result = load_build_cache_metadata();
 
 		expect(result).toBeNull();
 	});
@@ -259,8 +246,8 @@ describe('validate_build_cache', () => {
 
 		const metadata = create_mock_metadata({
 			output_hashes: {
-				'index.html': 'hash1',
-				'bundle.js': 'hash2',
+				'build/index.html': 'hash1',
+				'build/bundle.js': 'hash2',
 			},
 		});
 
@@ -269,39 +256,27 @@ describe('validate_build_cache', () => {
 		vi.mocked(readFileSync).mockReturnValue(Buffer.from('content'));
 
 		let call_count = 0;
-		// eslint-disable-next-line @typescript-eslint/require-await
+		// eslint-disable-line @typescript-eslint/require-await
 		vi.mocked(to_hash).mockImplementation(async () => {
 			call_count++;
 			return call_count === 1 ? 'hash1' : 'hash2';
 		});
 
-		const result = await validate_build_cache(metadata, 'build');
+		const result = await validate_build_cache(metadata);
 
 		expect(result).toBe(true);
-	});
-
-	test('returns false when build dir does not exist', async () => {
-		const {existsSync} = await import('node:fs');
-
-		const metadata = create_mock_metadata();
-
-		vi.mocked(existsSync).mockReturnValue(false);
-
-		const result = await validate_build_cache(metadata, 'build');
-
-		expect(result).toBe(false);
 	});
 
 	test('returns false when output file is missing', async () => {
 		const {existsSync} = await import('node:fs');
 
 		const metadata = create_mock_metadata({
-			output_hashes: {'index.html': 'hash1'},
+			output_hashes: {'build/index.html': 'hash1'},
 		});
 
-		vi.mocked(existsSync).mockReturnValueOnce(true).mockReturnValueOnce(false);
+		vi.mocked(existsSync).mockReturnValue(false);
 
-		const result = await validate_build_cache(metadata, 'build');
+		const result = await validate_build_cache(metadata);
 
 		expect(result).toBe(false);
 	});
@@ -311,7 +286,7 @@ describe('validate_build_cache', () => {
 		const {to_hash} = await import('./hash.ts');
 
 		const metadata = create_mock_metadata({
-			output_hashes: {'index.html': 'expected_hash'},
+			output_hashes: {'build/index.html': 'expected_hash'},
 		});
 
 		vi.mocked(existsSync).mockReturnValue(true);
@@ -319,7 +294,7 @@ describe('validate_build_cache', () => {
 		vi.mocked(readFileSync).mockReturnValue(Buffer.from('content'));
 		vi.mocked(to_hash).mockResolvedValue('different_hash');
 
-		const result = await validate_build_cache(metadata, 'build');
+		const result = await validate_build_cache(metadata);
 
 		expect(result).toBe(false);
 	});
@@ -340,12 +315,7 @@ describe('is_build_cache_valid', () => {
 			build_cache_config_hash: 'jkl012',
 		});
 
-		vi.mocked(existsSync).mockImplementation((path: any) => {
-			if (path === '.gro/build.json') return true;
-			if (path === 'build') return true;
-			return false;
-		});
-
+		vi.mocked(existsSync).mockReturnValue(true);
 		vi.mocked(readFileSync).mockReturnValue(JSON.stringify(metadata));
 		vi.mocked(git_current_commit_hash).mockResolvedValue('abc123');
 		vi.mocked(to_hash).mockResolvedValue('jkl012');
@@ -353,7 +323,7 @@ describe('is_build_cache_valid', () => {
 		const config = create_mock_config();
 		const log = create_mock_logger();
 
-		const result = await is_build_cache_valid(config, 'build', log);
+		const result = await is_build_cache_valid(config, log);
 
 		expect(result).toBe(true);
 		expect(log.info).toHaveBeenCalledWith(
@@ -370,7 +340,7 @@ describe('is_build_cache_valid', () => {
 		const config = create_mock_config();
 		const log = create_mock_logger();
 
-		const result = await is_build_cache_valid(config, 'build', log);
+		const result = await is_build_cache_valid(config, log);
 
 		expect(result).toBe(false);
 		expect(log.debug).toHaveBeenCalledWith('No build cache metadata found');
@@ -389,7 +359,7 @@ describe('is_build_cache_valid', () => {
 		const config = create_mock_config();
 		const log = create_mock_logger();
 
-		const result = await is_build_cache_valid(config, 'build', log);
+		const result = await is_build_cache_valid(config, log);
 
 		expect(result).toBe(false);
 		expect(log.debug).toHaveBeenCalledWith('Build cache invalid: git commit changed');
@@ -415,7 +385,7 @@ describe('is_build_cache_valid', () => {
 		});
 		const log = create_mock_logger();
 
-		const result = await is_build_cache_valid(config, 'build', log);
+		const result = await is_build_cache_valid(config, log);
 
 		expect(result).toBe(false);
 		expect(log.debug).toHaveBeenCalledWith('Build cache invalid: build_cache_config changed');
@@ -441,26 +411,30 @@ describe('hash_build_outputs', () => {
 		let hash_count = 0;
 		vi.mocked(to_hash).mockImplementation(async () => `hash${++hash_count}`); // eslint-disable-line @typescript-eslint/require-await
 
-		const result = await hash_build_outputs('build');
+		const result = await hash_build_outputs(['build']);
 
 		expect(result).toEqual({
-			'index.html': 'hash1',
-			'bundle.js': 'hash2',
+			'build/index.html': 'hash1',
+			'build/bundle.js': 'hash2',
 		});
 	});
 
 	test('skips build.json file', async () => {
-		const {existsSync, readdirSync} = await import('node:fs');
+		const {existsSync, readdirSync, readFileSync} = await import('node:fs');
+		const {to_hash} = await import('./hash.ts');
 
 		vi.mocked(existsSync).mockReturnValue(true);
 		vi.mocked(readdirSync).mockReturnValue([
 			{name: 'build.json', isDirectory: () => false, isFile: () => true},
 			{name: 'index.html', isDirectory: () => false, isFile: () => true},
 		] as any);
+		vi.mocked(readFileSync).mockReturnValue(Buffer.from('content'));
+		vi.mocked(to_hash).mockResolvedValue('hash');
 
-		const result = await hash_build_outputs('build');
+		const result = await hash_build_outputs(['build']);
 
-		expect(result).not.toHaveProperty('build.json');
+		expect(result).not.toHaveProperty('build/build.json');
+		expect(result).toHaveProperty('build/index.html');
 	});
 
 	test('returns empty object for non-existent directory', async () => {
@@ -468,7 +442,7 @@ describe('hash_build_outputs', () => {
 
 		vi.mocked(existsSync).mockReturnValue(false);
 
-		const result = await hash_build_outputs('build');
+		const result = await hash_build_outputs(['build']);
 
 		expect(result).toEqual({});
 	});
@@ -486,7 +460,7 @@ describe('hash_build_outputs', () => {
 		vi.mocked(readFileSync).mockReturnValue(Buffer.from('content'));
 		vi.mocked(to_hash).mockResolvedValue('hash');
 
-		const result = await hash_build_outputs('build', 2);
+		const result = await hash_build_outputs(['build'], 2);
 
 		expect(Object.keys(result).length).toBeLessThanOrEqual(2);
 	});
@@ -504,13 +478,52 @@ describe('hash_build_outputs', () => {
 		vi.mocked(readFileSync).mockReturnValue(Buffer.from('content'));
 		vi.mocked(to_hash).mockResolvedValue('hash');
 
-		const result = await hash_build_outputs('build'); // No max_files specified
+		const result = await hash_build_outputs(['build']); // No max_files specified
 
 		// Should hash all 3 files
 		expect(Object.keys(result).length).toBe(3);
-		expect(result).toHaveProperty('file1.js');
-		expect(result).toHaveProperty('file2.js');
-		expect(result).toHaveProperty('file3.js');
+		expect(result).toHaveProperty('build/file1.js');
+		expect(result).toHaveProperty('build/file2.js');
+		expect(result).toHaveProperty('build/file3.js');
+	});
+
+	test('hashes files from multiple directories', async () => {
+		const {existsSync, readdirSync, readFileSync} = await import('node:fs');
+		const {to_hash} = await import('./hash.ts');
+
+		// Mock existsSync to return true for all directories
+		vi.mocked(existsSync).mockReturnValue(true);
+
+		// Mock readdirSync to return different files for each directory
+		vi.mocked(readdirSync).mockImplementation((path: any) => {
+			if (path === 'build') {
+				return [{name: 'index.html', isDirectory: () => false, isFile: () => true}] as any;
+			}
+			if (path === 'dist') {
+				return [{name: 'index.js', isDirectory: () => false, isFile: () => true}] as any;
+			}
+			if (path === 'dist_server') {
+				return [{name: 'server.js', isDirectory: () => false, isFile: () => true}] as any;
+			}
+			return [] as any;
+		});
+
+		vi.mocked(readFileSync).mockReturnValue(Buffer.from('content'));
+
+		let hash_count = 0;
+		vi.mocked(to_hash).mockImplementation(async () => `hash${++hash_count}`); // eslint-disable-line @typescript-eslint/require-await
+
+		const result = await hash_build_outputs(['build', 'dist', 'dist_server']);
+
+		// Should hash files from all three directories
+		expect(Object.keys(result).length).toBe(3);
+		expect(result).toHaveProperty('build/index.html');
+		expect(result).toHaveProperty('dist/index.js');
+		expect(result).toHaveProperty('dist_server/server.js');
+		// Each file should have a unique hash
+		expect(result['build/index.html']).toBe('hash1');
+		expect(result['dist/index.js']).toBe('hash2');
+		expect(result['dist_server/server.js']).toBe('hash3');
 	});
 });
 
@@ -521,23 +534,23 @@ describe('create_build_cache_metadata', () => {
 
 	test('creates complete metadata object', async () => {
 		const {git_current_commit_hash} = await import('@ryanatkn/belt/git.js');
-		const {existsSync, readdirSync} = await import('node:fs');
+		const {existsSync, readdirSync, statSync} = await import('node:fs');
 		const {to_hash} = await import('./hash.ts');
 
 		vi.mocked(git_current_commit_hash).mockResolvedValue('abc123');
 		vi.mocked(existsSync).mockReturnValue(false);
 		vi.mocked(readdirSync).mockReturnValue([]);
+		vi.mocked(statSync).mockReturnValue({isDirectory: () => false} as any);
 		vi.mocked(to_hash).mockResolvedValue('hash123');
 
 		const config = create_mock_config();
 		const log = create_mock_logger();
 
-		const result = await create_build_cache_metadata(config, 'build', log);
+		const result = await create_build_cache_metadata(config, log);
 
 		expect(result).toMatchObject({
 			version: '1',
 			git_commit: 'abc123',
-			build_dir: 'build',
 		});
 		expect(result.timestamp).toBeTruthy();
 		expect(new Date(result.timestamp).getTime()).toBeGreaterThan(0);

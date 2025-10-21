@@ -32,11 +32,8 @@ export interface Build_Cache_Metadata {
 	 */
 	timestamp: string;
 	/**
-	 * Build output directory.
-	 */
-	build_dir: string;
-	/**
-	 * Hashes of critical build outputs for validation.
+	 * Hashes of build output files for validation.
+	 * Keys are relative paths including directory prefix (e.g., "build/index.html", "dist/index.js").
 	 */
 	output_hashes: Record<string, string>;
 }
@@ -90,9 +87,8 @@ const hash_build_cache_config = async (config: Gro_Config): Promise<string> => {
 
 /**
  * Loads build cache metadata from .gro/ directory.
- * The build_dir parameter is used to validate the metadata matches the expected build directory.
  */
-export const load_build_cache_metadata = (build_dir: string): Build_Cache_Metadata | null => {
+export const load_build_cache_metadata = (): Build_Cache_Metadata | null => {
 	const metadata_path = join(paths.build, BUILD_CACHE_METADATA_FILENAME);
 
 	if (!existsSync(metadata_path)) {
@@ -105,11 +101,6 @@ export const load_build_cache_metadata = (build_dir: string): Build_Cache_Metada
 
 		// Validate version
 		if (metadata.version !== BUILD_CACHE_VERSION) {
-			return null;
-		}
-
-		// Validate build_dir matches
-		if (metadata.build_dir !== build_dir) {
 			return null;
 		}
 
@@ -134,26 +125,18 @@ export const save_build_cache_metadata = (metadata: Build_Cache_Metadata): void 
  * Validates that a cached build is still valid by hashing outputs.
  * This is comprehensive validation to catch manual tampering or corruption.
  */
-export const validate_build_cache = async (
-	metadata: Build_Cache_Metadata,
-	build_dir: string,
-): Promise<boolean> => {
-	if (!existsSync(build_dir)) {
-		return false;
-	}
-
+export const validate_build_cache = async (metadata: Build_Cache_Metadata): Promise<boolean> => {
 	// Verify all tracked output files still exist and match their hashes
 	for (const [file_path, expected_hash] of Object.entries(metadata.output_hashes)) {
-		const full_path = join(build_dir, file_path);
-
-		if (!existsSync(full_path)) {
+		// file_path includes directory prefix (e.g., "build/index.html")
+		if (!existsSync(file_path)) {
 			return false;
 		}
 
 		// For files, verify hash matches
-		const stat = statSync(full_path);
+		const stat = statSync(file_path);
 		if (stat.isFile()) {
-			const contents = readFileSync(full_path);
+			const contents = readFileSync(file_path);
 			const actual_hash = await to_hash(contents); // eslint-disable-line no-await-in-loop
 
 			if (actual_hash !== expected_hash) {
@@ -169,13 +152,9 @@ export const validate_build_cache = async (
  * Main function to check if the build cache is valid.
  * Returns true if the cached build can be used, false if a fresh build is needed.
  */
-export const is_build_cache_valid = async (
-	config: Gro_Config,
-	build_dir: string,
-	log: Logger,
-): Promise<boolean> => {
+export const is_build_cache_valid = async (config: Gro_Config, log: Logger): Promise<boolean> => {
 	// Load existing metadata
-	const metadata = load_build_cache_metadata(build_dir);
+	const metadata = load_build_cache_metadata();
 	if (!metadata) {
 		log.debug('No build cache metadata found');
 		return false;
@@ -196,7 +175,7 @@ export const is_build_cache_valid = async (
 	}
 
 	// Comprehensive validation: verify output files
-	const outputs_valid = await validate_build_cache(metadata, build_dir);
+	const outputs_valid = await validate_build_cache(metadata);
 	if (!outputs_valid) {
 		log.debug('Build cache invalid: output files missing or corrupted');
 		return false;
@@ -207,26 +186,28 @@ export const is_build_cache_valid = async (
 };
 
 /**
- * Hashes critical files in the build output directory for validation.
- * Returns a map of relative file paths to their hashes.
+ * Hashes critical files in build output directories for validation.
+ * Returns a map of relative file paths (with directory prefix) to their hashes.
  *
  * Note: Hashes all files by default. For very large builds (>1000 files),
  * this may take a few seconds but ensures complete cache validation.
+ *
+ * @param build_dirs Array of output directories to hash (e.g., ['build', 'dist', 'dist_server'])
+ * @param max_files Optional limit on total files to hash across all directories
  */
 export const hash_build_outputs = async (
-	build_dir: string,
+	build_dirs: string[],
 	max_files: number | null = null,
 ): Promise<Record<string, string>> => {
 	const output_hashes: Record<string, string> = {};
-
-	if (!existsSync(build_dir)) {
-		return output_hashes;
-	}
-
 	let file_count = 0;
 
 	// Recursively hash files
-	const hash_directory = async (dir: string, relative_base = ''): Promise<void> => {
+	const hash_directory = async (
+		dir: string,
+		relative_base: string,
+		dir_prefix: string,
+	): Promise<void> => {
 		if (max_files !== null && file_count >= max_files) {
 			return; // Limit reached
 		}
@@ -245,38 +226,66 @@ export const hash_build_outputs = async (
 
 			const full_path = join(dir, entry.name);
 			const relative_path = relative_base ? join(relative_base, entry.name) : entry.name;
+			// Prefix with directory name for the cache key
+			const cache_key = join(dir_prefix, relative_path);
 
 			if (entry.isDirectory()) {
-				await hash_directory(full_path, relative_path); // eslint-disable-line no-await-in-loop
+				await hash_directory(full_path, relative_path, dir_prefix); // eslint-disable-line no-await-in-loop
 			} else if (entry.isFile()) {
 				const contents = readFileSync(full_path);
 				const hash = await to_hash(contents); // eslint-disable-line no-await-in-loop
-				output_hashes[relative_path] = hash;
+				output_hashes[cache_key] = hash;
 				file_count++;
 			}
 		}
 	};
 
-	await hash_directory(build_dir);
+	// Hash each build directory
+	for (const build_dir of build_dirs) {
+		if (!existsSync(build_dir)) {
+			continue; // Skip non-existent directories
+		}
+
+		await hash_directory(build_dir, '', build_dir); // eslint-disable-line no-await-in-loop
+	}
+
 	return output_hashes;
 };
 
 /**
  * Creates build cache metadata after a successful build.
+ * Automatically discovers all build output directories (build/, dist/, dist_*).
  */
 export const create_build_cache_metadata = async (
 	config: Gro_Config,
-	build_dir: string,
 	log: Logger,
 ): Promise<Build_Cache_Metadata> => {
 	const cache_key = await compute_build_cache_key(config, log);
-	const output_hashes = await hash_build_outputs(build_dir);
+
+	// Discover all build output directories
+	const build_dirs: string[] = [];
+
+	// Check for SvelteKit app output (build/)
+	if (existsSync('build')) {
+		build_dirs.push('build');
+	}
+
+	// Check for SvelteKit library output (dist/)
+	if (existsSync('dist')) {
+		build_dirs.push('dist');
+	}
+
+	// Check for server and other plugin outputs (dist_*)
+	const root_entries = readdirSync('.');
+	const dist_dirs = root_entries.filter((p) => p.startsWith('dist_') && statSync(p).isDirectory());
+	build_dirs.push(...dist_dirs);
+
+	const output_hashes = await hash_build_outputs(build_dirs);
 
 	return {
 		version: BUILD_CACHE_VERSION,
 		...cache_key,
 		timestamp: new Date().toISOString(),
-		build_dir,
 		output_hashes,
 	};
 };

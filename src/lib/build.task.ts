@@ -12,7 +12,7 @@ import {
 	create_build_cache_metadata,
 	save_build_cache_metadata,
 } from './build_cache.ts';
-import {SVELTEKIT_BUILD_DIRNAME, GRO_DIST_PREFIX, SVELTEKIT_DIST_DIRNAME} from './constants.ts';
+import {GRO_DIST_PREFIX, SVELTEKIT_DIST_DIRNAME} from './constants.ts';
 import {paths} from './paths.ts';
 
 export const Args = z.strictObject({
@@ -42,14 +42,12 @@ export const task: Task<Args> = {
 			await invoke_task('sync', {install});
 		}
 
-		const build_dir = SVELTEKIT_BUILD_DIRNAME;
-
 		// Check if workspace has uncommitted changes
 		const workspace_dirty = !!(await git_check_clean_workspace());
 
 		// Check build cache unless force_build is set or workspace is dirty
 		if (!workspace_dirty && !force_build) {
-			const cache_valid = await is_build_cache_valid(config, build_dir, log);
+			const cache_valid = await is_build_cache_valid(config, log);
 			if (cache_valid) {
 				log.info(
 					st('cyan', 'Skipping build, cache is valid'),
@@ -86,7 +84,7 @@ export const task: Task<Args> = {
 
 		// Save build cache metadata after successful build (only if workspace is clean)
 		if (!workspace_dirty) {
-			const metadata = await create_build_cache_metadata(config, build_dir, log);
+			const metadata = await create_build_cache_metadata(config, log);
 			save_build_cache_metadata(metadata);
 			log.debug('Build cache metadata saved');
 		}

@@ -170,7 +170,7 @@ describe('build.task integration tests', () => {
 			await build_task.run(ctx);
 
 			// Should check cache
-			expect(is_build_cache_valid).toHaveBeenCalledWith(ctx.config, 'build', ctx.log);
+			expect(is_build_cache_valid).toHaveBeenCalledWith(ctx.config, ctx.log);
 
 			// Should not run plugins
 			expect(mock_plugins.setup).not.toHaveBeenCalled();
@@ -203,7 +203,6 @@ describe('build.task integration tests', () => {
 				git_commit: 'abc123',
 				build_cache_config_hash: 'hash123',
 				timestamp: '2025-10-21T10:00:00.000Z',
-				build_dir: 'build',
 				output_hashes: {},
 			};
 			vi.mocked(create_build_cache_metadata).mockResolvedValue(mock_metadata);
@@ -212,7 +211,7 @@ describe('build.task integration tests', () => {
 			await build_task.run(ctx);
 
 			// Should check cache
-			expect(is_build_cache_valid).toHaveBeenCalledWith(ctx.config, 'build', ctx.log);
+			expect(is_build_cache_valid).toHaveBeenCalledWith(ctx.config, ctx.log);
 
 			// Should run full plugin lifecycle
 			expect(mock_plugins.setup).toHaveBeenCalled();
@@ -220,7 +219,7 @@ describe('build.task integration tests', () => {
 			expect(mock_plugins.teardown).toHaveBeenCalled();
 
 			// Should save cache after successful build
-			expect(create_build_cache_metadata).toHaveBeenCalledWith(ctx.config, 'build', ctx.log);
+			expect(create_build_cache_metadata).toHaveBeenCalledWith(ctx.config, ctx.log);
 			expect(save_build_cache_metadata).toHaveBeenCalledWith(mock_metadata);
 		});
 	});
@@ -400,7 +399,6 @@ describe('build.task integration tests', () => {
 				git_commit: 'abc123',
 				build_cache_config_hash: 'hash123',
 				timestamp: '2025-10-21T10:00:00.000Z',
-				build_dir: 'build',
 				output_hashes: {},
 			};
 			vi.mocked(create_build_cache_metadata).mockResolvedValue(mock_metadata);
