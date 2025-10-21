@@ -56,6 +56,7 @@ When you run `gro clean`, the cache is deleted along with the `.gro/` directory.
 
 - Cache checking is **skipped** - builds always run with uncommitted changes
 - Cache **won't be saved** - no `.gro/build.json` is written after the build
+- Distribution outputs **deleted** - `dist/` and `dist_*/` directories are removed to prevent stale state
 - You'll see: `Workspace has uncommitted changes - skipping build cache`
 
 This ensures builds always reflect your working directory changes during development.

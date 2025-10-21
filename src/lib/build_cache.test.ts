@@ -14,7 +14,7 @@ import {
 import type {Gro_Config} from './gro_config.ts';
 
 // Mock dependencies
-vi.mock('./git.ts', () => ({
+vi.mock('@ryanatkn/belt/git.js', () => ({
 	git_current_commit_hash: vi.fn(),
 }));
 
@@ -85,7 +85,7 @@ describe('compute_build_cache_key', () => {
 	});
 
 	test('returns consistent hash components for same inputs', async () => {
-		const {git_current_commit_hash} = await import('./git.ts');
+		const {git_current_commit_hash} = await import('@ryanatkn/belt/git.js');
 		const {to_hash} = await import('./hash.ts');
 
 		vi.mocked(git_current_commit_hash).mockResolvedValue('abc123');
@@ -103,7 +103,7 @@ describe('compute_build_cache_key', () => {
 	});
 
 	test('handles missing git repository', async () => {
-		const {git_current_commit_hash} = await import('./git.ts');
+		const {git_current_commit_hash} = await import('@ryanatkn/belt/git.js');
 		const {to_hash} = await import('./hash.ts');
 
 		vi.mocked(git_current_commit_hash).mockResolvedValue(null);
@@ -119,7 +119,7 @@ describe('compute_build_cache_key', () => {
 	});
 
 	test('hashes build_cache_config when provided', async () => {
-		const {git_current_commit_hash} = await import('./git.ts');
+		const {git_current_commit_hash} = await import('@ryanatkn/belt/git.js');
 		const {to_hash} = await import('./hash.ts');
 
 		vi.mocked(git_current_commit_hash).mockResolvedValue('abc123');
@@ -139,7 +139,7 @@ describe('compute_build_cache_key', () => {
 	});
 
 	test('handles async build_cache_config function', async () => {
-		const {git_current_commit_hash} = await import('./git.ts');
+		const {git_current_commit_hash} = await import('@ryanatkn/belt/git.js');
 		const {to_hash} = await import('./hash.ts');
 
 		vi.mocked(git_current_commit_hash).mockResolvedValue('abc123');
@@ -335,7 +335,7 @@ describe('is_build_cache_valid', () => {
 	});
 
 	test('returns true when cache keys match and outputs valid', async () => {
-		const {git_current_commit_hash} = await import('./git.ts');
+		const {git_current_commit_hash} = await import('@ryanatkn/belt/git.js');
 		const {existsSync, readFileSync} = await import('node:fs');
 		const {to_hash} = await import('./hash.ts');
 
@@ -381,7 +381,7 @@ describe('is_build_cache_valid', () => {
 	});
 
 	test('returns false when git commit differs', async () => {
-		const {git_current_commit_hash} = await import('./git.ts');
+		const {git_current_commit_hash} = await import('@ryanatkn/belt/git.js');
 		const {existsSync, readFileSync} = await import('node:fs');
 
 		const metadata = create_mock_metadata({git_commit: 'old_commit'});
@@ -400,7 +400,7 @@ describe('is_build_cache_valid', () => {
 	});
 
 	test('returns false when build_cache_config hash differs', async () => {
-		const {git_current_commit_hash} = await import('./git.ts');
+		const {git_current_commit_hash} = await import('@ryanatkn/belt/git.js');
 		const {existsSync, readFileSync} = await import('node:fs');
 		const {to_hash} = await import('./hash.ts');
 
@@ -502,7 +502,7 @@ describe('create_build_cache_metadata', () => {
 	});
 
 	test('creates complete metadata object', async () => {
-		const {git_current_commit_hash} = await import('./git.ts');
+		const {git_current_commit_hash} = await import('@ryanatkn/belt/git.js');
 		const {existsSync, readdirSync} = await import('node:fs');
 		const {to_hash} = await import('./hash.ts');
 

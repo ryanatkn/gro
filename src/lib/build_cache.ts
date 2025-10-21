@@ -2,9 +2,9 @@ import {existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSyn
 import {join} from 'node:path';
 import type {Logger} from '@ryanatkn/belt/log.js';
 import {styleText as st} from 'node:util';
+import {git_current_commit_hash} from '@ryanatkn/belt/git.js';
 
 import {to_hash} from './hash.ts';
-import {git_current_commit_hash} from './git.ts';
 import type {Gro_Config} from './gro_config.ts';
 import {paths} from './paths.ts';
 

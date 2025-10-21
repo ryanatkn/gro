@@ -416,10 +416,6 @@ export const src_json: Src_Json = {
 				{name: 'normalize_gen_config', kind: 'function'},
 			],
 		},
-		'./git.js': {
-			path: 'git.ts',
-			declarations: [{name: 'git_current_commit_hash', kind: 'function'}],
-		},
 		'./github.js': {
 			path: 'github.ts',
 			declarations: [
