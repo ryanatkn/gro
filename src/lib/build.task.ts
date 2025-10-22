@@ -31,6 +31,18 @@ export const Args = z.strictObject({
 });
 export type Args = z.infer<typeof Args>;
 
+/**
+ * Length of git commit hash when displayed in logs (standard git convention).
+ */
+export const GIT_SHORT_HASH_LENGTH = 7;
+
+/**
+ * Formats a git commit hash for display in logs.
+ * Returns '[none]' if hash is null (e.g., not in a git repo).
+ */
+const format_commit_hash = (hash: string | null): string =>
+	hash?.slice(0, GIT_SHORT_HASH_LENGTH) ?? '[none]';
+
 export const task: Task<Args> = {
 	summary: 'build the project',
 	Args,
@@ -103,7 +115,10 @@ export const task: Task<Args> = {
 			if (current_commit !== initial_commit) {
 				log.warn(
 					st('yellow', 'Git commit changed during build'),
-					st('dim', `(${initial_commit?.slice(0, 7)} → ${current_commit?.slice(0, 7)})`),
+					st(
+						'dim',
+						`(${format_commit_hash(initial_commit)} → ${format_commit_hash(current_commit)})`,
+					),
 					'- cache not saved',
 				);
 			} else {

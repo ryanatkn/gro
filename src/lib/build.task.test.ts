@@ -3,7 +3,7 @@ import {join} from 'node:path';
 import type {Logger} from '@ryanatkn/belt/log.js';
 import type {Timings} from '@ryanatkn/belt/timings.js';
 
-import {task as build_task, type Args} from './build.task.ts';
+import {task as build_task, GIT_SHORT_HASH_LENGTH, type Args} from './build.task.ts';
 import type {Task_Context, Invoke_Task} from './task.ts';
 import type {Gro_Config} from './gro_config.ts';
 import type {Parsed_Svelte_Config} from './svelte_config.ts';
@@ -134,6 +134,11 @@ interface Mock_Plugins {
 
 describe('build.task integration tests', () => {
 	let mock_plugins: Mock_Plugins;
+
+	test('GIT_SHORT_HASH_LENGTH constant matches git convention', () => {
+		// Verify the constant is set to standard git short hash length
+		expect(GIT_SHORT_HASH_LENGTH).toBe(7);
+	});
 
 	beforeEach(async () => {
 		vi.clearAllMocks();
@@ -624,7 +629,7 @@ describe('build.task integration tests', () => {
 			// Simulate commit happening during build:
 			// Initial call returns 'commit_a', after build check returns 'commit_b'
 			let call_count = 0;
-			vi.mocked(git_current_commit_hash).mockImplementation(async () => {
+			vi.mocked(git_current_commit_hash).mockImplementation(() => {
 				call_count++;
 				// First call (batched initial): commit_a
 				// Second call (after build check): commit_b (commit happened during build!)
@@ -643,10 +648,10 @@ describe('build.task integration tests', () => {
 			expect(save_build_cache_metadata).not.toHaveBeenCalled();
 
 			// Should log warning about commit change
-			// Note: Commit hashes are sliced to 7 chars in the log
+			// Note: Commit hashes are sliced to GIT_SHORT_HASH_LENGTH chars in the log
 			expect(ctx.log.warn).toHaveBeenCalledWith(
 				expect.stringContaining('Git commit changed during build'),
-				expect.stringContaining('commit_'), // "commit_a".slice(0, 7) = "commit_"
+				expect.stringContaining('commit_'), // "commit_a".slice(0, GIT_SHORT_HASH_LENGTH) = "commit_"
 				expect.stringContaining('cache not saved'),
 			);
 		});
@@ -706,7 +711,7 @@ describe('build.task integration tests', () => {
 
 			// Different commits before/after build
 			let call_count = 0;
-			vi.mocked(git_current_commit_hash).mockImplementation(async () => {
+			vi.mocked(git_current_commit_hash).mockImplementation(() => {
 				call_count++;
 				return call_count === 1 ? 'abc1234567890' : 'def9876543210';
 			});
@@ -717,7 +722,7 @@ describe('build.task integration tests', () => {
 			// Should log shortened commit hashes in warning
 			expect(ctx.log.warn).toHaveBeenCalledWith(
 				expect.stringContaining('Git commit changed during build'),
-				expect.stringContaining('abc1234'), // First 7 chars
+				expect.stringContaining('abc1234'), // First GIT_SHORT_HASH_LENGTH chars
 				expect.stringContaining('cache not saved'),
 			);
 		});
