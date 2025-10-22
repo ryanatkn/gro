@@ -37,6 +37,7 @@ vi.mock('node:fs', () => ({
 	readFileSync: vi.fn(),
 	writeFileSync: vi.fn(),
 	mkdirSync: vi.fn(),
+	rmSync: vi.fn(),
 	statSync: vi.fn(),
 	readdirSync: vi.fn(),
 }));
@@ -207,6 +208,43 @@ describe('load_build_cache_metadata', () => {
 
 		expect(result).toBeNull();
 	});
+
+	test('deletes cache file on schema version mismatch', async () => {
+		const {existsSync, readFileSync, rmSync} = await import('node:fs');
+
+		const metadata = create_mock_metadata({version: '999'});
+		vi.mocked(existsSync).mockReturnValue(true);
+		vi.mocked(readFileSync).mockReturnValue(JSON.stringify(metadata));
+
+		load_build_cache_metadata();
+
+		expect(rmSync).toHaveBeenCalledWith('.gro/build.json', {force: true});
+	});
+
+	test('deletes cache file on corrupted JSON', async () => {
+		const {existsSync, readFileSync, rmSync} = await import('node:fs');
+
+		vi.mocked(existsSync).mockReturnValue(true);
+		vi.mocked(readFileSync).mockReturnValue('invalid json{');
+
+		load_build_cache_metadata();
+
+		expect(rmSync).toHaveBeenCalledWith('.gro/build.json', {force: true});
+	});
+
+	test('handles cleanup errors gracefully', async () => {
+		const {existsSync, readFileSync, rmSync} = await import('node:fs');
+
+		vi.mocked(existsSync).mockReturnValue(true);
+		vi.mocked(readFileSync).mockReturnValue('invalid json{');
+		vi.mocked(rmSync).mockImplementation(() => {
+			throw new Error('Permission denied');
+		});
+
+		// Should not throw despite cleanup error
+		expect(() => load_build_cache_metadata()).not.toThrow();
+		expect(load_build_cache_metadata()).toBeNull();
+	});
 });
 
 describe('save_build_cache_metadata', () => {
@@ -235,6 +273,50 @@ describe('save_build_cache_metadata', () => {
 		const written_content = vi.mocked(writeFileSync).mock.calls[0][1] as string;
 		expect(written_content).toContain('\t');
 		expect(JSON.parse(written_content)).toEqual(metadata);
+	});
+
+	test('logs warning on write error', async () => {
+		const {writeFileSync} = await import('node:fs');
+
+		const metadata = create_mock_metadata();
+		const log = create_mock_logger();
+
+		vi.mocked(writeFileSync).mockImplementation(() => {
+			throw new Error('ENOSPC: no space left on device');
+		});
+
+		save_build_cache_metadata(metadata, log);
+
+		expect(log.warn).toHaveBeenCalledWith(
+			expect.stringContaining('Failed to save build cache'),
+			expect.stringContaining('no space left on device'),
+		);
+	});
+
+	test('does not throw on write error', async () => {
+		const {writeFileSync} = await import('node:fs');
+
+		const metadata = create_mock_metadata();
+
+		vi.mocked(writeFileSync).mockImplementation(() => {
+			throw new Error('EACCES: permission denied');
+		});
+
+		// Should not throw despite write error
+		expect(() => save_build_cache_metadata(metadata)).not.toThrow();
+	});
+
+	test('handles write error without logger', async () => {
+		const {writeFileSync} = await import('node:fs');
+
+		const metadata = create_mock_metadata();
+
+		vi.mocked(writeFileSync).mockImplementation(() => {
+			throw new Error('Write failed');
+		});
+
+		// Should not throw even without logger (log?.warn is safe)
+		expect(() => save_build_cache_metadata(metadata)).not.toThrow();
 	});
 });
 
@@ -520,7 +602,7 @@ describe('hash_build_outputs', () => {
 		expect(result).toEqual({});
 	});
 
-	test('respects max_files limit when set', async () => {
+	test('hashes all files in directory', async () => {
 		const {existsSync, readdirSync, readFileSync} = await import('node:fs');
 		const {to_hash} = await import('./hash.ts');
 
@@ -533,25 +615,7 @@ describe('hash_build_outputs', () => {
 		vi.mocked(readFileSync).mockReturnValue(Buffer.from('content'));
 		vi.mocked(to_hash).mockResolvedValue('hash');
 
-		const result = await hash_build_outputs(['build'], 2);
-
-		expect(Object.keys(result).length).toBeLessThanOrEqual(2);
-	});
-
-	test('hashes all files when max_files is null (default)', async () => {
-		const {existsSync, readdirSync, readFileSync} = await import('node:fs');
-		const {to_hash} = await import('./hash.ts');
-
-		vi.mocked(existsSync).mockReturnValue(true);
-		vi.mocked(readdirSync).mockReturnValue([
-			{name: 'file1.js', isDirectory: () => false, isFile: () => true},
-			{name: 'file2.js', isDirectory: () => false, isFile: () => true},
-			{name: 'file3.js', isDirectory: () => false, isFile: () => true},
-		] as any);
-		vi.mocked(readFileSync).mockReturnValue(Buffer.from('content'));
-		vi.mocked(to_hash).mockResolvedValue('hash');
-
-		const result = await hash_build_outputs(['build']); // No max_files specified
+		const result = await hash_build_outputs(['build']);
 
 		// Should hash all 3 files
 		expect(Object.keys(result).length).toBe(3);

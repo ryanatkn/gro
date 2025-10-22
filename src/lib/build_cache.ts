@@ -1,4 +1,12 @@
-import {existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync} from 'node:fs';
+import {
+	existsSync,
+	mkdirSync,
+	readdirSync,
+	readFileSync,
+	rmSync,
+	statSync,
+	writeFileSync,
+} from 'node:fs';
 import {join} from 'node:path';
 import type {Logger} from '@ryanatkn/belt/log.js';
 import {styleText as st} from 'node:util';
@@ -98,6 +106,7 @@ export const hash_build_cache_config = async (config: Gro_Config): Promise<strin
 
 /**
  * Loads build cache metadata from .gro/ directory.
+ * Invalid or corrupted cache files are automatically deleted.
  */
 export const load_build_cache_metadata = (): Build_Cache_Metadata | null => {
 	const metadata_path = join(paths.build, BUILD_CACHE_METADATA_FILENAME);
@@ -112,24 +121,45 @@ export const load_build_cache_metadata = (): Build_Cache_Metadata | null => {
 
 		// Validate version
 		if (metadata.version !== BUILD_CACHE_VERSION) {
+			// Clean up stale cache with old schema version
+			try {
+				rmSync(metadata_path, {force: true});
+			} catch {
+				// Ignore cleanup errors
+			}
 			return null;
 		}
 
 		return metadata;
 	} catch {
+		// Clean up corrupted cache file
+		try {
+			rmSync(metadata_path, {force: true});
+		} catch {
+			// Ignore cleanup errors
+		}
 		return null;
 	}
 };
 
 /**
  * Saves build cache metadata to .gro/ directory.
+ * Errors are logged but don't fail the build (cache is optional).
  */
-export const save_build_cache_metadata = (metadata: Build_Cache_Metadata): void => {
-	// Ensure .gro directory exists
-	mkdirSync(paths.build, {recursive: true});
+export const save_build_cache_metadata = (metadata: Build_Cache_Metadata, log?: Logger): void => {
+	try {
+		// Ensure .gro directory exists
+		mkdirSync(paths.build, {recursive: true});
 
-	const metadata_path = join(paths.build, BUILD_CACHE_METADATA_FILENAME);
-	writeFileSync(metadata_path, JSON.stringify(metadata, null, '\t'), 'utf-8');
+		const metadata_path = join(paths.build, BUILD_CACHE_METADATA_FILENAME);
+		writeFileSync(metadata_path, JSON.stringify(metadata, null, '\t'), 'utf-8');
+	} catch (error) {
+		// Cache writes are optional - log warning but don't fail the build
+		log?.warn(
+			st('yellow', 'Failed to save build cache'),
+			st('dim', `(${error instanceof Error ? error.message : String(error)})`),
+		);
+	}
 };
 
 /**
@@ -137,23 +167,23 @@ export const save_build_cache_metadata = (metadata: Build_Cache_Metadata): void 
  * This is comprehensive validation to catch manual tampering or corruption.
  */
 export const validate_build_cache = async (metadata: Build_Cache_Metadata): Promise<boolean> => {
-	// Verify all tracked output files still exist and match their hashes
-	for (const [file_path, expected_hash] of Object.entries(metadata.output_hashes)) {
-		// file_path includes directory prefix (e.g., "build/index.html")
+	// Verify all tracked output files exist
+	const entries = Object.entries(metadata.output_hashes);
+	for (const [file_path] of entries) {
 		if (!existsSync(file_path)) {
-			return false;
-		}
-
-		// Verify hash matches (output_hashes only contains files, not directories)
-		const contents = readFileSync(file_path);
-		const actual_hash = await to_hash(contents); // eslint-disable-line no-await-in-loop
-
-		if (actual_hash !== expected_hash) {
 			return false;
 		}
 	}
 
-	return true;
+	// Hash all files in parallel for performance
+	const hash_promises = entries.map(async ([file_path, expected_hash]) => {
+		const contents = readFileSync(file_path);
+		const actual_hash = await to_hash(contents);
+		return actual_hash === expected_hash;
+	});
+
+	const results = await Promise.all(hash_promises);
+	return results.every((valid) => valid);
 };
 
 /**
@@ -204,39 +234,30 @@ export const is_build_cache_valid = async (
 };
 
 /**
- * Hashes critical files in build output directories for validation.
+ * Hashes all files in build output directories for validation.
  * Returns a map of relative file paths (with directory prefix) to their hashes.
  *
- * Note: Hashes all files by default. For very large builds, this may take
- * a few seconds but ensures complete cache validation.
+ * Files are hashed in parallel for performance. For very large builds (10k+ files),
+ * this may take several seconds but ensures complete cache validation.
  *
  * @param build_dirs Array of output directories to hash (e.g., ['build', 'dist', 'dist_server'])
- * @param max_files Optional limit on total files to hash across all directories
  */
 export const hash_build_outputs = async (
 	build_dirs: Array<string>,
-	max_files: number | null = null,
 ): Promise<Record<string, string>> => {
-	const output_hashes: Record<string, string> = {};
-	let file_count = 0;
+	// Collect all files to hash first
+	interface File_Entry {
+		full_path: string;
+		cache_key: string;
+	}
 
-	// Recursively hash files
-	const hash_directory = async (
-		dir: string,
-		relative_base: string,
-		dir_prefix: string,
-	): Promise<void> => {
-		if (max_files !== null && file_count >= max_files) {
-			return; // Limit reached
-		}
+	const files_to_hash: Array<File_Entry> = [];
 
+	// Recursively collect files
+	const collect_files = (dir: string, relative_base: string, dir_prefix: string): void => {
 		const entries = readdirSync(dir, {withFileTypes: true});
 
 		for (const entry of entries) {
-			if (max_files !== null && file_count >= max_files) {
-				break;
-			}
-
 			// Skip metadata file itself
 			if (entry.name === BUILD_CACHE_METADATA_FILENAME) {
 				continue;
@@ -244,27 +265,37 @@ export const hash_build_outputs = async (
 
 			const full_path = join(dir, entry.name);
 			const relative_path = relative_base ? join(relative_base, entry.name) : entry.name;
-			// Prefix with directory name for the cache key
 			const cache_key = join(dir_prefix, relative_path);
 
 			if (entry.isDirectory()) {
-				await hash_directory(full_path, relative_path, dir_prefix); // eslint-disable-line no-await-in-loop
+				collect_files(full_path, relative_path, dir_prefix);
 			} else if (entry.isFile()) {
-				const contents = readFileSync(full_path);
-				const hash = await to_hash(contents); // eslint-disable-line no-await-in-loop
-				output_hashes[cache_key] = hash;
-				file_count++;
+				files_to_hash.push({full_path, cache_key});
 			}
 		}
 	};
 
-	// Hash each build directory
+	// Collect files from all build directories
 	for (const build_dir of build_dirs) {
 		if (!existsSync(build_dir)) {
 			continue; // Skip non-existent directories
 		}
+		collect_files(build_dir, '', build_dir);
+	}
 
-		await hash_directory(build_dir, '', build_dir); // eslint-disable-line no-await-in-loop
+	// Hash all files in parallel
+	const hash_promises = files_to_hash.map(async ({full_path, cache_key}) => {
+		const contents = readFileSync(full_path);
+		const hash = await to_hash(contents);
+		return [cache_key, hash] as const;
+	});
+
+	const hashed_entries = await Promise.all(hash_promises);
+
+	// Convert to object
+	const output_hashes: Record<string, string> = {};
+	for (const [cache_key, hash] of hashed_entries) {
+		output_hashes[cache_key] = hash;
 	}
 
 	return output_hashes;

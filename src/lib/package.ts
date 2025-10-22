@@ -143,6 +143,7 @@ export const src_json: Src_Json = {
 			declarations: [
 				{name: 'Build_Cache_Metadata', kind: 'type'},
 				{name: 'compute_build_cache_key', kind: 'function'},
+				{name: 'hash_build_cache_config', kind: 'function'},
 				{name: 'load_build_cache_metadata', kind: 'function'},
 				{name: 'save_build_cache_metadata', kind: 'function'},
 				{name: 'validate_build_cache', kind: 'function'},
@@ -156,6 +157,7 @@ export const src_json: Src_Json = {
 			path: 'build.task.ts',
 			declarations: [
 				{name: 'Args', kind: 'variable'},
+				{name: 'GIT_SHORT_HASH_LENGTH', kind: 'variable'},
 				{name: 'task', kind: 'variable'},
 			],
 		},

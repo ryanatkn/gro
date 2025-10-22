@@ -129,7 +129,7 @@ export const task: Task<Args> = {
 					initial_commit,
 					build_cache_config_hash,
 				);
-				save_build_cache_metadata(metadata);
+				save_build_cache_metadata(metadata, log);
 				log.debug('Build cache metadata saved');
 			}
 		}

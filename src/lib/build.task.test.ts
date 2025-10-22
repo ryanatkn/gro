@@ -240,7 +240,7 @@ describe('build.task integration tests', () => {
 				'abc123',
 				'hash123',
 			);
-			expect(save_build_cache_metadata).toHaveBeenCalledWith(mock_metadata);
+			expect(save_build_cache_metadata).toHaveBeenCalledWith(mock_metadata, ctx.log);
 		});
 	});
 
@@ -434,7 +434,7 @@ describe('build.task integration tests', () => {
 			await build_task.run(ctx);
 
 			// Should save cache after successful build (workspace is clean)
-			expect(save_build_cache_metadata).toHaveBeenCalledWith(mock_metadata);
+			expect(save_build_cache_metadata).toHaveBeenCalledWith(mock_metadata, ctx.log);
 		});
 
 		test('still deletes dist when force_build with dirty workspace', async () => {
@@ -688,7 +688,7 @@ describe('build.task integration tests', () => {
 			expect(mock_plugins.setup).toHaveBeenCalled();
 
 			// Should save cache (commit was stable)
-			expect(save_build_cache_metadata).toHaveBeenCalledWith(mock_metadata);
+			expect(save_build_cache_metadata).toHaveBeenCalledWith(mock_metadata, ctx.log);
 
 			// Should NOT log warning
 			expect(ctx.log.warn).not.toHaveBeenCalledWith(
