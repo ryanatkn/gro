@@ -22,17 +22,17 @@ gro build -- vite --config my-config.js
 
 ## build caching
 
-Gro automatically caches builds to skip expensive rebuilds when nothing has changed.
-The cache is **enabled by default** and uses your **git commit hash** as the primary cache key.
+Gro caches builds to skip expensive rebuilds when nothing has changed.
 
-The cache invalidates when:
+The cache key has two components:
 
-- git commit changes: any change to source code, dependencies (when committed), or config files
-- custom `build_cache_config` changes (optional):
-  external inputs like environment variables or feature flags
+- git commit hash - tracks code, dependencies, and config files
+- `build_cache_config` hash - optional, for tracking external inputs like environment variables or feature flags
   (see [config.md](config.md#build_cache_config))
 
-When the cache is valid, the build is skipped:
+The cache invalidates when either component changes.
+
+When the cache is valid:
 
 ```bash
 gro build
@@ -40,7 +40,7 @@ gro build
 # Skipping build, cache is valid
 ```
 
-To force a fresh build, ignoring the cache:
+Force a rebuild:
 
 ```bash
 gro build --force_build
@@ -48,20 +48,22 @@ gro build --force_build
 
 ### cache storage
 
-Build cache metadata is stored at `.gro/build.json` in Gro's internal directory.
-This location is independent of your build outputs, so the cache survives manual deletion of `build/`.
-When you run `gro clean`, the cache is deleted along with the `.gro/` directory.
+Cache metadata is stored at `.gro/build.json`.
+This location is independent of build outputs, so the cache survives manual deletion of `build/`.
+Running `gro clean` deletes the cache along with the `.gro/` directory.
 
 ### dirty workspace behavior
 
-**The build cache only works with a clean git workspace.** If you have uncommitted changes:
+The build cache only works with a clean git workspace.
+With uncommitted changes, the git commit hash doesn't reflect your actual code state,
+so Gro disables caching to ensure builds always match your working directory.
 
-- Cache checking is **skipped** - builds always run with uncommitted changes
-- Cache **won't be saved** - no `.gro/build.json` is written after the build
-- Distribution outputs **deleted** - `dist/` and `dist_*/` directories are removed to prevent stale state
-- You'll see: `Workspace has uncommitted changes - skipping build cache`
+Behavior with uncommitted changes:
 
-This ensures builds always reflect your working directory changes during development.
+- cache checking is skipped - builds always run
+- cache is not saved - no `.gro/build.json` written
+- distribution outputs are deleted - `dist/` and `dist_*/` removed to prevent stale state
+- you'll see: `Workspace has uncommitted changes - skipping build cache`
 
 ### custom cache invalidation
 
@@ -83,12 +85,20 @@ The config is hashed (never logged) to protect sensitive values. Any change trig
 
 See [config.md](config.md#build_cache_config) for more details on `build_cache_config`.
 
-### performance
+### cache validation
 
-Build cache validation hashes all output files to detect tampering.
-Hashing runs in parallel and is usually fast but does add overhead.
+Beyond checking the cache key, Gro validates that cached output files haven't been tampered with or corrupted.
+All output files are hashed in parallel to verify integrity.
+This is a robustness design choice - even if the cache key matches,
+corrupted or manually modified files trigger a rebuild.
 
-To skip validation: `gro build --force_build`
+The hashing is usually fast but adds overhead proportional to output size.
+
+Force a rebuild without validation:
+
+```bash
+gro build --force_build
+```
 
 > TODO what opportunities are there to leverage the build metadata?
 
@@ -96,33 +106,30 @@ To skip validation: `gro build --force_build`
 
 For reliable caching:
 
-- commit before building: the cache only works with a clean workspace,
-  so commit all changes before building for production
-- use `build_cache_config` for external inputs: environment variables,
+- commit before building for production - cache requires a clean workspace
+- use `build_cache_config` for external inputs - environment variables,
   remote configs, or feature flags that affect the build but aren't in git
-- CI workflow: use `gro check --workspace` to enforce clean git state before building
+- use `gro check --workspace` in CI - enforces clean git state before building
 
-For development, uncommitted changes automatically disable caching,
+During development, uncommitted changes automatically disable caching,
 so builds always reflect your working directory.
-This prevents stale caches during development
-while still providing caching benefits in CI and production.
 
 ### CI/CD integration
 
-**Don't commit `.gro/build.json`** - Keep it in `.gitignore`.
+> Don't commit `.gro/build.json` - keep it in `.gitignore`.
 
-**Caching `.gro/` between CI runs** is usually not beneficial
-since each commit invalidates the cache.
+Caching `.gro/` between CI runs is usually not beneficial since each commit invalidates the cache.
 
-**Basic CI workflow:**
+Basic CI workflow:
 
 ```bash
-gro check --workspace  # Ensure clean workspace
-gro build              # Build (uses cache if valid)
+gro check --workspace  # ensure clean workspace
+gro build              # build (uses cache if valid)
 ```
 
-**Debugging:** Use `LOG_LEVEL=debug gro build`
-or `gro build --force_build` to investigate cache issues.
+#### debugging
+
+Use `LOG_LEVEL=debug gro build` or `gro build --force_build` to investigate cache issues.
 
 ## plugins
 
