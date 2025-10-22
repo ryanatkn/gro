@@ -1,5 +1,16 @@
 # @ryanatkn/gro
 
+## 0.170.0
+
+### Minor Changes
+
+- update peer deps ([963f1de](https://github.com/ryanatkn/gro/commit/963f1de))
+
+### Patch Changes
+
+- support vitest@4 ([13d8499](https://github.com/ryanatkn/gro/commit/13d8499))
+- upgrade zod ([13d8499](https://github.com/ryanatkn/gro/commit/13d8499))
+
 ## 0.169.1
 
 ### Patch Changes
