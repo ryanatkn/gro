@@ -235,26 +235,26 @@ Defaults to `'npm'`.
 
 ## `build_cache_config`
 
-The `build_cache_config` option allows you to define **custom** build inputs
+The `build_cache_config` option defines custom build inputs
 that invalidate the [build cache](build.md#build-caching) when they change.
-Gro's build cache uses your **git commit hash** to detect when code, dependencies, or
-configs change, and **only works with a clean workspace** (see [dirty workspace behavior](build.md#dirty-workspace-behavior)).
-Use `build_cache_config` when your build **also** depends on external
+Gro's build cache uses git commit hash to detect when code, dependencies, or
+configs change, and only works with a clean workspace (see [dirty workspace behavior](build.md#dirty-workspace-behavior)).
+Use `build_cache_config` when your build also depends on external
 factors like environment variables, remote data, or feature flags.
 
-**Important:** This value is hashed before being stored in the cache metadata.
+This value is hashed before being stored in the cache metadata.
 The raw value is never logged or written to disk, protecting sensitive information.
 
 ### when to use `build_cache_config`
 
 The build cache automatically invalidates on any git commit (source code, dependencies,
 configs—assuming you commit changes before building). Use `build_cache_config` when
-your build **also** depends on:
+your build also depends on:
 
-- **Environment variables** baked into the build (API endpoints, feature flags)
-- **External data files** that affect the build (content databases, configuration data)
-- **Runtime feature flags** that change build behavior
-- **Build-time constants** from non-standard sources
+- environment variables baked into the build (API endpoints, feature flags)
+- external data files that affect the build (content databases, configuration data)
+- runtime feature flags that change build behavior
+- build-time constants from non-standard sources
 
 ### basic usage
 
@@ -268,6 +268,10 @@ export default {
 		// Environment variables that affect the build
 		api_endpoint: process.env.PUBLIC_API_URL,
 		analytics_key: process.env.PUBLIC_ANALYTICS_KEY,
+
+		// Runtime information (if build outputs vary by platform/arch)
+		platform: process.platform,
+		arch: process.arch,
 
 		// External data that influences the build
 		data_version: readFileSync('data/version.txt', 'utf-8'),
@@ -303,7 +307,7 @@ export default {
 
 ### security considerations
 
-The `build_cache_config` value is **hashed** before being written to `.gro/build.json`.
+The `build_cache_config` value is hashed before being written to `.gro/build.json`.
 Only the hash is stored, never the raw values, so it's safe to include:
 
 - API keys (though using them at build time should be carefully considered)
@@ -326,7 +330,7 @@ The build cache validates multiple factors to determine if a rebuild is needed
 3. Serializes the result to JSON
 4. Hashes the JSON string using SHA-256
 5. Compares the hash against the previous build's hash from `.gro/build.json`
-6. If this hash **or any other cache factor** differs, invalidates the cache and rebuilds
+6. If this hash or any other cache factor differs, invalidates the cache and rebuilds
 
 This ensures builds are correct while protecting sensitive configuration.
 Both cache factors (git commit and `build_cache_config`) are checked—if either changes,
