@@ -611,6 +611,77 @@ describe('build.task integration tests', () => {
 		});
 	});
 
+	describe('null git commit handling', () => {
+		test('handles build when not in a git repository', async () => {
+			const {git_check_clean_workspace, git_current_commit_hash} = vi.mocked(
+				await import('@ryanatkn/belt/git.js'),
+			);
+			const {is_build_cache_valid, create_build_cache_metadata, save_build_cache_metadata} =
+				vi.mocked(await import('./build_cache.ts'));
+			const {to_hash} = vi.mocked(await import('./hash.ts'));
+
+			// Not in a git repository
+			vi.mocked(git_check_clean_workspace).mockResolvedValue(null);
+			vi.mocked(git_current_commit_hash).mockResolvedValue(null);
+			vi.mocked(is_build_cache_valid).mockResolvedValue(false);
+			vi.mocked(to_hash).mockResolvedValue('hash123');
+
+			const mock_metadata = {
+				version: '1',
+				git_commit: null,
+				build_cache_config_hash: 'hash123',
+				timestamp: '2025-10-21T10:00:00.000Z',
+				output_hashes: {},
+			};
+			vi.mocked(create_build_cache_metadata).mockResolvedValue(mock_metadata);
+
+			const ctx = create_mock_context();
+			await build_task.run(ctx);
+
+			// Should run full build
+			expect(mock_plugins.setup).toHaveBeenCalled();
+			expect(mock_plugins.adapt).toHaveBeenCalled();
+			expect(mock_plugins.teardown).toHaveBeenCalled();
+
+			// Should save cache with null git_commit
+			expect(create_build_cache_metadata).toHaveBeenCalledWith(
+				ctx.config,
+				ctx.log,
+				null, // null git commit
+				'hash123',
+			);
+			expect(save_build_cache_metadata).toHaveBeenCalledWith(mock_metadata, ctx.log);
+		});
+
+		test('cache validation works with null git commit', async () => {
+			const {git_check_clean_workspace, git_current_commit_hash} = vi.mocked(
+				await import('@ryanatkn/belt/git.js'),
+			);
+			const {is_build_cache_valid} = vi.mocked(await import('./build_cache.ts'));
+			const {to_hash} = vi.mocked(await import('./hash.ts'));
+
+			// Not in a git repository
+			vi.mocked(git_check_clean_workspace).mockResolvedValue(null);
+			vi.mocked(git_current_commit_hash).mockResolvedValue(null);
+			vi.mocked(to_hash).mockResolvedValue('hash123');
+			vi.mocked(is_build_cache_valid).mockResolvedValue(true);
+
+			const ctx = create_mock_context();
+			await build_task.run(ctx);
+
+			// Should check cache with null git_commit
+			expect(is_build_cache_valid).toHaveBeenCalledWith(
+				ctx.config,
+				ctx.log,
+				null, // null git commit
+				'hash123',
+			);
+
+			// Should skip build due to valid cache
+			expect(mock_plugins.setup).not.toHaveBeenCalled();
+		});
+	});
+
 	describe('race condition: commit during build', () => {
 		test('detects commit change during build and skips cache save', async () => {
 			const {git_check_clean_workspace, git_current_commit_hash} = vi.mocked(

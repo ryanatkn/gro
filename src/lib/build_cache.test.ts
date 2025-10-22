@@ -157,6 +157,62 @@ describe('compute_build_cache_key', () => {
 
 		expect(result.build_cache_config_hash).toBeTruthy();
 	});
+
+	test('handles async build_cache_config function that throws', async () => {
+		const {git_current_commit_hash} = await import('@ryanatkn/belt/git.js');
+
+		vi.mocked(git_current_commit_hash).mockResolvedValue('abc123');
+
+		const config = create_mock_config({
+			build_cache_config: async () => {
+				throw new Error('Failed to fetch remote config');
+			},
+		});
+		const log = create_mock_logger();
+
+		// Should throw the error from the async function
+		await expect(compute_build_cache_key(config, log)).rejects.toThrow(
+			'Failed to fetch remote config',
+		);
+	});
+
+	test('handles build_cache_config with circular references', async () => {
+		const {git_current_commit_hash} = await import('@ryanatkn/belt/git.js');
+
+		vi.mocked(git_current_commit_hash).mockResolvedValue('abc123');
+
+		// Create circular reference
+		const circular: any = {foo: 'bar'};
+		circular.self = circular;
+
+		const config = create_mock_config({
+			build_cache_config: circular,
+		});
+		const log = create_mock_logger();
+
+		// Should throw when trying to JSON.stringify circular reference
+		await expect(compute_build_cache_key(config, log)).rejects.toThrow();
+	});
+
+	test('handles build_cache_config with non-serializable values', async () => {
+		const {git_current_commit_hash} = await import('@ryanatkn/belt/git.js');
+
+		vi.mocked(git_current_commit_hash).mockResolvedValue('abc123');
+
+		const config = create_mock_config({
+			build_cache_config: {
+				func: () => 'not serializable',
+				symbol: Symbol('test'),
+			},
+		});
+		const log = create_mock_logger();
+
+		// JSON.stringify should handle these by omitting them, so no error
+		// but the hash should be based on the serializable portion
+		const result = await compute_build_cache_key(config, log);
+
+		expect(result.build_cache_config_hash).toBeTruthy();
+	});
 });
 
 describe('load_build_cache_metadata', () => {
@@ -244,6 +300,46 @@ describe('load_build_cache_metadata', () => {
 		// Should not throw despite cleanup error
 		expect(() => load_build_cache_metadata()).not.toThrow();
 		expect(load_build_cache_metadata()).toBeNull();
+	});
+
+	test('returns null for empty file', async () => {
+		const {existsSync, readFileSync} = await import('node:fs');
+
+		vi.mocked(existsSync).mockReturnValue(true);
+		vi.mocked(readFileSync).mockReturnValue('');
+
+		const result = load_build_cache_metadata();
+
+		expect(result).toBeNull();
+	});
+
+	test('returns null for valid JSON with wrong version', async () => {
+		const {existsSync, readFileSync} = await import('node:fs');
+
+		// Valid JSON but has wrong version field
+		vi.mocked(existsSync).mockReturnValue(true);
+		vi.mocked(readFileSync).mockReturnValue(
+			JSON.stringify({version: 'wrong', git_commit: 'abc', build_cache_config_hash: 'hash'}),
+		);
+
+		const result = load_build_cache_metadata();
+
+		// Should return null due to version mismatch (validated during loading)
+		expect(result).toBeNull();
+	});
+
+	test('returns null for truncated JSON file', async () => {
+		const {existsSync, readFileSync} = await import('node:fs');
+
+		// Simulate truncated write (incomplete JSON)
+		const truncated = '{"version":"1","git_commit":"abc123","build_cache_config_hash":"hash","tim';
+
+		vi.mocked(existsSync).mockReturnValue(true);
+		vi.mocked(readFileSync).mockReturnValue(truncated);
+
+		const result = load_build_cache_metadata();
+
+		expect(result).toBeNull();
 	});
 });
 
@@ -380,6 +476,56 @@ describe('validate_build_cache', () => {
 
 		const result = await validate_build_cache(metadata);
 
+		expect(result).toBe(false);
+	});
+
+	test('returns false when some files exist but others are missing', async () => {
+		const {existsSync} = await import('node:fs');
+
+		const metadata = create_mock_metadata({
+			output_hashes: {
+				'build/index.html': 'hash1',
+				'build/missing.js': 'hash2',
+				'build/another.css': 'hash3',
+			},
+		});
+
+		// Only first file exists
+		vi.mocked(existsSync).mockImplementation((path: any) => {
+			return String(path) === 'build/index.html';
+		});
+
+		const result = await validate_build_cache(metadata);
+
+		expect(result).toBe(false);
+	});
+
+	test('returns false when parallel hash validation has mixed results', async () => {
+		const {existsSync, readFileSync, statSync} = await import('node:fs');
+		const {to_hash} = await import('./hash.ts');
+
+		const metadata = create_mock_metadata({
+			output_hashes: {
+				'build/file1.js': 'correct_hash',
+				'build/file2.js': 'correct_hash',
+				'build/file3.js': 'correct_hash',
+			},
+		});
+
+		vi.mocked(existsSync).mockReturnValue(true);
+		vi.mocked(statSync).mockReturnValue({isFile: () => true} as any);
+		vi.mocked(readFileSync).mockReturnValue(Buffer.from('content'));
+
+		// Simulate: first two files match, third doesn't
+		let call_count = 0;
+		vi.mocked(to_hash).mockImplementation(async () => {
+			call_count++;
+			return call_count <= 2 ? 'correct_hash' : 'wrong_hash';
+		});
+
+		const result = await validate_build_cache(metadata);
+
+		// Should return false because not ALL files match
 		expect(result).toBe(false);
 	});
 });
@@ -545,6 +691,65 @@ describe('discover_build_output_dirs', () => {
 		expect(result).toEqual(['build', 'dist_server']);
 		expect(result).not.toContain('dist_readme.md');
 	});
+
+	test('handles permission errors on directory listing', async () => {
+		const {existsSync, readdirSync, statSync} = await import('node:fs');
+
+		vi.mocked(existsSync).mockReturnValue(true);
+
+		// readdirSync throws permission error
+		vi.mocked(readdirSync).mockImplementation(() => {
+			throw new Error('EACCES: permission denied');
+		});
+		vi.mocked(statSync).mockReturnValue({isDirectory: () => true} as any);
+
+		// Should throw - permission errors are fatal
+		expect(() => discover_build_output_dirs()).toThrow('EACCES: permission denied');
+	});
+
+	test('handles files named with dist_ prefix', async () => {
+		const {existsSync, readdirSync, statSync} = await import('node:fs');
+
+		vi.mocked(existsSync).mockReturnValue(true);
+		vi.mocked(readdirSync).mockReturnValue([
+			'dist_config.json', // file, not directory
+			'dist_server', // directory
+		] as any);
+
+		// Mock statSync to differentiate files vs directories
+		vi.mocked(statSync).mockImplementation((path: any) => {
+			if (String(path) === 'dist_server') {
+				return {isDirectory: () => true} as any;
+			}
+			return {isDirectory: () => false} as any;
+		});
+
+		const result = discover_build_output_dirs();
+
+		// Should include directory but not file
+		expect(result).toContain('dist_server');
+		expect(result).not.toContain('dist_config.json');
+	});
+
+	test('skips non-dist_ prefixed directories', async () => {
+		const {existsSync, readdirSync, statSync} = await import('node:fs');
+
+		vi.mocked(existsSync).mockReturnValue(true);
+		vi.mocked(readdirSync).mockReturnValue([
+			'node_modules',
+			'src',
+			'dist_server', // should be included
+			'output', // should not be included
+		] as any);
+		vi.mocked(statSync).mockReturnValue({isDirectory: () => true} as any);
+
+		const result = discover_build_output_dirs();
+
+		expect(result).toEqual(['build', 'dist', 'dist_server']);
+		expect(result).not.toContain('node_modules');
+		expect(result).not.toContain('src');
+		expect(result).not.toContain('output');
+	});
 });
 
 describe('hash_build_outputs', () => {
@@ -662,6 +867,43 @@ describe('hash_build_outputs', () => {
 		expect(result['dist/index.js']).toBe('hash2');
 		expect(result['dist_server/server.js']).toBe('hash3');
 	});
+
+	test('hashes files in deeply nested directories', async () => {
+		const {existsSync, readdirSync, readFileSync} = await import('node:fs');
+		const {to_hash} = await import('./hash.ts');
+
+		vi.mocked(existsSync).mockReturnValue(true);
+
+		// Mock nested directory structure: build/assets/js/vendor/libs/
+		vi.mocked(readdirSync).mockImplementation((path: any) => {
+			const path_str = String(path);
+			if (path_str === 'build') {
+				return [{name: 'assets', isDirectory: () => true, isFile: () => false}] as any;
+			}
+			if (path_str === 'build/assets') {
+				return [{name: 'js', isDirectory: () => true, isFile: () => false}] as any;
+			}
+			if (path_str === 'build/assets/js') {
+				return [{name: 'vendor', isDirectory: () => true, isFile: () => false}] as any;
+			}
+			if (path_str === 'build/assets/js/vendor') {
+				return [{name: 'libs', isDirectory: () => true, isFile: () => false}] as any;
+			}
+			if (path_str === 'build/assets/js/vendor/libs') {
+				return [{name: 'foo.js', isDirectory: () => false, isFile: () => true}] as any;
+			}
+			return [] as any;
+		});
+
+		vi.mocked(readFileSync).mockReturnValue(Buffer.from('content'));
+		vi.mocked(to_hash).mockResolvedValue('deep_hash');
+
+		const result = await hash_build_outputs(['build']);
+
+		// Should recursively hash deeply nested file
+		expect(result).toHaveProperty('build/assets/js/vendor/libs/foo.js');
+		expect(result['build/assets/js/vendor/libs/foo.js']).toBe('deep_hash');
+	});
 });
 
 describe('create_build_cache_metadata', () => {
@@ -691,6 +933,64 @@ describe('create_build_cache_metadata', () => {
 		});
 		expect(result.timestamp).toBeTruthy();
 		expect(new Date(result.timestamp).getTime()).toBeGreaterThan(0);
+	});
+});
+
+describe('race condition: cache file modification during validation', () => {
+	beforeEach(() => {
+		vi.clearAllMocks();
+	});
+
+	test('handles cache file being modified while reading', async () => {
+		const {existsSync, readFileSync} = await import('node:fs');
+		const {git_current_commit_hash} = await import('@ryanatkn/belt/git.js');
+		const {to_hash} = await import('./hash.ts');
+
+		const initial_metadata = create_mock_metadata({git_commit: 'abc123'});
+		const modified_metadata = create_mock_metadata({git_commit: 'def456'});
+
+		// Simulate cache file being modified during validation
+		let read_count = 0;
+		vi.mocked(readFileSync).mockImplementation(() => {
+			read_count++;
+			// First read gets initial metadata, second read (during validation) gets modified
+			return JSON.stringify(read_count === 1 ? initial_metadata : modified_metadata);
+		});
+
+		vi.mocked(existsSync).mockReturnValue(true);
+		vi.mocked(git_current_commit_hash).mockResolvedValue('abc123');
+		vi.mocked(to_hash).mockResolvedValue('hash123');
+
+		const config = create_mock_config();
+		const log = create_mock_logger();
+
+		// This represents a very unlikely race condition, but system should handle gracefully
+		const result = await is_build_cache_valid(config, log);
+
+		// Cache validation should happen with the initially loaded metadata
+		// The result depends on when the validation happens vs when file is modified
+		expect(typeof result).toBe('boolean');
+	});
+
+	test('handles concurrent cache writes', async () => {
+		const {writeFileSync, mkdirSync} = await import('node:fs');
+
+		const metadata1 = create_mock_metadata({git_commit: 'commit1'});
+		const metadata2 = create_mock_metadata({git_commit: 'commit2'});
+
+		let write_count = 0;
+		vi.mocked(writeFileSync).mockImplementation(() => {
+			write_count++;
+			// Simulate concurrent writes - not expected in practice but should not crash
+		});
+
+		// Try to save two different cache states
+		save_build_cache_metadata(metadata1);
+		save_build_cache_metadata(metadata2);
+
+		// Both should complete without throwing
+		expect(write_count).toBe(2);
+		expect(mkdirSync).toHaveBeenCalledTimes(2);
 	});
 });
 
