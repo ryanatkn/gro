@@ -58,11 +58,15 @@ The build cache only works with a clean git workspace.
 With uncommitted changes, the git commit hash doesn't reflect your actual code state,
 so Gro disables caching to ensure builds always match your working directory.
 
+This conservative approach prevents a subtle issue:
+uncommitted changes could be reverted after building,
+leaving cached outputs from code that no longer exists in your workspace.
+
 Behavior with uncommitted changes:
 
 - cache checking is skipped - builds always run
 - cache is not saved - no `.gro/build.json` written
-- distribution outputs are deleted - `dist/` and `dist_*/` removed to prevent stale state
+- all build outputs are deleted - `build/`, `dist/`, and `dist_*/` removed to prevent stale state
 - you'll see: `Workspace has uncommitted changes - skipping build cache`
 
 ### custom cache invalidation
@@ -102,6 +106,13 @@ gro build --force_build
 
 > TODO what opportunities are there to leverage the build metadata?
 
+### race condition protection
+
+After a successful build, Gro verifies the git commit hash hasn't changed before saving the cache.
+If the commit changed during the build (e.g., you committed while building),
+the cache is not saved and you'll see a warning.
+This ensures cache metadata always matches its corresponding build outputs.
+
 ### best practices
 
 For reliable caching:
@@ -127,9 +138,7 @@ gro check --workspace  # ensure clean workspace
 gro build              # build (uses cache if valid)
 ```
 
-#### debugging
-
-Use `LOG_LEVEL=debug gro build` or `gro build --force_build` to investigate cache issues.
+To investigate cache issues, use `LOG_LEVEL=debug gro build` or `gro build --force_build`.
 
 ## plugins
 
