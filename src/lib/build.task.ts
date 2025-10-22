@@ -1,6 +1,6 @@
 import {z} from 'zod';
 import {styleText as st} from 'node:util';
-import {git_check_clean_workspace} from '@ryanatkn/belt/git.js';
+import {git_check_clean_workspace, git_current_commit_hash} from '@ryanatkn/belt/git.js';
 import {rmSync, existsSync} from 'node:fs';
 import {join} from 'node:path';
 
@@ -12,6 +12,7 @@ import {
 	create_build_cache_metadata,
 	save_build_cache_metadata,
 	discover_build_output_dirs,
+	hash_build_cache_config,
 } from './build_cache.ts';
 import {paths} from './paths.ts';
 
@@ -42,12 +43,24 @@ export const task: Task<Args> = {
 			await invoke_task('sync', {install});
 		}
 
-		// Check if workspace has uncommitted changes
-		const workspace_dirty = !!(await git_check_clean_workspace());
+		// Batch git calls upfront for performance (spawning processes is expensive)
+		const [workspace_status, initial_commit] = await Promise.all([
+			git_check_clean_workspace(),
+			git_current_commit_hash(),
+		]);
+		const workspace_dirty = !!workspace_status;
+
+		// Pre-compute build cache config hash (can't be batched since it's not git)
+		const build_cache_config_hash = await hash_build_cache_config(config);
 
 		// Check build cache unless force_build is set or workspace is dirty
 		if (!workspace_dirty && !force_build) {
-			const cache_valid = await is_build_cache_valid(config, log);
+			const cache_valid = await is_build_cache_valid(
+				config,
+				log,
+				initial_commit,
+				build_cache_config_hash,
+			);
 			if (cache_valid) {
 				log.info(
 					st('cyan', 'Skipping build, cache is valid'),
@@ -56,7 +69,9 @@ export const task: Task<Args> = {
 				return;
 			}
 		} else if (workspace_dirty) {
-			// Delete cache and all distribution outputs to prevent stale state
+			// IMPORTANT: When workspace is dirty, we delete cache AND all outputs to prevent stale state.
+			// Rationale: Uncommitted changes could be reverted, leaving cached outputs from reverted code.
+			// This conservative approach prioritizes safety over convenience during development.
 			const cache_path = join(paths.build, 'build.json');
 			if (existsSync(cache_path)) {
 				rmSync(cache_path, {force: true});
@@ -82,9 +97,26 @@ export const task: Task<Args> = {
 
 		// Save build cache metadata after successful build (only if workspace is clean)
 		if (!workspace_dirty) {
-			const metadata = await create_build_cache_metadata(config, log);
-			save_build_cache_metadata(metadata);
-			log.debug('Build cache metadata saved');
+			// Race condition protection: verify git commit didn't change during build
+			const current_commit = await git_current_commit_hash();
+
+			if (current_commit !== initial_commit) {
+				log.warn(
+					st('yellow', 'Git commit changed during build'),
+					st('dim', `(${initial_commit?.slice(0, 7)} → ${current_commit?.slice(0, 7)})`),
+					'- cache not saved',
+				);
+			} else {
+				// Commit is stable - safe to save cache using pre-computed values
+				const metadata = await create_build_cache_metadata(
+					config,
+					log,
+					initial_commit,
+					build_cache_config_hash,
+				);
+				save_build_cache_metadata(metadata);
+				log.debug('Build cache metadata saved');
+			}
 		}
 	},
 };

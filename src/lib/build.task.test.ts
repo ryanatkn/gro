@@ -159,18 +159,28 @@ describe('build.task integration tests', () => {
 
 	describe('clean workspace with valid cache', () => {
 		test('skips build when cache is valid', async () => {
-			const {git_check_clean_workspace} = vi.mocked(await import('@ryanatkn/belt/git.js'));
+			const {git_check_clean_workspace, git_current_commit_hash} = vi.mocked(
+				await import('@ryanatkn/belt/git.js'),
+			);
 			const {is_build_cache_valid} = vi.mocked(await import('./build_cache.ts'));
+			const {to_hash} = vi.mocked(await import('./hash.ts'));
 
 			// Workspace is clean, cache is valid
 			vi.mocked(git_check_clean_workspace).mockResolvedValue(null);
+			vi.mocked(git_current_commit_hash).mockResolvedValue('abc123');
+			vi.mocked(to_hash).mockResolvedValue('hash123');
 			vi.mocked(is_build_cache_valid).mockResolvedValue(true);
 
 			const ctx = create_mock_context();
 			await build_task.run(ctx);
 
-			// Should check cache
-			expect(is_build_cache_valid).toHaveBeenCalledWith(ctx.config, ctx.log);
+			// Should check cache with pre-computed values
+			expect(is_build_cache_valid).toHaveBeenCalledWith(
+				ctx.config,
+				ctx.log,
+				'abc123', // pre-computed git commit
+				'hash123', // pre-computed config hash
+			);
 
 			// Should not run plugins
 			expect(mock_plugins.setup).not.toHaveBeenCalled();
@@ -210,16 +220,21 @@ describe('build.task integration tests', () => {
 			const ctx = create_mock_context();
 			await build_task.run(ctx);
 
-			// Should check cache
-			expect(is_build_cache_valid).toHaveBeenCalledWith(ctx.config, ctx.log);
+			// Should check cache with pre-computed values
+			expect(is_build_cache_valid).toHaveBeenCalledWith(ctx.config, ctx.log, 'abc123', 'hash123');
 
 			// Should run full plugin lifecycle
 			expect(mock_plugins.setup).toHaveBeenCalled();
 			expect(mock_plugins.adapt).toHaveBeenCalled();
 			expect(mock_plugins.teardown).toHaveBeenCalled();
 
-			// Should save cache after successful build
-			expect(create_build_cache_metadata).toHaveBeenCalledWith(ctx.config, ctx.log);
+			// Should save cache after successful build with pre-computed values
+			expect(create_build_cache_metadata).toHaveBeenCalledWith(
+				ctx.config,
+				ctx.log,
+				'abc123',
+				'hash123',
+			);
 			expect(save_build_cache_metadata).toHaveBeenCalledWith(mock_metadata);
 		});
 	});
@@ -588,6 +603,213 @@ describe('build.task integration tests', () => {
 
 			// Should throw - cache validation errors are fatal
 			await expect(build_task.run(ctx)).rejects.toThrow('Failed to read cache file');
+		});
+	});
+
+	describe('race condition: commit during build', () => {
+		test('detects commit change during build and skips cache save', async () => {
+			const {git_check_clean_workspace, git_current_commit_hash} = vi.mocked(
+				await import('@ryanatkn/belt/git.js'),
+			);
+			const {is_build_cache_valid, save_build_cache_metadata} = vi.mocked(
+				await import('./build_cache.ts'),
+			);
+			const {to_hash} = vi.mocked(await import('./hash.ts'));
+
+			// Workspace clean, cache invalid, so build will run
+			vi.mocked(git_check_clean_workspace).mockResolvedValue(null);
+			vi.mocked(is_build_cache_valid).mockResolvedValue(false);
+			vi.mocked(to_hash).mockResolvedValue('hash123');
+
+			// Simulate commit happening during build:
+			// Initial call returns 'commit_a', after build check returns 'commit_b'
+			let call_count = 0;
+			vi.mocked(git_current_commit_hash).mockImplementation(async () => {
+				call_count++;
+				// First call (batched initial): commit_a
+				// Second call (after build check): commit_b (commit happened during build!)
+				return call_count === 1 ? 'commit_a' : 'commit_b';
+			});
+
+			const ctx = create_mock_context();
+			await build_task.run(ctx);
+
+			// Should run full build
+			expect(mock_plugins.setup).toHaveBeenCalled();
+			expect(mock_plugins.adapt).toHaveBeenCalled();
+			expect(mock_plugins.teardown).toHaveBeenCalled();
+
+			// Should NOT save cache (commit changed during build)
+			expect(save_build_cache_metadata).not.toHaveBeenCalled();
+
+			// Should log warning about commit change
+			// Note: Commit hashes are sliced to 7 chars in the log
+			expect(ctx.log.warn).toHaveBeenCalledWith(
+				expect.stringContaining('Git commit changed during build'),
+				expect.stringContaining('commit_'), // "commit_a".slice(0, 7) = "commit_"
+				expect.stringContaining('cache not saved'),
+			);
+		});
+
+		test('saves cache when commit is stable throughout build', async () => {
+			const {git_check_clean_workspace, git_current_commit_hash} = vi.mocked(
+				await import('@ryanatkn/belt/git.js'),
+			);
+			const {is_build_cache_valid, create_build_cache_metadata, save_build_cache_metadata} =
+				vi.mocked(await import('./build_cache.ts'));
+			const {to_hash} = vi.mocked(await import('./hash.ts'));
+
+			// Workspace clean, cache invalid
+			vi.mocked(git_check_clean_workspace).mockResolvedValue(null);
+			vi.mocked(is_build_cache_valid).mockResolvedValue(false);
+			vi.mocked(to_hash).mockResolvedValue('hash123');
+
+			// Commit stays stable throughout build
+			vi.mocked(git_current_commit_hash).mockResolvedValue('stable_commit');
+
+			const mock_metadata = {
+				version: '1',
+				git_commit: 'stable_commit',
+				build_cache_config_hash: 'hash123',
+				timestamp: '2025-10-21T10:00:00.000Z',
+				output_hashes: {},
+			};
+			vi.mocked(create_build_cache_metadata).mockResolvedValue(mock_metadata);
+
+			const ctx = create_mock_context();
+			await build_task.run(ctx);
+
+			// Should run full build
+			expect(mock_plugins.setup).toHaveBeenCalled();
+
+			// Should save cache (commit was stable)
+			expect(save_build_cache_metadata).toHaveBeenCalledWith(mock_metadata);
+
+			// Should NOT log warning
+			expect(ctx.log.warn).not.toHaveBeenCalledWith(
+				expect.stringContaining('Git commit changed during build'),
+				expect.anything(),
+				expect.anything(),
+			);
+		});
+
+		test('logs commit hashes when race condition detected', async () => {
+			const {git_check_clean_workspace, git_current_commit_hash} = vi.mocked(
+				await import('@ryanatkn/belt/git.js'),
+			);
+			const {is_build_cache_valid} = vi.mocked(await import('./build_cache.ts'));
+			const {to_hash} = vi.mocked(await import('./hash.ts'));
+
+			vi.mocked(git_check_clean_workspace).mockResolvedValue(null);
+			vi.mocked(is_build_cache_valid).mockResolvedValue(false);
+			vi.mocked(to_hash).mockResolvedValue('hash123');
+
+			// Different commits before/after build
+			let call_count = 0;
+			vi.mocked(git_current_commit_hash).mockImplementation(async () => {
+				call_count++;
+				return call_count === 1 ? 'abc1234567890' : 'def9876543210';
+			});
+
+			const ctx = create_mock_context();
+			await build_task.run(ctx);
+
+			// Should log shortened commit hashes in warning
+			expect(ctx.log.warn).toHaveBeenCalledWith(
+				expect.stringContaining('Git commit changed during build'),
+				expect.stringContaining('abc1234'), // First 7 chars
+				expect.stringContaining('cache not saved'),
+			);
+		});
+	});
+
+	describe('git call batching optimization', () => {
+		test('batches initial git calls together', async () => {
+			const {git_check_clean_workspace, git_current_commit_hash} = vi.mocked(
+				await import('@ryanatkn/belt/git.js'),
+			);
+			const {is_build_cache_valid} = vi.mocked(await import('./build_cache.ts'));
+			const {to_hash} = vi.mocked(await import('./hash.ts'));
+
+			vi.mocked(git_check_clean_workspace).mockResolvedValue(null);
+			vi.mocked(git_current_commit_hash).mockResolvedValue('abc123');
+			vi.mocked(is_build_cache_valid).mockResolvedValue(false);
+			vi.mocked(to_hash).mockResolvedValue('hash123');
+
+			const ctx = create_mock_context();
+
+			// Track when git functions are called
+			const call_timestamps: Array<{fn: string; time: number}> = [];
+			vi.mocked(git_check_clean_workspace).mockImplementation(async () => {
+				call_timestamps.push({fn: 'git_check_clean_workspace', time: Date.now()});
+				await new Promise((resolve) => setTimeout(resolve, 5)); // Small delay
+				return null;
+			});
+			vi.mocked(git_current_commit_hash).mockImplementation(async () => {
+				call_timestamps.push({fn: 'git_current_commit_hash', time: Date.now()});
+				await new Promise((resolve) => setTimeout(resolve, 5)); // Small delay
+				return 'abc123';
+			});
+
+			await build_task.run(ctx);
+
+			// Both git functions should be called
+			expect(call_timestamps).toContainEqual(
+				expect.objectContaining({fn: 'git_check_clean_workspace'}),
+			);
+			expect(call_timestamps).toContainEqual(
+				expect.objectContaining({fn: 'git_current_commit_hash'}),
+			);
+
+			// The initial calls should happen concurrently (within a few ms of each other)
+			const first_calls = call_timestamps.slice(0, 2);
+			if (first_calls.length === 2) {
+				const time_diff = Math.abs(first_calls[0].time - first_calls[1].time);
+				expect(time_diff).toBeLessThan(10); // Called within 10ms = effectively concurrent
+			}
+		});
+
+		test('passes pre-computed values to avoid re-reading git', async () => {
+			const {git_check_clean_workspace, git_current_commit_hash} = vi.mocked(
+				await import('@ryanatkn/belt/git.js'),
+			);
+			const {is_build_cache_valid, create_build_cache_metadata} = vi.mocked(
+				await import('./build_cache.ts'),
+			);
+			const {to_hash} = vi.mocked(await import('./hash.ts'));
+
+			vi.mocked(git_check_clean_workspace).mockResolvedValue(null);
+			vi.mocked(git_current_commit_hash).mockResolvedValue('abc123');
+			vi.mocked(is_build_cache_valid).mockResolvedValue(false);
+			vi.mocked(to_hash).mockResolvedValue('hash123');
+
+			const mock_metadata = {
+				version: '1',
+				git_commit: 'abc123',
+				build_cache_config_hash: 'hash123',
+				timestamp: '2025-10-21T10:00:00.000Z',
+				output_hashes: {},
+			};
+			vi.mocked(create_build_cache_metadata).mockResolvedValue(mock_metadata);
+
+			const ctx = create_mock_context();
+			await build_task.run(ctx);
+
+			// is_build_cache_valid should receive pre-computed commit and config hash
+			expect(is_build_cache_valid).toHaveBeenCalledWith(
+				ctx.config,
+				ctx.log,
+				'abc123', // pre-computed git commit
+				'hash123', // pre-computed config hash
+			);
+
+			// create_build_cache_metadata should also receive pre-computed values
+			expect(create_build_cache_metadata).toHaveBeenCalledWith(
+				ctx.config,
+				ctx.log,
+				'abc123', // pre-computed git commit
+				'hash123', // pre-computed config hash
+			);
 		});
 	});
 });

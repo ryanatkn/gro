@@ -42,27 +42,37 @@ export interface Build_Cache_Metadata {
 /**
  * Computes the cache key components for a build.
  * This determines whether a cached build can be reused.
+ *
+ * @param config Gro config
+ * @param log Logger
+ * @param git_commit Optional pre-computed git commit hash (optimization to avoid re-reading)
+ * @param build_cache_config_hash Optional pre-computed config hash (optimization to avoid re-reading)
  */
 export const compute_build_cache_key = async (
 	config: Gro_Config,
 	log: Logger,
+	git_commit?: string | null,
+	build_cache_config_hash?: string,
 ): Promise<{
 	git_commit: string | null;
 	build_cache_config_hash: string;
 }> => {
 	// 1. Git commit hash - primary cache key
-	const git_commit = await git_current_commit_hash();
-	if (!git_commit) {
+	const commit = git_commit !== undefined ? git_commit : await git_current_commit_hash();
+	if (!commit) {
 		log.warn('Not in a git repository - build cache will use null git commit');
 	}
 
 	// 2. Build cache config hash - for external/dynamic inputs
 	// IMPORTANT: We hash this value and never log/write the raw value (may contain secrets)
-	const build_cache_config_hash = await hash_build_cache_config(config);
+	const config_hash =
+		build_cache_config_hash !== undefined
+			? build_cache_config_hash
+			: await hash_build_cache_config(config);
 
 	return {
-		git_commit,
-		build_cache_config_hash,
+		git_commit: commit,
+		build_cache_config_hash: config_hash,
 	};
 };
 
@@ -70,7 +80,7 @@ export const compute_build_cache_key = async (
  * Hashes the user's build_cache_config from gro.config.ts.
  * IMPORTANT: The raw config is never logged or written to disk, only the hash.
  */
-const hash_build_cache_config = async (config: Gro_Config): Promise<string> => {
+export const hash_build_cache_config = async (config: Gro_Config): Promise<string> => {
 	if (!config.build_cache_config) {
 		return await to_hash(Buffer.from('', 'utf-8'));
 	}
@@ -134,15 +144,12 @@ export const validate_build_cache = async (metadata: Build_Cache_Metadata): Prom
 			return false;
 		}
 
-		// For files, verify hash matches
-		const stat = statSync(file_path);
-		if (stat.isFile()) {
-			const contents = readFileSync(file_path);
-			const actual_hash = await to_hash(contents); // eslint-disable-line no-await-in-loop
+		// Verify hash matches (output_hashes only contains files, not directories)
+		const contents = readFileSync(file_path);
+		const actual_hash = await to_hash(contents); // eslint-disable-line no-await-in-loop
 
-			if (actual_hash !== expected_hash) {
-				return false;
-			}
+		if (actual_hash !== expected_hash) {
+			return false;
 		}
 	}
 
@@ -152,8 +159,18 @@ export const validate_build_cache = async (metadata: Build_Cache_Metadata): Prom
 /**
  * Main function to check if the build cache is valid.
  * Returns true if the cached build can be used, false if a fresh build is needed.
+ *
+ * @param config Gro config
+ * @param log Logger
+ * @param git_commit Optional pre-computed git commit hash (optimization)
+ * @param build_cache_config_hash Optional pre-computed config hash (optimization)
  */
-export const is_build_cache_valid = async (config: Gro_Config, log: Logger): Promise<boolean> => {
+export const is_build_cache_valid = async (
+	config: Gro_Config,
+	log: Logger,
+	git_commit?: string | null,
+	build_cache_config_hash?: string,
+): Promise<boolean> => {
 	// Load existing metadata
 	const metadata = load_build_cache_metadata();
 	if (!metadata) {
@@ -161,8 +178,8 @@ export const is_build_cache_valid = async (config: Gro_Config, log: Logger): Pro
 		return false;
 	}
 
-	// Compute current cache key
-	const current = await compute_build_cache_key(config, log);
+	// Compute current cache key (using pre-computed values if provided)
+	const current = await compute_build_cache_key(config, log, git_commit, build_cache_config_hash);
 
 	// Check if cache keys have changed
 	if (metadata.git_commit !== current.git_commit) {
@@ -283,12 +300,19 @@ export const discover_build_output_dirs = (): Array<string> => {
 /**
  * Creates build cache metadata after a successful build.
  * Automatically discovers all build output directories (build/, dist/, dist_*).
+ *
+ * @param config Gro config
+ * @param log Logger
+ * @param git_commit Optional pre-computed git commit hash (optimization)
+ * @param build_cache_config_hash Optional pre-computed config hash (optimization)
  */
 export const create_build_cache_metadata = async (
 	config: Gro_Config,
 	log: Logger,
+	git_commit?: string | null,
+	build_cache_config_hash?: string,
 ): Promise<Build_Cache_Metadata> => {
-	const cache_key = await compute_build_cache_key(config, log);
+	const cache_key = await compute_build_cache_key(config, log, git_commit, build_cache_config_hash);
 	const build_dirs = discover_build_output_dirs();
 	const output_hashes = await hash_build_outputs(build_dirs);
 
