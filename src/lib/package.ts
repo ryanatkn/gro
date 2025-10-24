@@ -138,10 +138,29 @@ export const src_json: Src_Json = {
 				{name: 'print_command_args', kind: 'function'},
 			],
 		},
+		'./build_cache.js': {
+			path: 'build_cache.ts',
+			declarations: [
+				{name: 'BUILD_CACHE_METADATA_FILENAME', kind: 'variable'},
+				{name: 'BUILD_CACHE_VERSION', kind: 'variable'},
+				{name: 'Build_Output_Entry', kind: 'variable'},
+				{name: 'Build_Cache_Metadata', kind: 'variable'},
+				{name: 'compute_build_cache_key', kind: 'function'},
+				{name: 'hash_build_cache_config', kind: 'function'},
+				{name: 'load_build_cache_metadata', kind: 'function'},
+				{name: 'save_build_cache_metadata', kind: 'function'},
+				{name: 'validate_build_cache', kind: 'function'},
+				{name: 'is_build_cache_valid', kind: 'function'},
+				{name: 'collect_build_outputs', kind: 'function'},
+				{name: 'discover_build_output_dirs', kind: 'function'},
+				{name: 'create_build_cache_metadata', kind: 'function'},
+			],
+		},
 		'./build.task.js': {
 			path: 'build.task.ts',
 			declarations: [
 				{name: 'Args', kind: 'variable'},
+				{name: 'GIT_SHORT_HASH_LENGTH', kind: 'variable'},
 				{name: 'task', kind: 'variable'},
 			],
 		},
@@ -511,6 +530,10 @@ export const src_json: Src_Json = {
 			declarations: [{name: 'invoke_task', kind: 'function'}],
 		},
 		'./invoke.js': {path: 'invoke.ts'},
+		'./json_helpers.js': {
+			path: 'json_helpers.ts',
+			declarations: [{name: 'to_deterministic_json', kind: 'function'}],
+		},
 		'./lint.task.js': {
 			path: 'lint.task.ts',
 			declarations: [

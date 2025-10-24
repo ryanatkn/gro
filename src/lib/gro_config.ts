@@ -54,6 +54,24 @@ export interface Gro_Config extends Raw_Gro_Config {
 	pm_cli: string;
 	/** @default SVELTE_CONFIG_FILENAME */
 	svelte_config_filename?: string;
+	/**
+	 * Optional object defining custom build inputs for cache invalidation.
+	 * This value is hashed (never logged or written raw) and used to detect
+	 * when builds need to be regenerated due to non-source changes.
+	 *
+	 * Use cases:
+	 * - Environment variables baked into build: `{api_url: process.env.PUBLIC_API_URL}`
+	 * - External data files: `{data: fs.readFileSync('data.json', 'utf-8')}`
+	 * - Build feature flags: `{enable_analytics: true}`
+	 *
+	 * Can be a static object or an async function that returns an object.
+	 *
+	 * IMPORTANT: This value is hashed before being stored. Never log the raw value
+	 * as it may contain sensitive information.
+	 */
+	build_cache_config?:
+		| Record<string, unknown>
+		| (() => Record<string, unknown> | Promise<Record<string, unknown>>);
 }
 
 /**
@@ -68,6 +86,9 @@ export interface Raw_Gro_Config {
 	search_filters?: Path_Filter | Array<Path_Filter> | null;
 	js_cli?: string;
 	pm_cli?: string;
+	build_cache_config?:
+		| Record<string, unknown>
+		| (() => Record<string, unknown> | Promise<Record<string, unknown>>);
 }
 
 export type Create_Gro_Config = (
@@ -125,6 +146,7 @@ export const cook_gro_config = (raw_config: Raw_Gro_Config): Gro_Config => {
 		search_filters = empty_config.search_filters,
 		js_cli = empty_config.js_cli,
 		pm_cli = empty_config.pm_cli,
+		build_cache_config,
 	} = raw_config;
 
 	return {
@@ -138,6 +160,7 @@ export const cook_gro_config = (raw_config: Raw_Gro_Config): Gro_Config => {
 				: [],
 		js_cli,
 		pm_cli,
+		build_cache_config,
 	};
 };
 
