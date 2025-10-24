@@ -141,7 +141,7 @@ export const src_json: Src_Json = {
 		'./build_cache.js': {
 			path: 'build_cache.ts',
 			declarations: [
-				{name: 'Build_Cache_Metadata', kind: 'type'},
+				{name: 'Build_Cache_Metadata', kind: 'variable'},
 				{name: 'compute_build_cache_key', kind: 'function'},
 				{name: 'hash_build_cache_config', kind: 'function'},
 				{name: 'load_build_cache_metadata', kind: 'function'},
@@ -527,6 +527,10 @@ export const src_json: Src_Json = {
 			declarations: [{name: 'invoke_task', kind: 'function'}],
 		},
 		'./invoke.js': {path: 'invoke.ts'},
+		'./json_helpers.js': {
+			path: 'json_helpers.ts',
+			declarations: [{name: 'to_deterministic_json', kind: 'function'}],
+		},
 		'./lint.task.js': {
 			path: 'lint.task.ts',
 			declarations: [

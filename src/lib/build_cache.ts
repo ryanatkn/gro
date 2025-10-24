@@ -11,6 +11,7 @@ import {join} from 'node:path';
 import type {Logger} from '@ryanatkn/belt/log.js';
 import {styleText as st} from 'node:util';
 import {git_current_commit_hash} from '@ryanatkn/belt/git.js';
+import {z} from 'zod';
 
 import {to_hash} from './hash.ts';
 import type {Gro_Config} from './gro_config.ts';
@@ -23,30 +24,21 @@ const BUILD_CACHE_VERSION = '1';
 
 /**
  * Metadata stored in .gro/ directory to track build cache validity.
+ * Schema validates structure at load time to catch corrupted cache files.
  */
-export interface Build_Cache_Metadata {
-	/**
-	 * Schema version for future compatibility.
-	 */
-	version: string;
-	/**
-	 * Git commit hash at time of build.
-	 */
-	git_commit: string | null;
-	/**
-	 * Hash of user's custom build_cache_config from gro.config.ts.
-	 */
-	build_cache_config_hash: string;
-	/**
-	 * Timestamp when build completed.
-	 */
-	timestamp: string;
-	/**
-	 * Hashes of build output files for validation.
-	 * Keys are relative paths including directory prefix (e.g., "build/index.html", "dist/index.js").
-	 */
-	output_hashes: Record<string, string>;
-}
+export const Build_Cache_Metadata = z.strictObject({
+	/** Schema version for future compatibility. */
+	version: z.string(),
+	/** Git commit hash at time of build. */
+	git_commit: z.string().nullable(),
+	/** Hash of user's custom build_cache_config from gro.config.ts. */
+	build_cache_config_hash: z.string(),
+	/** Timestamp when build completed. */
+	timestamp: z.string(),
+	/** Hashes of build output files for validation. */
+	output_hashes: z.record(z.string(), z.string()),
+});
+export type Build_Cache_Metadata = z.infer<typeof Build_Cache_Metadata>;
 
 /**
  * Computes the cache key components for a build.
@@ -118,7 +110,10 @@ export const load_build_cache_metadata = (): Build_Cache_Metadata | null => {
 
 	try {
 		const contents = readFileSync(metadata_path, 'utf-8');
-		const metadata = JSON.parse(contents) as Build_Cache_Metadata;
+		const parsed = JSON.parse(contents);
+
+		// Validate structure with Zod
+		const metadata = Build_Cache_Metadata.parse(parsed);
 
 		// Validate version
 		if (metadata.version !== BUILD_CACHE_VERSION) {
@@ -133,7 +128,8 @@ export const load_build_cache_metadata = (): Build_Cache_Metadata | null => {
 
 		return metadata;
 	} catch {
-		// Clean up corrupted cache file
+		// Clean up corrupted/invalid cache file
+		// (catches JSON.parse, Zod validation, and version errors)
 		try {
 			rmSync(metadata_path, {force: true});
 		} catch {

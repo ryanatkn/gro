@@ -10,7 +10,7 @@ import {
 	hash_build_outputs,
 	create_build_cache_metadata,
 	discover_build_output_dirs,
-	type Build_Cache_Metadata,
+	Build_Cache_Metadata,
 } from './build_cache.ts';
 import type {Gro_Config} from './gro_config.ts';
 
@@ -240,6 +240,57 @@ describe('compute_build_cache_key', () => {
 	});
 });
 
+describe('Build_Cache_Metadata schema', () => {
+	test('validates correct metadata structure', () => {
+		expect(() =>
+			Build_Cache_Metadata.parse({
+				version: '1',
+				git_commit: 'abc123',
+				build_cache_config_hash: 'hash',
+				timestamp: '2025-10-23T12:00:00Z',
+				output_hashes: {'file.js': 'hash'},
+			}),
+		).not.toThrow();
+	});
+
+	test('rejects metadata with missing fields', () => {
+		expect(() =>
+			Build_Cache_Metadata.parse({
+				version: '1',
+				git_commit: 'abc123',
+				// missing build_cache_config_hash
+				timestamp: '2025-10-23T12:00:00Z',
+				output_hashes: {},
+			}),
+		).toThrow();
+	});
+
+	test('rejects metadata with wrong types', () => {
+		expect(() =>
+			Build_Cache_Metadata.parse({
+				version: 1, // should be string
+				git_commit: 'abc123',
+				build_cache_config_hash: 'hash',
+				timestamp: '2025-10-23T12:00:00Z',
+				output_hashes: {},
+			}),
+		).toThrow();
+	});
+
+	test('rejects metadata with unexpected extra fields', () => {
+		expect(() =>
+			Build_Cache_Metadata.parse({
+				version: '1',
+				git_commit: 'abc',
+				build_cache_config_hash: 'hash',
+				timestamp: '2025-10-23T12:00:00Z',
+				output_hashes: {},
+				unexpected_field: 'bad',
+			}),
+		).toThrow();
+	});
+});
+
 describe('load_build_cache_metadata', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
@@ -361,6 +412,83 @@ describe('load_build_cache_metadata', () => {
 
 		vi.mocked(existsSync).mockReturnValue(true);
 		vi.mocked(readFileSync).mockReturnValue(truncated);
+
+		const result = load_build_cache_metadata();
+
+		expect(result).toBeNull();
+	});
+
+	test('rejects cache with missing required fields (Zod validation)', async () => {
+		const {existsSync, readFileSync} = await import('node:fs');
+
+		vi.mocked(existsSync).mockReturnValue(true);
+		vi.mocked(readFileSync).mockReturnValue(
+			JSON.stringify({
+				version: '1',
+				git_commit: 'abc123',
+				// missing build_cache_config_hash
+				timestamp: '2025-10-23T12:00:00Z',
+				output_hashes: {},
+			}),
+		);
+
+		const result = load_build_cache_metadata();
+
+		expect(result).toBeNull();
+	});
+
+	test('rejects cache with wrong field types (Zod validation)', async () => {
+		const {existsSync, readFileSync} = await import('node:fs');
+
+		vi.mocked(existsSync).mockReturnValue(true);
+		vi.mocked(readFileSync).mockReturnValue(
+			JSON.stringify({
+				version: 1, // should be string
+				git_commit: 'abc123',
+				build_cache_config_hash: 'hash',
+				timestamp: '2025-10-23T12:00:00Z',
+				output_hashes: {},
+			}),
+		);
+
+		const result = load_build_cache_metadata();
+
+		expect(result).toBeNull();
+	});
+
+	test('rejects cache with unexpected extra fields (strictObject)', async () => {
+		const {existsSync, readFileSync} = await import('node:fs');
+
+		vi.mocked(existsSync).mockReturnValue(true);
+		vi.mocked(readFileSync).mockReturnValue(
+			JSON.stringify({
+				version: '1',
+				git_commit: 'abc',
+				build_cache_config_hash: 'hash',
+				timestamp: '2025-10-23T12:00:00Z',
+				output_hashes: {},
+				unexpected_field: 'bad',
+			}),
+		);
+
+		const result = load_build_cache_metadata();
+
+		expect(result).toBeNull();
+	});
+
+	test('rejects cache with invalid output_hashes type', async () => {
+		const {existsSync, readFileSync} = await import('node:fs');
+
+		vi.mocked(existsSync).mockReturnValue(true);
+		vi.mocked(readFileSync).mockReturnValue(
+			JSON.stringify({
+				version: '1',
+				git_commit: 'abc',
+				build_cache_config_hash: 'hash',
+				timestamp: '2025-10-23T12:00:00Z',
+				output_hashes: 'not-an-object', // should be Record<string, string>
+			}),
+		);
 
 		const result = load_build_cache_metadata();
 
