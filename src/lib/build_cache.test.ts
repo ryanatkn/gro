@@ -7,7 +7,7 @@ import {
 	save_build_cache_metadata,
 	validate_build_cache,
 	is_build_cache_valid,
-	hash_build_outputs,
+	collect_build_outputs,
 	create_build_cache_metadata,
 	discover_build_output_dirs,
 	Build_Cache_Metadata,
@@ -78,7 +78,7 @@ const create_mock_metadata = (
 	git_commit: 'abc123',
 	build_cache_config_hash: 'jkl012',
 	timestamp: '2025-10-21T10:00:00.000Z',
-	output_hashes: {},
+	outputs: [],
 	...overrides,
 });
 
@@ -248,7 +248,16 @@ describe('Build_Cache_Metadata schema', () => {
 				git_commit: 'abc123',
 				build_cache_config_hash: 'hash',
 				timestamp: '2025-10-23T12:00:00Z',
-				output_hashes: {'file.js': 'hash'},
+				outputs: [
+					{
+						path: 'file.js',
+						hash: 'hash',
+						size: 1024,
+						mtime: 1729512000000,
+						ctime: 1729512000000,
+						mode: 33188,
+					},
+				],
 			}),
 		).not.toThrow();
 	});
@@ -260,7 +269,7 @@ describe('Build_Cache_Metadata schema', () => {
 				git_commit: 'abc123',
 				// missing build_cache_config_hash
 				timestamp: '2025-10-23T12:00:00Z',
-				output_hashes: {},
+				outputs: [],
 			}),
 		).toThrow();
 	});
@@ -272,7 +281,7 @@ describe('Build_Cache_Metadata schema', () => {
 				git_commit: 'abc123',
 				build_cache_config_hash: 'hash',
 				timestamp: '2025-10-23T12:00:00Z',
-				output_hashes: {},
+				outputs: [],
 			}),
 		).toThrow();
 	});
@@ -284,7 +293,7 @@ describe('Build_Cache_Metadata schema', () => {
 				git_commit: 'abc',
 				build_cache_config_hash: 'hash',
 				timestamp: '2025-10-23T12:00:00Z',
-				output_hashes: {},
+				outputs: [],
 				unexpected_field: 'bad',
 			}),
 		).toThrow();
@@ -428,7 +437,7 @@ describe('load_build_cache_metadata', () => {
 				git_commit: 'abc123',
 				// missing build_cache_config_hash
 				timestamp: '2025-10-23T12:00:00Z',
-				output_hashes: {},
+				outputs: [],
 			}),
 		);
 
@@ -447,7 +456,7 @@ describe('load_build_cache_metadata', () => {
 				git_commit: 'abc123',
 				build_cache_config_hash: 'hash',
 				timestamp: '2025-10-23T12:00:00Z',
-				output_hashes: {},
+				outputs: [],
 			}),
 		);
 
@@ -466,7 +475,7 @@ describe('load_build_cache_metadata', () => {
 				git_commit: 'abc',
 				build_cache_config_hash: 'hash',
 				timestamp: '2025-10-23T12:00:00Z',
-				output_hashes: {},
+				outputs: [],
 				unexpected_field: 'bad',
 			}),
 		);
@@ -476,7 +485,7 @@ describe('load_build_cache_metadata', () => {
 		expect(result).toBeNull();
 	});
 
-	test('rejects cache with invalid output_hashes type', async () => {
+	test('rejects cache with invalid outputs type', async () => {
 		const {existsSync, readFileSync} = await import('node:fs');
 
 		vi.mocked(existsSync).mockReturnValue(true);
@@ -486,7 +495,7 @@ describe('load_build_cache_metadata', () => {
 				git_commit: 'abc',
 				build_cache_config_hash: 'hash',
 				timestamp: '2025-10-23T12:00:00Z',
-				output_hashes: 'not-an-object', // should be Record<string, string>
+				outputs: 'not-an-array', // should be Array<Build_Output_Entry>
 			}),
 		);
 
@@ -574,19 +583,38 @@ describe('validate_build_cache', () => {
 		vi.clearAllMocks();
 	});
 
-	test('returns true when all output files match hashes', async () => {
+	test('returns true when all output files match hashes and sizes', async () => {
 		const {existsSync, readFileSync, statSync} = await import('node:fs');
 		const {to_hash} = await import('./hash.ts');
 
 		const metadata = create_mock_metadata({
-			output_hashes: {
-				'build/index.html': 'hash1',
-				'build/bundle.js': 'hash2',
-			},
+			outputs: [
+				{
+					path: 'build/index.html',
+					hash: 'hash1',
+					size: 1024,
+					mtime: 1729512000000,
+					ctime: 1729512000000,
+					mode: 33188,
+				},
+				{
+					path: 'build/bundle.js',
+					hash: 'hash2',
+					size: 2048,
+					mtime: 1729512001000,
+					ctime: 1729512001000,
+					mode: 33188,
+				},
+			],
 		});
 
 		vi.mocked(existsSync).mockReturnValue(true);
-		vi.mocked(statSync).mockReturnValue({isFile: () => true} as any);
+		vi.mocked(statSync).mockImplementation((path: any) => {
+			if (String(path) === 'build/index.html') {
+				return {size: 1024} as any;
+			}
+			return {size: 2048} as any;
+		});
 		vi.mocked(readFileSync).mockReturnValue(Buffer.from('content'));
 
 		let call_count = 0;
@@ -604,10 +632,43 @@ describe('validate_build_cache', () => {
 		const {existsSync} = await import('node:fs');
 
 		const metadata = create_mock_metadata({
-			output_hashes: {'build/index.html': 'hash1'},
+			outputs: [
+				{
+					path: 'build/index.html',
+					hash: 'hash1',
+					size: 1024,
+					mtime: 1729512000000,
+					ctime: 1729512000000,
+					mode: 33188,
+				},
+			],
 		});
 
 		vi.mocked(existsSync).mockReturnValue(false);
+
+		const result = await validate_build_cache(metadata);
+
+		expect(result).toBe(false);
+	});
+
+	test('returns false when output file size differs (fast path)', async () => {
+		const {existsSync, statSync} = await import('node:fs');
+
+		const metadata = create_mock_metadata({
+			outputs: [
+				{
+					path: 'build/index.html',
+					hash: 'expected_hash',
+					size: 1024,
+					mtime: 1729512000000,
+					ctime: 1729512000000,
+					mode: 33188,
+				},
+			],
+		});
+
+		vi.mocked(existsSync).mockReturnValue(true);
+		vi.mocked(statSync).mockReturnValue({size: 2048} as any); // Different size
 
 		const result = await validate_build_cache(metadata);
 
@@ -619,13 +680,22 @@ describe('validate_build_cache', () => {
 		const {to_hash} = await import('./hash.ts');
 
 		const metadata = create_mock_metadata({
-			output_hashes: {'build/index.html': 'expected_hash'},
+			outputs: [
+				{
+					path: 'build/index.html',
+					hash: 'expected_hash',
+					size: 1024,
+					mtime: 1729512000000,
+					ctime: 1729512000000,
+					mode: 33188,
+				},
+			],
 		});
 
 		vi.mocked(existsSync).mockReturnValue(true);
-		vi.mocked(statSync).mockReturnValue({isFile: () => true} as any);
+		vi.mocked(statSync).mockReturnValue({size: 1024} as any); // Size matches
 		vi.mocked(readFileSync).mockReturnValue(Buffer.from('content'));
-		vi.mocked(to_hash).mockResolvedValue('different_hash');
+		vi.mocked(to_hash).mockResolvedValue('different_hash'); // Hash differs
 
 		const result = await validate_build_cache(metadata);
 
@@ -636,11 +706,32 @@ describe('validate_build_cache', () => {
 		const {existsSync} = await import('node:fs');
 
 		const metadata = create_mock_metadata({
-			output_hashes: {
-				'build/index.html': 'hash1',
-				'build/missing.js': 'hash2',
-				'build/another.css': 'hash3',
-			},
+			outputs: [
+				{
+					path: 'build/index.html',
+					hash: 'hash1',
+					size: 1024,
+					mtime: 1729512000000,
+					ctime: 1729512000000,
+					mode: 33188,
+				},
+				{
+					path: 'build/missing.js',
+					hash: 'hash2',
+					size: 2048,
+					mtime: 1729512001000,
+					ctime: 1729512001000,
+					mode: 33188,
+				},
+				{
+					path: 'build/another.css',
+					hash: 'hash3',
+					size: 512,
+					mtime: 1729512002000,
+					ctime: 1729512002000,
+					mode: 33188,
+				},
+			],
 		});
 
 		// Only first file exists
@@ -658,15 +749,36 @@ describe('validate_build_cache', () => {
 		const {to_hash} = await import('./hash.ts');
 
 		const metadata = create_mock_metadata({
-			output_hashes: {
-				'build/file1.js': 'correct_hash',
-				'build/file2.js': 'correct_hash',
-				'build/file3.js': 'correct_hash',
-			},
+			outputs: [
+				{
+					path: 'build/file1.js',
+					hash: 'correct_hash',
+					size: 1024,
+					mtime: 1729512000000,
+					ctime: 1729512000000,
+					mode: 33188,
+				},
+				{
+					path: 'build/file2.js',
+					hash: 'correct_hash',
+					size: 1024,
+					mtime: 1729512001000,
+					ctime: 1729512001000,
+					mode: 33188,
+				},
+				{
+					path: 'build/file3.js',
+					hash: 'correct_hash',
+					size: 1024,
+					mtime: 1729512002000,
+					ctime: 1729512002000,
+					mode: 33188,
+				},
+			],
 		});
 
 		vi.mocked(existsSync).mockReturnValue(true);
-		vi.mocked(statSync).mockReturnValue({isFile: () => true} as any);
+		vi.mocked(statSync).mockReturnValue({size: 1024} as any); // All sizes match
 		vi.mocked(readFileSync).mockReturnValue(Buffer.from('content'));
 
 		// Simulate: first two files match, third doesn't
@@ -905,13 +1017,13 @@ describe('discover_build_output_dirs', () => {
 	});
 });
 
-describe('hash_build_outputs', () => {
+describe('collect_build_outputs', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
 	});
 
 	test('hashes all files in build directory', async () => {
-		const {existsSync, readdirSync, readFileSync} = await import('node:fs');
+		const {existsSync, readdirSync, readFileSync, statSync} = await import('node:fs');
 		const {to_hash} = await import('./hash.ts');
 
 		vi.mocked(existsSync).mockReturnValue(true);
@@ -919,21 +1031,40 @@ describe('hash_build_outputs', () => {
 			{name: 'index.html', isDirectory: () => false, isFile: () => true},
 			{name: 'bundle.js', isDirectory: () => false, isFile: () => true},
 		] as any);
+		vi.mocked(statSync).mockReturnValue({
+			size: 1024,
+			mtimeMs: 1729512000000,
+			ctimeMs: 1729512000000,
+			mode: 33188,
+		} as any);
 		vi.mocked(readFileSync).mockReturnValue(Buffer.from('content'));
 
 		let hash_count = 0;
 		vi.mocked(to_hash).mockImplementation(async () => `hash${++hash_count}`);
 
-		const result = await hash_build_outputs(['build']);
+		const result = await collect_build_outputs(['build']);
 
-		expect(result).toEqual({
-			'build/index.html': 'hash1',
-			'build/bundle.js': 'hash2',
+		expect(result).toHaveLength(2);
+		expect(result[0]).toEqual({
+			path: 'build/index.html',
+			hash: 'hash1',
+			size: 1024,
+			mtime: 1729512000000,
+			ctime: 1729512000000,
+			mode: 33188,
+		});
+		expect(result[1]).toEqual({
+			path: 'build/bundle.js',
+			hash: 'hash2',
+			size: 1024,
+			mtime: 1729512000000,
+			ctime: 1729512000000,
+			mode: 33188,
 		});
 	});
 
 	test('skips build.json file', async () => {
-		const {existsSync, readdirSync, readFileSync} = await import('node:fs');
+		const {existsSync, readdirSync, readFileSync, statSync} = await import('node:fs');
 		const {to_hash} = await import('./hash.ts');
 
 		vi.mocked(existsSync).mockReturnValue(true);
@@ -941,27 +1072,34 @@ describe('hash_build_outputs', () => {
 			{name: 'build.json', isDirectory: () => false, isFile: () => true},
 			{name: 'index.html', isDirectory: () => false, isFile: () => true},
 		] as any);
+		vi.mocked(statSync).mockReturnValue({
+			size: 1024,
+			mtimeMs: 1729512000000,
+			ctimeMs: 1729512000000,
+			mode: 33188,
+		} as any);
 		vi.mocked(readFileSync).mockReturnValue(Buffer.from('content'));
 		vi.mocked(to_hash).mockResolvedValue('hash');
 
-		const result = await hash_build_outputs(['build']);
+		const result = await collect_build_outputs(['build']);
 
-		expect(result).not.toHaveProperty('build/build.json');
-		expect(result).toHaveProperty('build/index.html');
+		expect(result).toHaveLength(1);
+		expect(result.find((o) => o.path === 'build/build.json')).toBeUndefined();
+		expect(result.find((o) => o.path === 'build/index.html')).toBeDefined();
 	});
 
-	test('returns empty object for non-existent directory', async () => {
+	test('returns empty array for non-existent directory', async () => {
 		const {existsSync} = await import('node:fs');
 
 		vi.mocked(existsSync).mockReturnValue(false);
 
-		const result = await hash_build_outputs(['build']);
+		const result = await collect_build_outputs(['build']);
 
-		expect(result).toEqual({});
+		expect(result).toEqual([]);
 	});
 
 	test('hashes all files in directory', async () => {
-		const {existsSync, readdirSync, readFileSync} = await import('node:fs');
+		const {existsSync, readdirSync, readFileSync, statSync} = await import('node:fs');
 		const {to_hash} = await import('./hash.ts');
 
 		vi.mocked(existsSync).mockReturnValue(true);
@@ -970,20 +1108,26 @@ describe('hash_build_outputs', () => {
 			{name: 'file2.js', isDirectory: () => false, isFile: () => true},
 			{name: 'file3.js', isDirectory: () => false, isFile: () => true},
 		] as any);
+		vi.mocked(statSync).mockReturnValue({
+			size: 1024,
+			mtimeMs: 1729512000000,
+			ctimeMs: 1729512000000,
+			mode: 33188,
+		} as any);
 		vi.mocked(readFileSync).mockReturnValue(Buffer.from('content'));
 		vi.mocked(to_hash).mockResolvedValue('hash');
 
-		const result = await hash_build_outputs(['build']);
+		const result = await collect_build_outputs(['build']);
 
 		// Should hash all 3 files
-		expect(Object.keys(result).length).toBe(3);
-		expect(result).toHaveProperty('build/file1.js');
-		expect(result).toHaveProperty('build/file2.js');
-		expect(result).toHaveProperty('build/file3.js');
+		expect(result).toHaveLength(3);
+		expect(result.find((o) => o.path === 'build/file1.js')).toBeDefined();
+		expect(result.find((o) => o.path === 'build/file2.js')).toBeDefined();
+		expect(result.find((o) => o.path === 'build/file3.js')).toBeDefined();
 	});
 
 	test('hashes files from multiple directories', async () => {
-		const {existsSync, readdirSync, readFileSync} = await import('node:fs');
+		const {existsSync, readdirSync, readFileSync, statSync} = await import('node:fs');
 		const {to_hash} = await import('./hash.ts');
 
 		// Mock existsSync to return true for all directories
@@ -1003,26 +1147,32 @@ describe('hash_build_outputs', () => {
 			return [] as any;
 		});
 
+		vi.mocked(statSync).mockReturnValue({
+			size: 1024,
+			mtimeMs: 1729512000000,
+			ctimeMs: 1729512000000,
+			mode: 33188,
+		} as any);
 		vi.mocked(readFileSync).mockReturnValue(Buffer.from('content'));
 
 		let hash_count = 0;
 		vi.mocked(to_hash).mockImplementation(async () => `hash${++hash_count}`);
 
-		const result = await hash_build_outputs(['build', 'dist', 'dist_server']);
+		const result = await collect_build_outputs(['build', 'dist', 'dist_server']);
 
 		// Should hash files from all three directories
-		expect(Object.keys(result).length).toBe(3);
-		expect(result).toHaveProperty('build/index.html');
-		expect(result).toHaveProperty('dist/index.js');
-		expect(result).toHaveProperty('dist_server/server.js');
+		expect(result).toHaveLength(3);
+		expect(result.find((o) => o.path === 'build/index.html')).toBeDefined();
+		expect(result.find((o) => o.path === 'dist/index.js')).toBeDefined();
+		expect(result.find((o) => o.path === 'dist_server/server.js')).toBeDefined();
 		// Each file should have a unique hash
-		expect(result['build/index.html']).toBe('hash1');
-		expect(result['dist/index.js']).toBe('hash2');
-		expect(result['dist_server/server.js']).toBe('hash3');
+		expect(result.find((o) => o.path === 'build/index.html')?.hash).toBe('hash1');
+		expect(result.find((o) => o.path === 'dist/index.js')?.hash).toBe('hash2');
+		expect(result.find((o) => o.path === 'dist_server/server.js')?.hash).toBe('hash3');
 	});
 
 	test('hashes files in deeply nested directories', async () => {
-		const {existsSync, readdirSync, readFileSync} = await import('node:fs');
+		const {existsSync, readdirSync, readFileSync, statSync} = await import('node:fs');
 		const {to_hash} = await import('./hash.ts');
 
 		vi.mocked(existsSync).mockReturnValue(true);
@@ -1048,14 +1198,21 @@ describe('hash_build_outputs', () => {
 			return [] as any;
 		});
 
+		vi.mocked(statSync).mockReturnValue({
+			size: 1024,
+			mtimeMs: 1729512000000,
+			ctimeMs: 1729512000000,
+			mode: 33188,
+		} as any);
 		vi.mocked(readFileSync).mockReturnValue(Buffer.from('content'));
 		vi.mocked(to_hash).mockResolvedValue('deep_hash');
 
-		const result = await hash_build_outputs(['build']);
+		const result = await collect_build_outputs(['build']);
 
 		// Should recursively hash deeply nested file
-		expect(result).toHaveProperty('build/assets/js/vendor/libs/foo.js');
-		expect(result['build/assets/js/vendor/libs/foo.js']).toBe('deep_hash');
+		const deep_file = result.find((o) => o.path === 'build/assets/js/vendor/libs/foo.js');
+		expect(deep_file).toBeDefined();
+		expect(deep_file?.hash).toBe('deep_hash');
 	});
 });
 

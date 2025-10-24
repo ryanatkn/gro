@@ -141,6 +141,9 @@ export const src_json: Src_Json = {
 		'./build_cache.js': {
 			path: 'build_cache.ts',
 			declarations: [
+				{name: 'BUILD_CACHE_METADATA_FILENAME', kind: 'variable'},
+				{name: 'BUILD_CACHE_VERSION', kind: 'variable'},
+				{name: 'Build_Output_Entry', kind: 'variable'},
 				{name: 'Build_Cache_Metadata', kind: 'variable'},
 				{name: 'compute_build_cache_key', kind: 'function'},
 				{name: 'hash_build_cache_config', kind: 'function'},
@@ -148,7 +151,7 @@ export const src_json: Src_Json = {
 				{name: 'save_build_cache_metadata', kind: 'function'},
 				{name: 'validate_build_cache', kind: 'function'},
 				{name: 'is_build_cache_valid', kind: 'function'},
-				{name: 'hash_build_outputs', kind: 'function'},
+				{name: 'collect_build_outputs', kind: 'function'},
 				{name: 'discover_build_output_dirs', kind: 'function'},
 				{name: 'create_build_cache_metadata', kind: 'function'},
 			],

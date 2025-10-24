@@ -19,24 +19,42 @@ import {paths} from './paths.ts';
 import {SVELTEKIT_BUILD_DIRNAME, SVELTEKIT_DIST_DIRNAME, GRO_DIST_PREFIX} from './constants.ts';
 import {to_deterministic_json} from './json_helpers.ts';
 
-const BUILD_CACHE_METADATA_FILENAME = 'build.json';
-const BUILD_CACHE_VERSION = '1';
+export const BUILD_CACHE_METADATA_FILENAME = 'build.json';
+export const BUILD_CACHE_VERSION = '1';
+
+/**
+ * Metadata about a single build output file.
+ * Includes cryptographic hash for validation plus filesystem stats for debugging and optimization.
+ */
+export const Build_Output_Entry = z.strictObject({
+	path: z
+		.string()
+		.meta({description: "Relative path from project root (e.g., 'build/index.html')."}),
+	hash: z.string().meta({description: 'SHA-256 hash of file contents.'}),
+	size: z.number().meta({description: 'File size in bytes.'}),
+	mtime: z.number().meta({description: 'Modification time in milliseconds since epoch.'}),
+	ctime: z.number().meta({
+		description:
+			'Change time (Linux) or creation time (macOS/Windows) in milliseconds since epoch.',
+	}),
+	mode: z.number().meta({description: 'Unix file permission mode (e.g., 33188 = 0644).'}),
+});
+export type Build_Output_Entry = z.infer<typeof Build_Output_Entry>;
 
 /**
  * Metadata stored in .gro/ directory to track build cache validity.
  * Schema validates structure at load time to catch corrupted cache files.
  */
 export const Build_Cache_Metadata = z.strictObject({
-	/** Schema version for future compatibility. */
-	version: z.string(),
-	/** Git commit hash at time of build. */
-	git_commit: z.string().nullable(),
-	/** Hash of user's custom build_cache_config from gro.config.ts. */
-	build_cache_config_hash: z.string(),
-	/** Timestamp when build completed. */
-	timestamp: z.string(),
-	/** Hashes of build output files for validation. */
-	output_hashes: z.record(z.string(), z.string()),
+	version: z.string().meta({description: 'Schema version for future compatibility.'}),
+	git_commit: z.string().nullable().meta({description: 'Git commit hash at time of build.'}),
+	build_cache_config_hash: z
+		.string()
+		.meta({description: "Hash of user's custom build_cache_config from gro.config.ts."}),
+	timestamp: z.string().meta({description: 'Timestamp when build completed.'}),
+	outputs: z
+		.array(Build_Output_Entry)
+		.meta({description: 'Build output files with hashes and filesystem stats.'}),
 });
 export type Build_Cache_Metadata = z.infer<typeof Build_Cache_Metadata>;
 
@@ -160,23 +178,31 @@ export const save_build_cache_metadata = (metadata: Build_Cache_Metadata, log?: 
 };
 
 /**
- * Validates that a cached build is still valid by hashing outputs.
+ * Validates that a cached build is still valid by checking stats and hashing outputs.
+ * Uses size as a fast negative check before expensive hashing.
  * This is comprehensive validation to catch manual tampering or corruption.
  */
 export const validate_build_cache = async (metadata: Build_Cache_Metadata): Promise<boolean> => {
-	// Verify all tracked output files exist
-	const entries = Object.entries(metadata.output_hashes);
-	for (const [file_path] of entries) {
-		if (!existsSync(file_path)) {
+	// Verify all tracked output files exist and have matching size
+	for (const output of metadata.outputs) {
+		if (!existsSync(output.path)) {
+			return false;
+		}
+
+		// Fast negative check: size mismatch = definitely invalid
+		// This avoids expensive file reads and hashing for files that have clearly changed
+		const stats = statSync(output.path);
+		if (stats.size !== output.size) {
 			return false;
 		}
 	}
 
+	// Size matches for all files - now verify content with cryptographic hashing
 	// Hash all files in parallel for performance
-	const hash_promises = entries.map(async ([file_path, expected_hash]) => {
-		const contents = readFileSync(file_path);
+	const hash_promises = metadata.outputs.map(async (output) => {
+		const contents = readFileSync(output.path);
 		const actual_hash = await to_hash(contents);
-		return actual_hash === expected_hash;
+		return actual_hash === output.hash;
 	});
 
 	const results = await Promise.all(hash_promises);
@@ -231,17 +257,17 @@ export const is_build_cache_valid = async (
 };
 
 /**
- * Hashes all files in build output directories for validation.
- * Returns a map of relative file paths (with directory prefix) to their hashes.
+ * Collects information about all files in build output directories.
+ * Returns an array of entries with path, hash, size, mtime, ctime, and mode.
  *
  * Files are hashed in parallel for performance. For very large builds (10k+ files),
  * this may take several seconds but ensures complete cache validation.
  *
- * @param build_dirs Array of output directories to hash (e.g., ['build', 'dist', 'dist_server'])
+ * @param build_dirs Array of output directories to scan (e.g., ['build', 'dist', 'dist_server'])
  */
-export const hash_build_outputs = async (
+export const collect_build_outputs = async (
 	build_dirs: Array<string>,
-): Promise<Record<string, string>> => {
+): Promise<Array<Build_Output_Entry>> => {
 	// Collect all files to hash first
 	interface File_Entry {
 		full_path: string;
@@ -281,22 +307,25 @@ export const hash_build_outputs = async (
 		collect_files(build_dir, '', build_dir);
 	}
 
-	// Hash all files in parallel
-	const hash_promises = files_to_hash.map(async ({full_path, cache_key}) => {
-		const contents = readFileSync(full_path);
-		const hash = await to_hash(contents);
-		return [cache_key, hash] as const;
-	});
+	// Hash all files in parallel and collect stats
+	const hash_promises = files_to_hash.map(
+		async ({full_path, cache_key}): Promise<Build_Output_Entry> => {
+			const stats = statSync(full_path);
+			const contents = readFileSync(full_path);
+			const hash = await to_hash(contents);
 
-	const hashed_entries = await Promise.all(hash_promises);
+			return {
+				path: cache_key,
+				hash,
+				size: stats.size,
+				mtime: stats.mtimeMs,
+				ctime: stats.ctimeMs,
+				mode: stats.mode,
+			};
+		},
+	);
 
-	// Convert to object
-	const output_hashes: Record<string, string> = {};
-	for (const [cache_key, hash] of hashed_entries) {
-		output_hashes[cache_key] = hash;
-	}
-
-	return output_hashes;
+	return await Promise.all(hash_promises);
 };
 
 /**
@@ -349,12 +378,12 @@ export const create_build_cache_metadata = async (
 ): Promise<Build_Cache_Metadata> => {
 	const cache_key = await compute_build_cache_key(config, log, git_commit, build_cache_config_hash);
 	const build_dirs = discover_build_output_dirs();
-	const output_hashes = await hash_build_outputs(build_dirs);
+	const outputs = await collect_build_outputs(build_dirs);
 
 	return {
 		version: BUILD_CACHE_VERSION,
 		...cache_key,
 		timestamp: new Date().toISOString(),
-		output_hashes,
+		outputs,
 	};
 };

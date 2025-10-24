@@ -148,8 +148,6 @@ Cache not working as expected?
 
 For implementation details, see [build cache internals](#build-cache-internals).
 
-> TODO what opportunities are there to leverage the build metadata?
-
 ### race condition protection
 
 After a successful build, Gro verifies the git commit hash hasn't changed before saving the cache.
@@ -221,11 +219,25 @@ by tracking git commits and optional user config.
 	"git_commit": "abc123...", // commit at build time
 	"build_cache_config_hash": "...", // SHA-256 of user config
 	"timestamp": "ISO-8601", // build completion time
-	"output_hashes": {
-		// all output files
-		"build/index.html": "...",
-		"dist/index.js": "..."
-	}
+	"outputs": [
+		// all output files with hashes and stats
+		{
+			"path": "build/index.html",
+			"hash": "...", // SHA-256 of file contents
+			"size": 1024, // file size in bytes
+			"mtime": 1729512000000, // modification time (ms since epoch)
+			"ctime": 1729512000000, // change/creation time (ms since epoch)
+			"mode": 33188 // Unix file permissions (0644)
+		},
+		{
+			"path": "dist/index.js",
+			"hash": "...",
+			"size": 2048,
+			"mtime": 1729512001000,
+			"ctime": 1729512001000,
+			"mode": 33188
+		}
+	]
 }
 ```
 
@@ -236,8 +248,9 @@ by tracking git commits and optional user config.
 3. compare git commit - different = rebuild
 4. compare config hash - different = rebuild
 5. verify files exist - missing = rebuild
-6. hash files in parallel - mismatch = rebuild
-7. all pass = use cache
+6. check file sizes - mismatch = rebuild (fast path optimization)
+7. hash files in parallel - mismatch = rebuild
+8. all pass = use cache
 
 ### security
 

@@ -218,7 +218,7 @@ describe('build.task integration tests', () => {
 				git_commit: 'abc123',
 				build_cache_config_hash: 'hash123',
 				timestamp: '2025-10-21T10:00:00.000Z',
-				output_hashes: {},
+				outputs: [],
 			};
 			vi.mocked(create_build_cache_metadata).mockResolvedValue(mock_metadata);
 
@@ -426,7 +426,7 @@ describe('build.task integration tests', () => {
 				git_commit: 'abc123',
 				build_cache_config_hash: 'hash123',
 				timestamp: '2025-10-21T10:00:00.000Z',
-				output_hashes: {},
+				outputs: [],
 			};
 			vi.mocked(create_build_cache_metadata).mockResolvedValue(mock_metadata);
 
@@ -631,7 +631,7 @@ describe('build.task integration tests', () => {
 				git_commit: null,
 				build_cache_config_hash: 'hash123',
 				timestamp: '2025-10-21T10:00:00.000Z',
-				output_hashes: {},
+				outputs: [],
 			};
 			vi.mocked(create_build_cache_metadata).mockResolvedValue(mock_metadata);
 
@@ -748,7 +748,7 @@ describe('build.task integration tests', () => {
 				git_commit: 'stable_commit',
 				build_cache_config_hash: 'hash123',
 				timestamp: '2025-10-21T10:00:00.000Z',
-				output_hashes: {},
+				outputs: [],
 			};
 			vi.mocked(create_build_cache_metadata).mockResolvedValue(mock_metadata);
 
@@ -864,7 +864,7 @@ describe('build.task integration tests', () => {
 				git_commit: 'abc123',
 				build_cache_config_hash: 'hash123',
 				timestamp: '2025-10-21T10:00:00.000Z',
-				output_hashes: {},
+				outputs: [],
 			};
 			vi.mocked(create_build_cache_metadata).mockResolvedValue(mock_metadata);
 
