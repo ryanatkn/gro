@@ -239,6 +239,16 @@ by tracking git commits and optional user config.
 6. hash files in parallel - mismatch = rebuild
 7. all pass = use cache
 
+### security
+
+The cache uses SHA-256 cryptographic hashing for:
+
+- output file integrity: detects tampering or corruption
+- config protection: `build_cache_config` is hashed, never logged raw (may contain secrets)
+- cache key stability: deterministic hashes ensure consistent cache behavior
+
+Hashes are computed via Node's `webcrypto.subtle.digest()`.
+
 ### output directory discovery
 
 The cache automatically discovers all build output directories:
