@@ -793,6 +793,83 @@ describe('validate_build_cache', () => {
 		// Should return false because not ALL files match
 		expect(result).toBe(false);
 	});
+
+	test('returns false when file is deleted between size check and hash validation', async () => {
+		const {existsSync, readFileSync, statSync} = await import('node:fs');
+
+		const metadata = create_mock_metadata({
+			outputs: [
+				{
+					path: 'build/index.html',
+					hash: 'expected_hash',
+					size: 1024,
+					mtime: 1729512000000,
+					ctime: 1729512000000,
+					mode: 33188,
+				},
+			],
+		});
+
+		// File exists and size matches during initial checks
+		vi.mocked(existsSync).mockReturnValue(true);
+		vi.mocked(statSync).mockReturnValue({size: 1024} as any);
+
+		// But file is deleted/inaccessible during hash validation
+		vi.mocked(readFileSync).mockImplementation(() => {
+			throw new Error('ENOENT: no such file or directory');
+		});
+
+		const result = await validate_build_cache(metadata);
+
+		// Should return false gracefully (not throw)
+		expect(result).toBe(false);
+	});
+
+	test('returns false when file becomes inaccessible during hash validation', async () => {
+		const {existsSync, readFileSync, statSync} = await import('node:fs');
+
+		const metadata = create_mock_metadata({
+			outputs: [
+				{
+					path: 'build/index.html',
+					hash: 'hash1',
+					size: 1024,
+					mtime: 1729512000000,
+					ctime: 1729512000000,
+					mode: 33188,
+				},
+				{
+					path: 'build/bundle.js',
+					hash: 'hash2',
+					size: 2048,
+					mtime: 1729512001000,
+					ctime: 1729512001000,
+					mode: 33188,
+				},
+			],
+		});
+
+		vi.mocked(existsSync).mockReturnValue(true);
+		vi.mocked(statSync).mockImplementation((path: any) => {
+			if (String(path) === 'build/index.html') {
+				return {size: 1024} as any;
+			}
+			return {size: 2048} as any;
+		});
+
+		// Second file throws permission error during hash validation
+		vi.mocked(readFileSync).mockImplementation((path: any) => {
+			if (String(path) === 'build/index.html') {
+				return Buffer.from('content');
+			}
+			throw new Error('EACCES: permission denied');
+		});
+
+		const result = await validate_build_cache(metadata);
+
+		// Should return false gracefully (not throw)
+		expect(result).toBe(false);
+	});
 });
 
 describe('is_build_cache_valid', () => {
