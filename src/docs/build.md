@@ -98,7 +98,7 @@ Behavior with uncommitted changes:
 - cache checking is skipped - builds always run
 - cache is not saved - no `.gro/build.json` written
 - all build outputs are deleted - `build/`, `dist/`, and `dist_*/` removed to prevent stale state
-- you'll see: `Workspace has uncommitted changes - skipping build cache`
+- you'll see: `workspace has uncommitted changes - skipping build cache`
 
 ### custom cache invalidation
 

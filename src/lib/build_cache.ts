@@ -29,15 +29,14 @@ export const BUILD_CACHE_VERSION = '1';
 export const Build_Output_Entry = z.strictObject({
 	path: z
 		.string()
-		.meta({description: "Relative path from project root (e.g., 'build/index.html')."}),
-	hash: z.string().meta({description: 'SHA-256 hash of file contents.'}),
-	size: z.number().meta({description: 'File size in bytes.'}),
-	mtime: z.number().meta({description: 'Modification time in milliseconds since epoch.'}),
+		.meta({description: "relative path from project root (e.g., 'build/index.html')."}),
+	hash: z.string().meta({description: 'SHA-256 hash of file contents'}),
+	size: z.number().meta({description: 'file size in bytes'}),
+	mtime: z.number().meta({description: 'modification time in milliseconds since epoch'}),
 	ctime: z.number().meta({
-		description:
-			'Change time (Linux) or creation time (macOS/Windows) in milliseconds since epoch.',
+		description: 'POSIX change time in milliseconds since epoch',
 	}),
-	mode: z.number().meta({description: 'Unix file permission mode (e.g., 33188 = 0644).'}),
+	mode: z.number().meta({description: 'unix file permission mode (e.g., 33188 = 0644)'}),
 });
 export type Build_Output_Entry = z.infer<typeof Build_Output_Entry>;
 
@@ -46,15 +45,15 @@ export type Build_Output_Entry = z.infer<typeof Build_Output_Entry>;
  * Schema validates structure at load time to catch corrupted cache files.
  */
 export const Build_Cache_Metadata = z.strictObject({
-	version: z.string().meta({description: 'Schema version for future compatibility.'}),
-	git_commit: z.string().nullable().meta({description: 'Git commit hash at time of build.'}),
+	version: z.string().meta({description: 'schema version for future compatibility'}),
+	git_commit: z.string().nullable().meta({description: 'git commit hash at time of build'}),
 	build_cache_config_hash: z
 		.string()
-		.meta({description: "Hash of user's custom build_cache_config from gro.config.ts."}),
-	timestamp: z.string().meta({description: 'Timestamp when build completed.'}),
+		.meta({description: "hash of user's custom build_cache_config from gro.config.ts."}),
+	timestamp: z.string().meta({description: 'timestamp when build completed'}),
 	outputs: z
 		.array(Build_Output_Entry)
-		.meta({description: 'Build output files with hashes and filesystem stats.'}),
+		.meta({description: 'build output files with hashes and filesystem stats'}),
 });
 export type Build_Cache_Metadata = z.infer<typeof Build_Cache_Metadata>;
 

@@ -194,7 +194,7 @@ describe('build.task integration tests', () => {
 
 			// Should log skip message
 			expect(ctx.log.info).toHaveBeenCalledWith(
-				expect.stringContaining('Skipping build, cache is valid'),
+				expect.stringContaining('skipping build, cache is valid'),
 				expect.anything(),
 			);
 		});
@@ -249,7 +249,7 @@ describe('build.task integration tests', () => {
 			const {git_check_clean_workspace} = vi.mocked(await import('@ryanatkn/belt/git.js'));
 			const {existsSync, rmSync, readdirSync, statSync} = await import('node:fs');
 
-			// Workspace has uncommitted changes
+			// workspace has uncommitted changes
 			vi.mocked(git_check_clean_workspace).mockResolvedValue('Modified files:\n  src/foo.ts');
 
 			// Cache file and all build dirs exist
@@ -280,7 +280,7 @@ describe('build.task integration tests', () => {
 
 			// Should log dirty workspace message
 			expect(ctx.log.info).toHaveBeenCalledWith(
-				expect.stringContaining('Workspace has uncommitted changes'),
+				expect.stringContaining('workspace has uncommitted changes'),
 			);
 		});
 
@@ -289,7 +289,7 @@ describe('build.task integration tests', () => {
 			const {is_build_cache_valid} = vi.mocked(await import('./build_cache.ts'));
 			const {readdirSync} = await import('node:fs');
 
-			// Workspace has uncommitted changes
+			// workspace has uncommitted changes
 			vi.mocked(git_check_clean_workspace).mockResolvedValue('Modified files:\n  src/foo.ts');
 			vi.mocked(readdirSync).mockReturnValue([]);
 
@@ -310,7 +310,7 @@ describe('build.task integration tests', () => {
 			const {save_build_cache_metadata} = vi.mocked(await import('./build_cache.ts'));
 			const {readdirSync} = await import('node:fs');
 
-			// Workspace has uncommitted changes
+			// workspace has uncommitted changes
 			vi.mocked(git_check_clean_workspace).mockResolvedValue('Modified files:\n  src/foo.ts');
 			vi.mocked(readdirSync).mockReturnValue([]);
 
@@ -325,7 +325,7 @@ describe('build.task integration tests', () => {
 			const {git_check_clean_workspace} = vi.mocked(await import('@ryanatkn/belt/git.js'));
 			const {existsSync, rmSync, readdirSync, statSync} = await import('node:fs');
 
-			// Workspace has uncommitted changes
+			// workspace has uncommitted changes
 			vi.mocked(git_check_clean_workspace).mockResolvedValue('Modified files:\n  src/foo.ts');
 
 			// Cache file does not exist, but build dirs do
@@ -356,7 +356,7 @@ describe('build.task integration tests', () => {
 			const {git_check_clean_workspace} = vi.mocked(await import('@ryanatkn/belt/git.js'));
 			const {existsSync, rmSync, readdirSync} = await import('node:fs');
 
-			// Workspace has uncommitted changes
+			// workspace has uncommitted changes
 			vi.mocked(git_check_clean_workspace).mockResolvedValue('Modified files:\n  src/foo.ts');
 
 			// Cache file exists, no build directories exist
@@ -404,7 +404,7 @@ describe('build.task integration tests', () => {
 			expect(mock_plugins.teardown).toHaveBeenCalled();
 
 			// Should log force build message
-			expect(ctx.log.info).toHaveBeenCalledWith(expect.stringContaining('Forcing fresh build'));
+			expect(ctx.log.info).toHaveBeenCalledWith(expect.stringContaining('forcing fresh build'));
 		});
 
 		test('saves cache when force_build with clean workspace', async () => {
@@ -721,7 +721,7 @@ describe('build.task integration tests', () => {
 			// Should log warning about commit change
 			// Note: Commit hashes are sliced to GIT_SHORT_HASH_LENGTH chars in the log
 			expect(ctx.log.warn).toHaveBeenCalledWith(
-				expect.stringContaining('Git commit changed during build'),
+				expect.stringContaining('git commit changed during build'),
 				expect.stringContaining('commit_'), // "commit_a".slice(0, GIT_SHORT_HASH_LENGTH) = "commit_"
 				expect.stringContaining('cache not saved'),
 			);
@@ -763,7 +763,7 @@ describe('build.task integration tests', () => {
 
 			// Should NOT log warning
 			expect(ctx.log.warn).not.toHaveBeenCalledWith(
-				expect.stringContaining('Git commit changed during build'),
+				expect.stringContaining('git commit changed during build'),
 				expect.anything(),
 				expect.anything(),
 			);
@@ -792,7 +792,7 @@ describe('build.task integration tests', () => {
 
 			// Should log shortened commit hashes in warning
 			expect(ctx.log.warn).toHaveBeenCalledWith(
-				expect.stringContaining('Git commit changed during build'),
+				expect.stringContaining('git commit changed during build'),
 				expect.stringContaining('abc1234'), // First GIT_SHORT_HASH_LENGTH chars
 				expect.stringContaining('cache not saved'),
 			);

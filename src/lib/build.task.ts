@@ -75,7 +75,7 @@ export const task: Task<Args> = {
 			);
 			if (cache_valid) {
 				log.info(
-					st('cyan', 'Skipping build, cache is valid'),
+					st('cyan', 'skipping build, cache is valid'),
 					st('dim', '(use --force_build to rebuild)'),
 				);
 				return;
@@ -95,10 +95,10 @@ export const task: Task<Args> = {
 				rmSync(dir, {recursive: true, force: true});
 			}
 
-			log.info(st('yellow', 'Workspace has uncommitted changes - skipping build cache'));
+			log.info(st('yellow', 'workspace has uncommitted changes - skipping build cache'));
 			// Skip clean_fs - already manually cleaned cache and all build outputs above
 		} else {
-			log.info(st('yellow', 'Forcing fresh build, ignoring cache'));
+			log.info(st('yellow', 'forcing fresh build, ignoring cache'));
 		}
 
 		// Clean build outputs (skip if workspace was dirty - already cleaned manually above)
@@ -132,7 +132,7 @@ export const task: Task<Args> = {
 
 			if (current_commit !== initial_commit) {
 				log.warn(
-					st('yellow', 'Git commit changed during build'),
+					st('yellow', 'git commit changed during build'),
 					st(
 						'dim',
 						`(${format_commit_hash(initial_commit)} → ${format_commit_hash(current_commit)})`,
