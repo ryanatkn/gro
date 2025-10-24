@@ -16,6 +16,7 @@ import {to_hash} from './hash.ts';
 import type {Gro_Config} from './gro_config.ts';
 import {paths} from './paths.ts';
 import {SVELTEKIT_BUILD_DIRNAME, SVELTEKIT_DIST_DIRNAME, GRO_DIST_PREFIX} from './constants.ts';
+import {to_deterministic_json} from './json_helpers.ts';
 
 const BUILD_CACHE_METADATA_FILENAME = 'build.json';
 const BUILD_CACHE_VERSION = '1';
@@ -90,7 +91,7 @@ export const compute_build_cache_key = async (
  */
 export const hash_build_cache_config = async (config: Gro_Config): Promise<string> => {
 	if (!config.build_cache_config) {
-		return await to_hash(Buffer.from('', 'utf-8'));
+		return await to_hash(new TextEncoder().encode(''));
 	}
 
 	// Resolve if it's a function
@@ -99,9 +100,9 @@ export const hash_build_cache_config = async (config: Gro_Config): Promise<strin
 			? await config.build_cache_config()
 			: config.build_cache_config;
 
-	// Hash the JSON representation
+	// Hash the JSON representation with deterministic key ordering
 	// Note: We never log or write this raw value as it may contain secrets
-	return await to_hash(Buffer.from(JSON.stringify(resolved), 'utf-8'));
+	return await to_hash(new TextEncoder().encode(to_deterministic_json(resolved)));
 };
 
 /**

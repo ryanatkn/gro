@@ -124,6 +124,7 @@ describe('compute_build_cache_key', () => {
 	test('hashes build_cache_config when provided', async () => {
 		const {git_current_commit_hash} = await import('@ryanatkn/belt/git.js');
 		const {to_hash} = await import('./hash.ts');
+		const {to_deterministic_json} = await import('./json_helpers.ts');
 
 		vi.mocked(git_current_commit_hash).mockResolvedValue('abc123');
 		vi.mocked(to_hash).mockResolvedValue('custom_hash');
@@ -137,8 +138,32 @@ describe('compute_build_cache_key', () => {
 
 		expect(result.build_cache_config_hash).toBeTruthy();
 		expect(to_hash).toHaveBeenCalledWith(
-			Buffer.from(JSON.stringify({api_url: 'https://example.com'}), 'utf-8'),
+			new TextEncoder().encode(to_deterministic_json({api_url: 'https://example.com'})),
 		);
+	});
+
+	test('produces same hash for build_cache_config regardless of key order', async () => {
+		const {git_current_commit_hash} = await import('@ryanatkn/belt/git.js');
+		const {hash_build_cache_config} = await import('./build_cache.ts');
+
+		vi.mocked(git_current_commit_hash).mockResolvedValue('abc123');
+
+		const config1 = create_mock_config({
+			build_cache_config: {z_key: 'value_z', a_key: 'value_a', m_key: 'value_m'},
+		});
+		const config2 = create_mock_config({
+			build_cache_config: {a_key: 'value_a', m_key: 'value_m', z_key: 'value_z'},
+		});
+		const config3 = create_mock_config({
+			build_cache_config: {m_key: 'value_m', z_key: 'value_z', a_key: 'value_a'},
+		});
+
+		const hash1 = await hash_build_cache_config(config1);
+		const hash2 = await hash_build_cache_config(config2);
+		const hash3 = await hash_build_cache_config(config3);
+
+		expect(hash1).toBe(hash2);
+		expect(hash2).toBe(hash3);
 	});
 
 	test('handles async build_cache_config function', async () => {
