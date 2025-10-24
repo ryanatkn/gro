@@ -311,9 +311,10 @@ Key tasks:
 - `test` - run Vitest tests matching `.test.` pattern ([docs](src/docs/test.md))
 - `gen` - run code generation ([docs](src/docs/gen.md))
 - `build` - production build with intelligent caching (runs plugin lifecycle: setup → adapt → teardown) ([docs](src/docs/build.md))
-  - Build caching - skips expensive rebuilds when nothing changed, using git commit hash + optional custom config
-  - Cache stored at `.gro/build.json`, survives manual deletion of `build/`
-  - Dirty workspace (uncommitted changes) → always rebuilds, deletes cache + `dist/` outputs to prevent stale state
+  - Build caching - skips expensive rebuilds using git commit + optional config hash ([docs](src/docs/build.md#build-caching))
+  - Conservative correctness: dirty workspace forces rebuild and cleans outputs
+  - Outputs validated via parallel hashing ([implementation](src/lib/build_cache.ts))
+  - Cache survives manual `build/` deletion (stored in `.gro/`)
   - Force rebuild: `gro build --force_build`
 - `check` - run all checks (test, gen --check, format --check, lint, typecheck)
 - `sync` - run gen, update package.json exports, optionally install packages

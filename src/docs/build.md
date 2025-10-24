@@ -46,6 +46,37 @@ Force a rebuild:
 gro build --force_build
 ```
 
+### how caching works
+
+```mermaid
+flowchart TD
+    Start([gro build]) --> Force{--force_build?}
+    Force -->|yes| Rebuild[skip cache, rebuild]
+    Force -->|no| Dirty{workspace clean?}
+
+    Dirty -->|no| Clean[Delete cache & outputs]
+    Clean --> Rebuild
+
+    Dirty -->|yes| Load{cache exists?}
+    Load -->|no| Rebuild
+    Load -->|yes| Keys{git commit +<br/>config match?}
+
+    Keys -->|no| Rebuild
+    Keys -->|yes| Valid{files valid?}
+
+    Valid -->|no| Rebuild
+    Valid -->|yes| Skip[✓ use cached build]
+
+    Rebuild --> Build[run build]
+    Build --> Save{workspace<br/>still clean?}
+
+    Save -->|yes| SaveCache[save cache]
+    Save -->|no| NoSave[skip cache save]
+
+    style Skip fill:#90EE90
+    style Rebuild fill:#FFB6C1
+```
+
 ### cache storage
 
 Cache metadata is stored at `.gro/build.json`.
@@ -104,6 +135,19 @@ Force a rebuild without validation:
 gro build --force_build
 ```
 
+### troubleshooting
+
+Cache not working as expected?
+
+- workspace must be clean - check `git status`
+- enable debug logging: `LOG_LEVEL=debug gro build`
+- corrupted cache: delete `.gro/build.json` and rebuild
+- platform differences: add platform/arch to `build_cache_config`
+
+> ⚠️ the cache is conservative - when in doubt, it rebuilds
+
+For implementation details, see [build cache internals](#build-cache-internals).
+
 > TODO what opportunities are there to leverage the build metadata?
 
 ### race condition protection
@@ -159,3 +203,65 @@ The [`gro publish`](publish.md) task publishes packages to npm.
 
 Both of these tasks call `gro build` internally,
 and you can always run it manually if you're curious.
+
+## build cache internals
+
+> implementation details for advanced debugging
+
+The build cache ([`src/lib/build_cache.ts`](../lib/build_cache.ts)) validates builds are current
+by tracking git commits and optional user config.
+
+### cache metadata structure
+
+`.gro/build.json` stores:
+
+```json
+{
+	"version": "1", // schema version
+	"git_commit": "abc123...", // commit at build time
+	"build_cache_config_hash": "...", // SHA-256 of user config
+	"timestamp": "ISO-8601", // build completion time
+	"output_hashes": {
+		// all output files
+		"build/index.html": "...",
+		"dist/index.js": "..."
+	}
+}
+```
+
+### validation flow
+
+1. load `.gro/build.json` - missing/corrupt = rebuild
+2. check version = "1" - mismatch = rebuild
+3. compare git commit - different = rebuild
+4. compare config hash - different = rebuild
+5. verify files exist - missing = rebuild
+6. hash files in parallel - mismatch = rebuild
+7. all pass = use cache
+
+### output directory discovery
+
+The cache automatically discovers all build output directories:
+
+- `build/` - SvelteKit app output
+- `dist/` - SvelteKit library output
+- `dist_*` - plugin outputs (e.g., `dist_server`)
+
+### extending the cache
+
+Plugins can't directly modify cache behavior, but can influence it:
+
+```ts
+export const plugin: Plugin = {
+	name: 'cache-aware',
+	setup: async ({config}) => {
+		// contribute to cache key
+		config.build_cache_config = {
+			...config.build_cache_config,
+			my_plugin_version: '1.0.0',
+		};
+	},
+};
+```
+
+See [`build.task.ts`](../lib/build.task.ts) for integration with the build pipeline.

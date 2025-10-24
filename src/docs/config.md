@@ -335,3 +335,31 @@ The build cache validates multiple factors to determine if a rebuild is needed
 This ensures builds are correct while protecting sensitive configuration.
 Both cache factors (git commit and `build_cache_config`) are checked—if either changes,
 the cache is invalidated.
+
+### common patterns
+
+```ts
+// platform-specific builds
+build_cache_config: {
+  node: process.version,
+  platform: process.platform,
+  arch: process.arch,
+}
+
+// feature flags from environment
+build_cache_config: () => ({
+  features: Object.fromEntries(
+    Object.entries(process.env)
+      .filter(([k]) => k.startsWith('FEATURE_'))
+  ),
+})
+
+// external data version
+build_cache_config: async () => ({
+  data_version: await fs.promises.readFile('data/version.txt', 'utf-8'),
+  // hash large files instead of including content
+  schema_hash: await to_hash(await fs.promises.readFile('schema.sql')),
+})
+```
+
+> ⚠️ keep resolution fast - async functions are called on every build
