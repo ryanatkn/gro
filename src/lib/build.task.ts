@@ -96,11 +96,15 @@ export const task: Task<Args> = {
 			}
 
 			log.info(st('yellow', 'Workspace has uncommitted changes - skipping build cache'));
+			// Skip clean_fs - already manually cleaned cache and all build outputs above
 		} else {
 			log.info(st('yellow', 'Forcing fresh build, ignoring cache'));
 		}
 
-		await clean_fs({build_dist: true});
+		// Clean build outputs (skip if workspace was dirty - already cleaned manually above)
+		if (!workspace_dirty) {
+			await clean_fs({build_dist: true});
+		}
 
 		const plugins = await Plugins.create({...ctx, dev: false, watch: false});
 		await plugins.setup();

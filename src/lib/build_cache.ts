@@ -269,6 +269,7 @@ export const hash_build_outputs = async (
 			} else if (entry.isFile()) {
 				files_to_hash.push({full_path, cache_key});
 			}
+			// Symlinks are intentionally ignored - we only hash regular files
 		}
 	};
 
@@ -317,9 +318,15 @@ export const discover_build_output_dirs = (): Array<string> => {
 
 	// Check for server and other plugin outputs (dist_*)
 	const root_entries = readdirSync('.');
-	const dist_dirs = root_entries.filter(
-		(p) => p.startsWith(GRO_DIST_PREFIX) && statSync(p).isDirectory(),
-	);
+	const dist_dirs = root_entries.filter((p) => {
+		if (!p.startsWith(GRO_DIST_PREFIX)) return false;
+		try {
+			return statSync(p).isDirectory();
+		} catch {
+			// File was deleted/moved during iteration - skip it
+			return false;
+		}
+	});
 	build_dirs.push(...dist_dirs);
 
 	return build_dirs;
