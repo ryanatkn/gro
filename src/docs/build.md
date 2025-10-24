@@ -143,6 +143,7 @@ Cache not working as expected?
 - enable debug logging: `LOG_LEVEL=debug gro build`
 - corrupted cache: delete `.gro/build.json` and rebuild
 - platform differences: add platform/arch to `build_cache_config`
+- non-deterministic builds: builds with timestamps/UUIDs/random data invalidate cache every run
 
 > ⚠️ the cache is conservative - when in doubt, it rebuilds
 
@@ -163,6 +164,7 @@ For reliable caching:
 - use `build_cache_config` for external inputs - environment variables,
   remote configs, or feature flags that affect the build but aren't in git
 - use `gro check --workspace` in CI - enforces clean git state before building
+- avoid concurrent builds - multiple simultaneous `gro build` processes can conflict
 
 During development, uncommitted changes automatically disable caching,
 so builds always reflect your working directory.
@@ -235,7 +237,7 @@ by tracking git commits and optional user config.
 			"size": 2048,
 			"mtime": 1729512001000,
 			"ctime": 1729512001000,
-			"mode": 33188
+			"mode": 33188 // stored but not validated
 		}
 	]
 }
@@ -269,6 +271,8 @@ The cache automatically discovers all build output directories:
 - `build/` - SvelteKit app output
 - `dist/` - SvelteKit library output
 - `dist_*` - plugin outputs (e.g., `dist_server`)
+
+All regular files are hashed and validated. Symlinks are ignored (only their targets are tracked if they're build outputs).
 
 ### extending the cache
 

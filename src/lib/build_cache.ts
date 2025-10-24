@@ -200,9 +200,14 @@ export const validate_build_cache = async (metadata: Build_Cache_Metadata): Prom
 	// Size matches for all files - now verify content with cryptographic hashing
 	// Hash all files in parallel for performance
 	const hash_promises = metadata.outputs.map(async (output) => {
-		const contents = readFileSync(output.path);
-		const actual_hash = await to_hash(contents);
-		return actual_hash === output.hash;
+		try {
+			const contents = readFileSync(output.path);
+			const actual_hash = await to_hash(contents);
+			return actual_hash === output.hash;
+		} catch {
+			// File deleted/inaccessible between checks = cache invalid
+			return false;
+		}
 	});
 
 	const results = await Promise.all(hash_promises);
