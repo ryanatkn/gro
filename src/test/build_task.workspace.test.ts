@@ -5,6 +5,8 @@ import {task as build_task, GIT_SHORT_HASH_LENGTH} from '../lib/build.task.ts';
 
 import {create_mock_build_task_context, create_mock_plugins} from './build_task_test_helpers.ts';
 
+/* eslint-disable @typescript-eslint/require-await */
+
 // Mock dependencies
 vi.mock('@ryanatkn/belt/git.js', () => ({
 	git_check_clean_workspace: vi.fn(),
@@ -225,5 +227,98 @@ describe('build_task workspace state', () => {
 
 		// Should not throw
 		expect(mock_plugins.setup).toHaveBeenCalled();
+	});
+
+	describe('post-build workspace verification', () => {
+		test('throws Task_Error when plugin modifies source files during build', async () => {
+			const {git_check_clean_workspace} = vi.mocked(await import('@ryanatkn/belt/git.js'));
+			const {is_build_cache_valid} = vi.mocked(await import('../lib/build_cache.ts'));
+
+			// Workspace starts clean, but becomes dirty after build
+			let call_count = 0;
+			vi.mocked(git_check_clean_workspace).mockImplementation(async () => {
+				call_count++;
+				// First call: workspace is clean
+				// Second call (after build): workspace is dirty!
+				return call_count === 1 ? null : 'Modified files:\n  src/lib/foo.ts';
+			});
+			vi.mocked(is_build_cache_valid).mockResolvedValue(false);
+
+			const ctx = create_mock_build_task_context();
+
+			// Should throw Task_Error with specific message about modified files
+			await expect(build_task.run(ctx)).rejects.toThrow(
+				/Build process modified tracked files.*src\/lib\/foo\.ts/s,
+			);
+		});
+
+		test('throws Task_Error when clean workspace becomes dirty with untracked files', async () => {
+			const {git_check_clean_workspace} = vi.mocked(await import('@ryanatkn/belt/git.js'));
+			const {is_build_cache_valid} = vi.mocked(await import('../lib/build_cache.ts'));
+
+			// Workspace starts clean, but has untracked files after build
+			let call_count = 0;
+			vi.mocked(git_check_clean_workspace).mockImplementation(async () => {
+				call_count++;
+				return call_count === 1 ? null : 'Untracked files:\n  src/generated_file.ts';
+			});
+			vi.mocked(is_build_cache_valid).mockResolvedValue(false);
+
+			const ctx = create_mock_build_task_context();
+
+			// Should throw Task_Error mentioning untracked files
+			await expect(build_task.run(ctx)).rejects.toThrow(
+				/Build process modified tracked files.*Untracked files/s,
+			);
+		});
+
+		test('succeeds when workspace stays clean throughout build', async () => {
+			const {git_check_clean_workspace} = vi.mocked(await import('@ryanatkn/belt/git.js'));
+			const {is_build_cache_valid} = vi.mocked(await import('../lib/build_cache.ts'));
+
+			// Workspace stays clean throughout
+			vi.mocked(git_check_clean_workspace).mockResolvedValue(null);
+			vi.mocked(is_build_cache_valid).mockResolvedValue(false);
+
+			const ctx = create_mock_build_task_context();
+
+			// Should complete successfully
+			await expect(build_task.run(ctx)).resolves.toBeUndefined();
+		});
+
+		test('succeeds when dirty workspace stays dirty with same status', async () => {
+			const {git_check_clean_workspace} = vi.mocked(await import('@ryanatkn/belt/git.js'));
+			const {readdirSync} = await import('node:fs');
+
+			// Workspace stays dirty with same status throughout
+			const dirty_status = 'Modified files:\n  src/foo.ts';
+			vi.mocked(git_check_clean_workspace).mockResolvedValue(dirty_status);
+			vi.mocked(readdirSync).mockReturnValue([]);
+
+			const ctx = create_mock_build_task_context();
+
+			// Should complete successfully (dirty is expected, just can't change)
+			await expect(build_task.run(ctx)).resolves.toBeUndefined();
+		});
+
+		test('throws Task_Error when dirty workspace gets different dirty status during build', async () => {
+			const {git_check_clean_workspace} = vi.mocked(await import('@ryanatkn/belt/git.js'));
+			const {readdirSync} = await import('node:fs');
+
+			// Workspace starts with one dirty status, changes to different dirty status
+			let call_count = 0;
+			vi.mocked(git_check_clean_workspace).mockImplementation(async () => {
+				call_count++;
+				return call_count === 1
+					? 'Modified files:\n  src/foo.ts'
+					: 'Modified files:\n  src/foo.ts\n  src/bar.ts'; // Added file!
+			});
+			vi.mocked(readdirSync).mockReturnValue([]);
+
+			const ctx = create_mock_build_task_context();
+
+			// Should throw - workspace status changed
+			await expect(build_task.run(ctx)).rejects.toThrow(/Build process modified tracked files/);
+		});
 	});
 });

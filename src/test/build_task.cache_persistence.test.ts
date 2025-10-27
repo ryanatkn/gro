@@ -257,4 +257,70 @@ describe('build_task cache persistence', () => {
 		);
 		expect(save_build_cache_metadata).toHaveBeenCalledWith(mock_metadata, ctx.log);
 	});
+
+	describe('cache metadata creation failures', () => {
+		test('propagates error when create_build_cache_metadata throws', async () => {
+			const {git_check_clean_workspace, git_current_commit_hash} = vi.mocked(
+				await import('@ryanatkn/belt/git.js'),
+			);
+			const {is_build_cache_valid, create_build_cache_metadata} = vi.mocked(
+				await import('../lib/build_cache.ts'),
+			);
+			const {to_hash} = vi.mocked(await import('../lib/hash.ts'));
+			const {Plugins} = vi.mocked(await import('../lib/plugin.ts'));
+			const mock_plugins = create_mock_plugins();
+			vi.mocked(Plugins.create).mockResolvedValue(mock_plugins as any);
+
+			// Workspace is clean, cache is invalid
+			vi.mocked(git_check_clean_workspace).mockResolvedValue(null);
+			vi.mocked(git_current_commit_hash).mockResolvedValue('abc123');
+			vi.mocked(is_build_cache_valid).mockResolvedValue(false);
+			vi.mocked(to_hash).mockResolvedValue('hash123');
+
+			// create_build_cache_metadata throws
+			const metadata_error = new Error('Failed to create cache metadata');
+			vi.mocked(create_build_cache_metadata).mockRejectedValue(metadata_error);
+
+			const ctx = create_mock_build_task_context();
+
+			// Should propagate the error (cache metadata creation is part of build success)
+			await expect(build_task.run(ctx)).rejects.toThrow('Failed to create cache metadata');
+
+			// Build should have completed
+			expect(mock_plugins.setup).toHaveBeenCalled();
+			expect(mock_plugins.adapt).toHaveBeenCalled();
+			expect(mock_plugins.teardown).toHaveBeenCalled();
+
+			// Should have attempted to create metadata
+			expect(create_build_cache_metadata).toHaveBeenCalled();
+		});
+
+		test('build fails if cache metadata creation throws (cache errors are fatal in clean workspace)', async () => {
+			const {git_check_clean_workspace, git_current_commit_hash} = vi.mocked(
+				await import('@ryanatkn/belt/git.js'),
+			);
+			const {is_build_cache_valid, create_build_cache_metadata, save_build_cache_metadata} =
+				vi.mocked(await import('../lib/build_cache.ts'));
+			const {to_hash} = vi.mocked(await import('../lib/hash.ts'));
+
+			// Workspace is clean
+			vi.mocked(git_check_clean_workspace).mockResolvedValue(null);
+			vi.mocked(git_current_commit_hash).mockResolvedValue('abc123');
+			vi.mocked(is_build_cache_valid).mockResolvedValue(false);
+			vi.mocked(to_hash).mockResolvedValue('hash123');
+
+			// Metadata creation throws
+			vi.mocked(create_build_cache_metadata).mockRejectedValue(
+				new Error('Disk full - cannot create metadata'),
+			);
+
+			const ctx = create_mock_build_task_context();
+
+			// Build should fail
+			await expect(build_task.run(ctx)).rejects.toThrow('Disk full - cannot create metadata');
+
+			// Should NOT save cache (never got metadata)
+			expect(save_build_cache_metadata).not.toHaveBeenCalled();
+		});
+	});
 });

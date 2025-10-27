@@ -105,7 +105,9 @@ describe('build_task optimization', () => {
 		expect(call_timestamps).toContainEqual(
 			expect.objectContaining({fn: 'git_check_clean_workspace'}),
 		);
-		expect(call_timestamps).toContainEqual(expect.objectContaining({fn: 'git_current_commit_hash'}));
+		expect(call_timestamps).toContainEqual(
+			expect.objectContaining({fn: 'git_current_commit_hash'}),
+		);
 
 		// The initial calls should happen concurrently (within a few ms of each other)
 		const first_calls = call_timestamps.slice(0, 2);

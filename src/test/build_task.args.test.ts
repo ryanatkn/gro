@@ -121,4 +121,40 @@ describe('build_task args and sync/install', () => {
 		// Should still call sync (install takes precedence)
 		expect(ctx.invoke_task).toHaveBeenCalledWith('sync', {install: true});
 	});
+
+	describe('sync task failures', () => {
+		test('propagates error when sync task fails', async () => {
+			const ctx = create_mock_build_task_context({sync: true, install: true});
+
+			// Mock invoke_task to throw an error
+			const sync_error = new Error('Sync task failed');
+			ctx.invoke_task = vi.fn().mockRejectedValue(sync_error);
+
+			// Should propagate the error
+			await expect(build_task.run(ctx)).rejects.toThrow('Sync task failed');
+
+			// Should have attempted to invoke sync
+			expect(ctx.invoke_task).toHaveBeenCalledWith('sync', {install: true});
+		});
+
+		test('fails build early without running plugin lifecycle when sync fails', async () => {
+			const {Plugins} = vi.mocked(await import('../lib/plugin.ts'));
+			const mock_plugins = create_mock_plugins();
+			vi.mocked(Plugins.create).mockResolvedValue(mock_plugins as any);
+
+			const ctx = create_mock_build_task_context({sync: true, install: true});
+
+			// Mock invoke_task to throw an error
+			const sync_error = new Error('Sync task failed');
+			ctx.invoke_task = vi.fn().mockRejectedValue(sync_error);
+
+			// Should propagate the error
+			await expect(build_task.run(ctx)).rejects.toThrow('Sync task failed');
+
+			// Should NOT run plugin lifecycle (sync failed early)
+			expect(mock_plugins.setup).not.toHaveBeenCalled();
+			expect(mock_plugins.adapt).not.toHaveBeenCalled();
+			expect(mock_plugins.teardown).not.toHaveBeenCalled();
+		});
+	});
 });

@@ -130,4 +130,107 @@ describe('build_task plugin lifecycle', () => {
 
 		expect(clean_fs).toHaveBeenCalledWith({build_dist: true});
 	});
+
+	describe('error handling', () => {
+		test('propagates error when setup() throws', async () => {
+			const {git_check_clean_workspace} = vi.mocked(await import('@ryanatkn/belt/git.js'));
+			const {is_build_cache_valid} = vi.mocked(await import('../lib/build_cache.ts'));
+			const {Plugins} = vi.mocked(await import('../lib/plugin.ts'));
+			const mock_plugins = create_mock_plugins();
+			vi.mocked(Plugins.create).mockResolvedValue(mock_plugins as any);
+
+			vi.mocked(git_check_clean_workspace).mockResolvedValue(null);
+			vi.mocked(is_build_cache_valid).mockResolvedValue(false);
+
+			// setup() throws an error
+			const setup_error = new Error('Plugin setup failed');
+			mock_plugins.setup.mockRejectedValue(setup_error);
+
+			const ctx = create_mock_build_task_context();
+
+			// Should propagate the error
+			await expect(build_task.run(ctx)).rejects.toThrow('Plugin setup failed');
+
+			// Should have attempted setup
+			expect(mock_plugins.setup).toHaveBeenCalled();
+
+			// Should NOT call adapt or teardown after setup fails
+			expect(mock_plugins.adapt).not.toHaveBeenCalled();
+			expect(mock_plugins.teardown).not.toHaveBeenCalled();
+		});
+
+		test('propagates error when adapt() throws', async () => {
+			const {git_check_clean_workspace} = vi.mocked(await import('@ryanatkn/belt/git.js'));
+			const {is_build_cache_valid} = vi.mocked(await import('../lib/build_cache.ts'));
+			const {Plugins} = vi.mocked(await import('../lib/plugin.ts'));
+			const mock_plugins = create_mock_plugins();
+			vi.mocked(Plugins.create).mockResolvedValue(mock_plugins as any);
+
+			vi.mocked(git_check_clean_workspace).mockResolvedValue(null);
+			vi.mocked(is_build_cache_valid).mockResolvedValue(false);
+
+			// adapt() throws an error
+			const adapt_error = new Error('Adapter failed');
+			mock_plugins.adapt.mockRejectedValue(adapt_error);
+
+			const ctx = create_mock_build_task_context();
+
+			// Should propagate the error
+			await expect(build_task.run(ctx)).rejects.toThrow('Adapter failed');
+
+			// Should have completed setup
+			expect(mock_plugins.setup).toHaveBeenCalled();
+
+			// Should have attempted adapt
+			expect(mock_plugins.adapt).toHaveBeenCalled();
+
+			// Should NOT call teardown after adapt fails
+			expect(mock_plugins.teardown).not.toHaveBeenCalled();
+		});
+
+		test('propagates error when teardown() throws', async () => {
+			const {git_check_clean_workspace} = vi.mocked(await import('@ryanatkn/belt/git.js'));
+			const {is_build_cache_valid} = vi.mocked(await import('../lib/build_cache.ts'));
+			const {Plugins} = vi.mocked(await import('../lib/plugin.ts'));
+			const mock_plugins = create_mock_plugins();
+			vi.mocked(Plugins.create).mockResolvedValue(mock_plugins as any);
+
+			vi.mocked(git_check_clean_workspace).mockResolvedValue(null);
+			vi.mocked(is_build_cache_valid).mockResolvedValue(false);
+
+			// teardown() throws an error
+			const teardown_error = new Error('Teardown failed');
+			mock_plugins.teardown.mockRejectedValue(teardown_error);
+
+			const ctx = create_mock_build_task_context();
+
+			// Should propagate the error
+			await expect(build_task.run(ctx)).rejects.toThrow('Teardown failed');
+
+			// Should have completed setup and adapt
+			expect(mock_plugins.setup).toHaveBeenCalled();
+			expect(mock_plugins.adapt).toHaveBeenCalled();
+
+			// Should have attempted teardown
+			expect(mock_plugins.teardown).toHaveBeenCalled();
+		});
+
+		test('propagates error when Plugins.create() throws', async () => {
+			const {git_check_clean_workspace} = vi.mocked(await import('@ryanatkn/belt/git.js'));
+			const {is_build_cache_valid} = vi.mocked(await import('../lib/build_cache.ts'));
+			const {Plugins} = vi.mocked(await import('../lib/plugin.ts'));
+
+			vi.mocked(git_check_clean_workspace).mockResolvedValue(null);
+			vi.mocked(is_build_cache_valid).mockResolvedValue(false);
+
+			// Plugin creation fails
+			const create_error = new Error('Failed to create plugins');
+			vi.mocked(Plugins.create).mockRejectedValue(create_error);
+
+			const ctx = create_mock_build_task_context();
+
+			// Should propagate the error
+			await expect(build_task.run(ctx)).rejects.toThrow('Failed to create plugins');
+		});
+	});
 });

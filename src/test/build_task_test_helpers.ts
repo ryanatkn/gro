@@ -12,17 +12,13 @@ export const create_mock_build_task_context = (
 	args: Partial<Args> = {},
 	config: Partial<Gro_Config> = {},
 ): Task_Context<Args> =>
-	create_mock_task_context(
-		args,
-		config,
-		{
-			sync: true,
-			'no-sync': false,
-			install: true,
-			'no-install': false,
-			force_build: false,
-		} as Args,
-	);
+	create_mock_task_context(args, config, {
+		sync: true,
+		'no-sync': false,
+		install: true,
+		'no-install': false,
+		force_build: false,
+	} as Args);
 
 /**
  * Mock plugins interface for testing plugin lifecycle.
