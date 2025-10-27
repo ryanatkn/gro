@@ -130,7 +130,7 @@ export class Parse_Exports_Context {
 
 		// If no direct match from flags, look at declarations
 		if (symbol.declarations && symbol.declarations.length > 0) {
-			const decl = symbol.declarations[0];
+			const decl = symbol.declarations[0]!;
 			const kind_from_decl = this.#infer_kind_from_declaration(decl);
 			if (kind_from_decl) {
 				return kind_from_decl;
@@ -348,7 +348,7 @@ export class Parse_Exports_Context {
 	 */
 	#get_export_name(node: ts.Node): string | undefined {
 		if (ts.isVariableStatement(node) && node.declarationList.declarations.length > 0) {
-			const decl = node.declarationList.declarations[0];
+			const decl = node.declarationList.declarations[0]!;
 			if (ts.isIdentifier(decl.name)) {
 				return decl.name.text;
 			}

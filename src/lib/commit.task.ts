@@ -26,7 +26,7 @@ export const task: Task<Args> = {
 
 		const branch = await git_current_branch_name();
 
-		await spawn('git', ['commit', '-a', '-m', message]);
+		await spawn('git', ['commit', '-a', '-m', message!]);
 		await git_push(origin, branch, undefined, true);
 	},
 };

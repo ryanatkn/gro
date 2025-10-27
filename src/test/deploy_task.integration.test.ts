@@ -425,16 +425,16 @@ describe('deploy_task integration scenarios', () => {
 			await deploy_task.run(ctx);
 
 			// Verify operation order using invocation call orders
-			const check_workspace_order = git_check_clean_workspace.mock.invocationCallOrder[0];
-			const check_rebase_order = git_check_setting_pull_rebase.mock.invocationCallOrder[0];
-			const checkout_order = git_checkout.mock.invocationCallOrder[0];
-			const pull_order = git_pull.mock.invocationCallOrder[0];
-			const remote_exists_order = git_remote_branch_exists.mock.invocationCallOrder[0];
-			const clone_order = git_clone_locally.mock.invocationCallOrder[0];
-			const push_create_order = git_push_to_create.mock.invocationCallOrder[0];
-			const empty_dir_order = (empty_dir as any).mock.invocationCallOrder[0];
-			const build_order = (ctx.invoke_task as any).mock.invocationCallOrder[0];
-			const cp_order = (cp as any).mock.invocationCallOrder[0];
+			const check_workspace_order = git_check_clean_workspace.mock.invocationCallOrder[0]!;
+			const check_rebase_order = git_check_setting_pull_rebase.mock.invocationCallOrder[0]!;
+			const checkout_order = git_checkout.mock.invocationCallOrder[0]!;
+			const pull_order = git_pull.mock.invocationCallOrder[0]!;
+			const remote_exists_order = git_remote_branch_exists.mock.invocationCallOrder[0]!;
+			const clone_order = git_clone_locally.mock.invocationCallOrder[0]!;
+			const push_create_order = git_push_to_create.mock.invocationCallOrder[0]!;
+			const empty_dir_order = (empty_dir as any).mock.invocationCallOrder[0]!;
+			const build_order = (ctx.invoke_task as any).mock.invocationCallOrder[0]!;
+			const cp_order = (cp as any).mock.invocationCallOrder[0]!;
 
 			// Safety checks first
 			expect(check_workspace_order).toBeLessThan(checkout_order);
@@ -457,7 +457,7 @@ describe('deploy_task integration scenarios', () => {
 			const final_push_call = spawn.mock.calls.findIndex(
 				(call) => call[0] === 'git' && call[1]?.[0] === 'push' && call[1][1] === 'origin',
 			);
-			const final_push_order = spawn.mock.invocationCallOrder[final_push_call];
+			const final_push_order = spawn.mock.invocationCallOrder[final_push_call]!;
 			expect(cp_order).toBeLessThan(final_push_order);
 		});
 
@@ -478,20 +478,20 @@ describe('deploy_task integration scenarios', () => {
 			await deploy_task.run(ctx);
 
 			// Source prep
-			const checkout_order = git_checkout.mock.invocationCallOrder[0];
-			const pull_source_order = git_pull.mock.invocationCallOrder[0];
+			const checkout_order = git_checkout.mock.invocationCallOrder[0]!;
+			const pull_source_order = git_pull.mock.invocationCallOrder[0]!;
 
 			// Target sync
-			const branch_name_order = git_current_branch_name.mock.invocationCallOrder[0];
+			const branch_name_order = git_current_branch_name.mock.invocationCallOrder[0]!;
 			const reset_call = spawn.mock.calls.findIndex(
 				(call) => call[0] === 'git' && call[1]?.[0] === 'reset',
 			);
-			const reset_order = spawn.mock.invocationCallOrder[reset_call];
+			const reset_order = spawn.mock.invocationCallOrder[reset_call]!;
 
 			// Build and deploy
-			const empty_order = (empty_dir as any).mock.invocationCallOrder[0];
-			const build_order = (ctx.invoke_task as any).mock.invocationCallOrder[0];
-			const cp_order = (cp as any).mock.invocationCallOrder[0];
+			const empty_order = (empty_dir as any).mock.invocationCallOrder[0]!;
+			const build_order = (ctx.invoke_task as any).mock.invocationCallOrder[0]!;
+			const cp_order = (cp as any).mock.invocationCallOrder[0]!;
 
 			// Verify order
 			expect(checkout_order).toBeLessThan(pull_source_order);

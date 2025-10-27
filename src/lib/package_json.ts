@@ -34,7 +34,7 @@ export const load_package_json = (
 ): Package_Json => {
 	let package_json: Package_Json;
 	if (cache && dir in cache) {
-		return cache[dir];
+		return cache[dir]!;
 	}
 	try {
 		package_json = JSON.parse(load_package_json_contents(dir));
@@ -194,7 +194,7 @@ export const parse_repo_url = (
 		return;
 	}
 	const [, owner, repo] = parsed_repo_url;
-	return {owner, repo};
+	return {owner: owner!, repo: repo!};
 };
 
 /**

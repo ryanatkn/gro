@@ -127,11 +127,11 @@ describe('deploy_task target branch sync (remote exists)', () => {
 
 			// Find the reset and pull calls
 			const reset_call_order = spawn.mock.invocationCallOrder.find((_, idx) => {
-				const call = spawn.mock.calls[idx];
+				const call = spawn.mock.calls[idx]!;
 				return call[0] === 'git' && call[1]?.[0] === 'reset';
 			});
 			// Check second git_pull call (target branch in deploy dir), not first (source branch)
-			const pull_call_order = git_pull.mock.invocationCallOrder[1];
+			const pull_call_order = git_pull.mock.invocationCallOrder[1]!;
 
 			expect(reset_call_order).toBeLessThan(pull_call_order);
 		});
@@ -373,8 +373,8 @@ describe('deploy_task target branch sync (remote exists)', () => {
 			await deploy_task.run(ctx);
 
 			// Reset should happen after pull
-			const pull_order = git_pull.mock.invocationCallOrder[0];
-			const reset_order = git_reset_branch_to_first_commit.mock.invocationCallOrder[0];
+			const pull_order = git_pull.mock.invocationCallOrder[0]!;
+			const reset_order = git_reset_branch_to_first_commit.mock.invocationCallOrder[0]!;
 
 			expect(reset_order).toBeGreaterThan(pull_order);
 		});

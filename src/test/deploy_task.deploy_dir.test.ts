@@ -120,8 +120,8 @@ describe('deploy_task deploy directory operations', () => {
 			await deploy_task.run(ctx);
 
 			// empty_dir should be called after git operations
-			const pull_order = git_pull.mock.invocationCallOrder[0];
-			const empty_order = (empty_dir as any).mock.invocationCallOrder[0];
+			const pull_order = git_pull.mock.invocationCallOrder[0]!;
+			const empty_order = (empty_dir as any).mock.invocationCallOrder[0]!;
 
 			expect(empty_order).toBeGreaterThan(pull_order);
 		});

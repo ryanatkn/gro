@@ -96,7 +96,7 @@ export const invoke_task = async (
 	}
 	const loaded_tasks = loaded.value;
 
-	if (resolved_input_files.length > 1 || resolved_input_files[0].resolved_input_path.is_directory) {
+	if (resolved_input_files.length > 1 || resolved_input_files[0]!.resolved_input_path.is_directory) {
 		// The input path matches a directory. Log the tasks but don't run them.
 		log_tasks(log, loaded_tasks);
 		await finish();
@@ -105,7 +105,7 @@ export const invoke_task = async (
 
 	// The input path matches a file that's presumable a task, so load and run it.
 	if (loaded_tasks.modules.length !== 1) throw Error('expected one loaded task'); // run only one task at a time
-	const task = loaded_tasks.modules[0];
+	const task = loaded_tasks.modules[0]!;
 	log.info(
 		`→ ${st('cyan', task.name)} ${(task.mod.task.summary && st('gray', task.mod.task.summary)) ?? ''}`,
 	);

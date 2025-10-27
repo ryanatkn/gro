@@ -159,7 +159,7 @@ export const parse_imports = (
 			// If we're not nested (no HTML tag nesting), process this script
 			if (!(contains_opening_tag && !contains_closing_tag)) {
 				script_blocks.push({
-					content: match[1],
+					content: match[1]!,
 					start,
 					end,
 				});

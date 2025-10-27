@@ -175,8 +175,8 @@ describe('deploy_task source branch preparation', () => {
 			expect(git_checkout).toHaveBeenCalledWith('main');
 
 			// Checkout should happen after fetch
-			const fetch_order = git_fetch.mock.invocationCallOrder[0];
-			const checkout_order = git_checkout.mock.invocationCallOrder[0];
+			const fetch_order = git_fetch.mock.invocationCallOrder[0]!;
+			const checkout_order = git_checkout.mock.invocationCallOrder[0]!;
 			expect(checkout_order).toBeGreaterThan(fetch_order);
 		});
 	});
@@ -237,8 +237,8 @@ describe('deploy_task source branch preparation', () => {
 			expect(git_pull).toHaveBeenCalled();
 
 			// Pull should happen after checkout
-			const checkout_order = git_checkout.mock.invocationCallOrder[0];
-			const pull_order = git_pull.mock.invocationCallOrder[0];
+			const checkout_order = git_checkout.mock.invocationCallOrder[0]!;
+			const pull_order = git_pull.mock.invocationCallOrder[0]!;
 			expect(pull_order).toBeGreaterThan(checkout_order);
 		});
 

@@ -167,8 +167,8 @@ describe('deploy_task commit and push', () => {
 				(call) => call[0] === 'git' && call[1]?.[0] === 'commit',
 			);
 
-			const add_order = spawn.mock.invocationCallOrder[add_call_index];
-			const commit_order = spawn.mock.invocationCallOrder[commit_call_index];
+			const add_order = spawn.mock.invocationCallOrder[add_call_index]!;
+			const commit_order = spawn.mock.invocationCallOrder[commit_call_index]!;
 
 			expect(commit_order).toBeGreaterThan(add_order);
 		});
@@ -240,8 +240,8 @@ describe('deploy_task commit and push', () => {
 				(call) => call[0] === 'git' && call[1]?.[0] === 'push',
 			);
 
-			const commit_order = spawn.mock.invocationCallOrder[commit_call_index];
-			const push_order = spawn.mock.invocationCallOrder[push_call_index];
+			const commit_order = spawn.mock.invocationCallOrder[commit_call_index]!;
+			const push_order = spawn.mock.invocationCallOrder[push_call_index]!;
 
 			expect(push_order).toBeGreaterThan(commit_order);
 		});

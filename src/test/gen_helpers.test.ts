@@ -535,7 +535,7 @@ test('should_trigger_gen calls filter_dependents with correct parameters', async
 	);
 
 	// Verify the filter function only returns true for gen_file_id
-	const filter_fn = mock_filter_dependents.mock.calls[0][2];
+	const filter_fn = mock_filter_dependents.mock.calls[0]![2];
 	expect(filter_fn?.(TEST_GEN_FILE)).toBe(true);
 	expect(filter_fn?.(resolve('src/other.gen.ts'))).toBe(false);
 	expect(filter_fn?.(resolve('src/another.ts'))).toBe(false);
