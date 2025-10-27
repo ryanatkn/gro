@@ -56,7 +56,7 @@ export const package_json: Package_Json = {
 		zod: '^4.1.12',
 	},
 	peerDependencies: {
-		'@ryanatkn/belt': '^0.35.1',
+		'@ryanatkn/belt': '^0.36.0',
 		'@sveltejs/kit': '^2',
 		esbuild: '^0.25',
 		svelte: '^5',
@@ -83,7 +83,7 @@ export const package_json: Package_Json = {
 		'svelte-check': '^4.3.3',
 		typescript: '^5.9.3',
 		'typescript-eslint': '^8.42.0',
-		vitest: '^4.0.0',
+		vitest: '^4.0.3',
 	},
 	prettier: {
 		plugins: ['prettier-plugin-svelte'],
@@ -530,10 +530,6 @@ export const src_json: Src_Json = {
 			declarations: [{name: 'invoke_task', kind: 'function'}],
 		},
 		'./invoke.js': {path: 'invoke.ts'},
-		'./json_helpers.js': {
-			path: 'json_helpers.ts',
-			declarations: [{name: 'to_deterministic_json', kind: 'function'}],
-		},
 		'./lint.task.js': {
 			path: 'lint.task.ts',
 			declarations: [

@@ -248,8 +248,8 @@ The raw value is never logged or written to disk, protecting sensitive informati
 ### when to use `build_cache_config`
 
 The build cache automatically invalidates on any git commit (source code, dependencies,
-configs—assuming you commit changes before building). Use `build_cache_config` when
-your build also depends on:
+configs -- assuming you commit changes before building in the normal case)
+ Use `build_cache_config` when your build also depends on:
 
 - environment variables baked into the build (API endpoints, feature flags)
 - external data files that affect the build (content databases, configuration data)
