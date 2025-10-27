@@ -20,6 +20,20 @@ forwarding any [`-- vite [...]` args](https://vitejs.dev/config/):
 gro build -- vite --config my-config.js
 ```
 
+### sync and install
+
+By default, `gro build` runs `gro sync` before building
+to generate code and update `package.json` exports,
+and installs packages if needed:
+
+```bash
+gro build               # runs sync + install + build
+gro build --no-sync     # skip sync step
+gro build --no-install  # skip package install
+```
+
+Note: `--no-sync` is ignored if install runs (install requires sync to generate exports).
+
 ## build caching
 
 Gro caches builds to skip expensive rebuilds when nothing has changed.
@@ -29,7 +43,8 @@ Gro caches builds to skip expensive rebuilds when nothing has changed.
 The cache key has two components:
 
 - **git commit hash** - tracks code, dependencies, and config files
-- **`build_cache_config` hash** - optional, for tracking external inputs like environment variables or feature flags (see [cache configuration](#cache-configuration))
+- **`build_cache_config` hash** - optional, for tracking external inputs like environment variables
+  or feature flags (see [cache configuration](#cache-configuration))
 
 The cache invalidates when either component changes.
 
@@ -66,8 +81,11 @@ Behavior with uncommitted changes:
 
 - cache checking is skipped - builds always run
 - cache is not saved - no `.gro/build.json` written
-- all build outputs are deleted - `build/`, `dist/`, and `dist_*/` removed to prevent stale state
+- all build outputs are deleted before building - cache file,
+  `build/`, `dist/`, and `dist_*/` removed to prevent stale state
 - you'll see: `workspace has uncommitted changes - skipping build cache`
+
+Outputs are deleted directly before running plugins.
 
 ### best practices
 
@@ -81,6 +99,23 @@ For reliable caching:
 
 During development, uncommitted changes automatically disable caching,
 so builds always reflect your working directory.
+
+### post-build verification
+
+After plugins finish building, Gro verifies the workspace didn't change during the build.
+If tracked files were modified or untracked files were created, the build fails:
+
+```
+Error: Build process modified tracked files or created untracked files.
+
+Git status after build:
+  Modified: src/lib/foo.ts
+
+Builds should only write to output directories (build/, dist/, etc.).
+This usually indicates a plugin or build step is incorrectly modifying source files.
+```
+
+This ensures build reproducibility and prevents plugins from corrupting source code.
 
 ### CI/CD integration
 
@@ -137,13 +172,15 @@ export default {
 } satisfies Gro_Config;
 ```
 
-The config is hashed and never logged to protect sensitive values. Any change triggers a rebuild.
+The config is hashed and never logged to protect sensitive values.
+Any change triggers a rebuild.
 
 See [config.md](config.md#build_cache_config) for more details on `build_cache_config`.
 
 ### extending the cache
 
-To influence the cache, plugins should contribute configuration in `gro.config.ts` before config normalization.
+To influence the cache, plugins should contribute configuration
+in `gro.config.ts` before config normalization.
 Since `build_cache_config` is hashed during config load, plugins running later cannot modify it.
 
 Instead, include any plugin-specific cache factors in your `gro.config.ts`:
@@ -189,10 +226,16 @@ flowchart TD
     Valid -->|yes| Skip[use cached build]
 
     Rebuild --> Build[run build]
-    Build --> Save{workspace<br/>still clean?}
+    Build --> Verify{workspace<br/>status changed?}
 
-    Save -->|yes| SaveCache[save cache]
-    Save -->|no| NoSave[skip cache save]
+    Verify -->|yes| ThrowError[throw error]
+    Verify -->|no| Save{workspace<br/>still clean?}
+
+    Save -->|yes| Commit{git commit<br/>changed?}
+    Save -->|no| SkipSave[skip cache save]
+
+    Commit -->|yes| WarnSkip[warn, skip save]
+    Commit -->|no| SaveCache[save cache]
 
     style Skip fill:#90EE90
     style Rebuild fill:#FFB6C1
@@ -263,7 +306,8 @@ Within these directories:
 - **symlinks** - skipped (not hashed or tracked)
 - **directories** - recursively scanned for regular files
 
-This ensures cache validation is comprehensive while avoiding issues with symlink handling across platforms.
+This ensures cache validation is comprehensive
+while avoiding issues with symlink handling across platforms.
 
 ### security
 
@@ -274,13 +318,6 @@ The cache uses SHA-256 cryptographic hashing for:
 - **cache key stability** - deterministic hashes ensure consistent cache behavior
 
 Hashes are computed via Node's `webcrypto.subtle.digest()`.
-
-### race condition protection
-
-After a successful build, Gro verifies the git commit hash hasn't changed before saving the cache.
-If the commit changed during the build (e.g., you committed while building),
-the cache is not saved and you'll see a warning.
-This ensures cache metadata always matches its corresponding build outputs.
 
 ## plugins
 
