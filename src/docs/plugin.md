@@ -52,3 +52,13 @@ export interface Plugin_Context<T_Args = object> extends Task_Context<T_Args> {
 ```
 
 The `adapt` step only runs for production during `gro build`, taking after SvelteKit adapters.
+
+## error handling
+
+Plugin errors fail the build immediately, stopping the lifecycle:
+
+- `setup()` error → `adapt` and `teardown` skipped
+- `adapt()` error → `teardown` skipped
+- `teardown()` error → build fails
+
+This surfaces errors quickly. A future improvement may add cleanup-on-error handling.
