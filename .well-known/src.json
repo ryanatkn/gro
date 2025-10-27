@@ -1,6 +1,6 @@
 {
   "name": "@ryanatkn/gro",
-  "version": "0.170.0",
+  "version": "0.171.0",
   "modules": {
     ".": {
       "path": "index.ts",
@@ -96,11 +96,68 @@
         }
       ]
     },
+    "./build_cache.js": {
+      "path": "build_cache.ts",
+      "declarations": [
+        {
+          "name": "BUILD_CACHE_METADATA_FILENAME",
+          "kind": "variable"
+        },
+        {
+          "name": "BUILD_CACHE_VERSION",
+          "kind": "variable"
+        },
+        {
+          "name": "Build_Output_Entry",
+          "kind": "variable"
+        },
+        {
+          "name": "Build_Cache_Metadata",
+          "kind": "variable"
+        },
+        {
+          "name": "compute_build_cache_key",
+          "kind": "function"
+        },
+        {
+          "name": "load_build_cache_metadata",
+          "kind": "function"
+        },
+        {
+          "name": "save_build_cache_metadata",
+          "kind": "function"
+        },
+        {
+          "name": "validate_build_cache",
+          "kind": "function"
+        },
+        {
+          "name": "is_build_cache_valid",
+          "kind": "function"
+        },
+        {
+          "name": "collect_build_outputs",
+          "kind": "function"
+        },
+        {
+          "name": "discover_build_output_dirs",
+          "kind": "function"
+        },
+        {
+          "name": "create_build_cache_metadata",
+          "kind": "function"
+        }
+      ]
+    },
     "./build.task.js": {
       "path": "build.task.ts",
       "declarations": [
         {
           "name": "Args",
+          "kind": "variable"
+        },
+        {
+          "name": "GIT_SHORT_HASH_LENGTH",
           "kind": "variable"
         },
         {
@@ -826,6 +883,10 @@
     "./gro_config.js": {
       "path": "gro_config.ts",
       "declarations": [
+        {
+          "name": "EMPTY_BUILD_CACHE_CONFIG_HASH",
+          "kind": "variable"
+        },
         {
           "name": "Gro_Config",
           "kind": "type"
@@ -1873,31 +1934,6 @@
         },
         {
           "name": "validate_task_module",
-          "kind": "function"
-        }
-      ]
-    },
-    "./test_helpers.js": {
-      "path": "test_helpers.ts",
-      "declarations": [
-        {
-          "name": "TEST_TIMEOUT_MD",
-          "kind": "variable"
-        },
-        {
-          "name": "SOME_PUBLIC_ENV_VAR_NAME",
-          "kind": "variable"
-        },
-        {
-          "name": "SOME_PUBLIC_ENV_VAR_VALUE",
-          "kind": "variable"
-        },
-        {
-          "name": "init_test_env",
-          "kind": "function"
-        },
-        {
-          "name": "create_ts_test_env",
           "kind": "function"
         }
       ]
