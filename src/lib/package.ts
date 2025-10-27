@@ -845,16 +845,6 @@ export const src_json: Src_Json = {
 				{name: 'validate_task_module', kind: 'function'},
 			],
 		},
-		'./test_helpers.js': {
-			path: 'test_helpers.ts',
-			declarations: [
-				{name: 'TEST_TIMEOUT_MD', kind: 'variable'},
-				{name: 'SOME_PUBLIC_ENV_VAR_NAME', kind: 'variable'},
-				{name: 'SOME_PUBLIC_ENV_VAR_VALUE', kind: 'variable'},
-				{name: 'init_test_env', kind: 'function'},
-				{name: 'create_ts_test_env', kind: 'function'},
-			],
-		},
 		'./test.task.js': {
 			path: 'test.task.ts',
 			declarations: [

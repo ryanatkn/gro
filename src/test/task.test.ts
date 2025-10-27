@@ -2,7 +2,13 @@ import {describe, test, expect} from 'vitest';
 import {resolve} from 'node:path';
 import {noop} from '@ryanatkn/belt/function.js';
 
-import {is_task_path, to_task_name, validate_task_module, find_tasks, load_tasks} from '../lib/task.ts';
+import {
+	is_task_path,
+	to_task_name,
+	validate_task_module,
+	find_tasks,
+	load_tasks,
+} from '../lib/task.ts';
 import * as actual_test_task_module from '../lib/test.task.ts';
 import {create_empty_gro_config} from '../lib/gro_config.ts';
 import {GRO_DIST_DIR} from '../lib/paths.ts';
