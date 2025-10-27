@@ -232,3 +232,137 @@ The CLI to use that's compatible with `node`.
 
 The CLI to use that's compatible with `npm install` and `npm link`.
 Defaults to `'npm'`.
+
+## `build_cache_config`
+
+The `build_cache_config` option defines custom build inputs
+that invalidate the [build cache](build.md#build-caching) when they change.
+Gro's build cache uses git commit hash to detect when code, dependencies, or
+configs change, and only works with a clean workspace (see [dirty workspace behavior](build.md#dirty-workspace-behavior)).
+Use `build_cache_config` when your build also depends on external
+factors like environment variables, remote data, or feature flags.
+
+This value is hashed before being stored in the cache metadata.
+The raw value is never logged or written to disk, protecting sensitive information.
+
+### when to use `build_cache_config`
+
+The build cache automatically invalidates on any git commit (source code, dependencies,
+configs -- assuming you commit changes before building in the normal case)
+Use `build_cache_config` when your build also depends on:
+
+- environment variables baked into the build (API endpoints, feature flags)
+- external data files that affect the build (content databases, configuration data)
+- runtime feature flags that change build behavior
+- build-time constants from non-standard sources
+
+### basic usage
+
+```ts
+// gro.config.ts
+import type {Gro_Config} from '@ryanatkn/gro';
+import {readFileSync} from 'node:fs';
+
+export default {
+	build_cache_config: {
+		// Environment variables that affect the build
+		// It's safe to include secrets here because they are hashed and `delete`d
+		api_endpoint: process.env.PUBLIC_API_URL,
+		analytics_key: process.env.PUBLIC_ANALYTICS_KEY,
+
+		// Runtime information (if build outputs vary by platform/arch)
+		platform: process.platform,
+		arch: process.arch,
+
+		// External data that influences the build
+		data_version: readFileSync('data/version.txt', 'utf-8'),
+
+		// Feature flags
+		features: {
+			enable_analytics: true,
+			enable_beta_ui: false,
+		},
+	},
+} satisfies Gro_Config;
+```
+
+Any change to these values will trigger a fresh build, even if source code hasn't changed.
+
+### async function usage
+
+For complex scenarios, you can provide an async function:
+
+```ts
+// gro.config.ts
+export default {
+	build_cache_config: async () => {
+		const config_data = await fetch('https://api.example.com/build-config').then((r) => r.json());
+
+		return {
+			remote_config_version: config_data.version,
+			feature_flags: config_data.flags,
+		};
+	},
+} satisfies Gro_Config;
+```
+
+### security considerations
+
+The `build_cache_config` value is hashed before being written to `.gro/build.json`.
+Only the hash is stored, never the raw values, so it's safe to include:
+
+- API keys (though using them at build time should be carefully considered)
+- Internal URLs
+- Configuration secrets
+
+However, be aware that these values may still appear in:
+
+- Build outputs if your code embeds them
+- Build logs if explicitly logged elsewhere
+- The config file itself (ensure `gro.config.ts` is not publicly committed if it contains secrets)
+
+### how it works
+
+The `build_cache_config` is hashed early during config normalization (in `load_gro_config()`).
+This protects sensitive values by ensuring the raw config never persists in memory.
+
+During the build:
+
+1. Checks if workspace has uncommitted changes (if dirty, skips cache entirely)
+2. Loads previous build's cache metadata from `.gro/build.json` (missing/corrupt = rebuild)
+3. Compares current git commit against cached commit (different = rebuild)
+4. Compares current config hash against cached config hash (different = rebuild)
+5. If cache key matches, validates output files haven't been modified
+6. If all checks pass, uses the cached build
+
+This ensures builds are correct while protecting sensitive configuration.
+Both cache factors (git commit and `build_cache_config` hash) are checked—if either changes,
+the cache is invalidated.
+
+### common patterns
+
+```ts
+// platform-specific builds
+build_cache_config: {
+  node: process.version,
+  platform: process.platform,
+  arch: process.arch,
+}
+
+// feature flags from environment
+build_cache_config: () => ({
+  features: Object.fromEntries(
+    Object.entries(process.env)
+      .filter(([k]) => k.startsWith('FEATURE_'))
+  ),
+})
+
+// external data version
+build_cache_config: async () => ({
+  data_version: await fs.promises.readFile('data/version.txt', 'utf-8'),
+  // hash large files instead of including content
+  schema_hash: await to_hash(await fs.promises.readFile('schema.sql')),
+})
+```
+
+> ⚠️ keep resolution fast - async functions are called on every build

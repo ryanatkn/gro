@@ -56,7 +56,7 @@ export const package_json: Package_Json = {
 		zod: '^4.1.12',
 	},
 	peerDependencies: {
-		'@ryanatkn/belt': '^0.35.1',
+		'@ryanatkn/belt': '^0.36.0',
 		'@sveltejs/kit': '^2',
 		esbuild: '^0.25',
 		svelte: '^5',
@@ -83,7 +83,7 @@ export const package_json: Package_Json = {
 		'svelte-check': '^4.3.3',
 		typescript: '^5.9.3',
 		'typescript-eslint': '^8.42.0',
-		vitest: '^4.0.0',
+		vitest: '^4.0.3',
 	},
 	prettier: {
 		plugins: ['prettier-plugin-svelte'],
@@ -138,10 +138,28 @@ export const src_json: Src_Json = {
 				{name: 'print_command_args', kind: 'function'},
 			],
 		},
+		'./build_cache.js': {
+			path: 'build_cache.ts',
+			declarations: [
+				{name: 'BUILD_CACHE_METADATA_FILENAME', kind: 'variable'},
+				{name: 'BUILD_CACHE_VERSION', kind: 'variable'},
+				{name: 'Build_Output_Entry', kind: 'variable'},
+				{name: 'Build_Cache_Metadata', kind: 'variable'},
+				{name: 'compute_build_cache_key', kind: 'function'},
+				{name: 'load_build_cache_metadata', kind: 'function'},
+				{name: 'save_build_cache_metadata', kind: 'function'},
+				{name: 'validate_build_cache', kind: 'function'},
+				{name: 'is_build_cache_valid', kind: 'function'},
+				{name: 'collect_build_outputs', kind: 'function'},
+				{name: 'discover_build_output_dirs', kind: 'function'},
+				{name: 'create_build_cache_metadata', kind: 'function'},
+			],
+		},
 		'./build.task.js': {
 			path: 'build.task.ts',
 			declarations: [
 				{name: 'Args', kind: 'variable'},
+				{name: 'GIT_SHORT_HASH_LENGTH', kind: 'variable'},
 				{name: 'task', kind: 'variable'},
 			],
 		},
@@ -414,6 +432,7 @@ export const src_json: Src_Json = {
 		'./gro_config.js': {
 			path: 'gro_config.ts',
 			declarations: [
+				{name: 'EMPTY_BUILD_CACHE_CONFIG_HASH', kind: 'variable'},
 				{name: 'Gro_Config', kind: 'type'},
 				{name: 'Raw_Gro_Config', kind: 'type'},
 				{name: 'Create_Gro_Config', kind: 'type'},

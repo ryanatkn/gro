@@ -53,6 +53,7 @@ export type Gen = Gen_Function | Gen_Config;
 
 export type Gen_Function = (ctx: Gen_Context) => Raw_Gen_Result | Promise<Raw_Gen_Result>;
 
+// TODO add a Gen_Config_Raw variant and change `normalize_gen_config` to `gen_cook_config`
 export interface Gen_Config {
 	generate: Gen_Function;
 	dependencies?: Gen_Dependencies;
