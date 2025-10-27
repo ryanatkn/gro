@@ -116,7 +116,7 @@ export default {
 } satisfies Gro_Config;
 ```
 
-The config is hashed (never logged) to protect sensitive values. Any change triggers a rebuild.
+The config is hashed and never logged to protect sensitive values. Any change triggers a rebuild.
 
 See [config.md](config.md#build_cache_config) for more details on `build_cache_config`.
 
@@ -128,12 +128,6 @@ This is a robustness design choice - even if the cache key matches,
 corrupted or manually modified files trigger a rebuild.
 
 The hashing is usually fast but adds overhead proportional to output size.
-
-Force a rebuild without validation:
-
-```bash
-gro build --force_build
-```
 
 ### output file discovery
 
@@ -178,11 +172,11 @@ This ensures cache metadata always matches its corresponding build outputs.
 
 For reliable caching:
 
-- commit before building for production - cache requires a clean workspace
-- use `build_cache_config` for external inputs - environment variables,
+- **commit before building for production** - cache requires a clean workspace
+- **use `build_cache_config` for external inputs** - environment variables,
   remote configs, or feature flags that affect the build but aren't in git
-- use `gro check --workspace` in CI - enforces clean git state before building
-- avoid concurrent builds - multiple simultaneous `gro build` processes can conflict
+- **use `gro check --workspace` in CI** - enforces clean git state before building
+- **avoid concurrent builds** - multiple simultaneous `gro build` processes can conflict
 
 During development, uncommitted changes automatically disable caching,
 so builds always reflect your working directory.
@@ -191,7 +185,7 @@ so builds always reflect your working directory.
 
 > Don't commit `.gro/build.json` - keep it in `.gitignore`.
 
-Caching `.gro/` between CI runs is usually not beneficial since each commit invalidates the cache.
+Caching `.gro/build.json` between CI runs is not beneficial - each commit has a unique cache key.
 
 Basic CI workflow:
 
@@ -290,7 +284,7 @@ The cache automatically discovers all build output directories:
 - `dist/` - SvelteKit library output
 - `dist_*` - plugin outputs (e.g., `dist_server`)
 
-All regular files are hashed and validated. Symlinks are ignored (only their targets are tracked if they're build outputs).
+All regular files are hashed and validated. Symlinks are skipped.
 
 ### extending the cache
 
