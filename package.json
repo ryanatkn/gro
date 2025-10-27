@@ -97,7 +97,7 @@
     "svelte-check": "^4.3.3",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.42.0",
-    "vitest": "^4.0.0"
+    "vitest": "^4.0.3"
   },
   "prettier": {
     "plugins": [
