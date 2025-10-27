@@ -195,7 +195,7 @@ test('resolve_input_files', () => {
 		input_path: 'fake3/test',
 		root_dir: process.cwd(),
 	};
-	const result = resolve_input_files([a, b, c, d, e, f, g, h, i], (dir) => test_files[dir]);
+	const result = resolve_input_files([a, b, c, d, e, f, g, h, i], (dir) => test_files[dir]!);
 	const resolved_input_files: Array<Resolved_Input_File> = [
 		{id: a.id, input_path: a.input_path, resolved_input_path: a},
 		{id: b.id, input_path: b.input_path, resolved_input_path: b},
