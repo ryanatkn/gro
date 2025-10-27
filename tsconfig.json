@@ -13,6 +13,7 @@
 		"noImplicitReturns": true,
 		"noImplicitOverride": true,
 		"noFallthroughCasesInSwitch": true,
+		"noUncheckedIndexedAccess": true,
 		"resolveJsonModule": true,
 		"sourceMap": true,
 		"declaration": true,
