@@ -1,12 +1,9 @@
 import {describe, test, expect, vi, beforeEach, afterEach} from 'vitest';
 import {join} from 'node:path';
-import type {Logger} from '@ryanatkn/belt/log.js';
-import type {Timings} from '@ryanatkn/belt/timings.js';
 import {task as build_task, GIT_SHORT_HASH_LENGTH, type Args} from './build.task.ts';
-import type {Task_Context, Invoke_Task} from './task.ts';
+import type {Task_Context} from './task.ts';
 import type {Gro_Config} from './gro_config.ts';
-import type {Parsed_Svelte_Config} from './svelte_config.ts';
-import type {Filer} from './filer.ts';
+import {create_mock_task_context} from '../test/test_helpers.ts';
 // Mock dependencies
 vi.mock('@ryanatkn/belt/git.js', () => ({
 	git_check_clean_workspace: vi.fn(),
@@ -51,65 +48,24 @@ vi.mock('./paths.ts', () => ({
 vi.mock('./hash.ts', () => ({
 	to_hash: vi.fn(),
 }));
-// Helper to create mock logger
-const create_mock_logger = (): Logger =>
-	({
-		error: vi.fn(),
-		warn: vi.fn(),
-		info: vi.fn(),
-		debug: vi.fn(),
-		plain: vi.fn(),
-		newline: vi.fn(),
-	}) as unknown as Logger;
-// Helper to create mock config
-const create_mock_config = (overrides: Partial<Gro_Config> = {}): Gro_Config =>
-	({
-		plugins: () => [],
-		map_package_json: null,
-		task_root_dirs: [],
-		search_filters: [],
-		js_cli: 'node',
-		pm_cli: 'npm',
-		build_cache_config_hash: 'hash123',
-		...overrides,
-	}) as Gro_Config;
-// Helper to create mock svelte config
-const create_mock_svelte_config = (): Parsed_Svelte_Config =>
-	({
-		lib_path: 'src/lib',
-		routes_path: 'src/routes',
-	}) as Parsed_Svelte_Config;
-// Helper to create mock timings
-const create_mock_timings = (): Timings =>
-	({
-		start: vi.fn(() => vi.fn()),
-	}) as unknown as Timings;
-// Helper to create mock filer
-const create_mock_filer = (): Filer =>
-	({
-		find: vi.fn(),
-		create_changeset: vi.fn(),
-	}) as unknown as Filer;
-// Helper to create mock task context
+
+// Helper to create mock context with build task Args defaults
 const create_mock_context = (
 	args: Partial<Args> = {},
 	config: Partial<Gro_Config> = {},
-): Task_Context<Args> => ({
-	args: {
-		sync: true,
-		'no-sync': false,
-		install: true,
-		'no-install': false,
-		force_build: false,
-		...args,
-	} as Args,
-	config: create_mock_config(config),
-	svelte_config: create_mock_svelte_config(),
-	filer: create_mock_filer(),
-	log: create_mock_logger(),
-	timings: create_mock_timings(),
-	invoke_task: vi.fn() as unknown as Invoke_Task,
-});
+): Task_Context<Args> =>
+	create_mock_task_context(
+		args,
+		config,
+		{
+			sync: true,
+			'no-sync': false,
+			install: true,
+			'no-install': false,
+			force_build: false,
+		} as Args,
+	);
+
 // Mock plugins interface for testing
 interface Mock_Plugins {
 	setup: ReturnType<typeof vi.fn>;

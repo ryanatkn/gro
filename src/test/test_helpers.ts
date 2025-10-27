@@ -3,10 +3,14 @@ import {join} from 'node:path';
 import ts from 'typescript';
 import {vi} from 'vitest';
 import type {Logger} from '@ryanatkn/belt/log.js';
+import type {Timings} from '@ryanatkn/belt/timings.js';
 import {json_stringify_deterministic} from '@ryanatkn/belt/json.js';
 
 import type {Gro_Config} from '../lib/gro_config.ts';
 import {to_hash} from '../lib/hash.ts';
+import type {Filer} from '../lib/filer.ts';
+import type {Parsed_Svelte_Config} from '../lib/svelte_config.ts';
+import type {Task_Context, Invoke_Task} from '../lib/task.ts';
 
 /**
  * Creates a mock logger for testing.
@@ -261,3 +265,61 @@ export const create_ts_test_env = (
 
 	return {source_file, checker, program, exports};
 };
+
+/**
+ * Creates a mock Timings object for testing.
+ */
+export const create_mock_timings = (): Timings =>
+	({
+		start: vi.fn(() => vi.fn()),
+	}) as unknown as Timings;
+
+/**
+ * Creates a mock Filer object for testing.
+ */
+export const create_mock_filer = (): Filer =>
+	({
+		find: vi.fn(),
+		create_changeset: vi.fn(),
+	}) as unknown as Filer;
+
+/**
+ * Creates a mock Parsed_Svelte_Config for testing.
+ */
+export const create_mock_svelte_config = (): Parsed_Svelte_Config =>
+	({
+		lib_path: 'src/lib',
+		routes_path: 'src/routes',
+	}) as Parsed_Svelte_Config;
+
+/**
+ * Creates a mock Task_Context for testing.
+ * Combines all the mock helpers into a complete task context.
+ * Uses a synchronous config with a default hash for simplicity.
+ *
+ * @param args - Args to use in the context (can be partial if defaults are provided)
+ * @param config_overrides - Partial config to override defaults
+ * @param defaults - Default args to merge with provided args
+ */
+export const create_mock_task_context = <T_Args extends object = any>(
+	args: Partial<T_Args> = {},
+	config_overrides: Partial<Gro_Config> = {},
+	defaults?: T_Args,
+): Task_Context<T_Args> => ({
+	args: (defaults ? {...defaults, ...args} : args) as T_Args,
+	config: {
+		plugins: () => [],
+		map_package_json: null,
+		task_root_dirs: [],
+		search_filters: [],
+		js_cli: 'node',
+		pm_cli: 'npm',
+		build_cache_config_hash: 'test_hash',
+		...config_overrides,
+	} as Gro_Config,
+	svelte_config: create_mock_svelte_config(),
+	filer: create_mock_filer(),
+	log: create_mock_logger(),
+	timings: create_mock_timings(),
+	invoke_task: vi.fn() as unknown as Invoke_Task,
+});
