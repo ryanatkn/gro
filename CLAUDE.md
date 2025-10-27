@@ -355,6 +355,6 @@ Key utilities:
 - Filesystem: `filer.ts`, `fs.ts`, `paths.ts`, `search_fs.ts`
 - Module handling: `modules.ts`, `format_file.ts`, `package_json.ts`, `args.ts`
 - SvelteKit integration: `svelte_config.ts`, `sveltekit_shim_*.ts`, `esbuild_plugin_sveltekit_*.ts`
-- Build tools: `esbuild_helpers.ts`, `esbuild_plugin_svelte.ts`
+- Build tools: `esbuild_helpers.ts`, `esbuild_plugin_svelte.ts`, `build_cache.ts`
 
 Documentation: [Complete index at src/docs/README.md](src/docs/README.md) - Core topics: [task](src/docs/task.md), [gen](src/docs/gen.md), [plugin](src/docs/plugin.md), [config](src/docs/config.md), [test](src/docs/test.md) | Workflows: [dev](src/docs/dev.md), [build](src/docs/build.md), [deploy](src/docs/deploy.md), [publish](src/docs/publish.md)
