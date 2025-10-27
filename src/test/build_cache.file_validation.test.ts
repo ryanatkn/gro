@@ -2,7 +2,11 @@ import {describe, test, expect, vi, beforeEach} from 'vitest';
 
 import {validate_build_cache} from '../lib/build_cache.ts';
 
-import {create_mock_build_cache_metadata} from './build_cache_test_helpers.ts';
+import {
+	create_mock_build_cache_metadata,
+	create_mock_output_entry,
+	mock_file_stats,
+} from './build_cache_test_helpers.ts';
 
 // Mock dependencies
 vi.mock('node:fs', () => ({
@@ -30,31 +34,17 @@ describe('validate_build_cache', () => {
 
 		const metadata = create_mock_build_cache_metadata({
 			outputs: [
-				{
-					path: 'build/index.html',
-					hash: 'hash1',
-					size: 1024,
-					mtime: 1729512000000,
-					ctime: 1729512000000,
-					mode: 33188,
-				},
-				{
-					path: 'build/bundle.js',
-					hash: 'hash2',
-					size: 2048,
-					mtime: 1729512001000,
-					ctime: 1729512001000,
-					mode: 33188,
-				},
+				create_mock_output_entry('build/index.html', {hash: 'hash1', size: 1024}),
+				create_mock_output_entry('build/bundle.js', {hash: 'hash2', size: 2048}),
 			],
 		});
 
 		vi.mocked(existsSync).mockReturnValue(true);
 		vi.mocked(statSync).mockImplementation((path: any) => {
 			if (String(path) === 'build/index.html') {
-				return {size: 1024} as any;
+				return mock_file_stats(1024);
 			}
-			return {size: 2048} as any;
+			return mock_file_stats(2048);
 		});
 		vi.mocked(readFileSync).mockReturnValue(Buffer.from('content'));
 
@@ -74,16 +64,7 @@ describe('validate_build_cache', () => {
 		const {existsSync} = await import('node:fs');
 
 		const metadata = create_mock_build_cache_metadata({
-			outputs: [
-				{
-					path: 'build/index.html',
-					hash: 'hash1',
-					size: 1024,
-					mtime: 1729512000000,
-					ctime: 1729512000000,
-					mode: 33188,
-				},
-			],
+			outputs: [create_mock_output_entry('build/index.html')],
 		});
 
 		vi.mocked(existsSync).mockReturnValue(false);
@@ -97,20 +78,11 @@ describe('validate_build_cache', () => {
 		const {existsSync, statSync} = await import('node:fs');
 
 		const metadata = create_mock_build_cache_metadata({
-			outputs: [
-				{
-					path: 'build/index.html',
-					hash: 'expected_hash',
-					size: 1024,
-					mtime: 1729512000000,
-					ctime: 1729512000000,
-					mode: 33188,
-				},
-			],
+			outputs: [create_mock_output_entry('build/index.html', {hash: 'expected_hash'})],
 		});
 
 		vi.mocked(existsSync).mockReturnValue(true);
-		vi.mocked(statSync).mockReturnValue({size: 2048} as any); // Different size
+		vi.mocked(statSync).mockReturnValue(mock_file_stats(2048)); // Different size
 
 		const result = await validate_build_cache(metadata);
 
@@ -122,22 +94,13 @@ describe('validate_build_cache', () => {
 		const {to_hash} = await import('$lib/hash.js');
 
 		const metadata = create_mock_build_cache_metadata({
-			outputs: [
-				{
-					path: 'build/index.html',
-					hash: 'expected_hash',
-					size: 1024,
-					mtime: 1729512000000,
-					ctime: 1729512000000,
-					mode: 33188,
-				},
-			],
+			outputs: [create_mock_output_entry('build/index.html', {hash: 'expected_hash'})],
 		});
 
 		vi.mocked(existsSync).mockReturnValue(true);
-		vi.mocked(statSync).mockReturnValue({size: 1024} as any); // Size matches
+		vi.mocked(statSync).mockReturnValue(mock_file_stats());
 		vi.mocked(readFileSync).mockReturnValue(Buffer.from('content'));
-		vi.mocked(to_hash).mockResolvedValue('different_hash'); // Hash differs
+		vi.mocked(to_hash).mockResolvedValue('different_hash');
 
 		const result = await validate_build_cache(metadata);
 
@@ -149,34 +112,12 @@ describe('validate_build_cache', () => {
 
 		const metadata = create_mock_build_cache_metadata({
 			outputs: [
-				{
-					path: 'build/index.html',
-					hash: 'hash1',
-					size: 1024,
-					mtime: 1729512000000,
-					ctime: 1729512000000,
-					mode: 33188,
-				},
-				{
-					path: 'build/missing.js',
-					hash: 'hash2',
-					size: 2048,
-					mtime: 1729512001000,
-					ctime: 1729512001000,
-					mode: 33188,
-				},
-				{
-					path: 'build/another.css',
-					hash: 'hash3',
-					size: 512,
-					mtime: 1729512002000,
-					ctime: 1729512002000,
-					mode: 33188,
-				},
+				create_mock_output_entry('build/index.html', {hash: 'hash1'}),
+				create_mock_output_entry('build/missing.js', {hash: 'hash2', size: 2048}),
+				create_mock_output_entry('build/another.css', {hash: 'hash3', size: 512}),
 			],
 		});
 
-		// Only first file exists
 		vi.mocked(existsSync).mockImplementation((path: any) => {
 			return String(path) === 'build/index.html';
 		});
@@ -192,38 +133,16 @@ describe('validate_build_cache', () => {
 
 		const metadata = create_mock_build_cache_metadata({
 			outputs: [
-				{
-					path: 'build/file1.js',
-					hash: 'correct_hash',
-					size: 1024,
-					mtime: 1729512000000,
-					ctime: 1729512000000,
-					mode: 33188,
-				},
-				{
-					path: 'build/file2.js',
-					hash: 'correct_hash',
-					size: 1024,
-					mtime: 1729512001000,
-					ctime: 1729512001000,
-					mode: 33188,
-				},
-				{
-					path: 'build/file3.js',
-					hash: 'correct_hash',
-					size: 1024,
-					mtime: 1729512002000,
-					ctime: 1729512002000,
-					mode: 33188,
-				},
+				create_mock_output_entry('build/file1.js', {hash: 'correct_hash'}),
+				create_mock_output_entry('build/file2.js', {hash: 'correct_hash'}),
+				create_mock_output_entry('build/file3.js', {hash: 'correct_hash'}),
 			],
 		});
 
 		vi.mocked(existsSync).mockReturnValue(true);
-		vi.mocked(statSync).mockReturnValue({size: 1024} as any); // All sizes match
+		vi.mocked(statSync).mockReturnValue(mock_file_stats());
 		vi.mocked(readFileSync).mockReturnValue(Buffer.from('content'));
 
-		// Simulate: first two files match, third doesn't
 		let call_count = 0;
 		// eslint-disable-next-line @typescript-eslint/require-await
 		vi.mocked(to_hash).mockImplementation(async () => {
@@ -233,7 +152,6 @@ describe('validate_build_cache', () => {
 
 		const result = await validate_build_cache(metadata);
 
-		// Should return false because not ALL files match
 		expect(result).toBe(false);
 	});
 
@@ -241,30 +159,18 @@ describe('validate_build_cache', () => {
 		const {existsSync, readFileSync, statSync} = await import('node:fs');
 
 		const metadata = create_mock_build_cache_metadata({
-			outputs: [
-				{
-					path: 'build/index.html',
-					hash: 'expected_hash',
-					size: 1024,
-					mtime: 1729512000000,
-					ctime: 1729512000000,
-					mode: 33188,
-				},
-			],
+			outputs: [create_mock_output_entry('build/index.html')],
 		});
 
-		// File exists and size matches during initial checks
 		vi.mocked(existsSync).mockReturnValue(true);
-		vi.mocked(statSync).mockReturnValue({size: 1024} as any);
+		vi.mocked(statSync).mockReturnValue(mock_file_stats());
 
-		// But file is deleted/inaccessible during hash validation
 		vi.mocked(readFileSync).mockImplementation(() => {
 			throw new Error('ENOENT: no such file or directory');
 		});
 
 		const result = await validate_build_cache(metadata);
 
-		// Should return false gracefully (not throw)
 		expect(result).toBe(false);
 	});
 
@@ -273,34 +179,19 @@ describe('validate_build_cache', () => {
 
 		const metadata = create_mock_build_cache_metadata({
 			outputs: [
-				{
-					path: 'build/index.html',
-					hash: 'hash1',
-					size: 1024,
-					mtime: 1729512000000,
-					ctime: 1729512000000,
-					mode: 33188,
-				},
-				{
-					path: 'build/bundle.js',
-					hash: 'hash2',
-					size: 2048,
-					mtime: 1729512001000,
-					ctime: 1729512001000,
-					mode: 33188,
-				},
+				create_mock_output_entry('build/index.html', {hash: 'hash1'}),
+				create_mock_output_entry('build/bundle.js', {hash: 'hash2', size: 2048}),
 			],
 		});
 
 		vi.mocked(existsSync).mockReturnValue(true);
 		vi.mocked(statSync).mockImplementation((path: any) => {
 			if (String(path) === 'build/index.html') {
-				return {size: 1024} as any;
+				return mock_file_stats(1024);
 			}
-			return {size: 2048} as any;
+			return mock_file_stats(2048);
 		});
 
-		// Second file throws permission error during hash validation
 		vi.mocked(readFileSync).mockImplementation((path: any) => {
 			if (String(path) === 'build/index.html') {
 				return Buffer.from('content');
@@ -310,7 +201,6 @@ describe('validate_build_cache', () => {
 
 		const result = await validate_build_cache(metadata);
 
-		// Should return false gracefully (not throw)
 		expect(result).toBe(false);
 	});
 });

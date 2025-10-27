@@ -63,7 +63,7 @@ describe('race condition: cache file modification during validation', () => {
 		vi.mocked(git_current_commit_hash).mockResolvedValue('abc123');
 		vi.mocked(to_hash).mockResolvedValue('hash123');
 
-		const config = create_mock_config();
+		const config = await create_mock_config();
 		const log = create_mock_logger();
 
 		// This represents a very unlikely race condition, but system should handle gracefully

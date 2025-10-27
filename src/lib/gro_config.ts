@@ -2,6 +2,7 @@ import {join, resolve} from 'node:path';
 import {existsSync} from 'node:fs';
 import {identity} from '@ryanatkn/belt/function.js';
 import type {Path_Filter, Path_Id} from '@ryanatkn/belt/path.js';
+import {json_stringify_deterministic} from '@ryanatkn/belt/json.js';
 
 import {GRO_DIST_DIR, IS_THIS_GRO, paths} from './paths.ts';
 import {
@@ -17,6 +18,14 @@ import create_default_config from './gro.config.default.ts';
 import type {Create_Config_Plugins} from './plugin.ts';
 import type {Map_Package_Json} from './package_json.ts';
 import type {Parsed_Svelte_Config} from './svelte_config.ts';
+import {to_hash} from './hash.ts';
+
+/**
+ * SHA-256 hash of empty string, used for configs without build_cache_config.
+ * This ensures consistent cache behavior when no custom config is provided.
+ */
+export const EMPTY_BUILD_CACHE_CONFIG_HASH =
+	'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855';
 
 /**
  * The config that users can extend via `gro.config.ts`.
@@ -55,23 +64,12 @@ export interface Gro_Config extends Raw_Gro_Config {
 	/** @default SVELTE_CONFIG_FILENAME */
 	svelte_config_filename?: string;
 	/**
-	 * Optional object defining custom build inputs for cache invalidation.
-	 * This value is hashed (never logged or written raw) and used to detect
-	 * when builds need to be regenerated due to non-source changes.
-	 *
-	 * Use cases:
-	 * - Environment variables baked into build: `{api_url: process.env.PUBLIC_API_URL}`
-	 * - External data files: `{data: fs.readFileSync('data.json', 'utf-8')}`
-	 * - Build feature flags: `{enable_analytics: true}`
-	 *
-	 * Can be a static object or an async function that returns an object.
-	 *
-	 * IMPORTANT: This value is hashed before being stored. Never log the raw value
-	 * as it may contain sensitive information.
+	 * SHA-256 hash of the user's `build_cache_config` from `gro.config.ts`.
+	 * This is computed during config normalization and the raw value is immediately deleted.
+	 * If no `build_cache_config` was provided, this is the hash of an empty string.
+	 * @see Raw_Gro_Config.build_cache_config
 	 */
-	build_cache_config?:
-		| Record<string, unknown>
-		| (() => Record<string, unknown> | Promise<Record<string, unknown>>);
+	build_cache_config_hash: string;
 }
 
 /**
@@ -86,6 +84,21 @@ export interface Raw_Gro_Config {
 	search_filters?: Path_Filter | Array<Path_Filter> | null;
 	js_cli?: string;
 	pm_cli?: string;
+	/**
+	 * Optional object defining custom build inputs for cache invalidation.
+	 * This value is hashed during config normalization and used to detect
+	 * when builds need to be regenerated due to non-source changes.
+	 *
+	 * Use cases:
+	 * - Environment variables baked into build: `{api_url: process.env.PUBLIC_API_URL}`
+	 * - External data files: `{data: fs.readFileSync('data.json', 'utf-8')}`
+	 * - Build feature flags: `{enable_analytics: true}`
+	 *
+	 * Can be a static object or an async function that returns an object.
+	 *
+	 * IMPORTANT: It's safe to include secrets here because they are hashed and `delete`d
+	 * during config normalization. The raw value is never logged or persisted.
+	 */
 	build_cache_config?:
 		| Record<string, unknown>
 		| (() => Record<string, unknown> | Promise<Record<string, unknown>>);
@@ -108,6 +121,7 @@ export const create_empty_gro_config = (): Gro_Config => ({
 	search_filters: [(id) => !SEARCH_EXCLUDER_DEFAULT.test(id)],
 	js_cli: JS_CLI_DEFAULT,
 	pm_cli: PM_CLI_DEFAULT,
+	build_cache_config_hash: EMPTY_BUILD_CACHE_CONFIG_HASH,
 });
 
 /**
@@ -133,8 +147,9 @@ export const EXPORTS_EXCLUDER_DEFAULT = /(\.md|\.(test|ignore)\.|\/(test|fixture
 /**
  * Transforms a `Raw_Gro_Config` to the more strict `Gro_Config`.
  * This allows users to provide a more relaxed config.
+ * Hashes the `build_cache_config` and deletes the raw value for security.
  */
-export const cook_gro_config = (raw_config: Raw_Gro_Config): Gro_Config => {
+export const cook_gro_config = async (raw_config: Raw_Gro_Config): Promise<Gro_Config> => {
 	const empty_config = create_empty_gro_config();
 
 	// All of the raw config properties are optional,
@@ -149,6 +164,27 @@ export const cook_gro_config = (raw_config: Raw_Gro_Config): Gro_Config => {
 		build_cache_config,
 	} = raw_config;
 
+	// Hash build_cache_config and delete the raw value
+	// IMPORTANT: Raw value may contain secrets - hash it and delete immediately
+	let build_cache_config_hash: string;
+	if (!build_cache_config) {
+		build_cache_config_hash = EMPTY_BUILD_CACHE_CONFIG_HASH;
+	} else {
+		// Resolve if it's a function
+		const resolved =
+			typeof build_cache_config === 'function'
+				? await build_cache_config()
+				: build_cache_config;
+
+		// Hash the JSON representation with deterministic key ordering
+		build_cache_config_hash = await to_hash(
+			new TextEncoder().encode(json_stringify_deterministic(resolved)),
+		);
+	}
+
+	// Delete the raw value to ensure it doesn't persist in memory
+	delete (raw_config as any).build_cache_config;
+
 	return {
 		plugins,
 		map_package_json,
@@ -160,7 +196,7 @@ export const cook_gro_config = (raw_config: Raw_Gro_Config): Gro_Config => {
 				: [],
 		js_cli,
 		pm_cli,
-		build_cache_config,
+		build_cache_config_hash,
 	};
 };
 
@@ -169,7 +205,9 @@ export interface Gro_Config_Module {
 }
 
 export const load_gro_config = async (dir = paths.root): Promise<Gro_Config> => {
-	const default_config = cook_gro_config(await create_default_config(create_empty_gro_config()));
+	const default_config = await cook_gro_config(
+		await create_default_config(create_empty_gro_config()),
+	);
 
 	const config_path = join(dir, GRO_CONFIG_FILENAME);
 	if (!existsSync(config_path)) {
@@ -182,7 +220,7 @@ export const load_gro_config = async (dir = paths.root): Promise<Gro_Config> => 
 
 	validate_gro_config_module(config_module, config_path);
 
-	return cook_gro_config(
+	return await cook_gro_config(
 		typeof config_module.default === 'function'
 			? await config_module.default(default_config)
 			: config_module.default,

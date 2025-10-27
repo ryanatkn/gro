@@ -2,7 +2,10 @@ import {describe, test, expect, vi, beforeEach} from 'vitest';
 
 import {load_build_cache_metadata, save_build_cache_metadata} from '../lib/build_cache.ts';
 
-import {create_mock_logger, create_mock_build_cache_metadata} from './build_cache_test_helpers.ts';
+import {
+	create_mock_logger,
+	create_mock_build_cache_metadata,
+} from './build_cache_test_helpers.ts';
 
 // Mock dependencies
 vi.mock('$lib/paths.js', () => ({
@@ -127,15 +130,13 @@ describe('load_build_cache_metadata', () => {
 	test('returns null for valid JSON with wrong version', async () => {
 		const {existsSync, readFileSync} = await import('node:fs');
 
-		// Valid JSON but has wrong version field
 		vi.mocked(existsSync).mockReturnValue(true);
 		vi.mocked(readFileSync).mockReturnValue(
-			JSON.stringify({version: 'wrong', git_commit: 'abc', build_cache_config_hash: 'hash'}),
+			JSON.stringify(create_mock_build_cache_metadata({version: 'wrong'})),
 		);
 
 		const result = load_build_cache_metadata();
 
-		// Should return null due to version mismatch (validated during loading)
 		expect(result).toBeNull();
 	});
 
@@ -196,14 +197,7 @@ describe('load_build_cache_metadata', () => {
 
 		vi.mocked(existsSync).mockReturnValue(true);
 		vi.mocked(readFileSync).mockReturnValue(
-			JSON.stringify({
-				version: '1',
-				git_commit: 'abc',
-				build_cache_config_hash: 'hash',
-				timestamp: '2025-10-23T12:00:00Z',
-				outputs: [],
-				unexpected_field: 'bad',
-			}),
+			JSON.stringify({...create_mock_build_cache_metadata(), unexpected_field: 'bad'}),
 		);
 
 		const result = load_build_cache_metadata();
@@ -216,13 +210,7 @@ describe('load_build_cache_metadata', () => {
 
 		vi.mocked(existsSync).mockReturnValue(true);
 		vi.mocked(readFileSync).mockReturnValue(
-			JSON.stringify({
-				version: '1',
-				git_commit: 'abc',
-				build_cache_config_hash: 'hash',
-				timestamp: '2025-10-23T12:00:00Z',
-				outputs: 'not-an-array', // should be Array<Build_Output_Entry>
-			}),
+			JSON.stringify({...create_mock_build_cache_metadata(), outputs: 'not-an-array'}),
 		);
 
 		const result = load_build_cache_metadata();

@@ -1,6 +1,7 @@
 import {test, expect, vi} from 'vitest';
 
-import {SEARCH_EXCLUDER_DEFAULT, load_gro_config} from './gro_config.ts';
+import {SEARCH_EXCLUDER_DEFAULT, EMPTY_BUILD_CACHE_CONFIG_HASH, load_gro_config} from './gro_config.ts';
+import {to_hash} from './hash.ts';
 
 test('load_gro_config', async () => {
 	// Mock the dynamic import to avoid module resolution issues
@@ -71,4 +72,9 @@ test('SEARCH_EXCLUDER_DEFAULT', () => {
 	assert_includes('distE', true);
 	assert_includes('Edist', true);
 	assert_includes('grodist', true);
+});
+
+test('EMPTY_BUILD_CACHE_CONFIG_HASH matches hash of empty string', async () => {
+	const computed_hash = await to_hash(new TextEncoder().encode(''));
+	expect(EMPTY_BUILD_CACHE_CONFIG_HASH).toBe(computed_hash);
 });

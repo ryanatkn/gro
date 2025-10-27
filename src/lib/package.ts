@@ -146,7 +146,6 @@ export const src_json: Src_Json = {
 				{name: 'Build_Output_Entry', kind: 'variable'},
 				{name: 'Build_Cache_Metadata', kind: 'variable'},
 				{name: 'compute_build_cache_key', kind: 'function'},
-				{name: 'hash_build_cache_config', kind: 'function'},
 				{name: 'load_build_cache_metadata', kind: 'function'},
 				{name: 'save_build_cache_metadata', kind: 'function'},
 				{name: 'validate_build_cache', kind: 'function'},

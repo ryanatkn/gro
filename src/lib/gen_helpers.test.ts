@@ -84,6 +84,7 @@ const create_mock_logger = (): Logger =>
 const create_mock_config = (): Gro_Config =>
 	({
 		plugins: [],
+		build_cache_config_hash: 'hash123',
 	}) as unknown as Gro_Config;
 
 // Helper to create mock timings

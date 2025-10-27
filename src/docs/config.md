@@ -266,6 +266,7 @@ import {readFileSync} from 'node:fs';
 export default {
 	build_cache_config: {
 		// Environment variables that affect the build
+		// It's safe to include secrets here because they are hashed and `delete`d 
 		api_endpoint: process.env.PUBLIC_API_URL,
 		analytics_key: process.env.PUBLIC_ANALYTICS_KEY,
 
@@ -322,18 +323,20 @@ However, be aware that these values may still appear in:
 
 ### how it works
 
-The build cache validates multiple factors to determine if a rebuild is needed
-(see [build caching](build.md#build-caching)). For `build_cache_config` specifically, Gro:
+The `build_cache_config` is hashed early during config normalization (in `load_gro_config()`).
+This protects sensitive values by ensuring the raw config never persists in memory.
+
+During the build:
 
 1. Checks if workspace has uncommitted changes (if dirty, skips cache entirely)
-2. Resolves `build_cache_config` (calls it if it's a function)
-3. Serializes the result to JSON
-4. Hashes the JSON string using SHA-256
-5. Compares the hash against the previous build's hash from `.gro/build.json`
-6. If this hash or any other cache factor differs, invalidates the cache and rebuilds
+2. Loads previous build's cache metadata from `.gro/build.json` (missing/corrupt = rebuild)
+3. Compares current git commit against cached commit (different = rebuild)
+4. Compares current config hash against cached config hash (different = rebuild)
+5. If cache key matches, validates output files haven't been modified
+6. If all checks pass, uses the cached build
 
 This ensures builds are correct while protecting sensitive configuration.
-Both cache factors (git commit and `build_cache_config`) are checked—if either changes,
+Both cache factors (git commit and `build_cache_config` hash) are checked—if either changes,
 the cache is invalidated.
 
 ### common patterns

@@ -58,7 +58,7 @@ describe('is_build_cache_valid', () => {
 		vi.mocked(git_current_commit_hash).mockResolvedValue('abc123');
 		vi.mocked(to_hash).mockResolvedValue('jkl012');
 
-		const config = create_mock_config();
+		const config = await create_mock_config();
 		const log = create_mock_logger();
 
 		const result = await is_build_cache_valid(config, log);
@@ -75,7 +75,7 @@ describe('is_build_cache_valid', () => {
 
 		vi.mocked(existsSync).mockReturnValue(false);
 
-		const config = create_mock_config();
+		const config = await create_mock_config();
 		const log = create_mock_logger();
 
 		const result = await is_build_cache_valid(config, log);
@@ -94,7 +94,7 @@ describe('is_build_cache_valid', () => {
 		vi.mocked(readFileSync).mockReturnValue(JSON.stringify(metadata));
 		vi.mocked(git_current_commit_hash).mockResolvedValue('new_commit');
 
-		const config = create_mock_config();
+		const config = await create_mock_config();
 		const log = create_mock_logger();
 
 		const result = await is_build_cache_valid(config, log);
@@ -118,7 +118,7 @@ describe('is_build_cache_valid', () => {
 		vi.mocked(git_current_commit_hash).mockResolvedValue('abc123');
 		vi.mocked(to_hash).mockResolvedValue('new_config_hash');
 
-		const config = create_mock_config({
+		const config = await create_mock_config({
 			build_cache_config: {changed: true},
 		});
 		const log = create_mock_logger();

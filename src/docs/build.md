@@ -276,17 +276,17 @@ All regular files are hashed and validated. Symlinks are ignored (only their tar
 
 ### extending the cache
 
-Plugins can't directly modify cache behavior, but can influence it:
+To influence the cache, plugins should contribute configuration in `gro.config.ts` before config normalization.
+Since `build_cache_config` is hashed during config load, plugins running later cannot modify it.
+
+Instead, include any plugin-specific cache factors in your `gro.config.ts`:
 
 ```ts
-export const plugin: Plugin = {
-	name: 'cache-aware',
-	setup: async ({config}) => {
-		// contribute to cache key
-		config.build_cache_config = {
-			...config.build_cache_config,
-			my_plugin_version: '1.0.0',
-		};
+// gro.config.ts
+export default {
+	build_cache_config: {
+		my_plugin_version: '1.0.0', // plugin version affects cache
+		other_factor: process.env.MY_BUILD_FACTOR,
 	},
 };
 ```

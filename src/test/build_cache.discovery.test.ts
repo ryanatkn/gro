@@ -2,6 +2,12 @@ import {describe, test, expect, vi, beforeEach} from 'vitest';
 
 import {discover_build_output_dirs, collect_build_outputs} from '../lib/build_cache.ts';
 
+import {
+	mock_file_stats,
+	mock_file_entry,
+	mock_dir_entry,
+} from './build_cache_test_helpers.ts';
+
 // Mock dependencies
 vi.mock('node:fs', () => ({
 	existsSync: vi.fn(),
@@ -158,15 +164,10 @@ describe('collect_build_outputs', () => {
 
 		vi.mocked(existsSync).mockReturnValue(true);
 		vi.mocked(readdirSync).mockReturnValue([
-			{name: 'index.html', isDirectory: () => false, isFile: () => true},
-			{name: 'bundle.js', isDirectory: () => false, isFile: () => true},
+			mock_file_entry('index.html'),
+			mock_file_entry('bundle.js'),
 		] as any);
-		vi.mocked(statSync).mockReturnValue({
-			size: 1024,
-			mtimeMs: 1729512000000,
-			ctimeMs: 1729512000000,
-			mode: 33188,
-		} as any);
+		vi.mocked(statSync).mockReturnValue(mock_file_stats());
 		vi.mocked(readFileSync).mockReturnValue(Buffer.from('content'));
 
 		let hash_count = 0;
@@ -200,15 +201,10 @@ describe('collect_build_outputs', () => {
 
 		vi.mocked(existsSync).mockReturnValue(true);
 		vi.mocked(readdirSync).mockReturnValue([
-			{name: 'build.json', isDirectory: () => false, isFile: () => true},
-			{name: 'index.html', isDirectory: () => false, isFile: () => true},
+			mock_file_entry('build.json'),
+			mock_file_entry('index.html'),
 		] as any);
-		vi.mocked(statSync).mockReturnValue({
-			size: 1024,
-			mtimeMs: 1729512000000,
-			ctimeMs: 1729512000000,
-			mode: 33188,
-		} as any);
+		vi.mocked(statSync).mockReturnValue(mock_file_stats());
 		vi.mocked(readFileSync).mockReturnValue(Buffer.from('content'));
 		vi.mocked(to_hash).mockResolvedValue('hash');
 
@@ -235,16 +231,11 @@ describe('collect_build_outputs', () => {
 
 		vi.mocked(existsSync).mockReturnValue(true);
 		vi.mocked(readdirSync).mockReturnValue([
-			{name: 'file1.js', isDirectory: () => false, isFile: () => true},
-			{name: 'file2.js', isDirectory: () => false, isFile: () => true},
-			{name: 'file3.js', isDirectory: () => false, isFile: () => true},
+			mock_file_entry('file1.js'),
+			mock_file_entry('file2.js'),
+			mock_file_entry('file3.js'),
 		] as any);
-		vi.mocked(statSync).mockReturnValue({
-			size: 1024,
-			mtimeMs: 1729512000000,
-			ctimeMs: 1729512000000,
-			mode: 33188,
-		} as any);
+		vi.mocked(statSync).mockReturnValue(mock_file_stats());
 		vi.mocked(readFileSync).mockReturnValue(Buffer.from('content'));
 		vi.mocked(to_hash).mockResolvedValue('hash');
 
@@ -261,29 +252,22 @@ describe('collect_build_outputs', () => {
 		const {existsSync, readdirSync, readFileSync, statSync} = await import('node:fs');
 		const {to_hash} = await import('$lib/hash.js');
 
-		// Mock existsSync to return true for all directories
 		vi.mocked(existsSync).mockReturnValue(true);
 
-		// Mock readdirSync to return different files for each directory
 		vi.mocked(readdirSync).mockImplementation((path: any) => {
 			if (path === 'build') {
-				return [{name: 'index.html', isDirectory: () => false, isFile: () => true}] as any;
+				return [mock_file_entry('index.html')] as any;
 			}
 			if (path === 'dist') {
-				return [{name: 'index.js', isDirectory: () => false, isFile: () => true}] as any;
+				return [mock_file_entry('index.js')] as any;
 			}
 			if (path === 'dist_server') {
-				return [{name: 'server.js', isDirectory: () => false, isFile: () => true}] as any;
+				return [mock_file_entry('server.js')] as any;
 			}
 			return [] as any;
 		});
 
-		vi.mocked(statSync).mockReturnValue({
-			size: 1024,
-			mtimeMs: 1729512000000,
-			ctimeMs: 1729512000000,
-			mode: 33188,
-		} as any);
+		vi.mocked(statSync).mockReturnValue(mock_file_stats());
 		vi.mocked(readFileSync).mockReturnValue(Buffer.from('content'));
 
 		let hash_count = 0;
@@ -309,33 +293,27 @@ describe('collect_build_outputs', () => {
 
 		vi.mocked(existsSync).mockReturnValue(true);
 
-		// Mock nested directory structure: build/assets/js/vendor/libs/
 		vi.mocked(readdirSync).mockImplementation((path: any) => {
 			const path_str = String(path);
 			if (path_str === 'build') {
-				return [{name: 'assets', isDirectory: () => true, isFile: () => false}] as any;
+				return [mock_dir_entry('assets')] as any;
 			}
 			if (path_str === 'build/assets') {
-				return [{name: 'js', isDirectory: () => true, isFile: () => false}] as any;
+				return [mock_dir_entry('js')] as any;
 			}
 			if (path_str === 'build/assets/js') {
-				return [{name: 'vendor', isDirectory: () => true, isFile: () => false}] as any;
+				return [mock_dir_entry('vendor')] as any;
 			}
 			if (path_str === 'build/assets/js/vendor') {
-				return [{name: 'libs', isDirectory: () => true, isFile: () => false}] as any;
+				return [mock_dir_entry('libs')] as any;
 			}
 			if (path_str === 'build/assets/js/vendor/libs') {
-				return [{name: 'foo.js', isDirectory: () => false, isFile: () => true}] as any;
+				return [mock_file_entry('foo.js')] as any;
 			}
 			return [] as any;
 		});
 
-		vi.mocked(statSync).mockReturnValue({
-			size: 1024,
-			mtimeMs: 1729512000000,
-			ctimeMs: 1729512000000,
-			mode: 33188,
-		} as any);
+		vi.mocked(statSync).mockReturnValue(mock_file_stats());
 		vi.mocked(readFileSync).mockReturnValue(Buffer.from('content'));
 		vi.mocked(to_hash).mockResolvedValue('deep_hash');
 

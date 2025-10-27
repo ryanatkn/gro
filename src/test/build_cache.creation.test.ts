@@ -2,7 +2,14 @@ import {describe, test, expect, vi, beforeEach} from 'vitest';
 
 import {create_build_cache_metadata} from '../lib/build_cache.ts';
 
-import {create_mock_logger, create_mock_config} from './build_cache_test_helpers.ts';
+import {
+	create_mock_logger,
+	create_mock_config,
+	mock_file_stats,
+	mock_dir_stats,
+	mock_file_entry,
+	mock_dir_entry,
+} from './build_cache_test_helpers.ts';
 
 // Mock dependencies
 vi.mock('@ryanatkn/belt/git.js', () => ({
@@ -35,11 +42,11 @@ describe('create_build_cache_metadata', () => {
 
 		vi.mocked(git_current_commit_hash).mockResolvedValue('abc123');
 		vi.mocked(existsSync).mockReturnValue(false);
-		vi.mocked(readdirSync).mockReturnValue([]);
-		vi.mocked(statSync).mockReturnValue({isDirectory: () => false} as any);
+		vi.mocked(readdirSync).mockReturnValue([] as any);
+		vi.mocked(statSync).mockReturnValue(mock_dir_stats());
 		vi.mocked(to_hash).mockResolvedValue('hash123');
 
-		const config = create_mock_config();
+		const config = await create_mock_config();
 		const log = create_mock_logger();
 
 		const result = await create_build_cache_metadata(config, log);
@@ -60,23 +67,15 @@ describe('create_build_cache_metadata', () => {
 		vi.mocked(git_current_commit_hash).mockResolvedValue('abc123');
 		vi.mocked(existsSync).mockImplementation((path: any) => path === 'build');
 		vi.mocked(readdirSync).mockImplementation((path: any) => {
+			if (path === '.') return [] as any;
 			if (path === 'build') {
-				return [
-					{name: 'index.html', isDirectory: () => false, isFile: () => true},
-					{name: 'bundle.js', isDirectory: () => false, isFile: () => true},
-				] as any;
+				return [mock_file_entry('index.html'), mock_file_entry('bundle.js')] as any;
 			}
 			return [] as any;
 		});
 		vi.mocked(statSync).mockImplementation((path: any) => {
-			if (String(path) === 'build') return {isDirectory: () => true} as any;
-			return {
-				size: 1024,
-				mtimeMs: 1729512000000,
-				ctimeMs: 1729512000000,
-				mode: 33188,
-				isDirectory: () => false,
-			} as any;
+			if (String(path) === 'build') return mock_dir_stats();
+			return mock_file_stats();
 		});
 		vi.mocked(readFileSync).mockReturnValue(Buffer.from('content'));
 
@@ -84,7 +83,7 @@ describe('create_build_cache_metadata', () => {
 		// eslint-disable-next-line @typescript-eslint/require-await
 		vi.mocked(to_hash).mockImplementation(async () => `hash${++hash_count}`);
 
-		const config = create_mock_config();
+		const config = await create_mock_config();
 		const log = create_mock_logger();
 
 		const result = await create_build_cache_metadata(config, log);
@@ -109,40 +108,32 @@ describe('create_build_cache_metadata', () => {
 
 		vi.mocked(git_current_commit_hash).mockResolvedValue('abc123');
 
-		// Mock all three directories exist
 		vi.mocked(existsSync).mockReturnValue(true);
 
-		// Mock root directory listing for dist_ discovery
 		vi.mocked(readdirSync).mockImplementation((path: any) => {
 			if (path === '.') {
 				return ['dist_server', 'src', 'node_modules'] as any;
 			}
 			if (path === 'build') {
-				return [{name: 'app.js', isDirectory: () => false, isFile: () => true}] as any;
+				return [mock_file_entry('app.js')] as any;
 			}
 			if (path === 'dist') {
-				return [{name: 'lib.js', isDirectory: () => false, isFile: () => true}] as any;
+				return [mock_file_entry('lib.js')] as any;
 			}
 			if (path === 'dist_server') {
-				return [{name: 'server.js', isDirectory: () => false, isFile: () => true}] as any;
+				return [mock_file_entry('server.js')] as any;
 			}
 			return [] as any;
 		});
 
-		vi.mocked(statSync).mockReturnValue({
-			size: 512,
-			mtimeMs: 1729512000000,
-			ctimeMs: 1729512000000,
-			mode: 33188,
-			isDirectory: () => true,
-		} as any);
+		vi.mocked(statSync).mockReturnValue(mock_dir_stats());
 		vi.mocked(readFileSync).mockReturnValue(Buffer.from('content'));
 
 		let hash_count = 0;
 		// eslint-disable-next-line @typescript-eslint/require-await
 		vi.mocked(to_hash).mockImplementation(async () => `hash${++hash_count}`);
 
-		const config = create_mock_config();
+		const config = await create_mock_config();
 		const log = create_mock_logger();
 
 		const result = await create_build_cache_metadata(config, log);
@@ -162,13 +153,14 @@ describe('create_build_cache_metadata', () => {
 		vi.mocked(git_current_commit_hash).mockResolvedValue('abc123');
 		vi.mocked(existsSync).mockImplementation((path: any) => path === 'build');
 		vi.mocked(readdirSync).mockImplementation((path: any) => {
-			if (path === 'build') return [] as any; // Empty directory
+			if (path === '.') return [] as any;
+			if (path === 'build') return [] as any;
 			return [] as any;
 		});
-		vi.mocked(statSync).mockReturnValue({isDirectory: () => true} as any);
+		vi.mocked(statSync).mockReturnValue(mock_dir_stats());
 		vi.mocked(to_hash).mockResolvedValue('hash123');
 
-		const config = create_mock_config();
+		const config = await create_mock_config();
 		const log = create_mock_logger();
 
 		const result = await create_build_cache_metadata(config, log);
@@ -186,43 +178,37 @@ describe('create_build_cache_metadata', () => {
 		vi.mocked(git_current_commit_hash).mockResolvedValue('abc123');
 		vi.mocked(existsSync).mockImplementation((path: any) => path === 'build');
 
-		// Mock nested: build/assets/js/lib/utils/
 		vi.mocked(readdirSync).mockImplementation((path: any) => {
 			const path_str = String(path);
+			if (path_str === '.') return [] as any;
 			if (path_str === 'build') {
-				return [{name: 'assets', isDirectory: () => true, isFile: () => false}] as any;
+				return [mock_dir_entry('assets')] as any;
 			}
 			if (path_str === 'build/assets') {
-				return [{name: 'js', isDirectory: () => true, isFile: () => false}] as any;
+				return [mock_dir_entry('js')] as any;
 			}
 			if (path_str === 'build/assets/js') {
-				return [{name: 'lib', isDirectory: () => true, isFile: () => false}] as any;
+				return [mock_dir_entry('lib')] as any;
 			}
 			if (path_str === 'build/assets/js/lib') {
-				return [{name: 'utils', isDirectory: () => true, isFile: () => false}] as any;
+				return [mock_dir_entry('utils')] as any;
 			}
 			if (path_str === 'build/assets/js/lib/utils') {
-				return [{name: 'helper.js', isDirectory: () => false, isFile: () => true}] as any;
+				return [mock_file_entry('helper.js')] as any;
 			}
 			return [] as any;
 		});
 
 		vi.mocked(statSync).mockImplementation((path: any) => {
 			if (String(path).endsWith('.js')) {
-				return {
-					size: 256,
-					mtimeMs: 1729512000000,
-					ctimeMs: 1729512000000,
-					mode: 33188,
-					isDirectory: () => false,
-				} as any;
+				return mock_file_stats(256);
 			}
-			return {isDirectory: () => true} as any;
+			return mock_dir_stats();
 		});
 		vi.mocked(readFileSync).mockReturnValue(Buffer.from('content'));
 		vi.mocked(to_hash).mockResolvedValue('deep_hash');
 
-		const config = create_mock_config();
+		const config = await create_mock_config();
 		const log = create_mock_logger();
 
 		const result = await create_build_cache_metadata(config, log);
@@ -241,32 +227,22 @@ describe('create_build_cache_metadata', () => {
 		vi.mocked(git_current_commit_hash).mockResolvedValue('abc123');
 		vi.mocked(existsSync).mockImplementation((path: any) => path === 'build');
 
-		// Create 15 files
-		const files = Array.from({length: 15}, (_, i) => ({
-			name: `file${i}.js`,
-			isDirectory: () => false,
-			isFile: () => true,
-		}));
+		const files = Array.from({length: 15}, (_, i) => mock_file_entry(`file${i}.js`));
 
 		vi.mocked(readdirSync).mockImplementation((path: any) => {
+			if (path === '.') return [] as any;
 			if (path === 'build') return files as any;
 			return [] as any;
 		});
 
-		vi.mocked(statSync).mockReturnValue({
-			size: 2048,
-			mtimeMs: 1729512000000,
-			ctimeMs: 1729512000000,
-			mode: 33188,
-			isDirectory: () => false,
-		} as any);
+		vi.mocked(statSync).mockReturnValue(mock_file_stats(2048));
 		vi.mocked(readFileSync).mockReturnValue(Buffer.from('content'));
 
 		let hash_count = 0;
 		// eslint-disable-next-line @typescript-eslint/require-await
 		vi.mocked(to_hash).mockImplementation(async () => `hash${++hash_count}`);
 
-		const config = create_mock_config();
+		const config = await create_mock_config();
 		const log = create_mock_logger();
 
 		const result = await create_build_cache_metadata(config, log);
@@ -284,14 +260,13 @@ describe('create_build_cache_metadata', () => {
 		const {existsSync, readdirSync, statSync} = await import('node:fs');
 		const {to_hash} = await import('$lib/hash.js');
 
-		// Non-git repository
 		vi.mocked(git_current_commit_hash).mockResolvedValue(null);
 		vi.mocked(existsSync).mockReturnValue(false);
-		vi.mocked(readdirSync).mockReturnValue([]);
-		vi.mocked(statSync).mockReturnValue({isDirectory: () => false} as any);
+		vi.mocked(readdirSync).mockReturnValue([] as any);
+		vi.mocked(statSync).mockReturnValue(mock_dir_stats());
 		vi.mocked(to_hash).mockResolvedValue('hash123');
 
-		const config = create_mock_config();
+		const config = await create_mock_config();
 		const log = create_mock_logger();
 
 		const result = await create_build_cache_metadata(config, log);
@@ -311,12 +286,10 @@ describe('create_build_cache_metadata', () => {
 		vi.mocked(git_current_commit_hash).mockResolvedValue('abc123');
 		vi.mocked(existsSync).mockReturnValue(false);
 		vi.mocked(readdirSync).mockReturnValue([]);
-		vi.mocked(statSync).mockReturnValue({isDirectory: () => false} as any);
-
-		// First call is for build_cache_config hash
+		vi.mocked(statSync).mockReturnValue(mock_dir_stats());
 		vi.mocked(to_hash).mockResolvedValue('custom_config_hash');
 
-		const config = create_mock_config({
+		const config = await create_mock_config({
 			build_cache_config: {
 				api_endpoint: 'https://api.example.com',
 				feature_flags: {experimental: true},

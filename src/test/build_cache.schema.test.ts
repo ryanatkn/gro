@@ -2,26 +2,14 @@ import {describe, test, expect} from 'vitest';
 
 import {Build_Cache_Metadata} from '../lib/build_cache.ts';
 
+import {create_mock_build_cache_metadata, create_mock_output_entry} from './build_cache_test_helpers.ts';
+
 describe('Build_Cache_Metadata schema', () => {
 	test('validates correct metadata structure', () => {
-		expect(() =>
-			Build_Cache_Metadata.parse({
-				version: '1',
-				git_commit: 'abc123',
-				build_cache_config_hash: 'hash',
-				timestamp: '2025-10-23T12:00:00Z',
-				outputs: [
-					{
-						path: 'file.js',
-						hash: 'hash',
-						size: 1024,
-						mtime: 1729512000000,
-						ctime: 1729512000000,
-						mode: 33188,
-					},
-				],
-			}),
-		).not.toThrow();
+		const metadata = create_mock_build_cache_metadata({
+			outputs: [create_mock_output_entry('file.js')],
+		});
+		expect(() => Build_Cache_Metadata.parse(metadata)).not.toThrow();
 	});
 
 	test('rejects metadata with missing fields', () => {

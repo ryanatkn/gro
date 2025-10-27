@@ -12,7 +12,6 @@ import type {Logger} from '@ryanatkn/belt/log.js';
 import {styleText as st} from 'node:util';
 import {git_current_commit_hash} from '@ryanatkn/belt/git.js';
 import {z} from 'zod';
-import {json_stringify_deterministic} from '@ryanatkn/belt/json.js';
 
 import {to_hash} from './hash.ts';
 import type {Gro_Config} from './gro_config.ts';
@@ -61,16 +60,14 @@ export type Build_Cache_Metadata = z.infer<typeof Build_Cache_Metadata>;
  * Computes the cache key components for a build.
  * This determines whether a cached build can be reused.
  *
- * @param config Gro config
+ * @param config Gro config (build_cache_config_hash is already computed during config load)
  * @param log Logger
  * @param git_commit Optional pre-computed git commit hash (optimization to avoid re-reading)
- * @param build_cache_config_hash Optional pre-computed config hash (optimization to avoid re-reading)
  */
 export const compute_build_cache_key = async (
 	config: Gro_Config,
 	log: Logger,
 	git_commit?: string | null,
-	build_cache_config_hash?: string,
 ): Promise<{
 	git_commit: string | null;
 	build_cache_config_hash: string;
@@ -81,37 +78,11 @@ export const compute_build_cache_key = async (
 		log.warn('Not in a git repository - build cache will use null git commit');
 	}
 
-	// 2. Build cache config hash - for external/dynamic inputs
-	// IMPORTANT: We hash this value and never log/write the raw value (may contain secrets)
-	const config_hash =
-		build_cache_config_hash !== undefined
-			? build_cache_config_hash
-			: await hash_build_cache_config(config);
-
+	// 2. Build cache config hash - already computed during config normalization
 	return {
 		git_commit: commit,
-		build_cache_config_hash: config_hash,
+		build_cache_config_hash: config.build_cache_config_hash,
 	};
-};
-
-/**
- * Hashes the user's build_cache_config from gro.config.ts.
- * IMPORTANT: The raw config is never logged or written to disk, only the hash.
- */
-export const hash_build_cache_config = async (config: Gro_Config): Promise<string> => {
-	if (!config.build_cache_config) {
-		return await to_hash(new TextEncoder().encode(''));
-	}
-
-	// Resolve if it's a function
-	const resolved =
-		typeof config.build_cache_config === 'function'
-			? await config.build_cache_config()
-			: config.build_cache_config;
-
-	// Hash the JSON representation with deterministic key ordering
-	// Note: We never log or write this raw value as it may contain secrets
-	return await to_hash(new TextEncoder().encode(json_stringify_deterministic(resolved)));
 };
 
 /**
@@ -220,13 +191,11 @@ export const validate_build_cache = async (metadata: Build_Cache_Metadata): Prom
  * @param config Gro config
  * @param log Logger
  * @param git_commit Optional pre-computed git commit hash (optimization)
- * @param build_cache_config_hash Optional pre-computed config hash (optimization)
  */
 export const is_build_cache_valid = async (
 	config: Gro_Config,
 	log: Logger,
 	git_commit?: string | null,
-	build_cache_config_hash?: string,
 ): Promise<boolean> => {
 	// Load existing metadata
 	const metadata = load_build_cache_metadata();
@@ -235,8 +204,8 @@ export const is_build_cache_valid = async (
 		return false;
 	}
 
-	// Compute current cache key (using pre-computed values if provided)
-	const current = await compute_build_cache_key(config, log, git_commit, build_cache_config_hash);
+	// Compute current cache key
+	const current = await compute_build_cache_key(config, log, git_commit);
 
 	// Check if cache keys have changed
 	if (metadata.git_commit !== current.git_commit) {
@@ -372,15 +341,13 @@ export const discover_build_output_dirs = (): Array<string> => {
  * @param config Gro config
  * @param log Logger
  * @param git_commit Optional pre-computed git commit hash (optimization)
- * @param build_cache_config_hash Optional pre-computed config hash (optimization)
  */
 export const create_build_cache_metadata = async (
 	config: Gro_Config,
 	log: Logger,
 	git_commit?: string | null,
-	build_cache_config_hash?: string,
 ): Promise<Build_Cache_Metadata> => {
-	const cache_key = await compute_build_cache_key(config, log, git_commit, build_cache_config_hash);
+	const cache_key = await compute_build_cache_key(config, log, git_commit);
 	const build_dirs = discover_build_output_dirs();
 	const outputs = await collect_build_outputs(build_dirs);
 

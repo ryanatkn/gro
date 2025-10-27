@@ -12,7 +12,6 @@ import {
 	create_build_cache_metadata,
 	save_build_cache_metadata,
 	discover_build_output_dirs,
-	hash_build_cache_config,
 } from './build_cache.ts';
 import {paths} from './paths.ts';
 
@@ -62,17 +61,9 @@ export const task: Task<Args> = {
 		]);
 		const workspace_dirty = !!workspace_status;
 
-		// Pre-compute build cache config hash (can't be batched since it's not git)
-		const build_cache_config_hash = await hash_build_cache_config(config);
-
 		// Check build cache unless force_build is set or workspace is dirty
 		if (!workspace_dirty && !force_build) {
-			const cache_valid = await is_build_cache_valid(
-				config,
-				log,
-				initial_commit,
-				build_cache_config_hash,
-			);
+			const cache_valid = await is_build_cache_valid(config, log, initial_commit);
 			if (cache_valid) {
 				log.info(
 					st('cyan', 'skipping build, cache is valid'),
@@ -140,13 +131,8 @@ export const task: Task<Args> = {
 					'- cache not saved',
 				);
 			} else {
-				// Commit is stable - safe to save cache using pre-computed values
-				const metadata = await create_build_cache_metadata(
-					config,
-					log,
-					initial_commit,
-					build_cache_config_hash,
-				);
+				// Commit is stable - safe to save cache
+				const metadata = await create_build_cache_metadata(config, log, initial_commit);
 				save_build_cache_metadata(metadata, log);
 				log.debug('Build cache metadata saved');
 			}
