@@ -4,8 +4,8 @@ import {
 	SEARCH_EXCLUDER_DEFAULT,
 	EMPTY_BUILD_CACHE_CONFIG_HASH,
 	load_gro_config,
-} from './gro_config.ts';
-import {to_hash} from './hash.ts';
+} from '../lib/gro_config.ts';
+import {to_hash} from '../lib/hash.ts';
 
 test('load_gro_config', async () => {
 	// Mock the dynamic import to avoid module resolution issues

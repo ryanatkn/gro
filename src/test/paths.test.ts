@@ -9,7 +9,7 @@ import {
 	to_root_path,
 	path_id_to_base_path,
 	base_path_to_path_id,
-} from './paths.ts';
+} from '../lib/paths.js';
 
 describe('create_paths', () => {
 	test('basic behavior', () => {

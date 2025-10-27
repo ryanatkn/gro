@@ -6,7 +6,7 @@ import {
 	parse_repo_url,
 	serialize_package_json,
 	to_package_exports,
-} from './package_json.ts';
+} from '../lib/package_json.ts';
 
 test('load_package_json', () => {
 	const package_json = load_package_json();

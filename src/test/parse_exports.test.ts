@@ -1,15 +1,15 @@
 import {describe, test, expect} from 'vitest';
-import {dirname} from 'node:path';
+import {dirname, resolve} from 'node:path';
 import {fileURLToPath} from 'node:url';
 
 import {
 	infer_declarations_from_file_type,
 	process_ts_exports,
 	type Export_Declaration,
-} from './parse_exports.ts';
+} from '../lib/parse_exports.ts';
 import {create_ts_test_env} from './test_helpers.ts';
 
-const dir = dirname(fileURLToPath(import.meta.url));
+const dir = resolve(dirname(fileURLToPath(import.meta.url)), '../lib');
 
 const create_declaration_map = (declarations: Array<Export_Declaration>) =>
 	Object.fromEntries(declarations.map((d) => [d.name, d.kind]));

@@ -1,13 +1,13 @@
 import {test, expect} from 'vitest';
 import {resolve} from 'node:path';
 
-import {resolve_gro_module_path, spawn_with_loader} from './gro_helpers.ts';
+import {resolve_gro_module_path, spawn_with_loader} from '../lib/gro_helpers.js';
 import {TEST_TIMEOUT_MD} from './test_helpers.ts';
 
 test(
-	'custom loader works in separate process',
+	'basic behavior',
 	async () => {
-		const test_script = resolve('src/fixtures/test_loader.ts');
+		const test_script = resolve('src/fixtures/test_run_gen.ts');
 
 		// Use the same loader resolution logic as the CLI
 		const loader_path = resolve_gro_module_path('loader.js');

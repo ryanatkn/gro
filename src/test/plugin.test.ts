@@ -1,6 +1,6 @@
 import {describe, test, expect} from 'vitest';
 
-import {replace_plugin} from './plugin.ts';
+import {replace_plugin} from '../lib/plugin.js';
 
 describe('replace_plugin', () => {
 	test('replace_plugin', () => {

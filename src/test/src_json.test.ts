@@ -1,7 +1,7 @@
 import {describe, test, expect} from 'vitest';
 
-import {to_src_modules} from './src_json.ts';
-import {paths} from './paths.ts';
+import {to_src_modules} from '../lib/src_json.ts';
+import {paths} from '../lib/paths.ts';
 
 describe('to_src_modules', () => {
 	test('handles simple cases and omits `declarations` when empty', () => {

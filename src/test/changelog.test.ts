@@ -3,8 +3,8 @@ import {Logger} from '@ryanatkn/belt/log.js';
 import {readFile, writeFile} from 'node:fs/promises';
 import type {Fetch_Value_Cache} from '@ryanatkn/belt/fetch.js';
 
-import {update_changelog} from './changelog.ts';
-import {load_from_env} from './env.ts';
+import {update_changelog} from '../lib/changelog.ts';
+import {load_from_env} from '../lib/env.ts';
 
 const log = new Logger();
 

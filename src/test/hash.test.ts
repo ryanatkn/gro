@@ -1,6 +1,6 @@
 import {describe, test, expect} from 'vitest';
 
-import {to_hash} from './hash.ts';
+import {to_hash} from '../lib/hash.ts';
 
 describe('to_hash', () => {
 	test('turns a Uint8Array into a string', async () => {

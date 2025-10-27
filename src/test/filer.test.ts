@@ -1,7 +1,7 @@
 import {test, assert, vi} from 'vitest';
 
-import type {Watch_Node_Fs} from './watch_dir.ts';
-import {Filer} from './filer.ts';
+import type {Watch_Node_Fs} from '../lib/watch_dir.ts';
+import {Filer} from '../lib/filer.ts';
 
 /* eslint-disable @typescript-eslint/require-await */
 /* eslint-disable @typescript-eslint/no-empty-function */

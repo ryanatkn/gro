@@ -1,8 +1,8 @@
 import {describe, test, expect} from 'vitest';
 import {join} from 'node:path';
 
-import {resolve_specifier} from './resolve_specifier.ts';
-import {paths} from './paths.ts';
+import {resolve_specifier} from '../lib/resolve_specifier.js';
+import {paths} from '../lib/paths.js';
 
 const dir = paths.source + 'fixtures/';
 

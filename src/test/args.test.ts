@@ -8,7 +8,7 @@ import {
 	to_raw_rest_args,
 	to_implicit_forwarded_args,
 	to_task_args,
-} from './args.ts';
+} from '../lib/args.ts';
 
 describe('serialize_args', () => {
 	test('basic behavior', () => {

@@ -1,19 +1,19 @@
 import {test, expect, vi, beforeEach} from 'vitest';
 import {resolve} from 'node:path';
 
-import {should_trigger_gen} from './gen_helpers.ts';
-import type {Filer} from './filer.ts';
-import * as filer from './filer.ts';
+import {should_trigger_gen} from '../lib/gen_helpers.ts';
+import type {Filer} from '../lib/filer.ts';
+import * as filer from '../lib/filer.ts';
 import type {Logger} from '@ryanatkn/belt/log.js';
 import type {Timings} from '@ryanatkn/belt/timings.js';
-import type {Gro_Config} from './gro_config.ts';
-import type {Invoke_Task} from './task.ts';
-import type {Disknode} from './disknode.ts';
-import * as modules from './modules.ts';
+import type {Gro_Config} from '../lib/gro_config.ts';
+import type {Invoke_Task} from '../lib/task.ts';
+import type {Disknode} from '../lib/disknode.ts';
+import * as modules from '../lib/modules.ts';
 
 // Mock the load_module function
-vi.mock('./modules.ts', async () => {
-	const actual = await vi.importActual('./modules.ts');
+vi.mock('../lib/modules.ts', async () => {
+	const actual = await vi.importActual('../lib/modules.ts');
 	return {
 		...actual,
 		load_module: vi.fn(),
@@ -21,8 +21,8 @@ vi.mock('./modules.ts', async () => {
 });
 
 // Mock filter_dependents function
-vi.mock('./filer.ts', async () => {
-	const actual = await vi.importActual('./filer.ts');
+vi.mock('../lib/filer.ts', async () => {
+	const actual = await vi.importActual('../lib/filer.ts');
 	return {
 		...actual,
 		filter_dependents: vi.fn(),

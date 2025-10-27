@@ -1,7 +1,7 @@
 import {describe, test, expect} from 'vitest';
 import {resolve} from 'node:path';
 
-import {search_fs} from './search_fs.ts';
+import {search_fs} from '../lib/search_fs.ts';
 
 describe('search_fs', () => {
 	test('search_fs basic behavior', () => {
