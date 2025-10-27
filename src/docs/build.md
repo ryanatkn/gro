@@ -65,7 +65,7 @@ flowchart TD
     Keys -->|yes| Valid{files valid?}
 
     Valid -->|no| Rebuild
-    Valid -->|yes| Skip[✓ use cached build]
+    Valid -->|yes| Skip[use cached build]
 
     Rebuild --> Build[run build]
     Build --> Save{workspace<br/>still clean?}
@@ -135,15 +135,33 @@ Force a rebuild without validation:
 gro build --force_build
 ```
 
+### output file discovery
+
+The build cache automatically discovers and validates all output files:
+
+- **regular files** - hashed with SHA-256 and validated on cache checks
+- **symlinks** - skipped (not hashed or tracked)
+- **directories** - recursively scanned for regular files
+
+This ensures cache validation is comprehensive while avoiding issues with symlink handling across platforms.
+
 ### troubleshooting
 
 Cache not working as expected?
 
-- workspace must be clean - check `git status`
-- enable debug logging: `LOG_LEVEL=debug gro build`
-- corrupted cache: delete `.gro/build.json` and rebuild
-- platform differences: add platform/arch to `build_cache_config`
-- non-deterministic builds: builds with timestamps/UUIDs/random data invalidate cache every run
+- **workspace must be clean** - check `git status`
+- **enable debug logging** - `LOG_LEVEL=debug gro build`
+- **corrupted cache** - delete `.gro/build.json` and rebuild
+- **platform differences** - add platform/arch to `build_cache_config`
+- **non-deterministic builds** - builds with timestamps/UUIDs/random data invalidate cache every run
+  - diagnostic: if cache never hits, run `gro build` twice and compare outputs:
+    ```bash
+    gro build && cp -r build build_1
+    gro build && diff -r build build_1
+    ```
+  - if files differ, your build is non-deterministic
+  - common causes: `new Date()`, `Math.random()`, `process.pid` in build-time code
+  - solution: use `import.meta.env.MODE` checks or build-time constants
 
 > ⚠️ the cache is conservative - when in doubt, it rebuilds
 

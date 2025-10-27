@@ -61,6 +61,9 @@ export const task: Task<Args> = {
 		]);
 		const workspace_dirty = !!workspace_status;
 
+		// Discover build output directories once to avoid redundant filesystem scans
+		let build_dirs: Array<string> | undefined;
+
 		// Check build cache unless force_build is set or workspace is dirty
 		if (!workspace_dirty && !force_build) {
 			const cache_valid = await is_build_cache_valid(config, log, initial_commit);
@@ -81,7 +84,7 @@ export const task: Task<Args> = {
 			}
 
 			// Delete all build output directories
-			const build_dirs = discover_build_output_dirs();
+			build_dirs = discover_build_output_dirs();
 			for (const dir of build_dirs) {
 				rmSync(dir, {recursive: true, force: true});
 			}
@@ -132,7 +135,7 @@ export const task: Task<Args> = {
 				);
 			} else {
 				// Commit is stable - safe to save cache
-				const metadata = await create_build_cache_metadata(config, log, initial_commit);
+				const metadata = await create_build_cache_metadata(config, log, initial_commit, build_dirs);
 				save_build_cache_metadata(metadata, log);
 				log.debug('Build cache metadata saved');
 			}

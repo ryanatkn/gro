@@ -94,4 +94,38 @@ describe('race condition: cache file modification during validation', () => {
 		expect(write_count).toBe(2);
 		expect(mkdirSync).toHaveBeenCalledTimes(2);
 	});
+
+	test('handles multiple concurrent build validation operations', async () => {
+		const {existsSync, readFileSync} = await import('node:fs');
+		const {git_current_commit_hash} = await import('@ryanatkn/belt/git.js');
+		const {to_hash} = await import('$lib/hash.js');
+
+		const metadata = create_mock_build_cache_metadata({git_commit: 'abc123'});
+
+		vi.mocked(existsSync).mockReturnValue(true);
+		vi.mocked(readFileSync).mockReturnValue(JSON.stringify(metadata));
+		vi.mocked(git_current_commit_hash).mockResolvedValue('abc123');
+		vi.mocked(to_hash).mockResolvedValue('hash123');
+
+		const config = await create_mock_config();
+		const log = create_mock_logger();
+
+		// Simulate multiple concurrent cache validation operations
+		// In practice this shouldn't happen, but system should handle gracefully
+		const validations = await Promise.all([
+			is_build_cache_valid(config, log),
+			is_build_cache_valid(config, log),
+			is_build_cache_valid(config, log),
+		]);
+
+		// All validations should complete without throwing
+		expect(validations).toHaveLength(3);
+		validations.forEach((result) => {
+			expect(typeof result).toBe('boolean');
+		});
+	});
+
+	// Note: Git commit changing during build is tested at the integration level
+	// in build.task.test.ts, where the task verifies commit hash before/after build
+	// and prevents cache save if changed (build.task.ts:122-132)
 });

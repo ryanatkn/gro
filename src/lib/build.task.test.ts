@@ -202,6 +202,7 @@ describe('build.task integration tests', () => {
 				ctx.config,
 				ctx.log,
 				'abc123',
+				undefined, // build_dirs not pre-discovered in clean workspace path
 			);
 			expect(save_build_cache_metadata).toHaveBeenCalledWith(mock_metadata, ctx.log);
 		});
@@ -367,6 +368,42 @@ describe('build.task integration tests', () => {
 			expect(rmSync).toHaveBeenCalledWith('dist', {recursive: true, force: true});
 			expect(rmSync).toHaveBeenCalledWith('dist_server', {recursive: true, force: true});
 		});
+		test('build_dirs parameter is correctly threaded through clean workspace path', async () => {
+			// This test documents that build_dirs caching optimization is present in the signature
+			// but not utilized in current code paths: dirty workspace doesn't save cache,
+			// clean workspace doesn't pre-discover, so build_dirs is always undefined when passed
+			const {git_check_clean_workspace, git_current_commit_hash} = vi.mocked(
+				await import('@ryanatkn/belt/git.js'),
+			);
+			const {is_build_cache_valid, create_build_cache_metadata} = vi.mocked(
+				await import('./build_cache.ts'),
+			);
+			const {to_hash} = vi.mocked(await import('./hash.ts'));
+			// Clean workspace
+			vi.mocked(git_check_clean_workspace).mockResolvedValueOnce(null);
+			vi.mocked(git_check_clean_workspace).mockResolvedValueOnce(null);
+			vi.mocked(git_current_commit_hash).mockResolvedValueOnce('abc123');
+			vi.mocked(git_current_commit_hash).mockResolvedValueOnce('abc123');
+			vi.mocked(is_build_cache_valid).mockResolvedValue(false);
+			vi.mocked(to_hash).mockResolvedValue('hash123');
+			const mock_metadata = {
+				version: '1',
+				git_commit: 'abc123',
+				build_cache_config_hash: 'hash123',
+				timestamp: new Date().toISOString(),
+				outputs: [],
+			};
+			vi.mocked(create_build_cache_metadata).mockResolvedValue(mock_metadata);
+			const ctx = create_mock_context();
+			await build_task.run(ctx);
+			// Verify 4th parameter is undefined in clean workspace path
+			expect(create_build_cache_metadata).toHaveBeenCalledWith(
+				ctx.config,
+				ctx.log,
+				'abc123',
+				undefined, // build_dirs is not pre-discovered in clean path
+			);
+		});
 	});
 	describe('sync and install flags', () => {
 		test('calls sync task when sync is true', async () => {
@@ -515,6 +552,7 @@ describe('build.task integration tests', () => {
 				ctx.config,
 				ctx.log,
 				null, // null git commit
+				undefined, // build_dirs not pre-discovered in clean workspace path
 			);
 			expect(save_build_cache_metadata).toHaveBeenCalledWith(mock_metadata, ctx.log);
 		});
@@ -710,6 +748,7 @@ describe('build.task integration tests', () => {
 				ctx.config,
 				ctx.log,
 				'abc123', // pre-computed git commit
+				undefined, // build_dirs not pre-discovered in clean workspace path
 			);
 		});
 	});

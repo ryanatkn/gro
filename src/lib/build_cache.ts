@@ -341,15 +341,17 @@ export const discover_build_output_dirs = (): Array<string> => {
  * @param config Gro config
  * @param log Logger
  * @param git_commit Optional pre-computed git commit hash (optimization)
+ * @param build_dirs Optional pre-discovered build directories (optimization to avoid redundant filesystem scans)
  */
 export const create_build_cache_metadata = async (
 	config: Gro_Config,
 	log: Logger,
 	git_commit?: string | null,
+	build_dirs?: Array<string>,
 ): Promise<Build_Cache_Metadata> => {
 	const cache_key = await compute_build_cache_key(config, log, git_commit);
-	const build_dirs = discover_build_output_dirs();
-	const outputs = await collect_build_outputs(build_dirs);
+	const dirs = build_dirs ?? discover_build_output_dirs();
+	const outputs = await collect_build_outputs(dirs);
 
 	return {
 		version: BUILD_CACHE_VERSION,
