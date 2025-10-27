@@ -1,5 +1,6 @@
 import {describe, test, expect, vi, beforeEach} from 'vitest';
 import type {Logger} from '@ryanatkn/belt/log.js';
+import {json_stringify_deterministic} from '@ryanatkn/belt/json.js';
 
 import {
 	compute_build_cache_key,
@@ -124,7 +125,6 @@ describe('compute_build_cache_key', () => {
 	test('hashes build_cache_config when provided', async () => {
 		const {git_current_commit_hash} = await import('@ryanatkn/belt/git.js');
 		const {to_hash} = await import('./hash.ts');
-		const {to_deterministic_json} = await import('./json_helpers.ts');
 
 		vi.mocked(git_current_commit_hash).mockResolvedValue('abc123');
 		vi.mocked(to_hash).mockResolvedValue('custom_hash');
@@ -138,7 +138,7 @@ describe('compute_build_cache_key', () => {
 
 		expect(result.build_cache_config_hash).toBeTruthy();
 		expect(to_hash).toHaveBeenCalledWith(
-			new TextEncoder().encode(to_deterministic_json({api_url: 'https://example.com'})),
+			new TextEncoder().encode(json_stringify_deterministic({api_url: 'https://example.com'})),
 		);
 	});
 

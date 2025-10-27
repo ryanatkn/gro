@@ -12,12 +12,12 @@ import type {Logger} from '@ryanatkn/belt/log.js';
 import {styleText as st} from 'node:util';
 import {git_current_commit_hash} from '@ryanatkn/belt/git.js';
 import {z} from 'zod';
+import {json_stringify_deterministic} from '@ryanatkn/belt/json.js';
 
 import {to_hash} from './hash.ts';
 import type {Gro_Config} from './gro_config.ts';
 import {paths} from './paths.ts';
 import {SVELTEKIT_BUILD_DIRNAME, SVELTEKIT_DIST_DIRNAME, GRO_DIST_PREFIX} from './constants.ts';
-import {to_deterministic_json} from './json_helpers.ts';
 
 export const BUILD_CACHE_METADATA_FILENAME = 'build.json';
 export const BUILD_CACHE_VERSION = '1';
@@ -111,7 +111,7 @@ export const hash_build_cache_config = async (config: Gro_Config): Promise<strin
 
 	// Hash the JSON representation with deterministic key ordering
 	// Note: We never log or write this raw value as it may contain secrets
-	return await to_hash(new TextEncoder().encode(to_deterministic_json(resolved)));
+	return await to_hash(new TextEncoder().encode(json_stringify_deterministic(resolved)));
 };
 
 /**
