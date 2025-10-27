@@ -6,8 +6,8 @@
  * @param value Any JSON-serializable value
  * @returns Deterministic JSON string representation
  */
-export const to_deterministic_json = (value: unknown): string => {
-	return JSON.stringify(value, (_key, val) => {
+export const to_deterministic_json = (value: unknown): string =>
+	JSON.stringify(value, (_key, val) => {
 		if (val !== null && typeof val === 'object' && !Array.isArray(val)) {
 			// Sort object keys alphabetically for deterministic output
 			return Object.keys(val)
@@ -19,4 +19,3 @@ export const to_deterministic_json = (value: unknown): string => {
 		}
 		return val;
 	});
-};
