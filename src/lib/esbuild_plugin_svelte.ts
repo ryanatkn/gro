@@ -109,7 +109,7 @@ const convert_svelte_message_to_esbuild = (
 ): esbuild.PartialMessage => {
 	let location: esbuild.PartialMessage['location'] = null;
 	if (start && end) {
-		const lineText = source.split(/\r\n|\r|\n/g)[start.line - 1];
+		const lineText = source.split(/\r\n|\r|\n/g)[start.line - 1] ?? '';
 		const lineEnd = start.line === end.line ? end.column : lineText.length;
 		location = {
 			file: path,

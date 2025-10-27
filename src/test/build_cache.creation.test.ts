@@ -215,8 +215,8 @@ describe('create_build_cache_metadata', () => {
 
 		// Should find the deeply nested file
 		expect(result.outputs).toHaveLength(1);
-		expect(result.outputs[0].path).toBe('build/assets/js/lib/utils/helper.js');
-		expect(result.outputs[0].size).toBe(256);
+		expect(result.outputs[0]!.path).toBe('build/assets/js/lib/utils/helper.js');
+		expect(result.outputs[0]!.size).toBe(256);
 	});
 
 	test('handles build directories with many files', async () => {

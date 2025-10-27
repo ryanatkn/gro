@@ -109,8 +109,8 @@ describe('deploy_task build integration', () => {
 			expect(git_checkout).toHaveBeenCalled();
 			expect(ctx.invoke_task).toHaveBeenCalled();
 
-			const checkout_order = git_checkout.mock.invocationCallOrder[0];
-			const build_order = (ctx.invoke_task as any).mock.invocationCallOrder[0];
+			const checkout_order = git_checkout.mock.invocationCallOrder[0]!;
+			const build_order = (ctx.invoke_task as any).mock.invocationCallOrder[0]!;
 
 			expect(build_order).toBeGreaterThan(checkout_order);
 		});

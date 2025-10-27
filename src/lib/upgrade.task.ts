@@ -135,7 +135,7 @@ const to_upgrade_items = (deps: Array<Package_Json_Dep>): Array<string> =>
 		}
 		const custom_tag_matches = CUSTOM_TAG_MATCHER.exec(dep.version);
 		if (custom_tag_matches) {
-			return dep.name + '@' + custom_tag_matches[1].split('.')[0]; // I tried adding `\.?` to the end but doesn't work and I'm being lazy so I'm just splitting
+			return dep.name + '@' + custom_tag_matches[1]!.split('.')[0]; // I tried adding `\.?` to the end but doesn't work and I'm being lazy so I'm just splitting
 		}
 		return dep.name + '@latest';
 	});

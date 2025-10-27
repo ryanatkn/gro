@@ -239,7 +239,7 @@ describe('save_build_cache_metadata', () => {
 
 		save_build_cache_metadata(metadata);
 
-		const written_content = vi.mocked(writeFileSync).mock.calls[0][1] as string;
+		const written_content = vi.mocked(writeFileSync).mock.calls[0]![1] as string;
 		expect(written_content).toContain('\t');
 		expect(JSON.parse(written_content)).toEqual(metadata);
 	});

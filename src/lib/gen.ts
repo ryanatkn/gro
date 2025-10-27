@@ -181,7 +181,7 @@ export const to_output_file_name = (filename: string): string => {
 	for (let i = 0; i < length; i++) {
 		if (i === gen_pattern_index) continue; // skip the `.gen.` pattern
 		if (i === length - 1 && parts[i] === '') continue; // allow empty extension
-		final_parts.push(parts[i]);
+		final_parts.push(parts[i]!);
 	}
 	return final_parts.join('.');
 };

@@ -174,7 +174,7 @@ const create_changeset_adder = (
 		if (filenames_added.length !== 1) {
 			throw Error('expected to find exactly one new changeset file');
 		}
-		const path = join(dir, filenames_added[0]);
+		const path = join(dir, filenames_added[0]!);
 		const contents = create_new_changeset(repo_name, message, bump);
 		await writeFile(path, contents, 'utf8');
 		await spawn('git', ['add', path]);

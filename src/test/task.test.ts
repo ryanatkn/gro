@@ -86,7 +86,7 @@ describe('task', () => {
 			expect(result.ok).toBe(true);
 			if (result.ok) {
 				expect(result.value.modules.length).toBe(1);
-				expect(result.value.modules[0].mod).toBe(actual_test_task_module);
+				expect(result.value.modules[0]!.mod).toBe(actual_test_task_module);
 			}
 		}
 	});

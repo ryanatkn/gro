@@ -112,7 +112,7 @@ describe('build_task optimization', () => {
 		// The initial calls should happen concurrently (within a few ms of each other)
 		const first_calls = call_timestamps.slice(0, 2);
 		if (first_calls.length === 2) {
-			const time_diff = Math.abs(first_calls[0].time - first_calls[1].time);
+			const time_diff = Math.abs(first_calls[0]!.time - first_calls[1]!.time);
 			expect(time_diff).toBeLessThan(10); // Called within 10ms = effectively concurrent
 		}
 	});
