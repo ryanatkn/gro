@@ -1,5 +1,11 @@
 # @ryanatkn/gro
 
+## 0.171.0
+
+### Minor Changes
+
+- add build cache ([#570](https://github.com/ryanatkn/gro/pull/570))
+
 ## 0.170.0
 
 ### Minor Changes
