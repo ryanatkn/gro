@@ -7,15 +7,13 @@
  * @returns Deterministic JSON string representation
  */
 export const to_deterministic_json = (value: unknown): string =>
-	JSON.stringify(value, (_key, val) => {
-		if (val !== null && typeof val === 'object' && !Array.isArray(val)) {
-			// Sort object keys alphabetically for deterministic output
-			return Object.keys(val)
-				.sort()
-				.reduce<Record<string, any>>((sorted, k) => {
-					sorted[k] = val[k];
-					return sorted;
-				}, {});
-		}
-		return val;
-	});
+	JSON.stringify(value, (_key, val) =>
+		val !== null && typeof val === 'object' && !Array.isArray(val)
+			? Object.keys(val)
+					.sort()
+					.reduce<Record<string, any>>((sorted, k) => {
+						sorted[k] = val[k];
+						return sorted;
+					}, {})
+			: val,
+	);
