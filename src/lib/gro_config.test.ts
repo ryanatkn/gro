@@ -1,6 +1,10 @@
 import {test, expect, vi} from 'vitest';
 
-import {SEARCH_EXCLUDER_DEFAULT, EMPTY_BUILD_CACHE_CONFIG_HASH, load_gro_config} from './gro_config.ts';
+import {
+	SEARCH_EXCLUDER_DEFAULT,
+	EMPTY_BUILD_CACHE_CONFIG_HASH,
+	load_gro_config,
+} from './gro_config.ts';
 import {to_hash} from './hash.ts';
 
 test('load_gro_config', async () => {

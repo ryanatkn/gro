@@ -432,6 +432,7 @@ export const src_json: Src_Json = {
 		'./gro_config.js': {
 			path: 'gro_config.ts',
 			declarations: [
+				{name: 'EMPTY_BUILD_CACHE_CONFIG_HASH', kind: 'variable'},
 				{name: 'Gro_Config', kind: 'type'},
 				{name: 'Raw_Gro_Config', kind: 'type'},
 				{name: 'Create_Gro_Config', kind: 'type'},

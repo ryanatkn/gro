@@ -172,9 +172,7 @@ export const cook_gro_config = async (raw_config: Raw_Gro_Config): Promise<Gro_C
 	} else {
 		// Resolve if it's a function
 		const resolved =
-			typeof build_cache_config === 'function'
-				? await build_cache_config()
-				: build_cache_config;
+			typeof build_cache_config === 'function' ? await build_cache_config() : build_cache_config;
 
 		// Hash the JSON representation with deterministic key ordering
 		build_cache_config_hash = await to_hash(

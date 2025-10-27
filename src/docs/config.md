@@ -249,7 +249,7 @@ The raw value is never logged or written to disk, protecting sensitive informati
 
 The build cache automatically invalidates on any git commit (source code, dependencies,
 configs -- assuming you commit changes before building in the normal case)
- Use `build_cache_config` when your build also depends on:
+Use `build_cache_config` when your build also depends on:
 
 - environment variables baked into the build (API endpoints, feature flags)
 - external data files that affect the build (content databases, configuration data)
@@ -266,7 +266,7 @@ import {readFileSync} from 'node:fs';
 export default {
 	build_cache_config: {
 		// Environment variables that affect the build
-		// It's safe to include secrets here because they are hashed and `delete`d 
+		// It's safe to include secrets here because they are hashed and `delete`d
 		api_endpoint: process.env.PUBLIC_API_URL,
 		analytics_key: process.env.PUBLIC_ANALYTICS_KEY,
 

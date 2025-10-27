@@ -23,7 +23,11 @@ export const create_mock_logger = (): Logger =>
  * Note: build_cache_config in overrides will be hashed during creation.
  */
 export const create_mock_config = async (
-	overrides: Partial<Gro_Config> & {build_cache_config?: Record<string, unknown> | (() => Record<string, unknown> | Promise<Record<string, unknown>>)} = {},
+	overrides: Partial<Gro_Config> & {
+		build_cache_config?:
+			| Record<string, unknown>
+			| (() => Record<string, unknown> | Promise<Record<string, unknown>>);
+	} = {},
 ): Promise<Gro_Config> => {
 	// Extract and hash build_cache_config if provided
 	const {build_cache_config, ...rest} = overrides;

@@ -2,7 +2,10 @@ import {describe, test, expect} from 'vitest';
 
 import {Build_Cache_Metadata} from '../lib/build_cache.ts';
 
-import {create_mock_build_cache_metadata, create_mock_output_entry} from './build_cache_test_helpers.ts';
+import {
+	create_mock_build_cache_metadata,
+	create_mock_output_entry,
+} from './build_cache_test_helpers.ts';
 
 describe('Build_Cache_Metadata schema', () => {
 	test('validates correct metadata structure', () => {

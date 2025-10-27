@@ -2,10 +2,7 @@ import {describe, test, expect, vi, beforeEach} from 'vitest';
 
 import {load_build_cache_metadata, save_build_cache_metadata} from '../lib/build_cache.ts';
 
-import {
-	create_mock_logger,
-	create_mock_build_cache_metadata,
-} from './build_cache_test_helpers.ts';
+import {create_mock_logger, create_mock_build_cache_metadata} from './build_cache_test_helpers.ts';
 
 // Mock dependencies
 vi.mock('$lib/paths.js', () => ({
