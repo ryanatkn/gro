@@ -228,6 +228,31 @@ describe('deploy_task integration scenarios', () => {
 			expect(git_pull).toHaveBeenCalledWith('origin', 'main');
 		});
 
+		test('subsequent deployment with reset and no-pull flags', async () => {
+			const {git_reset_branch_to_first_commit, git_pull} = vi.mocked(
+				await import('@ryanatkn/belt/git.js'),
+			);
+			const {existsSync} = await import('node:fs');
+
+			vi.mocked(existsSync).mockReturnValue(true);
+
+			const ctx = create_mock_deploy_task_context({
+				reset: true,
+				pull: false, // Don't pull source branch
+				dry: false,
+			});
+
+			await deploy_task.run(ctx);
+
+			// Should still reset branch even without pulling source
+			expect(git_reset_branch_to_first_commit).toHaveBeenCalledWith('origin', 'deploy', {
+				cwd: resolve('.gro/deploy'),
+			});
+
+			// Should NOT pull either source or target branch
+			expect(git_pull).not.toHaveBeenCalled();
+		});
+
 		test('subsequent deployment reinitializes when deploy dir has wrong branch', async () => {
 			const {git_current_branch_name, git_fetch, git_clone_locally} = vi.mocked(
 				await import('@ryanatkn/belt/git.js'),
