@@ -44,7 +44,7 @@ The cache key has two components:
 
 - **git commit hash** - tracks code, dependencies, and config files
 - **`build_cache_config` hash** - optional, for tracking external inputs like environment variables
-or feature flags (see [cache configuration](#cache-configuration))
+  or feature flags (see [cache configuration](#cache-configuration))
 
 The cache invalidates when either component changes.
 

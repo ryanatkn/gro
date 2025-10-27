@@ -30,8 +30,8 @@ vi.mock('../lib/plugin.ts', () => ({
 	},
 }));
 
-vi.mock('../lib/build_cache.ts', async (importOriginal) => {
-	const original = await importOriginal<typeof import('../lib/build_cache.ts')>();
+vi.mock('../lib/build_cache.ts', async (import_original) => {
+	const original = await import_original<typeof import('../lib/build_cache.ts')>();
 	return {
 		...original,
 		is_build_cache_valid: vi.fn(),

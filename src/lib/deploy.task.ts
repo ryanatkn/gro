@@ -27,7 +27,7 @@ import {print_path} from './paths.ts';
 import {GRO_DIRNAME, GIT_DIRNAME, SVELTEKIT_BUILD_DIRNAME} from './constants.ts';
 import {empty_dir} from './fs.ts';
 
-// docs at ./docs/deploy.md
+// docs at ../docs/deploy.md
 
 // terminal command for testing:
 // npm run bootstrap && rm -rf .gro && clear && gro deploy --source no-git-workspace --no-build --dry
@@ -159,11 +159,14 @@ export const task: Task<Args> = {
 					await rm(resolved_deploy_dir, {recursive: true});
 				} else {
 					await spawn('git', ['reset', '--hard'], target_spawn_options); // in case it's dirty
-					await git_pull(origin, target, target_spawn_options);
-					if (await git_check_clean_workspace(target_spawn_options)) {
-						// We're in a bad state because the local branch lost continuity with the remote,
-						// so delete the directory and continue as if it wasn't there.
-						await rm(resolved_deploy_dir, {recursive: true});
+					// Skip pulling target branch when resetting (optimization - we reset after anyway)
+					if (!reset) {
+						await git_pull(origin, target, target_spawn_options);
+						if (await git_check_clean_workspace(target_spawn_options)) {
+							// We're in a bad state because the local branch lost continuity with the remote,
+							// so delete the directory and continue as if it wasn't there.
+							await rm(resolved_deploy_dir, {recursive: true});
+						}
 					}
 				}
 			}
@@ -219,10 +222,6 @@ export const task: Task<Args> = {
 			if (build) {
 				await invoke_task('build');
 			}
-			if (!existsSync(build_dir)) {
-				log.error(st('red', 'directory to deploy does not exist after building:'), build_dir);
-				return;
-			}
 		} catch (err) {
 			log.error(
 				st('red', 'build failed'),
@@ -234,6 +233,11 @@ export const task: Task<Args> = {
 				log.info(st('red', 'dry deploy failed'));
 			}
 			throw new Task_Error(`Deploy safely canceled due to build failure. See the error above.`);
+		}
+
+		// Verify build output exists
+		if (!existsSync(build_dir)) {
+			throw new Task_Error(`Directory to deploy does not exist after building: ${build_dir}`);
 		}
 
 		// Copy the build
