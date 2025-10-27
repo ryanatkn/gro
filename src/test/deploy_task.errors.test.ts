@@ -167,11 +167,8 @@ describe('deploy_task error handling', () => {
 		});
 
 		test('propagates git_delete_local_branch errors', async () => {
-			const {
-				git_local_branch_exists,
-				git_delete_local_branch,
-				git_remote_branch_exists,
-			} = vi.mocked(await import('@ryanatkn/belt/git.js'));
+			const {git_local_branch_exists, git_delete_local_branch, git_remote_branch_exists} =
+				vi.mocked(await import('@ryanatkn/belt/git.js'));
 			const {existsSync} = await import('node:fs');
 
 			// Trigger local branch deletion (line 182 - deploy_dir doesn't exist, remote exists, local branch doesn't exist before fetch)
@@ -338,7 +335,7 @@ describe('deploy_task error handling', () => {
 			});
 
 			// Make git add fail in commit phase (line 258, not orphan setup)
-			vi.mocked(spawn).mockImplementation(async (cmd, args, options) => {
+			vi.mocked(spawn).mockImplementation(async (cmd, args) => {
 				if (cmd === 'git' && args?.[0] === 'add' && args[1] === '.') {
 					// This is the commit phase add (line 258), not orphan setup add (line 211)
 					throw new Error('Add failed');
