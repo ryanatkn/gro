@@ -10,7 +10,7 @@ export default {
 	vitePlugin: {inspector: true},
 	kit: {
 		adapter: adapter(),
-		paths: {relative: false}, // use root-absolute paths: https://kit.svelte.dev/docs/configuration#paths
+		paths: {relative: false}, // use root-absolute paths for SSR path comparison: https://kit.svelte.dev/docs/configuration#paths
 		alias: {$routes: 'src/routes'},
 		csp: {
 			directives: create_csp_directives({
