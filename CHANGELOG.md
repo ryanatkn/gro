@@ -1,5 +1,11 @@
 # @ryanatkn/gro
 
+## 0.172.0
+
+### Minor Changes
+
+- move fixtures to src/test ([#573](https://github.com/ryanatkn/gro/pull/573))
+
 ## 0.171.0
 
 ### Minor Changes
