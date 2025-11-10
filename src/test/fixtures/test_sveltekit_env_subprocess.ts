@@ -6,7 +6,8 @@
 /* eslint-disable */
 
 import {resolve} from 'node:path';
-import {init_test_env} from '../test/test_helpers.ts';
+
+import {init_test_env} from '../test_helpers.ts';
 
 async function runTest() {
 	console.log('Testing SvelteKit $env import shimming...\n');
