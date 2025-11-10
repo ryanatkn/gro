@@ -1,12 +1,11 @@
-#!/usr/bin/env node
-
 // Test script to verify SvelteKit $env import shimming
 // This runs in a separate Node.js process with the loader active
 
 /* eslint-disable */
 
 import {resolve} from 'node:path';
-import {init_test_env} from '../test/test_helpers.ts';
+
+import {init_test_env} from '../test_helpers.ts';
 
 async function runTest() {
 	console.log('Testing SvelteKit $env import shimming...\n');
@@ -19,7 +18,7 @@ async function runTest() {
 	try {
 		// Test 1: Static imports via test fixture
 		console.log('Testing static SvelteKit $env imports via fixture...');
-		const fixture: any = await import(resolve('src/fixtures/test_sveltekit_env.ts'));
+		const fixture: any = await import(resolve('src/test/fixtures/test_sveltekit_env.ts'));
 
 		if (fixture.exported_env_static_public !== VALUE) {
 			console.error(

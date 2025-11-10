@@ -8,7 +8,7 @@ import {TEST_TIMEOUT_MD} from './test_helpers.ts';
 test(
 	'run_task passes args and returns output',
 	async () => {
-		const testScript = resolve('src/fixtures/test_run_task_basic.ts');
+		const testScript = resolve('src/test/fixtures/test_run_task_basic.ts');
 
 		// Log test script path for debugging
 		// eslint-disable-next-line no-console
@@ -31,7 +31,7 @@ test(
 test(
 	'run_task invokes sub tasks',
 	async () => {
-		const testScript = resolve('src/fixtures/test_run_task_invoke.ts');
+		const testScript = resolve('src/test/fixtures/test_run_task_invoke.ts');
 
 		// Log test script path for debugging
 		// eslint-disable-next-line no-console
@@ -54,7 +54,7 @@ test(
 test(
 	'run_task handles failing tasks',
 	async () => {
-		const testScript = resolve('src/fixtures/test_run_task_failure.ts');
+		const testScript = resolve('src/test/fixtures/test_run_task_failure.ts');
 
 		// Log test script path for debugging
 		// eslint-disable-next-line no-console

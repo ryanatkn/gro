@@ -7,7 +7,7 @@ describe('search_fs', () => {
 	test('search_fs basic behavior', () => {
 		const ignored_path = 'test1.foo.ts';
 		let has_ignored_path = false;
-		const result = search_fs('./src/fixtures', {
+		const result = search_fs('./src/test/fixtures', {
 			filter: (path) => {
 				if (!has_ignored_path) has_ignored_path = path.endsWith(ignored_path);
 				return !path.endsWith(ignored_path);
@@ -54,7 +54,7 @@ describe('search_fs', () => {
 		];
 		expect(result.map((f) => f.path)).toEqual(expected_files);
 		expect(result.map((f) => f.id)).toEqual(
-			expected_files.map((f) => resolve(`src/fixtures/${f}`)),
+			expected_files.map((f) => resolve(`src/test/fixtures/${f}`)),
 		);
 	});
 });

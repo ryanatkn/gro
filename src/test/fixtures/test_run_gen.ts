@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 // Test script to verify run_gen basic behavior
 // This runs in a separate Node.js process with the loader active
 
@@ -10,9 +8,10 @@ const run_test = async () => {
 	const {resolve} = await import('node:path');
 	const {Timings} = await import('@ryanatkn/belt/timings.js');
 	const {Logger} = await import('@ryanatkn/belt/log.js');
-	const {run_gen} = await import('../lib/run_gen.ts');
-	const {load_gro_config} = await import('../lib/gro_config.ts');
-	const {Filer} = await import('../lib/filer.ts');
+
+	const {run_gen} = await import('../../lib/run_gen.ts');
+	const {load_gro_config} = await import('../../lib/gro_config.ts');
+	const {Filer} = await import('../../lib/filer.ts');
 
 	// console.log('✓ All imports work');
 

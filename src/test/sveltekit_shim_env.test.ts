@@ -8,7 +8,7 @@ describe('sveltekit shim env', () => {
 	test(
 		'shims SvelteKit $env imports',
 		async () => {
-			const testScript = resolve('src/fixtures/test_sveltekit_env_subprocess.ts');
+			const testScript = resolve('src/test/fixtures/test_sveltekit_env_subprocess.ts');
 
 			// Use the same loader resolution logic as the CLI
 			const loaderPath = resolve_gro_module_path('loader.js');

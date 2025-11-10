@@ -6,11 +6,11 @@ import {paths} from '../lib/paths.ts';
 describe('to_src_modules', () => {
 	test('handles simple cases and omits `declarations` when empty', () => {
 		const exports = {
-			'./fixtures/modules/some_test_script.js': {
+			'./test/fixtures/modules/some_test_script.js': {
 				import: './dist/some_test_script.js',
 				types: './dist/some_test_script.d.ts',
 			},
-			'./fixtures/modules/some_test_ts.js': {
+			'./test/fixtures/modules/some_test_ts.js': {
 				import: './dist/some_test_ts.js',
 				types: './dist/some_test_ts.d.ts',
 			},
@@ -19,15 +19,15 @@ describe('to_src_modules', () => {
 		const result = to_src_modules(exports, paths.source);
 
 		expect(result).toBeDefined();
-		expect(result!['./fixtures/modules/some_test_script.js']).toBeDefined();
+		expect(result!['./test/fixtures/modules/some_test_script.js']).toBeDefined();
 
 		expect(result).toEqual({
-			'./fixtures/modules/some_test_script.js': {
-				path: 'fixtures/modules/some_test_script.ts',
+			'./test/fixtures/modules/some_test_script.js': {
+				path: 'test/fixtures/modules/some_test_script.ts',
 				// `declarations` should be omitted when empty
 			},
-			'./fixtures/modules/some_test_ts.js': {
-				path: 'fixtures/modules/some_test_ts.ts',
+			'./test/fixtures/modules/some_test_ts.js': {
+				path: 'test/fixtures/modules/some_test_ts.ts',
 				declarations: [
 					{name: 'a', kind: 'variable'},
 					{name: 'some_test_ts', kind: 'variable'},
@@ -42,7 +42,7 @@ describe('to_src_modules', () => {
 
 	test('identifies all export kinds correctly', () => {
 		const exports = {
-			'./fixtures/modules/src_json_sample_exports.js': {
+			'./test/fixtures/modules/src_json_sample_exports.js': {
 				import: './dist/src_json_sample_exports.js',
 				types: './dist/src_json_sample_exports.d.ts',
 			},
@@ -51,11 +51,11 @@ describe('to_src_modules', () => {
 		const result = to_src_modules(exports, paths.source);
 
 		expect(result).toBeDefined();
-		expect(result!['./fixtures/modules/src_json_sample_exports.js']).toBeDefined();
+		expect(result!['./test/fixtures/modules/src_json_sample_exports.js']).toBeDefined();
 
 		expect(result).toEqual({
-			'./fixtures/modules/src_json_sample_exports.js': {
-				path: 'fixtures/modules/src_json_sample_exports.ts',
+			'./test/fixtures/modules/src_json_sample_exports.js': {
+				path: 'test/fixtures/modules/src_json_sample_exports.ts',
 				declarations: [
 					{name: 'direct_function', kind: 'function'},
 					{name: 'direct_variable', kind: 'variable'},

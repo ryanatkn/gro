@@ -1,13 +1,11 @@
-#!/usr/bin/env node
-
 // Test script to verify the custom loader works correctly
 // This runs in a separate Node.js process with the loader active
 
 import {resolve} from 'node:path';
 import {readFileSync} from 'node:fs';
 
-const JSON_FIXTURE = 'src/fixtures/modules/some_test_json.json';
-const JSON_WITHOUT_EXTENSION_FIXTURE = 'src/fixtures/modules/some_test_json_without_extension';
+const JSON_FIXTURE = 'src/test/fixtures/modules/some_test_json.json';
+const JSON_WITHOUT_EXTENSION_FIXTURE = 'src/test/fixtures/modules/some_test_json_without_extension';
 
 // let passed = 0;
 let failed = 0;
@@ -36,7 +34,7 @@ const run_tests = async () => {
 
 	// Test 1: Import .js
 	try {
-		const imported = await import(resolve('src/fixtures/modules/some_test_ts.js'));
+		const imported = await import(resolve('src/test/fixtures/modules/some_test_ts.js'));
 		assert(imported && imported.a === 'ok', 'import .js works');
 	} catch (error) {
 		assert(false, `import .js failed: ${error.message}`);
@@ -44,7 +42,7 @@ const run_tests = async () => {
 
 	// Test 2: Import .ts
 	try {
-		const imported = await import(resolve('src/fixtures/modules/some_test_ts.ts'));
+		const imported = await import(resolve('src/test/fixtures/modules/some_test_ts.ts'));
 		assert(imported && imported.a === 'ok', 'import .ts works');
 	} catch (error) {
 		assert(false, `import .ts failed: ${error.message}`);
@@ -52,7 +50,7 @@ const run_tests = async () => {
 
 	// Test 3: Import raw .ts
 	try {
-		const path = resolve('src/fixtures/modules/some_test_ts.ts');
+		const path = resolve('src/test/fixtures/modules/some_test_ts.ts');
 		const imported = await import(path + '?raw');
 		const expected = readFileSync(path, 'utf8');
 		assert_equal(imported.default, expected, 'import raw .ts works');
@@ -95,7 +93,7 @@ const run_tests = async () => {
 
 	// Test 7: Import raw .css
 	try {
-		const path = resolve('src/fixtures/modules/some_test_css.css');
+		const path = resolve('src/test/fixtures/modules/some_test_css.css');
 		const imported = await import(path);
 		const expected = readFileSync(path, 'utf8');
 		assert(typeof imported.default === 'string', 'import raw .css returns string');
@@ -106,7 +104,7 @@ const run_tests = async () => {
 
 	// Test 8: Import .svelte
 	try {
-		const imported = await import(resolve('src/fixtures/modules/Some_Test_Svelte.svelte'));
+		const imported = await import(resolve('src/test/fixtures/modules/Some_Test_Svelte.svelte'));
 		assert(imported && imported.a === 'ok', 'import .svelte works');
 	} catch (error) {
 		assert(false, `import .svelte failed: ${error.message}`);
@@ -114,7 +112,7 @@ const run_tests = async () => {
 
 	// Test 9: Import raw .svelte
 	try {
-		const path = resolve('src/fixtures/modules/Some_Test_Svelte.svelte');
+		const path = resolve('src/test/fixtures/modules/Some_Test_Svelte.svelte');
 		const imported = await import(path + '?raw');
 		const expected = readFileSync(path, 'utf8');
 		assert_equal(imported.default, expected, 'import raw .svelte works');
@@ -124,7 +122,9 @@ const run_tests = async () => {
 
 	// Test 10: Import .svelte.js
 	try {
-		const imported = await import(resolve('src/fixtures/modules/some_test_svelte_js.svelte.js'));
+		const imported = await import(
+			resolve('src/test/fixtures/modules/some_test_svelte_js.svelte.js')
+		);
 		assert(imported?.Some_Test_Svelte_Js, 'import .svelte.js works');
 		const instance = new imported.Some_Test_Svelte_Js();
 		assert(instance.a === 'ok', 'import .svelte.js instance works');
@@ -134,7 +134,9 @@ const run_tests = async () => {
 
 	// Test 11: Import .svelte.ts
 	try {
-		const imported = await import(resolve('src/fixtures/modules/some_test_svelte_ts.svelte.ts'));
+		const imported = await import(
+			resolve('src/test/fixtures/modules/some_test_svelte_ts.svelte.ts')
+		);
 		assert(imported?.Some_Test_Svelte_Ts, 'import .svelte.ts works');
 		const instance = new imported.Some_Test_Svelte_Ts();
 		assert(instance.a === 'ok', 'import .svelte.ts instance works');

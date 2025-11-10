@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 // Test script to verify run_task handles failing tasks
 // This runs in a separate Node.js process with the loader active
 
@@ -7,9 +5,9 @@
 
 import {Timings} from '@ryanatkn/belt/timings.js';
 
-import {run_task} from '../lib/run_task.ts';
-import {load_gro_config} from '../lib/gro_config.ts';
-import {Filer} from '../lib/filer.ts';
+import {run_task} from '../../lib/run_task.ts';
+import {load_gro_config} from '../../lib/gro_config.ts';
+import {Filer} from '../../lib/filer.ts';
 
 async function runTest() {
 	console.log('Testing run_task handles failing tasks...\n');
