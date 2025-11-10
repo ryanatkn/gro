@@ -142,7 +142,7 @@ export const SEARCH_EXCLUDER_DEFAULT = new RegExp(
 	'u',
 );
 
-export const EXPORTS_EXCLUDER_DEFAULT = /(\.md|\.(test|ignore)\.|\/(test|fixtures|ignore)\/)/;
+export const EXPORTS_EXCLUDER_DEFAULT = /(\.md|\.(test|ignore)\.|\/(test|ignore)\/)/;
 
 /**
  * Transforms a `Raw_Gro_Config` to the more strict `Gro_Config`.
