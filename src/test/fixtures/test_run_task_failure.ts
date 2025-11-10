@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 // Test script to verify run_task handles failing tasks
 // This runs in a separate Node.js process with the loader active
 

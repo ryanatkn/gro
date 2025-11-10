@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 // Test script to verify the custom loader works correctly
 // This runs in a separate Node.js process with the loader active
 

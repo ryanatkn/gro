@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 // Test script to verify SvelteKit $env import shimming
 // This runs in a separate Node.js process with the loader active
 

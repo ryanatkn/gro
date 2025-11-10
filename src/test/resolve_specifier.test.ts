@@ -4,7 +4,7 @@ import {join} from 'node:path';
 import {resolve_specifier} from '../lib/resolve_specifier.js';
 import {paths} from '../lib/paths.js';
 
-const dir = paths.source + 'fixtures/';
+const dir = paths.source + 'test/fixtures/';
 
 describe('resolve_specifier', () => {
 	test('resolves a specifier to a file that exists with an unknown file extension', () => {
