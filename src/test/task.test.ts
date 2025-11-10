@@ -56,7 +56,7 @@ describe('task', () => {
 	});
 
 	test('validate_task_module basic behavior', async () => {
-		// TODO if we import directly, svelte-package generates types in `src/fixtures`
+		// TODO if we import directly, svelte-package generates types in `src/test/fixtures`
 		const test_task_module_js = await import('../fixtures/' + 'test_task_module.task_fixture.js'); // eslint-disable-line no-useless-concat
 		const test_task_module_ts = await import('../fixtures/' + 'test_task_module.task_fixture.ts'); // eslint-disable-line no-useless-concat
 		const test_invalid_task_module_js = await import(

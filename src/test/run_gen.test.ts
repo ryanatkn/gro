@@ -7,7 +7,7 @@ import {TEST_TIMEOUT_MD} from './test_helpers.ts';
 test(
 	'basic behavior',
 	async () => {
-		const test_script = resolve('src/fixtures/test_run_gen.ts');
+		const test_script = resolve('src/test/fixtures/test_run_gen.ts');
 
 		// Use the same loader resolution logic as the CLI
 		const loader_path = resolve_gro_module_path('loader.js');

@@ -8,9 +8,9 @@ import {default_svelte_config} from '../lib/svelte_config.ts';
 // TODO improve these tests to have automatic caching
 
 test('build for the client', async () => {
-	const outfile = './src/fixtures/modules/some_test_server_bundle_DELETEME.js';
+	const outfile = './src/test/fixtures/modules/some_test_server_bundle_DELETEME.js';
 	const built = await esbuild.build({
-		entryPoints: ['./src/fixtures/modules/some_test_server.ts'],
+		entryPoints: ['./src/test/fixtures/modules/some_test_server.ts'],
 		plugins: [
 			esbuild_plugin_svelte({
 				dev: true,
@@ -31,7 +31,7 @@ test('build for the client', async () => {
 	const built_output = await readFile(outfile, 'utf8');
 	await rm(outfile); // TODO could be cleaner
 	expect(built_output).toBe(
-		`// src/fixtures/modules/some_test_svelte_ts.svelte.ts
+		`// src/test/fixtures/modules/some_test_svelte_ts.svelte.ts
 import * as $ from "svelte/internal/client";
 var Some_Test_Svelte_Ts = class {
   #a = $.state("ok");
@@ -43,7 +43,7 @@ var Some_Test_Svelte_Ts = class {
   }
 };
 
-// src/fixtures/modules/some_test_svelte_js.svelte.js
+// src/test/fixtures/modules/some_test_svelte_js.svelte.js
 import * as $2 from "svelte/internal/client";
 var Some_Test_Svelte_Js = class {
   #a = $2.state("ok");
@@ -55,13 +55,13 @@ var Some_Test_Svelte_Js = class {
   }
 };
 
-// src/fixtures/modules/some_test_ts.ts
+// src/test/fixtures/modules/some_test_ts.ts
 var some_test_ts = ".ts";
 
-// src/fixtures/modules/some_test_js.js
+// src/test/fixtures/modules/some_test_js.js
 var some_test_js = ".js";
 
-// src/fixtures/modules/some_test_server.ts
+// src/test/fixtures/modules/some_test_server.ts
 var some_test_server = "some_test_server";
 export {
   Some_Test_Svelte_Js,
@@ -75,9 +75,9 @@ export {
 });
 
 test('build for the server', async () => {
-	const outfile = './src/fixtures/modules/some_test_client_bundle_DELETEME.js';
+	const outfile = './src/test/fixtures/modules/some_test_client_bundle_DELETEME.js';
 	const built = await esbuild.build({
-		entryPoints: ['./src/fixtures/modules/some_test_server.ts'],
+		entryPoints: ['./src/test/fixtures/modules/some_test_server.ts'],
 		plugins: [
 			esbuild_plugin_svelte({
 				dev: true,
@@ -97,25 +97,25 @@ test('build for the server', async () => {
 	const built_output = await readFile(outfile, 'utf8');
 	await rm(outfile); // TODO could be cleaner
 	expect(built_output).toBe(
-		`// src/fixtures/modules/some_test_svelte_ts.svelte.ts
+		`// src/test/fixtures/modules/some_test_svelte_ts.svelte.ts
 import * as $ from "svelte/internal/server";
 var Some_Test_Svelte_Ts = class {
   a = "ok";
 };
 
-// src/fixtures/modules/some_test_svelte_js.svelte.js
+// src/test/fixtures/modules/some_test_svelte_js.svelte.js
 import * as $2 from "svelte/internal/server";
 var Some_Test_Svelte_Js = class {
   a = "ok";
 };
 
-// src/fixtures/modules/some_test_ts.ts
+// src/test/fixtures/modules/some_test_ts.ts
 var some_test_ts = ".ts";
 
-// src/fixtures/modules/some_test_js.js
+// src/test/fixtures/modules/some_test_js.js
 var some_test_js = ".js";
 
-// src/fixtures/modules/some_test_server.ts
+// src/test/fixtures/modules/some_test_server.ts
 var some_test_server = "some_test_server";
 export {
   Some_Test_Svelte_Js,

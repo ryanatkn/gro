@@ -19,7 +19,7 @@ async function runTest() {
 	try {
 		// Test 1: Static imports via test fixture
 		console.log('Testing static SvelteKit $env imports via fixture...');
-		const fixture: any = await import(resolve('src/fixtures/test_sveltekit_env.ts'));
+		const fixture: any = await import(resolve('src/test/fixtures/test_sveltekit_env.ts'));
 
 		if (fixture.exported_env_static_public !== VALUE) {
 			console.error(
