@@ -82,7 +82,7 @@
   "devDependencies": {
     "@changesets/changelog-git": "^0.2.1",
     "@changesets/types": "^6.1.0",
-    "@ryanatkn/eslint-config": "^0.8.0",
+    "@ryanatkn/eslint-config": "^0.8.1",
     "@ryanatkn/fuz": "^0.147.0",
     "@ryanatkn/moss": "^0.36.0",
     "@sveltejs/adapter-static": "^3.0.10",
