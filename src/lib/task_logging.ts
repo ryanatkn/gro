@@ -41,7 +41,7 @@ export const log_tasks = (log: Logger, loaded_tasks: Loaded_Tasks, log_intro = t
 			);
 		}
 	}
-	log[log_intro ? 'info' : 'plain'](logged.join('') + '\n');
+	log[log_intro ? 'info' : 'raw'](logged.join('') + '\n');
 };
 
 export const log_error_reasons = (log: Logger, reasons: Array<string>): void => {
