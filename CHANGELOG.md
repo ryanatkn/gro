@@ -1,5 +1,12 @@
 # @ryanatkn/gro
 
+## 0.173.0
+
+### Minor Changes
+
+- upgrade belt ([#575](https://github.com/ryanatkn/gro/pull/575))
+- upgrade belt and migrate logger ([#575](https://github.com/ryanatkn/gro/pull/575))
+
 ## 0.172.0
 
 ### Minor Changes
