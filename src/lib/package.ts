@@ -56,7 +56,7 @@ export const package_json: Package_Json = {
 		zod: '^4.1.12',
 	},
 	peerDependencies: {
-		'@ryanatkn/belt': '^0.36.0',
+		'@ryanatkn/belt': '^0.37.0',
 		'@sveltejs/kit': '^2',
 		esbuild: '^0.25',
 		svelte: '^5',
