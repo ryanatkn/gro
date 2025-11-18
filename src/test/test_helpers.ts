@@ -21,7 +21,7 @@ export const create_mock_logger = (): Logger =>
 		warn: vi.fn(),
 		info: vi.fn(),
 		debug: vi.fn(),
-		plain: vi.fn(),
+		raw: vi.fn(),
 		newline: vi.fn(),
 	}) as unknown as Logger;
 
