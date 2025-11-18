@@ -1,7 +1,7 @@
 import {styleText as st} from 'node:util';
-import {System_Logger} from '@ryanatkn/belt/log.js';
 import {create_stopwatch, Timings} from '@ryanatkn/belt/timings.js';
-import {print_ms, print_timings, print_log_label} from '@ryanatkn/belt/print.js';
+import {print_ms, print_timings} from '@ryanatkn/belt/print.js';
+import {Logger} from '@ryanatkn/belt/log.js';
 
 import {to_forwarded_args, type Args} from './args.ts';
 import {run_task} from './run_task.ts';
@@ -40,13 +40,16 @@ export const invoke_task = async (
 	config: Gro_Config,
 	initial_filer?: Filer,
 	initial_timings?: Timings | null,
+	parent_log?: Logger,
 ): Promise<void> => {
-	const log = new System_Logger(print_log_label(task_name || 'gro'));
+	// Create child logger if parent exists, otherwise root logger
+	const log_label = task_name || 'gro';
+	const log = parent_log ? parent_log.child(log_label) : new Logger(log_label);
 	log.info('invoking', task_name ? st('cyan', task_name) : 'gro');
 
 	// track if we created the filer
 	const owns_filer = !initial_filer;
-	const filer = initial_filer ?? new Filer({log});
+	const filer = initial_filer ?? new Filer({log: log.child('filer')});
 
 	const owns_timings = !initial_timings;
 	const timings = initial_timings ?? new Timings();
@@ -120,6 +123,7 @@ export const invoke_task = async (
 		invoke_task,
 		config,
 		filer,
+		log,
 		timings,
 	);
 	timing_to_run_task();

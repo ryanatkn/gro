@@ -1,7 +1,6 @@
 import {styleText as st} from 'node:util';
-import {print_log_label} from '@ryanatkn/belt/print.js';
-import {System_Logger} from '@ryanatkn/belt/log.js';
 import type {Timings} from '@ryanatkn/belt/timings.js';
+import type {Logger} from '@ryanatkn/belt/log.js';
 import {z} from 'zod';
 
 import {parse_args, type Args} from './args.ts';
@@ -29,10 +28,10 @@ export const run_task = async (
 	invoke_task: typeof base_invoke_task,
 	config: Gro_Config,
 	filer: Filer,
+	log: Logger,
 	timings: Timings,
 ): Promise<Run_Task_Result> => {
 	const {task} = task_meta.mod;
-	const log = new System_Logger(print_log_label(task_meta.name));
 
 	if (unparsed_args.help) {
 		log_task_help(log, task_meta);
@@ -62,7 +61,7 @@ export const run_task = async (
 			log,
 			timings,
 			invoke_task: (invoked_task_name, invoked_args, invoked_config) =>
-				invoke_task(invoked_task_name, invoked_args, invoked_config ?? config, filer, timings),
+				invoke_task(invoked_task_name, invoked_args, invoked_config ?? config, filer, timings, log),
 		});
 	} catch (err) {
 		return {

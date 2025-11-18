@@ -4,6 +4,7 @@
 /* eslint-disable */
 
 import {Timings} from '@ryanatkn/belt/timings.js';
+import {Logger} from '@ryanatkn/belt/log.js';
 
 import {run_task} from '../../lib/run_task.ts';
 import {load_gro_config} from '../../lib/gro_config.ts';
@@ -14,6 +15,7 @@ async function runTest() {
 
 	let err;
 	const filer = new Filer();
+	const log = new Logger('test');
 	const result = await run_task(
 		{
 			name: 'testTask',
@@ -31,6 +33,7 @@ async function runTest() {
 		async () => {},
 		await load_gro_config(),
 		filer,
+		log,
 		new Timings(),
 	);
 	filer.close();

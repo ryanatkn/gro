@@ -4,6 +4,7 @@
 /* eslint-disable */
 
 import {Timings} from '@ryanatkn/belt/timings.js';
+import {Logger} from '@ryanatkn/belt/log.js';
 
 import {run_task} from '../../lib/run_task.ts';
 import {load_gro_config} from '../../lib/gro_config.ts';
@@ -13,9 +14,10 @@ async function runTest() {
 	console.log('Testing run_task invokes sub tasks...\n');
 
 	const args = {a: 1, _: []};
-	let invoked_task_name;
-	let invoked_args;
+	let invoked_task_name: string | undefined;
+	let invoked_args: any | undefined;
 	const filer = new Filer();
+	const log = new Logger('test');
 	const result = await run_task(
 		{
 			name: 'testTask',
@@ -30,13 +32,14 @@ async function runTest() {
 			},
 		},
 		args,
-		(invoking_task_name, invoking_args) => {
+		(invoking_task_name: string, invoking_args: any) => {
 			invoked_task_name = invoking_task_name;
 			invoked_args = invoking_args;
 			return Promise.resolve();
 		},
 		await load_gro_config(),
 		filer,
+		log,
 		new Timings(),
 	);
 	filer.close();
