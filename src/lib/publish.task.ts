@@ -104,7 +104,8 @@ export const task: Task<Args> = {
 
 		// Install packages to ensure deps are current.
 		// Handles cases like branch switches where package.json changed.
-		await invoke_task('sync', {install: true});
+		// Skip gen because it will run after version bump.
+		await invoke_task('sync', {install: true, gen: false});
 
 		// Check before proceeding, defaults to true.
 		if (check) {
@@ -150,6 +151,9 @@ export const task: Task<Args> = {
 				}
 				await update_changelog(parsed_repo_url.owner, parsed_repo_url.repo, changelog, token, log);
 			}
+
+			// Regenerate files that depend on package.json version.
+			await invoke_task('gen');
 
 			const package_json_after_versioning = load_package_json();
 			version = package_json_after_versioning.version!;
