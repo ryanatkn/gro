@@ -5,7 +5,7 @@ import type {Src_Json} from '@ryanatkn/belt/src_json.js';
 
 export const package_json: Package_Json = {
 	name: '@ryanatkn/gro',
-	version: '0.173.0',
+	version: '0.173.1',
 	description: 'task runner and toolkit extending SvelteKit',
 	motto: 'generate, run, optimize',
 	glyph: '🌰',
@@ -56,7 +56,7 @@ export const package_json: Package_Json = {
 		zod: '^4.1.12',
 	},
 	peerDependencies: {
-		'@ryanatkn/belt': '^0.37.0',
+		'@ryanatkn/belt': '^0.37.2',
 		'@sveltejs/kit': '^2',
 		esbuild: '^0.25',
 		svelte: '^5',
@@ -105,7 +105,7 @@ export const package_json: Package_Json = {
 
 export const src_json: Src_Json = {
 	name: '@ryanatkn/gro',
-	version: '0.173.0',
+	version: '0.173.1',
 	modules: {
 		'.': {
 			path: 'index.ts',
