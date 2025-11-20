@@ -1,5 +1,11 @@
 # @ryanatkn/gro
 
+## 0.173.1
+
+### Patch Changes
+
+- fix publish to sync first ([#576](https://github.com/ryanatkn/gro/pull/576))
+
 ## 0.173.0
 
 ### Minor Changes
