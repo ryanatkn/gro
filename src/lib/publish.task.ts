@@ -102,9 +102,13 @@ export const task: Task<Args> = {
 			await git_pull(origin, branch);
 		}
 
-		// Check before proceeding.
+		// Install packages to ensure deps are current.
+		// Handles cases like branch switches where package.json changed.
+		await invoke_task('sync', {install: true});
+
+		// Check before proceeding, defaults to true.
 		if (check) {
-			await invoke_task('check', {workspace: true});
+			await invoke_task('check', {workspace: true, sync: false});
 		}
 
 		let version!: string;
@@ -162,8 +166,9 @@ export const task: Task<Args> = {
 		}
 
 		// Build after the version is bumped so the new version is in the build as needed.
+		// Skip sync and install because we already handled both above.
 		if (build) {
-			await invoke_task('build');
+			await invoke_task('build', {sync: false, install: false});
 		}
 
 		// Return early if there are no changes and publishing is optional, but after building,
