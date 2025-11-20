@@ -153,6 +153,7 @@ export const task: Task<Args> = {
 			}
 
 			// Regenerate files that depend on package.json version.
+			// The check above ensures gen is updated.
 			await invoke_task('gen');
 
 			const package_json_after_versioning = load_package_json();
