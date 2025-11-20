@@ -1,5 +1,11 @@
 # @ryanatkn/gro
 
+## 0.173.2
+
+### Patch Changes
+
+- fix publish task to run gen ([#577](https://github.com/ryanatkn/gro/pull/577))
+
 ## 0.173.1
 
 ### Patch Changes
