@@ -2,4 +2,4 @@
 '@ryanatkn/gro': minor
 ---
 
-unpublish `package.ts`
+unpublish `package.ts` and `package.gen.ts`
