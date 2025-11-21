@@ -3,7 +3,7 @@ import {ensure_end, strip_start} from '@ryanatkn/belt/string.js';
 import {existsSync} from 'node:fs';
 import ts from 'typescript';
 import type {Package_Json, Package_Json_Exports} from '@ryanatkn/belt/package_json.js';
-import {Src_Json, Src_Modules} from '@ryanatkn/belt/src_json.js';
+import {Src_Json, Src_Modules} from '@ryanatkn/fuz/src_json.js';
 import type {Logger} from '@ryanatkn/belt/log.js';
 
 import {paths, replace_extension} from './paths.ts';
