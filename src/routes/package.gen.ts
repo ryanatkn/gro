@@ -1,1 +1,1 @@
-export * from '@ryanatkn/gro/package.gen.js';
+export * from '@ryanatkn/fuz/package.gen.js';

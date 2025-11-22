@@ -3,8 +3,7 @@ import {ensure_end, strip_start} from '@ryanatkn/belt/string.js';
 import {existsSync} from 'node:fs';
 import ts from 'typescript';
 import type {Package_Json, Package_Json_Exports} from '@ryanatkn/belt/package_json.js';
-// TODO BLOCK make these schemas?
-import {Src_Json, Src_Modules} from '@ryanatkn/fuz/src_json.js';
+import {Src_Json, type Module_Json, type Identifier_Kind} from '@ryanatkn/belt/src_json.js';
 import type {Logger} from '@ryanatkn/belt/log.js';
 
 import {paths, replace_extension} from './paths.ts';
@@ -12,9 +11,9 @@ import {parse_exports} from './parse_exports.ts';
 import {TS_MATCHER, SVELTE_MATCHER, JSON_MATCHER, CSS_MATCHER} from './constants.ts';
 import {search_fs} from './search_fs.ts';
 
-export type Map_Src_Json = (src_json: Src_Json) => Src_Json | null | Promise<Src_Json | null>;
+export type Src_Json_Mapper = (src_json: Src_Json) => Src_Json | null | Promise<Src_Json | null>;
 
-export const create_src_json = (
+export const src_json_create = (
 	package_json: Package_Json,
 	lib_path?: string,
 	log?: Logger,
@@ -22,19 +21,19 @@ export const create_src_json = (
 	Src_Json.parse({
 		name: package_json.name,
 		version: package_json.version,
-		modules: to_src_modules(package_json.exports, lib_path, log),
+		modules: src_modules_create(package_json.exports, lib_path, log),
 	});
 
-export const serialize_src_json = (src_json: Src_Json): string => {
-	const parsed = Src_Json.parse(src_json); // TODO can parse do the logic that normalize does? see `.transform`
+export const src_json_serialize = (src_json: Src_Json): string => {
+	const parsed = Src_Json.parse(src_json);
 	return JSON.stringify(parsed, null, 2) + '\n';
 };
 
-export const to_src_modules = (
+export const src_modules_create = (
 	exports: Package_Json_Exports | undefined,
 	lib_path = paths.lib,
 	log?: Logger,
-): Src_Modules | undefined => {
+): Array<Module_Json> | undefined => {
 	if (!exports) return;
 
 	const file_paths = collect_file_paths(exports, lib_path);
@@ -59,25 +58,27 @@ export const to_src_modules = (
 		);
 	}
 
-	const result: Src_Modules = {};
+	const result: Array<Module_Json> = [];
 
 	// Process each file
-	for (const {export_key, file_path} of file_paths) {
+	for (const {file_path} of file_paths) {
 		const relative_path = file_path.replace(ensure_end(lib_path, '/'), '');
 
-		const declarations = parse_exports(file_path, program, undefined, log).map(({name, kind}) => ({
+		const identifiers = parse_exports(file_path, program, undefined, log).map(({name, kind}) => ({
 			name,
-			kind,
+			kind: kind as Identifier_Kind,
 		}));
 
-		result[export_key] = declarations.length
-			? {
-					path: relative_path,
-					declarations,
-				}
-			: {
-					path: relative_path,
-				};
+		result.push(
+			identifiers.length
+				? {
+						path: relative_path,
+						identifiers,
+					}
+				: {
+						path: relative_path,
+					},
+		);
 	}
 
 	return result;

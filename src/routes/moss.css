@@ -7,13 +7,6 @@
 	justify-content: center;
 }
 
-/* can be used to override the direction of a `.box` */
-.row {
-	display: flex;
-	flex-direction: row;
-	align-items: center;
-}
-
 .width_upto_md {
 	width: 100%;
 	max-width: var(--distance_md);
@@ -73,6 +66,10 @@ a.chip {
 .flex_1 {
 	flex: 1;
 }
+.font_size_xl {
+	font-size: var(--font_size_xl);
+	--font_size: var(--font_size_xl);
+}
 .text_align_center {
 	text-align: center;
 }
@@ -83,9 +80,6 @@ a.chip {
 .width_100 {
 	width: 100%;
 }
-.height_100 {
-	height: 100%;
-}
 .p_md {
 	padding: var(--space_md);
 }
@@ -95,9 +89,6 @@ a.chip {
 .px_xl {
 	padding-left: var(--space_xl);
 	padding-right: var(--space_xl);
-}
-.mt_0 {
-	margin-top: 0;
 }
 .mt_xl3 {
 	margin-top: var(--space_xl3);
