@@ -1,5 +1,5 @@
 import {EMPTY_OBJECT} from '@ryanatkn/belt/object.js';
-import {existsSync, readFileSync, statSync} from 'node:fs';
+import {readFileSync, statSync} from 'node:fs';
 import {dirname, resolve} from 'node:path';
 import type {Omit_Strict} from '@ryanatkn/belt/types.js';
 import {isBuiltin} from 'node:module';
@@ -217,12 +217,22 @@ export class Filer {
 	#update(id: Path_Id): Disknode | null {
 		const file = this.get_or_create(id);
 
-		const stats = existsSync(id) ? statSync(id) : null;
+		let stats: ReturnType<typeof statSync> | null = null;
+		let new_contents: string | null = null; // TODO need to lazily load contents, probably turn `Disknode` into a class
+
+		try {
+			stats = statSync(id);
+			new_contents = readFileSync(id, 'utf8');
+		} catch (err) {
+			if ((err as NodeJS.ErrnoException).code !== 'ENOENT') {
+				throw err;
+			}
+			// ENOENT: file doesn't exist, treat as deleted
+		}
+
 		const old_mtime = file.mtime;
 		file.ctime = stats?.ctimeMs ?? null;
 		file.mtime = stats?.mtimeMs ?? null;
-
-		const new_contents = stats ? readFileSync(id, 'utf8') : null; // TODO need to lazily load contents, probably turn `Disknode` into a class
 
 		if (file.mtime === old_mtime && file.contents === new_contents) {
 			return null;
