@@ -10,6 +10,21 @@ architecture, and integrations with Vite, esbuild, Vitest, Prettier, ESLint, and
 Changesets. It's designed around conventions and the filesystem, not
 configuration files.
 
+## Scope
+
+Gro is a **devDependency** - it runs at build time, not in production bundles.
+
+Key responsibilities:
+
+- Task runner and CLI (`gro dev`, `gro build`, `gro test`, etc.)
+- Code generation system (`.gen.ts` files)
+- Node loader for TypeScript/Svelte without compilation step
+- Plugin system for dev/build workflows
+- `src_json` generation - analyzes TypeScript/Svelte source to produce metadata
+  consumed by fuz's API documentation system
+- `.well-known/package.json` and `.well-known/src.json` publishing for package
+  metadata
+
 ## Core systems
 
 ### Task runner

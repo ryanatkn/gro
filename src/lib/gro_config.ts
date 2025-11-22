@@ -16,7 +16,7 @@ import {
 } from './constants.ts';
 import create_default_config from './gro.config.default.ts';
 import type {Create_Config_Plugins} from './plugin.ts';
-import type {Map_Package_Json} from './package_json.ts';
+import type {Package_Json_Mapper} from './package_json.ts';
 import type {Parsed_Svelte_Config} from './svelte_config.ts';
 import {to_hash} from './hash.ts';
 
@@ -42,7 +42,7 @@ export interface Gro_Config extends Raw_Gro_Config {
 	 * The `package_json` argument may be mutated, but the return value is what's used by the caller.
 	 * Returning `null` is a no-op for the caller.
 	 */
-	map_package_json: Map_Package_Json | null;
+	map_package_json: Package_Json_Mapper | null;
 	/**
 	 * The root directories to search for tasks given implicit relative input paths.
 	 * Defaults to `./src/lib`, then the cwd, then the Gro package dist.
@@ -79,7 +79,7 @@ export interface Gro_Config extends Raw_Gro_Config {
  */
 export interface Raw_Gro_Config {
 	plugins?: Create_Config_Plugins;
-	map_package_json?: Map_Package_Json | null;
+	map_package_json?: Package_Json_Mapper | null;
 	task_root_dirs?: Array<string>;
 	search_filters?: Path_Filter | Array<Path_Filter> | null;
 	js_cli?: string;

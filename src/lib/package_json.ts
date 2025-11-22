@@ -20,7 +20,7 @@ import {search_fs} from './search_fs.ts';
 import {has_sveltekit_library} from './sveltekit_helpers.ts';
 import {GITHUB_REPO_MATCHER} from './github.ts';
 
-export type Map_Package_Json = (
+export type Package_Json_Mapper = (
 	package_json: Package_Json,
 ) => Package_Json | null | Promise<Package_Json | null>;
 
@@ -52,7 +52,7 @@ export const load_package_json = (
 };
 
 export const sync_package_json = async (
-	map_package_json: Map_Package_Json,
+	map_package_json: Package_Json_Mapper,
 	log: Logger,
 	write = true,
 	dir = paths.root,
