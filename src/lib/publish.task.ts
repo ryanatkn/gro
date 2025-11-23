@@ -66,7 +66,7 @@ export type Args = z.infer<typeof Args>;
 export const task: Task<Args> = {
 	summary: 'bump version, publish to the configured registry, and git push',
 	Args,
-	run: async ({args, log, invoke_task}): Promise<void> => {
+	run: async ({args, log, invoke_task, config}): Promise<void> => {
 		const {
 			branch,
 			origin,
@@ -151,8 +151,8 @@ export const task: Task<Args> = {
 
 			// This is the first line that alters the repo.
 
-			const changeset_ersion_result = await spawn_cli(found_changeset_cli, ['version'], log);
-			if (!changeset_ersion_result?.ok) {
+			const changeset_version_result = await spawn_cli(found_changeset_cli, ['version'], log);
+			if (!changeset_version_result?.ok) {
 				throw Error('changeset version failed: no commits were made: see the error above');
 			}
 
@@ -164,6 +164,14 @@ export const task: Task<Args> = {
 					);
 				}
 				await update_changelog(parsed_repo_url.owner, parsed_repo_url.repo, changelog, token, log);
+			}
+
+			// Update package-lock.json to reflect the new version.
+			if (install) {
+				const install_result = await spawn(config.pm_cli, ['install']);
+				if (!install_result.ok) {
+					throw new Task_Error(`Failed \`${config.pm_cli} install\` after version bump`);
+				}
 			}
 
 			// Regenerate files that depend on package.json version.
