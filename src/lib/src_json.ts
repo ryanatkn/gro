@@ -64,10 +64,9 @@ export const src_modules_create = (
 	for (const {file_path} of file_paths) {
 		const relative_path = file_path.replace(ensure_end(lib_path, '/'), '');
 
-		const identifiers = parse_exports(file_path, program, undefined, log).map(({name, kind}) => ({
-			name,
-			kind: kind as Identifier_Kind,
-		}));
+		const identifiers = parse_exports(file_path, program, undefined, log)
+			.filter((d): d is {name: string; kind: Identifier_Kind} => d.kind !== null) // TODO maybe dont filter out?
+			.map(({name, kind}) => ({name, kind}));
 
 		result.push(
 			identifiers.length

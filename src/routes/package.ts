@@ -3431,7 +3431,7 @@ export const src_json: Src_Json = {
 				{
 					name: 'Gro_Plugin_Sveltekit_App_Options',
 					kind: 'type',
-					source_line: 15,
+					source_line: 19,
 					type_signature: 'Gro_Plugin_Sveltekit_App_Options',
 					properties: [
 						{
@@ -3473,19 +3473,19 @@ export const src_json: Src_Json = {
 				{
 					name: 'Host_Target',
 					kind: 'type',
-					source_line: 45,
+					source_line: 49,
 					type_signature: 'Host_Target',
 				},
 				{
 					name: 'Copy_File_Filter',
 					kind: 'type',
-					source_line: 47,
+					source_line: 51,
 					type_signature: 'Copy_File_Filter',
 				},
 				{
 					name: 'gro_plugin_sveltekit_app',
 					kind: 'function',
-					source_line: 49,
+					source_line: 53,
 					type_signature:
 						'({ host_target, well_known_package_json, well_known_src_json, well_known_src_files, vite_cli, }?: Gro_Plugin_Sveltekit_App_Options): Plugin<Plugin_Context<object>>',
 					return_type: 'Plugin<Plugin_Context<object>>',
