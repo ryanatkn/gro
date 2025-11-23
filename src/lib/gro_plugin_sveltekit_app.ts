@@ -4,7 +4,11 @@ import {dirname, join} from 'node:path';
 
 import type {Plugin} from './plugin.ts';
 import {serialize_args, to_forwarded_args} from './args.ts';
-import {serialize_package_json, type Package_Json_Mapper, load_package_json} from './package_json.ts';
+import {
+	serialize_package_json,
+	type Package_Json_Mapper,
+	load_package_json,
+} from './package_json.ts';
 import {Task_Error} from './task.ts';
 import {find_cli, spawn_cli, spawn_cli_process} from './cli.ts';
 import {type Src_Json_Mapper, src_json_serialize, src_json_create} from './src_json.ts';

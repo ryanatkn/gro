@@ -75,10 +75,7 @@ export class Parse_Exports_Context {
 	/**
 	 * Determine the kind of an export based on its symbol.
 	 */
-	#determine_export_kind(
-		source_file: ts.SourceFile,
-		symbol: ts.Symbol,
-	): Identifier_Kind {
+	#determine_export_kind(source_file: ts.SourceFile, symbol: ts.Symbol): Identifier_Kind {
 		// Check if this is a type-only export (no value export)
 		if (this.#is_type_only_export(source_file, symbol)) {
 			return 'type';
