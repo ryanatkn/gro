@@ -40,6 +40,7 @@ const SOURCE_BRANCH = 'main';
 const TARGET_BRANCH = 'deploy';
 const DANGEROUS_BRANCHES = [SOURCE_BRANCH, 'master'];
 
+/** @nodocs */
 export const Args = z.strictObject({
 	source: Git_Branch.describe('git source branch to build and deploy from').default(SOURCE_BRANCH),
 	target: Git_Branch.describe('git target branch to deploy to').default(TARGET_BRANCH),
@@ -76,6 +77,7 @@ export const Args = z.strictObject({
 });
 export type Args = z.infer<typeof Args>;
 
+/** @nodocs */
 export const task: Task<Args> = {
 	summary: 'deploy to a branch',
 	Args,

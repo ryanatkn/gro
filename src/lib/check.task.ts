@@ -6,6 +6,7 @@ import {git_check_clean_workspace} from '@ryanatkn/belt/git.js';
 import {Task_Error, type Task} from './task.ts';
 import {sync_package_json} from './package_json.ts';
 
+/** @nodocs */
 export const Args = z.strictObject({
 	typecheck: z.boolean().meta({description: 'dual of no-typecheck'}).default(true),
 	'no-typecheck': z.boolean().meta({description: 'opt out of typechecking'}).default(false),
@@ -32,6 +33,7 @@ export const Args = z.strictObject({
 });
 export type Args = z.infer<typeof Args>;
 
+/** @nodocs */
 export const task: Task<Args> = {
 	summary: 'check that everything is ready to commit',
 	Args,

@@ -19,6 +19,7 @@ import {
 } from './gen.ts';
 import {SOURCE_DIRNAME} from './constants.ts';
 
+/** @nodocs */
 export const Args = z.strictObject({
 	_: z
 		.array(Raw_Input_Path)
@@ -35,6 +36,7 @@ export const Args = z.strictObject({
 });
 export type Args = z.infer<typeof Args>;
 
+/** @nodocs */
 export const task: Task<Args> = {
 	summary: 'run code generation scripts',
 	Args,

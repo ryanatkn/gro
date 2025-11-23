@@ -5,6 +5,7 @@ import {Git_Origin} from '@ryanatkn/belt/git.js';
 import type {Task} from './task.ts';
 import {clean_fs} from './clean_fs.ts';
 
+/** @nodocs */
 export const Args = z.strictObject({
 	build_dev: z.boolean().meta({description: 'delete the Gro build dev directory'}).default(false),
 	build_dist: z.boolean().meta({description: 'delete the Gro build dist directory'}).default(false),
@@ -24,6 +25,7 @@ export const Args = z.strictObject({
 });
 export type Args = z.infer<typeof Args>;
 
+/** @nodocs */
 export const task: Task<Args> = {
 	summary: 'remove temporary dev and build files, and optionally prune git branches',
 	Args,

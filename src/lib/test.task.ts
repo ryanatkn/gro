@@ -8,6 +8,7 @@ import {serialize_args, to_implicit_forwarded_args} from './args.ts';
 import {VITEST_CLI} from './constants.ts';
 import {paths} from './paths.ts';
 
+/** @nodocs */
 export const Args = z.strictObject({
 	_: z.array(z.string()).meta({description: 'file patterns to filter tests'}).default(['.test.']),
 	dir: z.string().meta({description: 'working directory for tests'}).default(paths.source),
@@ -22,6 +23,7 @@ export const Args = z.strictObject({
 });
 export type Args = z.infer<typeof Args>;
 
+/** @nodocs */
 export const task: Task<Args> = {
 	summary: 'run tests with vitest',
 	Args,

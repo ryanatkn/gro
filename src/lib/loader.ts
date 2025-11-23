@@ -76,6 +76,7 @@ const aliases = Object.entries(alias);
 const RAW_MATCHER = /(%3Fraw|\.css|\.svg)$/; // TODO others? configurable?
 const NODE_MODULES_MATCHER = new RegExp(escape_regexp('/' + NODE_MODULES_DIRNAME + '/'), 'u');
 
+/** @nodocs */
 export const load: LoadHook = async (url, context, nextLoad) => {
 	// console.log(`url`, url);
 	if (SVELTEKIT_SHIM_APP_PATHS_MATCHER.test(url)) {
@@ -184,6 +185,7 @@ export const load: LoadHook = async (url, context, nextLoad) => {
 	return nextLoad(url, context);
 };
 
+/** @nodocs */
 export const resolve: ResolveHook = async (specifier, context, nextResolve) => {
 	let s = specifier;
 

@@ -5,6 +5,7 @@ import {Task_Error, type Task} from './task.ts';
 import {sync_package_json} from './package_json.ts';
 import {sveltekit_sync} from './sveltekit_helpers.ts';
 
+/** @nodocs */
 export const Args = z.strictObject({
 	sveltekit: z.boolean().meta({description: 'dual of no-sveltekit'}).default(true),
 	'no-sveltekit': z.boolean().meta({description: 'opt out of svelte-kit sync'}).default(false),
@@ -16,6 +17,7 @@ export const Args = z.strictObject({
 });
 export type Args = z.infer<typeof Args>;
 
+/** @nodocs */
 export const task: Task<Args> = {
 	summary: 'run `gro gen`, update `package.json`, and optionally install packages to sync up',
 	Args,

@@ -5,9 +5,11 @@ import {rm} from 'node:fs/promises';
 import {Task_Error, type Task} from './task.ts';
 import {LOCKFILE_FILENAME, NODE_MODULES_DIRNAME} from './constants.ts';
 
+/** @nodocs */
 export const Args = z.strictObject({});
 export type Args = z.infer<typeof Args>;
 
+/** @nodocs */
 export const task: Task<Args> = {
 	summary: `refreshes ${LOCKFILE_FILENAME} with the latest and cleanest deps`,
 	Args,

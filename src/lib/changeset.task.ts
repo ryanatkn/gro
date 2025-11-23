@@ -24,6 +24,7 @@ import {
 } from './changeset_helpers.ts';
 import {load_package_json} from './package_json.ts';
 
+/** @nodocs */
 export const Args = z.strictObject({
 	/**
 	 * The optional rest args get joined with a space to form the `message`.
@@ -61,6 +62,8 @@ export type Args = z.infer<typeof Args>;
  * - gro changeset some commit message
  * - gro changeset some commit message --minor
  * - gro changeset "some commit message" --minor
+ *
+ * @nodocs
  */
 export const task: Task<Args> = {
 	summary: 'call changeset with gro patterns',

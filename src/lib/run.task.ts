@@ -9,6 +9,7 @@ import {resolve_gro_module_path, spawn_with_loader} from './gro_helpers.ts';
 // and I'm not using it for anything that couldn't be done with Node directly atm.
 // It could potentially be more useful if I keep building on the task system.
 
+/** @nodocs */
 export const Args = z.strictObject({
 	_: z
 		.array(z.string())
@@ -17,6 +18,7 @@ export const Args = z.strictObject({
 });
 export type Args = z.infer<typeof Args>;
 
+/** @nodocs */
 export const task: Task<Args> = {
 	summary: 'execute a file with the loader, like `node` but works for TypeScript',
 	Args,
