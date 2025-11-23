@@ -51,6 +51,13 @@ export const Args = z.strictObject({
 	'no-build': z.boolean().meta({description: 'opt out of building'}).default(false),
 	pull: z.boolean().meta({description: 'dual of no-pull'}).default(true),
 	'no-pull': z.boolean().meta({description: 'opt out of git pull'}).default(false),
+	sync: z.boolean().meta({description: 'dual of no-sync'}).default(true),
+	'no-sync': z.boolean().meta({description: 'opt out of gro sync'}).default(false),
+	install: z.boolean().meta({description: 'dual of no-install'}).default(true),
+	'no-install': z
+		.boolean()
+		.meta({description: 'opt out of installing packages before publishing'})
+		.default(false),
 	changeset_cli: z.string().meta({description: 'the changeset CLI to use'}).default(CHANGESET_CLI),
 });
 export type Args = z.infer<typeof Args>;
@@ -69,6 +76,8 @@ export const task: Task<Args> = {
 			check,
 			build,
 			pull,
+			sync,
+			install,
 			optional,
 			changeset_cli,
 		} = args;
@@ -107,7 +116,10 @@ export const task: Task<Args> = {
 		// Install packages to ensure deps are current.
 		// Handles cases like branch switches where package.json changed.
 		// Skip gen because it will run after version bump.
-		await invoke_task('sync', {install: true, gen: false});
+		if (sync || install) {
+			if (!sync) log.warn('sync is false but install is true, so running sync for install only');
+			await invoke_task('sync', {install, gen: false});
+		}
 
 		// Check before proceeding, defaults to true.
 		if (check) {
