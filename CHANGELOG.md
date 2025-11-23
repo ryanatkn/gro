@@ -1,5 +1,16 @@
 # @ryanatkn/gro
 
+## 0.174.0
+
+### Minor Changes
+
+- unpublish `package.ts` and `package.gen.ts` ([#578](https://github.com/ryanatkn/gro/pull/578))
+
+### Patch Changes
+
+- improve filer missing file handling ([#579](https://github.com/ryanatkn/gro/pull/579))
+- add sync and install flags to publish task ([0629354](https://github.com/ryanatkn/gro/commit/0629354))
+
 ## 0.173.2
 
 ### Patch Changes
