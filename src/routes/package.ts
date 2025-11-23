@@ -6087,12 +6087,12 @@ export const src_json: Src_Json = {
 					kind: 'function',
 					source_line: 24,
 					type_signature:
-						'(file: "/.nojekyll" | "/.well-known/package.json" | "/.well-known/src.json" | "/CNAME" | "/favicon.png" | "/logo.svg" | "/robots.txt" | (string & {})): string',
+						'(file: "/CNAME" | "/favicon.png" | "/logo.svg" | "/robots.txt" | (string & {})): string',
 					return_type: 'string',
 					parameters: [
 						{
 							name: 'file',
-							type: '"/.nojekyll" | "/.well-known/package.json" | "/.well-known/src.json" | "/CNAME" | "/favicon.png" | "/logo.svg" | "/robots.txt" | (string & {})',
+							type: '"/CNAME" | "/favicon.png" | "/logo.svg" | "/robots.txt" | (string & {})',
 							optional: false,
 						},
 					],

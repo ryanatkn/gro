@@ -206,6 +206,12 @@ export const resolve: ResolveHook = async (specifier, context, nextResolve) => {
 		};
 	}
 
+	// Support SvelteKit `$app` imports, including from node_modules
+	const shimmed = sveltekit_shim_app_specifiers.get(s);
+	if (shimmed !== undefined) {
+		return nextResolve(shimmed, context);
+	}
+
 	// Special case for Gro's dependencies that import into Gro.
 	// Without this, we'd need to add a dev dep to Gro for Gro, which causes problems.
 	// TODO maybe make this generic, checking `package_json.name` against `s` and map it, possibly need to export `resolve_exported_value`
@@ -216,11 +222,6 @@ export const resolve: ResolveHook = async (specifier, context, nextResolve) => {
 	const parent_url = context.parentURL;
 	if (!parent_url || NODE_MODULES_MATCHER.test(parent_url)) {
 		return nextResolve(s, context);
-	}
-
-	const shimmed = sveltekit_shim_app_specifiers.get(s);
-	if (shimmed !== undefined) {
-		return nextResolve(shimmed, context);
 	}
 
 	s = map_sveltekit_aliases(s, aliases);
