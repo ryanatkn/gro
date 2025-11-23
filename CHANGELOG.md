@@ -1,5 +1,11 @@
 # @ryanatkn/gro
 
+## 0.174.2
+
+### Patch Changes
+
+- fix `$app/` resolution in loader for node_modules ([82756d3](https://github.com/ryanatkn/gro/commit/82756d3))
+
 ## 0.174.1
 
 ### Patch Changes
