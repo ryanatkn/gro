@@ -1,10 +1,10 @@
 {
   "name": "@ryanatkn/gro",
-  "version": "0.173.2",
-  "modules": {
-    ".": {
+  "version": "0.174.2",
+  "modules": [
+    {
       "path": "index.ts",
-      "declarations": [
+      "identifiers": [
         {
           "name": "Gro_Config",
           "kind": "type"
@@ -47,9 +47,9 @@
         }
       ]
     },
-    "./args.js": {
+    {
       "path": "args.ts",
-      "declarations": [
+      "identifiers": [
         {
           "name": "Args",
           "kind": "type"
@@ -96,9 +96,9 @@
         }
       ]
     },
-    "./build_cache.js": {
+    {
       "path": "build_cache.ts",
-      "declarations": [
+      "identifiers": [
         {
           "name": "BUILD_CACHE_METADATA_FILENAME",
           "kind": "variable"
@@ -149,9 +149,9 @@
         }
       ]
     },
-    "./build.task.js": {
+    {
       "path": "build.task.ts",
-      "declarations": [
+      "identifiers": [
         {
           "name": "Args",
           "kind": "variable"
@@ -166,18 +166,18 @@
         }
       ]
     },
-    "./changelog.js": {
+    {
       "path": "changelog.ts",
-      "declarations": [
+      "identifiers": [
         {
           "name": "update_changelog",
           "kind": "function"
         }
       ]
     },
-    "./changeset_helpers.js": {
+    {
       "path": "changeset_helpers.ts",
-      "declarations": [
+      "identifiers": [
         {
           "name": "CHANGESET_RESTRICTED_ACCESS",
           "kind": "variable"
@@ -204,9 +204,9 @@
         }
       ]
     },
-    "./changeset.task.js": {
+    {
       "path": "changeset.task.ts",
-      "declarations": [
+      "identifiers": [
         {
           "name": "Args",
           "kind": "variable"
@@ -217,9 +217,9 @@
         }
       ]
     },
-    "./check.task.js": {
+    {
       "path": "check.task.ts",
-      "declarations": [
+      "identifiers": [
         {
           "name": "Args",
           "kind": "variable"
@@ -230,9 +230,9 @@
         }
       ]
     },
-    "./child_process_logging.js": {
+    {
       "path": "child_process_logging.ts",
-      "declarations": [
+      "identifiers": [
         {
           "name": "map_child_process_output",
           "kind": "function"
@@ -243,18 +243,18 @@
         }
       ]
     },
-    "./clean_fs.js": {
+    {
       "path": "clean_fs.ts",
-      "declarations": [
+      "identifiers": [
         {
           "name": "clean_fs",
           "kind": "function"
         }
       ]
     },
-    "./clean.task.js": {
+    {
       "path": "clean.task.ts",
-      "declarations": [
+      "identifiers": [
         {
           "name": "Args",
           "kind": "variable"
@@ -265,9 +265,9 @@
         }
       ]
     },
-    "./cli.js": {
+    {
       "path": "cli.ts",
-      "declarations": [
+      "identifiers": [
         {
           "name": "Cli",
           "kind": "type"
@@ -294,9 +294,9 @@
         }
       ]
     },
-    "./commit.task.js": {
+    {
       "path": "commit.task.ts",
-      "declarations": [
+      "identifiers": [
         {
           "name": "Args",
           "kind": "variable"
@@ -307,9 +307,9 @@
         }
       ]
     },
-    "./constants.js": {
+    {
       "path": "constants.ts",
-      "declarations": [
+      "identifiers": [
         {
           "name": "SOURCE_DIRNAME",
           "kind": "variable"
@@ -476,9 +476,9 @@
         }
       ]
     },
-    "./deploy.task.js": {
+    {
       "path": "deploy.task.ts",
-      "declarations": [
+      "identifiers": [
         {
           "name": "Args",
           "kind": "variable"
@@ -489,9 +489,9 @@
         }
       ]
     },
-    "./dev.task.js": {
+    {
       "path": "dev.task.ts",
-      "declarations": [
+      "identifiers": [
         {
           "name": "Args",
           "kind": "variable"
@@ -506,18 +506,18 @@
         }
       ]
     },
-    "./disknode.js": {
+    {
       "path": "disknode.ts",
-      "declarations": [
+      "identifiers": [
         {
           "name": "Disknode",
           "kind": "type"
         }
       ]
     },
-    "./env.js": {
+    {
       "path": "env.ts",
-      "declarations": [
+      "identifiers": [
         {
           "name": "load_env",
           "kind": "function"
@@ -540,9 +540,9 @@
         }
       ]
     },
-    "./esbuild_helpers.js": {
+    {
       "path": "esbuild_helpers.ts",
-      "declarations": [
+      "identifiers": [
         {
           "name": "print_build_result",
           "kind": "function"
@@ -557,9 +557,9 @@
         }
       ]
     },
-    "./esbuild_plugin_external_worker.js": {
+    {
       "path": "esbuild_plugin_external_worker.ts",
-      "declarations": [
+      "identifiers": [
         {
           "name": "Esbuild_Plugin_External_Worker_Options",
           "kind": "type"
@@ -570,9 +570,9 @@
         }
       ]
     },
-    "./esbuild_plugin_svelte.js": {
+    {
       "path": "esbuild_plugin_svelte.ts",
-      "declarations": [
+      "identifiers": [
         {
           "name": "Esbuild_Plugin_Svelte_Options",
           "kind": "type"
@@ -583,18 +583,18 @@
         }
       ]
     },
-    "./esbuild_plugin_sveltekit_local_imports.js": {
+    {
       "path": "esbuild_plugin_sveltekit_local_imports.ts",
-      "declarations": [
+      "identifiers": [
         {
           "name": "esbuild_plugin_sveltekit_local_imports",
           "kind": "function"
         }
       ]
     },
-    "./esbuild_plugin_sveltekit_shim_alias.js": {
+    {
       "path": "esbuild_plugin_sveltekit_shim_alias.ts",
-      "declarations": [
+      "identifiers": [
         {
           "name": "Esbuild_Plugin_Sveltekit_Shim_Alias_Options",
           "kind": "type"
@@ -605,9 +605,9 @@
         }
       ]
     },
-    "./esbuild_plugin_sveltekit_shim_app.js": {
+    {
       "path": "esbuild_plugin_sveltekit_shim_app.ts",
-      "declarations": [
+      "identifiers": [
         {
           "name": "Esbuild_Plugin_Sveltekit_Shim_App_Options",
           "kind": "type"
@@ -618,9 +618,9 @@
         }
       ]
     },
-    "./esbuild_plugin_sveltekit_shim_env.js": {
+    {
       "path": "esbuild_plugin_sveltekit_shim_env.ts",
-      "declarations": [
+      "identifiers": [
         {
           "name": "Esbuild_Plugin_Sveltekit_Shim_Env_Options",
           "kind": "type"
@@ -631,9 +631,9 @@
         }
       ]
     },
-    "./filer.js": {
+    {
       "path": "filer.ts",
-      "declarations": [
+      "identifiers": [
         {
           "name": "On_Filer_Change",
           "kind": "type"
@@ -652,27 +652,27 @@
         }
       ]
     },
-    "./format_directory.js": {
+    {
       "path": "format_directory.ts",
-      "declarations": [
+      "identifiers": [
         {
           "name": "format_directory",
           "kind": "function"
         }
       ]
     },
-    "./format_file.js": {
+    {
       "path": "format_file.ts",
-      "declarations": [
+      "identifiers": [
         {
           "name": "format_file",
           "kind": "function"
         }
       ]
     },
-    "./format.task.js": {
+    {
       "path": "format.task.ts",
-      "declarations": [
+      "identifiers": [
         {
           "name": "Args",
           "kind": "variable"
@@ -683,27 +683,27 @@
         }
       ]
     },
-    "./fs.js": {
+    {
       "path": "fs.ts",
-      "declarations": [
+      "identifiers": [
         {
           "name": "empty_dir",
           "kind": "function"
         }
       ]
     },
-    "./gen_helpers.js": {
+    {
       "path": "gen_helpers.ts",
-      "declarations": [
+      "identifiers": [
         {
           "name": "should_trigger_gen",
           "kind": "function"
         }
       ]
     },
-    "./gen.task.js": {
+    {
       "path": "gen.task.ts",
-      "declarations": [
+      "identifiers": [
         {
           "name": "Args",
           "kind": "variable"
@@ -714,9 +714,9 @@
         }
       ]
     },
-    "./gen.js": {
+    {
       "path": "gen.ts",
-      "declarations": [
+      "identifiers": [
         {
           "name": "GEN_FILE_PATTERN_TEXT",
           "kind": "variable"
@@ -863,9 +863,9 @@
         }
       ]
     },
-    "./github.js": {
+    {
       "path": "github.ts",
-      "declarations": [
+      "identifiers": [
         {
           "name": "GITHUB_REPO_MATCHER",
           "kind": "variable"
@@ -880,9 +880,9 @@
         }
       ]
     },
-    "./gro_config.js": {
+    {
       "path": "gro_config.ts",
-      "declarations": [
+      "identifiers": [
         {
           "name": "EMPTY_BUILD_CACHE_CONFIG_HASH",
           "kind": "variable"
@@ -929,9 +929,9 @@
         }
       ]
     },
-    "./gro_helpers.js": {
+    {
       "path": "gro_helpers.ts",
-      "declarations": [
+      "identifiers": [
         {
           "name": "resolve_gro_module_path",
           "kind": "function"
@@ -942,9 +942,9 @@
         }
       ]
     },
-    "./gro_plugin_gen.js": {
+    {
       "path": "gro_plugin_gen.ts",
-      "declarations": [
+      "identifiers": [
         {
           "name": "Task_Args",
           "kind": "type"
@@ -959,9 +959,9 @@
         }
       ]
     },
-    "./gro_plugin_server.js": {
+    {
       "path": "gro_plugin_server.ts",
-      "declarations": [
+      "identifiers": [
         {
           "name": "SERVER_SOURCE_ID",
           "kind": "variable"
@@ -988,9 +988,9 @@
         }
       ]
     },
-    "./gro_plugin_sveltekit_app.js": {
+    {
       "path": "gro_plugin_sveltekit_app.ts",
-      "declarations": [
+      "identifiers": [
         {
           "name": "Gro_Plugin_Sveltekit_App_Options",
           "kind": "type"
@@ -1009,9 +1009,9 @@
         }
       ]
     },
-    "./gro_plugin_sveltekit_library.js": {
+    {
       "path": "gro_plugin_sveltekit_library.ts",
-      "declarations": [
+      "identifiers": [
         {
           "name": "Gro_Plugin_Sveltekit_Library_Options",
           "kind": "type"
@@ -1022,30 +1022,30 @@
         }
       ]
     },
-    "./gro.config.default.js": {
+    {
       "path": "gro.config.default.ts",
-      "declarations": [
+      "identifiers": [
         {
           "name": "default",
           "kind": "function"
         }
       ]
     },
-    "./gro.js": {
+    {
       "path": "gro.ts"
     },
-    "./hash.js": {
+    {
       "path": "hash.ts",
-      "declarations": [
+      "identifiers": [
         {
           "name": "to_hash",
           "kind": "function"
         }
       ]
     },
-    "./index.js": {
+    {
       "path": "index.ts",
-      "declarations": [
+      "identifiers": [
         {
           "name": "Gro_Config",
           "kind": "type"
@@ -1088,9 +1088,9 @@
         }
       ]
     },
-    "./input_path.js": {
+    {
       "path": "input_path.ts",
-      "declarations": [
+      "identifiers": [
         {
           "name": "Input_Path",
           "kind": "variable"
@@ -1141,21 +1141,21 @@
         }
       ]
     },
-    "./invoke_task.js": {
+    {
       "path": "invoke_task.ts",
-      "declarations": [
+      "identifiers": [
         {
           "name": "invoke_task",
           "kind": "function"
         }
       ]
     },
-    "./invoke.js": {
+    {
       "path": "invoke.ts"
     },
-    "./lint.task.js": {
+    {
       "path": "lint.task.ts",
-      "declarations": [
+      "identifiers": [
         {
           "name": "Args",
           "kind": "variable"
@@ -1166,9 +1166,9 @@
         }
       ]
     },
-    "./loader.js": {
+    {
       "path": "loader.ts",
-      "declarations": [
+      "identifiers": [
         {
           "name": "load",
           "kind": "function"
@@ -1179,9 +1179,9 @@
         }
       ]
     },
-    "./module.js": {
+    {
       "path": "module.ts",
-      "declarations": [
+      "identifiers": [
         {
           "name": "MODULE_PATH_SRC_PREFIX",
           "kind": "variable"
@@ -1196,9 +1196,9 @@
         }
       ]
     },
-    "./modules.js": {
+    {
       "path": "modules.ts",
-      "declarations": [
+      "identifiers": [
         {
           "name": "Module_Meta",
           "kind": "type"
@@ -1229,11 +1229,11 @@
         }
       ]
     },
-    "./package_json.js": {
+    {
       "path": "package_json.ts",
-      "declarations": [
+      "identifiers": [
         {
-          "name": "Map_Package_Json",
+          "name": "Package_Json_Mapper",
           "kind": "type"
         },
         {
@@ -1286,40 +1286,18 @@
         }
       ]
     },
-    "./package.gen.js": {
-      "path": "package.gen.ts",
-      "declarations": [
-        {
-          "name": "gen",
-          "kind": "function"
-        }
-      ]
-    },
-    "./package.js": {
-      "path": "package.ts",
-      "declarations": [
-        {
-          "name": "package_json",
-          "kind": "variable"
-        },
-        {
-          "name": "src_json",
-          "kind": "variable"
-        }
-      ]
-    },
-    "./parse_exports_context.js": {
+    {
       "path": "parse_exports_context.ts",
-      "declarations": [
+      "identifiers": [
         {
           "name": "Parse_Exports_Context",
           "kind": "class"
         }
       ]
     },
-    "./parse_exports.js": {
+    {
       "path": "parse_exports.ts",
-      "declarations": [
+      "identifiers": [
         {
           "name": "Declaration",
           "kind": "type"
@@ -1342,9 +1320,9 @@
         }
       ]
     },
-    "./parse_imports.js": {
+    {
       "path": "parse_imports.ts",
-      "declarations": [
+      "identifiers": [
         {
           "name": "Import_Specifier",
           "kind": "type"
@@ -1355,9 +1333,9 @@
         }
       ]
     },
-    "./paths.js": {
+    {
       "path": "paths.ts",
-      "declarations": [
+      "identifiers": [
         {
           "name": "LIB_DIRNAME",
           "kind": "variable"
@@ -1432,9 +1410,9 @@
         }
       ]
     },
-    "./plugin.js": {
+    {
       "path": "plugin.ts",
-      "declarations": [
+      "identifiers": [
         {
           "name": "Plugin",
           "kind": "type"
@@ -1457,9 +1435,9 @@
         }
       ]
     },
-    "./publish.task.js": {
+    {
       "path": "publish.task.ts",
-      "declarations": [
+      "identifiers": [
         {
           "name": "Args",
           "kind": "variable"
@@ -1470,12 +1448,12 @@
         }
       ]
     },
-    "./register.js": {
+    {
       "path": "register.ts"
     },
-    "./reinstall.task.js": {
+    {
       "path": "reinstall.task.ts",
-      "declarations": [
+      "identifiers": [
         {
           "name": "Args",
           "kind": "variable"
@@ -1486,9 +1464,9 @@
         }
       ]
     },
-    "./release.task.js": {
+    {
       "path": "release.task.ts",
-      "declarations": [
+      "identifiers": [
         {
           "name": "Args",
           "kind": "variable"
@@ -1499,9 +1477,9 @@
         }
       ]
     },
-    "./resolve_specifier.js": {
+    {
       "path": "resolve_specifier.ts",
-      "declarations": [
+      "identifiers": [
         {
           "name": "Resolved_Specifier",
           "kind": "type"
@@ -1512,9 +1490,9 @@
         }
       ]
     },
-    "./resolve.task.js": {
+    {
       "path": "resolve.task.ts",
-      "declarations": [
+      "identifiers": [
         {
           "name": "Args",
           "kind": "variable"
@@ -1525,9 +1503,9 @@
         }
       ]
     },
-    "./run_gen.js": {
+    {
       "path": "run_gen.ts",
-      "declarations": [
+      "identifiers": [
         {
           "name": "GEN_NO_PROD_MESSAGE",
           "kind": "variable"
@@ -1538,9 +1516,9 @@
         }
       ]
     },
-    "./run_task.js": {
+    {
       "path": "run_task.ts",
-      "declarations": [
+      "identifiers": [
         {
           "name": "Run_Task_Result",
           "kind": "type"
@@ -1551,9 +1529,9 @@
         }
       ]
     },
-    "./run.task.js": {
+    {
       "path": "run.task.ts",
-      "declarations": [
+      "identifiers": [
         {
           "name": "Args",
           "kind": "variable"
@@ -1564,9 +1542,9 @@
         }
       ]
     },
-    "./search_fs.js": {
+    {
       "path": "search_fs.ts",
-      "declarations": [
+      "identifiers": [
         {
           "name": "Search_Fs_Options",
           "kind": "type"
@@ -1581,30 +1559,30 @@
         }
       ]
     },
-    "./src_json.js": {
+    {
       "path": "src_json.ts",
-      "declarations": [
+      "identifiers": [
         {
-          "name": "Map_Src_Json",
+          "name": "Src_Json_Mapper",
           "kind": "type"
         },
         {
-          "name": "create_src_json",
+          "name": "src_json_create",
           "kind": "function"
         },
         {
-          "name": "serialize_src_json",
+          "name": "src_json_serialize",
           "kind": "function"
         },
         {
-          "name": "to_src_modules",
+          "name": "src_modules_create",
           "kind": "function"
         }
       ]
     },
-    "./svelte_config.js": {
+    {
       "path": "svelte_config.ts",
-      "declarations": [
+      "identifiers": [
         {
           "name": "load_svelte_config",
           "kind": "function"
@@ -1627,9 +1605,9 @@
         }
       ]
     },
-    "./sveltekit_helpers.js": {
+    {
       "path": "sveltekit_helpers.ts",
-      "declarations": [
+      "identifiers": [
         {
           "name": "has_sveltekit_app",
           "kind": "function"
@@ -1664,9 +1642,9 @@
         }
       ]
     },
-    "./sveltekit_shim_app_environment.js": {
+    {
       "path": "sveltekit_shim_app_environment.ts",
-      "declarations": [
+      "identifiers": [
         {
           "name": "browser",
           "kind": "variable"
@@ -1685,9 +1663,9 @@
         }
       ]
     },
-    "./sveltekit_shim_app_forms.js": {
+    {
       "path": "sveltekit_shim_app_forms.ts",
-      "declarations": [
+      "identifiers": [
         {
           "name": "applyAction",
           "kind": "function"
@@ -1702,9 +1680,9 @@
         }
       ]
     },
-    "./sveltekit_shim_app_navigation.js": {
+    {
       "path": "sveltekit_shim_app_navigation.ts",
-      "declarations": [
+      "identifiers": [
         {
           "name": "afterNavigate",
           "kind": "function"
@@ -1739,9 +1717,9 @@
         }
       ]
     },
-    "./sveltekit_shim_app_paths.js": {
+    {
       "path": "sveltekit_shim_app_paths.ts",
-      "declarations": [
+      "identifiers": [
         {
           "name": "assets",
           "kind": "variable"
@@ -1764,9 +1742,9 @@
         }
       ]
     },
-    "./sveltekit_shim_app_state.js": {
+    {
       "path": "sveltekit_shim_app_state.ts",
-      "declarations": [
+      "identifiers": [
         {
           "name": "navigating",
           "kind": "variable"
@@ -1781,9 +1759,9 @@
         }
       ]
     },
-    "./sveltekit_shim_app.js": {
+    {
       "path": "sveltekit_shim_app.ts",
-      "declarations": [
+      "identifiers": [
         {
           "name": "SVELTEKIT_SHIM_APP_PATHS_MATCHER",
           "kind": "variable"
@@ -1806,18 +1784,18 @@
         }
       ]
     },
-    "./sveltekit_shim_env.js": {
+    {
       "path": "sveltekit_shim_env.ts",
-      "declarations": [
+      "identifiers": [
         {
           "name": "render_env_shim_module",
           "kind": "function"
         }
       ]
     },
-    "./sync.task.js": {
+    {
       "path": "sync.task.ts",
-      "declarations": [
+      "identifiers": [
         {
           "name": "Args",
           "kind": "variable"
@@ -1828,9 +1806,9 @@
         }
       ]
     },
-    "./task_logging.js": {
+    {
       "path": "task_logging.ts",
-      "declarations": [
+      "identifiers": [
         {
           "name": "log_tasks",
           "kind": "function"
@@ -1845,9 +1823,9 @@
         }
       ]
     },
-    "./task.js": {
+    {
       "path": "task.ts",
-      "declarations": [
+      "identifiers": [
         {
           "name": "Task",
           "kind": "type"
@@ -1938,9 +1916,9 @@
         }
       ]
     },
-    "./test.task.js": {
+    {
       "path": "test.task.ts",
-      "declarations": [
+      "identifiers": [
         {
           "name": "Args",
           "kind": "variable"
@@ -1951,9 +1929,9 @@
         }
       ]
     },
-    "./typecheck.task.js": {
+    {
       "path": "typecheck.task.ts",
-      "declarations": [
+      "identifiers": [
         {
           "name": "Args",
           "kind": "variable"
@@ -1964,9 +1942,9 @@
         }
       ]
     },
-    "./upgrade.task.js": {
+    {
       "path": "upgrade.task.ts",
-      "declarations": [
+      "identifiers": [
         {
           "name": "Args",
           "kind": "variable"
@@ -1977,9 +1955,9 @@
         }
       ]
     },
-    "./watch_dir.js": {
+    {
       "path": "watch_dir.ts",
-      "declarations": [
+      "identifiers": [
         {
           "name": "Watch_Node_Fs",
           "kind": "type"
@@ -2006,5 +1984,5 @@
         }
       ]
     }
-  }
+  ]
 }
