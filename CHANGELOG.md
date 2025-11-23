@@ -1,5 +1,11 @@
 # @ryanatkn/gro
 
+## 0.174.1
+
+### Patch Changes
+
+- install after version bump when deploying ([f9a7c95](https://github.com/ryanatkn/gro/commit/f9a7c95))
+
 ## 0.174.0
 
 ### Minor Changes
