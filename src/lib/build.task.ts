@@ -15,6 +15,7 @@ import {
 } from './build_cache.ts';
 import {paths} from './paths.ts';
 
+/** @nodocs */
 export const Args = z.strictObject({
 	sync: z.boolean().meta({description: 'dual of no-sync'}).default(true),
 	'no-sync': z.boolean().meta({description: 'opt out of gro sync'}).default(false),
@@ -42,6 +43,7 @@ export const GIT_SHORT_HASH_LENGTH = 7;
 const format_commit_hash = (hash: string | null): string =>
 	hash?.slice(0, GIT_SHORT_HASH_LENGTH) ?? '[none]';
 
+/** @nodocs */
 export const task: Task<Args> = {
 	summary: 'build the project',
 	Args,

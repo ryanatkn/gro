@@ -5,6 +5,7 @@ import {Task_Error, type Task} from './task.ts';
 import {format_directory} from './format_directory.ts';
 import {paths} from './paths.ts';
 
+/** @nodocs */
 export const Args = z.strictObject({
 	check: z
 		.boolean()
@@ -13,6 +14,7 @@ export const Args = z.strictObject({
 });
 export type Args = z.infer<typeof Args>;
 
+/** @nodocs */
 export const task: Task<Args> = {
 	summary: 'format source files',
 	Args,

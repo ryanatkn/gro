@@ -19,6 +19,7 @@ import {update_changelog} from './changelog.ts';
 import {load_from_env} from './env.ts';
 import {CHANGESET_CLI} from './changeset_helpers.ts';
 
+/** @nodocs */
 export const Args = z.strictObject({
 	branch: Git_Branch.describe('branch to publish from').default('main'),
 	origin: Git_Origin.describe('git origin to publish from').default('origin'),
@@ -54,6 +55,7 @@ export const Args = z.strictObject({
 });
 export type Args = z.infer<typeof Args>;
 
+/** @nodocs */
 export const task: Task<Args> = {
 	summary: 'bump version, publish to the configured registry, and git push',
 	Args,

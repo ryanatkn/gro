@@ -9,6 +9,7 @@ import {spawn_cli} from './cli.ts';
 import {serialize_args, to_forwarded_args} from './args.ts';
 import {NODE_MODULES_DIRNAME} from './constants.ts';
 
+/** @nodocs */
 export const Args = z.strictObject({
 	_: z
 		.array(z.string())
@@ -45,6 +46,7 @@ export const Args = z.strictObject({
 });
 export type Args = z.infer<typeof Args>;
 
+/** @nodocs */
 export const task: Task<Args> = {
 	summary: 'upgrade deps',
 	Args,

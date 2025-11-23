@@ -4,10 +4,14 @@ import {dirname, join} from 'node:path';
 
 import type {Plugin} from './plugin.ts';
 import {serialize_args, to_forwarded_args} from './args.ts';
-import {serialize_package_json, type Map_Package_Json, load_package_json} from './package_json.ts';
+import {
+	serialize_package_json,
+	type Package_Json_Mapper,
+	load_package_json,
+} from './package_json.ts';
 import {Task_Error} from './task.ts';
 import {find_cli, spawn_cli, spawn_cli_process} from './cli.ts';
-import {type Map_Src_Json, serialize_src_json, create_src_json} from './src_json.ts';
+import {type Src_Json_Mapper, src_json_serialize, src_json_create} from './src_json.ts';
 import {EXPORTS_EXCLUDER_DEFAULT} from './gro_config.ts';
 import {default_svelte_config} from './svelte_config.ts';
 import {SOURCE_DIRNAME, VITE_CLI} from './constants.ts';
@@ -23,13 +27,13 @@ export interface Gro_Plugin_Sveltekit_App_Options {
 	 * If truthy, adds `/.well-known/package.json` to the static output.
 	 * If a function, maps the value.
 	 */
-	well_known_package_json?: boolean | Map_Package_Json;
+	well_known_package_json?: boolean | Package_Json_Mapper;
 
 	/**
 	 * If truthy, adds `/.well-known/src.json` and `/.well-known/src/` to the static output.
 	 * If a function, maps the value.
 	 */
-	well_known_src_json?: boolean | Map_Src_Json;
+	well_known_src_json?: boolean | Src_Json_Mapper;
 
 	/**
 	 * If truthy, copies `src/` to `/.well-known/src/` to the static output.
@@ -91,7 +95,7 @@ export const gro_plugin_sveltekit_app = ({
 
 				// `.well-known/src.json` and `.well-known/src/`
 				const final_package_json = mapped_package_json ?? package_json;
-				const src_json = create_src_json(final_package_json, undefined, log);
+				const src_json = src_json_create(final_package_json, undefined, log);
 				if (well_known_src_json === undefined) {
 					well_known_src_json = final_package_json.public; // eslint-disable-line no-param-reassign
 				}
@@ -100,7 +104,7 @@ export const gro_plugin_sveltekit_app = ({
 					: well_known_src_json === true
 						? src_json
 						: await well_known_src_json(src_json);
-				const serialized_src_json = mapped_src_json && serialize_src_json(mapped_src_json);
+				const serialized_src_json = mapped_src_json && src_json_serialize(mapped_src_json);
 
 				// TODO this strategy means the files aren't available during development --
 				// maybe a Vite middleware is best? what if this plugin added its plugin to your `vite.config.ts`?

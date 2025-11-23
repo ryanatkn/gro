@@ -9,6 +9,7 @@ import {configure_colored_output_with_path_replacement} from './child_process_lo
 import {paths} from './paths.ts';
 import {SVELTE_CHECK_CLI} from './constants.ts';
 
+/** @nodocs */
 export const Args = z.strictObject({
 	svelte_check_cli: z
 		.string()
@@ -26,6 +27,7 @@ export const Args = z.strictObject({
 });
 export type Args = z.infer<typeof Args>;
 
+/** @nodocs */
 export const task: Task<Args> = {
 	summary: 'run svelte-check or tsc on the project without emitting any files',
 	Args,

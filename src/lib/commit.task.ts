@@ -4,6 +4,7 @@ import {Git_Origin, git_current_branch_name, git_push} from '@ryanatkn/belt/git.
 
 import type {Task} from './task.ts';
 
+/** @nodocs */
 export const Args = z.strictObject({
 	_: z
 		.array(z.string())
@@ -15,6 +16,7 @@ export const Args = z.strictObject({
 });
 export type Args = z.infer<typeof Args>;
 
+/** @nodocs */
 export const task: Task<Args> = {
 	summary: 'commit and push to a new branch',
 	Args,

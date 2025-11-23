@@ -4,6 +4,7 @@ import type {Task} from './task.ts';
 import {Plugins, type Plugin_Context} from './plugin.ts';
 import {clean_fs} from './clean_fs.ts';
 
+/** @nodocs */
 export const Args = z.strictObject({
 	watch: z.boolean().meta({description: 'dual of no-watch'}).default(true),
 	'no-watch': z
@@ -20,6 +21,7 @@ export type Args = z.infer<typeof Args>;
 
 export type DevTask_Context = Plugin_Context<Args>;
 
+/** @nodocs */
 export const task: Task<Args> = {
 	summary: 'start SvelteKit and other dev plugins',
 	Args,
