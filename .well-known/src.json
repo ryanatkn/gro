@@ -1,6 +1,6 @@
 {
   "name": "@ryanatkn/gro",
-  "version": "0.174.2",
+  "version": "0.175.0",
   "modules": [
     {
       "path": "index.ts",
@@ -680,15 +680,6 @@
         {
           "name": "task",
           "kind": "variable"
-        }
-      ]
-    },
-    {
-      "path": "fs.ts",
-      "identifiers": [
-        {
-          "name": "empty_dir",
-          "kind": "function"
         }
       ]
     },
