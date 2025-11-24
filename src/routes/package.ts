@@ -68,7 +68,7 @@ export const package_json: Package_Json = {
 		zod: '^4.1.12',
 	},
 	peerDependencies: {
-		'@ryanatkn/belt': '^0.38.0',
+		'@ryanatkn/belt': '>=0.38.0',
 		'@sveltejs/kit': '^2',
 		esbuild: '^0.25',
 		svelte: '^5',
@@ -6063,9 +6063,9 @@ export const src_json: Src_Json = {
 					kind: 'function',
 					source_line: 21,
 					type_signature:
-						'<T extends RouteId | Pathname>(...args: ResolveArgs<T>): "/" | "/about" | "/history" | `/${string}/` | `/${string}/about` | `/${string}/history` | `/${string}/about/` | `/${string}/history/`',
+						'<T extends RouteId | Pathname>(...args: ResolveArgs<T>): "/" | "/about" | "/docs" | "/docs/api" | "/history" | `${`/docs/api/${string}` & {}}` | `${`/docs/api/${string}/` & {}}` | `/${string}/` | `/${string}/about` | ... 8 more ... | `/${string}/history/`',
 					return_type:
-						'"/" | "/about" | "/history" | `/${string}/` | `/${string}/about` | `/${string}/history` | `/${string}/about/` | `/${string}/history/`',
+						'"/" | "/about" | "/docs" | "/docs/api" | "/history" | `${`/docs/api/${string}` & {}}` | `${`/docs/api/${string}/` & {}}` | `/${string}/` | `/${string}/about` | `/${string}/docs` | `/${string}/docs/api` | `/${string}/history` | `/${string}/about/` | `/${string}/docs/` | `/${string}/docs/api/` | `/${string}${`/docs/ap...',
 					parameters: [
 						{
 							name: 'args',
@@ -6080,7 +6080,7 @@ export const src_json: Src_Json = {
 					doc_comment: '',
 					source_line: 23,
 					type_signature:
-						'<T extends RouteId | Pathname>(...args: ResolveArgs<T>) => "/" | "/about" | "/history" | `/${string}/` | `/${string}/about` | `/${string}/history` | `/${string}/about/` | `/${string}/history/`',
+						'<T extends RouteId | Pathname>(...args: ResolveArgs<T>) => "/" | "/about" | "/docs" | "/docs/api" | "/history" | `${`/docs/api/${string}` & {}}` | `${`/docs/api/${string}/` & {}}` | `/${string}/` | `/${string}/about` | ... 8 more ... | `/${string}/history/`',
 				},
 				{
 					name: 'asset',
@@ -6115,7 +6115,8 @@ export const src_json: Src_Json = {
 					name: 'page',
 					kind: 'variable',
 					source_line: 19,
-					type_signature: 'Page<Record<string, never>, "/" | "/about" | "/history" | null>',
+					type_signature:
+						'Page<{ module_path?: string | undefined; }, "/" | "/about" | "/docs" | "/docs/api" | "/docs/api/[...module_path]" | "/history" | null>',
 				},
 				{
 					name: 'updated',

@@ -1,5 +1,4 @@
 <script lang="ts">
-	// TODO add docs
 	// import Package_Detail from '@ryanatkn/fuz/Package_Detail.svelte';
 	import Docs_Footer from '@ryanatkn/fuz/Docs_Footer.svelte';
 	import Ecosystem_Links_Panel from '@ryanatkn/fuz/Ecosystem_Links_Panel.svelte';
@@ -10,8 +9,6 @@
 
 	const pkg = new Pkg(package_json, src_json);
 	pkg_context.set(pkg);
-
-	// TODO standardize
 </script>
 
 <main class="width_upto_md">
