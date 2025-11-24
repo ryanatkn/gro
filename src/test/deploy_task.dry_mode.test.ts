@@ -45,8 +45,8 @@ vi.mock('node:fs/promises', () => ({
 	rm: vi.fn(),
 }));
 
-vi.mock('../lib/fs.ts', () => ({
-	empty_dir: vi.fn(),
+vi.mock('@ryanatkn/belt/fs.js', () => ({
+	fs_empty_dir: vi.fn(),
 }));
 
 describe('deploy_task dry mode', () => {
@@ -56,8 +56,8 @@ describe('deploy_task dry mode', () => {
 		await setup_successful_fs_mocks();
 		await setup_successful_spawn_mock();
 
-		const {empty_dir} = vi.mocked(await import('../lib/fs.ts'));
-		vi.mocked(empty_dir).mockResolvedValue(undefined);
+		const {fs_empty_dir} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+		vi.mocked(fs_empty_dir).mockResolvedValue(undefined);
 	});
 
 	afterEach(() => {
@@ -67,7 +67,7 @@ describe('deploy_task dry mode', () => {
 	describe('dry mode behavior', () => {
 		test('performs all steps except git commit and push', async () => {
 			const {git_checkout, git_pull} = vi.mocked(await import('@ryanatkn/belt/git.js'));
-			const {empty_dir} = vi.mocked(await import('../lib/fs.ts'));
+			const {fs_empty_dir} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
 			const {cp} = await import('node:fs/promises');
 			const {spawn} = vi.mocked(await import('@ryanatkn/belt/process.js'));
 			const {existsSync} = await import('node:fs');
@@ -82,7 +82,7 @@ describe('deploy_task dry mode', () => {
 			expect(git_checkout).toHaveBeenCalled();
 			expect(git_pull).toHaveBeenCalled();
 			expect(ctx.invoke_task).toHaveBeenCalledWith('build');
-			expect(empty_dir).toHaveBeenCalled();
+			expect(fs_empty_dir).toHaveBeenCalled();
 			expect(cp).toHaveBeenCalled();
 
 			// Should NOT commit or push

@@ -48,8 +48,8 @@ vi.mock('node:fs/promises', () => ({
 	rm: vi.fn(),
 }));
 
-vi.mock('../lib/fs.ts', () => ({
-	empty_dir: vi.fn(),
+vi.mock('@ryanatkn/belt/fs.js', () => ({
+	fs_empty_dir: vi.fn(),
 }));
 
 describe('deploy_task deploy directory operations', () => {
@@ -59,8 +59,8 @@ describe('deploy_task deploy directory operations', () => {
 		await setup_successful_fs_mocks();
 		await setup_successful_spawn_mock();
 
-		const {empty_dir} = vi.mocked(await import('../lib/fs.ts'));
-		vi.mocked(empty_dir).mockResolvedValue(undefined);
+		const {fs_empty_dir} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+		vi.mocked(fs_empty_dir).mockResolvedValue(undefined);
 	});
 
 	afterEach(() => {
@@ -69,7 +69,7 @@ describe('deploy_task deploy directory operations', () => {
 
 	describe('deploy directory cleanup', () => {
 		test('empties deploy_dir before copying build output', async () => {
-			const {empty_dir} = vi.mocked(await import('../lib/fs.ts'));
+			const {fs_empty_dir} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
 			const {existsSync} = await import('node:fs');
 
 			vi.mocked(existsSync).mockReturnValue(true);
@@ -82,11 +82,11 @@ describe('deploy_task deploy directory operations', () => {
 			await deploy_task.run(ctx);
 
 			// Should empty the deploy dir
-			expect(empty_dir).toHaveBeenCalledWith(resolve('.gro/deploy'), expect.any(Function));
+			expect(fs_empty_dir).toHaveBeenCalledWith(resolve('.gro/deploy'), expect.any(Function));
 		});
 
 		test('preserves .git directory when emptying deploy_dir', async () => {
-			const {empty_dir} = vi.mocked(await import('../lib/fs.ts'));
+			const {fs_empty_dir} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
 			const {existsSync} = await import('node:fs');
 
 			vi.mocked(existsSync).mockReturnValue(true);
@@ -96,8 +96,8 @@ describe('deploy_task deploy directory operations', () => {
 			await deploy_task.run(ctx);
 
 			// Should pass a filter function that preserves .git
-			expect(empty_dir).toHaveBeenCalled();
-			const filter_fn = (empty_dir as any).mock.calls[0][1];
+			expect(fs_empty_dir).toHaveBeenCalled();
+			const filter_fn = (fs_empty_dir as any).mock.calls[0][1];
 			expect(typeof filter_fn).toBe('function');
 
 			// Filter returns false for paths to preserve (don't delete)
@@ -110,7 +110,7 @@ describe('deploy_task deploy directory operations', () => {
 
 		test('empty happens after target branch preparation', async () => {
 			const {git_pull} = vi.mocked(await import('@ryanatkn/belt/git.js'));
-			const {empty_dir} = vi.mocked(await import('../lib/fs.ts'));
+			const {fs_empty_dir} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
 			const {existsSync} = await import('node:fs');
 
 			vi.mocked(existsSync).mockReturnValue(true);
@@ -121,13 +121,13 @@ describe('deploy_task deploy directory operations', () => {
 
 			// empty_dir should be called after git operations
 			const pull_order = git_pull.mock.invocationCallOrder[0]!;
-			const empty_order = (empty_dir as any).mock.invocationCallOrder[0]!;
+			const empty_order = (fs_empty_dir as any).mock.invocationCallOrder[0]!;
 
 			expect(empty_order).toBeGreaterThan(pull_order);
 		});
 
 		test('empty happens before copying files', async () => {
-			const {empty_dir} = vi.mocked(await import('../lib/fs.ts'));
+			const {fs_empty_dir} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
 			const {cp} = await import('node:fs/promises');
 			const {existsSync} = await import('node:fs');
 
@@ -138,7 +138,7 @@ describe('deploy_task deploy directory operations', () => {
 			await deploy_task.run(ctx);
 
 			// empty_dir should be called before cp
-			const empty_order = (empty_dir as any).mock.invocationCallOrder[0];
+			const empty_order = (fs_empty_dir as any).mock.invocationCallOrder[0];
 			const cp_order = (cp as any).mock.invocationCallOrder[0];
 
 			expect(empty_order).toBeLessThan(cp_order);
@@ -269,11 +269,11 @@ describe('deploy_task deploy directory operations', () => {
 
 	describe('error handling', () => {
 		test('propagates error when empty_dir fails', async () => {
-			const {empty_dir} = vi.mocked(await import('../lib/fs.ts'));
+			const {fs_empty_dir} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
 			const {existsSync} = await import('node:fs');
 
 			vi.mocked(existsSync).mockReturnValue(true);
-			vi.mocked(empty_dir).mockRejectedValue(new Error('Permission denied'));
+			vi.mocked(fs_empty_dir).mockRejectedValue(new Error('Permission denied'));
 
 			const ctx = create_mock_deploy_task_context({dry: true});
 

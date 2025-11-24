@@ -68,7 +68,7 @@ export const package_json: Package_Json = {
 		zod: '^4.1.12',
 	},
 	peerDependencies: {
-		'@ryanatkn/belt': '>=0.38.0',
+		'@ryanatkn/belt': '>=0.38.1',
 		'@sveltejs/kit': '^2',
 		esbuild: '^0.27.0',
 		svelte: '^5',
@@ -89,6 +89,7 @@ export const package_json: Package_Json = {
 	devDependencies: {
 		'@changesets/changelog-git': '^0.2.1',
 		'@changesets/types': '^6.1.0',
+		'@ryanatkn/belt': '^0.38.1',
 		'@ryanatkn/eslint-config': '^0.9.0',
 		'@ryanatkn/fuz': '^0.161.0',
 		'@ryanatkn/fuz_code': '^0.34.0',
@@ -1258,7 +1259,7 @@ export const src_json: Src_Json = {
 		{
 			path: 'deploy.task.ts',
 			identifiers: [],
-			dependencies: ['constants.ts', 'fs.ts', 'paths.ts', 'task.ts'],
+			dependencies: ['constants.ts', 'paths.ts', 'task.ts'],
 		},
 		{
 			path: 'dev.task.ts',
@@ -2161,38 +2162,6 @@ export const src_json: Src_Json = {
 			path: 'format.task.ts',
 			identifiers: [],
 			dependencies: ['format_directory.ts', 'paths.ts', 'task.ts'],
-		},
-		{
-			path: 'fs.ts',
-			identifiers: [
-				{
-					name: 'empty_dir',
-					kind: 'function',
-					doc_comment: 'Empties a directory with an optional `filter`.',
-					source_line: 8,
-					type_signature:
-						'(dir: string, filter?: ((path: string) => boolean) | undefined, options?: RmOptions | undefined): Promise<void>',
-					return_type: 'Promise<void>',
-					parameters: [
-						{
-							name: 'dir',
-							type: 'string',
-							optional: false,
-						},
-						{
-							name: 'filter',
-							type: '((path: string) => boolean) | undefined',
-							optional: true,
-						},
-						{
-							name: 'options',
-							type: 'RmOptions | undefined',
-							optional: true,
-						},
-					],
-				},
-			],
-			dependents: ['deploy.task.ts'],
 		},
 		{
 			path: 'gen_helpers.ts',
@@ -3275,8 +3244,8 @@ export const src_json: Src_Json = {
 					name: 'has_server',
 					kind: 'function',
 					source_line: 28,
-					type_signature: '(path?: Path_Id): Result<object, { message: string; }>',
-					return_type: 'Result<object, { message: string; }>',
+					type_signature: '(path?: Path_Id): Promise<Result<object, { message: string; }>>',
+					return_type: 'Promise<Result<object, { message: string; }>>',
 					parameters: [
 						{
 							name: 'path',
@@ -5666,8 +5635,9 @@ export const src_json: Src_Json = {
 					name: 'has_sveltekit_app',
 					kind: 'function',
 					source_line: 20,
-					type_signature: '(svelte_config_path?: string): Result<object, { message: string; }>',
-					return_type: 'Result<object, { message: string; }>',
+					type_signature:
+						'(svelte_config_path?: string): Promise<Result<object, { message: string; }>>',
+					return_type: 'Promise<Result<object, { message: string; }>>',
 					parameters: [
 						{
 							name: 'svelte_config_path',
@@ -5682,8 +5652,8 @@ export const src_json: Src_Json = {
 					kind: 'function',
 					source_line: 30,
 					type_signature:
-						'(package_json: { [x: string]: unknown; name: string; version: string; private?: boolean | undefined; public?: boolean | undefined; description?: string | undefined; motto?: string | undefined; glyph?: string | undefined; ... 24 more ...; exports?: string | ... 2 more ... | undefined; }, svelte_config?: Parsed_Svelte_Config, dep_name?: string): Result<...>',
-					return_type: 'Result<object, { message: string; }>',
+						'(package_json: { [x: string]: unknown; name: string; version: string; private?: boolean | undefined; public?: boolean | undefined; description?: string | undefined; motto?: string | undefined; glyph?: string | undefined; ... 24 more ...; exports?: string | ... 2 more ... | undefined; }, svelte_config?: Parsed_Svelte_Config, dep_name?: string): Promise<...>',
+					return_type: 'Promise<Result<object, { message: string; }>>',
 					parameters: [
 						{
 							name: 'package_json',
@@ -6064,9 +6034,9 @@ export const src_json: Src_Json = {
 					kind: 'function',
 					source_line: 21,
 					type_signature:
-						'<T extends RouteId | Pathname>(...args: ResolveArgs<T>): "/" | "/about" | "/docs" | "/docs/api" | "/history" | `${`/docs/api/${string}` & {}}` | `${`/docs/api/${string}/` & {}}` | `/${string}/` | `/${string}/about` | ... 8 more ... | `/${string}/history/`',
+						'<T extends RouteId | Pathname>(...args: ResolveArgs<T>): "/" | "/about" | "/docs" | "/docs/api" | "/docs/package" | "/history" | `${`/docs/api/${string}` & {}}` | `${`/docs/api/${string}/` & {}}` | ... 12 more ... | `/${string}/history/`',
 					return_type:
-						'"/" | "/about" | "/docs" | "/docs/api" | "/history" | `${`/docs/api/${string}` & {}}` | `${`/docs/api/${string}/` & {}}` | `/${string}/` | `/${string}/about` | `/${string}/docs` | `/${string}/docs/api` | `/${string}/history` | `/${string}/about/` | `/${string}/docs/` | `/${string}/docs/api/` | `/${string}${`/docs/ap...',
+						'"/" | "/about" | "/docs" | "/docs/api" | "/docs/package" | "/history" | `${`/docs/api/${string}` & {}}` | `${`/docs/api/${string}/` & {}}` | `/${string}/` | `/${string}/about` | `/${string}/docs` | `/${string}/docs/api` | `/${string}/docs/package` | `/${string}/history` | ... 6 more ... | `/${string}/history/`',
 					parameters: [
 						{
 							name: 'args',
@@ -6081,7 +6051,7 @@ export const src_json: Src_Json = {
 					doc_comment: '',
 					source_line: 23,
 					type_signature:
-						'<T extends RouteId | Pathname>(...args: ResolveArgs<T>) => "/" | "/about" | "/docs" | "/docs/api" | "/history" | `${`/docs/api/${string}` & {}}` | `${`/docs/api/${string}/` & {}}` | `/${string}/` | `/${string}/about` | ... 8 more ... | `/${string}/history/`',
+						'<T extends RouteId | Pathname>(...args: ResolveArgs<T>) => "/" | "/about" | "/docs" | "/docs/api" | "/docs/package" | "/history" | `${`/docs/api/${string}` & {}}` | `${`/docs/api/${string}/` & {}}` | ... 12 more ... | `/${string}/history/`',
 				},
 				{
 					name: 'asset',
@@ -6117,7 +6087,7 @@ export const src_json: Src_Json = {
 					kind: 'variable',
 					source_line: 19,
 					type_signature:
-						'Page<{ module_path?: string | undefined; }, "/" | "/about" | "/docs" | "/docs/api" | "/docs/api/[...module_path]" | "/history" | null>',
+						'Page<{ module_path?: string | undefined; }, "/" | "/about" | "/docs" | "/docs/api" | "/docs/api/[...module_path]" | "/docs/package" | "/history" | null>',
 				},
 				{
 					name: 'updated',

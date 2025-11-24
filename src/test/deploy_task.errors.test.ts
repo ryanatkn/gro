@@ -46,8 +46,8 @@ vi.mock('node:fs/promises', () => ({
 	rm: vi.fn(),
 }));
 
-vi.mock('../lib/fs.ts', () => ({
-	empty_dir: vi.fn(),
+vi.mock('@ryanatkn/belt/fs.js', () => ({
+	fs_empty_dir: vi.fn(),
 }));
 
 describe('deploy_task error handling', () => {
@@ -57,8 +57,8 @@ describe('deploy_task error handling', () => {
 		await setup_successful_fs_mocks();
 		await setup_successful_spawn_mock();
 
-		const {empty_dir} = vi.mocked(await import('../lib/fs.ts'));
-		vi.mocked(empty_dir).mockResolvedValue(undefined);
+		const {fs_empty_dir} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+		vi.mocked(fs_empty_dir).mockResolvedValue(undefined);
 	});
 
 	afterEach(() => {
@@ -245,12 +245,12 @@ describe('deploy_task error handling', () => {
 			await expect(deploy_task.run(ctx)).rejects.toThrow('Disk full');
 		});
 
-		test('propagates empty_dir errors', async () => {
-			const {empty_dir} = vi.mocked(await import('../lib/fs.ts'));
+		test('propagates fs_empty_dir errors', async () => {
+			const {fs_empty_dir} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
 			const {existsSync} = await import('node:fs');
 
 			vi.mocked(existsSync).mockReturnValue(true);
-			vi.mocked(empty_dir).mockRejectedValue(new Error('Failed to empty directory'));
+			vi.mocked(fs_empty_dir).mockRejectedValue(new Error('Failed to empty directory'));
 
 			const ctx = create_mock_deploy_task_context({dry: true});
 

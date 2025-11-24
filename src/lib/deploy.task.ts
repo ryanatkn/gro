@@ -21,11 +21,11 @@ import {
 	git_clone_locally,
 	git_current_branch_name,
 } from '@ryanatkn/belt/git.js';
+import {fs_empty_dir} from '@ryanatkn/belt/fs.js';
 
 import {Task_Error, type Task} from './task.ts';
 import {print_path} from './paths.ts';
 import {GRO_DIRNAME, GIT_DIRNAME, SVELTEKIT_BUILD_DIRNAME} from './constants.ts';
-import {empty_dir} from './fs.ts';
 
 // docs at ../docs/deploy.md
 
@@ -217,7 +217,7 @@ export const task: Task<Args> = {
 		}
 
 		// Remove everything except .git from the deploy directory to avoid stale files
-		await empty_dir(resolved_deploy_dir, (path) => path !== GIT_DIRNAME);
+		await fs_empty_dir(resolved_deploy_dir, (path) => path !== GIT_DIRNAME);
 
 		// Build
 		try {

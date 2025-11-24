@@ -45,8 +45,8 @@ vi.mock('node:fs/promises', () => ({
 	rm: vi.fn(),
 }));
 
-vi.mock('../lib/fs.ts', () => ({
-	empty_dir: vi.fn(),
+vi.mock('@ryanatkn/belt/fs.js', () => ({
+	fs_empty_dir: vi.fn(),
 }));
 
 describe('deploy_task integration scenarios', () => {
@@ -56,8 +56,8 @@ describe('deploy_task integration scenarios', () => {
 		await setup_successful_fs_mocks();
 		await setup_successful_spawn_mock();
 
-		const {empty_dir} = vi.mocked(await import('../lib/fs.ts'));
-		vi.mocked(empty_dir).mockResolvedValue(undefined);
+		const {fs_empty_dir} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+		vi.mocked(fs_empty_dir).mockResolvedValue(undefined);
 	});
 
 	afterEach(() => {
@@ -168,7 +168,7 @@ describe('deploy_task integration scenarios', () => {
 			);
 			const {spawn} = vi.mocked(await import('@ryanatkn/belt/process.js'));
 			const {existsSync} = await import('node:fs');
-			const {empty_dir} = vi.mocked(await import('../lib/fs.ts'));
+			const {fs_empty_dir} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
 
 			// Remote branch exists, deploy dir exists with correct branch
 			vi.mocked(existsSync).mockReturnValue(true);
@@ -189,7 +189,7 @@ describe('deploy_task integration scenarios', () => {
 			});
 
 			// Should empty deploy dir
-			expect(empty_dir).toHaveBeenCalled();
+			expect(fs_empty_dir).toHaveBeenCalled();
 
 			// Should build and copy
 			expect(ctx.invoke_task).toHaveBeenCalledWith('build');
@@ -413,7 +413,7 @@ describe('deploy_task integration scenarios', () => {
 				git_push_to_create,
 			} = vi.mocked(await import('@ryanatkn/belt/git.js'));
 			const {spawn} = vi.mocked(await import('@ryanatkn/belt/process.js'));
-			const {empty_dir} = vi.mocked(await import('../lib/fs.ts'));
+			const {fs_empty_dir} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
 			const {cp} = await import('node:fs/promises');
 			const {existsSync} = await import('node:fs');
 
@@ -432,7 +432,7 @@ describe('deploy_task integration scenarios', () => {
 			const remote_exists_order = git_remote_branch_exists.mock.invocationCallOrder[0]!;
 			const clone_order = git_clone_locally.mock.invocationCallOrder[0]!;
 			const push_create_order = git_push_to_create.mock.invocationCallOrder[0]!;
-			const empty_dir_order = (empty_dir as any).mock.invocationCallOrder[0]!;
+			const fs_empty_dir_order = fs_empty_dir.mock.invocationCallOrder[0]!;
 			const build_order = (ctx.invoke_task as any).mock.invocationCallOrder[0]!;
 			const cp_order = (cp as any).mock.invocationCallOrder[0]!;
 
@@ -449,8 +449,8 @@ describe('deploy_task integration scenarios', () => {
 			expect(clone_order).toBeLessThan(push_create_order);
 
 			// Build and deploy
-			expect(push_create_order).toBeLessThan(empty_dir_order);
-			expect(empty_dir_order).toBeLessThan(build_order);
+			expect(push_create_order).toBeLessThan(fs_empty_dir_order);
+			expect(fs_empty_dir_order).toBeLessThan(build_order);
 			expect(build_order).toBeLessThan(cp_order);
 
 			// Final commit and push
@@ -466,7 +466,7 @@ describe('deploy_task integration scenarios', () => {
 				await import('@ryanatkn/belt/git.js'),
 			);
 			const {spawn} = vi.mocked(await import('@ryanatkn/belt/process.js'));
-			const {empty_dir} = vi.mocked(await import('../lib/fs.ts'));
+			const {fs_empty_dir} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
 			const {cp} = await import('node:fs/promises');
 			const {existsSync} = await import('node:fs');
 
@@ -489,7 +489,7 @@ describe('deploy_task integration scenarios', () => {
 			const reset_order = spawn.mock.invocationCallOrder[reset_call]!;
 
 			// Build and deploy
-			const empty_order = (empty_dir as any).mock.invocationCallOrder[0]!;
+			const empty_order = fs_empty_dir.mock.invocationCallOrder[0]!;
 			const build_order = (ctx.invoke_task as any).mock.invocationCallOrder[0]!;
 			const cp_order = (cp as any).mock.invocationCallOrder[0]!;
 

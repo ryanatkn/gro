@@ -17,12 +17,15 @@ import {load_package_json} from './package_json.ts';
  * - if `src/lib`, assumes a Node library - respects `KitConfig.kit.files.lib`
  * - if `src/lib/server/server.ts`, assumes a Node server - needs config
  */
-const config: Create_Gro_Config = (cfg, svelte_config) => {
+const config: Create_Gro_Config = async (cfg, svelte_config) => {
 	const package_json = load_package_json(); // TODO gets wastefully loaded by some plugins, maybe put in plugin/task context? how does that interact with `map_package_json`?
 
-	const has_server_result = has_server();
-	const has_sveltekit_library_result = has_sveltekit_library(package_json, svelte_config);
-	const has_sveltekit_app_result = has_sveltekit_app();
+	const [has_server_result, has_sveltekit_library_result, has_sveltekit_app_result] =
+		await Promise.all([
+			has_server(),
+			has_sveltekit_library(package_json, svelte_config),
+			has_sveltekit_app(),
+		]);
 
 	// put things that generate files before SvelteKit so it can see them
 	cfg.plugins = () =>
