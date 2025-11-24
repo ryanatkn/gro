@@ -24,7 +24,7 @@
 			</a>
 		</section>
 		<section>
-			<Card href={resolve('/docs')}>docs{#snippet icon()}🧶{/snippet}</Card>
+			<Card href={resolve('/docs')}>docs{#snippet icon()}{pkg.package_json.glyph}{/snippet}</Card>
 		</section>
 		<section class="panel mb_lg p_md width_100 position_relative">
 			<button
