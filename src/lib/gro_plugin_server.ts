@@ -25,7 +25,9 @@ import {esbuild_plugin_svelte} from './esbuild_plugin_svelte.ts';
 
 export const SERVER_SOURCE_ID = base_path_to_path_id(LIB_DIRNAME + '/server/server.ts');
 
-export const has_server = async (path = SERVER_SOURCE_ID): Promise<Result<object, {message: string}>> => {
+export const has_server = async (
+	path = SERVER_SOURCE_ID,
+): Promise<Result<object, {message: string}>> => {
 	if (!(await fs_exists(path))) {
 		return {ok: false, message: `no server file found at ${path}`};
 	}
