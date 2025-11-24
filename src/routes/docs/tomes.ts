@@ -5,7 +5,7 @@ export const tomes: Array<Tome> = [
 	{
 		name: 'api',
 		category: 'reference',
-		component: Api,
+		Component: Api,
 		related_tomes: [],
 		related_modules: [],
 		related_identifiers: [],

@@ -68,7 +68,7 @@ export const package_json: Package_Json = {
 		zod: '^4.1.12',
 	},
 	peerDependencies: {
-		'@ryanatkn/belt': '^0.38.0',
+		'@ryanatkn/belt': '>=0.38.0',
 		'@sveltejs/kit': '^2',
 		esbuild: '^0.27.0',
 		svelte: '^5',
@@ -90,7 +90,7 @@ export const package_json: Package_Json = {
 		'@changesets/changelog-git': '^0.2.1',
 		'@changesets/types': '^6.1.0',
 		'@ryanatkn/eslint-config': '^0.9.0',
-		'@ryanatkn/fuz': '^0.159.0',
+		'@ryanatkn/fuz': '^0.161.0',
 		'@ryanatkn/fuz_code': '^0.34.0',
 		'@ryanatkn/moss': '^0.38.0',
 		'@sveltejs/adapter-static': '^3.0.10',
