@@ -3,12 +3,9 @@
 	import Docs_Footer from '@ryanatkn/fuz/Docs_Footer.svelte';
 	import Ecosystem_Links_Panel from '@ryanatkn/fuz/Ecosystem_Links_Panel.svelte';
 	import Breadcrumb from '@ryanatkn/fuz/Breadcrumb.svelte';
-	import {Pkg, pkg_context} from '@ryanatkn/fuz/pkg.svelte.js';
+	import {pkg_context} from '@ryanatkn/fuz/pkg.svelte.js';
 
-	import {package_json, src_json} from '../package.ts';
-
-	const pkg = new Pkg(package_json, src_json);
-	pkg_context.set(pkg);
+	const pkg = pkg_context.get();
 </script>
 
 <main class="width_upto_md">
