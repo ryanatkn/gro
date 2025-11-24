@@ -4,6 +4,7 @@
 	import Package_Detail from '@ryanatkn/fuz/Package_Detail.svelte';
 	import Package_Summary from '@ryanatkn/fuz/Package_Summary.svelte';
 	import Svg from '@ryanatkn/fuz/Svg.svelte';
+	import Card from '@ryanatkn/fuz/Card.svelte';
 	import {gro_logo} from '@ryanatkn/fuz/logos.js';
 	import {slide} from 'svelte/transition';
 	import Hidden_Personal_Links from '@ryanatkn/fuz/Hidden_Personal_Links.svelte';
@@ -21,11 +22,9 @@
 			<a class="panel p_md box mb_xl3" title="source repo" href="https://github.com/ryanatkn/gro">
 				<Svg data={gro_logo} size="var(--icon_size_lg)" />
 			</a>
-			<aside>
-				This website is a work in progress!<br />
-				For now, docs are in
-				<a href="https://github.com/ryanatkn/gro">the source repo</a>.
-			</aside>
+		</section>
+		<section>
+			<Card href={resolve('/docs')}>docs{#snippet icon()}🧶{/snippet}</Card>
 		</section>
 		<section class="panel mb_lg p_md width_100 position_relative">
 			<button
