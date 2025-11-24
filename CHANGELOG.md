@@ -1,5 +1,15 @@
 # @ryanatkn/gro
 
+## 0.175.0
+
+### Minor Changes
+
+- remove `fs.ts` and make some fs-reading APIs async ([#580](https://github.com/ryanatkn/gro/pull/580))
+
+### Patch Changes
+
+- use >= for belt peer dep ([#580](https://github.com/ryanatkn/gro/pull/580))
+
 ## 0.174.2
 
 ### Patch Changes
