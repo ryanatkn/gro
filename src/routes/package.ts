@@ -2,7 +2,7 @@
 // Do not edit directly - regenerated on build
 
 import type {Package_Json} from '@ryanatkn/belt/package_json.js';
-import type {Src_Json} from '@ryanatkn/fuz/src_json.js';
+import type {Src_Json} from '@ryanatkn/belt/src_json.js';
 
 export const package_json: Package_Json = {
 	name: '@ryanatkn/gro',
@@ -68,7 +68,7 @@ export const package_json: Package_Json = {
 		zod: '^4.1.12',
 	},
 	peerDependencies: {
-		'@ryanatkn/belt': '>=0.38.0',
+		'@ryanatkn/belt': '^0.38.0',
 		'@sveltejs/kit': '^2',
 		esbuild: '^0.25',
 		svelte: '^5',
@@ -90,21 +90,21 @@ export const package_json: Package_Json = {
 		'@changesets/changelog-git': '^0.2.1',
 		'@changesets/types': '^6.1.0',
 		'@ryanatkn/eslint-config': '^0.9.0',
-		'@ryanatkn/fuz': '^0.156.0',
-		'@ryanatkn/moss': '^0.37.0',
+		'@ryanatkn/fuz': '^0.159.0',
+		'@ryanatkn/moss': '^0.38.0',
 		'@sveltejs/adapter-static': '^3.0.10',
-		'@sveltejs/kit': '^2.47.2',
-		'@sveltejs/package': '^2.5.4',
+		'@sveltejs/kit': '^2.49.0',
+		'@sveltejs/package': '^2.5.6',
 		'@sveltejs/vite-plugin-svelte': '^6.2.1',
 		'@types/node': '^24.3.1',
 		esbuild: '^0.25.9',
 		eslint: '^9.35.0',
-		'eslint-plugin-svelte': '^3.12.5',
-		svelte: '^5.41.2',
-		'svelte-check': '^4.3.3',
+		'eslint-plugin-svelte': '^3.13.0',
+		svelte: '^5.43.14',
+		'svelte-check': '^4.3.4',
 		typescript: '^5.9.3',
 		'typescript-eslint': '^8.42.0',
-		vitest: '^4.0.3',
+		vitest: '^4.0.13',
 	},
 	prettier: {
 		plugins: ['prettier-plugin-svelte'],
