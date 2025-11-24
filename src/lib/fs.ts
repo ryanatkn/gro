@@ -1,5 +1,5 @@
-import {rm} from 'node:fs/promises';
-import {readdirSync, type RmOptions} from 'node:fs';
+import {rm, readdir} from 'node:fs/promises';
+import {type RmOptions} from 'node:fs';
 import {join} from 'node:path';
 
 /**
@@ -10,9 +10,10 @@ export const empty_dir = async (
 	filter?: (path: string) => boolean,
 	options?: RmOptions,
 ): Promise<void> => {
+	const entries = await readdir(dir);
 	await Promise.all(
-		readdirSync(dir).map((path) =>
-			filter && !filter(path) ? null : rm(join(dir, path), {...options, recursive: true}),
-		),
+		entries
+			.filter((path) => !filter || filter(path))
+			.map((path) => rm(join(dir, path), {...options, recursive: true})),
 	);
 };
