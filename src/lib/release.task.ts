@@ -15,11 +15,11 @@ export const task: Task<Args> = {
 	run: async ({invoke_task}) => {
 		const package_json = load_package_json();
 
-		const publish = has_sveltekit_library(package_json).ok;
+		const publish = (await has_sveltekit_library(package_json)).ok;
 		if (publish) {
 			await invoke_task('publish', {optional: true});
 		}
-		if (has_sveltekit_app().ok) {
+		if ((await has_sveltekit_app()).ok) {
 			await invoke_task('deploy', {build: !publish});
 		}
 	},

@@ -18,7 +18,7 @@ import {noop} from '@ryanatkn/belt/function.js';
 export const assets = '';
 /** @deprecated */
 export const base = '';
-export const resolve: typeof base_resolve = (v) => ('/' + v.replace(/^\//, '')) as any; // TODO needs to use SvelteKit config base
+export const resolve: typeof base_resolve = (v, ..._rest) => ('/' + v.replace(/^\//, '')) as any; // TODO needs to use SvelteKit config base
 /** @deprecated */
 export const resolveRoute: typeof base_resolveRoute = noop; // eslint-disable-line @typescript-eslint/no-deprecated
 export const asset: typeof base_asset = (v) => ('/' + v.replace(/^\//, '')) as any; // TODO needs to use SvelteKit config base

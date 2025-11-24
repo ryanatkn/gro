@@ -2,7 +2,7 @@
 // Do not edit directly - regenerated on build
 
 import type {Package_Json} from '@ryanatkn/belt/package_json.js';
-import type {Src_Json} from '@ryanatkn/fuz/src_json.js';
+import type {Src_Json} from '@ryanatkn/belt/src_json.js';
 
 export const package_json: Package_Json = {
 	name: '@ryanatkn/gro',
@@ -57,10 +57,10 @@ export const package_json: Package_Json = {
 	],
 	dependencies: {
 		chokidar: '^4.0.3',
-		dotenv: '^17.2.2',
+		dotenv: '^17.2.3',
 		'esm-env': '^1.2.2',
 		mri: '^1.2.0',
-		'oxc-parser': '^0.87.0',
+		'oxc-parser': '^0.98.0',
 		prettier: '^3.6.2',
 		'prettier-plugin-svelte': '^3.4.0',
 		'ts-blank-space': '^0.6.2',
@@ -68,9 +68,9 @@ export const package_json: Package_Json = {
 		zod: '^4.1.12',
 	},
 	peerDependencies: {
-		'@ryanatkn/belt': '^0.38.0',
+		'@ryanatkn/belt': '>=0.38.1',
 		'@sveltejs/kit': '^2',
-		esbuild: '^0.25',
+		esbuild: '^0.27.0',
 		svelte: '^5',
 		typescript: '^5',
 		vitest: '^3 || ^4',
@@ -89,22 +89,24 @@ export const package_json: Package_Json = {
 	devDependencies: {
 		'@changesets/changelog-git': '^0.2.1',
 		'@changesets/types': '^6.1.0',
+		'@ryanatkn/belt': '^0.38.2',
 		'@ryanatkn/eslint-config': '^0.9.0',
-		'@ryanatkn/fuz': '^0.156.0',
-		'@ryanatkn/moss': '^0.37.0',
+		'@ryanatkn/fuz': '^0.161.0',
+		'@ryanatkn/fuz_code': '^0.34.0',
+		'@ryanatkn/moss': '^0.38.0',
 		'@sveltejs/adapter-static': '^3.0.10',
-		'@sveltejs/kit': '^2.47.2',
-		'@sveltejs/package': '^2.5.4',
+		'@sveltejs/kit': '^2.49.0',
+		'@sveltejs/package': '^2.5.6',
 		'@sveltejs/vite-plugin-svelte': '^6.2.1',
-		'@types/node': '^24.3.1',
-		esbuild: '^0.25.9',
-		eslint: '^9.35.0',
-		'eslint-plugin-svelte': '^3.12.5',
-		svelte: '^5.41.2',
-		'svelte-check': '^4.3.3',
+		'@types/node': '^24.10.1',
+		esbuild: '^0.27.0',
+		eslint: '^9.39.1',
+		'eslint-plugin-svelte': '^3.13.0',
+		svelte: '^5.43.14',
+		'svelte-check': '^4.3.4',
 		typescript: '^5.9.3',
-		'typescript-eslint': '^8.42.0',
-		vitest: '^4.0.3',
+		'typescript-eslint': '^8.47.0',
+		vitest: '^4.0.13',
 	},
 	prettier: {
 		plugins: ['prettier-plugin-svelte'],
@@ -1257,7 +1259,7 @@ export const src_json: Src_Json = {
 		{
 			path: 'deploy.task.ts',
 			identifiers: [],
-			dependencies: ['constants.ts', 'fs.ts', 'paths.ts', 'task.ts'],
+			dependencies: ['constants.ts', 'paths.ts', 'task.ts'],
 		},
 		{
 			path: 'dev.task.ts',
@@ -2160,38 +2162,6 @@ export const src_json: Src_Json = {
 			path: 'format.task.ts',
 			identifiers: [],
 			dependencies: ['format_directory.ts', 'paths.ts', 'task.ts'],
-		},
-		{
-			path: 'fs.ts',
-			identifiers: [
-				{
-					name: 'empty_dir',
-					kind: 'function',
-					doc_comment: 'Empties a directory with an optional `filter`.',
-					source_line: 8,
-					type_signature:
-						'(dir: string, filter?: ((path: string) => boolean) | undefined, options?: RmOptions | undefined): Promise<void>',
-					return_type: 'Promise<void>',
-					parameters: [
-						{
-							name: 'dir',
-							type: 'string',
-							optional: false,
-						},
-						{
-							name: 'filter',
-							type: '((path: string) => boolean) | undefined',
-							optional: true,
-						},
-						{
-							name: 'options',
-							type: 'RmOptions | undefined',
-							optional: true,
-						},
-					],
-				},
-			],
-			dependents: ['deploy.task.ts'],
 		},
 		{
 			path: 'gen_helpers.ts',
@@ -3274,8 +3244,8 @@ export const src_json: Src_Json = {
 					name: 'has_server',
 					kind: 'function',
 					source_line: 28,
-					type_signature: '(path?: Path_Id): Result<object, { message: string; }>',
-					return_type: 'Result<object, { message: string; }>',
+					type_signature: '(path?: Path_Id): Promise<Result<object, { message: string; }>>',
+					return_type: 'Promise<Result<object, { message: string; }>>',
 					parameters: [
 						{
 							name: 'path',
@@ -3288,7 +3258,7 @@ export const src_json: Src_Json = {
 				{
 					name: 'Gro_Plugin_Server_Options',
 					kind: 'type',
-					source_line: 35,
+					source_line: 37,
 					type_signature: 'Gro_Plugin_Server_Options',
 					properties: [
 						{
@@ -3365,7 +3335,7 @@ export const src_json: Src_Json = {
 				{
 					name: 'Outpaths',
 					kind: 'type',
-					source_line: 90,
+					source_line: 92,
 					type_signature: 'Outpaths',
 					properties: [
 						{
@@ -3391,13 +3361,13 @@ export const src_json: Src_Json = {
 				{
 					name: 'Create_Outpaths',
 					kind: 'type',
-					source_line: 105,
+					source_line: 107,
 					type_signature: 'Create_Outpaths',
 				},
 				{
 					name: 'gro_plugin_server',
 					kind: 'function',
-					source_line: 107,
+					source_line: 109,
 					type_signature:
 						'({ entry_points, dir, outpaths, env_files, ambient_env, svelte_config, target, esbuild_build_options, rebuild_throttle_delay, cli_command, run, }?: Gro_Plugin_Server_Options): Plugin<Plugin_Context<object>>',
 					return_type: 'Plugin<Plugin_Context<object>>',
@@ -5665,8 +5635,9 @@ export const src_json: Src_Json = {
 					name: 'has_sveltekit_app',
 					kind: 'function',
 					source_line: 20,
-					type_signature: '(svelte_config_path?: string): Result<object, { message: string; }>',
-					return_type: 'Result<object, { message: string; }>',
+					type_signature:
+						'(svelte_config_path?: string): Promise<Result<object, { message: string; }>>',
+					return_type: 'Promise<Result<object, { message: string; }>>',
 					parameters: [
 						{
 							name: 'svelte_config_path',
@@ -5681,8 +5652,8 @@ export const src_json: Src_Json = {
 					kind: 'function',
 					source_line: 30,
 					type_signature:
-						'(package_json: { [x: string]: unknown; name: string; version: string; private?: boolean | undefined; public?: boolean | undefined; description?: string | undefined; motto?: string | undefined; glyph?: string | undefined; ... 24 more ...; exports?: string | ... 2 more ... | undefined; }, svelte_config?: Parsed_Svelte_Config, dep_name?: string): Result<...>',
-					return_type: 'Result<object, { message: string; }>',
+						'(package_json: { [x: string]: unknown; name: string; version: string; private?: boolean | undefined; public?: boolean | undefined; description?: string | undefined; motto?: string | undefined; glyph?: string | undefined; ... 24 more ...; exports?: string | ... 2 more ... | undefined; }, svelte_config?: Parsed_Svelte_Config, dep_name?: string): Promise<...>',
+					return_type: 'Promise<Result<object, { message: string; }>>',
 					parameters: [
 						{
 							name: 'package_json',
@@ -6063,9 +6034,9 @@ export const src_json: Src_Json = {
 					kind: 'function',
 					source_line: 21,
 					type_signature:
-						'<T extends RouteId | Pathname>(...args: ResolveArgs<T>): "/" | "/about" | "/history" | `/${string}/` | `/${string}/about` | `/${string}/history` | `/${string}/about/` | `/${string}/history/`',
+						'<T extends RouteId | Pathname>(...args: ResolveArgs<T>): "/" | "/about" | "/docs" | "/docs/api" | "/docs/package" | "/history" | `${`/docs/api/${string}` & {}}` | `${`/docs/api/${string}/` & {}}` | ... 12 more ... | `/${string}/history/`',
 					return_type:
-						'"/" | "/about" | "/history" | `/${string}/` | `/${string}/about` | `/${string}/history` | `/${string}/about/` | `/${string}/history/`',
+						'"/" | "/about" | "/docs" | "/docs/api" | "/docs/package" | "/history" | `${`/docs/api/${string}` & {}}` | `${`/docs/api/${string}/` & {}}` | `/${string}/` | `/${string}/about` | `/${string}/docs` | `/${string}/docs/api` | `/${string}/docs/package` | `/${string}/history` | ... 6 more ... | `/${string}/history/`',
 					parameters: [
 						{
 							name: 'args',
@@ -6080,7 +6051,7 @@ export const src_json: Src_Json = {
 					doc_comment: '',
 					source_line: 23,
 					type_signature:
-						'<T extends RouteId | Pathname>(...args: ResolveArgs<T>) => "/" | "/about" | "/history" | `/${string}/` | `/${string}/about` | `/${string}/history` | `/${string}/about/` | `/${string}/history/`',
+						'<T extends RouteId | Pathname>(...args: ResolveArgs<T>) => "/" | "/about" | "/docs" | "/docs/api" | "/docs/package" | "/history" | `${`/docs/api/${string}` & {}}` | `${`/docs/api/${string}/` & {}}` | ... 12 more ... | `/${string}/history/`',
 				},
 				{
 					name: 'asset',
@@ -6115,7 +6086,8 @@ export const src_json: Src_Json = {
 					name: 'page',
 					kind: 'variable',
 					source_line: 19,
-					type_signature: 'Page<Record<string, never>, "/" | "/about" | "/history" | null>',
+					type_signature:
+						'Page<{ module_path?: string | undefined; }, "/" | "/about" | "/docs" | "/docs/api" | "/docs/api/[...module_path]" | "/docs/package" | "/history" | null>',
 				},
 				{
 					name: 'updated',

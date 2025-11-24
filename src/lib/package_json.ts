@@ -62,7 +62,7 @@ export const sync_package_json = async (
 	const exported_paths = exported_files.map((f) => f.path);
 	const updated = await update_package_json(
 		async (package_json) => {
-			if (has_sveltekit_library(package_json).ok) {
+			if ((await has_sveltekit_library(package_json)).ok) {
 				package_json.exports = to_package_exports(exported_paths);
 			}
 			const mapped = await map_package_json(package_json);

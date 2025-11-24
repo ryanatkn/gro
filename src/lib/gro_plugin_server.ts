@@ -5,7 +5,7 @@ import {join, resolve} from 'node:path';
 import {identity} from '@ryanatkn/belt/function.js';
 import {strip_before, strip_end} from '@ryanatkn/belt/string.js';
 import type {Result} from '@ryanatkn/belt/result.js';
-import {existsSync} from 'node:fs';
+import {fs_exists} from '@ryanatkn/belt/fs.js';
 import {throttle} from '@ryanatkn/belt/throttle.js';
 import type {Path_Id} from '@ryanatkn/belt/path.js';
 
@@ -25,8 +25,10 @@ import {esbuild_plugin_svelte} from './esbuild_plugin_svelte.ts';
 
 export const SERVER_SOURCE_ID = base_path_to_path_id(LIB_DIRNAME + '/server/server.ts');
 
-export const has_server = (path = SERVER_SOURCE_ID): Result<object, {message: string}> => {
-	if (!existsSync(path)) {
+export const has_server = async (
+	path = SERVER_SOURCE_ID,
+): Promise<Result<object, {message: string}>> => {
+	if (!(await fs_exists(path))) {
 		return {ok: false, message: `no server file found at ${path}`};
 	}
 	return {ok: true};
@@ -239,7 +241,7 @@ export const gro_plugin_server = ({
 				});
 			}
 
-			if (!existsSync(server_outpath)) {
+			if (!(await fs_exists(server_outpath))) {
 				throw Error(`Node server failed to start due to missing file: ${server_outpath}`);
 			}
 
