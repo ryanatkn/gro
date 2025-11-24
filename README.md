@@ -8,6 +8,8 @@
 
 [Windows won't be supported](https://github.com/ryanatkn/gro/issues/319), I chose Bash instead.
 
+Docs at [gro.ryanatkn.com/docs](https://gro.ryanatkn.com/docs) and [src/docs](./src/docs).
+
 Need help or want to share thoughts? See the
 [issues](https://github.com/ryanatkn/gro/issues) and
 [discussions](https://github.com/ryanatkn/gro/discussions).
@@ -64,6 +66,7 @@ It includes:
 
 ## docs
 
+- early API docs at [/docs/api](https://gro.ryanatkn.com/docs/api)
 - developing web frontends, servers, and libraries
   - [config](/src/docs/config.md)
   - [dev](/src/docs/dev.md)
