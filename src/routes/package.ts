@@ -3258,7 +3258,7 @@ export const src_json: Src_Json = {
 				{
 					name: 'Gro_Plugin_Server_Options',
 					kind: 'type',
-					source_line: 35,
+					source_line: 37,
 					type_signature: 'Gro_Plugin_Server_Options',
 					properties: [
 						{
@@ -3335,7 +3335,7 @@ export const src_json: Src_Json = {
 				{
 					name: 'Outpaths',
 					kind: 'type',
-					source_line: 90,
+					source_line: 92,
 					type_signature: 'Outpaths',
 					properties: [
 						{
@@ -3361,13 +3361,13 @@ export const src_json: Src_Json = {
 				{
 					name: 'Create_Outpaths',
 					kind: 'type',
-					source_line: 105,
+					source_line: 107,
 					type_signature: 'Create_Outpaths',
 				},
 				{
 					name: 'gro_plugin_server',
 					kind: 'function',
-					source_line: 107,
+					source_line: 109,
 					type_signature:
 						'({ entry_points, dir, outpaths, env_files, ambient_env, svelte_config, target, esbuild_build_options, rebuild_throttle_delay, cli_command, run, }?: Gro_Plugin_Server_Options): Plugin<Plugin_Context<object>>',
 					return_type: 'Plugin<Plugin_Context<object>>',
