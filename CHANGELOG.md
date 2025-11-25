@@ -1,5 +1,11 @@
 # @ryanatkn/gro
 
+## 0.177.1
+
+### Patch Changes
+
+- fix args forwarding to `gro run` ([56bc239](https://github.com/ryanatkn/gro/commit/56bc239))
+
 ## 0.177.0
 
 ### Minor Changes
