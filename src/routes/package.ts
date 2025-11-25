@@ -2615,7 +2615,7 @@ export const src_json: SrcJson = {
 				{
 					name: 'analyze_gen_result',
 					kind: 'function',
-					source_line: 222,
+					source_line: 220,
 					type_signature: '(file: GenFile): Promise<AnalyzedGenResult>',
 					return_type: 'Promise<AnalyzedGenResult>',
 					parameters: [
@@ -2629,7 +2629,7 @@ export const src_json: SrcJson = {
 				{
 					name: 'write_gen_results',
 					kind: 'function',
-					source_line: 240,
+					source_line: 238,
 					type_signature:
 						'(gen_results: GenResults, analyzed_gen_results: AnalyzedGenResult[], log: Logger): Promise<void>',
 					return_type: 'Promise<void>',
@@ -2654,7 +2654,7 @@ export const src_json: SrcJson = {
 				{
 					name: 'FoundGenfiles',
 					kind: 'type',
-					source_line: 268,
+					source_line: 266,
 					type_signature: 'FoundGenfiles',
 					properties: [
 						{
@@ -2677,20 +2677,20 @@ export const src_json: SrcJson = {
 				{
 					name: 'FindGenfilesResult',
 					kind: 'type',
-					source_line: 274,
+					source_line: 272,
 					type_signature: 'FindGenfilesResult',
 				},
 				{
 					name: 'FindGenfilesFailure',
 					kind: 'type',
-					source_line: 275,
+					source_line: 273,
 					type_signature: 'FindGenfilesFailure',
 				},
 				{
 					name: 'find_genfiles',
 					kind: 'function',
 					doc_comment: 'Finds modules from input paths. (see `src/lib/input_path.ts` for more)',
-					source_line: 294,
+					source_line: 292,
 					type_signature:
 						'(input_paths: InputPath[], root_dirs: PathId[], config: GroConfig, timings?: Timings | undefined): FindGenfilesResult',
 					return_type: 'FindGenfilesResult',
@@ -2720,7 +2720,7 @@ export const src_json: SrcJson = {
 				{
 					name: 'GenfileModule',
 					kind: 'type',
-					source_line: 360,
+					source_line: 358,
 					type_signature: 'GenfileModule',
 					properties: [
 						{
@@ -2733,13 +2733,13 @@ export const src_json: SrcJson = {
 				{
 					name: 'GenfileModuleMeta',
 					kind: 'type',
-					source_line: 364,
+					source_line: 362,
 					type_signature: 'GenfileModuleMeta',
 				},
 				{
 					name: 'LoadedGenfiles',
 					kind: 'type',
-					source_line: 366,
+					source_line: 364,
 					type_signature: 'LoadedGenfiles',
 					properties: [
 						{
@@ -2757,19 +2757,19 @@ export const src_json: SrcJson = {
 				{
 					name: 'LoadGenfilesResult',
 					kind: 'type',
-					source_line: 371,
+					source_line: 369,
 					type_signature: 'LoadGenfilesResult',
 				},
 				{
 					name: 'LoadGenfilesFailure',
 					kind: 'type',
-					source_line: 372,
+					source_line: 370,
 					type_signature: 'LoadGenfilesFailure',
 				},
 				{
 					name: 'load_genfiles',
 					kind: 'function',
-					source_line: 374,
+					source_line: 372,
 					type_signature:
 						'(found_genfiles: FoundGenfiles, timings?: Timings | undefined): Promise<LoadGenfilesResult>',
 					return_type: 'Promise<LoadGenfilesResult>',
@@ -2789,7 +2789,7 @@ export const src_json: SrcJson = {
 				{
 					name: 'validate_gen_module',
 					kind: 'function',
-					source_line: 393,
+					source_line: 391,
 					type_signature: '(mod: Record<string, any>): mod is GenfileModule',
 					return_type: 'boolean',
 					parameters: [
@@ -2803,7 +2803,7 @@ export const src_json: SrcJson = {
 				{
 					name: 'normalize_gen_config',
 					kind: 'function',
-					source_line: 401,
+					source_line: 399,
 					type_signature: '(gen: Gen): GenConfig',
 					return_type: 'GenConfig',
 					parameters: [
@@ -3402,7 +3402,7 @@ export const src_json: SrcJson = {
 				{
 					name: 'GroPluginSveltekitAppOptions',
 					kind: 'type',
-					source_line: 19,
+					source_line: 15,
 					type_signature: 'GroPluginSveltekitAppOptions',
 					properties: [
 						{
@@ -3444,19 +3444,19 @@ export const src_json: SrcJson = {
 				{
 					name: 'HostTarget',
 					kind: 'type',
-					source_line: 49,
+					source_line: 45,
 					type_signature: 'HostTarget',
 				},
 				{
 					name: 'CopyFileFilter',
 					kind: 'type',
-					source_line: 51,
+					source_line: 47,
 					type_signature: 'CopyFileFilter',
 				},
 				{
 					name: 'gro_plugin_sveltekit_app',
 					kind: 'function',
-					source_line: 53,
+					source_line: 49,
 					type_signature:
 						'({ host_target, well_known_package_json, well_known_src_json, well_known_src_files, vite_cli, }?: GroPluginSveltekitAppOptions): Plugin<PluginContext<object>>',
 					return_type: 'Plugin<PluginContext<object>>',
@@ -4001,13 +4001,13 @@ export const src_json: SrcJson = {
 				{
 					name: 'LoadModuleFailure',
 					kind: 'type',
-					source_line: 20,
+					source_line: 17,
 					type_signature: 'LoadModuleFailure',
 				},
 				{
 					name: 'load_module',
 					kind: 'function',
-					source_line: 30,
+					source_line: 27,
 					type_signature:
 						'<TModule extends Record<string, any>>(id: PathId, validate?: ((mod: Record<string, any>) => mod is TModule) | undefined, bust_cache?: boolean | undefined): Promise<LoadModuleResult<TModule>>',
 					return_type: 'Promise<LoadModuleResult<TModule>>',
@@ -4032,7 +4032,7 @@ export const src_json: SrcJson = {
 				{
 					name: 'LoadModulesFailure',
 					kind: 'type',
-					source_line: 53,
+					source_line: 50,
 					type_signature: 'LoadModulesFailure<TModuleMeta>',
 					generic_params: [
 						{
@@ -4066,7 +4066,7 @@ export const src_json: SrcJson = {
 				{
 					name: 'LoadModulesResult',
 					kind: 'type',
-					source_line: 61,
+					source_line: 58,
 					type_signature: 'LoadModulesResult<TModuleMeta>',
 					generic_params: [
 						{
@@ -4078,7 +4078,7 @@ export const src_json: SrcJson = {
 				{
 					name: 'load_modules',
 					kind: 'function',
-					source_line: 69,
+					source_line: 66,
 					type_signature:
 						'<TModule extends Record<string, any>, TModuleMeta extends ModuleMeta<TModule>>(resolved_input_files: ResolvedInputFile[], validate: (mod: any) => mod is TModule, map_module_meta: (resolved_input_file: ResolvedInputFile, mod: TModule) => TModuleMeta, timings?: Timings | undefined): Promise<...>',
 					return_type: 'Promise<LoadModulesResult<TModuleMeta>>',
