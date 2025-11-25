@@ -14,7 +14,7 @@ import {git_current_commit_hash} from '@ryanatkn/belt/git.js';
 import {z} from 'zod';
 
 import {to_hash} from './hash.ts';
-import type {Gro_Config} from './gro_config.ts';
+import type {GroConfig} from './gro_config.ts';
 import {paths} from './paths.ts';
 import {SVELTEKIT_BUILD_DIRNAME, SVELTEKIT_DIST_DIRNAME, GRO_DIST_PREFIX} from './constants.ts';
 
@@ -25,7 +25,7 @@ export const BUILD_CACHE_VERSION = '1';
  * Metadata about a single build output file.
  * Includes cryptographic hash for validation plus filesystem stats for debugging and optimization.
  */
-export const Build_Output_Entry = z.strictObject({
+export const BuildOutputEntry = z.strictObject({
 	path: z
 		.string()
 		.meta({description: "relative path from project root (e.g., 'build/index.html')."}),
@@ -37,13 +37,13 @@ export const Build_Output_Entry = z.strictObject({
 	}),
 	mode: z.number().meta({description: 'unix file permission mode (e.g., 33188 = 0644)'}),
 });
-export type Build_Output_Entry = z.infer<typeof Build_Output_Entry>;
+export type BuildOutputEntry = z.infer<typeof BuildOutputEntry>;
 
 /**
  * Metadata stored in .gro/ directory to track build cache validity.
  * Schema validates structure at load time to catch corrupted cache files.
  */
-export const Build_Cache_Metadata = z.strictObject({
+export const BuildCacheMetadata = z.strictObject({
 	version: z.string().meta({description: 'schema version for future compatibility'}),
 	git_commit: z.string().nullable().meta({description: 'git commit hash at time of build'}),
 	build_cache_config_hash: z
@@ -51,10 +51,10 @@ export const Build_Cache_Metadata = z.strictObject({
 		.meta({description: "hash of user's custom build_cache_config from gro.config.ts."}),
 	timestamp: z.string().meta({description: 'timestamp when build completed'}),
 	outputs: z
-		.array(Build_Output_Entry)
+		.array(BuildOutputEntry)
 		.meta({description: 'build output files with hashes and filesystem stats'}),
 });
-export type Build_Cache_Metadata = z.infer<typeof Build_Cache_Metadata>;
+export type BuildCacheMetadata = z.infer<typeof BuildCacheMetadata>;
 
 /**
  * Computes the cache key components for a build.
@@ -65,7 +65,7 @@ export type Build_Cache_Metadata = z.infer<typeof Build_Cache_Metadata>;
  * @param git_commit Optional pre-computed git commit hash (optimization to avoid re-reading)
  */
 export const compute_build_cache_key = async (
-	config: Gro_Config,
+	config: GroConfig,
 	log: Logger,
 	git_commit?: string | null,
 ): Promise<{
@@ -89,7 +89,7 @@ export const compute_build_cache_key = async (
  * Loads build cache metadata from .gro/ directory.
  * Invalid or corrupted cache files are automatically deleted.
  */
-export const load_build_cache_metadata = (): Build_Cache_Metadata | null => {
+export const load_build_cache_metadata = (): BuildCacheMetadata | null => {
 	const metadata_path = join(paths.build, BUILD_CACHE_METADATA_FILENAME);
 
 	if (!existsSync(metadata_path)) {
@@ -101,7 +101,7 @@ export const load_build_cache_metadata = (): Build_Cache_Metadata | null => {
 		const parsed = JSON.parse(contents);
 
 		// Validate structure with Zod
-		const metadata = Build_Cache_Metadata.parse(parsed);
+		const metadata = BuildCacheMetadata.parse(parsed);
 
 		// Validate version
 		if (metadata.version !== BUILD_CACHE_VERSION) {
@@ -131,7 +131,7 @@ export const load_build_cache_metadata = (): Build_Cache_Metadata | null => {
  * Saves build cache metadata to .gro/ directory.
  * Errors are logged but don't fail the build (cache is optional).
  */
-export const save_build_cache_metadata = (metadata: Build_Cache_Metadata, log?: Logger): void => {
+export const save_build_cache_metadata = (metadata: BuildCacheMetadata, log?: Logger): void => {
 	try {
 		// Ensure .gro directory exists
 		mkdirSync(paths.build, {recursive: true});
@@ -152,7 +152,7 @@ export const save_build_cache_metadata = (metadata: Build_Cache_Metadata, log?: 
  * Uses size as a fast negative check before expensive hashing.
  * This is comprehensive validation to catch manual tampering or corruption.
  */
-export const validate_build_cache = async (metadata: Build_Cache_Metadata): Promise<boolean> => {
+export const validate_build_cache = async (metadata: BuildCacheMetadata): Promise<boolean> => {
 	// Verify all tracked output files exist and have matching size
 	for (const output of metadata.outputs) {
 		if (!existsSync(output.path)) {
@@ -193,7 +193,7 @@ export const validate_build_cache = async (metadata: Build_Cache_Metadata): Prom
  * @param git_commit Optional pre-computed git commit hash (optimization)
  */
 export const is_build_cache_valid = async (
-	config: Gro_Config,
+	config: GroConfig,
 	log: Logger,
 	git_commit?: string | null,
 ): Promise<boolean> => {
@@ -240,14 +240,14 @@ export const is_build_cache_valid = async (
  */
 export const collect_build_outputs = async (
 	build_dirs: Array<string>,
-): Promise<Array<Build_Output_Entry>> => {
+): Promise<Array<BuildOutputEntry>> => {
 	// Collect all files to hash first
-	interface File_Entry {
+	interface FileEntry {
 		full_path: string;
 		cache_key: string;
 	}
 
-	const files_to_hash: Array<File_Entry> = [];
+	const files_to_hash: Array<FileEntry> = [];
 
 	// Recursively collect files
 	const collect_files = (dir: string, relative_base: string, dir_prefix: string): void => {
@@ -282,7 +282,7 @@ export const collect_build_outputs = async (
 
 	// Hash all files in parallel and collect stats
 	const hash_promises = files_to_hash.map(
-		async ({full_path, cache_key}): Promise<Build_Output_Entry> => {
+		async ({full_path, cache_key}): Promise<BuildOutputEntry> => {
 			const stats = statSync(full_path);
 			const contents = readFileSync(full_path);
 			const hash = await to_hash(contents);
@@ -344,11 +344,11 @@ export const discover_build_output_dirs = (): Array<string> => {
  * @param build_dirs Optional pre-discovered build directories (optimization to avoid redundant filesystem scans)
  */
 export const create_build_cache_metadata = async (
-	config: Gro_Config,
+	config: GroConfig,
 	log: Logger,
 	git_commit?: string | null,
 	build_dirs?: Array<string>,
-): Promise<Build_Cache_Metadata> => {
+): Promise<BuildCacheMetadata> => {
 	const cache_key = await compute_build_cache_key(config, log, git_commit);
 	const dirs = build_dirs ?? discover_build_output_dirs();
 	const outputs = await collect_build_outputs(dirs);

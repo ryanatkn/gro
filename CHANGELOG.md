@@ -1517,7 +1517,7 @@
 
 ### Minor Changes
 
-- rename CreateGroConfig from Gro_ConfigCreator ([#422](https://github.com/ryanatkn/gro/pull/422))
+- rename CreateGroConfig from GroConfigCreator ([#422](https://github.com/ryanatkn/gro/pull/422))
 - add package.gen.ts for importing package.json data ([#419](https://github.com/ryanatkn/gro/pull/419))
 - change config to explictly publish `static/.well-known/package.json` and delete `gro exports` ([#419](https://github.com/ryanatkn/gro/pull/419))
 - rename `clean_fs.ts` from `clean.ts` ([#419](https://github.com/ryanatkn/gro/pull/419))
@@ -2800,7 +2800,7 @@
 
 - **break**: rename `src/lib/equal.ts` module from `deepEqual.ts`
   ([#162](https://github.com/ryanatkn/gro/pull/162))
-- **break**: rename `GroConfigPartial` from `PartialGro_Config`
+- **break**: rename `GroConfigPartial` from `PartialGroConfig`
   and `BuildConfigPartial` from `PartialBuild_Config`
   ([#164](https://github.com/ryanatkn/gro/pull/164))
 - make serve task work for production SvelteKit builds

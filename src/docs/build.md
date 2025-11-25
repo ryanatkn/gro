@@ -169,7 +169,7 @@ export default {
 		data_version: fs.readFileSync('data/version.txt', 'utf-8'),
 		features: {analytics: true, beta_ui: false},
 	},
-} satisfies Gro_Config;
+} satisfies GroConfig;
 ```
 
 The config is hashed and never logged to protect sensitive values.

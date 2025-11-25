@@ -1,8 +1,8 @@
 import {vi} from 'vitest';
 
-import type {Task_Context} from '../lib/task.ts';
+import type {TaskContext} from '../lib/task.ts';
 import type {Args} from '../lib/build.task.ts';
-import type {Gro_Config} from '../lib/gro_config.ts';
+import type {GroConfig} from '../lib/gro_config.ts';
 import {create_mock_task_context} from './test_helpers.ts';
 
 /**
@@ -10,8 +10,8 @@ import {create_mock_task_context} from './test_helpers.ts';
  */
 export const create_mock_build_task_context = (
 	args: Partial<Args> = {},
-	config: Partial<Gro_Config> = {},
-): Task_Context<Args> =>
+	config: Partial<GroConfig> = {},
+): TaskContext<Args> =>
 	create_mock_task_context(args, config, {
 		sync: true,
 		'no-sync': false,
@@ -23,7 +23,7 @@ export const create_mock_build_task_context = (
 /**
  * Mock plugins interface for testing plugin lifecycle.
  */
-export interface Mock_Plugins {
+export interface MockPlugins {
 	setup: ReturnType<typeof vi.fn>;
 	adapt: ReturnType<typeof vi.fn>;
 	teardown: ReturnType<typeof vi.fn>;
@@ -32,7 +32,7 @@ export interface Mock_Plugins {
 /**
  * Creates mock plugins with spies for testing lifecycle.
  */
-export const create_mock_plugins = (): Mock_Plugins => ({
+export const create_mock_plugins = (): MockPlugins => ({
 	setup: vi.fn(),
 	adapt: vi.fn(),
 	teardown: vi.fn(),

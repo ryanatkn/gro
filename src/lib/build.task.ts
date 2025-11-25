@@ -4,7 +4,7 @@ import {git_check_clean_workspace, git_current_commit_hash} from '@ryanatkn/belt
 import {rmSync, existsSync} from 'node:fs';
 import {join} from 'node:path';
 
-import {Task_Error, type Task} from './task.ts';
+import {TaskError, type Task} from './task.ts';
 import {Plugins} from './plugin.ts';
 import {clean_fs} from './clean_fs.ts';
 import {
@@ -111,7 +111,7 @@ export const task: Task<Args> = {
 		const final_workspace_status = await git_check_clean_workspace();
 		if (final_workspace_status !== workspace_status) {
 			// Workspace state changed during build - this indicates a problem
-			throw new Task_Error(
+			throw new TaskError(
 				'Build process modified tracked files or created untracked files.\n\n' +
 					'Git status after build:\n' +
 					final_workspace_status +
