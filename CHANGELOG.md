@@ -1,5 +1,11 @@
 # @ryanatkn/gro
 
+## 0.177.0
+
+### Minor Changes
+
+- rename `PascalCase` from `Upper_Snake_Case` (lol) ([#581](https://github.com/ryanatkn/gro/pull/581))
+
 ## 0.176.0
 
 ### Minor Changes
