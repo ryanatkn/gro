@@ -4,7 +4,7 @@ import {existsSync} from 'node:fs';
 
 import {TaskError, type Task} from './task.ts';
 import {resolve_gro_module_path, spawn_with_loader} from './gro_helpers.ts';
-import {serialize_args} from './args.ts';
+import {serialize_args, to_implicit_forwarded_args} from './args.ts';
 
 /**
  * Runs a TypeScript file with Gro's loader, forwarding all args to the script.
@@ -43,8 +43,12 @@ export const task: Task<Args> = {
 			throw new TaskError('Cannot find file to run at path: ' + path);
 		}
 
-		// Reconstruct argv: positional args + serialized named args
-		const named_argv = serialize_args(forwarded_args);
+		// Get args after `--` without requiring a command name.
+		// This allows `gro run script.ts -- --help` to pass --help to the script.
+		const implicit_args = to_implicit_forwarded_args();
+
+		// Reconstruct argv: positional args + explicit named args + implicit args after --
+		const named_argv = serialize_args({...forwarded_args, ...implicit_args});
 		const full_argv = [...positional_argv, ...named_argv];
 
 		const loader_path = resolve_gro_module_path('loader.js');
