@@ -1,5 +1,11 @@
 # @ryanatkn/gro
 
+## 0.176.0
+
+### Minor Changes
+
+- change `gro run` to automatically forward args ([488f139](https://github.com/ryanatkn/gro/commit/488f139))
+
 ## 0.175.0
 
 ### Minor Changes
