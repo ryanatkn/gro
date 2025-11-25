@@ -7,7 +7,7 @@ import {serialize_args, to_forwarded_args} from './args.ts';
 import {serialize_package_json, type PackageJsonMapper, load_package_json} from './package_json.ts';
 import {TaskError} from './task.ts';
 import {find_cli, spawn_cli, spawn_cli_process} from './cli.ts';
-import {type SrcJsonMapper, src_json_serialize, src_json_create} from './src_json.ts';
+import {type SourceJsonMapper, source_json_serialize, source_json_create} from './source_json.ts';
 import {EXPORTS_EXCLUDER_DEFAULT} from './gro_config.ts';
 import {default_svelte_config} from './svelte_config.ts';
 import {SOURCE_DIRNAME, VITE_CLI} from './constants.ts';
@@ -26,10 +26,10 @@ export interface GroPluginSveltekitAppOptions {
 	well_known_package_json?: boolean | PackageJsonMapper;
 
 	/**
-	 * If truthy, adds `/.well-known/src.json` and `/.well-known/src/` to the static output.
+	 * If truthy, adds `/.well-known/source.json` and `/.well-known/src/` to the static output.
 	 * If a function, maps the value.
 	 */
-	well_known_src_json?: boolean | SrcJsonMapper;
+	well_known_source_json?: boolean | SourceJsonMapper;
 
 	/**
 	 * If truthy, copies `src/` to `/.well-known/src/` to the static output.
@@ -49,7 +49,7 @@ export type CopyFileFilter = (file_path: string) => boolean;
 export const gro_plugin_sveltekit_app = ({
 	host_target = 'github_pages',
 	well_known_package_json,
-	well_known_src_json,
+	well_known_source_json,
 	well_known_src_files,
 	vite_cli = VITE_CLI,
 }: GroPluginSveltekitAppOptions = {}): Plugin => {
@@ -89,18 +89,18 @@ export const gro_plugin_sveltekit_app = ({
 				const serialized_package_json =
 					mapped_package_json && serialize_package_json(mapped_package_json);
 
-				// `.well-known/src.json` and `.well-known/src/`
+				// `.well-known/source.json` and `.well-known/src/`
 				const final_package_json = mapped_package_json ?? package_json;
-				const src_json = src_json_create(final_package_json, undefined, log);
-				if (well_known_src_json === undefined) {
-					well_known_src_json = final_package_json.public; // eslint-disable-line no-param-reassign
+				const source_json = source_json_create(final_package_json, undefined, log);
+				if (well_known_source_json === undefined) {
+					well_known_source_json = final_package_json.public; // eslint-disable-line no-param-reassign
 				}
-				const mapped_src_json = !well_known_src_json
+				const mapped_source_json = !well_known_source_json
 					? null
-					: well_known_src_json === true
-						? src_json
-						: await well_known_src_json(src_json);
-				const serialized_src_json = mapped_src_json && src_json_serialize(mapped_src_json);
+					: well_known_source_json === true
+						? source_json
+						: await well_known_source_json(source_json);
+				const serialized_source_json = mapped_source_json && source_json_serialize(mapped_source_json);
 
 				// TODO this strategy means the files aren't available during development --
 				// maybe a Vite middleware is best? what if this plugin added its plugin to your `vite.config.ts`?
@@ -115,10 +115,10 @@ export const gro_plugin_sveltekit_app = ({
 								serialized_package_json,
 							)
 						: null,
-					serialized_src_json
-						? create_temporarily(join(assets_path, '.well-known/src.json'), serialized_src_json)
+					serialized_source_json
+						? create_temporarily(join(assets_path, '.well-known/source.json'), serialized_source_json)
 						: null,
-					serialized_src_json && well_known_src_files
+					serialized_source_json && well_known_src_files
 						? copy_temporarily(
 								SOURCE_DIRNAME,
 								assets_path,

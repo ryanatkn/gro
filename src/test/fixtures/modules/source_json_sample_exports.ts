@@ -1,4 +1,4 @@
-// This file contains systematic examples of all different kinds of exports in the `src_json`
+// This file contains systematic examples of all different kinds of exports in `source_json`
 
 // Type declarations
 type SimpleType = string;

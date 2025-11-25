@@ -13,11 +13,11 @@ behavior designed for public open source projects:
   SvelteKit static directory at `.well-known/package.json` during `vite build`,
   mapping it with the optional
   [`well_known_package_json` option](./gro_plugin_sveltekit_app.md#well_known_package_json).
-- `gro_plugin_sveltekit_app` outputs `.well-known/src.json`
+- `gro_plugin_sveltekit_app` outputs `.well-known/source.json`
   using the `exports` property of `package.json` during `vite build`,
   containing additional information about the source modules,
   mapping it with the optional
-  [`well_known_src_json` option](./gro_plugin_sveltekit_app.md#well_known_src_json).
+  [`well_known_source_json` option](./gro_plugin_sveltekit_app.md#well_known_source_json).
 - If you define a truthy value for the
   [`well_known_src_files` option](./gro_plugin_sveltekit_app.md#well_known_src_files),
   `gro_plugin_sveltekit_app` outputs `.well-known/src/` by

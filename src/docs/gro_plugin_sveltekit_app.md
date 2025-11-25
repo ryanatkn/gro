@@ -14,7 +14,7 @@ const config: GroConfigCreator = async (cfg) => {
 		gro_plugin_sveltekit_app({
 			// host_target?: HostTarget;
 			// well_known_package_json?: boolean | MapPackageJson;
-			// well_known_src_json?: boolean | MapSrcJson;
+			// well_known_source_json?: boolean | MapSourceJson;
 			// well_known_src_files?: boolean | CopyFileFilter;
 		}),
 	];
@@ -35,9 +35,9 @@ export interface MapPackageJson {
 	(package_json: PackageJson): PackageJson | null | Promise<PackageJson | null>;
 }
 
-// src/lib/src_json.ts
-export interface MapSrcJson {
-	(src_json: SrcJson): SrcJson | null | Promise<SrcJson | null>;
+// src/lib/source_json.ts
+export interface MapSourceJson {
+	(source_json: SourceJson): SourceJson | null | Promise<SourceJson | null>;
 }
 ```
 
@@ -86,20 +86,20 @@ Why publish this metadata to the web instead of relying on the git repo as the o
   giving devs full control over the published artifacts
   instead of coupling metadata directly to a source repo's `package.json`
 
-## `well_known_src_json`
+## `well_known_source_json`
 
 If your root `package.json` has `"public": true`,
-by default Gro creates `.well-known/src.json` and `.well-known/src/`
+by default Gro creates `.well-known/source.json` and `.well-known/src/`
 in `static/` during `vite build`,
 so they're included in the SvelteKit build output.
 More [about public packages](./package_json.md#public-packages).
 
-This can be customized with `well_known_src_json`.
+This can be customized with `well_known_source_json`.
 Setting it to `false` disables the feature, and `true` enables it.
-Setting it to a function maps the final `src.json` value - returning `null` disables it.
+Setting it to a function maps the final `source.json` value - returning `null` disables it.
 
-The `.well-known/src.json` file contains more details about
-the `package.json`'s `exports`, like exported identifier names and types.
+The `.well-known/source.json` file contains more details about
+the `package.json`'s `exports`, like exported declaration names and types.
 It maps each export to a source file in `.well-known/src/`.
 
 ## `well_known_src_files`

@@ -2,7 +2,7 @@ import ts from 'typescript';
 import {extname} from 'node:path';
 import type {Flavored} from '@ryanatkn/belt/types.js';
 import type {Logger} from '@ryanatkn/belt/log.js';
-import type {IdentifierKind} from '@ryanatkn/belt/src_json.js';
+import type {DeclarationKind} from '@ryanatkn/belt/source_json.js';
 import type {PathId} from '@ryanatkn/belt/path.js';
 
 import {TS_MATCHER} from './constants.ts';
@@ -10,7 +10,7 @@ import {ParseExportsContext} from './parse_exports_context.ts';
 
 export interface Declaration {
 	name: string;
-	kind: IdentifierKind | null;
+	kind: DeclarationKind | null;
 }
 
 export type ExportDeclaration = Flavored<Declaration, 'ExportDeclaration'>;
