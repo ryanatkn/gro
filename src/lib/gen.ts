@@ -210,9 +210,7 @@ export type AnalyzedGenResult =
 			has_changed: true;
 	  };
 
-export const analyze_gen_results = (
-	gen_results: GenResults,
-): Promise<Array<AnalyzedGenResult>> =>
+export const analyze_gen_results = (gen_results: GenResults): Promise<Array<AnalyzedGenResult>> =>
 	Promise.all(
 		gen_results.successes
 			.map((result) => result.files.map((file) => analyze_gen_result(file)))

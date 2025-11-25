@@ -21,10 +21,7 @@ import {SOURCE_DIRNAME} from './constants.ts';
 
 /** @nodocs */
 export const Args = z.strictObject({
-	_: z
-		.array(RawInputPath)
-		.meta({description: 'input paths to generate'})
-		.default([SOURCE_DIRNAME]),
+	_: z.array(RawInputPath).meta({description: 'input paths to generate'}).default([SOURCE_DIRNAME]),
 	root_dirs: z
 		.array(z.string())
 		.meta({description: 'root directories to resolve input paths against'}) // TODO `PathId` schema

@@ -13,10 +13,7 @@ export interface ModuleMeta<TModule extends Record<string, any> = Record<string,
 	mod: TModule;
 }
 
-export type LoadModuleResult<TModule> = Result<
-	{id: PathId; mod: TModule},
-	LoadModuleFailure
->;
+export type LoadModuleResult<TModule> = Result<{id: PathId; mod: TModule}, LoadModuleFailure>;
 export type LoadModuleFailure =
 	| {ok: false; type: 'failed_import'; id: PathId; error: Error}
 	| {
