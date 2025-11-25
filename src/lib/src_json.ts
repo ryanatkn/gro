@@ -2,8 +2,8 @@ import {join} from 'node:path';
 import {ensure_end, strip_start} from '@ryanatkn/belt/string.js';
 import {existsSync} from 'node:fs';
 import ts from 'typescript';
-import type {Package_Json, Package_Json_Exports} from '@ryanatkn/belt/package_json.js';
-import {Src_Json, type Module_Json, type Identifier_Kind} from '@ryanatkn/belt/src_json.js';
+import type {PackageJson, PackageJsonExports} from '@ryanatkn/belt/package_json.js';
+import {SrcJson, type ModuleJson, type IdentifierKind} from '@ryanatkn/belt/src_json.js';
 import type {Logger} from '@ryanatkn/belt/log.js';
 
 import {paths, replace_extension} from './paths.ts';
@@ -11,29 +11,29 @@ import {parse_exports} from './parse_exports.ts';
 import {TS_MATCHER, SVELTE_MATCHER, JSON_MATCHER, CSS_MATCHER} from './constants.ts';
 import {search_fs} from './search_fs.ts';
 
-export type Src_Json_Mapper = (src_json: Src_Json) => Src_Json | null | Promise<Src_Json | null>;
+export type SrcJsonMapper = (src_json: SrcJson) => SrcJson | null | Promise<SrcJson | null>;
 
 export const src_json_create = (
-	package_json: Package_Json,
+	package_json: PackageJson,
 	lib_path?: string,
 	log?: Logger,
-): Src_Json =>
-	Src_Json.parse({
+): SrcJson =>
+	SrcJson.parse({
 		name: package_json.name,
 		version: package_json.version,
 		modules: src_modules_create(package_json.exports, lib_path, log),
 	});
 
-export const src_json_serialize = (src_json: Src_Json): string => {
-	const parsed = Src_Json.parse(src_json);
+export const src_json_serialize = (src_json: SrcJson): string => {
+	const parsed = SrcJson.parse(src_json);
 	return JSON.stringify(parsed, null, 2) + '\n';
 };
 
 export const src_modules_create = (
-	exports: Package_Json_Exports | undefined,
+	exports: PackageJsonExports | undefined,
 	lib_path = paths.lib,
 	log?: Logger,
-): Array<Module_Json> | undefined => {
+): Array<ModuleJson> | undefined => {
 	if (!exports) return;
 
 	const file_paths = collect_file_paths(exports, lib_path);
@@ -58,14 +58,14 @@ export const src_modules_create = (
 		);
 	}
 
-	const result: Array<Module_Json> = [];
+	const result: Array<ModuleJson> = [];
 
 	// Process each file
 	for (const {file_path} of file_paths) {
 		const relative_path = file_path.replace(ensure_end(lib_path, '/'), '');
 
 		const identifiers = parse_exports(file_path, program, undefined, log)
-			.filter((d): d is {name: string; kind: Identifier_Kind} => d.kind !== null) // TODO maybe dont filter out?
+			.filter((d): d is {name: string; kind: IdentifierKind} => d.kind !== null) // TODO maybe dont filter out?
 			.map(({name, kind}) => ({name, kind}));
 
 		result.push(
@@ -84,7 +84,7 @@ export const src_modules_create = (
 };
 
 const collect_file_paths = (
-	exports: Package_Json_Exports,
+	exports: PackageJsonExports,
 	lib_path: string,
 ): Array<{export_key: string; file_path: string}> => {
 	const file_paths: Array<{export_key: string; file_path: string}> = [];

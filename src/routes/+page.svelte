@@ -1,10 +1,10 @@
 <script lang="ts">
 	import {resolve} from '$app/paths';
-	import Docs_Footer from '@ryanatkn/fuz/Docs_Footer.svelte';
+	import DocsFooter from '@ryanatkn/fuz/DocsFooter.svelte';
 	import Svg from '@ryanatkn/fuz/Svg.svelte';
 	import Card from '@ryanatkn/fuz/Card.svelte';
 	import {gro_logo} from '@ryanatkn/fuz/logos.js';
-	import Hidden_Personal_Links from '@ryanatkn/fuz/Hidden_Personal_Links.svelte';
+	import HiddenPersonalLinks from '@ryanatkn/fuz/HiddenPersonalLinks.svelte';
 	import {pkg_context} from '@ryanatkn/fuz/pkg.svelte.js';
 
 	const pkg = pkg_context.get();
@@ -22,10 +22,10 @@
 			<Card href={resolve('/docs')}>docs{#snippet icon()}{pkg.package_json.glyph}{/snippet}</Card>
 		</section>
 		<section>
-			<Docs_Footer {pkg}>
+			<DocsFooter {pkg}>
 				{#snippet logo_header()}<a href={resolve('/about')} class="mb_xs">about</a>{/snippet}
-				<Hidden_Personal_Links />
-			</Docs_Footer>
+				<HiddenPersonalLinks />
+			</DocsFooter>
 		</section>
 	</div>
 </main>

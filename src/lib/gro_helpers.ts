@@ -1,7 +1,7 @@
 import {realpathSync, existsSync} from 'node:fs';
 import {join, resolve} from 'node:path';
 import {fileURLToPath} from 'node:url';
-import {spawn, type Spawn_Result} from '@ryanatkn/belt/process.js';
+import {spawn, type SpawnResult} from '@ryanatkn/belt/process.js';
 
 import {JS_CLI_DEFAULT, NODE_MODULES_DIRNAME, SVELTEKIT_DIST_DIRNAME} from './constants.ts';
 
@@ -85,7 +85,7 @@ export const spawn_with_loader = (
 	invoke_path: string,
 	argv: Array<string>,
 	js_cli = JS_CLI_DEFAULT, // TODO source from config when possible
-): Promise<Spawn_Result> => {
+): Promise<SpawnResult> => {
 	const args = [
 		'--import',
 		// This does the same as `$lib/register.ts` but without the cost of importing another file.

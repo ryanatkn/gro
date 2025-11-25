@@ -1,4 +1,4 @@
-import {spawn_restartable_process, type Restartable_Process} from '@ryanatkn/belt/process.js';
+import {spawn_restartable_process, type RestartableProcess} from '@ryanatkn/belt/process.js';
 import * as esbuild from 'esbuild';
 import type {Config as SvelteConfig} from '@sveltejs/kit';
 import {join, resolve} from 'node:path';
@@ -7,7 +7,7 @@ import {strip_before, strip_end} from '@ryanatkn/belt/string.js';
 import type {Result} from '@ryanatkn/belt/result.js';
 import {fs_exists} from '@ryanatkn/belt/fs.js';
 import {throttle} from '@ryanatkn/belt/throttle.js';
-import type {Path_Id} from '@ryanatkn/belt/path.js';
+import type {PathId} from '@ryanatkn/belt/path.js';
 
 import type {Plugin} from './plugin.ts';
 import {base_path_to_path_id, LIB_DIRNAME, paths} from './paths.ts';
@@ -34,7 +34,7 @@ export const has_server = async (
 	return {ok: true};
 };
 
-export interface Gro_Plugin_Server_Options {
+export interface GroPluginServerOptions {
 	/**
 	 * same as esbuild's `entryPoints`
 	 */
@@ -48,7 +48,7 @@ export interface Gro_Plugin_Server_Options {
 	 * Decoupling this from plugin creation allows it to be created generically,
 	 * so the build and dev tasks can be the source of truth for `dev`.
 	 */
-	outpaths?: Create_Outpaths;
+	outpaths?: CreateOutpaths;
 	/**
 	 * @default ```SvelteKit's `.env`, `.env.development`, and `.env.production````
 	 */
@@ -104,7 +104,7 @@ export interface Outpaths {
 	outname: string;
 }
 
-export type Create_Outpaths = (dev: boolean) => Outpaths;
+export type CreateOutpaths = (dev: boolean) => Outpaths;
 
 export const gro_plugin_server = ({
 	entry_points = [SERVER_SOURCE_ID],
@@ -122,11 +122,11 @@ export const gro_plugin_server = ({
 	rebuild_throttle_delay = 1000,
 	cli_command,
 	run, // `dev` default is not available in this scope
-}: Gro_Plugin_Server_Options = {}): Plugin => {
+}: GroPluginServerOptions = {}): Plugin => {
 	let build_ctx: esbuild.BuildContext | undefined;
 	let cleanup_watch: (() => void) | undefined;
-	let server_process: Restartable_Process | undefined;
-	let deps: Set<Path_Id> | undefined;
+	let server_process: RestartableProcess | undefined;
+	let deps: Set<PathId> | undefined;
 
 	return {
 		name: 'gro_plugin_server',

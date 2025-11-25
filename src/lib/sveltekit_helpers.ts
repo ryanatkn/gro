@@ -1,11 +1,11 @@
 import type {Result} from '@ryanatkn/belt/result.js';
 import type {Logger} from '@ryanatkn/belt/log.js';
 import {join} from 'node:path';
-import type {Package_Json} from '@ryanatkn/belt/package_json.js';
+import type {PackageJson} from '@ryanatkn/belt/package_json.js';
 import {fs_exists} from '@ryanatkn/belt/fs.js';
 
 import {has_dep} from './package_json.ts';
-import {default_svelte_config, type Parsed_Svelte_Config} from './svelte_config.ts';
+import {default_svelte_config, type ParsedSvelteConfig} from './svelte_config.ts';
 import {
 	SVELTE_CONFIG_FILENAME,
 	SVELTEKIT_DEV_DIRNAME,
@@ -14,7 +14,7 @@ import {
 	SVELTEKIT_CLI,
 } from './constants.ts';
 import {find_cli, spawn_cli, to_cli_name, type Cli} from './cli.ts';
-import {Task_Error} from './task.ts';
+import {TaskError} from './task.ts';
 import {serialize_args, to_forwarded_args} from './args.ts';
 
 export const has_sveltekit_app = async (
@@ -28,8 +28,8 @@ export const has_sveltekit_app = async (
 };
 
 export const has_sveltekit_library = async (
-	package_json: Package_Json,
-	svelte_config: Parsed_Svelte_Config = default_svelte_config,
+	package_json: PackageJson,
+	svelte_config: ParsedSvelteConfig = default_svelte_config,
 	dep_name = SVELTE_PACKAGE_DEP_NAME,
 ): Promise<Result<object, {message: string}>> => {
 	const has_sveltekit_app_result = await has_sveltekit_app();
@@ -57,11 +57,11 @@ export const sveltekit_sync = async (
 ): Promise<void> => {
 	const result = await spawn_cli(sveltekit_cli, ['sync']);
 	if (!result) {
-		throw new Task_Error(
+		throw new TaskError(
 			`Failed to find SvelteKit CLI \`${to_cli_name(sveltekit_cli)}\`, do you need to run \`${pm_cli} install\`?`,
 		);
 	} else if (!result.ok) {
-		throw new Task_Error(`Failed ${to_cli_name(sveltekit_cli)} sync`);
+		throw new TaskError(`Failed ${to_cli_name(sveltekit_cli)} sync`);
 	}
 };
 
@@ -100,7 +100,7 @@ export const sveltekit_sync_if_obviously_needed = async (
  * Options to the SvelteKit packaging CLI.
  * @see https://kit.svelte.dev/docs/packaging#options
  */
-export interface Svelte_Package_Options {
+export interface SveltePackageOptions {
 	/**
 	 * Watch files in src/lib for changes and rebuild the package
 	 */
@@ -147,22 +147,22 @@ export interface Svelte_Package_Options {
 }
 
 export const run_svelte_package = async (
-	package_json: Package_Json,
-	options: Svelte_Package_Options | undefined,
+	package_json: PackageJson,
+	options: SveltePackageOptions | undefined,
 	cli: string | Cli,
 	log: Logger,
 	pm_cli: string,
 ): Promise<void> => {
 	const has_sveltekit_library_result = await has_sveltekit_library(package_json);
 	if (!has_sveltekit_library_result.ok) {
-		throw new Task_Error(
+		throw new TaskError(
 			'Failed to find SvelteKit library: ' + has_sveltekit_library_result.message,
 		);
 	}
 	const cli_name = typeof cli === 'string' ? cli : cli.name;
 	const found_svelte_package_cli = cli === cli_name ? find_cli(cli) : (cli as Cli);
 	if (found_svelte_package_cli?.kind !== 'local') {
-		throw new Task_Error(
+		throw new TaskError(
 			`Failed to find SvelteKit packaging CLI \`${cli_name}\`, do you need to run \`${pm_cli} install\`?`,
 		);
 	}

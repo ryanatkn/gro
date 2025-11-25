@@ -5,20 +5,20 @@ import {
 	render_sveltekit_shim_app_paths,
 	sveltekit_shim_app_specifiers,
 } from './sveltekit_shim_app.ts';
-import type {Parsed_Svelte_Config} from './svelte_config.ts';
+import type {ParsedSvelteConfig} from './svelte_config.ts';
 import {EVERYTHING_MATCHER} from './constants.ts';
 
-export interface Esbuild_Plugin_Sveltekit_Shim_App_Options {
+export interface EsbuildPluginSveltekitShimAppOptions {
 	dev: boolean;
-	base_url: Parsed_Svelte_Config['base_url'];
-	assets_url: Parsed_Svelte_Config['assets_url'];
+	base_url: ParsedSvelteConfig['base_url'];
+	assets_url: ParsedSvelteConfig['assets_url'];
 }
 
 export const esbuild_plugin_sveltekit_shim_app = ({
 	dev,
 	base_url,
 	assets_url,
-}: Esbuild_Plugin_Sveltekit_Shim_App_Options): esbuild.Plugin => ({
+}: EsbuildPluginSveltekitShimAppOptions): esbuild.Plugin => ({
 	name: 'sveltekit_shim_app',
 	setup: (build) => {
 		build.onResolve({filter: /^\$app\/(forms|navigation|stores)$/}, ({path, ...rest}) =>

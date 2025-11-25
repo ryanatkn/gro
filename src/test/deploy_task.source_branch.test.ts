@@ -2,7 +2,7 @@ import {describe, test, expect, vi, beforeEach, afterEach} from 'vitest';
 import {resolve} from 'node:path';
 
 import {task as deploy_task} from '../lib/deploy.task.ts';
-import {Task_Error} from '../lib/task.ts';
+import {TaskError} from '../lib/task.ts';
 
 import {
 	create_mock_deploy_task_context,
@@ -275,11 +275,11 @@ describe('deploy_task source branch preparation', () => {
 				pull: true,
 			});
 
-			let error: Task_Error | undefined;
+			let error: TaskError | undefined;
 			try {
 				await deploy_task.run(ctx);
 			} catch (e) {
-				error = e as Task_Error;
+				error = e as TaskError;
 			}
 			expect(error!.message).toContain('out of sync with the remote');
 			expect(error!.message).toContain('git rebase --abort');

@@ -33,7 +33,7 @@ test('build for the client', async () => {
 	expect(built_output).toBe(
 		`// src/test/fixtures/modules/some_test_svelte_ts.svelte.ts
 import * as $ from "svelte/internal/client";
-var Some_Test_Svelte_Ts = class {
+var SomeTestSvelteTs = class {
   #a = $.state("ok");
   get a() {
     return $.get(this.#a);
@@ -45,7 +45,7 @@ var Some_Test_Svelte_Ts = class {
 
 // src/test/fixtures/modules/some_test_svelte_js.svelte.js
 import * as $2 from "svelte/internal/client";
-var Some_Test_Svelte_Js = class {
+var SomeTestSvelteJs = class {
   #a = $2.state("ok");
   get a() {
     return $2.get(this.#a);
@@ -64,8 +64,8 @@ var some_test_js = ".js";
 // src/test/fixtures/modules/some_test_server.ts
 var some_test_server = "some_test_server";
 export {
-  Some_Test_Svelte_Js,
-  Some_Test_Svelte_Ts,
+  SomeTestSvelteJs,
+  SomeTestSvelteTs,
   some_test_js,
   some_test_server,
   some_test_ts
@@ -99,13 +99,13 @@ test('build for the server', async () => {
 	expect(built_output).toBe(
 		`// src/test/fixtures/modules/some_test_svelte_ts.svelte.ts
 import * as $ from "svelte/internal/server";
-var Some_Test_Svelte_Ts = class {
+var SomeTestSvelteTs = class {
   a = "ok";
 };
 
 // src/test/fixtures/modules/some_test_svelte_js.svelte.js
 import * as $2 from "svelte/internal/server";
-var Some_Test_Svelte_Js = class {
+var SomeTestSvelteJs = class {
   a = "ok";
 };
 
@@ -118,8 +118,8 @@ var some_test_js = ".js";
 // src/test/fixtures/modules/some_test_server.ts
 var some_test_server = "some_test_server";
 export {
-  Some_Test_Svelte_Js,
-  Some_Test_Svelte_Ts,
+  SomeTestSvelteJs,
+  SomeTestSvelteTs,
   some_test_js,
   some_test_server,
   some_test_ts

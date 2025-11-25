@@ -2,7 +2,7 @@ import {z} from 'zod';
 import {styleText as st} from 'node:util';
 import {existsSync} from 'node:fs';
 
-import {Task_Error, type Task} from './task.ts';
+import {TaskError, type Task} from './task.ts';
 import {resolve_gro_module_path, spawn_with_loader} from './gro_helpers.ts';
 import {serialize_args} from './args.ts';
 
@@ -40,7 +40,7 @@ export const task: Task<Args> = {
 		}
 
 		if (!existsSync(path)) {
-			throw new Task_Error('Cannot find file to run at path: ' + path);
+			throw new TaskError('Cannot find file to run at path: ' + path);
 		}
 
 		// Reconstruct argv: positional args + serialized named args
@@ -51,7 +51,7 @@ export const task: Task<Args> = {
 
 		const spawned = await spawn_with_loader(loader_path, path, full_argv);
 		if (!spawned.ok) {
-			throw new Task_Error(`\`gro run ${path}\` failed with exit code ${spawned.code}`);
+			throw new TaskError(`\`gro run ${path}\` failed with exit code ${spawned.code}`);
 		}
 	},
 };

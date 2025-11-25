@@ -2,7 +2,7 @@ import * as esbuild from 'esbuild';
 import type {Logger} from '@ryanatkn/belt/log.js';
 import {basename} from 'node:path';
 import type {CompileOptions, ModuleCompileOptions, PreprocessorGroup} from 'svelte/compiler';
-import type {Path_Id} from '@ryanatkn/belt/path.js';
+import type {PathId} from '@ryanatkn/belt/path.js';
 
 import {print_build_result, to_define_import_meta_env} from './esbuild_helpers.ts';
 import {resolve_specifier} from './resolve_specifier.ts';
@@ -11,9 +11,9 @@ import {esbuild_plugin_sveltekit_shim_env} from './esbuild_plugin_sveltekit_shim
 import {esbuild_plugin_sveltekit_shim_app} from './esbuild_plugin_sveltekit_shim_app.ts';
 import {esbuild_plugin_sveltekit_local_imports} from './esbuild_plugin_sveltekit_local_imports.ts';
 import {esbuild_plugin_svelte} from './esbuild_plugin_svelte.ts';
-import type {Parsed_Svelte_Config} from './svelte_config.ts';
+import type {ParsedSvelteConfig} from './svelte_config.ts';
 
-export interface Esbuild_Plugin_External_Worker_Options {
+export interface EsbuildPluginExternalWorkerOptions {
 	dev: boolean;
 	build_options: esbuild.BuildOptions;
 	dir?: string;
@@ -21,8 +21,8 @@ export interface Esbuild_Plugin_External_Worker_Options {
 	svelte_compile_module_options?: ModuleCompileOptions;
 	svelte_preprocessors?: PreprocessorGroup | Array<PreprocessorGroup>;
 	alias?: Record<string, string>;
-	base_url?: Parsed_Svelte_Config['base_url'];
-	assets_url?: Parsed_Svelte_Config['assets_url'];
+	base_url?: ParsedSvelteConfig['base_url'];
+	assets_url?: ParsedSvelteConfig['assets_url'];
 	public_prefix?: string;
 	private_prefix?: string;
 	env_dir?: string;
@@ -47,11 +47,11 @@ export const esbuild_plugin_external_worker = ({
 	env_files,
 	ambient_env,
 	log,
-}: Esbuild_Plugin_External_Worker_Options): esbuild.Plugin => ({
+}: EsbuildPluginExternalWorkerOptions): esbuild.Plugin => ({
 	name: 'external_worker',
 	setup: (build) => {
 		const builds: Map<string, Promise<esbuild.BuildResult>> = new Map();
-		const build_worker = async (path_id: Path_Id): Promise<esbuild.BuildResult> => {
+		const build_worker = async (path_id: PathId): Promise<esbuild.BuildResult> => {
 			if (builds.has(path_id)) return builds.get(path_id)!;
 			const building = esbuild.build({
 				entryPoints: [path_id],

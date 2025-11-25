@@ -4,7 +4,7 @@ import {readFileSync, writeFileSync} from 'node:fs';
 import {plural, strip_end} from '@ryanatkn/belt/string.js';
 import type {Logger} from '@ryanatkn/belt/log.js';
 import {styleText as st} from 'node:util';
-import {Package_Json, Package_Json_Exports} from '@ryanatkn/belt/package_json.js';
+import {PackageJson, PackageJsonExports} from '@ryanatkn/belt/package_json.js';
 
 import {paths, gro_paths, IS_THIS_GRO} from './paths.ts';
 import {
@@ -20,19 +20,19 @@ import {search_fs} from './search_fs.ts';
 import {has_sveltekit_library} from './sveltekit_helpers.ts';
 import {GITHUB_REPO_MATCHER} from './github.ts';
 
-export type Package_Json_Mapper = (
-	package_json: Package_Json,
-) => Package_Json | null | Promise<Package_Json | null>;
+export type PackageJsonMapper = (
+	package_json: PackageJson,
+) => PackageJson | null | Promise<PackageJson | null>;
 
-export const EMPTY_PACKAGE_JSON: Package_Json = {name: '', version: ''};
+export const EMPTY_PACKAGE_JSON: PackageJson = {name: '', version: ''};
 
 export const load_package_json = (
 	dir = IS_THIS_GRO ? gro_paths.root : paths.root,
-	cache?: Record<string, Package_Json>,
+	cache?: Record<string, PackageJson>,
 	parse = true, // TODO pass `false` here in more places, especially anything perf-sensitive like work on startup
 	log?: Logger,
-): Package_Json => {
-	let package_json: Package_Json;
+): PackageJson => {
+	let package_json: PackageJson;
 	if (cache && dir in cache) {
 		return cache[dir]!;
 	}
@@ -43,7 +43,7 @@ export const load_package_json = (
 		return EMPTY_PACKAGE_JSON;
 	}
 	if (parse) {
-		package_json = parse_package_json(Package_Json, package_json);
+		package_json = parse_package_json(PackageJson, package_json);
 	}
 	if (cache) {
 		cache[dir] = package_json;
@@ -52,12 +52,12 @@ export const load_package_json = (
 };
 
 export const sync_package_json = async (
-	map_package_json: Package_Json_Mapper,
+	map_package_json: PackageJsonMapper,
 	log: Logger,
 	write = true,
 	dir = paths.root,
 	exports_dir = paths.lib,
-): Promise<{package_json: Package_Json | null; changed: boolean}> => {
+): Promise<{package_json: PackageJson | null; changed: boolean}> => {
 	const exported_files = search_fs(exports_dir);
 	const exported_paths = exported_files.map((f) => f.path);
 	const updated = await update_package_json(
@@ -66,7 +66,7 @@ export const sync_package_json = async (
 				package_json.exports = to_package_exports(exported_paths);
 			}
 			const mapped = await map_package_json(package_json);
-			return mapped ? parse_package_json(Package_Json, mapped) : mapped;
+			return mapped ? parse_package_json(PackageJson, mapped) : mapped;
 		},
 		dir,
 		write,
@@ -85,7 +85,7 @@ export const sync_package_json = async (
 	return updated;
 };
 
-export const load_gro_package_json = (): Package_Json => load_package_json(gro_paths.root);
+export const load_gro_package_json = (): PackageJson => load_package_json(gro_paths.root);
 
 // TODO probably make this nullable and make callers handle failures
 const load_package_json_contents = (dir: string): string =>
@@ -95,17 +95,17 @@ export const write_package_json = (serialized_package_json: string): void => {
 	writeFileSync(join(paths.root, PACKAGE_JSON_FILENAME), serialized_package_json);
 };
 
-export const serialize_package_json = (package_json: Package_Json): string =>
-	JSON.stringify(parse_package_json(Package_Json, package_json), null, 2) + '\n';
+export const serialize_package_json = (package_json: PackageJson): string =>
+	JSON.stringify(parse_package_json(PackageJson, package_json), null, 2) + '\n';
 
 /**
  * Updates package.json. Writes to the filesystem only when contents change.
  */
 export const update_package_json = async (
-	update: (package_json: Package_Json) => Package_Json | null | Promise<Package_Json | null>,
+	update: (package_json: PackageJson) => PackageJson | null | Promise<PackageJson | null>,
 	dir = paths.root,
 	write = true,
-): Promise<{package_json: Package_Json | null; changed: boolean}> => {
+): Promise<{package_json: PackageJson | null; changed: boolean}> => {
 	const original_contents = load_package_json_contents(dir);
 	const original = JSON.parse(original_contents);
 	const updated = await update(original);
@@ -122,14 +122,14 @@ export const update_package_json = async (
 
 const is_index = (path: string): boolean => path === 'index.ts' || path === 'index.js';
 
-export const to_package_exports = (paths: Array<string>): Package_Json_Exports => {
+export const to_package_exports = (paths: Array<string>): PackageJsonExports => {
 	const has_index = paths.some(is_index);
 	const has_js = paths.some((p) => TS_MATCHER.test(p) || JS_MATCHER.test(p));
 	const has_svelte = paths.some((p) => SVELTE_MATCHER.test(p));
 	const has_json = paths.some((p) => JSON_MATCHER.test(p));
 	const has_css = paths.some((p) => CSS_MATCHER.test(p));
 
-	const exports: Package_Json_Exports = {
+	const exports: PackageJsonExports = {
 		'./package.json': './package.json',
 	};
 
@@ -172,13 +172,13 @@ export const to_package_exports = (paths: Array<string>): Package_Json_Exports =
 		};
 	}
 
-	return parse_or_throw_formatted_error('package.json#exports', Package_Json_Exports, exports);
+	return parse_or_throw_formatted_error('package.json#exports', PackageJsonExports, exports);
 };
 
 const IMPORT_PREFIX = './' + SVELTEKIT_DIST_DIRNAME + '/';
 
 export const parse_repo_url = (
-	package_json: Package_Json,
+	package_json: PackageJson,
 ): {owner: string; repo: string} | undefined => {
 	const {repository} = package_json;
 	const repo_url = repository
@@ -198,9 +198,9 @@ export const parse_repo_url = (
 };
 
 /**
- * Parses a `Package_Json` object but preserves the order of the original keys.
+ * Parses a `PackageJson` object but preserves the order of the original keys.
  */
-const parse_package_json = (schema: typeof Package_Json, value: any): Package_Json => {
+const parse_package_json = (schema: typeof PackageJson, value: any): PackageJson => {
 	const parsed = parse_or_throw_formatted_error(PACKAGE_JSON_FILENAME, schema, value);
 	const keys = Object.keys(value);
 	return Object.fromEntries(
@@ -227,19 +227,19 @@ const parse_or_throw_formatted_error = <T extends z.ZodType>(
 
 export const has_dep = (
 	dep_name: string,
-	package_json: Package_Json = load_package_json(),
+	package_json: PackageJson = load_package_json(),
 ): boolean =>
 	!!package_json.devDependencies?.[dep_name] ||
 	!!package_json.dependencies?.[dep_name] ||
 	!!package_json.peerDependencies?.[dep_name];
 
-export interface Package_Json_Dep {
+export interface PackageJsonDep {
 	name: string;
 	version: string;
 }
 
-export const extract_deps = (package_json: Package_Json): Array<Package_Json_Dep> => {
-	const deps_by_name: Map<string, Package_Json_Dep> = new Map();
+export const extract_deps = (package_json: PackageJson): Array<PackageJsonDep> => {
+	const deps_by_name: Map<string, PackageJsonDep> = new Map();
 	// Earlier versions override later ones, so peer deps goes last.
 	const add_deps = (deps: Record<string, string> | undefined) => {
 		if (!deps) return;

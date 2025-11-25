@@ -2,30 +2,30 @@ import {watch, type ChokidarOptions, type FSWatcher, type Matcher} from 'chokida
 import {relative} from 'node:path';
 import {statSync} from 'node:fs';
 import {create_deferred, type Deferred} from '@ryanatkn/belt/async.js';
-import type {Path_Filter} from '@ryanatkn/belt/path.js';
+import type {PathFilter} from '@ryanatkn/belt/path.js';
 import {EMPTY_OBJECT} from '@ryanatkn/belt/object.js';
 
 const TMP_FILE_PATTERN = /\.tmp\./;
 
 // TODO pretty hacky
 
-export interface Watch_Node_Fs {
+export interface WatchNodeFs {
 	init: () => Promise<void>;
 	close: () => Promise<void>;
 }
 
-export interface Watcher_Change {
-	type: Watcher_Change_Type;
+export interface WatcherChange {
+	type: WatcherChangeType;
 	path: string;
 	is_directory: boolean;
 }
-export type Watcher_Change_Type = 'add' | 'update' | 'delete';
-export type Watcher_Change_Callback = (change: Watcher_Change) => void;
+export type WatcherChangeType = 'add' | 'update' | 'delete';
+export type WatcherChangeCallback = (change: WatcherChange) => void;
 
-export interface Watch_Dir_Options {
+export interface WatchDirOptions {
 	dir: string;
-	on_change: Watcher_Change_Callback;
-	filter?: Path_Filter | null | undefined;
+	on_change: WatcherChangeCallback;
+	filter?: PathFilter | null | undefined;
 	chokidar?: ChokidarOptions;
 	/**
 	 * When `false`, returns the `path` relative to `dir`.
@@ -51,7 +51,7 @@ export const watch_dir = ({
 	absolute = true,
 	chokidar,
 	ignored = TMP_FILE_PATTERN,
-}: Watch_Dir_Options): Watch_Node_Fs => {
+}: WatchDirOptions): WatchNodeFs => {
 	let watcher: FSWatcher | undefined;
 	let initing: Deferred<void> | undefined;
 

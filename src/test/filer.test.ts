@@ -1,6 +1,6 @@
 import {test, assert, vi} from 'vitest';
 
-import type {Watch_Node_Fs} from '../lib/watch_dir.ts';
+import type {WatchNodeFs} from '../lib/watch_dir.ts';
 import {Filer} from '../lib/filer.ts';
 
 /* eslint-disable @typescript-eslint/require-await */
@@ -9,7 +9,7 @@ import {Filer} from '../lib/filer.ts';
 // Create a simple mock watch_dir that simulates file discovery
 const create_mock_watch_dir = () => {
 	return vi.fn((options) => {
-		const mock_watcher: Watch_Node_Fs = {
+		const mock_watcher: WatchNodeFs = {
 			init: vi.fn(async () => {
 				// Simulate discovering files via on_change callbacks
 				options.on_change({type: 'add', path: '/test/file1.ts', is_directory: false});
@@ -140,7 +140,7 @@ test('watch() initializes and notifies listeners', async () => {
 
 test('close() during init() handles gracefully', async () => {
 	const mock_watch_dir = vi.fn((options) => {
-		const mock_watcher: Watch_Node_Fs = {
+		const mock_watcher: WatchNodeFs = {
 			init: vi.fn(async () => {
 				// Simulate slow initialization
 				await new Promise((resolve) => setTimeout(resolve, 50));
@@ -243,7 +243,7 @@ test('listener can safely remove itself during callback', async () => {
 
 test('error in watch_dir.init() is handled', async () => {
 	const mock_watch_dir = vi.fn(() => {
-		const mock_watcher: Watch_Node_Fs = {
+		const mock_watcher: WatchNodeFs = {
 			init: vi.fn(async () => {
 				throw new Error('Initialization failed');
 			}),
@@ -361,7 +361,7 @@ test('multiple close() calls are safe', async () => {
 
 test('concurrent init and close handle correctly', async () => {
 	const mock_watch_dir = vi.fn((options) => {
-		const mock_watcher: Watch_Node_Fs = {
+		const mock_watcher: WatchNodeFs = {
 			init: vi.fn(async () => {
 				// Simulate slower initialization
 				await new Promise((resolve) => setTimeout(resolve, 10));
@@ -393,7 +393,7 @@ test('concurrent init and close handle correctly', async () => {
 });
 
 test('watcher is cleaned up when init fails after partial success', async () => {
-	let mock_watcher: Watch_Node_Fs;
+	let mock_watcher: WatchNodeFs;
 	const mock_watch_dir = vi.fn((options) => {
 		mock_watcher = {
 			init: vi.fn(async () => {
@@ -433,7 +433,7 @@ test('watcher is cleaned up when init fails after partial success', async () => 
 test('can reinitialize after init error', async () => {
 	let should_fail = true;
 	const mock_watch_dir = vi.fn((options) => {
-		const mock_watcher: Watch_Node_Fs = {
+		const mock_watcher: WatchNodeFs = {
 			init: vi.fn(async () => {
 				if (should_fail) {
 					throw new Error('First init fails');
@@ -509,7 +509,7 @@ test('listeners can be added/removed during notification', async () => {
 
 test('closing flag is reset even if close throws', async () => {
 	const mock_watch_dir = vi.fn((options) => {
-		const mock_watcher: Watch_Node_Fs = {
+		const mock_watcher: WatchNodeFs = {
 			init: vi.fn(async () => {
 				options.on_change({type: 'add', path: '/test/file1.ts', is_directory: false});
 			}),
@@ -542,7 +542,7 @@ test('closing flag is reset even if close throws', async () => {
 
 test('no partial file state after close during init', async () => {
 	const mock_watch_dir = vi.fn((options) => {
-		const mock_watcher: Watch_Node_Fs = {
+		const mock_watcher: WatchNodeFs = {
 			init: vi.fn(async () => {
 				options.on_change({type: 'add', path: '/test/file1.ts', is_directory: false});
 				await new Promise((resolve) => setTimeout(resolve, 20));
@@ -571,7 +571,7 @@ test('no partial file state after close during init', async () => {
 });
 
 test('watcher.close() is called on close during init', async () => {
-	let mock_watcher: Watch_Node_Fs;
+	let mock_watcher: WatchNodeFs;
 	const mock_watch_dir = vi.fn((options) => {
 		mock_watcher = {
 			init: vi.fn(async () => {
@@ -602,7 +602,7 @@ test('watcher.close() is called on close during init', async () => {
 
 test('cleanup clears all state including dependencies', async () => {
 	const mock_watch_dir = vi.fn((options) => {
-		const mock_watcher: Watch_Node_Fs = {
+		const mock_watcher: WatchNodeFs = {
 			init: vi.fn(async () => {
 				// Add files that will have dependencies
 				options.on_change({type: 'add', path: '/test/main.ts', is_directory: false});
@@ -640,7 +640,7 @@ test('cleanup clears all state including dependencies', async () => {
 });
 
 test('handles error when watcher.close() fails during init error', async () => {
-	let mock_watcher: Watch_Node_Fs;
+	let mock_watcher: WatchNodeFs;
 	let close_error_thrown = false;
 
 	const mock_watch_dir = vi.fn((options) => {
@@ -681,7 +681,7 @@ test('handles error when watcher.close() fails during init error', async () => {
 test('can recover from multiple consecutive init errors', async () => {
 	let attempt = 0;
 	const mock_watch_dir = vi.fn((options) => {
-		const mock_watcher: Watch_Node_Fs = {
+		const mock_watcher: WatchNodeFs = {
 			init: vi.fn(async () => {
 				attempt++;
 				if (attempt <= 2) {

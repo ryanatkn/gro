@@ -3,7 +3,7 @@ import type * as esbuild from 'esbuild';
 import {render_env_shim_module} from './sveltekit_shim_env.ts';
 import {SVELTEKIT_ENV_MATCHER, EVERYTHING_MATCHER} from './constants.ts';
 
-export interface Esbuild_Plugin_Sveltekit_Shim_Env_Options {
+export interface EsbuildPluginSveltekitShimEnvOptions {
 	dev: boolean;
 	public_prefix?: string;
 	private_prefix?: string;
@@ -21,7 +21,7 @@ export const esbuild_plugin_sveltekit_shim_env = ({
 	env_dir,
 	env_files,
 	ambient_env,
-}: Esbuild_Plugin_Sveltekit_Shim_Env_Options): esbuild.Plugin => ({
+}: EsbuildPluginSveltekitShimEnvOptions): esbuild.Plugin => ({
 	name: 'sveltekit_shim_env',
 	setup: (build) => {
 		build.onResolve({filter: SVELTEKIT_ENV_MATCHER}, ({path}) => ({path, namespace}));

@@ -1,10 +1,10 @@
 import {spawn} from '@ryanatkn/belt/process.js';
 import {z} from 'zod';
 import {rmSync} from 'node:fs';
-import {Git_Origin, git_pull} from '@ryanatkn/belt/git.js';
+import {GitOrigin, git_pull} from '@ryanatkn/belt/git.js';
 
-import {Task_Error, type Task} from './task.ts';
-import {extract_deps, load_package_json, type Package_Json_Dep} from './package_json.ts';
+import {TaskError, type Task} from './task.ts';
+import {extract_deps, load_package_json, type PackageJsonDep} from './package_json.ts';
 import {spawn_cli} from './cli.ts';
 import {serialize_args, to_forwarded_args} from './args.ts';
 import {NODE_MODULES_DIRNAME} from './constants.ts';
@@ -22,7 +22,7 @@ export const Args = z.strictObject({
 		})
 		.default([])
 		.transform((v) => (Array.isArray(v) ? v : [v])),
-	origin: Git_Origin.describe('git origin to deploy to').default('origin'),
+	origin: GitOrigin.describe('git origin to deploy to').default('origin'),
 	force: z.boolean().meta({description: 'if true, print out the planned upgrades'}).default(false),
 	pull: z.boolean().meta({description: 'dual of no-pull'}).default(true),
 	'no-pull': z.boolean().meta({description: 'opt out of git pull'}).default(false),
@@ -65,7 +65,7 @@ export const task: Task<Args> = {
 		} = args;
 
 		if (_.length && only.length) {
-			throw new Task_Error('Cannot call `gro upgrade` with both rest args and --only.');
+			throw new TaskError('Cannot call `gro upgrade` with both rest args and --only.');
 		}
 
 		// TODO maybe a different task that pulls and does other things, like `gro ready`
@@ -92,7 +92,7 @@ export const task: Task<Args> = {
 			: all_deps.filter((d) => !_.includes(d.name));
 
 		if (only.length && only.length !== deps.length) {
-			throw new Task_Error(
+			throw new TaskError(
 				`Some deps to upgrade were not found: ${only.filter((o) => !deps.find((d) => d.name === o)).join(', ')}`,
 			);
 		}
@@ -130,7 +130,7 @@ const CUSTOM_TAG_MATCHER = /^[\^~><=]*.+-(.+)/;
 
 // TODO hacky and limited
 // TODO probably want to pass through exact deps as well, e.g. @foo/bar@1
-const to_upgrade_items = (deps: Array<Package_Json_Dep>): Array<string> =>
+const to_upgrade_items = (deps: Array<PackageJsonDep>): Array<string> =>
 	deps.map((dep) => {
 		if (EXACT_VERSION_MATCHER.test(dep.name)) {
 			return dep.name;

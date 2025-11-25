@@ -19,15 +19,15 @@ See [`src/lib/config.ts`](/src/lib/config.ts) for the config types and implement
 
 [The default config](/src/lib/gro.config.default.ts)
 is used for projects that do not define `gro.config.ts`.
-It's also passed as the first argument to `Create_Gro_Config`.
+It's also passed as the first argument to `CreateGroConfig`.
 
 A simple config that does nothing:
 
 ```ts
 // gro.config.ts
-import type {Create_Gro_Config} from '@ryanatkn/gro';
+import type {CreateGroConfig} from '@ryanatkn/gro';
 
-const config: Create_Gro_Config = async (cfg) => {
+const config: CreateGroConfig = async (cfg) => {
 	// mutate `cfg` or return a new object
 	return cfg;
 };
@@ -35,29 +35,29 @@ const config: Create_Gro_Config = async (cfg) => {
 export default config;
 ```
 
-The default export of a Gro config is `Gro_Config | Create_Gro_Config`:
+The default export of a Gro config is `GroConfig | CreateGroConfig`:
 
 ```ts
-export interface Create_Gro_Config {
-	(base_config: Gro_Config): Raw_Gro_Config | Promise<Raw_Gro_Config>;
+export interface CreateGroConfig {
+	(base_config: GroConfig): RawGroConfig | Promise<RawGroConfig>;
 }
 
 // The strict variant that's used internally and exposed to users in tasks and elsewhere.
-export interface Gro_Config extends Raw_Gro_Config {
-	plugins: Create_Config_Plugins;
-	map_package_json: Map_Package_Json | null;
-	task_root_dirs: Array<Path_Id>;
-	search_filters: Array<Path_Filter>;
+export interface GroConfig extends RawGroConfig {
+	plugins: CreateConfigPlugins;
+	map_package_json: MapPackageJson | null;
+	task_root_dirs: Array<PathId>;
+	search_filters: Array<PathFilter>;
 	js_cli: string;
 	pm_cli: string;
 }
 
-// The relaxed variant that users can provide. Superset of `Gro_Config`.
-export interface Raw_Gro_Config {
-	plugins?: Create_Config_Plugins;
-	map_package_json?: Map_Package_Json | null;
+// The relaxed variant that users can provide. Superset of `GroConfig`.
+export interface RawGroConfig {
+	plugins?: CreateConfigPlugins;
+	map_package_json?: MapPackageJson | null;
 	task_root_dirs?: Array<string>;
-	search_filters?: Path_Filter | Array<Path_Filter> | null;
+	search_filters?: PathFilter | Array<PathFilter> | null;
 	js_cli?: string;
 	pm_cli?: string;
 }
@@ -66,11 +66,11 @@ export interface Raw_Gro_Config {
 To define a user config that overrides the default plugins:
 
 ```ts
-import type {Create_Gro_Config} from '@ryanatkn/gro';
+import type {CreateGroConfig} from '@ryanatkn/gro';
 import {gro_plugin_sveltekit_app} from '@ryanatkn/gro/gro_plugin_sveltekit_app.js';
 
-const config: Create_Gro_Config = async (cfg) => {
-	// `cfg`, which has type `Gro_Config` and is equal to `create_empty_gro_config()`,
+const config: CreateGroConfig = async (cfg) => {
+	// `cfg`, which has type `GroConfig` and is equal to `create_empty_gro_config()`,
 	// can be mutated or you can return your own.
 	// A return value is required to avoid potential errors and reduce ambiguity.
 
@@ -87,8 +87,8 @@ const config: Create_Gro_Config = async (cfg) => {
 		const updated_plugins = replace_plugin(
 			await get_base_plugins(ctx),
 			gro_plugin_sveltekit_app({
-				// host_target?: Host_Target;
-				// well_known_package_json?: boolean | Map_Package_Json;
+				// host_target?: HostTarget;
+				// well_known_package_json?: boolean | MapPackageJson;
 			}),
 			// 'gro_plugin_sveltekit_app', // optional name if they don't match
 		);
@@ -96,7 +96,7 @@ const config: Create_Gro_Config = async (cfg) => {
 		// `return get_base_plugins(ctx)` is the base behavior
 	};
 
-	return cfg; // return type is `Raw_Gro_Config`, which is a relaxed superset of `Gro_Config`
+	return cfg; // return type is `RawGroConfig`, which is a relaxed superset of `GroConfig`
 };
 
 export default config;
@@ -128,9 +128,9 @@ Read more about plugins and the `Plugin` in
 [plugin.md](plugin.md), [dev.md](dev.md#plugin), and [build.md](build.md#plugin).
 
 ```ts
-export type Create_Config_Plugins<T_Plugin_Context extends Plugin_Context = Plugin_Context> = (
-	ctx: T_Plugin_Context,
-) => Array<Plugin<T_Plugin_Context>> | Promise<Array<Plugin<T_Plugin_Context>>>;
+export type CreateConfigPlugins<TPluginContext extends PluginContext = PluginContext> = (
+	ctx: TPluginContext,
+) => Array<Plugin<TPluginContext>> | Promise<Array<Plugin<TPluginContext>>>;
 ```
 
 ## `map_package_json`
@@ -161,7 +161,7 @@ or return `null` to opt out of transforming it completely.
 
 ```ts
 // gro.config.ts
-const config: Gro_Config = {
+const config: GroConfig = {
 	// ...other config
 
 	// default behavior is the identity function:
@@ -195,8 +195,8 @@ const config: Gro_Config = {
 	},
 };
 
-export interface Map_Package_Json {
-	(package_json: Package_Json): Package_Json | null | Promise<Package_Json | null>;
+export interface MapPackageJson {
+	(package_json: PackageJson): PackageJson | null | Promise<PackageJson | null>;
 }
 ```
 
@@ -260,7 +260,7 @@ Use `build_cache_config` when your build also depends on:
 
 ```ts
 // gro.config.ts
-import type {Gro_Config} from '@ryanatkn/gro';
+import type {GroConfig} from '@ryanatkn/gro';
 import {readFileSync} from 'node:fs';
 
 export default {
@@ -283,7 +283,7 @@ export default {
 			enable_beta_ui: false,
 		},
 	},
-} satisfies Gro_Config;
+} satisfies GroConfig;
 ```
 
 Any change to these values will trigger a fresh build, even if source code hasn't changed.
@@ -303,7 +303,7 @@ export default {
 			feature_flags: config_data.flags,
 		};
 	},
-} satisfies Gro_Config;
+} satisfies GroConfig;
 ```
 
 ### security considerations

@@ -1,7 +1,7 @@
 <script lang="ts">
-	import Package_Detail from '@ryanatkn/fuz/Package_Detail.svelte';
-	import Docs_Footer from '@ryanatkn/fuz/Docs_Footer.svelte';
-	import Ecosystem_Links_Panel from '@ryanatkn/fuz/Ecosystem_Links_Panel.svelte';
+	import PackageDetail from '@ryanatkn/fuz/PackageDetail.svelte';
+	import DocsFooter from '@ryanatkn/fuz/DocsFooter.svelte';
+	import EcosystemLinksPanel from '@ryanatkn/fuz/EcosystemLinksPanel.svelte';
 	import Breadcrumb from '@ryanatkn/fuz/Breadcrumb.svelte';
 	import {pkg_context} from '@ryanatkn/fuz/pkg.svelte.js';
 
@@ -15,17 +15,17 @@
 		</header>
 		<Breadcrumb>{pkg.package_json.glyph}</Breadcrumb>
 	</section>
-	<Ecosystem_Links_Panel />
+	<EcosystemLinksPanel />
 	<section class="box width_100 mb_lg">
 		<div class="panel p_md width_upto_md">
-			<Package_Detail {pkg} />
+			<PackageDetail {pkg} />
 		</div>
 	</section>
 	<section class="box">
 		<nav class="mb_lg">
 			<Breadcrumb>{pkg.package_json.glyph}</Breadcrumb>
 		</nav>
-		<Docs_Footer {pkg} />
+		<DocsFooter {pkg} />
 	</section>
 </main>
 

@@ -1,3 +1,3 @@
-export class Some_Test_Svelte_Ts {
+export class SomeTestSvelteTs {
 	a: string = $state('ok');
 }

@@ -1,6 +1,6 @@
 import {spawn} from '@ryanatkn/belt/process.js';
 import {z} from 'zod';
-import {Git_Origin} from '@ryanatkn/belt/git.js';
+import {GitOrigin} from '@ryanatkn/belt/git.js';
 
 import type {Task} from './task.ts';
 import {clean_fs} from './clean_fs.ts';
@@ -21,7 +21,7 @@ export const Args = z.strictObject({
 				'run "git remote prune" to delete local branches referencing nonexistent remote branches',
 		})
 		.default(false),
-	git_origin: Git_Origin.describe('the origin to "git remote prune"').default('origin'),
+	git_origin: GitOrigin.describe('the origin to "git remote prune"').default('origin'),
 });
 export type Args = z.infer<typeof Args>;
 

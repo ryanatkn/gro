@@ -5,57 +5,57 @@ import type {Timings} from '@ryanatkn/belt/timings.js';
 import {styleText as st} from 'node:util';
 import type {Result} from '@ryanatkn/belt/result.js';
 import {isAbsolute, join, relative} from 'node:path';
-import type {Path_Id} from '@ryanatkn/belt/path.js';
+import type {PathId} from '@ryanatkn/belt/path.js';
 
 import type {Args} from './args.ts';
-import type {Gro_Config} from './gro_config.ts';
-import type {Parsed_Svelte_Config} from './svelte_config.ts';
+import type {GroConfig} from './gro_config.ts';
+import type {ParsedSvelteConfig} from './svelte_config.ts';
 import {
 	resolve_input_files,
 	resolve_input_paths,
-	type Input_Path,
-	type Resolved_Input_File,
-	type Resolved_Input_Path,
+	type InputPath,
+	type ResolvedInputFile,
+	type ResolvedInputPath,
 } from './input_path.ts';
 import {GRO_DIST_DIR, print_path} from './paths.ts';
 import {search_fs} from './search_fs.ts';
-import {load_modules, type Load_Modules_Failure, type Module_Meta} from './modules.ts';
+import {load_modules, type LoadModulesFailure, type ModuleMeta} from './modules.ts';
 import type {Filer} from './filer.ts';
 
 export interface Task<
-	T_Args = Args,
-	T_Args_Schema extends z.ZodType<Args, Args> = z.ZodType<Args, Args>, // TODO improve type? separate input/output?
-	T_Return = unknown,
+	TArgs = Args,
+	TArgsSchema extends z.ZodType<Args, Args> = z.ZodType<Args, Args>, // TODO improve type? separate input/output?
+	TReturn = unknown,
 > {
-	run: (ctx: Task_Context<T_Args>) => T_Return | Promise<T_Return>; // TODO unused return value
+	run: (ctx: TaskContext<TArgs>) => TReturn | Promise<TReturn>; // TODO unused return value
 	summary?: string;
-	Args?: T_Args_Schema;
+	Args?: TArgsSchema;
 }
 
-export interface Task_Context<T_Args = object> {
-	args: T_Args;
-	config: Gro_Config;
-	svelte_config: Parsed_Svelte_Config;
+export interface TaskContext<TArgs = object> {
+	args: TArgs;
+	config: GroConfig;
+	svelte_config: ParsedSvelteConfig;
 	filer: Filer;
 	log: Logger;
 	timings: Timings;
-	invoke_task: Invoke_Task;
+	invoke_task: InvokeTask;
 }
 
-export type Invoke_Task = (task_name: string, args?: Args, config?: Gro_Config) => Promise<void>;
+export type InvokeTask = (task_name: string, args?: Args, config?: GroConfig) => Promise<void>;
 
 export const TASK_FILE_SUFFIX_TS = '.task.ts';
 export const TASK_FILE_SUFFIX_JS = '.task.js';
-export const TASK_FILE_SUFFIXES = [TASK_FILE_SUFFIX_TS, TASK_FILE_SUFFIX_JS]; // TODO from `Gro_Config`, but needs to be used everywhere the constants are
+export const TASK_FILE_SUFFIXES = [TASK_FILE_SUFFIX_TS, TASK_FILE_SUFFIX_JS]; // TODO from `GroConfig`, but needs to be used everywhere the constants are
 
 export const is_task_path = (path: string): boolean =>
 	path.endsWith(TASK_FILE_SUFFIX_TS) || path.endsWith(TASK_FILE_SUFFIX_JS);
 
 export const to_task_name = (
-	id: Path_Id,
-	task_root_dir: Path_Id,
-	input_path: Input_Path,
-	root_path: Path_Id,
+	id: PathId,
+	task_root_dir: PathId,
+	input_path: InputPath,
+	root_path: PathId,
 ): string => {
 	let task_name = id.startsWith(task_root_dir)
 		? strip_start(strip_start(id, task_root_dir), '/')
@@ -80,46 +80,46 @@ export const to_task_name = (
  * It's useful for cleaning up logging because
  * we usually don't need their stack trace.
  */
-export class Task_Error extends Error {}
+export class TaskError extends Error {}
 
 /**
  * This is used to tell Gro to exit silently, usually still with with a non-zero exit code.
  * Using it means error logging is handled by the code that threw it.
  */
-export class Silent_Error extends Error {}
+export class SilentError extends Error {}
 
-export interface Found_Task {
-	input_path: Input_Path;
-	id: Path_Id;
-	task_root_dir: Path_Id;
+export interface FoundTask {
+	input_path: InputPath;
+	id: PathId;
+	task_root_dir: PathId;
 }
 
-export interface Found_Tasks {
-	resolved_input_files: Array<Resolved_Input_File>;
-	resolved_input_files_by_root_dir: Map<Path_Id, Array<Resolved_Input_File>>;
-	resolved_input_paths: Array<Resolved_Input_Path>;
-	input_paths: Array<Input_Path>;
-	task_root_dirs: Array<Path_Id>;
+export interface FoundTasks {
+	resolved_input_files: Array<ResolvedInputFile>;
+	resolved_input_files_by_root_dir: Map<PathId, Array<ResolvedInputFile>>;
+	resolved_input_paths: Array<ResolvedInputPath>;
+	input_paths: Array<InputPath>;
+	task_root_dirs: Array<PathId>;
 }
 
-export type Find_Tasks_Result = Result<{value: Found_Tasks}, Find_Modules_Failure>;
-export type Find_Modules_Failure =
+export type FindTasksResult = Result<{value: FoundTasks}, FindModulesFailure>;
+export type FindModulesFailure =
 	| {
 			type: 'unmapped_input_paths';
-			unmapped_input_paths: Array<Input_Path>;
-			resolved_input_paths: Array<Resolved_Input_Path>;
-			input_paths: Array<Input_Path>;
-			task_root_dirs: Array<Path_Id>;
+			unmapped_input_paths: Array<InputPath>;
+			resolved_input_paths: Array<ResolvedInputPath>;
+			input_paths: Array<InputPath>;
+			task_root_dirs: Array<PathId>;
 			reasons: Array<string>;
 	  }
 	| {
 			type: 'input_directories_with_no_files';
-			input_directories_with_no_files: Array<Input_Path>;
-			resolved_input_files: Array<Resolved_Input_File>;
-			resolved_input_files_by_root_dir: Map<Path_Id, Array<Resolved_Input_File>>;
-			resolved_input_paths: Array<Resolved_Input_Path>;
-			input_paths: Array<Input_Path>;
-			task_root_dirs: Array<Path_Id>;
+			input_directories_with_no_files: Array<InputPath>;
+			resolved_input_files: Array<ResolvedInputFile>;
+			resolved_input_files_by_root_dir: Map<PathId, Array<ResolvedInputFile>>;
+			resolved_input_paths: Array<ResolvedInputPath>;
+			input_paths: Array<InputPath>;
+			task_root_dirs: Array<PathId>;
 			reasons: Array<string>;
 	  };
 
@@ -127,11 +127,11 @@ export type Find_Modules_Failure =
  * Finds modules from input paths. (see `src/lib/input_path.ts` for more)
  */
 export const find_tasks = (
-	input_paths: Array<Input_Path>,
-	task_root_dirs: Array<Path_Id>,
-	config: Gro_Config,
+	input_paths: Array<InputPath>,
+	task_root_dirs: Array<PathId>,
+	config: GroConfig,
 	timings?: Timings,
-): Find_Tasks_Result => {
+): FindTasksResult => {
 	// Check which extension variation works - if it's a directory, prefer others first!
 	const timing_to_resolve_input_paths = timings?.start('resolve input paths');
 	const {resolved_input_paths, unmapped_input_paths} = resolve_input_paths(
@@ -196,30 +196,30 @@ export const find_tasks = (
 	};
 };
 
-export interface Loaded_Tasks {
-	modules: Array<Task_Module_Meta>;
-	found_tasks: Found_Tasks;
+export interface LoadedTasks {
+	modules: Array<TaskModuleMeta>;
+	found_tasks: FoundTasks;
 }
 
-export interface Task_Module {
+export interface TaskModule {
 	task: Task;
 }
 
-export interface Task_Module_Meta extends Module_Meta<Task_Module> {
+export interface TaskModuleMeta extends ModuleMeta<TaskModule> {
 	name: string;
 }
 
-export type Load_Tasks_Result = Result<{value: Loaded_Tasks}, Load_Tasks_Failure>;
-export type Load_Tasks_Failure = Load_Modules_Failure<Task_Module_Meta>;
+export type LoadTasksResult = Result<{value: LoadedTasks}, LoadTasksFailure>;
+export type LoadTasksFailure = LoadModulesFailure<TaskModuleMeta>;
 
 export const load_tasks = async (
-	found_tasks: Found_Tasks,
-	root_path: Path_Id = process.cwd(), // TODO @many isn't passed in anywhere, maybe hoist to `invoke_task` and others
-): Promise<Load_Tasks_Result> => {
+	found_tasks: FoundTasks,
+	root_path: PathId = process.cwd(), // TODO @many isn't passed in anywhere, maybe hoist to `invoke_task` and others
+): Promise<LoadTasksResult> => {
 	const loaded_modules = await load_modules(
 		found_tasks.resolved_input_files,
 		validate_task_module,
-		(resolved_input_file, mod): Task_Module_Meta => ({
+		(resolved_input_file, mod): TaskModuleMeta => ({
 			id: resolved_input_file.id,
 			mod,
 			name: to_task_name(
@@ -240,5 +240,5 @@ export const load_tasks = async (
 	};
 };
 
-export const validate_task_module = (mod: Record<string, any>): mod is Task_Module =>
+export const validate_task_module = (mod: Record<string, any>): mod is TaskModule =>
 	!!mod.task && typeof mod.task.run === 'function';

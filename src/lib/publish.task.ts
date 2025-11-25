@@ -3,15 +3,15 @@ import {z} from 'zod';
 import {styleText as st} from 'node:util';
 import {existsSync} from 'node:fs';
 import {
-	Git_Branch,
-	Git_Origin,
+	GitBranch,
+	GitOrigin,
 	git_check_clean_workspace,
 	git_checkout,
 	git_fetch,
 	git_pull,
 } from '@ryanatkn/belt/git.js';
 
-import {Task_Error, type Task} from './task.ts';
+import {TaskError, type Task} from './task.ts';
 import {load_package_json, parse_repo_url} from './package_json.ts';
 import {find_cli, spawn_cli} from './cli.ts';
 import {has_sveltekit_library} from './sveltekit_helpers.ts';
@@ -21,8 +21,8 @@ import {CHANGESET_CLI} from './changeset_helpers.ts';
 
 /** @nodocs */
 export const Args = z.strictObject({
-	branch: Git_Branch.describe('branch to publish from').default('main'),
-	origin: Git_Origin.describe('git origin to publish from').default('origin'),
+	branch: GitBranch.describe('branch to publish from').default('main'),
+	origin: GitOrigin.describe('git origin to publish from').default('origin'),
 	changelog: z
 		.string()
 		.meta({description: 'file name and path of the changelog'})
@@ -89,7 +89,7 @@ export const task: Task<Args> = {
 
 		const has_sveltekit_library_result = await has_sveltekit_library(package_json);
 		if (!has_sveltekit_library_result.ok) {
-			throw new Task_Error(
+			throw new TaskError(
 				'Failed to find SvelteKit library: ' + has_sveltekit_library_result.message,
 			);
 		}
@@ -98,7 +98,7 @@ export const task: Task<Args> = {
 
 		const found_changeset_cli = find_cli(changeset_cli);
 		if (!found_changeset_cli) {
-			throw new Task_Error(
+			throw new TaskError(
 				'changeset command not found, install @changesets/cli locally or globally',
 			);
 		}
@@ -108,7 +108,7 @@ export const task: Task<Args> = {
 		await git_checkout(branch);
 		if (pull) {
 			if (await git_check_clean_workspace()) {
-				throw new Task_Error('The git workspace is not clean, pass --no-pull to bypass git pull');
+				throw new TaskError('The git workspace is not clean, pass --no-pull to bypass git pull');
 			}
 			await git_pull(origin, branch);
 		}
@@ -138,11 +138,11 @@ export const task: Task<Args> = {
 			log.info('dry run, skipping changeset version');
 		} else {
 			if (typeof package_json.version !== 'string') {
-				throw new Task_Error('Failed to find package.json version');
+				throw new TaskError('Failed to find package.json version');
 			}
 			const parsed_repo_url = parse_repo_url(package_json);
 			if (!parsed_repo_url) {
-				throw new Task_Error(
+				throw new TaskError(
 					'package.json `repository` must contain a repo url (and GitHub only for now, sorry),' +
 						' like `git+https://github.com/ryanatkn/gro.git` or `https://github.com/ryanatkn/gro`' +
 						' or an object with the `url` key',
@@ -170,7 +170,7 @@ export const task: Task<Args> = {
 			if (install) {
 				const install_result = await spawn(config.pm_cli, ['install']);
 				if (!install_result.ok) {
-					throw new Task_Error(`Failed \`${config.pm_cli} install\` after version bump`);
+					throw new TaskError(`Failed \`${config.pm_cli} install\` after version bump`);
 				}
 			}
 
@@ -187,7 +187,7 @@ export const task: Task<Args> = {
 					optional_and_version_unchanged = true;
 				} else {
 					// Doesn't build if the version didn't change and publishing isn't optional.
-					throw new Task_Error(`\`${changeset_cli} version\` failed: are there any changes?`);
+					throw new TaskError(`\`${changeset_cli} version\` failed: are there any changes?`);
 				}
 			}
 		}
@@ -212,7 +212,7 @@ export const task: Task<Args> = {
 
 		const changeset_publish_result = await spawn_cli(found_changeset_cli, ['publish'], log);
 		if (!changeset_publish_result?.ok) {
-			throw new Task_Error(
+			throw new TaskError(
 				`\`${changeset_cli} publish\` failed - continue manually or try again after running \`git reset --hard\``,
 			);
 		}

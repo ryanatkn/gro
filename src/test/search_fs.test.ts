@@ -36,7 +36,7 @@ describe('search_fs', () => {
 			'some_test_exports.ts',
 			'modules/src_json_sample_exports.ts',
 			'modules/some_test_ts.ts',
-			'modules/Some_Test_Svelte.svelte',
+			'modules/SomeTestSvelte.svelte',
 			'modules/some_test_svelte_ts.svelte.ts',
 			'modules/some_test_svelte_js.svelte.js',
 			'modules/some_test_server.ts',

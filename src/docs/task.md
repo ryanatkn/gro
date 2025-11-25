@@ -145,28 +145,28 @@ export const task: Task = {
 import type {Task} from '@ryanatkn/gro';
 
 export interface Task<
-	T_Args = Args, // same as `z.infer<typeof Args>`
-	T_Args_Schema extends z.ZodType = z.ZodType,
-	T_Return = unknown,
+	TArgs = Args, // same as `z.infer<typeof Args>`
+	TArgsSchema extends z.ZodType = z.ZodType,
+	TReturn = unknown,
 > {
-	run: (ctx: Task_Context<T_Args>) => Promise<T_Return>;
+	run: (ctx: TaskContext<TArgs>) => Promise<TReturn>;
 	summary?: string;
-	Args?: T_Args_Schema;
+	Args?: TArgsSchema;
 }
 ```
 
-### type `Task_Context`
+### type `TaskContext`
 
 ```ts
-import type {Task_Context} from '@ryanatkn/gro';
+import type {TaskContext} from '@ryanatkn/gro';
 
-export interface Task_Context<T_Args = object> {
-	args: T_Args;
-	config: Gro_Config;
-	svelte_config: Parsed_Svelte_Config;
+export interface TaskContext<TArgs = object> {
+	args: TArgs;
+	config: GroConfig;
+	svelte_config: ParsedSvelteConfig;
 	log: Logger;
 	timings: Timings;
-	invoke_task: Invoke_Task;
+	invoke_task: InvokeTask;
 }
 ```
 
@@ -322,15 +322,15 @@ This defers control to the caller, like your own parent tasks.
 Often, errors that tasks encounter do not need a stack trace,
 and we don't want the added noise to be logged.
 To suppress logging the stack trace for an error,
-throw a `Task_Error`.
+throw a `TaskError`.
 
 ```ts
-import {Task, Task_Error} from '@ryanatkn/gro';
+import {Task, TaskError} from '@ryanatkn/gro';
 
 export const task: Task = {
 	run: async () => {
 		if (someErrorCondition) {
-			throw new Task_Error('We hit a known error - ignore the stack trace!');
+			throw new TaskError('We hit a known error - ignore the stack trace!');
 		}
 	},
 };

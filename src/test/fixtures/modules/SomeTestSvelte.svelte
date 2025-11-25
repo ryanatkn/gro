@@ -23,7 +23,7 @@
 	`\`\`\``;
 </script>
 
-Some_Test_Svelte.svelte contents
+SomeTestSvelte.svelte contents
 
 {a}
 

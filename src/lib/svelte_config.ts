@@ -37,7 +37,7 @@ export const load_svelte_config = async ({
  * The `base` and `assets` in particular are renamed for clarity with Gro's internal systems,
  * so these properties become first-class vocabulary inside Gro.
  */
-export interface Parsed_Svelte_Config {
+export interface ParsedSvelteConfig {
 	// TODO probably fill these out with defaults
 	svelte_config: SvelteConfig | null;
 	alias: Record<string, string>;
@@ -78,7 +78,7 @@ export const parse_svelte_config = async ({
 }: {
 	dir_or_config?: string | SvelteConfig;
 	config_filename?: string;
-} = EMPTY_OBJECT): Promise<Parsed_Svelte_Config> => {
+} = EMPTY_OBJECT): Promise<ParsedSvelteConfig> => {
 	const svelte_config =
 		typeof dir_or_config === 'string'
 			? await load_svelte_config({dir: dir_or_config, config_filename})

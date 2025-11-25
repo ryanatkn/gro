@@ -7,7 +7,7 @@ import {paths, base_path_to_path_id} from '../lib/paths.ts';
 
 // TODO maybe extract some of these to `$lib/gen_helpers.ts`
 
-export interface Gen_Doc_Context {
+export interface GenDocContext {
 	origin_id: string;
 	origin_dir: string;
 	origin_base: string;
@@ -21,7 +21,7 @@ export interface Gen_Doc_Context {
 /**
  * Creates common context data used by documentation generators.
  */
-export const create_gen_doc_context = (origin_id: string): Gen_Doc_Context => {
+export const create_gen_doc_context = (origin_id: string): GenDocContext => {
 	const root_path = parse_path_segments(paths.root).at(-1);
 	const origin_dir = dirname(origin_id);
 	const origin_base = basename(origin_id);

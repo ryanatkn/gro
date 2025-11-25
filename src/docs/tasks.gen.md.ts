@@ -3,7 +3,7 @@ import {relative} from 'node:path';
 import {type Gen} from '../lib/gen.ts';
 import {paths} from '../lib/paths.ts';
 import {log_error_reasons} from '../lib/task_logging.ts';
-import {find_tasks, load_tasks, Task_Error} from '../lib/task.ts';
+import {find_tasks, load_tasks, TaskError} from '../lib/task.ts';
 import {
 	create_gen_doc_context,
 	create_root_link,
@@ -26,14 +26,14 @@ export const gen: Gen = async ({origin_id, log, config}) => {
 	const found = find_tasks(['.'], [paths.lib], config);
 	if (!found.ok) {
 		log_error_reasons(log, found.reasons);
-		throw new Task_Error(`Failed to generate task docs: ${found.type}`);
+		throw new TaskError(`Failed to generate task docs: ${found.type}`);
 	}
 	const found_tasks = found.value;
 
 	const loaded = await load_tasks(found_tasks);
 	if (!loaded.ok) {
 		log_error_reasons(log, loaded.reasons);
-		throw new Task_Error(`Failed to generate task docs: ${loaded.type}`);
+		throw new TaskError(`Failed to generate task docs: ${loaded.type}`);
 	}
 	const loaded_tasks = loaded.value;
 	const tasks = loaded_tasks.modules;

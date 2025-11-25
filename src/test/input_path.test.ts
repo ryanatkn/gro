@@ -1,14 +1,14 @@
 import {test, expect} from 'vitest';
 import {resolve} from 'node:path';
-import type {Resolved_Path} from '@ryanatkn/belt/path.js';
+import type {ResolvedPath} from '@ryanatkn/belt/path.js';
 
 import {
 	to_input_path,
 	to_input_paths,
 	resolve_input_files,
 	get_possible_paths,
-	type Resolved_Input_Path,
-	type Resolved_Input_File,
+	type ResolvedInputPath,
+	type ResolvedInputFile,
 } from '../lib/input_path.ts';
 import {GRO_DIST_DIR, paths} from '../lib/paths.ts';
 
@@ -113,7 +113,7 @@ test('get_possible_paths implied to be a directory by trailing slash', () => {
 });
 
 test('resolve_input_files', () => {
-	const test_files: Record<string, Array<Resolved_Path>> = {
+	const test_files: Record<string, Array<ResolvedPath>> = {
 		'fake/test1.ext.ts': [
 			{id: 'fake/test1.ext.ts', path: 'fake/test1.ext.ts', is_directory: false},
 		],
@@ -139,64 +139,64 @@ test('resolve_input_files', () => {
 		'fake/nomatches': [{id: 'fake/nomatches', path: 'fake/nomatches', is_directory: true}],
 		fake2: [{id: 'test.ext.ts', path: 'test.ext.ts', is_directory: false}],
 	};
-	const a: Resolved_Input_Path = {
+	const a: ResolvedInputPath = {
 		id: 'fake/test1.ext.ts',
 		is_directory: false,
 		input_path: 'fake/test1.ext.ts',
 		root_dir: process.cwd(),
 	};
-	const b: Resolved_Input_Path = {
+	const b: ResolvedInputPath = {
 		id: 'fake/test2.ext.ts',
 		is_directory: false,
 		input_path: 'fake/test2',
 		root_dir: process.cwd(),
 	};
-	const c: Resolved_Input_Path = {
+	const c: ResolvedInputPath = {
 		id: 'fake/test3',
 		is_directory: true,
 		input_path: 'fake/test3',
 		root_dir: process.cwd(),
 	};
-	const d: Resolved_Input_Path = {
+	const d: ResolvedInputPath = {
 		id: 'fake',
 		is_directory: true,
 		input_path: 'fake',
 		root_dir: process.cwd(),
 	};
-	const e: Resolved_Input_Path = {
+	const e: ResolvedInputPath = {
 		id: 'fake/nomatches',
 		is_directory: true,
 		input_path: 'fake/nomatches',
 		root_dir: process.cwd(),
 	};
 	// These two have the same id from different directory input paths.
-	const f: Resolved_Input_Path = {
+	const f: ResolvedInputPath = {
 		id: 'fake2',
 		is_directory: true,
 		input_path: 'fake2',
 		root_dir: process.cwd(),
 	};
-	const g: Resolved_Input_Path = {
+	const g: ResolvedInputPath = {
 		id: 'fake2',
 		is_directory: true,
 		input_path: './fake2/',
 		root_dir: process.cwd(),
 	};
 	// These two have the same id from different file input paths.
-	const h: Resolved_Input_Path = {
+	const h: ResolvedInputPath = {
 		id: 'fake3/test.ext.ts',
 		is_directory: false,
 		input_path: 'fake3/test.ext.ts',
 		root_dir: process.cwd(),
 	};
-	const i: Resolved_Input_Path = {
+	const i: ResolvedInputPath = {
 		id: 'fake3/test.ext.ts',
 		is_directory: false,
 		input_path: 'fake3/test',
 		root_dir: process.cwd(),
 	};
 	const result = resolve_input_files([a, b, c, d, e, f, g, h, i], (dir) => test_files[dir]!);
-	const resolved_input_files: Array<Resolved_Input_File> = [
+	const resolved_input_files: Array<ResolvedInputFile> = [
 		{id: a.id, input_path: a.input_path, resolved_input_path: a},
 		{id: b.id, input_path: b.input_path, resolved_input_path: b},
 		{id: 'fake/test3/a.ts', input_path: c.input_path, resolved_input_path: c},

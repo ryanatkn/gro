@@ -3,9 +3,9 @@ import {print_ms, print_error} from '@ryanatkn/belt/print.js';
 import {plural} from '@ryanatkn/belt/string.js';
 import {z} from 'zod';
 
-import {Task_Error, type Task} from './task.ts';
+import {TaskError, type Task} from './task.ts';
 import {run_gen} from './run_gen.ts';
-import {Raw_Input_Path, to_input_paths} from './input_path.ts';
+import {RawInputPath, to_input_paths} from './input_path.ts';
 import {format_file} from './format_file.ts';
 import {print_path} from './paths.ts';
 import {log_error_reasons} from './task_logging.ts';
@@ -14,20 +14,20 @@ import {
 	analyze_gen_results,
 	find_genfiles,
 	load_genfiles,
-	type Analyzed_Gen_Result,
-	type Gen_Results,
+	type AnalyzedGenResult,
+	type GenResults,
 } from './gen.ts';
 import {SOURCE_DIRNAME} from './constants.ts';
 
 /** @nodocs */
 export const Args = z.strictObject({
 	_: z
-		.array(Raw_Input_Path)
+		.array(RawInputPath)
 		.meta({description: 'input paths to generate'})
 		.default([SOURCE_DIRNAME]),
 	root_dirs: z
 		.array(z.string())
-		.meta({description: 'root directories to resolve input paths against'}) // TODO `Path_Id` schema
+		.meta({description: 'root directories to resolve input paths against'}) // TODO `PathId` schema
 		.default([process.cwd()]),
 	check: z
 		.boolean()
@@ -54,7 +54,7 @@ export const task: Task<Args> = {
 				return;
 			} else {
 				log_error_reasons(log, found.reasons);
-				throw new Task_Error('Failed to find gen modules.');
+				throw new TaskError('Failed to find gen modules.');
 			}
 		}
 		const found_genfiles = found.value;
@@ -65,7 +65,7 @@ export const task: Task<Args> = {
 		const loaded = await load_genfiles(found_genfiles, timings);
 		if (!loaded.ok) {
 			log_error_reasons(log, loaded.reasons);
-			throw new Task_Error('Failed to load gen modules.');
+			throw new TaskError('Failed to load gen modules.');
 		}
 		const loaded_genfiles = loaded.value;
 
@@ -106,7 +106,7 @@ export const task: Task<Args> = {
 					);
 				}
 				if (has_unexpected_changes) {
-					throw new Task_Error(
+					throw new TaskError(
 						'Failed gen check. Some generated files have unexpectedly changed.' +
 							' Run `gro gen` and try again.',
 					);
@@ -135,26 +135,26 @@ export const task: Task<Args> = {
 			for (const result of gen_results.failures) {
 				log.error(result.reason, '\n', print_error(result.error));
 			}
-			throw new Task_Error(`Failed to generate ${fail_count} file${plural(fail_count)}.`);
+			throw new TaskError(`Failed to generate ${fail_count} file${plural(fail_count)}.`);
 		}
 	},
 };
 
-interface Gen_Status {
+interface GenStatus {
 	symbol: string;
 	color: Parameters<typeof st>[0];
 	text: string;
 }
 
-const format_gen_status = (analyzed: Analyzed_Gen_Result | undefined): Gen_Status => {
+const format_gen_status = (analyzed: AnalyzedGenResult | undefined): GenStatus => {
 	if (!analyzed) return {symbol: '?', color: 'gray', text: 'unknown'};
 	if (analyzed.is_new) return {symbol: '●', color: 'green', text: 'new'};
 	if (analyzed.has_changed) return {symbol: '◐', color: 'cyan', text: 'changed'};
 	return {symbol: '○', color: 'gray', text: 'unchanged'};
 };
 
-interface Output_Line {
-	status: Gen_Status;
+interface OutputLine {
+	status: GenStatus;
 	elapsed: string;
 	source: string;
 	target: string;
@@ -162,10 +162,10 @@ interface Output_Line {
 }
 
 const collect_output_lines = (
-	gen_results: Gen_Results,
-	analyzed_gen_results: Array<Analyzed_Gen_Result>,
-): Array<Output_Line> => {
-	const output_lines: Array<Output_Line> = [];
+	gen_results: GenResults,
+	analyzed_gen_results: Array<AnalyzedGenResult>,
+): Array<OutputLine> => {
+	const output_lines: Array<OutputLine> = [];
 
 	for (const result of gen_results.results) {
 		if (result.ok) {
@@ -193,7 +193,7 @@ const collect_output_lines = (
 	return output_lines;
 };
 
-const format_gen_output = (output_lines: Array<Output_Line>): string => {
+const format_gen_output = (output_lines: Array<OutputLine>): string => {
 	// calculate column widths for alignment
 	const max_elapsed_length = Math.max(...output_lines.map((l) => l.elapsed.length));
 	const max_source_length = Math.max(...output_lines.map((l) => l.source.length));

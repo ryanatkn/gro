@@ -1,20 +1,20 @@
 import {EMPTY_OBJECT} from '@ryanatkn/belt/object.js';
 import {readFileSync, statSync} from 'node:fs';
 import {dirname, resolve} from 'node:path';
-import type {Omit_Strict} from '@ryanatkn/belt/types.js';
+import type {OmitStrict} from '@ryanatkn/belt/types.js';
 import {isBuiltin} from 'node:module';
 import {fileURLToPath, pathToFileURL} from 'node:url';
-import {Unreachable_Error} from '@ryanatkn/belt/error.js';
+import {UnreachableError} from '@ryanatkn/belt/error.js';
 import type {Logger} from '@ryanatkn/belt/log.js';
-import type {Package_Json} from '@ryanatkn/belt/package_json.js';
-import type {File_Filter, Path_Id} from '@ryanatkn/belt/path.js';
+import type {PackageJson} from '@ryanatkn/belt/package_json.js';
+import type {FileFilter, PathId} from '@ryanatkn/belt/path.js';
 
 import {
 	watch_dir,
-	type Watch_Node_Fs,
-	type Watcher_Change,
-	type Watch_Dir_Options,
-	type Watcher_Change_Callback,
+	type WatchNodeFs,
+	type WatcherChange,
+	type WatchDirOptions,
+	type WatcherChangeCallback,
 } from './watch_dir.ts';
 import {paths} from './paths.ts';
 import {parse_imports} from './parse_imports.ts';
@@ -26,32 +26,32 @@ import type {Disknode} from './disknode.ts';
 
 const aliases = Object.entries(default_svelte_config.alias);
 
-export type On_Filer_Change = (change: Watcher_Change, disknode: Disknode) => void;
+export type OnFilerChange = (change: WatcherChange, disknode: Disknode) => void;
 
-export interface Filer_Options {
+export interface FilerOptions {
 	watch_dir?: typeof watch_dir;
-	watch_dir_options?: Partial<Omit_Strict<Watch_Dir_Options, 'on_change'>>;
-	package_json_cache?: Record<string, Package_Json>;
+	watch_dir_options?: Partial<OmitStrict<WatchDirOptions, 'on_change'>>;
+	package_json_cache?: Record<string, PackageJson>;
 	log?: Logger;
 }
 
 export class Filer {
-	readonly root_dir: Path_Id;
+	readonly root_dir: PathId;
 
 	// TODO rename everything to `disknode`
-	readonly files: Map<Path_Id, Disknode> = new Map();
+	readonly files: Map<PathId, Disknode> = new Map();
 
 	#watch_dir: typeof watch_dir;
-	#watch_dir_options: Partial<Watch_Dir_Options>;
+	#watch_dir_options: Partial<WatchDirOptions>;
 
 	#log?: Logger;
 
-	#listeners: Set<On_Filer_Change> = new Set();
-	#watching: Watch_Node_Fs | undefined;
+	#listeners: Set<OnFilerChange> = new Set();
+	#watching: WatchNodeFs | undefined;
 	#initing: Promise<void> | undefined;
 	#closing: Promise<void> | undefined;
 
-	constructor(options: Filer_Options = EMPTY_OBJECT) {
+	constructor(options: FilerOptions = EMPTY_OBJECT) {
 		this.#watch_dir = options.watch_dir ?? watch_dir;
 		this.#watch_dir_options = options.watch_dir_options ?? EMPTY_OBJECT;
 		this.root_dir = resolve(options.watch_dir_options?.dir ?? paths.source);
@@ -65,11 +65,11 @@ export class Filer {
 		return this.#watching !== undefined;
 	}
 
-	get_by_id = (id: Path_Id): Disknode | undefined => {
+	get_by_id = (id: PathId): Disknode | undefined => {
 		return this.files.get(id);
 	};
 
-	get_or_create = (id: Path_Id): Disknode => {
+	get_or_create = (id: PathId): Disknode => {
 		const existing = this.get_by_id(id);
 		if (existing) return existing;
 		const file: Disknode = {
@@ -155,7 +155,7 @@ export class Filer {
 		}
 	}
 
-	async watch(listener: On_Filer_Change): Promise<() => void> {
+	async watch(listener: OnFilerChange): Promise<() => void> {
 		await this.#add_listener(listener);
 		return () => {
 			this.#remove_listener(listener);
@@ -214,7 +214,7 @@ export class Filer {
 		this.#cleanup();
 	}
 
-	#update(id: Path_Id): Disknode | null {
+	#update(id: PathId): Disknode | null {
 		const file = this.get_or_create(id);
 
 		let stats: ReturnType<typeof statSync> | null = null;
@@ -284,7 +284,7 @@ export class Filer {
 		return file;
 	}
 
-	#remove(id: Path_Id): Disknode | null {
+	#remove(id: PathId): Disknode | null {
 		const file = this.get_by_id(id);
 		if (!file) return null; // this is safe because the object would exist if any other file referenced it as a dependency or dependent
 
@@ -300,7 +300,7 @@ export class Filer {
 		return file;
 	}
 
-	#sync_listener_with_files(listener: On_Filer_Change): void {
+	#sync_listener_with_files(listener: OnFilerChange): void {
 		for (const disknode of this.files.values()) {
 			try {
 				listener({type: 'add', path: disknode.id, is_directory: false}, disknode);
@@ -310,7 +310,7 @@ export class Filer {
 		}
 	}
 
-	#notify_change(change: Watcher_Change, disknode: Disknode): void {
+	#notify_change(change: WatcherChange, disknode: Disknode): void {
 		for (const listener of this.#listeners) {
 			try {
 				listener(change, disknode);
@@ -320,7 +320,7 @@ export class Filer {
 		}
 	}
 
-	async #add_listener(listener: On_Filer_Change): Promise<void> {
+	async #add_listener(listener: OnFilerChange): Promise<void> {
 		this.#listeners.add(listener);
 
 		// ensure initialized
@@ -330,12 +330,12 @@ export class Filer {
 		this.#sync_listener_with_files(listener);
 	}
 
-	#remove_listener(listener: On_Filer_Change): void {
+	#remove_listener(listener: OnFilerChange): void {
 		this.#listeners.delete(listener);
 		// keep watching active even with no listeners, only close() tears down
 	}
 
-	#on_change: Watcher_Change_Callback = (change) => {
+	#on_change: WatcherChangeCallback = (change) => {
 		if (this.#closing) return; // ignore changes during close
 		if (change.is_directory) return; // TODO manage directories?
 		let disknode: Disknode | null;
@@ -350,14 +350,14 @@ export class Filer {
 				break;
 			}
 			default:
-				throw new Unreachable_Error(change.type);
+				throw new UnreachableError(change.type);
 		}
 		if (disknode && this.#listeners.size > 0) {
 			this.#notify_change(change, disknode);
 		}
 	};
 
-	#is_external(id: Path_Id): boolean {
+	#is_external(id: PathId): boolean {
 		const {filter} = this.#watch_dir_options;
 		return !id.startsWith(this.root_dir + '/') || (!!filter && !filter(id, false));
 	}
@@ -366,12 +366,12 @@ export class Filer {
 // TODO maybe `Disknode` class?
 export const filter_dependents = (
 	disknode: Disknode,
-	get_by_id: (id: Path_Id) => Disknode | undefined,
-	filter?: File_Filter,
-	results: Set<Path_Id> = new Set(),
-	searched: Set<Path_Id> = new Set(),
+	get_by_id: (id: PathId) => Disknode | undefined,
+	filter?: FileFilter,
+	results: Set<PathId> = new Set(),
+	searched: Set<PathId> = new Set(),
 	log?: Logger,
-): Set<Path_Id> => {
+): Set<PathId> => {
 	const {dependents} = disknode;
 	for (const dependent_id of dependents.keys()) {
 		if (searched.has(dependent_id)) continue;

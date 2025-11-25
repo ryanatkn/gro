@@ -1,7 +1,7 @@
 import {readFile, writeFile} from 'node:fs/promises';
 import {z} from 'zod';
 import type {Logger} from '@ryanatkn/belt/log.js';
-import type {Fetch_Value_Cache} from '@ryanatkn/belt/fetch.js';
+import type {FetchValueCache} from '@ryanatkn/belt/fetch.js';
 
 import {github_fetch_commit_prs} from './github.ts';
 
@@ -18,7 +18,7 @@ export const update_changelog = async (
 	path = 'CHANGELOG.md',
 	token?: string,
 	log?: Logger,
-	cache: Fetch_Value_Cache = new Map(), // include a default cache to efficiently handle multiple changesets per commit
+	cache: FetchValueCache = new Map(), // include a default cache to efficiently handle multiple changesets per commit
 ): Promise<boolean> => {
 	const contents = await readFile(path, 'utf8');
 	const parsed = parse_changelog(contents);
@@ -32,22 +32,22 @@ export const update_changelog = async (
 };
 
 // keeping this really simple for now, no need to parse further for our current usecases
-const Parsed_Changelog = z.array(z.string());
-type Parsed_Changelog = z.infer<typeof Parsed_Changelog>;
-const parse_changelog = (contents: string): Parsed_Changelog => contents.split('\n');
-const serialize_changelog = (parsed: Parsed_Changelog): string => parsed.join('\n');
+const ParsedChangelog = z.array(z.string());
+type ParsedChangelog = z.infer<typeof ParsedChangelog>;
+const parse_changelog = (contents: string): ParsedChangelog => contents.split('\n');
+const serialize_changelog = (parsed: ParsedChangelog): string => parsed.join('\n');
 
 const LINE_WITH_SHA_MATCHER = /^- ([a-z0-9]{7,8}): /;
 
 const map_changelog = async (
-	parsed: Parsed_Changelog,
+	parsed: ParsedChangelog,
 	owner: string,
 	repo: string,
 	token?: string,
 	log?: Logger,
-	cache?: Fetch_Value_Cache,
-): Promise<Parsed_Changelog> => {
-	const mapped: Parsed_Changelog = [];
+	cache?: FetchValueCache,
+): Promise<ParsedChangelog> => {
+	const mapped: ParsedChangelog = [];
 	for (const line of parsed) {
 		const matches = LINE_WITH_SHA_MATCHER.exec(line);
 		if (matches) {

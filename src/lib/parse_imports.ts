@@ -1,11 +1,11 @@
 import {parseSync, type ImportDeclaration} from 'oxc-parser';
 import type {Flavored} from '@ryanatkn/belt/types.js';
-import {Unreachable_Error} from '@ryanatkn/belt/error.js';
-import type {Path_Id} from '@ryanatkn/belt/path.js';
+import {UnreachableError} from '@ryanatkn/belt/error.js';
+import type {PathId} from '@ryanatkn/belt/path.js';
 
 import {JS_MATCHER, TS_MATCHER, SVELTE_MATCHER, SVELTE_SCRIPT_MATCHER} from './constants.ts';
 
-export type Import_Specifier = Flavored<string, 'Import_Specifier'>;
+export type ImportSpecifier = Flavored<string, 'ImportSpecifier'>;
 
 // TODO this is probably way more complicated that it should be, maybe report the issues upstream unless I made a mistake here
 
@@ -31,10 +31,10 @@ const extract_string_literal = (content: string, start: number, end: number): st
 };
 
 export const parse_imports = (
-	id: Path_Id,
+	id: PathId,
 	contents: string,
 	ignore_types = true,
-): Array<Import_Specifier> => {
+): Array<ImportSpecifier> => {
 	const specifiers: Array<string> = [];
 	const is_svelte = SVELTE_MATCHER.test(id);
 
@@ -129,7 +129,7 @@ export const parse_imports = (
 						specifiers.push(value);
 					}
 				} else {
-					throw new Unreachable_Error(node.source.type);
+					throw new UnreachableError(node.source.type);
 				}
 			}
 		}

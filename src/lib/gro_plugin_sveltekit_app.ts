@@ -1,4 +1,4 @@
-import type {Spawned_Process} from '@ryanatkn/belt/process.js';
+import type {SpawnedProcess} from '@ryanatkn/belt/process.js';
 import {cpSync, mkdirSync, rmSync, writeFileSync, existsSync} from 'node:fs';
 import {dirname, join} from 'node:path';
 
@@ -6,49 +6,49 @@ import type {Plugin} from './plugin.ts';
 import {serialize_args, to_forwarded_args} from './args.ts';
 import {
 	serialize_package_json,
-	type Package_Json_Mapper,
+	type PackageJsonMapper,
 	load_package_json,
 } from './package_json.ts';
-import {Task_Error} from './task.ts';
+import {TaskError} from './task.ts';
 import {find_cli, spawn_cli, spawn_cli_process} from './cli.ts';
-import {type Src_Json_Mapper, src_json_serialize, src_json_create} from './src_json.ts';
+import {type SrcJsonMapper, src_json_serialize, src_json_create} from './src_json.ts';
 import {EXPORTS_EXCLUDER_DEFAULT} from './gro_config.ts';
 import {default_svelte_config} from './svelte_config.ts';
 import {SOURCE_DIRNAME, VITE_CLI} from './constants.ts';
 
-export interface Gro_Plugin_Sveltekit_App_Options {
+export interface GroPluginSveltekitAppOptions {
 	/**
 	 * Used for finalizing a SvelteKit build like adding a `.nojekyll` file for GitHub Pages.
 	 * @default 'github_pages'
 	 */
-	host_target?: Host_Target;
+	host_target?: HostTarget;
 
 	/**
 	 * If truthy, adds `/.well-known/package.json` to the static output.
 	 * If a function, maps the value.
 	 */
-	well_known_package_json?: boolean | Package_Json_Mapper;
+	well_known_package_json?: boolean | PackageJsonMapper;
 
 	/**
 	 * If truthy, adds `/.well-known/src.json` and `/.well-known/src/` to the static output.
 	 * If a function, maps the value.
 	 */
-	well_known_src_json?: boolean | Src_Json_Mapper;
+	well_known_src_json?: boolean | SrcJsonMapper;
 
 	/**
 	 * If truthy, copies `src/` to `/.well-known/src/` to the static output.
 	 * Pass a function to customize which files get copied.
 	 */
-	well_known_src_files?: boolean | Copy_File_Filter;
+	well_known_src_files?: boolean | CopyFileFilter;
 	/**
 	 * The Vite CLI to use.
 	 */
 	vite_cli?: string;
 }
 
-export type Host_Target = 'github_pages' | 'static' | 'node';
+export type HostTarget = 'github_pages' | 'static' | 'node';
 
-export type Copy_File_Filter = (file_path: string) => boolean;
+export type CopyFileFilter = (file_path: string) => boolean;
 
 export const gro_plugin_sveltekit_app = ({
 	host_target = 'github_pages',
@@ -56,8 +56,8 @@ export const gro_plugin_sveltekit_app = ({
 	well_known_src_json,
 	well_known_src_files,
 	vite_cli = VITE_CLI,
-}: Gro_Plugin_Sveltekit_App_Options = {}): Plugin => {
-	let sveltekit_process: Spawned_Process | undefined = undefined;
+}: GroPluginSveltekitAppOptions = {}): Plugin => {
+	let sveltekit_process: SpawnedProcess | undefined = undefined;
 	return {
 		name: 'gro_plugin_sveltekit_app',
 		setup: async ({dev, watch, log, config}) => {
@@ -149,7 +149,7 @@ export const gro_plugin_sveltekit_app = ({
 					const serialized_args = ['build', ...serialize_args(to_forwarded_args(vite_cli))];
 					const spawned = await spawn_cli(found_vite_cli, serialized_args, log);
 					if (!spawned?.ok) {
-						throw new Task_Error(`${vite_cli} build failed with exit code ${spawned?.code}`);
+						throw new TaskError(`${vite_cli} build failed with exit code ${spawned?.code}`);
 					}
 				} catch (err) {
 					cleanup();
@@ -175,7 +175,7 @@ const copy_temporarily = (
 	source_path: string,
 	dest_dir: string,
 	dest_base_dir = '',
-	filter?: Copy_File_Filter,
+	filter?: CopyFileFilter,
 ): Cleanup => {
 	const path = join(dest_dir, dest_base_dir, source_path);
 	const dir = dirname(path);

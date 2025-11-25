@@ -2,7 +2,7 @@ import {z} from 'zod';
 import {spawn} from '@ryanatkn/belt/process.js';
 import {rm} from 'node:fs/promises';
 
-import {Task_Error, type Task} from './task.ts';
+import {TaskError, type Task} from './task.ts';
 import {LOCKFILE_FILENAME, NODE_MODULES_DIRNAME} from './constants.ts';
 
 /** @nodocs */
@@ -17,7 +17,7 @@ export const task: Task<Args> = {
 		log.info(`running the initial \`${config.pm_cli} install\``);
 		const initial_install_result = await spawn(config.pm_cli, ['install']);
 		if (!initial_install_result.ok) {
-			throw new Task_Error(`Failed initial \`${config.pm_cli} install\``);
+			throw new TaskError(`Failed initial \`${config.pm_cli} install\``);
 		}
 
 		// Deleting both the lockfile and node_modules upgrades to the latest minor/patch versions.
@@ -27,7 +27,7 @@ export const task: Task<Args> = {
 		);
 		const second_install_result = await spawn(config.pm_cli, ['install']);
 		if (!second_install_result.ok) {
-			throw new Task_Error(
+			throw new TaskError(
 				`Failed \`${config.pm_cli} install\` after deleting ${LOCKFILE_FILENAME} and ${NODE_MODULES_DIRNAME}`,
 			);
 		}
@@ -39,7 +39,7 @@ export const task: Task<Args> = {
 		log.info(`running \`${config.pm_cli} install\` one last time to clean ${LOCKFILE_FILENAME}`);
 		const final_install_result = await spawn(config.pm_cli, ['install']);
 		if (!final_install_result.ok) {
-			throw new Task_Error(`Failed \`${config.pm_cli} install\``);
+			throw new TaskError(`Failed \`${config.pm_cli} install\``);
 		}
 	},
 };

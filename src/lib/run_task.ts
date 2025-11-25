@@ -6,12 +6,12 @@ import {z} from 'zod';
 import {parse_args, type Args} from './args.ts';
 import type {invoke_task as base_invoke_task} from './invoke_task.ts';
 import {log_task_help} from './task_logging.ts';
-import type {Gro_Config} from './gro_config.ts';
-import {Task_Error, type Task_Module_Meta} from './task.ts';
+import type {GroConfig} from './gro_config.ts';
+import {TaskError, type TaskModuleMeta} from './task.ts';
 import {default_svelte_config} from './svelte_config.ts';
 import type {Filer} from './filer.ts';
 
-export type Run_Task_Result =
+export type RunTaskResult =
 	| {
 			ok: true;
 			output: unknown;
@@ -23,14 +23,14 @@ export type Run_Task_Result =
 	  };
 
 export const run_task = async (
-	task_meta: Task_Module_Meta,
+	task_meta: TaskModuleMeta,
 	unparsed_args: Args,
 	invoke_task: typeof base_invoke_task,
-	config: Gro_Config,
+	config: GroConfig,
 	filer: Filer,
 	log: Logger,
 	timings: Timings,
-): Promise<Run_Task_Result> => {
+): Promise<RunTaskResult> => {
 	const {task} = task_meta.mod;
 
 	if (unparsed_args.help) {
@@ -43,7 +43,7 @@ export const run_task = async (
 	if (task.Args) {
 		const parsed = parse_args(unparsed_args, task.Args);
 		if (!parsed.success) {
-			throw new Task_Error(
+			throw new TaskError(
 				`Failed task args validation for task '${task_meta.name}':\n${z.prettifyError(parsed.error)}`,
 			);
 		}
@@ -68,7 +68,7 @@ export const run_task = async (
 			ok: false,
 			reason: st(
 				'red',
-				err?.constructor?.name === 'Task_Error'
+				err?.constructor?.name === 'TaskError'
 					? (err.message as string)
 					: `Unexpected error running task ${st(
 							'cyan',

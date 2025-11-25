@@ -1,6 +1,6 @@
 import {spawn} from '@ryanatkn/belt/process.js';
 import {z} from 'zod';
-import {Git_Origin, git_current_branch_name, git_push} from '@ryanatkn/belt/git.js';
+import {GitOrigin, git_current_branch_name, git_push} from '@ryanatkn/belt/git.js';
 
 import type {Task} from './task.ts';
 
@@ -12,7 +12,7 @@ export const Args = z.strictObject({
 			description: 'the git commit message, the same as git commit -m or --message',
 		})
 		.default([]),
-	origin: Git_Origin.describe('git origin to commit to').default('origin'),
+	origin: GitOrigin.describe('git origin to commit to').default('origin'),
 });
 export type Args = z.infer<typeof Args>;
 

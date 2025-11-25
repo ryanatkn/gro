@@ -2,28 +2,28 @@ import ts from 'typescript';
 import {extname} from 'node:path';
 import type {Flavored} from '@ryanatkn/belt/types.js';
 import type {Logger} from '@ryanatkn/belt/log.js';
-import type {Identifier_Kind} from '@ryanatkn/belt/src_json.js';
-import type {Path_Id} from '@ryanatkn/belt/path.js';
+import type {IdentifierKind} from '@ryanatkn/belt/src_json.js';
+import type {PathId} from '@ryanatkn/belt/path.js';
 
 import {TS_MATCHER} from './constants.ts';
-import {Parse_Exports_Context} from './parse_exports_context.ts';
+import {ParseExportsContext} from './parse_exports_context.ts';
 
 export interface Declaration {
 	name: string;
-	kind: Identifier_Kind | null;
+	kind: IdentifierKind | null;
 }
 
-export type Export_Declaration = Flavored<Declaration, 'Export_Declaration'>;
+export type ExportDeclaration = Flavored<Declaration, 'ExportDeclaration'>;
 
 /**
  * Parse exports from a file based on its file type and content.
  */
 export const parse_exports = (
-	id: Path_Id,
+	id: PathId,
 	program?: ts.Program,
-	declarations: Array<Export_Declaration> = [],
+	declarations: Array<ExportDeclaration> = [],
 	log?: Logger,
-): Array<Export_Declaration> => {
+): Array<ExportDeclaration> => {
 	// First, infer declarations based on file extension
 	infer_declarations_from_file_type(id, declarations);
 
@@ -42,7 +42,7 @@ export const parse_exports = (
 		const exports = checker.getExportsOfModule(symbol);
 
 		// Process TypeScript declarations
-		const export_context = new Parse_Exports_Context(program, log);
+		const export_context = new ParseExportsContext(program, log);
 		export_context.analyze_source_file(source_file);
 		export_context.process_exports(source_file, exports, declarations);
 	}
@@ -52,9 +52,9 @@ export const parse_exports = (
 
 // TODO temporary until proper type inference
 export const infer_declarations_from_file_type = (
-	file_path: Path_Id,
-	declarations: Array<Export_Declaration> = [],
-): Array<Export_Declaration> => {
+	file_path: PathId,
+	declarations: Array<ExportDeclaration> = [],
+): Array<ExportDeclaration> => {
 	const extension = extname(file_path).toLowerCase();
 
 	switch (extension) {
@@ -91,10 +91,10 @@ export const process_ts_exports = (
 	source_file: ts.SourceFile,
 	program: ts.Program,
 	exports: Array<ts.Symbol>,
-	declarations: Array<Export_Declaration> = [],
+	declarations: Array<ExportDeclaration> = [],
 	log?: Logger,
-): Array<Export_Declaration> => {
-	const export_context = new Parse_Exports_Context(program, log);
+): Array<ExportDeclaration> => {
+	const export_context = new ParseExportsContext(program, log);
 	export_context.analyze_source_file(source_file);
 	return export_context.process_exports(source_file, exports, declarations);
 };

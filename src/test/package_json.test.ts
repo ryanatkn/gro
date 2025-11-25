@@ -1,5 +1,5 @@
 import {test, expect} from 'vitest';
-import {Package_Json, Package_Json_Exports} from '@ryanatkn/belt/package_json.js';
+import {PackageJson, PackageJsonExports} from '@ryanatkn/belt/package_json.js';
 
 import {
 	load_package_json,
@@ -11,7 +11,7 @@ import {
 test('load_package_json', () => {
 	const package_json = load_package_json();
 	expect(package_json).toBeTruthy();
-	const parsed = Package_Json.parse(package_json);
+	const parsed = PackageJson.parse(package_json);
 	expect(parsed).toBeTruthy();
 	serialize_package_json(package_json);
 });
@@ -26,14 +26,14 @@ test('load_package_json with cache', () => {
 	expect(package_json1).toBe(package_json2);
 });
 
-test('Package_Json.parse', () => {
-	Package_Json.parse({name: 'abc', version: '123'});
+test('PackageJson.parse', () => {
+	PackageJson.parse({name: 'abc', version: '123'});
 });
 
-test('Package_Json.parse fails with bad data', () => {
+test('PackageJson.parse fails with bad data', () => {
 	let err;
 	try {
-		Package_Json.parse({version: '123'});
+		PackageJson.parse({version: '123'});
 	} catch (_err) {
 		err = _err;
 	}
@@ -98,27 +98,27 @@ test('parse_repo_url', () => {
 	expect(parsed?.repo).toBe('gro');
 });
 
-test('`Package_Json_Exports` parses simple string exports', () => {
+test('`PackageJsonExports` parses simple string exports', () => {
 	const exports = {
 		'.': './index.js',
 		'./lib': './lib/index.js',
 	};
-	const parsed = Package_Json_Exports.safeParse(exports);
+	const parsed = PackageJsonExports.safeParse(exports);
 	expect(parsed.success).toBe(true);
 	expect(exports).toEqual(parsed.data);
 });
 
-test('`Package_Json_Exports` parses null exports', () => {
+test('`PackageJsonExports` parses null exports', () => {
 	const exports = {
 		'.': './index.js',
 		'./internal/*': null,
 	};
-	const parsed = Package_Json_Exports.safeParse(exports);
+	const parsed = PackageJsonExports.safeParse(exports);
 	expect(parsed.success).toBe(true);
 	expect(exports).toEqual(parsed.data);
 });
 
-test('`Package_Json_Exports` parses basic conditional exports', () => {
+test('`PackageJsonExports` parses basic conditional exports', () => {
 	const exports = {
 		'.': {
 			import: './index.mjs',
@@ -126,12 +126,12 @@ test('`Package_Json_Exports` parses basic conditional exports', () => {
 			default: './index.js',
 		},
 	};
-	const parsed = Package_Json_Exports.safeParse(exports);
+	const parsed = PackageJsonExports.safeParse(exports);
 	expect(parsed.success).toBe(true);
 	expect(exports).toEqual(parsed.data);
 });
 
-test('`Package_Json_Exports` parses nested conditional exports', () => {
+test('`PackageJsonExports` parses nested conditional exports', () => {
 	const exports = {
 		'./feature': {
 			node: {
@@ -141,12 +141,12 @@ test('`Package_Json_Exports` parses nested conditional exports', () => {
 			default: './feature.mjs',
 		},
 	};
-	const parsed = Package_Json_Exports.safeParse(exports);
+	const parsed = PackageJsonExports.safeParse(exports);
 	expect(parsed.success).toBe(true);
 	expect(exports).toEqual(parsed.data);
 });
 
-test('`Package_Json_Exports` parses deeply nested conditional exports', () => {
+test('`PackageJsonExports` parses deeply nested conditional exports', () => {
 	const exports = {
 		'./advanced': {
 			node: {
@@ -162,12 +162,12 @@ test('`Package_Json_Exports` parses deeply nested conditional exports', () => {
 			default: './feature.mjs',
 		},
 	};
-	const parsed = Package_Json_Exports.safeParse(exports);
+	const parsed = PackageJsonExports.safeParse(exports);
 	expect(parsed.success).toBe(true);
 	expect(exports).toEqual(parsed.data);
 });
 
-test('`Package_Json_Exports` parses mixed exports types', () => {
+test('`PackageJsonExports` parses mixed exports types', () => {
 	const exports = {
 		'.': './index.js',
 		'./lib': {
@@ -182,7 +182,7 @@ test('`Package_Json_Exports` parses mixed exports types', () => {
 			},
 		},
 	};
-	const parsed = Package_Json_Exports.safeParse(exports);
+	const parsed = PackageJsonExports.safeParse(exports);
 	expect(parsed.success).toBe(true);
 	expect(exports).toEqual(parsed.data);
 });
@@ -210,7 +210,7 @@ test('rejects invalid exports', () => {
 	];
 
 	for (const invalid_export of invalid_exports) {
-		const parsed = Package_Json_Exports.safeParse(invalid_export);
+		const parsed = PackageJsonExports.safeParse(invalid_export);
 		expect(parsed.success).toBe(false);
 	}
 });

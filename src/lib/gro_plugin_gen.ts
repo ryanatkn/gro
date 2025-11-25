@@ -1,6 +1,6 @@
 import {EMPTY_OBJECT} from '@ryanatkn/belt/object.js';
 import {throttle} from '@ryanatkn/belt/throttle.js';
-import {Unreachable_Error} from '@ryanatkn/belt/error.js';
+import {UnreachableError} from '@ryanatkn/belt/error.js';
 
 import type {Plugin} from './plugin.ts';
 import type {Args} from './args.ts';
@@ -16,11 +16,11 @@ const FLUSH_DEBOUNCE_DELAY = 500;
 // 	await invoke_task('gen', {_: files, bust_cache: true});
 const gen = (files: Array<string> = []) => spawn_cli('gro', ['gen', ...files]);
 
-export interface Task_Args extends Args {
+export interface TaskArgs extends Args {
 	watch?: boolean;
 }
 
-export interface Gro_Plugin_Gen_Options {
+export interface GroPluginGenOptions {
 	input_paths?: Array<string>;
 	root_dirs?: Array<string>;
 	flush_debounce_delay?: number;
@@ -30,7 +30,7 @@ export const gro_plugin_gen = ({
 	input_paths = [paths.source],
 	root_dirs = [paths.source],
 	flush_debounce_delay = FLUSH_DEBOUNCE_DELAY,
-}: Gro_Plugin_Gen_Options = EMPTY_OBJECT): Plugin => {
+}: GroPluginGenOptions = EMPTY_OBJECT): Plugin => {
 	const queued_files: Set<string> = new Set();
 
 	let cleanup_watch: (() => void) | undefined;
@@ -135,7 +135,7 @@ export const gro_plugin_gen = ({
 						break;
 					}
 					default:
-						throw new Unreachable_Error(change.type);
+						throw new UnreachableError(change.type);
 				}
 			});
 		},

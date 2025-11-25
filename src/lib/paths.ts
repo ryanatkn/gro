@@ -2,7 +2,7 @@ import {join, extname, relative, basename} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {ensure_end, strip_end} from '@ryanatkn/belt/string.js';
 import {styleText as st} from 'node:util';
-import type {Path_Id} from '@ryanatkn/belt/path.js';
+import type {PathId} from '@ryanatkn/belt/path.js';
 
 import {
 	GRO_CONFIG_FILENAME,
@@ -53,22 +53,22 @@ export const create_paths = (root_dir: string): Paths => {
 	};
 };
 
-export const infer_paths = (id: Path_Id): Paths => (is_gro_id(id) ? gro_paths : paths);
+export const infer_paths = (id: PathId): Paths => (is_gro_id(id) ? gro_paths : paths);
 
-export const is_gro_id = (id: Path_Id): boolean =>
+export const is_gro_id = (id: PathId): boolean =>
 	id.startsWith(gro_paths.root) || gro_paths.root === ensure_end(id, '/');
 
 // '/home/me/app/src/foo/bar/baz.ts' → 'src/foo/bar/baz.ts'
-export const to_root_path = (id: Path_Id, p = infer_paths(id)): string =>
+export const to_root_path = (id: PathId, p = infer_paths(id)): string =>
 	relative(p.root, id) || './';
 
 // '/home/me/app/src/foo/bar/baz.ts' → 'foo/bar/baz.ts'
-export const path_id_to_base_path = (path_id: Path_Id, p = infer_paths(path_id)): string =>
+export const path_id_to_base_path = (path_id: PathId, p = infer_paths(path_id)): string =>
 	relative(p.source, path_id);
 
 // TODO base_path is an obsolete concept, it was a remnant from forcing `src/`
 // 'foo/bar/baz.ts' → '/home/me/app/src/foo/bar/baz.ts'
-export const base_path_to_path_id = (base_path: string, p = infer_paths(base_path)): Path_Id =>
+export const base_path_to_path_id = (base_path: string, p = infer_paths(base_path)): PathId =>
 	join(p.source, base_path);
 
 export const print_path = (path: string, p = infer_paths(path)): string => {

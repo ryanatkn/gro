@@ -10,8 +10,8 @@ import {
 	git_checkout,
 	git_local_branch_exists,
 	git_remote_branch_exists,
-	Git_Origin,
-	Git_Branch,
+	GitOrigin,
+	GitBranch,
 	git_delete_local_branch,
 	git_push_to_create,
 	git_reset_branch_to_first_commit,
@@ -23,7 +23,7 @@ import {
 } from '@ryanatkn/belt/git.js';
 import {fs_empty_dir} from '@ryanatkn/belt/fs.js';
 
-import {Task_Error, type Task} from './task.ts';
+import {TaskError, type Task} from './task.ts';
 import {print_path} from './paths.ts';
 import {GRO_DIRNAME, GIT_DIRNAME, SVELTEKIT_BUILD_DIRNAME} from './constants.ts';
 
@@ -42,9 +42,9 @@ const DANGEROUS_BRANCHES = [SOURCE_BRANCH, 'master'];
 
 /** @nodocs */
 export const Args = z.strictObject({
-	source: Git_Branch.describe('git source branch to build and deploy from').default(SOURCE_BRANCH),
-	target: Git_Branch.describe('git target branch to deploy to').default(TARGET_BRANCH),
-	origin: Git_Origin.describe('git origin to deploy to').default('origin'),
+	source: GitBranch.describe('git source branch to build and deploy from').default(SOURCE_BRANCH),
+	target: GitBranch.describe('git target branch to deploy to').default(TARGET_BRANCH),
+	origin: GitOrigin.describe('git origin to deploy to').default('origin'),
 	deploy_dir: z.string().meta({description: 'the deploy output directory'}).default(DEPLOY_DIR),
 	build_dir: z
 		.string()
@@ -98,7 +98,7 @@ export const task: Task<Args> = {
 
 		// Checks
 		if (!force && target !== TARGET_BRANCH) {
-			throw new Task_Error(
+			throw new TaskError(
 				`Warning! You are deploying to a custom target branch '${target}',` +
 					` instead of the default '${TARGET_BRANCH}' branch.` +
 					` This is destructive to your '${target}' branch!` +
@@ -107,7 +107,7 @@ export const task: Task<Args> = {
 			);
 		}
 		if (!dangerous && DANGEROUS_BRANCHES.includes(target)) {
-			throw new Task_Error(
+			throw new TaskError(
 				`Warning! You are deploying to a custom target branch '${target}'` +
 					` and that appears very dangerous: it is destructive to your '${target}' branch!` +
 					` If you understand and are OK with deleting your branch '${target}',` +
@@ -116,12 +116,12 @@ export const task: Task<Args> = {
 		}
 		const clean_error_message = await git_check_clean_workspace();
 		if (clean_error_message) {
-			throw new Task_Error(
+			throw new TaskError(
 				'Deploy failed because the git workspace has uncommitted changes: ' + clean_error_message,
 			);
 		}
 		if (!(await git_check_setting_pull_rebase())) {
-			throw new Task_Error(
+			throw new TaskError(
 				'Deploying currently requires `git config --global pull.rebase true`,' +
 					' but this restriction could be lifted with more work',
 			);
@@ -138,7 +138,7 @@ export const task: Task<Args> = {
 			await git_pull(origin, source);
 		}
 		if (await git_check_clean_workspace()) {
-			throw new Task_Error(
+			throw new TaskError(
 				'Deploy failed because the local source branch is out of sync with the remote one,' +
 					' finish rebasing manually or reset with `git rebase --abort`',
 			);
@@ -177,7 +177,7 @@ export const task: Task<Args> = {
 			// It may not exist, or it may have been deleted after failing to sync above.
 			if (!existsSync(resolved_deploy_dir)) {
 				const local_deploy_branch_exists = await git_local_branch_exists(target);
-				await git_fetch(origin, ('+' + target + ':' + target) as Git_Branch); // fetch+merge and allow non-fastforward updates with the +
+				await git_fetch(origin, ('+' + target + ':' + target) as GitBranch); // fetch+merge and allow non-fastforward updates with the +
 				await git_clone_locally(origin, target, dir, resolved_deploy_dir);
 				// Clean up if we created the target branch in the cwd
 				if (!local_deploy_branch_exists) {
@@ -234,12 +234,12 @@ export const task: Task<Args> = {
 			if (dry) {
 				log.info(st('red', 'dry deploy failed'));
 			}
-			throw new Task_Error(`Deploy safely canceled due to build failure. See the error above.`);
+			throw new TaskError(`Deploy safely canceled due to build failure. See the error above.`);
 		}
 
 		// Verify build output exists
 		if (!existsSync(build_dir)) {
-			throw new Task_Error(`Directory to deploy does not exist after building: ${build_dir}`);
+			throw new TaskError(`Directory to deploy does not exist after building: ${build_dir}`);
 		}
 
 		// Copy the build
@@ -262,7 +262,7 @@ export const task: Task<Args> = {
 			await spawn('git', ['push', origin, target, '-f'], target_spawn_options); // force push because we may be resetting the branch, see the checks above to make this safer
 		} catch (err) {
 			log.error(st('red', 'updating git failed:'), print_error(err));
-			throw new Task_Error(`Deploy failed in a bad state: built but not pushed, see error above.`);
+			throw new TaskError(`Deploy failed in a bad state: built but not pushed, see error above.`);
 		}
 
 		log.info(st('green', 'deployed')); // TODO log a different message if "Everything up-to-date"

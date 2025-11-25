@@ -3,7 +3,7 @@ import {spawn} from '@ryanatkn/belt/process.js';
 import {styleText as st} from 'node:util';
 import {git_check_clean_workspace} from '@ryanatkn/belt/git.js';
 
-import {Task_Error, type Task} from './task.ts';
+import {TaskError, type Task} from './task.ts';
 import {sync_package_json} from './package_json.ts';
 
 /** @nodocs */
@@ -64,7 +64,7 @@ export const task: Task<Args> = {
 		if (package_json && config.map_package_json) {
 			const {changed} = await sync_package_json(config.map_package_json, log, false);
 			if (changed) {
-				throw new Task_Error('package.json is out of date, run `gro sync` to update it');
+				throw new TaskError('package.json is out of date, run `gro sync` to update it');
 			} else {
 				log.info('check passed for package.json');
 			}
@@ -86,7 +86,7 @@ export const task: Task<Args> = {
 			if (error_message) {
 				log.error(st('red', 'git status'));
 				await spawn('git', ['status']);
-				throw new Task_Error(
+				throw new TaskError(
 					'Failed check for git_check_clean_workspace:' +
 						error_message +
 						' - do you need to run `gro sync` or commit some files?',
