@@ -5310,6 +5310,8 @@ export const src_json: Src_Json = {
 		{
 			path: 'run.task.ts',
 			identifiers: [],
+			module_comment:
+				"Runs a TypeScript file with Gro's loader, forwarding all args to the script.\nUseful for scripts that need SvelteKit shims ($lib, $env, etc).",
 			dependencies: ['args.ts', 'gro_helpers.ts', 'task.ts'],
 		},
 		{
