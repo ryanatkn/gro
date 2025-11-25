@@ -3,7 +3,7 @@ import {ensure_end, strip_start} from '@ryanatkn/belt/string.js';
 import {existsSync} from 'node:fs';
 import ts from 'typescript';
 import type {PackageJson, PackageJsonExports} from '@ryanatkn/belt/package_json.js';
-import {SrcJson, type ModuleJson, type IdentifierKind} from '@ryanatkn/belt/src_json.js';
+import {SourceJson, type ModuleJson, type DeclarationKind} from '@ryanatkn/belt/source_json.js';
 import type {Logger} from '@ryanatkn/belt/log.js';
 
 import {paths, replace_extension} from './paths.ts';
@@ -11,25 +11,25 @@ import {parse_exports} from './parse_exports.ts';
 import {TS_MATCHER, SVELTE_MATCHER, JSON_MATCHER, CSS_MATCHER} from './constants.ts';
 import {search_fs} from './search_fs.ts';
 
-export type SrcJsonMapper = (src_json: SrcJson) => SrcJson | null | Promise<SrcJson | null>;
+export type SourceJsonMapper = (source_json: SourceJson) => SourceJson | null | Promise<SourceJson | null>;
 
-export const src_json_create = (
+export const source_json_create = (
 	package_json: PackageJson,
 	lib_path?: string,
 	log?: Logger,
-): SrcJson =>
-	SrcJson.parse({
+): SourceJson =>
+	SourceJson.parse({
 		name: package_json.name,
 		version: package_json.version,
-		modules: src_modules_create(package_json.exports, lib_path, log),
+		modules: source_modules_create(package_json.exports, lib_path, log),
 	});
 
-export const src_json_serialize = (src_json: SrcJson): string => {
-	const parsed = SrcJson.parse(src_json);
+export const source_json_serialize = (source_json: SourceJson): string => {
+	const parsed = SourceJson.parse(source_json);
 	return JSON.stringify(parsed, null, 2) + '\n';
 };
 
-export const src_modules_create = (
+export const source_modules_create = (
 	exports: PackageJsonExports | undefined,
 	lib_path = paths.lib,
 	log?: Logger,
@@ -64,15 +64,15 @@ export const src_modules_create = (
 	for (const {file_path} of file_paths) {
 		const relative_path = file_path.replace(ensure_end(lib_path, '/'), '');
 
-		const identifiers = parse_exports(file_path, program, undefined, log)
-			.filter((d): d is {name: string; kind: IdentifierKind} => d.kind !== null) // TODO maybe dont filter out?
+		const declarations = parse_exports(file_path, program, undefined, log)
+			.filter((d): d is {name: string; kind: DeclarationKind} => d.kind !== null) // TODO maybe dont filter out?
 			.map(({name, kind}) => ({name, kind}));
 
 		result.push(
-			identifiers.length
+			declarations.length
 				? {
 						path: relative_path,
-						identifiers,
+						declarations,
 					}
 				: {
 						path: relative_path,

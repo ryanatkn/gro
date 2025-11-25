@@ -7,7 +7,7 @@
 	import type {Snippet} from 'svelte';
 	import {Pkg, pkg_context} from '@ryanatkn/fuz/pkg.svelte.js';
 
-	import {package_json, src_json} from './package.ts';
+	import {package_json, source_json} from './package.ts';
 
 	// TODO add website, rewriting the markdown docs as Svelte
 
@@ -17,7 +17,7 @@
 		children: Snippet;
 	} = $props();
 
-	pkg_context.set(new Pkg(package_json, src_json));
+	pkg_context.set(new Pkg(package_json, source_json));
 </script>
 
 <svelte:head>

@@ -1,10 +1,10 @@
 import {describe, test, expect} from 'vitest';
 
-import {src_modules_create} from '../lib/src_json.ts';
+import {source_modules_create} from '../lib/source_json.ts';
 import {paths} from '../lib/paths.ts';
 
-describe('src_modules_create', () => {
-	test('handles simple cases and omits `identifiers` when empty', () => {
+describe('source_modules_create', () => {
+	test('handles simple cases and omits `declarations` when empty', () => {
 		const exports = {
 			'./test/fixtures/modules/some_test_script.js': {
 				import: './dist/some_test_script.js',
@@ -16,7 +16,7 @@ describe('src_modules_create', () => {
 			},
 		};
 
-		const result = src_modules_create(exports, paths.source);
+		const result = source_modules_create(exports, paths.source);
 
 		expect(result).toBeDefined();
 		expect(result).toHaveLength(2);
@@ -30,11 +30,11 @@ describe('src_modules_create', () => {
 		expect(script_module).toBeDefined();
 		expect(ts_module).toBeDefined();
 
-		// Script module should not have identifiers (empty exports)
-		expect(script_module!.identifiers).toBeUndefined();
+		// Script module should not have declarations (empty exports)
+		expect(script_module!.declarations).toBeUndefined();
 
-		// TS module should have identifiers
-		expect(ts_module!.identifiers).toEqual([
+		// TS module should have declarations
+		expect(ts_module!.declarations).toEqual([
 			{name: 'a', kind: 'variable'},
 			{name: 'some_test_ts', kind: 'variable'},
 			{name: 'some_test_fn', kind: 'function'},
@@ -52,13 +52,13 @@ describe('src_modules_create', () => {
 			},
 		};
 
-		const result = src_modules_create(exports, paths.source);
+		const result = source_modules_create(exports, paths.source);
 
 		expect(result).toBeDefined();
 		expect(result).toHaveLength(1);
 		expect(result![0]!.path).toBe('test/fixtures/modules/src_json_sample_exports.ts');
 
-		expect(result![0]!.identifiers).toEqual([
+		expect(result![0]!.declarations).toEqual([
 			{name: 'direct_function', kind: 'function'},
 			{name: 'direct_variable', kind: 'variable'},
 			{name: 'direct_arrow_function', kind: 'function'},
@@ -90,9 +90,9 @@ describe('src_modules_create', () => {
 
 	test('handles empty or undefined exports gracefully', () => {
 		// Undefined exports
-		expect(src_modules_create(undefined)).toBeUndefined();
+		expect(source_modules_create(undefined)).toBeUndefined();
 
 		// Empty exports
-		expect(src_modules_create({})).toEqual([]);
+		expect(source_modules_create({})).toEqual([]);
 	});
 });

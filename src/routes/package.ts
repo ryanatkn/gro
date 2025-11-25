@@ -2,7 +2,7 @@
 // Do not edit directly - regenerated on build
 
 import type {PackageJson} from '@ryanatkn/belt/package_json.js';
-import type {SrcJson} from '@ryanatkn/belt/src_json.js';
+import type {SourceJson} from '@ryanatkn/belt/source_json.js';
 
 export const package_json: PackageJson = {
 	name: '@ryanatkn/gro',
@@ -142,7 +142,7 @@ export const package_json: PackageJson = {
 	},
 };
 
-export const src_json: SrcJson = {
+export const source_json: SourceJson = {
 	name: '@ryanatkn/gro',
 	version: '0.177.1',
 	modules: [

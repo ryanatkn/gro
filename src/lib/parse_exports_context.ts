@@ -1,6 +1,6 @@
 import ts from 'typescript';
 import type {Logger} from '@ryanatkn/belt/log.js';
-import type {IdentifierKind} from '@ryanatkn/belt/src_json.js';
+import type {DeclarationKind} from '@ryanatkn/belt/source_json.js';
 
 import type {ExportDeclaration} from './parse_exports.ts';
 
@@ -13,7 +13,7 @@ export class ParseExportsContext {
 	// Map of source file paths to their symbols
 	readonly #file_symbols: Map<string, ts.Symbol> = new Map();
 	// Cache for resolved symbols to avoid repeated resolution
-	readonly #symbol_kind_cache: Map<ts.Symbol, IdentifierKind> = new Map();
+	readonly #symbol_kind_cache: Map<ts.Symbol, DeclarationKind> = new Map();
 
 	readonly log: Logger | undefined;
 	debug = process.env.DEBUG_EXPORTS === 'true';
@@ -75,7 +75,7 @@ export class ParseExportsContext {
 	/**
 	 * Determine the kind of an export based on its symbol.
 	 */
-	#determine_export_kind(source_file: ts.SourceFile, symbol: ts.Symbol): IdentifierKind {
+	#determine_export_kind(source_file: ts.SourceFile, symbol: ts.Symbol): DeclarationKind {
 		// Check if this is a type-only export (no value export)
 		if (this.#is_type_only_export(source_file, symbol)) {
 			return 'type';
@@ -115,7 +115,7 @@ export class ParseExportsContext {
 	/**
 	 * Infer the declaration kind from a symbol's declaration and type information.
 	 */
-	#infer_declaration_kind(symbol: ts.Symbol): IdentifierKind {
+	#infer_declaration_kind(symbol: ts.Symbol): DeclarationKind {
 		// Check symbol flags first for direct type matching
 		if (this.#is_class_symbol(symbol)) {
 			return 'class';
@@ -182,7 +182,7 @@ export class ParseExportsContext {
 	/**
 	 * Infer the declaration kind from a specific declaration node.
 	 */
-	#infer_kind_from_declaration(decl: ts.Declaration): IdentifierKind | null {
+	#infer_kind_from_declaration(decl: ts.Declaration): DeclarationKind | null {
 		if (ts.isFunctionDeclaration(decl)) {
 			return 'function';
 		}
