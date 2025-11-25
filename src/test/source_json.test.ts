@@ -46,9 +46,9 @@ describe('source_modules_create', () => {
 
 	test('identifies all export kinds correctly', () => {
 		const exports = {
-			'./test/fixtures/modules/src_json_sample_exports.js': {
-				import: './dist/src_json_sample_exports.js',
-				types: './dist/src_json_sample_exports.d.ts',
+			'./test/fixtures/modules/source_json_sample_exports.js': {
+				import: './dist/source_json_sample_exports.js',
+				types: './dist/source_json_sample_exports.d.ts',
 			},
 		};
 
@@ -56,7 +56,7 @@ describe('source_modules_create', () => {
 
 		expect(result).toBeDefined();
 		expect(result).toHaveLength(1);
-		expect(result![0]!.path).toBe('test/fixtures/modules/src_json_sample_exports.ts');
+		expect(result![0]!.path).toBe('test/fixtures/modules/source_json_sample_exports.ts');
 
 		expect(result![0]!.declarations).toEqual([
 			{name: 'direct_function', kind: 'function'},

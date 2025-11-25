@@ -2,7 +2,7 @@
 // Do not edit directly - regenerated on build
 
 import type {PackageJson} from '@ryanatkn/belt/package_json.js';
-import type {SourceJson} from '@ryanatkn/belt/source_json.js';
+import type {SrcJson} from '@ryanatkn/belt/src_json.js';
 
 export const package_json: PackageJson = {
 	name: '@ryanatkn/gro',
@@ -89,7 +89,7 @@ export const package_json: PackageJson = {
 	devDependencies: {
 		'@changesets/changelog-git': '^0.2.1',
 		'@changesets/types': '^6.1.0',
-		'@ryanatkn/belt': '^0.39.0',
+		'@ryanatkn/belt': '^0.40.0',
 		'@ryanatkn/eslint-config': '^0.9.0',
 		'@ryanatkn/fuz': '^0.162.0',
 		'@ryanatkn/fuz_code': '^0.36.0',
@@ -142,7 +142,7 @@ export const package_json: PackageJson = {
 	},
 };
 
-export const source_json: SourceJson = {
+export const src_json: SrcJson = {
 	name: '@ryanatkn/gro',
 	version: '0.177.1',
 	modules: [
@@ -1249,7 +1249,7 @@ export const source_json: SourceJson = {
 				'parse_imports.ts',
 				'paths.ts',
 				'reinstall.task.ts',
-				'src_json.ts',
+				'source_json.ts',
 				'svelte_config.ts',
 				'sveltekit_helpers.ts',
 				'test.task.ts',
@@ -3420,11 +3420,11 @@ export const source_json: SourceJson = {
 								'If truthy, adds `/.well-known/package.json` to the static output.\nIf a function, maps the value.',
 						},
 						{
-							name: 'well_known_src_json',
+							name: 'well_known_source_json',
 							kind: 'variable',
-							type_signature: 'boolean | SrcJsonMapper',
+							type_signature: 'boolean | SourceJsonMapper',
 							doc_comment:
-								'If truthy, adds `/.well-known/src.json` and `/.well-known/src/` to the static output.\nIf a function, maps the value.',
+								'If truthy, adds `/.well-known/source.json` and `/.well-known/src/` to the static output.\nIf a function, maps the value.',
 						},
 						{
 							name: 'well_known_src_files',
@@ -3458,7 +3458,7 @@ export const source_json: SourceJson = {
 					kind: 'function',
 					source_line: 49,
 					type_signature:
-						'({ host_target, well_known_package_json, well_known_src_json, well_known_src_files, vite_cli, }?: GroPluginSveltekitAppOptions): Plugin<PluginContext<object>>',
+						'({ host_target, well_known_package_json, well_known_source_json, well_known_src_files, vite_cli, }?: GroPluginSveltekitAppOptions): Plugin<PluginContext<object>>',
 					return_type: 'Plugin<PluginContext<object>>',
 					parameters: [
 						{
@@ -3476,7 +3476,7 @@ export const source_json: SourceJson = {
 				'constants.ts',
 				'gro_config.ts',
 				'package_json.ts',
-				'src_json.ts',
+				'source_json.ts',
 				'svelte_config.ts',
 				'task.ts',
 			],
@@ -4470,7 +4470,7 @@ export const source_json: SourceJson = {
 						{
 							name: 'kind',
 							kind: 'variable',
-							type_signature: 'IdentifierKind | null',
+							type_signature: 'DeclarationKind | null',
 						},
 					],
 				},
@@ -4572,7 +4572,7 @@ export const source_json: SourceJson = {
 				},
 			],
 			dependencies: ['constants.ts', 'parse_exports_context.ts'],
-			dependents: ['src_json.ts'],
+			dependents: ['source_json.ts'],
 		},
 		{
 			path: 'parse_imports.ts',
@@ -4882,7 +4882,7 @@ export const source_json: SourceJson = {
 				'package_json.ts',
 				'resolve_specifier.ts',
 				'run_gen.ts',
-				'src_json.ts',
+				'source_json.ts',
 				'task.ts',
 				'task_logging.ts',
 				'test.task.ts',
@@ -5392,25 +5392,25 @@ export const source_json: SourceJson = {
 					],
 				},
 			],
-			dependents: ['gen.ts', 'input_path.ts', 'package_json.ts', 'src_json.ts', 'task.ts'],
+			dependents: ['gen.ts', 'input_path.ts', 'package_json.ts', 'source_json.ts', 'task.ts'],
 		},
 		{
-			path: 'src_json.ts',
+			path: 'source_json.ts',
 			identifiers: [
 				{
-					name: 'SrcJsonMapper',
+					name: 'SourceJsonMapper',
 					kind: 'type',
 					source_line: 14,
-					type_signature: 'SrcJsonMapper',
+					type_signature: 'SourceJsonMapper',
 				},
 				{
-					name: 'src_json_create',
+					name: 'source_json_create',
 					kind: 'function',
 					source_line: 16,
 					type_signature:
 						'(package_json: { [x: string]: unknown; name: string; version: string; private?: boolean | undefined; public?: boolean | undefined; description?: string | undefined; motto?: string | undefined; glyph?: string | undefined; ... 24 more ...; exports?: string | ... 2 more ... | undefined; }, lib_path?: string | undefined, log?: Logger | undefined): { ...; }',
 					return_type:
-						'{ [x: string]: unknown; name: string; version: string; modules?: { [x: string]: unknown; path: string; identifiers?: { [x: string]: unknown; name: string; kind: "function" | "type" | "json" | "variable" | "class" | "constructor" | "component" | "css"; ... 19 more ...; alias_of?: { ...; } | undefined; }[] | undefined...',
+						'{ [x: string]: unknown; name: string; version: string; modules?: { [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: "function" | "type" | "json" | "variable" | "class" | "constructor" | "component" | "css"; ... 19 more ...; alias_of?: { ...; } | undefined; }[] | undefine...',
 					parameters: [
 						{
 							name: 'package_json',
@@ -5430,28 +5430,28 @@ export const source_json: SourceJson = {
 					],
 				},
 				{
-					name: 'src_json_serialize',
+					name: 'source_json_serialize',
 					kind: 'function',
 					source_line: 27,
 					type_signature:
-						'(src_json: { [x: string]: unknown; name: string; version: string; modules?: { [x: string]: unknown; path: string; identifiers?: { [x: string]: unknown; name: string; kind: "function" | "type" | "json" | "variable" | "class" | "constructor" | "component" | "css"; ... 19 more ...; alias_of?: { ...; } | undefined; }[] | undefined; module_comment?: string | undefined; dependencies?: string[] | undefined; dependents?: string[] | undefined; }[] | undefined; }): string',
+						'(source_json: { [x: string]: unknown; name: string; version: string; modules?: { [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: "function" | "type" | "json" | "variable" | "class" | "constructor" | "component" | "css"; ... 19 more ...; alias_of?: { ...; } | undefined; }[] | undefined; module_comment?: string | undefined; dependencies?: string[] | undefined; dependents?: string[] | undefined; }[] | undefined; }): string',
 					return_type: 'string',
 					parameters: [
 						{
-							name: 'src_json',
-							type: '{ [x: string]: unknown; name: string; version: string; modules?: { [x: string]: unknown; path: string; identifiers?: { [x: string]: unknown; name: string; kind: "function" | "type" | "json" | "variable" | "class" | "constructor" | "component" | "css"; ... 19 more ...; alias_of?: { ...; } | undefined; }[] | undefined...',
+							name: 'source_json',
+							type: '{ [x: string]: unknown; name: string; version: string; modules?: { [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: "function" | "type" | "json" | "variable" | "class" | "constructor" | "component" | "css"; ... 19 more ...; alias_of?: { ...; } | undefined; }[] | undefine...',
 							optional: false,
 						},
 					],
 				},
 				{
-					name: 'src_modules_create',
+					name: 'source_modules_create',
 					kind: 'function',
 					source_line: 32,
 					type_signature:
-						'(exports: string | Record<string, unknown> | null | undefined, lib_path?: string, log?: Logger | undefined): { [x: string]: unknown; path: string; identifiers?: { [x: string]: unknown; ... 21 more ...; alias_of?: { ...; } | undefined; }[] | undefined; module_comment?: string | undefined; dependencies?: string[] | undefined; dependents?: string[] | undefined; }[] | undefined',
+						'(exports: string | Record<string, unknown> | null | undefined, lib_path?: string, log?: Logger | undefined): { [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; ... 21 more ...; alias_of?: { ...; } | undefined; }[] | undefined; module_comment?: string | undefined; dependencies?: string[] | undefined; dependents?: string[] | undefined; }[] | undefined',
 					return_type:
-						'{ [x: string]: unknown; path: string; identifiers?: { [x: string]: unknown; name: string; kind: "function" | "type" | "json" | "variable" | "class" | "constructor" | "component" | "css"; doc_comment?: string | undefined; ... 18 more ...; alias_of?: { ...; } | undefined; }[] | undefined; module_comment?: string | und...',
+						'{ [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: "function" | "type" | "json" | "variable" | "class" | "constructor" | "component" | "css"; doc_comment?: string | undefined; ... 18 more ...; alias_of?: { ...; } | undefined; }[] | undefined; module_comment?: string | un...',
 					parameters: [
 						{
 							name: 'exports',
