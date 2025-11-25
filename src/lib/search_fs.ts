@@ -3,21 +3,21 @@ import {to_array} from '@ryanatkn/belt/array.js';
 import {ensure_end} from '@ryanatkn/belt/string.js';
 import {isAbsolute, join} from 'node:path';
 import {existsSync, readdirSync} from 'node:fs';
-import type {File_Filter, Resolved_Path, Path_Filter} from '@ryanatkn/belt/path.js';
+import type {FileFilter, ResolvedPath, PathFilter} from '@ryanatkn/belt/path.js';
 
-export interface Search_Fs_Options {
+export interface SearchFsOptions {
 	/**
 	 * One or more filter functions, any of which can short-circuit the search by returning `false`.
 	 */
-	filter?: Path_Filter | Array<Path_Filter>;
+	filter?: PathFilter | Array<PathFilter>;
 	/**
 	 * One or more file filter functions. Every filter must pass for a file to be included.
 	 */
-	file_filter?: File_Filter | Array<File_Filter>;
+	file_filter?: FileFilter | Array<FileFilter>;
 	/**
 	 * Pass `null` or `false` to speed things up at the cost of volatile ordering.
 	 */
-	sort?: boolean | null | ((a: Resolved_Path, b: Resolved_Path) => number);
+	sort?: boolean | null | ((a: ResolvedPath, b: ResolvedPath) => number);
 	/**
 	 * Set to `true` to include directories. Defaults to `false`.
 	 */
@@ -30,8 +30,8 @@ export interface Search_Fs_Options {
 
 export const search_fs = (
 	dir: string,
-	options: Search_Fs_Options = EMPTY_OBJECT,
-): Array<Resolved_Path> => {
+	options: SearchFsOptions = EMPTY_OBJECT,
+): Array<ResolvedPath> => {
 	const {
 		filter,
 		file_filter,
@@ -51,22 +51,22 @@ export const search_fs = (
 
 	if (!existsSync(final_dir)) return [];
 
-	const paths: Array<Resolved_Path> = [];
+	const paths: Array<ResolvedPath> = [];
 	crawl(final_dir, paths, filters, file_filters, include_directories, null);
 
 	return sort ? paths.sort(typeof sort === 'boolean' ? default_sort : sort) : paths;
 };
 
-const default_sort = (a: Resolved_Path, b: Resolved_Path): number => a.path.localeCompare(b.path);
+const default_sort = (a: ResolvedPath, b: ResolvedPath): number => a.path.localeCompare(b.path);
 
 const crawl = (
 	dir: string,
-	paths: Array<Resolved_Path>,
-	filters: Array<Path_Filter> | undefined,
-	file_filter: Array<File_Filter> | undefined,
+	paths: Array<ResolvedPath>,
+	filters: Array<PathFilter> | undefined,
+	file_filter: Array<FileFilter> | undefined,
 	include_directories: boolean,
 	base_dir: string | null,
-): Array<Resolved_Path> => {
+): Array<ResolvedPath> => {
 	// This sync version is significantly faster than using the `fs/promises` version -
 	// it doesn't parallelize but that's not the common case in Gro.
 	const dirents = readdirSync(dir, {withFileTypes: true});

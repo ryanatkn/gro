@@ -1,8 +1,8 @@
 // This file contains systematic examples of all different kinds of exports in the `src_json`
 
 // Type declarations
-type Simple_Type = string;
-interface Simple_Interface {
+type SimpleType = string;
+interface SimpleInterface {
 	prop: string;
 }
 
@@ -18,13 +18,13 @@ const numeric_value = 123;
 function declared_function(): string {
 	return 'declared function result';
 }
-class Simple_Class {
+class SimpleClass {
 	property: string;
 	constructor(property: string) {
 		this.property = property;
 	}
 }
-const class_expression = class Named_Class {
+const class_expression = class NamedClass {
 	property: string;
 	constructor(property: string) {
 		this.property = property;
@@ -37,11 +37,11 @@ export const direct_arrow_function = (): string => 'direct arrow function';
 export function direct_function(): string {
 	return 'direct function';
 }
-export type Direct_Type = boolean;
-export interface Direct_Interface {
+export type DirectType = boolean;
+export interface DirectInterface {
 	value: boolean;
 }
-export class Direct_Class {
+export class DirectClass {
 	property: string;
 	constructor(property: string) {
 		this.property = property;
@@ -52,23 +52,23 @@ export class Direct_Class {
 export {simple_variable};
 export {arrow_function, multi_line_arrow};
 export {declared_function};
-export {Simple_Class};
+export {SimpleClass};
 export {class_expression};
 export {object_value, numeric_value};
 
 // Renamed exports
 export {simple_variable as renamed_variable};
 export {arrow_function as renamed_function};
-export {Simple_Class as Renamed_Class};
-export type {Simple_Type as Renamed_Type};
+export {SimpleClass as RenamedClass};
+export type {SimpleType as RenamedType};
 
 // Type exports
-export type {Simple_Type};
-export type {Simple_Interface};
-export type {simple_variable as Variable_Type};
+export type {SimpleType};
+export type {SimpleInterface};
+export type {simple_variable as VariableType};
 
 // Mixed exports with type specifier - using extra_variable to avoid duplicate
-export {extra_variable, type Simple_Type as Explicit_Type};
+export {extra_variable, type SimpleType as ExplicitType};
 
 // Default export
 export default arrow_function;

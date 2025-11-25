@@ -230,7 +230,7 @@ describe('build_task workspace state', () => {
 	});
 
 	describe('post-build workspace verification', () => {
-		test('throws Task_Error when plugin modifies source files during build', async () => {
+		test('throws TaskError when plugin modifies source files during build', async () => {
 			const {git_check_clean_workspace} = vi.mocked(await import('@ryanatkn/belt/git.js'));
 			const {is_build_cache_valid} = vi.mocked(await import('../lib/build_cache.ts'));
 
@@ -246,13 +246,13 @@ describe('build_task workspace state', () => {
 
 			const ctx = create_mock_build_task_context();
 
-			// Should throw Task_Error with specific message about modified files
+			// Should throw TaskError with specific message about modified files
 			await expect(build_task.run(ctx)).rejects.toThrow(
 				/Build process modified tracked files.*src\/lib\/foo\.ts/s,
 			);
 		});
 
-		test('throws Task_Error when clean workspace becomes dirty with untracked files', async () => {
+		test('throws TaskError when clean workspace becomes dirty with untracked files', async () => {
 			const {git_check_clean_workspace} = vi.mocked(await import('@ryanatkn/belt/git.js'));
 			const {is_build_cache_valid} = vi.mocked(await import('../lib/build_cache.ts'));
 
@@ -266,7 +266,7 @@ describe('build_task workspace state', () => {
 
 			const ctx = create_mock_build_task_context();
 
-			// Should throw Task_Error mentioning untracked files
+			// Should throw TaskError mentioning untracked files
 			await expect(build_task.run(ctx)).rejects.toThrow(
 				/Build process modified tracked files.*Untracked files/s,
 			);
@@ -301,7 +301,7 @@ describe('build_task workspace state', () => {
 			await expect(build_task.run(ctx)).resolves.toBeUndefined();
 		});
 
-		test('throws Task_Error when dirty workspace gets different dirty status during build', async () => {
+		test('throws TaskError when dirty workspace gets different dirty status during build', async () => {
 			const {git_check_clean_workspace} = vi.mocked(await import('@ryanatkn/belt/git.js'));
 			const {readdirSync} = await import('node:fs');
 

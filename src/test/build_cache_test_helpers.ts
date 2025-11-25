@@ -1,4 +1,4 @@
-import type {Build_Cache_Metadata, Build_Output_Entry} from '../lib/build_cache.ts';
+import type {BuildCacheMetadata, BuildOutputEntry} from '../lib/build_cache.ts';
 
 export {
 	create_mock_logger,
@@ -13,8 +13,8 @@ export {
  * Creates mock build cache metadata for testing.
  */
 export const create_mock_build_cache_metadata = (
-	overrides: Partial<Build_Cache_Metadata> = {},
-): Build_Cache_Metadata => ({
+	overrides: Partial<BuildCacheMetadata> = {},
+): BuildCacheMetadata => ({
 	version: '1',
 	git_commit: 'abc123',
 	build_cache_config_hash: 'jkl012',
@@ -28,8 +28,8 @@ export const create_mock_build_cache_metadata = (
  */
 export const create_mock_output_entry = (
 	path = 'build/index.html',
-	overrides: Partial<Build_Output_Entry> = {},
-): Build_Output_Entry => ({
+	overrides: Partial<BuildOutputEntry> = {},
+): BuildOutputEntry => ({
 	path,
 	hash: 'hash123',
 	size: 1024,

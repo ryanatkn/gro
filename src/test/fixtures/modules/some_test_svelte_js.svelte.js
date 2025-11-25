@@ -1,3 +1,3 @@
-export class Some_Test_Svelte_Js {
+export class SomeTestSvelteJs {
 	a = $state('ok');
 }

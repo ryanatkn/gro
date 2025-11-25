@@ -1,7 +1,7 @@
 import {join, resolve} from 'node:path';
 import {existsSync} from 'node:fs';
 import {identity} from '@ryanatkn/belt/function.js';
-import type {Path_Filter, Path_Id} from '@ryanatkn/belt/path.js';
+import type {PathFilter, PathId} from '@ryanatkn/belt/path.js';
 import {json_stringify_deterministic} from '@ryanatkn/belt/json.js';
 
 import {GRO_DIST_DIR, IS_THIS_GRO, paths} from './paths.ts';
@@ -15,9 +15,9 @@ import {
 	SVELTEKIT_DIST_DIRNAME,
 } from './constants.ts';
 import create_default_config from './gro.config.default.ts';
-import type {Create_Config_Plugins} from './plugin.ts';
-import type {Package_Json_Mapper} from './package_json.ts';
-import type {Parsed_Svelte_Config} from './svelte_config.ts';
+import type {CreateConfigPlugins} from './plugin.ts';
+import type {PackageJsonMapper} from './package_json.ts';
+import type {ParsedSvelteConfig} from './svelte_config.ts';
 import {to_hash} from './hash.ts';
 
 /**
@@ -32,27 +32,27 @@ export const EMPTY_BUILD_CACHE_CONFIG_HASH =
  * This is exposed to users in places like tasks and genfiles.
  * @see https://github.com/ryanatkn/gro/blob/main/src/docs/config.md
  */
-export interface Gro_Config extends Raw_Gro_Config {
+export interface GroConfig extends RawGroConfig {
 	/**
 	 * @see https://github.com/ryanatkn/gro/blob/main/src/docs/plugin.md
 	 */
-	plugins: Create_Config_Plugins;
+	plugins: CreateConfigPlugins;
 	/**
 	 * Maps the project's `package.json` before writing it to the filesystem.
 	 * The `package_json` argument may be mutated, but the return value is what's used by the caller.
 	 * Returning `null` is a no-op for the caller.
 	 */
-	map_package_json: Package_Json_Mapper | null;
+	map_package_json: PackageJsonMapper | null;
 	/**
 	 * The root directories to search for tasks given implicit relative input paths.
 	 * Defaults to `./src/lib`, then the cwd, then the Gro package dist.
 	 */
-	task_root_dirs: Array<Path_Id>;
+	task_root_dirs: Array<PathId>;
 	/**
 	 * When searching the filsystem for tasks and genfiles,
 	 * directories and files are included if they pass all of these filters.
 	 */
-	search_filters: Array<Path_Filter>;
+	search_filters: Array<PathFilter>;
 	/**
 	 * The CLI to use that's compatible with `node`.
 	 */
@@ -67,21 +67,21 @@ export interface Gro_Config extends Raw_Gro_Config {
 	 * SHA-256 hash of the user's `build_cache_config` from `gro.config.ts`.
 	 * This is computed during config normalization and the raw value is immediately deleted.
 	 * If no `build_cache_config` was provided, this is the hash of an empty string.
-	 * @see Raw_Gro_Config.build_cache_config
+	 * @see RawGroConfig.build_cache_config
 	 */
 	build_cache_config_hash: string;
 }
 
 /**
- * The relaxed variant of `Gro_Config` that users can provide via `gro.config.ts`.
- * Superset of `Gro_Config`.
+ * The relaxed variant of `GroConfig` that users can provide via `gro.config.ts`.
+ * Superset of `GroConfig`.
  * @see https://github.com/ryanatkn/gro/blob/main/src/docs/config.md
  */
-export interface Raw_Gro_Config {
-	plugins?: Create_Config_Plugins;
-	map_package_json?: Package_Json_Mapper | null;
+export interface RawGroConfig {
+	plugins?: CreateConfigPlugins;
+	map_package_json?: PackageJsonMapper | null;
 	task_root_dirs?: Array<string>;
-	search_filters?: Path_Filter | Array<Path_Filter> | null;
+	search_filters?: PathFilter | Array<PathFilter> | null;
 	js_cli?: string;
 	pm_cli?: string;
 	/**
@@ -104,12 +104,12 @@ export interface Raw_Gro_Config {
 		| (() => Record<string, unknown> | Promise<Record<string, unknown>>);
 }
 
-export type Create_Gro_Config = (
-	base_config: Gro_Config,
-	svelte_config?: Parsed_Svelte_Config,
-) => Raw_Gro_Config | Promise<Raw_Gro_Config>;
+export type CreateGroConfig = (
+	base_config: GroConfig,
+	svelte_config?: ParsedSvelteConfig,
+) => RawGroConfig | Promise<RawGroConfig>;
 
-export const create_empty_gro_config = (): Gro_Config => ({
+export const create_empty_gro_config = (): GroConfig => ({
 	plugins: () => [],
 	map_package_json: identity,
 	task_root_dirs: [
@@ -127,7 +127,7 @@ export const create_empty_gro_config = (): Gro_Config => ({
 /**
  * The regexp used by default to exclude directories and files
  * when searching the filesystem for tasks and genfiles.
- * Customize via `search_filters` in the `Gro_Config`.
+ * Customize via `search_filters` in the `GroConfig`.
  * See the test cases for the exact behavior.
  */
 export const SEARCH_EXCLUDER_DEFAULT = new RegExp(
@@ -145,11 +145,11 @@ export const SEARCH_EXCLUDER_DEFAULT = new RegExp(
 export const EXPORTS_EXCLUDER_DEFAULT = /(\.md|\.(test|ignore)\.|\/(test|ignore)\/)/;
 
 /**
- * Transforms a `Raw_Gro_Config` to the more strict `Gro_Config`.
+ * Transforms a `RawGroConfig` to the more strict `GroConfig`.
  * This allows users to provide a more relaxed config.
  * Hashes the `build_cache_config` and deletes the raw value for security.
  */
-export const cook_gro_config = async (raw_config: Raw_Gro_Config): Promise<Gro_Config> => {
+export const cook_gro_config = async (raw_config: RawGroConfig): Promise<GroConfig> => {
 	const empty_config = create_empty_gro_config();
 
 	// All of the raw config properties are optional,
@@ -198,11 +198,11 @@ export const cook_gro_config = async (raw_config: Raw_Gro_Config): Promise<Gro_C
 	};
 };
 
-export interface Gro_Config_Module {
-	readonly default: Raw_Gro_Config | Create_Gro_Config;
+export interface GroConfigModule {
+	readonly default: RawGroConfig | CreateGroConfig;
 }
 
-export const load_gro_config = async (dir = paths.root): Promise<Gro_Config> => {
+export const load_gro_config = async (dir = paths.root): Promise<GroConfig> => {
 	const default_config = await cook_gro_config(
 		await create_default_config(create_empty_gro_config()),
 	);
@@ -228,7 +228,7 @@ export const load_gro_config = async (dir = paths.root): Promise<Gro_Config> => 
 export const validate_gro_config_module: (
 	config_module: any,
 	config_path: string,
-) => asserts config_module is Gro_Config_Module = (config_module, config_path) => {
+) => asserts config_module is GroConfigModule = (config_module, config_path) => {
 	const config = config_module.default;
 	if (!config) {
 		throw Error(`Invalid Gro config module at ${config_path}: expected a default export`);

@@ -1,7 +1,7 @@
 import {describe, test, expect, vi, beforeEach, afterEach} from 'vitest';
 
 import {task as deploy_task} from '../lib/deploy.task.ts';
-import {Task_Error} from '../lib/task.ts';
+import {TaskError} from '../lib/task.ts';
 
 import {
 	create_mock_deploy_task_context,
@@ -14,7 +14,7 @@ import {
 vi.mock('@ryanatkn/belt/git.js', async (import_original) => {
 	const actual = await import_original<typeof import('@ryanatkn/belt/git.js')>();
 	return {
-		...actual, // Preserves Git_Branch, Git_Origin, and other exports
+		...actual, // Preserves GitBranch, GitOrigin, and other exports
 		git_check_clean_workspace: vi.fn(),
 		git_check_setting_pull_rebase: vi.fn(),
 		git_local_branch_exists: vi.fn(),
@@ -151,7 +151,7 @@ describe('deploy_task build integration', () => {
 				dry: true,
 			});
 
-			// Should throw Task_Error
+			// Should throw TaskError
 			await expect(deploy_task.run(ctx)).rejects.toThrow('does not exist after building');
 		});
 
@@ -169,13 +169,13 @@ describe('deploy_task build integration', () => {
 				dry: true,
 			});
 
-			// Should throw Task_Error mentioning dist
+			// Should throw TaskError mentioning dist
 			await expect(deploy_task.run(ctx)).rejects.toThrow(/does not exist after building.*dist/);
 		});
 	});
 
 	describe('build task failure handling', () => {
-		test('catches build error and throws Task_Error', async () => {
+		test('catches build error and throws TaskError', async () => {
 			const {existsSync} = await import('node:fs');
 			vi.mocked(existsSync).mockReturnValue(true);
 
@@ -184,7 +184,7 @@ describe('deploy_task build integration', () => {
 			// Mock build task failure
 			ctx.invoke_task = vi.fn().mockRejectedValue(new Error('Build failed: TypeScript errors'));
 
-			await expect(deploy_task.run(ctx)).rejects.toThrow(Task_Error);
+			await expect(deploy_task.run(ctx)).rejects.toThrow(TaskError);
 			await expect(deploy_task.run(ctx)).rejects.toThrow(/Deploy safely canceled/);
 		});
 
@@ -321,7 +321,7 @@ describe('deploy_task build integration', () => {
 				dry: true,
 			});
 
-			// Should throw Task_Error when build_dir doesn't exist
+			// Should throw TaskError when build_dir doesn't exist
 			await expect(deploy_task.run(ctx)).rejects.toThrow('does not exist after building');
 		});
 	});

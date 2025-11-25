@@ -1,7 +1,7 @@
 import {test, expect} from 'vitest';
 import {Logger} from '@ryanatkn/belt/log.js';
 import {readFile, writeFile} from 'node:fs/promises';
-import type {Fetch_Value_Cache} from '@ryanatkn/belt/fetch.js';
+import type {FetchValueCache} from '@ryanatkn/belt/fetch.js';
 
 import {update_changelog} from '../lib/changelog.ts';
 import {load_from_env} from '../lib/env.ts';
@@ -17,7 +17,7 @@ const fixture_path = 'src/test/fixtures/changelog_example.md';
 
 // TODO ideally this is just a ts file, but there's a problem where building outputs a `.d.ts` file
 // when importing from src/test/fixtures (fix in SvelteKit/Vite/tsconfig?) and I want to keep it in src/test/fixtures
-const changelog_cache_fixture: Fetch_Value_Cache = new Map(
+const changelog_cache_fixture: FetchValueCache = new Map(
 	JSON.parse(await readFile('src/test/fixtures/changelog_cache.json', 'utf8')),
 );
 

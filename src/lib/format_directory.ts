@@ -1,4 +1,4 @@
-import type {Spawn_Result} from '@ryanatkn/belt/process.js';
+import type {SpawnResult} from '@ryanatkn/belt/process.js';
 import type {Logger} from '@ryanatkn/belt/log.js';
 
 import {paths} from './paths.ts';
@@ -39,7 +39,7 @@ export const format_directory = async (
 	root_paths = ROOT_PATHS_DEFAULT,
 	prettier_cli: string | Cli = PRETTIER_CLI_DEFAULT,
 	pm_cli: string = PM_CLI_DEFAULT,
-): Promise<Spawn_Result> => {
+): Promise<SpawnResult> => {
 	const forwarded_args = to_forwarded_args(to_cli_name(prettier_cli));
 	forwarded_args[check ? 'check' : 'write'] = true;
 	const serialized_args = serialize_args(forwarded_args);

@@ -5,17 +5,17 @@ calls `vite dev` and `vite build` with some additional behaviors.
 
 ```ts
 // gro.config.ts
-import type {Gro_Config_Creator} from '@ryanatkn/gro';
+import type {GroConfigCreator} from '@ryanatkn/gro';
 import {gro_plugin_sveltekit_app} from '@ryanatkn/gro/gro_plugin_sveltekit_app.js';
 
-const config: Gro_Config_Creator = async (cfg) => {
+const config: GroConfigCreator = async (cfg) => {
 	cfg.plugins = async () => [
 		// this is included in the default config for SvelteKit projects:
 		gro_plugin_sveltekit_app({
-			// host_target?: Host_Target;
-			// well_known_package_json?: boolean | Map_Package_Json;
-			// well_known_src_json?: boolean | Map_Src_Json;
-			// well_known_src_files?: boolean | Copy_File_Filter;
+			// host_target?: HostTarget;
+			// well_known_package_json?: boolean | MapPackageJson;
+			// well_known_src_json?: boolean | MapSrcJson;
+			// well_known_src_files?: boolean | CopyFileFilter;
 		}),
 	];
 	return cfg;
@@ -24,20 +24,20 @@ const config: Gro_Config_Creator = async (cfg) => {
 export default config;
 
 // src/lib/gro_plugin_sveltekit_app.ts
-export type Host_Target = 'github_pages' | 'static' | 'node';
+export type HostTarget = 'github_pages' | 'static' | 'node';
 
-export interface Copy_File_Filter {
+export interface CopyFileFilter {
 	(file_path: string): boolean | Promise<boolean>;
 }
 
 // src/lib/package_json.ts
-export interface Map_Package_Json {
-	(package_json: Package_Json): Package_Json | null | Promise<Package_Json | null>;
+export interface MapPackageJson {
+	(package_json: PackageJson): PackageJson | null | Promise<PackageJson | null>;
 }
 
 // src/lib/src_json.ts
-export interface Map_Src_Json {
-	(src_json: Src_Json): Src_Json | null | Promise<Src_Json | null>;
+export interface MapSrcJson {
+	(src_json: SrcJson): SrcJson | null | Promise<SrcJson | null>;
 }
 ```
 

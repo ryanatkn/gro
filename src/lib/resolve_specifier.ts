@@ -1,16 +1,16 @@
 import {extname, isAbsolute, join, relative} from 'node:path';
 import {existsSync} from 'node:fs';
-import type {Path_Id} from '@ryanatkn/belt/path.js';
+import type {PathId} from '@ryanatkn/belt/path.js';
 
 import {replace_extension} from './paths.ts';
 
 // TODO ideally this module doesnt exist, but import.meta.resolve doesn't work in loaders last I tried
 
-export interface Resolved_Specifier {
+export interface ResolvedSpecifier {
 	/**
 	 * The resolved filesystem path for the specifier.
 	 */
-	path_id: Path_Id;
+	path_id: PathId;
 	/**
 	 * Same as `path_id` but includes `?raw` and other querystrings. (currently none)
 	 */
@@ -26,14 +26,14 @@ export interface Resolved_Specifier {
  * and infer the correct extension following Vite conventions.
  * If no `.js` file is found for the specifier on the filesystem, it assumes `.ts`.
  */
-export const resolve_specifier = (specifier: string, dir: string): Resolved_Specifier => {
+export const resolve_specifier = (specifier: string, dir: string): ResolvedSpecifier => {
 	const raw = specifier.endsWith('?raw'); // TODO more robust detection? other values?
 	const final_specifier = raw ? specifier.substring(0, specifier.length - 4) : specifier;
 	const absolute_path = isAbsolute(final_specifier) ? final_specifier : join(dir, final_specifier);
 
 	let mapped_path;
 	let path_id;
-	let namespace: Resolved_Specifier['namespace'];
+	let namespace: ResolvedSpecifier['namespace'];
 
 	const ext = extname(absolute_path);
 	const is_js = ext === '.js';

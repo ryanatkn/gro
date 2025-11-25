@@ -14,7 +14,7 @@ import {
 vi.mock('@ryanatkn/belt/git.js', async (import_original) => {
 	const actual = await import_original<typeof import('@ryanatkn/belt/git.js')>();
 	return {
-		...actual, // Preserves Git_Branch, Git_Origin, and other exports
+		...actual, // Preserves GitBranch, GitOrigin, and other exports
 		git_check_clean_workspace: vi.fn(),
 		git_check_setting_pull_rebase: vi.fn(),
 		git_local_branch_exists: vi.fn(),

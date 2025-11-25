@@ -2,14 +2,14 @@ import {spawnSync, type SpawnOptions} from 'node:child_process';
 import {
 	spawn,
 	spawn_process,
-	type Spawn_Result,
-	type Spawned_Process,
+	type SpawnResult,
+	type SpawnedProcess,
 } from '@ryanatkn/belt/process.js';
 import {join} from 'node:path';
 import {existsSync} from 'node:fs';
 import {fileURLToPath, type URL} from 'node:url';
 import type {Logger} from '@ryanatkn/belt/log.js';
-import type {Path_Id} from '@ryanatkn/belt/path.js';
+import type {PathId} from '@ryanatkn/belt/path.js';
 
 import {NODE_MODULES_DIRNAME} from './constants.ts';
 import {print_command_args} from './args.ts';
@@ -17,8 +17,8 @@ import {print_command_args} from './args.ts';
 // TODO maybe upstream to Belt?
 
 export type Cli =
-	| {kind: 'local'; name: string; id: Path_Id}
-	| {kind: 'global'; name: string; id: Path_Id};
+	| {kind: 'local'; name: string; id: PathId}
+	| {kind: 'global'; name: string; id: PathId};
 
 /**
  * Searches the filesystem for the CLI `name`, first local to the cwd and then globally.
@@ -50,7 +50,7 @@ export const spawn_cli = async (
 	args: Array<string> = [],
 	log?: Logger,
 	options?: SpawnOptions,
-): Promise<Spawn_Result | undefined> => {
+): Promise<SpawnResult | undefined> => {
 	const cli = resolve_cli(name_or_cli, args, options?.cwd, log, options);
 	if (!cli) return;
 	return spawn(cli.id, args, options);
@@ -66,7 +66,7 @@ export const spawn_cli_process = (
 	args: Array<string> = [],
 	log?: Logger,
 	options?: SpawnOptions,
-): Spawned_Process | undefined => {
+): SpawnedProcess | undefined => {
 	const cli = resolve_cli(name_or_cli, args, options?.cwd, log, options);
 	if (!cli) return;
 	return spawn_process(cli.id, args, options);

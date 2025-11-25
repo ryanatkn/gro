@@ -2,7 +2,7 @@ import {describe, test, expect, vi, beforeEach, afterEach} from 'vitest';
 import {resolve} from 'node:path';
 
 import {task as deploy_task} from '../lib/deploy.task.ts';
-import {Task_Error} from '../lib/task.ts';
+import {TaskError} from '../lib/task.ts';
 
 import {
 	create_mock_deploy_task_context,
@@ -303,13 +303,13 @@ describe('deploy_task commit and push', () => {
 
 			const ctx = create_mock_deploy_task_context({dry: false});
 
-			let error: Task_Error | undefined;
+			let error: TaskError | undefined;
 			try {
 				await deploy_task.run(ctx);
 			} catch (e) {
-				error = e as Task_Error;
+				error = e as TaskError;
 			}
-			expect(error).toBeInstanceOf(Task_Error);
+			expect(error).toBeInstanceOf(TaskError);
 			expect(error!.message).toContain('Deploy failed in a bad state');
 
 			expect(ctx.log.error).toHaveBeenCalledWith(
@@ -333,13 +333,13 @@ describe('deploy_task commit and push', () => {
 
 			const ctx = create_mock_deploy_task_context({dry: false});
 
-			let error: Task_Error | undefined;
+			let error: TaskError | undefined;
 			try {
 				await deploy_task.run(ctx);
 			} catch (e) {
-				error = e as Task_Error;
+				error = e as TaskError;
 			}
-			expect(error).toBeInstanceOf(Task_Error);
+			expect(error).toBeInstanceOf(TaskError);
 			expect(error!.message).toContain('Deploy failed in a bad state');
 
 			expect(ctx.log.error).toHaveBeenCalledWith(
@@ -363,13 +363,13 @@ describe('deploy_task commit and push', () => {
 
 			const ctx = create_mock_deploy_task_context({dry: false});
 
-			let error: Task_Error | undefined;
+			let error: TaskError | undefined;
 			try {
 				await deploy_task.run(ctx);
 			} catch (e) {
-				error = e as Task_Error;
+				error = e as TaskError;
 			}
-			expect(error).toBeInstanceOf(Task_Error);
+			expect(error).toBeInstanceOf(TaskError);
 			expect(error!.message).toContain('Deploy failed in a bad state');
 
 			expect(ctx.log.error).toHaveBeenCalledWith(
@@ -393,11 +393,11 @@ describe('deploy_task commit and push', () => {
 
 			const ctx = create_mock_deploy_task_context({dry: false});
 
-			let error: Task_Error | undefined;
+			let error: TaskError | undefined;
 			try {
 				await deploy_task.run(ctx);
 			} catch (e) {
-				error = e as Task_Error;
+				error = e as TaskError;
 			}
 			expect(error!.message).toContain('built but not pushed');
 		});

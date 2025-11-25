@@ -114,20 +114,20 @@ export const gen: Gen = {
 };
 ```
 
-The generate function receives a `Gen_Context` object:
+The generate function receives a `GenContext` object:
 
 ```ts
-export interface Gen_Context {
-	config: Gro_Config;
-	svelte_config: Parsed_Svelte_Config;
+export interface GenContext {
+	config: GroConfig;
+	svelte_config: ParsedSvelteConfig;
 	filer: Filer;
 	log: Logger;
 	timings: Timings;
-	invoke_task: Invoke_Task;
+	invoke_task: InvokeTask;
 	/**
 	 * Same as `import.meta.url` but in path form.
 	 */
-	origin_id: Path_Id;
+	origin_id: PathId;
 	/**
 	 * The `origin_id` relative to the root dir.
 	 */
@@ -137,7 +137,7 @@ export interface Gen_Context {
 	 * Only available when resolving dependencies dynamically.
 	 * `undefined` during actual generation.
 	 */
-	changed_file_id: Path_Id | undefined;
+	changed_file_id: PathId | undefined;
 }
 // export const gen: Gen = ({config, svelte_config, origin_id, origin_path, log}) => {
 ```
@@ -262,9 +262,9 @@ By default, they regenerate only when their imported dependencies or the file it
 The `dependencies` option provides fine-grained control:
 
 ```ts
-import type {Gen_Config} from '@ryanatkn/gro';
+import type {GenConfig} from '@ryanatkn/gro';
 
-export const gen: Gen_Config = {
+export const gen: GenConfig = {
 	generate: () => 'returns generated contents',
 
 	// regenerate on all file changes
@@ -306,7 +306,7 @@ import type {Task} from '@ryanatkn/gro';
 
 export const task: Task = {
 	run: async ({args, invoke_task}) => {
-		// this throws a `Task_Error` if anything is new or different
+		// this throws a `TaskError` if anything is new or different
 		await invoke_task('gen', {...args, check: true});
 	},
 };

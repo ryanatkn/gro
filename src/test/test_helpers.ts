@@ -6,11 +6,11 @@ import type {Logger} from '@ryanatkn/belt/log.js';
 import type {Timings} from '@ryanatkn/belt/timings.js';
 import {json_stringify_deterministic} from '@ryanatkn/belt/json.js';
 
-import type {Gro_Config} from '../lib/gro_config.ts';
+import type {GroConfig} from '../lib/gro_config.ts';
 import {to_hash} from '../lib/hash.ts';
 import type {Filer} from '../lib/filer.ts';
-import type {Parsed_Svelte_Config} from '../lib/svelte_config.ts';
-import type {Task_Context, Invoke_Task} from '../lib/task.ts';
+import type {ParsedSvelteConfig} from '../lib/svelte_config.ts';
+import type {TaskContext, InvokeTask} from '../lib/task.ts';
 
 /**
  * Creates a mock logger for testing.
@@ -29,12 +29,12 @@ export const create_mock_logger = (): Logger =>
  * Note: build_cache_config in overrides will be hashed during creation.
  */
 export const create_mock_config = async (
-	overrides: Partial<Gro_Config> & {
+	overrides: Partial<GroConfig> & {
 		build_cache_config?:
 			| Record<string, unknown>
 			| (() => Record<string, unknown> | Promise<Record<string, unknown>>);
 	} = {},
-): Promise<Gro_Config> => {
+): Promise<GroConfig> => {
 	// Extract and hash build_cache_config if provided
 	const {build_cache_config, ...rest} = overrides;
 	let build_cache_config_hash: string;
@@ -60,8 +60,8 @@ export const create_mock_config = async (
 		js_cli: 'node',
 		pm_cli: 'npm',
 		build_cache_config_hash,
-		...(rest as Partial<Gro_Config>),
-	} as Gro_Config;
+		...(rest as Partial<GroConfig>),
+	} as GroConfig;
 };
 
 /**
@@ -283,16 +283,16 @@ export const create_mock_filer = (): Filer =>
 	}) as unknown as Filer;
 
 /**
- * Creates a mock Parsed_Svelte_Config for testing.
+ * Creates a mock ParsedSvelteConfig for testing.
  */
-export const create_mock_svelte_config = (): Parsed_Svelte_Config =>
+export const create_mock_svelte_config = (): ParsedSvelteConfig =>
 	({
 		lib_path: 'src/lib',
 		routes_path: 'src/routes',
-	}) as Parsed_Svelte_Config;
+	}) as ParsedSvelteConfig;
 
 /**
- * Creates a mock Task_Context for testing.
+ * Creates a mock TaskContext for testing.
  * Combines all the mock helpers into a complete task context.
  * Uses a synchronous config with a default hash for simplicity.
  *
@@ -300,12 +300,12 @@ export const create_mock_svelte_config = (): Parsed_Svelte_Config =>
  * @param config_overrides - Partial config to override defaults
  * @param defaults - Default args to merge with provided args
  */
-export const create_mock_task_context = <T_Args extends object = any>(
-	args: Partial<T_Args> = {},
-	config_overrides: Partial<Gro_Config> = {},
-	defaults?: T_Args,
-): Task_Context<T_Args> => ({
-	args: (defaults ? {...defaults, ...args} : args) as T_Args,
+export const create_mock_task_context = <TArgs extends object = any>(
+	args: Partial<TArgs> = {},
+	config_overrides: Partial<GroConfig> = {},
+	defaults?: TArgs,
+): TaskContext<TArgs> => ({
+	args: (defaults ? {...defaults, ...args} : args) as TArgs,
 	config: {
 		plugins: () => [],
 		map_package_json: null,
@@ -315,10 +315,10 @@ export const create_mock_task_context = <T_Args extends object = any>(
 		pm_cli: 'npm',
 		build_cache_config_hash: 'test_hash',
 		...config_overrides,
-	} as Gro_Config,
+	} as GroConfig,
 	svelte_config: create_mock_svelte_config(),
 	filer: create_mock_filer(),
 	log: create_mock_logger(),
 	timings: create_mock_timings(),
-	invoke_task: vi.fn() as unknown as Invoke_Task,
+	invoke_task: vi.fn() as unknown as InvokeTask,
 });

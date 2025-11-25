@@ -38,14 +38,14 @@ The default config detects which plugins are included by inspecting the current 
 The implementation is at [`src/lib/plugin.ts`](../lib/plugin.ts) with more details.
 
 ```ts
-export interface Plugin<T_Plugin_Context extends Plugin_Context = Plugin_Context> {
+export interface Plugin<TPluginContext extends PluginContext = PluginContext> {
 	name: string;
-	setup?: (ctx: T_Plugin_Context) => void | Promise<void>;
-	adapt?: (ctx: T_Plugin_Context) => void | Promise<void>;
-	teardown?: (ctx: T_Plugin_Context) => void | Promise<void>;
+	setup?: (ctx: TPluginContext) => void | Promise<void>;
+	adapt?: (ctx: TPluginContext) => void | Promise<void>;
+	teardown?: (ctx: TPluginContext) => void | Promise<void>;
 }
 
-export interface Plugin_Context<T_Args = object> extends Task_Context<T_Args> {
+export interface PluginContext<TArgs = object> extends TaskContext<TArgs> {
 	dev: boolean;
 	watch: boolean;
 }

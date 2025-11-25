@@ -5,73 +5,73 @@ import type {Result} from '@ryanatkn/belt/result.js';
 import type {Timings} from '@ryanatkn/belt/timings.js';
 import {styleText as st} from 'node:util';
 import {existsSync} from 'node:fs';
-import type {Path_Id} from '@ryanatkn/belt/path.js';
+import type {PathId} from '@ryanatkn/belt/path.js';
 
 import {print_path} from './paths.ts';
-import type {Gro_Config} from './gro_config.ts';
-import type {Parsed_Svelte_Config} from './svelte_config.ts';
-import {load_modules, type Load_Modules_Failure, type Module_Meta} from './modules.ts';
+import type {GroConfig} from './gro_config.ts';
+import type {ParsedSvelteConfig} from './svelte_config.ts';
+import {load_modules, type LoadModulesFailure, type ModuleMeta} from './modules.ts';
 import {
-	Input_Path,
+	InputPath,
 	resolve_input_files,
 	resolve_input_paths,
-	type Resolved_Input_File,
-	type Resolved_Input_Path,
+	type ResolvedInputFile,
+	type ResolvedInputPath,
 } from './input_path.ts';
 import {search_fs} from './search_fs.ts';
 import type {Filer} from './filer.ts';
-import type {Invoke_Task} from './task.ts';
+import type {InvokeTask} from './task.ts';
 
 export const GEN_FILE_PATTERN_TEXT = 'gen';
 export const GEN_FILE_PATTERN = '.' + GEN_FILE_PATTERN_TEXT + '.';
 
 export const is_gen_path = (path: string): boolean => path.includes(GEN_FILE_PATTERN);
 
-export interface Gen_Result {
-	origin_id: Path_Id;
-	files: Array<Gen_File>;
+export interface GenResult {
+	origin_id: PathId;
+	files: Array<GenFile>;
 }
-export interface Gen_File {
-	id: Path_Id;
+export interface GenFile {
+	id: PathId;
 	content: string;
-	origin_id: Path_Id;
+	origin_id: PathId;
 	format: boolean;
 }
 
-export type Gen_Dependencies = 'all' | Gen_Dependencies_Config | Gen_Dependencies_Resolver;
+export type GenDependencies = 'all' | GenDependenciesConfig | GenDependenciesResolver;
 
-export interface Gen_Dependencies_Config {
+export interface GenDependenciesConfig {
 	patterns?: Array<RegExp>;
-	files?: Array<Path_Id>;
+	files?: Array<PathId>;
 }
 
-export type Gen_Dependencies_Resolver = (
-	ctx: Gen_Context,
-) => Gen_Dependencies_Config | 'all' | null | Promise<Gen_Dependencies_Config | 'all' | null>;
+export type GenDependenciesResolver = (
+	ctx: GenContext,
+) => GenDependenciesConfig | 'all' | null | Promise<GenDependenciesConfig | 'all' | null>;
 
-export type Gen = Gen_Function | Gen_Config;
+export type Gen = GenFunction | GenConfig;
 
-export type Gen_Function = (ctx: Gen_Context) => Raw_Gen_Result | Promise<Raw_Gen_Result>;
+export type GenFunction = (ctx: GenContext) => RawGenResult | Promise<RawGenResult>;
 
-// TODO add a Gen_Config_Raw variant and change `normalize_gen_config` to `gen_cook_config`
-export interface Gen_Config {
-	generate: Gen_Function;
-	dependencies?: Gen_Dependencies;
+// TODO add a GenConfigRaw variant and change `normalize_gen_config` to `gen_cook_config`
+export interface GenConfig {
+	generate: GenFunction;
+	dependencies?: GenDependencies;
 	// TODO think about what could be added
 	// cache?: boolean;
 }
 
-export interface Gen_Context {
-	config: Gro_Config;
-	svelte_config: Parsed_Svelte_Config;
+export interface GenContext {
+	config: GroConfig;
+	svelte_config: ParsedSvelteConfig;
 	filer: Filer;
 	log: Logger;
 	timings: Timings;
-	invoke_task: Invoke_Task;
+	invoke_task: InvokeTask;
 	/**
 	 * Same as `import.meta.url` but in path form.
 	 */
-	origin_id: Path_Id;
+	origin_id: PathId;
 	/**
 	 * The `origin_id` relative to the root dir.
 	 */
@@ -81,12 +81,12 @@ export interface Gen_Context {
 	 * Only available when resolving dependencies dynamically.
 	 * `undefined` during actual generation.
 	 */
-	changed_file_id: Path_Id | undefined;
+	changed_file_id: PathId | undefined;
 }
 
 // TODO consider other return data - metadata? effects? non-file build artifacts?
-export type Raw_Gen_Result = string | Raw_Gen_File | null | Array<Raw_Gen_Result>;
-export interface Raw_Gen_File {
+export type RawGenResult = string | RawGenFile | null | Array<RawGenResult>;
+export interface RawGenFile {
 	content: string;
 	// Defaults to file name without the `.gen`, and can be a relative path.
 	// TODO maybe support a transform pattern or callback fn? like '[stem].thing.[ext]'
@@ -94,37 +94,37 @@ export interface Raw_Gen_File {
 	format?: boolean; // defaults to `true`
 }
 
-export interface Gen_Results {
-	results: Array<Genfile_Module_Result>;
-	successes: Array<Genfile_Module_Result_Success>;
-	failures: Array<Genfile_Module_Result_Failure>;
+export interface GenResults {
+	results: Array<GenfileModuleResult>;
+	successes: Array<GenfileModuleResultSuccess>;
+	failures: Array<GenfileModuleResultFailure>;
 	input_count: number;
 	output_count: number;
 	elapsed: number;
 }
-export type Genfile_Module_Result = Genfile_Module_Result_Success | Genfile_Module_Result_Failure;
-export interface Genfile_Module_Result_Success {
+export type GenfileModuleResult = GenfileModuleResultSuccess | GenfileModuleResultFailure;
+export interface GenfileModuleResultSuccess {
 	ok: true;
-	id: Path_Id;
-	files: Array<Gen_File>;
+	id: PathId;
+	files: Array<GenFile>;
 	elapsed: number;
 }
-export interface Genfile_Module_Result_Failure {
+export interface GenfileModuleResultFailure {
 	ok: false;
-	id: Path_Id;
+	id: PathId;
 	reason: string;
 	error: Error;
 	elapsed: number;
 }
 
-export const to_gen_result = (origin_id: Path_Id, raw_result: Raw_Gen_Result): Gen_Result => {
+export const to_gen_result = (origin_id: PathId, raw_result: RawGenResult): GenResult => {
 	return {
 		origin_id,
 		files: to_gen_files(origin_id, raw_result),
 	};
 };
 
-const to_gen_files = (origin_id: Path_Id, raw_result: Raw_Gen_Result): Array<Gen_File> => {
+const to_gen_files = (origin_id: PathId, raw_result: RawGenResult): Array<GenFile> => {
 	if (raw_result === null) {
 		return [];
 	} else if (typeof raw_result === 'string') {
@@ -137,13 +137,13 @@ const to_gen_files = (origin_id: Path_Id, raw_result: Raw_Gen_Result): Array<Gen
 	return [to_gen_file(origin_id, raw_result)];
 };
 
-const to_gen_file = (origin_id: Path_Id, raw_gen_file: Raw_Gen_File): Gen_File => {
+const to_gen_file = (origin_id: PathId, raw_gen_file: RawGenFile): GenFile => {
 	const {content, filename, format = true} = raw_gen_file;
 	const id = to_output_file_id(origin_id, filename);
 	return {id, content, origin_id, format};
 };
 
-const to_output_file_id = (origin_id: Path_Id, raw_file_name: string | undefined): string => {
+const to_output_file_id = (origin_id: PathId, raw_file_name: string | undefined): string => {
 	if (raw_file_name === '') {
 		throw Error(`Output file name cannot be an empty string`);
 	}
@@ -186,7 +186,7 @@ export const to_output_file_name = (filename: string): string => {
 	return final_parts.join('.');
 };
 
-const validate_gen_files = (files: Array<Gen_File>) => {
+const validate_gen_files = (files: Array<GenFile>) => {
 	const ids = new Set();
 	for (const file of files) {
 		if (ids.has(file.id)) {
@@ -196,30 +196,30 @@ const validate_gen_files = (files: Array<Gen_File>) => {
 	}
 };
 
-export type Analyzed_Gen_Result =
+export type AnalyzedGenResult =
 	| {
-			file: Gen_File;
+			file: GenFile;
 			existing_content: string;
 			is_new: false;
 			has_changed: boolean;
 	  }
 	| {
-			file: Gen_File;
+			file: GenFile;
 			existing_content: null;
 			is_new: true;
 			has_changed: true;
 	  };
 
 export const analyze_gen_results = (
-	gen_results: Gen_Results,
-): Promise<Array<Analyzed_Gen_Result>> =>
+	gen_results: GenResults,
+): Promise<Array<AnalyzedGenResult>> =>
 	Promise.all(
 		gen_results.successes
 			.map((result) => result.files.map((file) => analyze_gen_result(file)))
 			.flat(),
 	);
 
-export const analyze_gen_result = async (file: Gen_File): Promise<Analyzed_Gen_Result> => {
+export const analyze_gen_result = async (file: GenFile): Promise<AnalyzedGenResult> => {
 	if (!existsSync(file.id)) {
 		return {
 			file,
@@ -238,8 +238,8 @@ export const analyze_gen_result = async (file: Gen_File): Promise<Analyzed_Gen_R
 };
 
 export const write_gen_results = async (
-	gen_results: Gen_Results,
-	analyzed_gen_results: Array<Analyzed_Gen_Result>,
+	gen_results: GenResults,
+	analyzed_gen_results: Array<AnalyzedGenResult>,
 	log: Logger,
 ): Promise<void> => {
 	await Promise.all(
@@ -265,26 +265,26 @@ export const write_gen_results = async (
 	);
 };
 
-export interface Found_Genfiles {
-	resolved_input_files: Array<Resolved_Input_File>;
-	resolved_input_files_by_root_dir: Map<Path_Id, Array<Resolved_Input_File>>;
-	resolved_input_paths: Array<Resolved_Input_Path>;
+export interface FoundGenfiles {
+	resolved_input_files: Array<ResolvedInputFile>;
+	resolved_input_files_by_root_dir: Map<PathId, Array<ResolvedInputFile>>;
+	resolved_input_paths: Array<ResolvedInputPath>;
 }
 
-export type Find_Genfiles_Result = Result<{value: Found_Genfiles}, Find_Genfiles_Failure>;
-export type Find_Genfiles_Failure =
+export type FindGenfilesResult = Result<{value: FoundGenfiles}, FindGenfilesFailure>;
+export type FindGenfilesFailure =
 	| {
 			type: 'unmapped_input_paths';
-			unmapped_input_paths: Array<Input_Path>;
-			resolved_input_paths: Array<Resolved_Input_Path>;
+			unmapped_input_paths: Array<InputPath>;
+			resolved_input_paths: Array<ResolvedInputPath>;
 			reasons: Array<string>;
 	  }
 	| {
 			type: 'input_directories_with_no_files';
-			input_directories_with_no_files: Array<Input_Path>;
-			resolved_input_files: Array<Resolved_Input_File>;
-			resolved_input_files_by_root_dir: Map<Path_Id, Array<Resolved_Input_File>>;
-			resolved_input_paths: Array<Resolved_Input_Path>;
+			input_directories_with_no_files: Array<InputPath>;
+			resolved_input_files: Array<ResolvedInputFile>;
+			resolved_input_files_by_root_dir: Map<PathId, Array<ResolvedInputFile>>;
+			resolved_input_paths: Array<ResolvedInputPath>;
 			reasons: Array<string>;
 	  };
 
@@ -292,11 +292,11 @@ export type Find_Genfiles_Failure =
  * Finds modules from input paths. (see `src/lib/input_path.ts` for more)
  */
 export const find_genfiles = (
-	input_paths: Array<Input_Path>,
-	root_dirs: Array<Path_Id>,
-	config: Gro_Config,
+	input_paths: Array<InputPath>,
+	root_dirs: Array<PathId>,
+	config: GroConfig,
 	timings?: Timings,
-): Find_Genfiles_Result => {
+): FindGenfilesResult => {
 	const extensions: Array<string> = [GEN_FILE_PATTERN];
 
 	// Check which extension variation works - if it's a directory, prefer others first!
@@ -357,28 +357,28 @@ export const find_genfiles = (
 	};
 };
 
-export interface Genfile_Module {
+export interface GenfileModule {
 	gen: Gen;
 }
 
-export type Genfile_Module_Meta = Module_Meta<Genfile_Module>;
+export type GenfileModuleMeta = ModuleMeta<GenfileModule>;
 
-export interface Loaded_Genfiles {
-	modules: Array<Genfile_Module_Meta>;
-	found_genfiles: Found_Genfiles;
+export interface LoadedGenfiles {
+	modules: Array<GenfileModuleMeta>;
+	found_genfiles: FoundGenfiles;
 }
 
-export type Load_Genfiles_Result = Result<{value: Loaded_Genfiles}, Load_Genfiles_Failure>;
-export type Load_Genfiles_Failure = Load_Modules_Failure<Genfile_Module_Meta>;
+export type LoadGenfilesResult = Result<{value: LoadedGenfiles}, LoadGenfilesFailure>;
+export type LoadGenfilesFailure = LoadModulesFailure<GenfileModuleMeta>;
 
 export const load_genfiles = async (
-	found_genfiles: Found_Genfiles,
+	found_genfiles: FoundGenfiles,
 	timings?: Timings,
-): Promise<Load_Genfiles_Result> => {
+): Promise<LoadGenfilesResult> => {
 	const loaded_modules = await load_modules(
 		found_genfiles.resolved_input_files,
 		validate_gen_module,
-		(resolved_input_file, mod): Genfile_Module_Meta => ({id: resolved_input_file.id, mod}),
+		(resolved_input_file, mod): GenfileModuleMeta => ({id: resolved_input_file.id, mod}),
 		timings,
 	);
 	if (!loaded_modules.ok) {
@@ -390,7 +390,7 @@ export const load_genfiles = async (
 	};
 };
 
-export const validate_gen_module = (mod: Record<string, any>): mod is Genfile_Module => {
+export const validate_gen_module = (mod: Record<string, any>): mod is GenfileModule => {
 	if (typeof mod.gen === 'function') return true;
 	if (typeof mod.gen === 'object' && mod.gen !== null && typeof mod.gen.generate === 'function') {
 		return true;
@@ -398,5 +398,5 @@ export const validate_gen_module = (mod: Record<string, any>): mod is Genfile_Mo
 	return false;
 };
 
-export const normalize_gen_config = (gen: Gen): Gen_Config =>
+export const normalize_gen_config = (gen: Gen): GenConfig =>
 	typeof gen === 'function' ? {generate: gen} : gen;

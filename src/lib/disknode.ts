@@ -1,9 +1,9 @@
-import type {Path_Id} from '@ryanatkn/belt/path.js';
+import type {PathId} from '@ryanatkn/belt/path.js';
 
 // TODO extract more here from Filer
 
 export interface Disknode {
-	id: Path_Id;
+	id: PathId;
 	// TODO figure out the best API that makes this lazy
 	/**
 	 * `null` contents means it doesn't exist.
@@ -16,6 +16,6 @@ export interface Disknode {
 	external: boolean;
 	ctime: number | null;
 	mtime: number | null;
-	dependents: Map<Path_Id, Disknode>;
-	dependencies: Map<Path_Id, Disknode>;
+	dependents: Map<PathId, Disknode>;
+	dependencies: Map<PathId, Disknode>;
 }

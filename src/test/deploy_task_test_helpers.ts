@@ -1,8 +1,8 @@
 import {vi} from 'vitest';
 
-import type {Task_Context} from '../lib/task.ts';
+import type {TaskContext} from '../lib/task.ts';
 import type {Args} from '../lib/deploy.task.ts';
-import type {Gro_Config} from '../lib/gro_config.ts';
+import type {GroConfig} from '../lib/gro_config.ts';
 import {create_mock_task_context} from './test_helpers.ts';
 
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
@@ -12,8 +12,8 @@ import {create_mock_task_context} from './test_helpers.ts';
  */
 export const create_mock_deploy_task_context = (
 	args: Partial<Args> = {},
-	config: Partial<Gro_Config> = {},
-): Task_Context<Args> =>
+	config: Partial<GroConfig> = {},
+): TaskContext<Args> =>
 	create_mock_task_context(args, config, {
 		source: 'main',
 		target: 'deploy',

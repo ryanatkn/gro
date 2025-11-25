@@ -1,7 +1,7 @@
 import {z} from 'zod';
 import {spawn_cli} from '@ryanatkn/gro/cli.js';
 
-import {Task_Error, type Task} from './task.ts';
+import {TaskError, type Task} from './task.ts';
 import {find_cli} from './cli.ts';
 import {has_dep} from './package_json.ts';
 import {serialize_args, to_implicit_forwarded_args} from './args.ts';
@@ -31,11 +31,11 @@ export const task: Task<Args> = {
 		const {_: patterns, dir, fail_without_tests, t} = args;
 
 		if (!has_dep(VITEST_CLI)) {
-			throw new Task_Error('no test runner found, install vitest');
+			throw new TaskError('no test runner found, install vitest');
 		}
 
 		if (!find_cli(VITEST_CLI)) {
-			throw new Task_Error('vitest is a dependency but not installed; run `npm i`?');
+			throw new TaskError('vitest is a dependency but not installed; run `npm i`?');
 		}
 
 		const vitest_args = ['run', ...patterns];
@@ -52,7 +52,7 @@ export const task: Task<Args> = {
 
 		const spawned = await spawn_cli(VITEST_CLI, vitest_args);
 		if (!spawned?.ok) {
-			throw new Task_Error(`vitest failed with exit code ${spawned?.code}`);
+			throw new TaskError(`vitest failed with exit code ${spawned?.code}`);
 		}
 	},
 };

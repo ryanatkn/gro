@@ -1,37 +1,37 @@
 import type {Timings} from '@ryanatkn/belt/timings.js';
-import {Unreachable_Error} from '@ryanatkn/belt/error.js';
+import {UnreachableError} from '@ryanatkn/belt/error.js';
 import type {Result} from '@ryanatkn/belt/result.js';
 import {print_error} from '@ryanatkn/belt/print.js';
 import {pathToFileURL} from 'node:url';
-import type {Path_Id} from '@ryanatkn/belt/path.js';
+import type {PathId} from '@ryanatkn/belt/path.js';
 
-import type {Resolved_Input_File} from './input_path.ts';
+import type {ResolvedInputFile} from './input_path.ts';
 import {print_path} from './paths.ts';
 
-export interface Module_Meta<T_Module extends Record<string, any> = Record<string, any>> {
-	id: Path_Id;
-	mod: T_Module;
+export interface ModuleMeta<TModule extends Record<string, any> = Record<string, any>> {
+	id: PathId;
+	mod: TModule;
 }
 
-export type Load_Module_Result<T_Module> = Result<
-	{id: Path_Id; mod: T_Module},
-	Load_Module_Failure
+export type LoadModuleResult<TModule> = Result<
+	{id: PathId; mod: TModule},
+	LoadModuleFailure
 >;
-export type Load_Module_Failure =
-	| {ok: false; type: 'failed_import'; id: Path_Id; error: Error}
+export type LoadModuleFailure =
+	| {ok: false; type: 'failed_import'; id: PathId; error: Error}
 	| {
 			ok: false;
 			type: 'failed_validation';
-			id: Path_Id;
+			id: PathId;
 			mod: Record<string, any>;
 			validation: string;
 	  };
 
-export const load_module = async <T_Module extends Record<string, any>>(
-	id: Path_Id,
-	validate?: (mod: Record<string, any>) => mod is T_Module,
+export const load_module = async <TModule extends Record<string, any>>(
+	id: PathId,
+	validate?: (mod: Record<string, any>) => mod is TModule,
 	bust_cache?: boolean,
-): Promise<Load_Module_Result<T_Module>> => {
+): Promise<LoadModuleResult<TModule>> => {
 	let mod;
 	try {
 		let import_path = id;
@@ -50,34 +50,34 @@ export const load_module = async <T_Module extends Record<string, any>>(
 	return {ok: true, id, mod};
 };
 
-export interface Load_Modules_Failure<T_Module_Meta extends Module_Meta> {
+export interface LoadModulesFailure<TModuleMeta extends ModuleMeta> {
 	type: 'load_module_failures';
-	load_module_failures: Array<Load_Module_Failure>;
+	load_module_failures: Array<LoadModuleFailure>;
 	reasons: Array<string>;
 	// still return the modules and timings, deferring to the caller
-	modules: Array<T_Module_Meta>;
+	modules: Array<TModuleMeta>;
 }
 
-export type Load_Modules_Result<T_Module_Meta extends Module_Meta> = Result<
+export type LoadModulesResult<TModuleMeta extends ModuleMeta> = Result<
 	{
-		modules: Array<T_Module_Meta>;
+		modules: Array<TModuleMeta>;
 	},
-	Load_Modules_Failure<T_Module_Meta>
+	LoadModulesFailure<TModuleMeta>
 >;
 
 // TODO parallelize and sort afterwards
 export const load_modules = async <
-	T_Module extends Record<string, any>,
-	T_Module_Meta extends Module_Meta<T_Module>,
+	TModule extends Record<string, any>,
+	TModuleMeta extends ModuleMeta<TModule>,
 >(
-	resolved_input_files: Array<Resolved_Input_File>,
-	validate: (mod: any) => mod is T_Module,
-	map_module_meta: (resolved_input_file: Resolved_Input_File, mod: T_Module) => T_Module_Meta,
+	resolved_input_files: Array<ResolvedInputFile>,
+	validate: (mod: any) => mod is TModule,
+	map_module_meta: (resolved_input_file: ResolvedInputFile, mod: TModule) => TModuleMeta,
 	timings?: Timings,
-): Promise<Load_Modules_Result<T_Module_Meta>> => {
+): Promise<LoadModulesResult<TModuleMeta>> => {
 	const timing_to_load_modules = timings?.start('load modules');
-	const modules: Array<T_Module_Meta> = [];
-	const load_module_failures: Array<Load_Module_Failure> = [];
+	const modules: Array<TModuleMeta> = [];
+	const load_module_failures: Array<LoadModuleFailure> = [];
 	const reasons: Array<string> = [];
 	for (const resolved_input_file of resolved_input_files.values()) {
 		const {id, input_path} = resolved_input_file;
@@ -100,7 +100,7 @@ export const load_modules = async <
 					break;
 				}
 				default:
-					throw new Unreachable_Error(result);
+					throw new UnreachableError(result);
 			}
 		}
 	}

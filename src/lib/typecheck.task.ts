@@ -1,7 +1,7 @@
 import {print_spawn_result} from '@ryanatkn/belt/process.js';
 import {z} from 'zod';
 
-import {Task_Error, type Task} from './task.ts';
+import {TaskError, type Task} from './task.ts';
 import {serialize_args, to_forwarded_args} from './args.ts';
 import {find_cli, spawn_cli, spawn_cli_process} from './cli.ts';
 import {sveltekit_sync_if_available} from './sveltekit_helpers.ts';
@@ -53,7 +53,7 @@ export const task: Task<Args> = {
 				const svelte_check_result = await spawned.closed;
 
 				if (!svelte_check_result.ok) {
-					throw new Task_Error(`Failed to typecheck. ${print_spawn_result(svelte_check_result)}`);
+					throw new TaskError(`Failed to typecheck. ${print_spawn_result(svelte_check_result)}`);
 				}
 			}
 
@@ -68,12 +68,12 @@ export const task: Task<Args> = {
 			const serialized = serialize_args(forwarded);
 			const svelte_check_result = await spawn_cli(found_typescript_cli, serialized, log);
 			if (!svelte_check_result?.ok) {
-				throw new Task_Error(`Failed to typecheck. ${print_spawn_result(svelte_check_result!)}`);
+				throw new TaskError(`Failed to typecheck. ${print_spawn_result(svelte_check_result!)}`);
 			}
 			return;
 		}
 
-		throw new Task_Error(
+		throw new TaskError(
 			`Failed to typecheck because neither \`${svelte_check_cli}\` nor \`${typescript_cli}\` was found`,
 		);
 	},

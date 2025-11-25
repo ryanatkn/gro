@@ -60,7 +60,7 @@ Key features:
   - Forwarded args override direct args: `gro test --a 1 -- gro test --a 2`
     results in `{a: 2}`
   - `invoke_task` automatically forwards CLI args to invoked tasks
-- Error handling - `Task_Error` suppresses stack trace, `Silent_Error` exits
+- Error handling - `TaskError` suppresses stack trace, `SilentError` exits
   silently
 
 Task composition patterns:
@@ -73,13 +73,13 @@ Task composition patterns:
 Task context:
 
 ```typescript
-interface Task_Context<T_Args = object> {
-  args: T_Args;
-  config: Gro_Config;
-  svelte_config: Parsed_Svelte_Config;
+interface TaskContext<TArgs = object> {
+  args: TArgs;
+  config: GroConfig;
+  svelte_config: ParsedSvelteConfig;
   log: Logger;
   timings: Timings;
-  invoke_task: Invoke_Task;
+  invoke_task: InvokeTask;
 }
 ```
 
@@ -186,16 +186,16 @@ When it runs:
 Gen context:
 
 ```typescript
-interface Gen_Context {
-  config: Gro_Config;
-  svelte_config: Parsed_Svelte_Config;
+interface GenContext {
+  config: GroConfig;
+  svelte_config: ParsedSvelteConfig;
   filer: Filer;
   log: Logger;
   timings: Timings;
-  invoke_task: Invoke_Task;
-  origin_id: Path_Id; // Same as import.meta.url in path form
+  invoke_task: InvokeTask;
+  origin_id: PathId; // Same as import.meta.url in path form
   origin_path: string; // origin_id relative to root dir
-  changed_file_id: Path_Id | undefined; // Only during dependency checking
+  changed_file_id: PathId | undefined; // Only during dependency checking
 }
 ```
 
@@ -216,7 +216,7 @@ export const gen: Gen = async () => [
 ];
 
 // With dependencies:
-export const gen: Gen_Config = {
+export const gen: GenConfig = {
   generate: () => "generated content",
   dependencies: {
     patterns: [/\.json$/],
@@ -250,14 +250,14 @@ Dev vs build:
 Plugin interface:
 
 ```typescript
-interface Plugin<T_Plugin_Context extends Plugin_Context = Plugin_Context> {
+interface Plugin<TPluginContext extends PluginContext = PluginContext> {
   name: string;
-  setup?: (ctx: T_Plugin_Context) => void | Promise<void>;
-  adapt?: (ctx: T_Plugin_Context) => void | Promise<void>;
-  teardown?: (ctx: T_Plugin_Context) => void | Promise<void>;
+  setup?: (ctx: TPluginContext) => void | Promise<void>;
+  adapt?: (ctx: TPluginContext) => void | Promise<void>;
+  teardown?: (ctx: TPluginContext) => void | Promise<void>;
 }
 
-interface Plugin_Context<T_Args = object> extends Task_Context<T_Args> {
+interface PluginContext<TArgs = object> extends TaskContext<TArgs> {
   dev: boolean;
   watch: boolean;
 }
@@ -277,7 +277,7 @@ Builtin plugins:
 
 [Full documentation: src/docs/config.md](src/docs/config.md)
 
-Optional `gro.config.ts` at project root exports `Create_Gro_Config` function or
+Optional `gro.config.ts` at project root exports `CreateGroConfig` function or
 config object. If absent, uses default config from
 `src/lib/gro.config.default.ts`.
 
@@ -291,11 +291,11 @@ Default config behavior: Auto-detects project type by checking filesystem:
 Config interface:
 
 ```typescript
-interface Gro_Config {
-  plugins: Create_Config_Plugins; // Function returning array of plugins
-  map_package_json: Map_Package_Json | null; // Hook for package.json automations
-  task_root_dirs: Array<Path_Id>; // Where to search for tasks
-  search_filters: Array<Path_Filter>; // Exclude patterns for discovery
+interface GroConfig {
+  plugins: CreateConfigPlugins; // Function returning array of plugins
+  map_package_json: MapPackageJson | null; // Hook for package.json automations
+  task_root_dirs: Array<PathId>; // Where to search for tasks
+  search_filters: Array<PathFilter>; // Exclude patterns for discovery
   js_cli: string; // Node-compatible CLI (default: 'node')
   pm_cli: string; // npm-compatible CLI (default: 'npm')
 }
@@ -309,9 +309,9 @@ to opt out.
 Example config:
 
 ```typescript
-import type { Create_Gro_Config } from "@ryanatkn/gro";
+import type { CreateGroConfig } from "@ryanatkn/gro";
 
-const config: Create_Gro_Config = async (base_config) => {
+const config: CreateGroConfig = async (base_config) => {
   // Extend default plugins
   const base_plugins = base_config.plugins;
   base_config.plugins = async (ctx) => {

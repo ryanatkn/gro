@@ -6,8 +6,8 @@ import type {Filer} from '../lib/filer.ts';
 import * as filer from '../lib/filer.ts';
 import type {Logger} from '@ryanatkn/belt/log.js';
 import type {Timings} from '@ryanatkn/belt/timings.js';
-import type {Gro_Config} from '../lib/gro_config.ts';
-import type {Invoke_Task} from '../lib/task.ts';
+import type {GroConfig} from '../lib/gro_config.ts';
+import type {InvokeTask} from '../lib/task.ts';
 import type {Disknode} from '../lib/disknode.ts';
 import * as modules from '../lib/modules.ts';
 
@@ -81,11 +81,11 @@ const create_mock_logger = (): Logger =>
 	}) as unknown as Logger;
 
 // Helper to create mock config
-const create_mock_config = (): Gro_Config =>
+const create_mock_config = (): GroConfig =>
 	({
 		plugins: [],
 		build_cache_config_hash: 'hash123',
-	}) as unknown as Gro_Config;
+	}) as unknown as GroConfig;
 
 // Helper to create mock timings
 const create_mock_timings = (): Timings =>
@@ -94,7 +94,7 @@ const create_mock_timings = (): Timings =>
 	}) as unknown as Timings;
 
 // Helper to create mock invoke_task
-const create_mock_invoke_task = (): Invoke_Task => vi.fn() as unknown as Invoke_Task;
+const create_mock_invoke_task = (): InvokeTask => vi.fn() as unknown as InvokeTask;
 
 beforeEach(() => {
 	vi.clearAllMocks();

@@ -112,7 +112,7 @@
 
 ### Patch Changes
 
-- support `null` as return value from `Gen_Dependencies_Resolver` ([1955bb5](https://github.com/ryanatkn/gro/commit/1955bb5))
+- support `null` as return value from `GenDependenciesResolver` ([1955bb5](https://github.com/ryanatkn/gro/commit/1955bb5))
 
 ## 0.167.0
 
@@ -162,7 +162,7 @@
 
 ### Patch Changes
 
-- add filer, log, timings, and invoke_task to `Gen_Context` ([#557](https://github.com/ryanatkn/gro/pull/557))
+- add filer, log, timings, and invoke_task to `GenContext` ([#557](https://github.com/ryanatkn/gro/pull/557))
 
 ## 0.163.0
 
@@ -192,7 +192,7 @@
 
 - rename `cook_gro_config` from `normalize_gro_config` ([#553](https://github.com/ryanatkn/gro/pull/553))
 - change fn signature of `update_package_json` ([#552](https://github.com/ryanatkn/gro/pull/552))
-- move `Source_File` from filer.ts and rename to `Disknode` in disknode.ts ([#553](https://github.com/ryanatkn/gro/pull/553))
+- move `SourceFile` from filer.ts and rename to `Disknode` in disknode.ts ([#553](https://github.com/ryanatkn/gro/pull/553))
 - rearrange some constants ([#551](https://github.com/ryanatkn/gro/pull/551))
 - - add `vitest` support ([#551](https://github.com/ryanatkn/gro/pull/551))
   - remove `uvu` support
@@ -224,7 +224,7 @@
 
 - extract `pkg.ts` to Fuz ([#550](https://github.com/ryanatkn/gro/pull/550))
 - upgrade zod@4 ([#550](https://github.com/ryanatkn/gro/pull/550))
-- remove `Declaration_Kind`, use instead `import type {Src_Module_Declaration_Kind} from '@ryanatkn/belt/src_json.js';` ([#550](https://github.com/ryanatkn/gro/pull/550))
+- remove `DeclarationKind`, use instead `import type {SrcModuleDeclarationKind} from '@ryanatkn/belt/src_json.js';` ([#550](https://github.com/ryanatkn/gro/pull/550))
 
 ### Patch Changes
 
@@ -250,7 +250,7 @@
 
 ### Minor Changes
 
-- change `Src_Module` to make `declarations` optional, ([#547](https://github.com/ryanatkn/gro/pull/547))
+- change `SrcModule` to make `declarations` optional, ([#547](https://github.com/ryanatkn/gro/pull/547))
   and when generated replace any empty arrays with `undefined`
 
 ## 0.157.1
@@ -270,7 +270,7 @@
     - new: `'./package.json': {path: 'package.json', declarations: [{name: 'default', kind: 'json'}]},`
     - old: `'./package.json': {path: 'package.json', declarations: []},`
   - add `parse_exports.ts`
-  - add `Src_Module_Declaration_Kind`
+  - add `SrcModuleDeclarationKind`
 
 - bump oxc-parser@0.68.1 from 0.67 ([#546](https://github.com/ryanatkn/gro/pull/546))
   - also bump zod patch
@@ -448,7 +448,7 @@
 
 - upgrade `@ryanatkn/belt0.26.0` from `0.25.3` ([#516](https://github.com/ryanatkn/gro/pull/516))
 - upgrade `esm-env@1.1.4` from `1.0.0` ([#517](https://github.com/ryanatkn/gro/pull/517))
-- change `Options` interface convention to fully qualify the identifer, so `Options` becomes `Filer_Options` etc ([#515](https://github.com/ryanatkn/gro/pull/515))
+- change `Options` interface convention to fully qualify the identifer, so `Options` becomes `FilerOptions` etc ([#515](https://github.com/ryanatkn/gro/pull/515))
 
 ### Patch Changes
 
@@ -902,7 +902,7 @@
   - improve CLI resolution performance
 
 - rename `package.json` `icon` to `glyph` ([#476](https://github.com/ryanatkn/gro/pull/476))
-- add `Raw_Gro_Config` that's transformed to `Gro_Config` via `normalized_config`, ([#473](https://github.com/ryanatkn/gro/pull/473))
+- add `RawGroConfig` that's transformed to `GroConfig` via `normalized_config`, ([#473](https://github.com/ryanatkn/gro/pull/473))
   changing usage after creation to be more strict but keeping user definitions relaxed
 
 ### Patch Changes
@@ -964,9 +964,9 @@
 
 ### Minor Changes
 
-- rename `Path_Id` from `Source_Id` ([#468](https://github.com/ryanatkn/gro/pull/468))
+- rename `PathId` from `SourceId` ([#468](https://github.com/ryanatkn/gro/pull/468))
 - upgrade node@22.3 ([#469](https://github.com/ryanatkn/gro/pull/469))
-- rename `Path_Info` from `Path_Data` ([#469](https://github.com/ryanatkn/gro/pull/469))
+- rename `PathInfo` from `PathData` ([#469](https://github.com/ryanatkn/gro/pull/469))
 - rewrite task resolution ([#468](https://github.com/ryanatkn/gro/pull/468))
 - rewrite `search_fs` to not use globs ([#469](https://github.com/ryanatkn/gro/pull/469))
 
@@ -1054,7 +1054,7 @@
 
 ### Patch Changes
 
-- add optional `motto` property to `Package_Json` ([600143f](https://github.com/ryanatkn/gro/commit/600143f))
+- add optional `motto` property to `PackageJson` ([600143f](https://github.com/ryanatkn/gro/commit/600143f))
 
 ## 0.115.0
 
@@ -1078,7 +1078,7 @@
 
 ### Patch Changes
 
-- add `origin` to `gro publish` and brand Git_Branch and Git_Origin ([028a509](https://github.com/ryanatkn/gro/commit/028a509))
+- add `origin` to `gro publish` and brand GitBranch and GitOrigin ([028a509](https://github.com/ryanatkn/gro/commit/028a509))
 - add `origin` to `gro commit` options ([3c9bfe8](https://github.com/ryanatkn/gro/commit/3c9bfe8))
 - add `--force` flag to `gro upgrade` ([6a16004](https://github.com/ryanatkn/gro/commit/6a16004))
 - error on `gro changeset` if no lib detected ([ac55984](https://github.com/ryanatkn/gro/commit/ac55984))
@@ -1395,7 +1395,7 @@
 
 ### Minor Changes
 
-- rename to `Proper_Snakes` ([#433](https://github.com/ryanatkn/gro/pull/433))
+- rename to `ProperSnakes` ([#433](https://github.com/ryanatkn/gro/pull/433))
 
 ### Patch Changes
 
@@ -1517,7 +1517,7 @@
 
 ### Minor Changes
 
-- rename Create_Gro_Config from Gro_ConfigCreator ([#422](https://github.com/ryanatkn/gro/pull/422))
+- rename CreateGroConfig from GroConfigCreator ([#422](https://github.com/ryanatkn/gro/pull/422))
 - add package.gen.ts for importing package.json data ([#419](https://github.com/ryanatkn/gro/pull/419))
 - change config to explictly publish `static/.well-known/package.json` and delete `gro exports` ([#419](https://github.com/ryanatkn/gro/pull/419))
 - rename `clean_fs.ts` from `clean.ts` ([#419](https://github.com/ryanatkn/gro/pull/419))
@@ -1659,7 +1659,7 @@
 
 ### Patch Changes
 
-- relax some Package_Json types" ([284ce48](https://github.com/ryanatkn/gro/commit/284ce48))
+- relax some PackageJson types" ([284ce48](https://github.com/ryanatkn/gro/commit/284ce48))
 
 ## 0.87.3
 
@@ -1671,13 +1671,13 @@
 
 ### Patch Changes
 
-- passthrough unknown `Package_Json` properties ([f16eaab](https://github.com/ryanatkn/gro/commit/f16eaab))
+- passthrough unknown `PackageJson` properties ([f16eaab](https://github.com/ryanatkn/gro/commit/f16eaab))
 
 ## 0.87.1
 
 ### Patch Changes
 
-- add `Package_Json` schema ([#408](https://github.com/ryanatkn/gro/pull/408))
+- add `PackageJson` schema ([#408](https://github.com/ryanatkn/gro/pull/408))
 
 ## 0.87.0
 
@@ -1788,7 +1788,7 @@
 ### Minor Changes
 
 - replace the build system with a loader and esbuild plugins and integrate svelte-package ([#382](https://github.com/ryanatkn/gro/pull/382))
-- rename VocabSchema to Json_Schema ([#394](https://github.com/ryanatkn/gro/pull/394))
+- rename VocabSchema to JsonSchema ([#394](https://github.com/ryanatkn/gro/pull/394))
 
 ## 0.81.2
 
@@ -1869,7 +1869,7 @@
 
 ## 0.75.4
 
-- export `Json_Schema` type from root
+- export `JsonSchema` type from root
   ([commit](https://github.com/ryanatkn/gro/commit/8b3956994060165cccf7c0d6b692ea8e89b7e63a))
 
 ## 0.75.3
@@ -1953,12 +1953,12 @@
 
 ## 0.68.2
 
-- relax the type of `Raw_Gen_Result` to let the array have any value
+- relax the type of `RawGenResult` to let the array have any value
   ([6faf95b](https://github.com/ryanatkn/gro/commit/6faf95b36bc0769aee45d0c96454a445ebb8485c))
 
 ## 0.68.1
 
-- relax the type of `Raw_Gen_Result` to include an ignored `null`
+- relax the type of `RawGenResult` to include an ignored `null`
   ([a8cf511](https://github.com/ryanatkn/gro/commit/a8cf51129ff53a4d8257c1f2e728aee2ffd7f2ac))
 
 ## 0.68.0
@@ -2364,7 +2364,7 @@
 
 ## 0.39.0
 
-- **break**: rename to `PascalCase` from `Proper_Snake_Case`
+- **break**: rename to `PascalCase` from `ProperSnakeCase`
   ([#263](https://github.com/ryanatkn/gro/pull/263),
   [#264](https://github.com/ryanatkn/gro/pull/264))
 
@@ -2387,7 +2387,7 @@
 ## 0.36.0
 
 - **break**: fix test sourcemaps by adding
-  [`Gro_Config` option `main_test`](src/docs/config.md#main_test),
+  [`GroConfig` option `main_test`](src/docs/config.md#main_test),
   which initializes projects with a conventional `lib/main.test.ts`
   for installing sourcemaps and other global test concerns (update: reverted in 0.37.0)
   ([#259](https://github.com/ryanatkn/gro/pull/259))
@@ -2438,12 +2438,12 @@
 
 ## 0.33.0
 
-- **break**: refactor `postprocess` into builders and delete `Build` and `Build_Result`
+- **break**: refactor `postprocess` into builders and delete `Build` and `BuildResult`
   ([#243](https://github.com/ryanatkn/gro/pull/243))
 - **break**: rename builders and builder util
   ([#244](https://github.com/ryanatkn/gro/pull/244))
 - **break**: merge `util/path_filter.ts` and `util/file.ts` into `util/filter.ts`,
-  rename `Id_Filter` from `File_Filter`, and add `Id_Stats_Filter`
+  rename `IdFilter` from `FileFilter`, and add `IdStatsFilter`
   ([#246](https://github.com/ryanatkn/gro/pull/246))
 - support JSON imports
   ([#245](https://github.com/ryanatkn/gro/pull/245))
@@ -2704,7 +2704,7 @@
 
 ## 0.21.4
 
-- export `Unreachable_Error` and time util from root
+- export `UnreachableError` and time util from root
   ([#184](https://github.com/ryanatkn/gro/pull/184))
 
 ## 0.21.3
@@ -2759,7 +2759,7 @@
     and do not export individual functions
   - rename `pathExists` to `exists`
   - remove `readJson`
-- add abstract class `Fs` and implement `Memory_Fs`
+- add abstract class `Fs` and implement `MemoryFs`
   to complement the `fs-extra` implementation at `src/lib/node.ts`
   ([#173](https://github.com/ryanatkn/gro/pull/173))
 
@@ -2800,8 +2800,8 @@
 
 - **break**: rename `src/lib/equal.ts` module from `deepEqual.ts`
   ([#162](https://github.com/ryanatkn/gro/pull/162))
-- **break**: rename `Gro_Config_Partial` from `PartialGro_Config`
-  and `Build_Config_Partial` from `PartialBuild_Config`
+- **break**: rename `GroConfigPartial` from `PartialGroConfig`
+  and `BuildConfigPartial` from `PartialBuild_Config`
   ([#164](https://github.com/ryanatkn/gro/pull/164))
 - make serve task work for production SvelteKit builds
   ([#163](https://github.com/ryanatkn/gro/pull/163))
@@ -2889,18 +2889,18 @@
 
 ## 0.11.3
 
-- add `events` to `Task_Context` and its generic type to `Task`,
+- add `events` to `TaskContext` and its generic type to `Task`,
   so tasks can communicate with each other using a normal Node `EventEmitter`
   ([#143](https://github.com/ryanatkn/gro/pull/143))
   - events aren't great for everything;
     this PR also documents a value mapping pattern convention for tasks in `src/lib/README.md`
-- `gro build` now correctly builds only `Build_Config`s that have `dist: true`,
+- `gro build` now correctly builds only `BuildConfig`s that have `dist: true`,
   allowing users to customize the `dist/` output in each `gro build` via `gro.config.ts`
   ([#144](https://github.com/ryanatkn/gro/pull/144))
 
 ## 0.11.2
 
-- add a generic parameter to `Task` to type its `Task_Args`
+- add a generic parameter to `Task` to type its `TaskArgs`
   ([#142](https://github.com/ryanatkn/gro/pull/142))
 
 ## 0.11.1
@@ -2919,7 +2919,7 @@
 
 ## 0.10.1
 
-- add the `Filer` option `filter` with type `Path_Filter`
+- add the `Filer` option `filter` with type `PathFilter`
   and ignore directories like `.git` by default
   ([#138](https://github.com/ryanatkn/gro/pull/138))
 

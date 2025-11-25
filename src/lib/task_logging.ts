@@ -4,11 +4,11 @@ import {plural} from '@ryanatkn/belt/string.js';
 import {print_value} from '@ryanatkn/belt/print.js';
 import {z} from 'zod';
 
-import type {Arg_Schema} from './args.ts';
-import type {Loaded_Tasks, Task_Module_Meta} from './task.ts';
+import type {ArgSchema} from './args.ts';
+import type {LoadedTasks, TaskModuleMeta} from './task.ts';
 import {print_path} from './paths.ts';
 
-export const log_tasks = (log: Logger, loaded_tasks: Loaded_Tasks, log_intro = true): void => {
+export const log_tasks = (log: Logger, loaded_tasks: LoadedTasks, log_intro = true): void => {
 	const {modules, found_tasks} = loaded_tasks;
 	const {resolved_input_files_by_root_dir} = found_tasks;
 
@@ -52,7 +52,7 @@ export const log_error_reasons = (log: Logger, reasons: Array<string>): void => 
 
 const ARGS_PROPERTY_NAME = '[...args]';
 
-export const log_task_help = (log: Logger, meta: Task_Module_Meta): void => {
+export const log_task_help = (log: Logger, meta: TaskModuleMeta): void => {
 	const {
 		name,
 		mod: {task},
@@ -92,17 +92,17 @@ export const log_task_help = (log: Logger, meta: Task_Module_Meta): void => {
 // The following Zod helpers only need to support single-depth schemas for CLI args,
 // but there's generic recursion to handle things like `ZodOptional` and `ZodDefault`.
 
-interface Arg_Schema_Property {
+interface ArgSchemaProperty {
 	name: string;
-	schema: Arg_Schema;
+	schema: ArgSchema;
 }
 
 // TODO this blocks many usecases like unions, and it's only implemented for CLI arg types, need better support for arbitrary schemas
 const to_arg_properties = (
 	schema: z.ZodType,
-	meta: Task_Module_Meta,
+	meta: TaskModuleMeta,
 	log: Logger,
-): Array<Arg_Schema_Property> => {
+): Array<ArgSchemaProperty> => {
 	const {def} = schema;
 
 	// TODO overly restrictive, support optional objects and/or unions?
@@ -112,11 +112,11 @@ const to_arg_properties = (
 	}
 	const shape = (def as z.core.$ZodObjectDef).shape;
 
-	const properties: Array<Arg_Schema_Property> = [];
+	const properties: Array<ArgSchemaProperty> = [];
 	for (const name in shape) {
 		if ('no-' + name in shape) continue;
 		const s = shape[name] as z.ZodType;
-		const schema: Arg_Schema = {
+		const schema: ArgSchema = {
 			type: to_args_schema_type(s),
 			description: to_args_schema_description(s) || '',
 			default: to_args_schema_default(s),
@@ -129,7 +129,7 @@ const to_arg_properties = (
 const to_max_length = <T>(items: Array<T>, toString: (item: T) => string) =>
 	items.reduce((max, m) => Math.max(toString(m).length, max), 0);
 
-const to_args_schema_type = (schema: z.ZodType): Arg_Schema['type'] => {
+const to_args_schema_type = (schema: z.ZodType): ArgSchema['type'] => {
 	const {def} = schema._zod;
 	switch (def.type) {
 		case 'string':

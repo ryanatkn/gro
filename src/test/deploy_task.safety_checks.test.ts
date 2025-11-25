@@ -1,7 +1,7 @@
 import {describe, test, expect, vi, beforeEach, afterEach} from 'vitest';
 
 import {task as deploy_task} from '../lib/deploy.task.ts';
-import {Task_Error} from '../lib/task.ts';
+import {TaskError} from '../lib/task.ts';
 
 import {
 	create_mock_deploy_task_context,
@@ -67,13 +67,13 @@ describe('deploy_task safety checks', () => {
 	});
 
 	describe('custom target branch validation', () => {
-		test('throws Task_Error when target is custom and force=false', async () => {
+		test('throws TaskError when target is custom and force=false', async () => {
 			const ctx = create_mock_deploy_task_context({
 				target: 'custom-branch',
 				force: false,
 			});
 
-			await expect(deploy_task.run(ctx)).rejects.toThrow(Task_Error);
+			await expect(deploy_task.run(ctx)).rejects.toThrow(TaskError);
 			await expect(deploy_task.run(ctx)).rejects.toThrow(/custom target branch/);
 			await expect(deploy_task.run(ctx)).rejects.toThrow(/custom-branch/);
 			await expect(deploy_task.run(ctx)).rejects.toThrow(/--force/);
@@ -109,27 +109,27 @@ describe('deploy_task safety checks', () => {
 	});
 
 	describe('dangerous branch validation', () => {
-		test('throws Task_Error when target is main and dangerous=false', async () => {
+		test('throws TaskError when target is main and dangerous=false', async () => {
 			const ctx = create_mock_deploy_task_context({
 				target: 'main',
 				force: true, // Need force for custom target
 				dangerous: false,
 			});
 
-			await expect(deploy_task.run(ctx)).rejects.toThrow(Task_Error);
+			await expect(deploy_task.run(ctx)).rejects.toThrow(TaskError);
 			await expect(deploy_task.run(ctx)).rejects.toThrow(/appears very dangerous/);
 			await expect(deploy_task.run(ctx)).rejects.toThrow(/main/);
 			await expect(deploy_task.run(ctx)).rejects.toThrow(/--dangerous/);
 		});
 
-		test('throws Task_Error when target is master and dangerous=false', async () => {
+		test('throws TaskError when target is master and dangerous=false', async () => {
 			const ctx = create_mock_deploy_task_context({
 				target: 'master',
 				force: true, // Need force for custom target
 				dangerous: false,
 			});
 
-			await expect(deploy_task.run(ctx)).rejects.toThrow(Task_Error);
+			await expect(deploy_task.run(ctx)).rejects.toThrow(TaskError);
 			await expect(deploy_task.run(ctx)).rejects.toThrow(/appears very dangerous/);
 			await expect(deploy_task.run(ctx)).rejects.toThrow(/master/);
 			await expect(deploy_task.run(ctx)).rejects.toThrow(/--dangerous/);
@@ -158,7 +158,7 @@ describe('deploy_task safety checks', () => {
 				dangerous: true,
 			});
 
-			await expect(deploy_task.run(ctx1)).rejects.toThrow(Task_Error);
+			await expect(deploy_task.run(ctx1)).rejects.toThrow(TaskError);
 			await expect(deploy_task.run(ctx1)).rejects.toThrow(/--force/);
 
 			// Missing dangerous
@@ -168,13 +168,13 @@ describe('deploy_task safety checks', () => {
 				dangerous: false,
 			});
 
-			await expect(deploy_task.run(ctx2)).rejects.toThrow(Task_Error);
+			await expect(deploy_task.run(ctx2)).rejects.toThrow(TaskError);
 			await expect(deploy_task.run(ctx2)).rejects.toThrow(/--dangerous/);
 		});
 	});
 
 	describe('workspace cleanliness check', () => {
-		test('throws Task_Error when workspace has uncommitted changes', async () => {
+		test('throws TaskError when workspace has uncommitted changes', async () => {
 			const {git_check_clean_workspace} = vi.mocked(await import('@ryanatkn/belt/git.js'));
 
 			vi.mocked(git_check_clean_workspace).mockResolvedValue(
@@ -183,18 +183,18 @@ describe('deploy_task safety checks', () => {
 
 			const ctx = create_mock_deploy_task_context();
 
-			await expect(deploy_task.run(ctx)).rejects.toThrow(Task_Error);
+			await expect(deploy_task.run(ctx)).rejects.toThrow(TaskError);
 			await expect(deploy_task.run(ctx)).rejects.toThrow(/uncommitted changes/);
 		});
 
-		test('throws Task_Error when workspace has untracked files', async () => {
+		test('throws TaskError when workspace has untracked files', async () => {
 			const {git_check_clean_workspace} = vi.mocked(await import('@ryanatkn/belt/git.js'));
 
 			vi.mocked(git_check_clean_workspace).mockResolvedValue('Untracked files:\n  temp.ts');
 
 			const ctx = create_mock_deploy_task_context();
 
-			await expect(deploy_task.run(ctx)).rejects.toThrow(Task_Error);
+			await expect(deploy_task.run(ctx)).rejects.toThrow(TaskError);
 			await expect(deploy_task.run(ctx)).rejects.toThrow(/uncommitted changes/);
 		});
 
@@ -213,14 +213,14 @@ describe('deploy_task safety checks', () => {
 	});
 
 	describe('git pull.rebase setting check', () => {
-		test('throws Task_Error when pull.rebase is not configured', async () => {
+		test('throws TaskError when pull.rebase is not configured', async () => {
 			const {git_check_setting_pull_rebase} = vi.mocked(await import('@ryanatkn/belt/git.js'));
 
 			vi.mocked(git_check_setting_pull_rebase).mockResolvedValue(false);
 
 			const ctx = create_mock_deploy_task_context();
 
-			await expect(deploy_task.run(ctx)).rejects.toThrow(Task_Error);
+			await expect(deploy_task.run(ctx)).rejects.toThrow(TaskError);
 			await expect(deploy_task.run(ctx)).rejects.toThrow(/pull\.rebase/);
 			await expect(deploy_task.run(ctx)).rejects.toThrow(/git config --global pull\.rebase true/);
 		});
@@ -240,7 +240,7 @@ describe('deploy_task safety checks', () => {
 	});
 
 	describe('post-pull workspace check', () => {
-		test('throws Task_Error when workspace is dirty after pull', async () => {
+		test('throws TaskError when workspace is dirty after pull', async () => {
 			const {git_check_clean_workspace} = vi.mocked(await import('@ryanatkn/belt/git.js'));
 
 			// Clean initially, dirty after pull
@@ -254,13 +254,13 @@ describe('deploy_task safety checks', () => {
 
 			const ctx = create_mock_deploy_task_context();
 
-			let error: Task_Error | undefined;
+			let error: TaskError | undefined;
 			try {
 				await deploy_task.run(ctx);
 			} catch (e) {
-				error = e as Task_Error;
+				error = e as TaskError;
 			}
-			expect(error).toBeInstanceOf(Task_Error);
+			expect(error).toBeInstanceOf(TaskError);
 			expect(error!.message).toContain('out of sync with the remote');
 			expect(error!.message).toContain('git rebase --abort');
 		});

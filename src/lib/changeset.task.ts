@@ -6,19 +6,19 @@ import {readFile, writeFile} from 'node:fs/promises';
 import {join} from 'node:path';
 import {existsSync, readdirSync} from 'node:fs';
 import {
-	Git_Origin,
+	GitOrigin,
 	git_check_fully_staged_workspace,
 	git_push_to_create,
 } from '@ryanatkn/belt/git.js';
 
-import {Task_Error, type Task} from './task.ts';
+import {TaskError, type Task} from './task.ts';
 import {find_cli, spawn_cli} from './cli.ts';
 import {has_sveltekit_library} from './sveltekit_helpers.ts';
 import {
 	CHANGESET_CLI,
 	CHANGESET_DIR,
-	Changeset_Access,
-	Changeset_Bump,
+	ChangesetAccess,
+	ChangesetBump,
 	CHANGESET_PUBLIC_ACCESS,
 	CHANGESET_RESTRICTED_ACCESS,
 } from './changeset_helpers.ts';
@@ -37,7 +37,7 @@ export const Args = z.strictObject({
 	minor: z.boolean().meta({description: 'bump the minor version'}).default(false),
 	major: z.boolean().meta({description: 'bump the major version'}).default(false),
 	dir: z.string().meta({description: 'changeset dir'}).default(CHANGESET_DIR),
-	access: Changeset_Access.describe(
+	access: ChangesetAccess.describe(
 		"changeset 'access' config value, the default depends on package.json#private",
 	).optional(),
 	changelog: z
@@ -49,7 +49,7 @@ export const Args = z.strictObject({
 		.boolean()
 		.meta({description: 'opt out of installing the changelog package'})
 		.default(false),
-	origin: Git_Origin.describe('git origin to deploy to').default('origin'),
+	origin: GitOrigin.describe('git origin to deploy to').default('origin'),
 	changeset_cli: z.string().meta({description: 'the changeset CLI to use'}).default(CHANGESET_CLI),
 });
 export type Args = z.infer<typeof Args>;
@@ -87,14 +87,14 @@ export const task: Task<Args> = {
 			config,
 		} = ctx;
 
-		if (!message && (minor || major)) throw new Task_Error('cannot bump version without a message');
-		if (minor && major) throw new Task_Error('cannot bump both minor and major');
+		if (!message && (minor || major)) throw new TaskError('cannot bump version without a message');
+		if (minor && major) throw new TaskError('cannot bump both minor and major');
 
-		const bump: Changeset_Bump = minor ? 'minor' : major ? 'major' : 'patch';
+		const bump: ChangesetBump = minor ? 'minor' : major ? 'major' : 'patch';
 
 		const found_changeset_cli = find_cli(changeset_cli);
 		if (!found_changeset_cli) {
-			throw new Task_Error(
+			throw new TaskError(
 				'changeset command not found: install @changesets/cli locally or globally',
 			);
 		}
@@ -103,7 +103,7 @@ export const task: Task<Args> = {
 
 		const has_sveltekit_library_result = await has_sveltekit_library(package_json, svelte_config);
 		if (!has_sveltekit_library_result.ok) {
-			throw new Task_Error(
+			throw new TaskError(
 				'Failed to find SvelteKit library: ' + has_sveltekit_library_result.message,
 			);
 		}
@@ -165,7 +165,7 @@ const create_changeset_adder = (
 	repo_name: string,
 	dir: string,
 	message: string,
-	bump: Changeset_Bump,
+	bump: ChangesetBump,
 ) => {
 	const filenames_before = readdirSync(dir);
 	return async () => {
@@ -187,7 +187,7 @@ const create_changeset_adder = (
 const create_new_changeset = (
 	repo_name: string,
 	message: string,
-	bump: Changeset_Bump,
+	bump: ChangesetBump,
 ): string => `---
 "${repo_name}": ${bump}
 ---
@@ -195,13 +195,13 @@ const create_new_changeset = (
 ${message}
 `;
 
-type Changeset_Callback = (config: WrittenConfig) => WrittenConfig | Promise<WrittenConfig>;
+type ChangesetCallback = (config: WrittenConfig) => WrittenConfig | Promise<WrittenConfig>;
 
-type Update_Written_Config = (path: string, cb: Changeset_Callback) => Promise<boolean>;
+type UpdateWrittenConfig = (path: string, cb: ChangesetCallback) => Promise<boolean>;
 
 // TODO refactor all of this with zod and package_json helpers - util file helper? JSON parse pluggable
 
-const update_changeset_config: Update_Written_Config = async (path, cb) => {
+const update_changeset_config: UpdateWrittenConfig = async (path, cb) => {
 	const config_contents = await load_changeset_config_contents(path);
 	const config = parse_changeset_config(config_contents);
 

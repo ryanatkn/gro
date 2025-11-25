@@ -1,38 +1,38 @@
-import type {Task_Context} from './task.ts';
+import type {TaskContext} from './task.ts';
 
 /**
  * Gro `Plugin`s enable custom behavior during `gro dev` and `gro build`.
  * In contrast, `Adapter`s use the results of `gro build` to produce final artifacts.
  */
-export interface Plugin<T_Plugin_Context extends Plugin_Context = Plugin_Context> {
+export interface Plugin<TPluginContext extends PluginContext = PluginContext> {
 	name: string;
-	setup?: (ctx: T_Plugin_Context) => void | Promise<void>;
-	adapt?: (ctx: T_Plugin_Context) => void | Promise<void>;
-	teardown?: (ctx: T_Plugin_Context) => void | Promise<void>;
+	setup?: (ctx: TPluginContext) => void | Promise<void>;
+	adapt?: (ctx: TPluginContext) => void | Promise<void>;
+	teardown?: (ctx: TPluginContext) => void | Promise<void>;
 }
 
-export type Create_Config_Plugins<T_Plugin_Context extends Plugin_Context = Plugin_Context> = (
-	ctx: T_Plugin_Context,
-) => Array<Plugin<T_Plugin_Context>> | Promise<Array<Plugin<T_Plugin_Context>>>;
+export type CreateConfigPlugins<TPluginContext extends PluginContext = PluginContext> = (
+	ctx: TPluginContext,
+) => Array<Plugin<TPluginContext>> | Promise<Array<Plugin<TPluginContext>>>;
 
-export interface Plugin_Context<T_Args = object> extends Task_Context<T_Args> {
+export interface PluginContext<TArgs = object> extends TaskContext<TArgs> {
 	dev: boolean;
 	watch: boolean;
 }
 
 /** See `Plugins.create` for a usage example. */
-export class Plugins<T_Plugin_Context extends Plugin_Context> {
-	readonly ctx: T_Plugin_Context;
-	readonly instances: Array<Plugin<T_Plugin_Context>>;
+export class Plugins<TPluginContext extends PluginContext> {
+	readonly ctx: TPluginContext;
+	readonly instances: Array<Plugin<TPluginContext>>;
 
-	constructor(ctx: T_Plugin_Context, instances: Array<Plugin>) {
+	constructor(ctx: TPluginContext, instances: Array<Plugin>) {
 		this.ctx = ctx;
 		this.instances = instances;
 	}
 
-	static async create<T_Plugin_Context extends Plugin_Context>(
-		ctx: T_Plugin_Context,
-	): Promise<Plugins<T_Plugin_Context>> {
+	static async create<TPluginContext extends PluginContext>(
+		ctx: TPluginContext,
+	): Promise<Plugins<TPluginContext>> {
 		const {timings} = ctx;
 		const timing_to_create = timings.start('plugins.create');
 		const instances: Array<Plugin> = await ctx.config.plugins(ctx);
@@ -88,7 +88,7 @@ export class Plugins<T_Plugin_Context extends Plugin_Context> {
 /**
  * Replaces a plugin by name in `plugins` without mutating the param.
  * Throws if the plugin name cannot be found.
- * @param plugins - accepts the same types as the return value of `Create_Config_Plugins`
+ * @param plugins - accepts the same types as the return value of `CreateConfigPlugins`
  * @param new_plugin
  * @param name - @default new_plugin.name
  * @returns `plugins` with `new_plugin` at the index of the plugin with `name`

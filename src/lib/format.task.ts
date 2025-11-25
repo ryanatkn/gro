@@ -1,7 +1,7 @@
 import {print_spawn_result} from '@ryanatkn/belt/process.js';
 import {z} from 'zod';
 
-import {Task_Error, type Task} from './task.ts';
+import {TaskError, type Task} from './task.ts';
 import {format_directory} from './format_directory.ts';
 import {paths} from './paths.ts';
 
@@ -31,7 +31,7 @@ export const task: Task<Args> = {
 			config.pm_cli,
 		);
 		if (!format_result.ok) {
-			throw new Task_Error(
+			throw new TaskError(
 				`Failed ${check ? 'formatting check' : 'to format'}. ${print_spawn_result(format_result)}`,
 			);
 		}

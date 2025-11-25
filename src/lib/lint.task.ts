@@ -1,7 +1,7 @@
 import {print_spawn_result} from '@ryanatkn/belt/process.js';
 import {z} from 'zod';
 
-import {Task_Error, type Task} from './task.ts';
+import {TaskError, type Task} from './task.ts';
 import {serialize_args, to_forwarded_args} from './args.ts';
 import {find_cli, spawn_cli} from './cli.ts';
 
@@ -32,7 +32,7 @@ export const task: Task<Args> = {
 		const serialized_args = serialize_args(forwarded_args);
 		const eslintResult = await spawn_cli(found_eslint_cli, serialized_args, log);
 		if (!eslintResult?.ok) {
-			throw new Task_Error(`ESLint found some problems. ${print_spawn_result(eslintResult!)}`);
+			throw new TaskError(`ESLint found some problems. ${print_spawn_result(eslintResult!)}`);
 		}
 	},
 };

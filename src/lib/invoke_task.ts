@@ -5,11 +5,11 @@ import {Logger} from '@ryanatkn/belt/log.js';
 
 import {to_forwarded_args, type Args} from './args.ts';
 import {run_task} from './run_task.ts';
-import {to_input_path, Raw_Input_Path} from './input_path.ts';
-import {find_tasks, load_tasks, Silent_Error} from './task.ts';
+import {to_input_path, RawInputPath} from './input_path.ts';
+import {find_tasks, load_tasks, SilentError} from './task.ts';
 import {load_gro_package_json} from './package_json.ts';
 import {log_tasks, log_error_reasons} from './task_logging.ts';
-import type {Gro_Config} from './gro_config.ts';
+import type {GroConfig} from './gro_config.ts';
 import {Filer} from './filer.ts';
 
 /**
@@ -35,9 +35,9 @@ import {Filer} from './filer.ts';
  * @param initial_timings - The timings to use for the top-level task, `null` for composed tasks.
  */
 export const invoke_task = async (
-	task_name: Raw_Input_Path,
+	task_name: RawInputPath,
 	args: Args | undefined,
-	config: Gro_Config,
+	config: GroConfig,
 	initial_filer?: Filer,
 	initial_timings?: Timings | null,
 	parent_log?: Logger,
@@ -84,7 +84,7 @@ export const invoke_task = async (
 	const found = find_tasks([input_path], task_root_dirs, config);
 	if (!found.ok) {
 		log_error_reasons(log, found.reasons);
-		throw new Silent_Error();
+		throw new SilentError();
 	}
 
 	// Found a match either in the current working directory or Gro's directory.
@@ -95,7 +95,7 @@ export const invoke_task = async (
 	const loaded = await load_tasks(found_tasks);
 	if (!loaded.ok) {
 		log_error_reasons(log, loaded.reasons);
-		throw new Silent_Error();
+		throw new SilentError();
 	}
 	const loaded_tasks = loaded.value;
 

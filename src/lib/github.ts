@@ -2,13 +2,13 @@
 // for now it's just calling a single endpoint so we do it manually
 // and we specify just the types we need
 
-import {Fetch_Value_Cache, fetch_value} from '@ryanatkn/belt/fetch.js';
+import {FetchValueCache, fetch_value} from '@ryanatkn/belt/fetch.js';
 import type {Logger} from '@ryanatkn/belt/log.js';
 import {z} from 'zod';
 
 export const GITHUB_REPO_MATCHER = /.+github.com\/(.+)\/(.+)/;
 
-export const Github_Pull_Request = z.looseObject({
+export const GithubPullRequest = z.looseObject({
 	url: z.string(),
 	id: z.number(),
 	html_url: z.string(),
@@ -17,7 +17,7 @@ export const Github_Pull_Request = z.looseObject({
 		login: z.string(),
 	}),
 });
-export type Github_Pull_Request = z.infer<typeof Github_Pull_Request>;
+export type GithubPullRequest = z.infer<typeof GithubPullRequest>;
 
 /**
  * @see https://docs.github.com/en/rest/commits/commits?apiVersion=2022-11-28#list-pull-requests-associated-with-a-commit
@@ -28,14 +28,14 @@ export const github_fetch_commit_prs = async (
 	commit_sha: string,
 	token?: string,
 	log?: Logger,
-	cache?: Fetch_Value_Cache,
+	cache?: FetchValueCache,
 	api_version?: string,
-): Promise<Array<Github_Pull_Request> | null> => {
+): Promise<Array<GithubPullRequest> | null> => {
 	const headers = api_version ? new Headers({'x-github-api-version': api_version}) : undefined;
 	const url = `https://api.github.com/repos/${owner}/${repo}/commits/${commit_sha}/pulls`;
 	const fetched = await fetch_value(url, {
 		request: {headers},
-		parse: (v: Array<any>) => v.map((p) => Github_Pull_Request.parse(p)),
+		parse: (v: Array<any>) => v.map((p) => GithubPullRequest.parse(p)),
 		token,
 		cache,
 		return_early_from_cache: true,

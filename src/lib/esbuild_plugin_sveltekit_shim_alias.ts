@@ -2,7 +2,7 @@ import type * as esbuild from 'esbuild';
 import {escape_regexp} from '@ryanatkn/belt/regexp.js';
 import {join} from 'node:path';
 
-export interface Esbuild_Plugin_Sveltekit_Shim_Alias_Options {
+export interface EsbuildPluginSveltekitShimAliasOptions {
 	dir?: string;
 	alias?: Record<string, string>;
 }
@@ -10,7 +10,7 @@ export interface Esbuild_Plugin_Sveltekit_Shim_Alias_Options {
 export const esbuild_plugin_sveltekit_shim_alias = ({
 	dir = process.cwd(),
 	alias,
-}: Esbuild_Plugin_Sveltekit_Shim_Alias_Options): esbuild.Plugin => ({
+}: EsbuildPluginSveltekitShimAliasOptions): esbuild.Plugin => ({
 	name: 'sveltekit_shim_alias',
 	setup: (build) => {
 		const aliases: Record<string, string> = {$lib: 'src/lib', ...alias};

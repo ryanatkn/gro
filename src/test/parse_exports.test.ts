@@ -5,13 +5,13 @@ import {fileURLToPath} from 'node:url';
 import {
 	infer_declarations_from_file_type,
 	process_ts_exports,
-	type Export_Declaration,
+	type ExportDeclaration,
 } from '../lib/parse_exports.ts';
 import {create_ts_test_env} from './test_helpers.ts';
 
 const dir = resolve(dirname(fileURLToPath(import.meta.url)), '../lib');
 
-const create_declaration_map = (declarations: Array<Export_Declaration>) =>
+const create_declaration_map = (declarations: Array<ExportDeclaration>) =>
 	Object.fromEntries(declarations.map((d) => [d.name, d.kind]));
 
 describe('infer_declarations_from_file_type', () => {
@@ -64,9 +64,9 @@ describe('process_ts_exports', () => {
 		const source_code = `
 			export const variable_export = 'test';
 			export function function_export() { return true; }
-			export class Class_Export {}
-			export type Type_Export = string;
-			export interface Interface_Export {}
+			export class ClassExport {}
+			export type TypeExport = string;
+			export interface InterfaceExport {}
 		`;
 
 		const {source_file, program, exports: export_symbols} = create_ts_test_env(source_code, dir);
@@ -76,9 +76,9 @@ describe('process_ts_exports', () => {
 		expect(create_declaration_map(declarations)).toEqual({
 			variable_export: 'variable',
 			function_export: 'function',
-			Class_Export: 'class',
-			Type_Export: 'type',
-			Interface_Export: 'type',
+			ClassExport: 'class',
+			TypeExport: 'type',
+			InterfaceExport: 'type',
 		});
 	});
 
@@ -86,16 +86,16 @@ describe('process_ts_exports', () => {
 		const source_code = `
 			const variable_value = 'test';
 			function function_value() { return true; }
-			class Class_Value {}
-			type Type_Value = string;
-			interface Interface_Value {}
+			class ClassValue {}
+			type TypeValue = string;
+			interface InterfaceValue {}
 			
 			export { 
 				variable_value, 
 				function_value, 
-				Class_Value,
-				Type_Value,
-				Interface_Value
+				ClassValue,
+				TypeValue,
+				InterfaceValue
 			};
 		`;
 
@@ -106,9 +106,9 @@ describe('process_ts_exports', () => {
 		expect(create_declaration_map(declarations)).toEqual({
 			variable_value: 'variable',
 			function_value: 'function',
-			Class_Value: 'class',
-			Type_Value: 'type',
-			Interface_Value: 'type',
+			ClassValue: 'class',
+			TypeValue: 'type',
+			InterfaceValue: 'type',
 		});
 	});
 
@@ -116,14 +116,14 @@ describe('process_ts_exports', () => {
 		const source_code = `
 			const original_variable = 'test';
 			function original_function() { return true; }
-			class Original_Class {}
-			type Original_Type = string;
+			class OriginalClass {}
+			type OriginalType = string;
 			
 			export { 
 				original_variable as renamed_variable, 
 				original_function as renamed_function,
-				Original_Class as Renamed_Class,
-				type Original_Type as Renamed_Type
+				OriginalClass as RenamedClass,
+				type OriginalType as RenamedType
 			};
 		`;
 
@@ -134,20 +134,20 @@ describe('process_ts_exports', () => {
 		expect(create_declaration_map(declarations)).toEqual({
 			renamed_variable: 'variable',
 			renamed_function: 'function',
-			Renamed_Class: 'class',
-			Renamed_Type: 'type',
+			RenamedClass: 'class',
+			RenamedType: 'type',
 		});
 	});
 
 	test('correctly identifies type-only exports', () => {
 		const source_code = `
-			type Regular_Type = string;
-			export type Direct_Type = number;
+			type RegularType = string;
+			export type DirectType = number;
 			
-			interface Regular_Interface { foo: string; }
-			export interface Direct_Interface { bar: number; }
+			interface RegularInterface { foo: string; }
+			export interface DirectInterface { bar: number; }
 			
-			export type { Regular_Type, Regular_Interface };
+			export type { RegularType, RegularInterface };
 		`;
 
 		const {source_file, program, exports: export_symbols} = create_ts_test_env(source_code, dir);
@@ -155,10 +155,10 @@ describe('process_ts_exports', () => {
 		const declarations = process_ts_exports(source_file, program, export_symbols);
 
 		expect(create_declaration_map(declarations)).toEqual({
-			Direct_Type: 'type',
-			Direct_Interface: 'type',
-			Regular_Type: 'type',
-			Regular_Interface: 'type',
+			DirectType: 'type',
+			DirectInterface: 'type',
+			RegularType: 'type',
+			RegularInterface: 'type',
 		});
 	});
 
@@ -186,13 +186,13 @@ describe('process_ts_exports', () => {
 
 	test('correctly identifies class exports', () => {
 		const source_code = `
-			class Simple_Class {}
+			class SimpleClass {}
 			
-			const class_expression = class Named_Class { 
+			const class_expression = class NamedClass { 
 				method() {}
 			};
 			
-			export { Simple_Class, class_expression };
+			export { SimpleClass, class_expression };
 		`;
 
 		const {source_file, program, exports: export_symbols} = create_ts_test_env(source_code, dir);
@@ -200,7 +200,7 @@ describe('process_ts_exports', () => {
 		const declarations = process_ts_exports(source_file, program, export_symbols);
 
 		expect(create_declaration_map(declarations)).toEqual({
-			Simple_Class: 'class',
+			SimpleClass: 'class',
 			class_expression: 'class',
 		});
 	});

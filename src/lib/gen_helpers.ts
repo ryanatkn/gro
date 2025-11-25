@@ -1,17 +1,17 @@
 import {resolve} from 'node:path';
 import type {Logger} from '@ryanatkn/belt/log.js';
 import type {Timings} from '@ryanatkn/belt/timings.js';
-import type {Path_Id} from '@ryanatkn/belt/path.js';
+import type {PathId} from '@ryanatkn/belt/path.js';
 
-import type {Gro_Config} from './gro_config.ts';
+import type {GroConfig} from './gro_config.ts';
 import {filter_dependents, type Filer} from './filer.ts';
-import type {Invoke_Task} from './task.ts';
+import type {InvokeTask} from './task.ts';
 import {
 	normalize_gen_config,
 	validate_gen_module,
-	type Gen_Context,
-	type Gen_Dependencies,
-	type Gen_Dependencies_Config,
+	type GenContext,
+	type GenDependencies,
+	type GenDependenciesConfig,
 } from './gen.ts';
 import {default_svelte_config} from './svelte_config.ts';
 import {to_root_path} from './paths.ts';
@@ -21,13 +21,13 @@ import {load_module} from './modules.ts';
  * Check if a file change should trigger a gen file.
  */
 export const should_trigger_gen = async (
-	gen_file_id: Path_Id,
-	changed_file_id: Path_Id,
-	config: Gro_Config,
+	gen_file_id: PathId,
+	changed_file_id: PathId,
+	config: GroConfig,
 	filer: Filer,
 	log: Logger,
 	timings: Timings,
-	invoke_task: Invoke_Task,
+	invoke_task: InvokeTask,
 ): Promise<boolean> => {
 	// Always trigger if the gen file itself changed
 	const is_self_change = gen_file_id === changed_file_id;
@@ -74,14 +74,14 @@ export const should_trigger_gen = async (
  */
 const resolve_gen_dependencies = async (
 	gen_file_id: string,
-	changed_file_id: Path_Id | undefined,
+	changed_file_id: PathId | undefined,
 	bust_cache: boolean,
-	config: Gro_Config,
+	config: GroConfig,
 	filer: Filer,
 	log: Logger,
 	timings: Timings,
-	invoke_task: Invoke_Task,
-): Promise<Gen_Dependencies_Config | 'all' | null> => {
+	invoke_task: InvokeTask,
+): Promise<GenDependenciesConfig | 'all' | null> => {
 	const result = await load_module(gen_file_id, validate_gen_module, bust_cache);
 
 	if (!result.ok) {
@@ -96,9 +96,9 @@ const resolve_gen_dependencies = async (
 		return null;
 	}
 
-	let dependencies: Gen_Dependencies | null = gen_config.dependencies;
+	let dependencies: GenDependencies | null = gen_config.dependencies;
 	if (typeof dependencies === 'function') {
-		const gen_ctx: Gen_Context = {
+		const gen_ctx: GenContext = {
 			config,
 			svelte_config: default_svelte_config,
 			filer,
@@ -116,7 +116,7 @@ const resolve_gen_dependencies = async (
 		return dependencies;
 	}
 
-	// At this point, dependencies is either 'all' or Gen_Dependencies_Config
+	// At this point, dependencies is either 'all' or GenDependenciesConfig
 	// For static dependencies, also normalize empty objects
 	if (!dependencies.patterns?.length && !dependencies.files?.length) {
 		return null;
