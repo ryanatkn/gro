@@ -358,6 +358,7 @@ export const src_json: Src_Json = {
 				'invoke.ts',
 				'invoke_task.ts',
 				'lint.task.ts',
+				'run.task.ts',
 				'run_task.ts',
 				'sveltekit_helpers.ts',
 				'test.task.ts',
@@ -5309,7 +5310,7 @@ export const src_json: Src_Json = {
 		{
 			path: 'run.task.ts',
 			identifiers: [],
-			dependencies: ['gro_helpers.ts', 'task.ts'],
+			dependencies: ['args.ts', 'gro_helpers.ts', 'task.ts'],
 		},
 		{
 			path: 'search_fs.ts',
