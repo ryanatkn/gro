@@ -1,5 +1,11 @@
 # @ryanatkn/gro
 
+## 0.178.0
+
+### Minor Changes
+
+- rename `source_json.ts` from `src_json.ts` ([#582](https://github.com/ryanatkn/gro/pull/582))
+
 ## 0.177.1
 
 ### Patch Changes
