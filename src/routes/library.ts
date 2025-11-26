@@ -101,7 +101,7 @@ export const library_json: LibraryJson = {
 			esbuild: '^0.27.0',
 			eslint: '^9.39.1',
 			'eslint-plugin-svelte': '^3.13.0',
-			svelte: '^5.44.0',
+			svelte: '^5.44.1',
 			'svelte-check': '^4.3.4',
 			typescript: '^5.9.3',
 			'typescript-eslint': '^8.48.0',
