@@ -16,13 +16,13 @@ import {
 /**
  * Renders a simple index of a possibly nested directory of files.
  */
-export const gen: Gen = ({origin_id}) => {
+export const gen: Gen = async ({origin_id}) => {
 	const ctx = create_gen_doc_context(origin_id);
 	const {origin_dir, origin_base, root_path, output_file_name, relative_dir} = ctx;
 
 	// TODO this is GitHub-specific
 	const root_link = create_root_link(root_path);
-	const doc_files = search_fs(origin_dir);
+	const doc_files = await search_fs(origin_dir);
 	const doc_paths: Array<string> = [];
 	for (const {path} of doc_files) {
 		if (path === output_file_name || !path.endsWith('.md')) {

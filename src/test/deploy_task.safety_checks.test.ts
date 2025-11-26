@@ -36,18 +36,15 @@ vi.mock('@ryanatkn/belt/process.js', () => ({
 	spawn: vi.fn(),
 }));
 
-vi.mock('node:fs', () => ({
-	existsSync: vi.fn(),
-	readdirSync: vi.fn(),
-}));
-
 vi.mock('node:fs/promises', () => ({
 	cp: vi.fn(),
 	mkdir: vi.fn(),
 	rm: vi.fn(),
+	readdir: vi.fn(),
 }));
 
 vi.mock('@ryanatkn/belt/fs.js', () => ({
+	fs_exists: vi.fn(),
 	fs_empty_dir: vi.fn(),
 }));
 
@@ -80,8 +77,8 @@ describe('deploy_task safety checks', () => {
 		});
 
 		test('allows custom target branch with force=true', async () => {
-			const {existsSync} = await import('node:fs');
-			vi.mocked(existsSync).mockReturnValue(true);
+			const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+			vi.mocked(fs_exists).mockResolvedValue(true);
 
 			const ctx = create_mock_deploy_task_context({
 				target: 'custom-branch',
@@ -94,8 +91,8 @@ describe('deploy_task safety checks', () => {
 		});
 
 		test('allows default target branch without force flag', async () => {
-			const {existsSync} = await import('node:fs');
-			vi.mocked(existsSync).mockReturnValue(true);
+			const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+			vi.mocked(fs_exists).mockResolvedValue(true);
 
 			const ctx = create_mock_deploy_task_context({
 				target: 'deploy', // default
@@ -136,8 +133,8 @@ describe('deploy_task safety checks', () => {
 		});
 
 		test('allows dangerous branch with dangerous=true', async () => {
-			const {existsSync} = await import('node:fs');
-			vi.mocked(existsSync).mockReturnValue(true);
+			const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+			vi.mocked(fs_exists).mockResolvedValue(true);
 
 			const ctx = create_mock_deploy_task_context({
 				target: 'main',
@@ -200,10 +197,10 @@ describe('deploy_task safety checks', () => {
 
 		test('allows deploy when workspace is clean', async () => {
 			const {git_check_clean_workspace} = vi.mocked(await import('@ryanatkn/belt/git.js'));
-			const {existsSync} = await import('node:fs');
+			const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
 
 			vi.mocked(git_check_clean_workspace).mockResolvedValue(null);
-			vi.mocked(existsSync).mockReturnValue(true);
+			vi.mocked(fs_exists).mockResolvedValue(true);
 
 			const ctx = create_mock_deploy_task_context({dry: true});
 
@@ -227,10 +224,10 @@ describe('deploy_task safety checks', () => {
 
 		test('allows deploy when pull.rebase is configured', async () => {
 			const {git_check_setting_pull_rebase} = vi.mocked(await import('@ryanatkn/belt/git.js'));
-			const {existsSync} = await import('node:fs');
+			const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
 
 			vi.mocked(git_check_setting_pull_rebase).mockResolvedValue(true);
-			vi.mocked(existsSync).mockReturnValue(true);
+			vi.mocked(fs_exists).mockResolvedValue(true);
 
 			const ctx = create_mock_deploy_task_context({dry: true});
 
@@ -267,11 +264,11 @@ describe('deploy_task safety checks', () => {
 
 		test('succeeds when workspace stays clean after pull', async () => {
 			const {git_check_clean_workspace} = vi.mocked(await import('@ryanatkn/belt/git.js'));
-			const {existsSync} = await import('node:fs');
+			const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
 
 			// Clean throughout
 			vi.mocked(git_check_clean_workspace).mockResolvedValue(null);
-			vi.mocked(existsSync).mockReturnValue(true);
+			vi.mocked(fs_exists).mockResolvedValue(true);
 
 			const ctx = create_mock_deploy_task_context({dry: true});
 
@@ -313,8 +310,8 @@ describe('deploy_task safety checks', () => {
 		});
 
 		test('all safety checks pass in normal scenario', async () => {
-			const {existsSync} = await import('node:fs');
-			vi.mocked(existsSync).mockReturnValue(true);
+			const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+			vi.mocked(fs_exists).mockResolvedValue(true);
 
 			const ctx = create_mock_deploy_task_context({
 				target: 'deploy', // default, safe

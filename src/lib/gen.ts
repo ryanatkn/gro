@@ -4,8 +4,8 @@ import {mkdir, readFile, writeFile} from 'node:fs/promises';
 import type {Result} from '@ryanatkn/belt/result.js';
 import type {Timings} from '@ryanatkn/belt/timings.js';
 import {styleText as st} from 'node:util';
-import {existsSync} from 'node:fs';
 import type {PathId} from '@ryanatkn/belt/path.js';
+import {map_concurrent} from '@ryanatkn/belt/async.js';
 
 import {print_path} from './paths.ts';
 import type {GroConfig} from './gro_config.ts';
@@ -210,23 +210,28 @@ export type AnalyzedGenResult =
 			has_changed: true;
 	  };
 
-export const analyze_gen_results = (gen_results: GenResults): Promise<Array<AnalyzedGenResult>> =>
-	Promise.all(
-		gen_results.successes
-			.map((result) => result.files.map((file) => analyze_gen_result(file)))
-			.flat(),
-	);
+export const analyze_gen_results = async (
+	gen_results: GenResults,
+): Promise<Array<AnalyzedGenResult>> => {
+	const files = gen_results.successes.flatMap((result) => result.files);
+	return map_concurrent(files, (file) => analyze_gen_result(file), 10);
+};
 
 export const analyze_gen_result = async (file: GenFile): Promise<AnalyzedGenResult> => {
-	if (!existsSync(file.id)) {
-		return {
-			file,
-			existing_content: null,
-			is_new: true,
-			has_changed: true,
-		};
+	let existing_content: string;
+	try {
+		existing_content = await readFile(file.id, 'utf8');
+	} catch (err) {
+		if ((err as NodeJS.ErrnoException).code === 'ENOENT') {
+			return {
+				file,
+				existing_content: null,
+				is_new: true,
+				has_changed: true,
+			};
+		}
+		throw err;
 	}
-	const existing_content = await readFile(file.id, 'utf8');
 	return {
 		file,
 		existing_content,
@@ -240,26 +245,25 @@ export const write_gen_results = async (
 	analyzed_gen_results: Array<AnalyzedGenResult>,
 	log: Logger,
 ): Promise<void> => {
-	await Promise.all(
-		gen_results.successes
-			.map((result) =>
-				result.files.map(async (file) => {
-					const analyzed = analyzed_gen_results.find((r) => r.file.id === file.id);
-					if (!analyzed) throw Error('Expected to find analyzed result: ' + file.id);
-					const log_args = [print_path(file.id), 'generated from', print_path(file.origin_id)];
-					if (analyzed.is_new) {
-						log.info('writing new', ...log_args);
-						await mkdir(dirname(file.id), {recursive: true});
-						await writeFile(file.id, file.content);
-					} else if (analyzed.has_changed) {
-						log.info('writing changed', ...log_args);
-						await writeFile(file.id, file.content);
-					} else {
-						log.info('skipping unchanged', ...log_args);
-					}
-				}),
-			)
-			.flat(),
+	const files = gen_results.successes.flatMap((result) => result.files);
+	await map_concurrent(
+		files,
+		async (file) => {
+			const analyzed = analyzed_gen_results.find((r) => r.file.id === file.id);
+			if (!analyzed) throw Error('Expected to find analyzed result: ' + file.id);
+			const log_args = [print_path(file.id), 'generated from', print_path(file.origin_id)];
+			if (analyzed.is_new) {
+				log.info('writing new', ...log_args);
+				await mkdir(dirname(file.id), {recursive: true});
+				await writeFile(file.id, file.content);
+			} else if (analyzed.has_changed) {
+				log.info('writing changed', ...log_args);
+				await writeFile(file.id, file.content);
+			} else {
+				log.info('skipping unchanged', ...log_args);
+			}
+		},
+		10,
 	);
 };
 
@@ -289,17 +293,17 @@ export type FindGenfilesFailure =
 /**
  * Finds modules from input paths. (see `src/lib/input_path.ts` for more)
  */
-export const find_genfiles = (
+export const find_genfiles = async (
 	input_paths: Array<InputPath>,
 	root_dirs: Array<PathId>,
 	config: GroConfig,
 	timings?: Timings,
-): FindGenfilesResult => {
+): Promise<FindGenfilesResult> => {
 	const extensions: Array<string> = [GEN_FILE_PATTERN];
 
 	// Check which extension variation works - if it's a directory, prefer others first!
 	const timing_to_resolve_input_paths = timings?.start('resolve input paths');
-	const {resolved_input_paths, unmapped_input_paths} = resolve_input_paths(
+	const {resolved_input_paths, unmapped_input_paths} = await resolve_input_paths(
 		input_paths,
 		root_dirs,
 		extensions,
@@ -322,7 +326,7 @@ export const find_genfiles = (
 	// Find all of the files for any directories.
 	const timing_to_search_fs = timings?.start('find files');
 	const {resolved_input_files, resolved_input_files_by_root_dir, input_directories_with_no_files} =
-		resolve_input_files(resolved_input_paths, (id) =>
+		await resolve_input_files(resolved_input_paths, async (id) =>
 			search_fs(id, {
 				filter: config.search_filters,
 				file_filter: (p) => extensions.some((e) => p.includes(e)),

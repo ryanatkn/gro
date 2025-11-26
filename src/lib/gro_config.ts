@@ -1,5 +1,5 @@
 import {join, resolve} from 'node:path';
-import {existsSync} from 'node:fs';
+import {fs_exists} from '@ryanatkn/belt/fs.js';
 import {identity} from '@ryanatkn/belt/function.js';
 import type {PathFilter, PathId} from '@ryanatkn/belt/path.js';
 import {json_stringify_deterministic} from '@ryanatkn/belt/json.js';
@@ -208,7 +208,7 @@ export const load_gro_config = async (dir = paths.root): Promise<GroConfig> => {
 	);
 
 	const config_path = join(dir, GRO_CONFIG_FILENAME);
-	if (!existsSync(config_path)) {
+	if (!(await fs_exists(config_path))) {
 		// No user config file found, so return the default.
 		return default_config;
 	}

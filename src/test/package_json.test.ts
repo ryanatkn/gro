@@ -8,20 +8,20 @@ import {
 	to_package_exports,
 } from '../lib/package_json.ts';
 
-test('load_package_json', () => {
-	const package_json = load_package_json();
+test('load_package_json', async () => {
+	const package_json = await load_package_json();
 	expect(package_json).toBeTruthy();
 	const parsed = PackageJson.parse(package_json);
 	expect(parsed).toBeTruthy();
 	serialize_package_json(package_json);
 });
 
-test('load_package_json with cache', () => {
+test('load_package_json with cache', async () => {
 	const cache = {};
-	const package_json1 = load_package_json(undefined, cache);
+	const package_json1 = await load_package_json(undefined, cache);
 	expect(package_json1).toBeTruthy();
 	expect(Object.keys(cache).length).toBe(1);
-	const package_json2 = load_package_json(undefined, cache);
+	const package_json2 = await load_package_json(undefined, cache);
 	expect(Object.keys(cache).length).toBe(1);
 	expect(package_json1).toBe(package_json2);
 });
@@ -92,8 +92,8 @@ test('to_package_exports', () => {
 	});
 });
 
-test('parse_repo_url', () => {
-	const parsed = parse_repo_url(load_package_json());
+test('parse_repo_url', async () => {
+	const parsed = parse_repo_url(await load_package_json());
 	expect(parsed?.owner).toBe('ryanatkn');
 	expect(parsed?.repo).toBe('gro');
 });

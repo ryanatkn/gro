@@ -2,9 +2,9 @@ import {z} from 'zod';
 import {spawn} from '@ryanatkn/belt/process.js';
 import {styleText as st} from 'node:util';
 import type {WrittenConfig} from '@changesets/types';
-import {readFile, writeFile} from 'node:fs/promises';
+import {readdir, readFile, writeFile} from 'node:fs/promises';
 import {join} from 'node:path';
-import {existsSync, readdirSync} from 'node:fs';
+import {fs_exists} from '@ryanatkn/belt/fs.js';
 import {
 	GitOrigin,
 	git_check_fully_staged_workspace,
@@ -99,7 +99,7 @@ export const task: Task<Args> = {
 			);
 		}
 
-		const package_json = load_package_json();
+		const package_json = await load_package_json();
 
 		const has_sveltekit_library_result = await has_sveltekit_library(package_json, svelte_config);
 		if (!has_sveltekit_library_result.ok) {
@@ -110,7 +110,7 @@ export const task: Task<Args> = {
 
 		const path = join(dir, 'config.json');
 
-		const inited = existsSync(path);
+		const inited = await fs_exists(path);
 
 		if (!inited) {
 			await spawn_cli(found_changeset_cli, ['init'], log);
@@ -143,7 +143,7 @@ export const task: Task<Args> = {
 
 		if (message) {
 			// TODO see the helper below, simplify this to CLI flags when support is added to Changesets
-			const changeset_adder = create_changeset_adder(package_json.name, dir, message, bump);
+			const changeset_adder = await create_changeset_adder(package_json.name, dir, message, bump);
 			await spawn_cli(found_changeset_cli, ['add', '--empty'], log);
 			await changeset_adder();
 			if (!(await git_check_fully_staged_workspace())) {
@@ -161,15 +161,15 @@ export const task: Task<Args> = {
  * TODO ideally this wouldn't exist and we'd use CLI flags, but they doesn't exist yet
  * @see https://github.com/changesets/changesets/pull/1121
  */
-const create_changeset_adder = (
+const create_changeset_adder = async (
 	repo_name: string,
 	dir: string,
 	message: string,
 	bump: ChangesetBump,
-) => {
-	const filenames_before = readdirSync(dir);
+): Promise<() => Promise<void>> => {
+	const filenames_before = await readdir(dir);
 	return async () => {
-		const filenames_after = readdirSync(dir);
+		const filenames_after = await readdir(dir);
 		const filenames_added = filenames_after.filter((p) => !filenames_before.includes(p));
 		if (!filenames_added.length) {
 			throw Error('expected to find a new changeset file');

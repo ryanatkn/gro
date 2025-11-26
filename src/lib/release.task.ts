@@ -13,7 +13,7 @@ export const task: Task<Args> = {
 	summary: 'publish and deploy',
 	Args,
 	run: async ({invoke_task}) => {
-		const package_json = load_package_json();
+		const package_json = await load_package_json();
 
 		const publish = (await has_sveltekit_library(package_json)).ok;
 		if (publish) {

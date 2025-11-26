@@ -4,7 +4,7 @@ import {source_modules_create} from '../lib/source_json.ts';
 import {paths} from '../lib/paths.ts';
 
 describe('source_modules_create', () => {
-	test('handles simple cases and omits `declarations` when empty', () => {
+	test('handles simple cases and omits `declarations` when empty', async () => {
 		const exports = {
 			'./test/fixtures/modules/some_test_script.js': {
 				import: './dist/some_test_script.js',
@@ -16,7 +16,7 @@ describe('source_modules_create', () => {
 			},
 		};
 
-		const result = source_modules_create(exports, paths.source);
+		const result = await source_modules_create(exports, paths.source);
 
 		expect(result).toBeDefined();
 		expect(result).toHaveLength(2);
@@ -44,7 +44,7 @@ describe('source_modules_create', () => {
 		]);
 	});
 
-	test('identifies all export kinds correctly', () => {
+	test('identifies all export kinds correctly', async () => {
 		const exports = {
 			'./test/fixtures/modules/source_json_sample_exports.js': {
 				import: './dist/source_json_sample_exports.js',
@@ -52,7 +52,7 @@ describe('source_modules_create', () => {
 			},
 		};
 
-		const result = source_modules_create(exports, paths.source);
+		const result = await source_modules_create(exports, paths.source);
 
 		expect(result).toBeDefined();
 		expect(result).toHaveLength(1);
@@ -88,11 +88,11 @@ describe('source_modules_create', () => {
 		]);
 	});
 
-	test('handles empty or undefined exports gracefully', () => {
+	test('handles empty or undefined exports gracefully', async () => {
 		// Undefined exports
-		expect(source_modules_create(undefined)).toBeUndefined();
+		expect(await source_modules_create(undefined)).toBeUndefined();
 
 		// Empty exports
-		expect(source_modules_create({})).toEqual([]);
+		expect(await source_modules_create({})).toEqual([]);
 	});
 });

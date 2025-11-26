@@ -288,8 +288,12 @@ test('validate_gen_module basic behavior', () => {
 	expect(validate_gen_module({task: {run: {}}})).toBeFalsy();
 });
 
-test('find_genfiles_result finds gen modules in a directory', () => {
-	const find_genfiles_result = find_genfiles(['../docs'], [paths.lib], create_empty_gro_config());
+test('find_genfiles_result finds gen modules in a directory', async () => {
+	const find_genfiles_result = await find_genfiles(
+		['../docs'],
+		[paths.lib],
+		create_empty_gro_config(),
+	);
 	if (!find_genfiles_result.ok) {
 		throw new Error('Expected find_genfiles to succeed');
 	}

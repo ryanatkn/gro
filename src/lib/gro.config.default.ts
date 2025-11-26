@@ -18,7 +18,7 @@ import {load_package_json} from './package_json.ts';
  * - if `src/lib/server/server.ts`, assumes a Node server - needs config
  */
 const config: CreateGroConfig = async (cfg, svelte_config) => {
-	const package_json = load_package_json(); // TODO gets wastefully loaded by some plugins, maybe put in plugin/task context? how does that interact with `map_package_json`?
+	const package_json = await load_package_json(); // TODO gets wastefully loaded by some plugins, maybe put in plugin/task context? how does that interact with `map_package_json`?
 
 	const [has_server_result, has_sveltekit_library_result, has_sveltekit_app_result] =
 		await Promise.all([

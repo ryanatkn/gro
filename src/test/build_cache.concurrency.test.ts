@@ -24,14 +24,17 @@ vi.mock('$lib/paths.js', () => ({
 	},
 }));
 
-vi.mock('node:fs', () => ({
-	existsSync: vi.fn(),
-	readFileSync: vi.fn(),
-	writeFileSync: vi.fn(),
-	mkdirSync: vi.fn(),
-	rmSync: vi.fn(),
-	statSync: vi.fn(),
-	readdirSync: vi.fn(),
+vi.mock('node:fs/promises', () => ({
+	readFile: vi.fn(),
+	writeFile: vi.fn(),
+	mkdir: vi.fn(),
+	rm: vi.fn(),
+	stat: vi.fn(),
+	readdir: vi.fn(),
+}));
+
+vi.mock('@ryanatkn/belt/fs.js', () => ({
+	fs_exists: vi.fn(),
 }));
 
 vi.mock('$lib/hash.js', () => ({
@@ -44,7 +47,8 @@ describe('race condition: cache file modification during validation', () => {
 	});
 
 	test('handles cache file being modified while reading', async () => {
-		const {existsSync, readFileSync} = await import('node:fs');
+		const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+		const {readFile} = vi.mocked(await import('node:fs/promises'));
 		const {git_current_commit_hash} = await import('@ryanatkn/belt/git.js');
 		const {to_hash} = await import('$lib/hash.js');
 
@@ -53,13 +57,15 @@ describe('race condition: cache file modification during validation', () => {
 
 		// Simulate cache file being modified during validation
 		let read_count = 0;
-		vi.mocked(readFileSync).mockImplementation(() => {
+		vi.mocked(readFile).mockImplementation(() => {
 			read_count++;
 			// First read gets initial metadata, second read (during validation) gets modified
-			return JSON.stringify(read_count === 1 ? initial_metadata : modified_metadata);
+			return Promise.resolve(
+				JSON.stringify(read_count === 1 ? initial_metadata : modified_metadata),
+			);
 		});
 
-		vi.mocked(existsSync).mockReturnValue(true);
+		vi.mocked(fs_exists).mockResolvedValue(true);
 		vi.mocked(git_current_commit_hash).mockResolvedValue('abc123');
 		vi.mocked(to_hash).mockResolvedValue('hash123');
 
@@ -75,35 +81,37 @@ describe('race condition: cache file modification during validation', () => {
 	});
 
 	test('handles concurrent cache writes', async () => {
-		const {writeFileSync, mkdirSync} = await import('node:fs');
+		const {writeFile, mkdir} = vi.mocked(await import('node:fs/promises'));
 
 		const metadata1 = create_mock_build_cache_metadata({git_commit: 'commit1'});
 		const metadata2 = create_mock_build_cache_metadata({git_commit: 'commit2'});
 
 		let write_count = 0;
-		vi.mocked(writeFileSync).mockImplementation(() => {
+		vi.mocked(writeFile).mockImplementation(() => {
 			write_count++;
 			// Simulate concurrent writes - not expected in practice but should not crash
+			return Promise.resolve();
 		});
 
 		// Try to save two different cache states
-		save_build_cache_metadata(metadata1);
-		save_build_cache_metadata(metadata2);
+		await save_build_cache_metadata(metadata1);
+		await save_build_cache_metadata(metadata2);
 
 		// Both should complete without throwing
 		expect(write_count).toBe(2);
-		expect(mkdirSync).toHaveBeenCalledTimes(2);
+		expect(mkdir).toHaveBeenCalledTimes(2);
 	});
 
 	test('handles multiple concurrent build validation operations', async () => {
-		const {existsSync, readFileSync} = await import('node:fs');
+		const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+		const {readFile} = vi.mocked(await import('node:fs/promises'));
 		const {git_current_commit_hash} = await import('@ryanatkn/belt/git.js');
 		const {to_hash} = await import('$lib/hash.js');
 
 		const metadata = create_mock_build_cache_metadata({git_commit: 'abc123'});
 
-		vi.mocked(existsSync).mockReturnValue(true);
-		vi.mocked(readFileSync).mockReturnValue(JSON.stringify(metadata));
+		vi.mocked(fs_exists).mockResolvedValue(true);
+		vi.mocked(readFile).mockResolvedValue(JSON.stringify(metadata));
 		vi.mocked(git_current_commit_hash).mockResolvedValue('abc123');
 		vi.mocked(to_hash).mockResolvedValue('hash123');
 

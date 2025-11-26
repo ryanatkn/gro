@@ -1,6 +1,6 @@
 import {join} from 'node:path';
 import {ensure_end, strip_start} from '@ryanatkn/belt/string.js';
-import {existsSync} from 'node:fs';
+import {fs_exists} from '@ryanatkn/belt/fs.js';
 import ts from 'typescript';
 import type {PackageJson, PackageJsonExports} from '@ryanatkn/belt/package_json.js';
 import {SourceJson, type ModuleJson, type DeclarationKind} from '@ryanatkn/belt/source_json.js';
@@ -15,15 +15,15 @@ export type SourceJsonMapper = (
 	source_json: SourceJson,
 ) => SourceJson | null | Promise<SourceJson | null>;
 
-export const source_json_create = (
+export const source_json_create = async (
 	package_json: PackageJson,
 	lib_path?: string,
 	log?: Logger,
-): SourceJson =>
+): Promise<SourceJson> =>
 	SourceJson.parse({
 		name: package_json.name,
 		version: package_json.version,
-		modules: source_modules_create(package_json.exports, lib_path, log),
+		modules: await source_modules_create(package_json.exports, lib_path, log),
 	});
 
 export const source_json_serialize = (source_json: SourceJson): string => {
@@ -31,14 +31,14 @@ export const source_json_serialize = (source_json: SourceJson): string => {
 	return JSON.stringify(parsed, null, 2) + '\n';
 };
 
-export const source_modules_create = (
+export const source_modules_create = async (
 	exports: PackageJsonExports | undefined,
 	lib_path = paths.lib,
 	log?: Logger,
-): Array<ModuleJson> | undefined => {
+): Promise<Array<ModuleJson> | undefined> => {
 	if (!exports) return;
 
-	const file_paths = collect_file_paths(exports, lib_path);
+	const file_paths = await collect_file_paths(exports, lib_path);
 
 	// Create a TypeScript program for all TypeScript files
 	const ts_files = file_paths
@@ -85,15 +85,15 @@ export const source_modules_create = (
 	return result;
 };
 
-const collect_file_paths = (
+const collect_file_paths = async (
 	exports: PackageJsonExports,
 	lib_path: string,
-): Array<{export_key: string; file_path: string}> => {
+): Promise<Array<{export_key: string; file_path: string}>> => {
 	const file_paths: Array<{export_key: string; file_path: string}> = [];
 
 	// Handle string exports (single default export)
 	if (typeof exports === 'string') {
-		const source_file = infer_source_from_export(exports, lib_path);
+		const source_file = await infer_source_from_export(exports, lib_path);
 		if (source_file) {
 			file_paths.push({export_key: '.', file_path: source_file});
 		} else {
@@ -112,7 +112,8 @@ const collect_file_paths = (
 		// Check if this is a pattern export
 		if (k.includes('*')) {
 			// Handle pattern exports by finding matching files in lib
-			const matching_files = search_fs(lib_path, {
+			// eslint-disable-next-line no-await-in-loop
+			const matching_files = await search_fs(lib_path, {
 				file_filter: (path) => {
 					const p = path.replace(ensure_end(lib_path, '/'), '');
 					// Only match files in the root directory (no subdirectories)
@@ -144,7 +145,8 @@ const collect_file_paths = (
 			}
 		} else {
 			// Handle explicit exports (non-patterns)
-			const source_file = infer_source_from_export(k, lib_path);
+			// eslint-disable-next-line no-await-in-loop
+			const source_file = await infer_source_from_export(k, lib_path);
 			if (source_file) {
 				file_paths.push({export_key: k, file_path: source_file});
 			} else {
@@ -158,13 +160,16 @@ const collect_file_paths = (
 	return file_paths;
 };
 
-const infer_source_from_export = (export_path: string, lib_path: string): string | null => {
+const infer_source_from_export = async (
+	export_path: string,
+	lib_path: string,
+): Promise<string | null> => {
 	// Handle index specially
 	if (export_path === '.' || export_path === './') {
 		const index_ts = join(lib_path, 'index.ts');
-		if (existsSync(index_ts)) return index_ts;
+		if (await fs_exists(index_ts)) return index_ts;
 		const index_js = join(lib_path, 'index.js');
-		if (existsSync(index_js)) return index_js;
+		if (await fs_exists(index_js)) return index_js;
 		return null;
 	}
 
@@ -173,12 +178,12 @@ const infer_source_from_export = (export_path: string, lib_path: string): string
 	// For .js exports, try .ts first
 	if (clean_path.endsWith('.js')) {
 		const ts_path = join(lib_path, replace_extension(clean_path, '.ts'));
-		if (existsSync(ts_path)) return ts_path;
+		if (await fs_exists(ts_path)) return ts_path;
 	}
 
 	// Try the exact path
 	const exact_path = join(lib_path, clean_path);
-	if (existsSync(exact_path)) return exact_path;
+	if (await fs_exists(exact_path)) return exact_path;
 
 	return null;
 };

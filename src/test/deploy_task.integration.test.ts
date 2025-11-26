@@ -34,18 +34,15 @@ vi.mock('@ryanatkn/belt/process.js', () => ({
 	spawn: vi.fn(),
 }));
 
-vi.mock('node:fs', () => ({
-	existsSync: vi.fn(),
-	readdirSync: vi.fn(),
-}));
-
 vi.mock('node:fs/promises', () => ({
 	cp: vi.fn(),
 	mkdir: vi.fn(),
 	rm: vi.fn(),
+	readdir: vi.fn(),
 }));
 
 vi.mock('@ryanatkn/belt/fs.js', () => ({
+	fs_exists: vi.fn(),
 	fs_empty_dir: vi.fn(),
 }));
 
@@ -76,12 +73,12 @@ describe('deploy_task integration scenarios', () => {
 				git_push_to_create,
 			} = vi.mocked(await import('@ryanatkn/belt/git.js'));
 			const {spawn} = vi.mocked(await import('@ryanatkn/belt/process.js'));
-			const {existsSync} = await import('node:fs');
+			const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
 
 			// No remote branch exists (first deploy)
 			vi.mocked(git_remote_branch_exists).mockResolvedValue(false);
 			vi.mocked(git_local_branch_exists).mockResolvedValue(false);
-			vi.mocked(existsSync).mockReturnValue(true);
+			vi.mocked(fs_exists).mockResolvedValue(true);
 
 			const ctx = create_mock_deploy_task_context({dry: false});
 
@@ -130,10 +127,10 @@ describe('deploy_task integration scenarios', () => {
 				await import('@ryanatkn/belt/git.js'),
 			);
 			const {spawn} = vi.mocked(await import('@ryanatkn/belt/process.js'));
-			const {existsSync} = await import('node:fs');
+			const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
 
 			vi.mocked(git_remote_branch_exists).mockResolvedValue(false);
-			vi.mocked(existsSync).mockReturnValue(true);
+			vi.mocked(fs_exists).mockResolvedValue(true);
 
 			const ctx = create_mock_deploy_task_context({
 				source: 'develop',
@@ -167,11 +164,11 @@ describe('deploy_task integration scenarios', () => {
 				await import('@ryanatkn/belt/git.js'),
 			);
 			const {spawn} = vi.mocked(await import('@ryanatkn/belt/process.js'));
-			const {existsSync} = await import('node:fs');
+			const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
 			const {fs_empty_dir} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
 
 			// Remote branch exists, deploy dir exists with correct branch
-			vi.mocked(existsSync).mockReturnValue(true);
+			vi.mocked(fs_exists).mockResolvedValue(true);
 			vi.mocked(git_current_branch_name).mockResolvedValue('deploy');
 
 			const ctx = create_mock_deploy_task_context({dry: false});
@@ -207,9 +204,9 @@ describe('deploy_task integration scenarios', () => {
 			const {git_reset_branch_to_first_commit, git_pull} = vi.mocked(
 				await import('@ryanatkn/belt/git.js'),
 			);
-			const {existsSync} = await import('node:fs');
+			const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
 
-			vi.mocked(existsSync).mockReturnValue(true);
+			vi.mocked(fs_exists).mockResolvedValue(true);
 
 			const ctx = create_mock_deploy_task_context({
 				reset: true,
@@ -232,9 +229,9 @@ describe('deploy_task integration scenarios', () => {
 			const {git_reset_branch_to_first_commit, git_pull} = vi.mocked(
 				await import('@ryanatkn/belt/git.js'),
 			);
-			const {existsSync} = await import('node:fs');
+			const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
 
-			vi.mocked(existsSync).mockReturnValue(true);
+			vi.mocked(fs_exists).mockResolvedValue(true);
 
 			const ctx = create_mock_deploy_task_context({
 				reset: true,
@@ -258,11 +255,11 @@ describe('deploy_task integration scenarios', () => {
 				await import('@ryanatkn/belt/git.js'),
 			);
 			const {rm} = await import('node:fs/promises');
-			const {existsSync} = await import('node:fs');
+			const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
 
 			// Deploy dir exists but with wrong branch
 			let exists_call_count = 0;
-			vi.mocked(existsSync).mockImplementation((path: any) => {
+			vi.mocked(fs_exists).mockImplementation((path: any) => {
 				const path_str = String(path);
 				if (path_str.includes('build')) return true; // build_dir always exists
 				exists_call_count++;
@@ -284,10 +281,10 @@ describe('deploy_task integration scenarios', () => {
 	describe('deployment with no-build flag', () => {
 		test('deploys using existing build output', async () => {
 			const {spawn} = vi.mocked(await import('@ryanatkn/belt/process.js'));
-			const {existsSync} = await import('node:fs');
+			const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
 			const {cp} = await import('node:fs/promises');
 
-			vi.mocked(existsSync).mockReturnValue(true);
+			vi.mocked(fs_exists).mockResolvedValue(true);
 
 			const ctx = create_mock_deploy_task_context({
 				build: false,
@@ -308,9 +305,9 @@ describe('deploy_task integration scenarios', () => {
 	describe('deployment with no-pull flag', () => {
 		test('deploys without pulling source branch', async () => {
 			const {git_pull, git_checkout} = vi.mocked(await import('@ryanatkn/belt/git.js'));
-			const {existsSync} = await import('node:fs');
+			const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
 
-			vi.mocked(existsSync).mockReturnValue(true);
+			vi.mocked(fs_exists).mockResolvedValue(true);
 
 			const ctx = create_mock_deploy_task_context({
 				pull: false,
@@ -333,10 +330,10 @@ describe('deploy_task integration scenarios', () => {
 		test('dry deployment performs all prep but skips push', async () => {
 			const {git_checkout} = vi.mocked(await import('@ryanatkn/belt/git.js'));
 			const {spawn} = vi.mocked(await import('@ryanatkn/belt/process.js'));
-			const {existsSync} = await import('node:fs');
+			const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
 			const {cp} = await import('node:fs/promises');
 
-			vi.mocked(existsSync).mockReturnValue(true);
+			vi.mocked(fs_exists).mockResolvedValue(true);
 
 			const ctx = create_mock_deploy_task_context({dry: true});
 
@@ -366,9 +363,9 @@ describe('deploy_task integration scenarios', () => {
 			const {git_checkout, git_reset_branch_to_first_commit} = vi.mocked(
 				await import('@ryanatkn/belt/git.js'),
 			);
-			const {existsSync} = await import('node:fs');
+			const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
 
-			vi.mocked(existsSync).mockReturnValue(true);
+			vi.mocked(fs_exists).mockResolvedValue(true);
 
 			const ctx = create_mock_deploy_task_context({
 				dry: true,
@@ -415,10 +412,10 @@ describe('deploy_task integration scenarios', () => {
 			const {spawn} = vi.mocked(await import('@ryanatkn/belt/process.js'));
 			const {fs_empty_dir} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
 			const {cp} = await import('node:fs/promises');
-			const {existsSync} = await import('node:fs');
+			const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
 
 			vi.mocked(git_remote_branch_exists).mockResolvedValue(false);
-			vi.mocked(existsSync).mockReturnValue(true);
+			vi.mocked(fs_exists).mockResolvedValue(true);
 
 			const ctx = create_mock_deploy_task_context({dry: false});
 
@@ -468,9 +465,9 @@ describe('deploy_task integration scenarios', () => {
 			const {spawn} = vi.mocked(await import('@ryanatkn/belt/process.js'));
 			const {fs_empty_dir} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
 			const {cp} = await import('node:fs/promises');
-			const {existsSync} = await import('node:fs');
+			const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
 
-			vi.mocked(existsSync).mockReturnValue(true);
+			vi.mocked(fs_exists).mockResolvedValue(true);
 			vi.mocked(git_current_branch_name).mockResolvedValue('deploy');
 
 			const ctx = create_mock_deploy_task_context({dry: false});

@@ -1,8 +1,9 @@
 import {z} from 'zod';
 import {styleText as st} from 'node:util';
 import {git_check_clean_workspace, git_current_commit_hash} from '@ryanatkn/belt/git.js';
-import {rmSync, existsSync} from 'node:fs';
+import {rm} from 'node:fs/promises';
 import {join} from 'node:path';
+import {fs_exists} from '@ryanatkn/belt/fs.js';
 
 import {TaskError, type Task} from './task.ts';
 import {Plugins} from './plugin.ts';
@@ -81,15 +82,13 @@ export const task: Task<Args> = {
 			// Rationale: Uncommitted changes could be reverted, leaving cached outputs from reverted code.
 			// This conservative approach prioritizes safety over convenience during development.
 			const cache_path = join(paths.build, 'build.json');
-			if (existsSync(cache_path)) {
-				rmSync(cache_path, {force: true});
+			if (await fs_exists(cache_path)) {
+				await rm(cache_path, {force: true});
 			}
 
 			// Delete all build output directories
-			build_dirs = discover_build_output_dirs();
-			for (const dir of build_dirs) {
-				rmSync(dir, {recursive: true, force: true});
-			}
+			build_dirs = await discover_build_output_dirs();
+			await Promise.all(build_dirs.map((dir) => rm(dir, {recursive: true, force: true})));
 
 			log.info(st('yellow', 'workspace has uncommitted changes - skipping build cache'));
 			// Skip clean_fs - already manually cleaned cache and all build outputs above
@@ -138,7 +137,7 @@ export const task: Task<Args> = {
 			} else {
 				// Commit is stable - safe to save cache
 				const metadata = await create_build_cache_metadata(config, log, initial_commit, build_dirs);
-				save_build_cache_metadata(metadata, log);
+				await save_build_cache_metadata(metadata, log);
 				log.debug('Build cache metadata saved');
 			}
 		}

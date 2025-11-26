@@ -88,7 +88,7 @@ export const library_json: LibraryJson = {
 		devDependencies: {
 			'@changesets/changelog-git': '^0.2.1',
 			'@changesets/types': '^6.1.0',
-			'@ryanatkn/belt': '^0.40.0',
+			'@ryanatkn/belt': '^0.41.0',
 			'@ryanatkn/eslint-config': '^0.9.0',
 			'@ryanatkn/fuz': '^0.165.0',
 			'@ryanatkn/fuz_code': '^0.36.0',
@@ -371,13 +371,13 @@ export const library_json: LibraryJson = {
 					{
 						name: 'BUILD_CACHE_METADATA_FILENAME',
 						kind: 'variable',
-						source_line: 21,
+						source_line: 14,
 						type_signature: '"build.json"',
 					},
 					{
 						name: 'BUILD_CACHE_VERSION',
 						kind: 'variable',
-						source_line: 22,
+						source_line: 15,
 						type_signature: '"1"',
 					},
 					{
@@ -385,7 +385,7 @@ export const library_json: LibraryJson = {
 						kind: 'type',
 						doc_comment:
 							'Metadata about a single build output file.\nIncludes cryptographic hash for validation plus filesystem stats for debugging and optimization.',
-						source_line: 28,
+						source_line: 21,
 						type_signature:
 							'ZodObject<{ path: ZodString; hash: ZodString; size: ZodNumber; mtime: ZodNumber; ctime: ZodNumber; mode: ZodNumber; }, $strict>',
 					},
@@ -394,7 +394,7 @@ export const library_json: LibraryJson = {
 						kind: 'type',
 						doc_comment:
 							'Metadata stored in .gro/ directory to track build cache validity.\nSchema validates structure at load time to catch corrupted cache files.',
-						source_line: 46,
+						source_line: 39,
 						type_signature:
 							'ZodObject<{ version: ZodString; git_commit: ZodNullable<ZodString>; build_cache_config_hash: ZodString; timestamp: ZodString; outputs: ZodArray<...>; }, $strict>',
 					},
@@ -403,7 +403,7 @@ export const library_json: LibraryJson = {
 						kind: 'function',
 						doc_comment:
 							'Computes the cache key components for a build.\nThis determines whether a cached build can be reused.',
-						source_line: 67,
+						source_line: 60,
 						type_signature:
 							'(config: GroConfig, log: Logger, git_commit?: string | null | undefined): Promise<{ git_commit: string | null; build_cache_config_hash: string; }>',
 						return_type: 'Promise<{ git_commit: string | null; build_cache_config_hash: string; }>',
@@ -435,11 +435,11 @@ export const library_json: LibraryJson = {
 						kind: 'function',
 						doc_comment:
 							'Loads build cache metadata from .gro/ directory.\nInvalid or corrupted cache files are automatically deleted.',
-						source_line: 92,
+						source_line: 85,
 						type_signature:
-							'(): { version: string; git_commit: string | null; build_cache_config_hash: string; timestamp: string; outputs: { path: string; hash: string; size: number; mtime: number; ctime: number; mode: number; }[]; } | null',
+							'(): Promise<{ version: string; git_commit: string | null; build_cache_config_hash: string; timestamp: string; outputs: { path: string; hash: string; size: number; mtime: number; ctime: number; mode: number; }[]; } | null>',
 						return_type:
-							'{ version: string; git_commit: string | null; build_cache_config_hash: string; timestamp: string; outputs: { path: string; hash: string; size: number; mtime: number; ctime: number; mode: number; }[]; } | null',
+							'Promise<{ version: string; git_commit: string | null; build_cache_config_hash: string; timestamp: string; outputs: { path: string; hash: string; size: number; mtime: number; ctime: number; mode: number; }[]; } | null>',
 						parameters: [],
 					},
 					{
@@ -447,10 +447,10 @@ export const library_json: LibraryJson = {
 						kind: 'function',
 						doc_comment:
 							"Saves build cache metadata to .gro/ directory.\nErrors are logged but don't fail the build (cache is optional).",
-						source_line: 134,
+						source_line: 127,
 						type_signature:
-							'(metadata: { version: string; git_commit: string | null; build_cache_config_hash: string; timestamp: string; outputs: { path: string; hash: string; size: number; mtime: number; ctime: number; mode: number; }[]; }, log?: Logger | undefined): void',
-						return_type: 'void',
+							'(metadata: { version: string; git_commit: string | null; build_cache_config_hash: string; timestamp: string; outputs: { path: string; hash: string; size: number; mtime: number; ctime: number; mode: number; }[]; }, log?: Logger | undefined): Promise<...>',
+						return_type: 'Promise<void>',
 						parameters: [
 							{
 								name: 'metadata',
@@ -469,7 +469,7 @@ export const library_json: LibraryJson = {
 						kind: 'function',
 						doc_comment:
 							'Validates that a cached build is still valid by checking stats and hashing outputs.\nUses size as a fast negative check before expensive hashing.\nThis is comprehensive validation to catch manual tampering or corruption.',
-						source_line: 155,
+						source_line: 151,
 						type_signature:
 							'(metadata: { version: string; git_commit: string | null; build_cache_config_hash: string; timestamp: string; outputs: { path: string; hash: string; size: number; mtime: number; ctime: number; mode: number; }[]; }): Promise<...>',
 						return_type: 'Promise<boolean>',
@@ -486,7 +486,7 @@ export const library_json: LibraryJson = {
 						kind: 'function',
 						doc_comment:
 							'Main function to check if the build cache is valid.\nReturns true if the cached build can be used, false if a fresh build is needed.',
-						source_line: 195,
+						source_line: 194,
 						type_signature:
 							'(config: GroConfig, log: Logger, git_commit?: string | null | undefined): Promise<boolean>',
 						return_type: 'Promise<boolean>',
@@ -516,7 +516,7 @@ export const library_json: LibraryJson = {
 						kind: 'function',
 						doc_comment:
 							'Collects information about all files in build output directories.\nReturns an array of entries with path, hash, size, mtime, ctime, and mode.\n\nFiles are hashed in parallel for performance. For very large builds (10k+ files),\nthis may take several seconds but ensures complete cache validation.',
-						source_line: 241,
+						source_line: 240,
 						type_signature:
 							'(build_dirs: string[]): Promise<{ path: string; hash: string; size: number; mtime: number; ctime: number; mode: number; }[]>',
 						return_type:
@@ -536,9 +536,9 @@ export const library_json: LibraryJson = {
 						kind: 'function',
 						doc_comment:
 							'Discovers all build output directories in the current working directory.\nReturns an array of directory names that exist: build/, dist/, dist_*',
-						source_line: 308,
-						type_signature: '(): string[]',
-						return_type: 'string[]',
+						source_line: 314,
+						type_signature: '(): Promise<string[]>',
+						return_type: 'Promise<string[]>',
 						parameters: [],
 					},
 					{
@@ -546,7 +546,7 @@ export const library_json: LibraryJson = {
 						kind: 'function',
 						doc_comment:
 							'Creates build cache metadata after a successful build.\nAutomatically discovers all build output directories (build/, dist/, dist_*).',
-						source_line: 346,
+						source_line: 359,
 						type_signature:
 							'(config: GroConfig, log: Logger, git_commit?: string | null | undefined, build_dirs?: string[] | undefined): Promise<{ version: string; git_commit: string | null; build_cache_config_hash: string; timestamp: string; outputs: { ...; }[]; }>',
 						return_type:
@@ -591,7 +591,7 @@ export const library_json: LibraryJson = {
 						kind: 'variable',
 						doc_comment:
 							'Length of git commit hash when displayed in logs (standard git convention).',
-						source_line: 37,
+						source_line: 38,
 						type_signature: '7',
 					},
 				],
@@ -2237,19 +2237,19 @@ export const library_json: LibraryJson = {
 					{
 						name: 'GEN_FILE_PATTERN_TEXT',
 						kind: 'variable',
-						source_line: 25,
+						source_line: 24,
 						type_signature: '"gen"',
 					},
 					{
 						name: 'GEN_FILE_PATTERN',
 						kind: 'variable',
-						source_line: 26,
+						source_line: 25,
 						type_signature: 'string',
 					},
 					{
 						name: 'is_gen_path',
 						kind: 'function',
-						source_line: 28,
+						source_line: 27,
 						type_signature: '(path: string): boolean',
 						return_type: 'boolean',
 						parameters: [
@@ -2263,7 +2263,7 @@ export const library_json: LibraryJson = {
 					{
 						name: 'GenResult',
 						kind: 'type',
-						source_line: 30,
+						source_line: 29,
 						type_signature: 'GenResult',
 						properties: [
 							{
@@ -2281,7 +2281,7 @@ export const library_json: LibraryJson = {
 					{
 						name: 'GenFile',
 						kind: 'type',
-						source_line: 34,
+						source_line: 33,
 						type_signature: 'GenFile',
 						properties: [
 							{
@@ -2309,13 +2309,13 @@ export const library_json: LibraryJson = {
 					{
 						name: 'GenDependencies',
 						kind: 'type',
-						source_line: 41,
+						source_line: 40,
 						type_signature: 'GenDependencies',
 					},
 					{
 						name: 'GenDependenciesConfig',
 						kind: 'type',
-						source_line: 43,
+						source_line: 42,
 						type_signature: 'GenDependenciesConfig',
 						properties: [
 							{
@@ -2333,26 +2333,26 @@ export const library_json: LibraryJson = {
 					{
 						name: 'GenDependenciesResolver',
 						kind: 'type',
-						source_line: 48,
+						source_line: 47,
 						type_signature: 'GenDependenciesResolver',
 					},
 					{
 						name: 'Gen',
 						kind: 'type',
-						source_line: 52,
+						source_line: 51,
 						type_signature: 'Gen',
 						also_exported_from: ['index.ts'],
 					},
 					{
 						name: 'GenFunction',
 						kind: 'type',
-						source_line: 54,
+						source_line: 53,
 						type_signature: 'GenFunction',
 					},
 					{
 						name: 'GenConfig',
 						kind: 'type',
-						source_line: 57,
+						source_line: 56,
 						type_signature: 'GenConfig',
 						properties: [
 							{
@@ -2370,7 +2370,7 @@ export const library_json: LibraryJson = {
 					{
 						name: 'GenContext',
 						kind: 'type',
-						source_line: 64,
+						source_line: 63,
 						type_signature: 'GenContext',
 						properties: [
 							{
@@ -2428,13 +2428,13 @@ export const library_json: LibraryJson = {
 					{
 						name: 'RawGenResult',
 						kind: 'type',
-						source_line: 88,
+						source_line: 87,
 						type_signature: 'RawGenResult',
 					},
 					{
 						name: 'RawGenFile',
 						kind: 'type',
-						source_line: 89,
+						source_line: 88,
 						type_signature: 'RawGenFile',
 						properties: [
 							{
@@ -2457,7 +2457,7 @@ export const library_json: LibraryJson = {
 					{
 						name: 'GenResults',
 						kind: 'type',
-						source_line: 97,
+						source_line: 96,
 						type_signature: 'GenResults',
 						properties: [
 							{
@@ -2495,13 +2495,13 @@ export const library_json: LibraryJson = {
 					{
 						name: 'GenfileModuleResult',
 						kind: 'type',
-						source_line: 105,
+						source_line: 104,
 						type_signature: 'GenfileModuleResult',
 					},
 					{
 						name: 'GenfileModuleResultSuccess',
 						kind: 'type',
-						source_line: 106,
+						source_line: 105,
 						type_signature: 'GenfileModuleResultSuccess',
 						properties: [
 							{
@@ -2529,7 +2529,7 @@ export const library_json: LibraryJson = {
 					{
 						name: 'GenfileModuleResultFailure',
 						kind: 'type',
-						source_line: 112,
+						source_line: 111,
 						type_signature: 'GenfileModuleResultFailure',
 						properties: [
 							{
@@ -2562,7 +2562,7 @@ export const library_json: LibraryJson = {
 					{
 						name: 'to_gen_result',
 						kind: 'function',
-						source_line: 120,
+						source_line: 119,
 						type_signature: '(origin_id: PathId, raw_result: RawGenResult): GenResult',
 						return_type: 'GenResult',
 						parameters: [
@@ -2581,7 +2581,7 @@ export const library_json: LibraryJson = {
 					{
 						name: 'to_output_file_name',
 						kind: 'function',
-						source_line: 160,
+						source_line: 159,
 						type_signature: '(filename: string): string',
 						return_type: 'string',
 						parameters: [
@@ -2595,13 +2595,13 @@ export const library_json: LibraryJson = {
 					{
 						name: 'AnalyzedGenResult',
 						kind: 'type',
-						source_line: 199,
+						source_line: 198,
 						type_signature: 'AnalyzedGenResult',
 					},
 					{
 						name: 'analyze_gen_results',
 						kind: 'function',
-						source_line: 213,
+						source_line: 212,
 						type_signature: '(gen_results: GenResults): Promise<AnalyzedGenResult[]>',
 						return_type: 'Promise<AnalyzedGenResult[]>',
 						parameters: [
@@ -2615,7 +2615,7 @@ export const library_json: LibraryJson = {
 					{
 						name: 'analyze_gen_result',
 						kind: 'function',
-						source_line: 220,
+						source_line: 219,
 						type_signature: '(file: GenFile): Promise<AnalyzedGenResult>',
 						return_type: 'Promise<AnalyzedGenResult>',
 						parameters: [
@@ -2629,7 +2629,7 @@ export const library_json: LibraryJson = {
 					{
 						name: 'write_gen_results',
 						kind: 'function',
-						source_line: 238,
+						source_line: 242,
 						type_signature:
 							'(gen_results: GenResults, analyzed_gen_results: AnalyzedGenResult[], log: Logger): Promise<void>',
 						return_type: 'Promise<void>',
@@ -2654,7 +2654,7 @@ export const library_json: LibraryJson = {
 					{
 						name: 'FoundGenfiles',
 						kind: 'type',
-						source_line: 266,
+						source_line: 270,
 						type_signature: 'FoundGenfiles',
 						properties: [
 							{
@@ -2677,20 +2677,20 @@ export const library_json: LibraryJson = {
 					{
 						name: 'FindGenfilesResult',
 						kind: 'type',
-						source_line: 272,
+						source_line: 276,
 						type_signature: 'FindGenfilesResult',
 					},
 					{
 						name: 'FindGenfilesFailure',
 						kind: 'type',
-						source_line: 273,
+						source_line: 277,
 						type_signature: 'FindGenfilesFailure',
 					},
 					{
 						name: 'find_genfiles',
 						kind: 'function',
 						doc_comment: 'Finds modules from input paths. (see `src/lib/input_path.ts` for more)',
-						source_line: 292,
+						source_line: 296,
 						type_signature:
 							'(input_paths: InputPath[], root_dirs: PathId[], config: GroConfig, timings?: Timings | undefined): FindGenfilesResult',
 						return_type: 'FindGenfilesResult',
@@ -2720,7 +2720,7 @@ export const library_json: LibraryJson = {
 					{
 						name: 'GenfileModule',
 						kind: 'type',
-						source_line: 358,
+						source_line: 362,
 						type_signature: 'GenfileModule',
 						properties: [
 							{
@@ -2733,13 +2733,13 @@ export const library_json: LibraryJson = {
 					{
 						name: 'GenfileModuleMeta',
 						kind: 'type',
-						source_line: 362,
+						source_line: 366,
 						type_signature: 'GenfileModuleMeta',
 					},
 					{
 						name: 'LoadedGenfiles',
 						kind: 'type',
-						source_line: 364,
+						source_line: 368,
 						type_signature: 'LoadedGenfiles',
 						properties: [
 							{
@@ -2757,19 +2757,19 @@ export const library_json: LibraryJson = {
 					{
 						name: 'LoadGenfilesResult',
 						kind: 'type',
-						source_line: 369,
+						source_line: 373,
 						type_signature: 'LoadGenfilesResult',
 					},
 					{
 						name: 'LoadGenfilesFailure',
 						kind: 'type',
-						source_line: 370,
+						source_line: 374,
 						type_signature: 'LoadGenfilesFailure',
 					},
 					{
 						name: 'load_genfiles',
 						kind: 'function',
-						source_line: 372,
+						source_line: 376,
 						type_signature:
 							'(found_genfiles: FoundGenfiles, timings?: Timings | undefined): Promise<LoadGenfilesResult>',
 						return_type: 'Promise<LoadGenfilesResult>',
@@ -2789,7 +2789,7 @@ export const library_json: LibraryJson = {
 					{
 						name: 'validate_gen_module',
 						kind: 'function',
-						source_line: 391,
+						source_line: 395,
 						type_signature: '(mod: Record<string, any>): mod is GenfileModule',
 						return_type: 'boolean',
 						parameters: [
@@ -2803,7 +2803,7 @@ export const library_json: LibraryJson = {
 					{
 						name: 'normalize_gen_config',
 						kind: 'function',
-						source_line: 399,
+						source_line: 403,
 						type_signature: '(gen: Gen): GenConfig',
 						return_type: 'GenConfig',
 						parameters: [
@@ -3402,7 +3402,7 @@ export const library_json: LibraryJson = {
 					{
 						name: 'GroPluginSveltekitAppOptions',
 						kind: 'type',
-						source_line: 15,
+						source_line: 16,
 						type_signature: 'GroPluginSveltekitAppOptions',
 						properties: [
 							{
@@ -3444,19 +3444,19 @@ export const library_json: LibraryJson = {
 					{
 						name: 'HostTarget',
 						kind: 'type',
-						source_line: 45,
+						source_line: 46,
 						type_signature: 'HostTarget',
 					},
 					{
 						name: 'CopyFileFilter',
 						kind: 'type',
-						source_line: 47,
+						source_line: 48,
 						type_signature: 'CopyFileFilter',
 					},
 					{
 						name: 'gro_plugin_sveltekit_app',
 						kind: 'function',
-						source_line: 49,
+						source_line: 50,
 						type_signature:
 							'({ host_target, well_known_package_json, well_known_source_json, well_known_src_files, vite_cli, }?: GroPluginSveltekitAppOptions): Plugin<PluginContext<object>>',
 						return_type: 'Plugin<PluginContext<object>>',
@@ -4130,9 +4130,9 @@ export const library_json: LibraryJson = {
 						kind: 'function',
 						source_line: 29,
 						type_signature:
-							'(dir?: string, cache?: Record<string, { [x: string]: unknown; name: string; version: string; private?: boolean | undefined; public?: boolean | undefined; description?: string | undefined; motto?: string | undefined; ... 25 more ...; exports?: string | ... 2 more ... | undefined; }> | undefined, parse?: boolean, log?: Logger | undefined): { ...; }',
+							'(dir?: string, cache?: Record<string, { [x: string]: unknown; name: string; version: string; private?: boolean | undefined; public?: boolean | undefined; description?: string | undefined; motto?: string | undefined; ... 25 more ...; exports?: string | ... 2 more ... | undefined; }> | undefined, parse?: boolean, log?: Logger | undefined): Promise<...>',
 						return_type:
-							'{ [x: string]: unknown; name: string; version: string; private?: boolean | undefined; public?: boolean | undefined; description?: string | undefined; motto?: string | undefined; glyph?: string | undefined; ... 24 more ...; exports?: string | ... 2 more ... | undefined; }',
+							'Promise<{ [x: string]: unknown; name: string; version: string; private?: boolean | undefined; public?: boolean | undefined; description?: string | undefined; motto?: string | undefined; glyph?: string | undefined; ... 24 more ...; exports?: string | ... 2 more ... | undefined; }>',
 						parameters: [
 							{
 								name: 'dir',
@@ -4202,17 +4202,17 @@ export const library_json: LibraryJson = {
 						kind: 'function',
 						source_line: 88,
 						type_signature:
-							'(): { [x: string]: unknown; name: string; version: string; private?: boolean | undefined; public?: boolean | undefined; description?: string | undefined; motto?: string | undefined; glyph?: string | undefined; ... 24 more ...; exports?: string | ... 2 more ... | undefined; }',
+							'(): Promise<{ [x: string]: unknown; name: string; version: string; private?: boolean | undefined; public?: boolean | undefined; description?: string | undefined; motto?: string | undefined; glyph?: string | undefined; ... 24 more ...; exports?: string | ... 2 more ... | undefined; }>',
 						return_type:
-							'{ [x: string]: unknown; name: string; version: string; private?: boolean | undefined; public?: boolean | undefined; description?: string | undefined; motto?: string | undefined; glyph?: string | undefined; ... 24 more ...; exports?: string | ... 2 more ... | undefined; }',
+							'Promise<{ [x: string]: unknown; name: string; version: string; private?: boolean | undefined; public?: boolean | undefined; description?: string | undefined; motto?: string | undefined; glyph?: string | undefined; ... 24 more ...; exports?: string | ... 2 more ... | undefined; }>',
 						parameters: [],
 					},
 					{
 						name: 'write_package_json',
 						kind: 'function',
 						source_line: 94,
-						type_signature: '(serialized_package_json: string): void',
-						return_type: 'void',
+						type_signature: '(serialized_package_json: string): Promise<void>',
+						return_type: 'Promise<void>',
 						parameters: [
 							{
 								name: 'serialized_package_json',
@@ -4224,7 +4224,7 @@ export const library_json: LibraryJson = {
 					{
 						name: 'serialize_package_json',
 						kind: 'function',
-						source_line: 98,
+						source_line: 97,
 						type_signature:
 							'(package_json: { [x: string]: unknown; name: string; version: string; private?: boolean | undefined; public?: boolean | undefined; description?: string | undefined; motto?: string | undefined; glyph?: string | undefined; ... 24 more ...; exports?: string | ... 2 more ... | undefined; }): string',
 						return_type: 'string',
@@ -4241,7 +4241,7 @@ export const library_json: LibraryJson = {
 						kind: 'function',
 						doc_comment:
 							'Updates package.json. Writes to the filesystem only when contents change.',
-						source_line: 104,
+						source_line: 103,
 						type_signature:
 							'(update: (package_json: { [x: string]: unknown; name: string; version: string; private?: boolean | undefined; public?: boolean | undefined; description?: string | undefined; motto?: string | undefined; glyph?: string | undefined; ... 24 more ...; exports?: string | ... 2 more ... | undefined; }) => { ...; } | ... 1 more ... | null, dir?: string, write?: boolean): Promise<...>',
 						return_type:
@@ -4269,7 +4269,7 @@ export const library_json: LibraryJson = {
 					{
 						name: 'to_package_exports',
 						kind: 'function',
-						source_line: 125,
+						source_line: 124,
 						type_signature: '(paths: string[]): string | Record<string, unknown> | null',
 						return_type: 'string | Record<string, unknown> | null',
 						parameters: [
@@ -4283,7 +4283,7 @@ export const library_json: LibraryJson = {
 					{
 						name: 'parse_repo_url',
 						kind: 'function',
-						source_line: 180,
+						source_line: 179,
 						type_signature:
 							'(package_json: { [x: string]: unknown; name: string; version: string; private?: boolean | undefined; public?: boolean | undefined; description?: string | undefined; motto?: string | undefined; glyph?: string | undefined; ... 24 more ...; exports?: string | ... 2 more ... | undefined; }): { ...; } | undefined',
 						return_type: '{ owner: string; repo: string; } | undefined',
@@ -4298,9 +4298,9 @@ export const library_json: LibraryJson = {
 					{
 						name: 'has_dep',
 						kind: 'function',
-						source_line: 228,
+						source_line: 227,
 						type_signature:
-							'(dep_name: string, package_json?: { [x: string]: unknown; name: string; version: string; private?: boolean | undefined; public?: boolean | undefined; description?: string | undefined; motto?: string | undefined; ... 25 more ...; exports?: string | ... 2 more ... | undefined; }): boolean',
+							'(dep_name: string, package_json: { [x: string]: unknown; name: string; version: string; private?: boolean | undefined; public?: boolean | undefined; description?: string | undefined; motto?: string | undefined; ... 25 more ...; exports?: string | ... 2 more ... | undefined; }): boolean',
 						return_type: 'boolean',
 						parameters: [
 							{
@@ -4312,14 +4312,13 @@ export const library_json: LibraryJson = {
 								name: 'package_json',
 								type: '{ [x: string]: unknown; name: string; version: string; private?: boolean | undefined; public?: boolean | undefined; description?: string | undefined; motto?: string | undefined; glyph?: string | undefined; ... 24 more ...; exports?: string | ... 2 more ... | undefined; }',
 								optional: false,
-								default_value: 'load_package_json()',
 							},
 						],
 					},
 					{
 						name: 'PackageJsonDep',
 						kind: 'type',
-						source_line: 236,
+						source_line: 232,
 						type_signature: 'PackageJsonDep',
 						properties: [
 							{
@@ -4337,7 +4336,7 @@ export const library_json: LibraryJson = {
 					{
 						name: 'extract_deps',
 						kind: 'function',
-						source_line: 241,
+						source_line: 237,
 						type_signature:
 							'(package_json: { [x: string]: unknown; name: string; version: string; private?: boolean | undefined; public?: boolean | undefined; description?: string | undefined; motto?: string | undefined; glyph?: string | undefined; ... 24 more ...; exports?: string | ... 2 more ... | undefined; }): PackageJsonDep[]',
 						return_type: 'PackageJsonDep[]',

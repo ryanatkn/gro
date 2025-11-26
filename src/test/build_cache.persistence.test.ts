@@ -16,14 +16,15 @@ vi.mock('$lib/paths.js', () => ({
 	},
 }));
 
-vi.mock('node:fs', () => ({
-	existsSync: vi.fn(),
-	readFileSync: vi.fn(),
-	writeFileSync: vi.fn(),
-	mkdirSync: vi.fn(),
-	rmSync: vi.fn(),
-	statSync: vi.fn(),
-	readdirSync: vi.fn(),
+vi.mock('node:fs/promises', () => ({
+	readFile: vi.fn(),
+	writeFile: vi.fn(),
+	mkdir: vi.fn(),
+	rm: vi.fn(),
+}));
+
+vi.mock('@ryanatkn/belt/fs.js', () => ({
+	fs_exists: vi.fn(),
 }));
 
 describe('load_build_cache_metadata', () => {
@@ -32,130 +33,140 @@ describe('load_build_cache_metadata', () => {
 	});
 
 	test('loads valid metadata file', async () => {
-		const {existsSync, readFileSync} = await import('node:fs');
+		const {readFile} = await import('node:fs/promises');
+		const {fs_exists} = await import('@ryanatkn/belt/fs.js');
 
 		const metadata = create_mock_build_cache_metadata();
-		vi.mocked(existsSync).mockReturnValue(true);
-		vi.mocked(readFileSync).mockReturnValue(JSON.stringify(metadata));
+		vi.mocked(fs_exists).mockResolvedValue(true);
+		vi.mocked(readFile).mockResolvedValue(JSON.stringify(metadata));
 
-		const result = load_build_cache_metadata();
+		const result = await load_build_cache_metadata();
 
 		expect(result).toEqual(metadata);
 	});
 
 	test('returns null for non-existent file', async () => {
-		const {existsSync} = await import('node:fs');
+		const {fs_exists} = await import('@ryanatkn/belt/fs.js');
 
-		vi.mocked(existsSync).mockReturnValue(false);
+		vi.mocked(fs_exists).mockResolvedValue(false);
 
-		const result = load_build_cache_metadata();
+		const result = await load_build_cache_metadata();
 
 		expect(result).toBeNull();
 	});
 
 	test('returns null for invalid JSON', async () => {
-		const {existsSync, readFileSync} = await import('node:fs');
+		const {readFile} = await import('node:fs/promises');
+		const {fs_exists} = await import('@ryanatkn/belt/fs.js');
 
-		vi.mocked(existsSync).mockReturnValue(true);
-		vi.mocked(readFileSync).mockReturnValue('invalid json{');
+		vi.mocked(fs_exists).mockResolvedValue(true);
+		vi.mocked(readFile).mockResolvedValue('invalid json{');
 
-		const result = load_build_cache_metadata();
+		const result = await load_build_cache_metadata();
 
 		expect(result).toBeNull();
 	});
 
 	test('returns null for wrong schema version', async () => {
-		const {existsSync, readFileSync} = await import('node:fs');
+		const {readFile} = await import('node:fs/promises');
+		const {fs_exists} = await import('@ryanatkn/belt/fs.js');
 
 		const metadata = create_mock_build_cache_metadata({version: '999'});
-		vi.mocked(existsSync).mockReturnValue(true);
-		vi.mocked(readFileSync).mockReturnValue(JSON.stringify(metadata));
+		vi.mocked(fs_exists).mockResolvedValue(true);
+		vi.mocked(readFile).mockResolvedValue(JSON.stringify(metadata));
 
-		const result = load_build_cache_metadata();
+		const result = await load_build_cache_metadata();
 
 		expect(result).toBeNull();
 	});
 
 	test('deletes cache file on schema version mismatch', async () => {
-		const {existsSync, readFileSync, rmSync} = await import('node:fs');
+		const {readFile, rm} = await import('node:fs/promises');
+		const {fs_exists} = await import('@ryanatkn/belt/fs.js');
 
 		const metadata = create_mock_build_cache_metadata({version: '999'});
-		vi.mocked(existsSync).mockReturnValue(true);
-		vi.mocked(readFileSync).mockReturnValue(JSON.stringify(metadata));
+		vi.mocked(fs_exists).mockResolvedValue(true);
+		vi.mocked(readFile).mockResolvedValue(JSON.stringify(metadata));
+		vi.mocked(rm).mockResolvedValue(undefined);
 
-		load_build_cache_metadata();
+		await load_build_cache_metadata();
 
-		expect(rmSync).toHaveBeenCalledWith('.gro/build.json', {force: true});
+		expect(rm).toHaveBeenCalledWith('.gro/build.json', {force: true});
 	});
 
 	test('deletes cache file on corrupted JSON', async () => {
-		const {existsSync, readFileSync, rmSync} = await import('node:fs');
+		const {readFile, rm} = await import('node:fs/promises');
+		const {fs_exists} = await import('@ryanatkn/belt/fs.js');
 
-		vi.mocked(existsSync).mockReturnValue(true);
-		vi.mocked(readFileSync).mockReturnValue('invalid json{');
+		vi.mocked(fs_exists).mockResolvedValue(true);
+		vi.mocked(readFile).mockResolvedValue('invalid json{');
+		vi.mocked(rm).mockResolvedValue(undefined);
 
-		load_build_cache_metadata();
+		await load_build_cache_metadata();
 
-		expect(rmSync).toHaveBeenCalledWith('.gro/build.json', {force: true});
+		expect(rm).toHaveBeenCalledWith('.gro/build.json', {force: true});
 	});
 
 	test('handles cleanup errors gracefully', async () => {
-		const {existsSync, readFileSync, rmSync} = await import('node:fs');
+		const {readFile, rm} = await import('node:fs/promises');
+		const {fs_exists} = await import('@ryanatkn/belt/fs.js');
 
-		vi.mocked(existsSync).mockReturnValue(true);
-		vi.mocked(readFileSync).mockReturnValue('invalid json{');
-		vi.mocked(rmSync).mockImplementation(() => {
-			throw new Error('Permission denied');
-		});
+		vi.mocked(fs_exists).mockResolvedValue(true);
+		vi.mocked(readFile).mockResolvedValue('invalid json{');
+		vi.mocked(rm).mockRejectedValue(new Error('Permission denied'));
 
 		// Should not throw despite cleanup error
-		expect(() => load_build_cache_metadata()).not.toThrow();
-		expect(load_build_cache_metadata()).toBeNull();
+		await expect(load_build_cache_metadata()).resolves.not.toThrow();
+		expect(await load_build_cache_metadata()).toBeNull();
 	});
 
 	test('returns null for empty file', async () => {
-		const {existsSync, readFileSync} = await import('node:fs');
+		const {readFile} = await import('node:fs/promises');
+		const {fs_exists} = await import('@ryanatkn/belt/fs.js');
 
-		vi.mocked(existsSync).mockReturnValue(true);
-		vi.mocked(readFileSync).mockReturnValue('');
+		vi.mocked(fs_exists).mockResolvedValue(true);
+		vi.mocked(readFile).mockResolvedValue('');
 
-		const result = load_build_cache_metadata();
+		const result = await load_build_cache_metadata();
 
 		expect(result).toBeNull();
 	});
 
 	test('returns null for valid JSON with wrong version', async () => {
-		const {existsSync, readFileSync} = await import('node:fs');
+		const {readFile} = await import('node:fs/promises');
+		const {fs_exists} = await import('@ryanatkn/belt/fs.js');
 
-		vi.mocked(existsSync).mockReturnValue(true);
-		vi.mocked(readFileSync).mockReturnValue(
+		vi.mocked(fs_exists).mockResolvedValue(true);
+		vi.mocked(readFile).mockResolvedValue(
 			JSON.stringify(create_mock_build_cache_metadata({version: 'wrong'})),
 		);
 
-		const result = load_build_cache_metadata();
+		const result = await load_build_cache_metadata();
 
 		expect(result).toBeNull();
 	});
 
 	test('returns null for truncated JSON file', async () => {
-		const {existsSync, readFileSync} = await import('node:fs');
+		const {readFile} = await import('node:fs/promises');
+		const {fs_exists} = await import('@ryanatkn/belt/fs.js');
 
 		// Simulate truncated write (incomplete JSON)
 		const truncated = '{"version":"1","git_commit":"abc123","build_cache_config_hash":"hash","tim';
 
-		vi.mocked(existsSync).mockReturnValue(true);
-		vi.mocked(readFileSync).mockReturnValue(truncated);
+		vi.mocked(fs_exists).mockResolvedValue(true);
+		vi.mocked(readFile).mockResolvedValue(truncated);
 
-		const result = load_build_cache_metadata();
+		const result = await load_build_cache_metadata();
 
 		expect(result).toBeNull();
 	});
 
 	test('rejects cache with missing required fields (Zod validation)', async () => {
-		const {existsSync, readFileSync} = await import('node:fs');
+		const {readFile} = await import('node:fs/promises');
+		const {fs_exists} = await import('@ryanatkn/belt/fs.js');
 
-		vi.mocked(existsSync).mockReturnValue(true);
-		vi.mocked(readFileSync).mockReturnValue(
+		vi.mocked(fs_exists).mockResolvedValue(true);
+		vi.mocked(readFile).mockResolvedValue(
 			JSON.stringify({
 				version: '1',
 				git_commit: 'abc123',
@@ -165,16 +176,17 @@ describe('load_build_cache_metadata', () => {
 			}),
 		);
 
-		const result = load_build_cache_metadata();
+		const result = await load_build_cache_metadata();
 
 		expect(result).toBeNull();
 	});
 
 	test('rejects cache with wrong field types (Zod validation)', async () => {
-		const {existsSync, readFileSync} = await import('node:fs');
+		const {readFile} = await import('node:fs/promises');
+		const {fs_exists} = await import('@ryanatkn/belt/fs.js');
 
-		vi.mocked(existsSync).mockReturnValue(true);
-		vi.mocked(readFileSync).mockReturnValue(
+		vi.mocked(fs_exists).mockResolvedValue(true);
+		vi.mocked(readFile).mockResolvedValue(
 			JSON.stringify({
 				version: 1, // should be string
 				git_commit: 'abc123',
@@ -184,33 +196,35 @@ describe('load_build_cache_metadata', () => {
 			}),
 		);
 
-		const result = load_build_cache_metadata();
+		const result = await load_build_cache_metadata();
 
 		expect(result).toBeNull();
 	});
 
 	test('rejects cache with unexpected extra fields (strictObject)', async () => {
-		const {existsSync, readFileSync} = await import('node:fs');
+		const {readFile} = await import('node:fs/promises');
+		const {fs_exists} = await import('@ryanatkn/belt/fs.js');
 
-		vi.mocked(existsSync).mockReturnValue(true);
-		vi.mocked(readFileSync).mockReturnValue(
+		vi.mocked(fs_exists).mockResolvedValue(true);
+		vi.mocked(readFile).mockResolvedValue(
 			JSON.stringify({...create_mock_build_cache_metadata(), unexpected_field: 'bad'}),
 		);
 
-		const result = load_build_cache_metadata();
+		const result = await load_build_cache_metadata();
 
 		expect(result).toBeNull();
 	});
 
 	test('rejects cache with invalid outputs type', async () => {
-		const {existsSync, readFileSync} = await import('node:fs');
+		const {readFile} = await import('node:fs/promises');
+		const {fs_exists} = await import('@ryanatkn/belt/fs.js');
 
-		vi.mocked(existsSync).mockReturnValue(true);
-		vi.mocked(readFileSync).mockReturnValue(
+		vi.mocked(fs_exists).mockResolvedValue(true);
+		vi.mocked(readFile).mockResolvedValue(
 			JSON.stringify({...create_mock_build_cache_metadata(), outputs: 'not-an-array'}),
 		);
 
-		const result = load_build_cache_metadata();
+		const result = await load_build_cache_metadata();
 
 		expect(result).toBeNull();
 	});
@@ -222,39 +236,42 @@ describe('save_build_cache_metadata', () => {
 	});
 
 	test('writes metadata to correct path', async () => {
-		const {writeFileSync, mkdirSync} = await import('node:fs');
+		const {writeFile, mkdir} = await import('node:fs/promises');
 
 		const metadata = create_mock_build_cache_metadata();
+		vi.mocked(mkdir).mockResolvedValue(undefined);
+		vi.mocked(writeFile).mockResolvedValue(undefined);
 
-		save_build_cache_metadata(metadata);
+		await save_build_cache_metadata(metadata);
 
-		expect(mkdirSync).toHaveBeenCalledWith('./.gro/', {recursive: true});
-		expect(writeFileSync).toHaveBeenCalledWith('.gro/build.json', expect.any(String), 'utf-8');
+		expect(mkdir).toHaveBeenCalledWith('./.gro/', {recursive: true});
+		expect(writeFile).toHaveBeenCalledWith('.gro/build.json', expect.any(String), 'utf-8');
 	});
 
 	test('uses proper JSON formatting with tabs', async () => {
-		const {writeFileSync} = await import('node:fs');
+		const {writeFile, mkdir} = await import('node:fs/promises');
 
 		const metadata = create_mock_build_cache_metadata();
+		vi.mocked(mkdir).mockResolvedValue(undefined);
+		vi.mocked(writeFile).mockResolvedValue(undefined);
 
-		save_build_cache_metadata(metadata);
+		await save_build_cache_metadata(metadata);
 
-		const written_content = vi.mocked(writeFileSync).mock.calls[0]![1] as string;
+		const written_content = vi.mocked(writeFile).mock.calls[0]![1] as string;
 		expect(written_content).toContain('\t');
 		expect(JSON.parse(written_content)).toEqual(metadata);
 	});
 
 	test('logs warning on write error', async () => {
-		const {writeFileSync} = await import('node:fs');
+		const {writeFile, mkdir} = await import('node:fs/promises');
 
 		const metadata = create_mock_build_cache_metadata();
 		const log = create_mock_logger();
 
-		vi.mocked(writeFileSync).mockImplementation(() => {
-			throw new Error('ENOSPC: no space left on device');
-		});
+		vi.mocked(mkdir).mockResolvedValue(undefined);
+		vi.mocked(writeFile).mockRejectedValue(new Error('ENOSPC: no space left on device'));
 
-		save_build_cache_metadata(metadata, log);
+		await save_build_cache_metadata(metadata, log);
 
 		expect(log.warn).toHaveBeenCalledWith(
 			expect.stringContaining('Failed to save build cache'),
@@ -263,28 +280,26 @@ describe('save_build_cache_metadata', () => {
 	});
 
 	test('does not throw on write error', async () => {
-		const {writeFileSync} = await import('node:fs');
+		const {writeFile, mkdir} = await import('node:fs/promises');
 
 		const metadata = create_mock_build_cache_metadata();
 
-		vi.mocked(writeFileSync).mockImplementation(() => {
-			throw new Error('EACCES: permission denied');
-		});
+		vi.mocked(mkdir).mockResolvedValue(undefined);
+		vi.mocked(writeFile).mockRejectedValue(new Error('EACCES: permission denied'));
 
 		// Should not throw despite write error
-		expect(() => save_build_cache_metadata(metadata)).not.toThrow();
+		await expect(save_build_cache_metadata(metadata)).resolves.not.toThrow();
 	});
 
 	test('handles write error without logger', async () => {
-		const {writeFileSync} = await import('node:fs');
+		const {writeFile, mkdir} = await import('node:fs/promises');
 
 		const metadata = create_mock_build_cache_metadata();
 
-		vi.mocked(writeFileSync).mockImplementation(() => {
-			throw new Error('Write failed');
-		});
+		vi.mocked(mkdir).mockResolvedValue(undefined);
+		vi.mocked(writeFile).mockRejectedValue(new Error('Write failed'));
 
 		// Should not throw even without logger (log?.warn is safe)
-		expect(() => save_build_cache_metadata(metadata)).not.toThrow();
+		await expect(save_build_cache_metadata(metadata)).resolves.not.toThrow();
 	});
 });

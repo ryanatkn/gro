@@ -35,18 +35,15 @@ vi.mock('@ryanatkn/belt/process.js', () => ({
 	spawn: vi.fn(),
 }));
 
-vi.mock('node:fs', () => ({
-	existsSync: vi.fn(),
-	readdirSync: vi.fn(),
-}));
-
 vi.mock('node:fs/promises', () => ({
 	cp: vi.fn(),
 	mkdir: vi.fn(),
 	rm: vi.fn(),
+	readdir: vi.fn(),
 }));
 
 vi.mock('@ryanatkn/belt/fs.js', () => ({
+	fs_exists: vi.fn(),
 	fs_empty_dir: vi.fn(),
 }));
 
@@ -143,10 +140,10 @@ describe('deploy_task error handling', () => {
 			const {git_remote_branch_exists, git_clone_locally} = vi.mocked(
 				await import('@ryanatkn/belt/git.js'),
 			);
-			const {existsSync} = await import('node:fs');
+			const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
 
 			vi.mocked(git_remote_branch_exists).mockResolvedValue(false); // trigger new branch path
-			vi.mocked(existsSync).mockReturnValue(false);
+			vi.mocked(fs_exists).mockResolvedValue(false);
 			vi.mocked(git_clone_locally).mockRejectedValue(new Error('Clone failed'));
 
 			const ctx = create_mock_deploy_task_context({dry: true});
@@ -156,9 +153,9 @@ describe('deploy_task error handling', () => {
 
 		test('propagates git_current_branch_name errors', async () => {
 			const {git_current_branch_name} = vi.mocked(await import('@ryanatkn/belt/git.js'));
-			const {existsSync} = await import('node:fs');
+			const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
 
-			vi.mocked(existsSync).mockReturnValue(true); // deploy dir exists
+			vi.mocked(fs_exists).mockResolvedValue(true); // deploy dir exists
 			vi.mocked(git_current_branch_name).mockRejectedValue(new Error('Not a git repository'));
 
 			const ctx = create_mock_deploy_task_context({dry: true});
@@ -169,10 +166,10 @@ describe('deploy_task error handling', () => {
 		test('propagates git_delete_local_branch errors', async () => {
 			const {git_local_branch_exists, git_delete_local_branch, git_remote_branch_exists} =
 				vi.mocked(await import('@ryanatkn/belt/git.js'));
-			const {existsSync} = await import('node:fs');
+			const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
 
 			// Trigger local branch deletion (line 182 - deploy_dir doesn't exist, remote exists, local branch doesn't exist before fetch)
-			vi.mocked(existsSync).mockImplementation((path: any) => {
+			vi.mocked(fs_exists).mockImplementation((path: any) => {
 				const path_str = String(path);
 				if (path_str.includes('build')) return true; // build_dir exists
 				return false; // deploy_dir doesn't exist
@@ -190,9 +187,9 @@ describe('deploy_task error handling', () => {
 
 		test('propagates git_reset_branch_to_first_commit errors', async () => {
 			const {git_reset_branch_to_first_commit} = vi.mocked(await import('@ryanatkn/belt/git.js'));
-			const {existsSync} = await import('node:fs');
+			const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
 
-			vi.mocked(existsSync).mockReturnValue(true);
+			vi.mocked(fs_exists).mockResolvedValue(true);
 			vi.mocked(git_reset_branch_to_first_commit).mockRejectedValue(new Error('Reset failed'));
 
 			const ctx = create_mock_deploy_task_context({
@@ -205,10 +202,10 @@ describe('deploy_task error handling', () => {
 	});
 
 	describe('filesystem operation failures', () => {
-		test('propagates existsSync errors', async () => {
-			const {existsSync} = await import('node:fs');
+		test('propagates fs_exists errors', async () => {
+			const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
 
-			vi.mocked(existsSync).mockImplementation(() => {
+			vi.mocked(fs_exists).mockImplementation(() => {
 				throw new Error('Permission denied');
 			});
 
@@ -220,10 +217,10 @@ describe('deploy_task error handling', () => {
 		test('propagates rm errors', async () => {
 			const {git_remote_branch_exists} = vi.mocked(await import('@ryanatkn/belt/git.js'));
 			const {rm} = await import('node:fs/promises');
-			const {existsSync} = await import('node:fs');
+			const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
 
 			vi.mocked(git_remote_branch_exists).mockResolvedValue(false); // trigger deletion
-			vi.mocked(existsSync).mockReturnValue(true); // deploy dir exists
+			vi.mocked(fs_exists).mockResolvedValue(true); // deploy dir exists
 			vi.mocked(rm).mockRejectedValue(new Error('Cannot remove directory'));
 
 			const ctx = create_mock_deploy_task_context({dry: true});
@@ -234,10 +231,10 @@ describe('deploy_task error handling', () => {
 		test('propagates mkdir errors', async () => {
 			const {git_remote_branch_exists} = vi.mocked(await import('@ryanatkn/belt/git.js'));
 			const {mkdir} = await import('node:fs/promises');
-			const {existsSync} = await import('node:fs');
+			const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
 
 			vi.mocked(git_remote_branch_exists).mockResolvedValue(false);
-			vi.mocked(existsSync).mockReturnValue(true);
+			vi.mocked(fs_exists).mockResolvedValue(true);
 			vi.mocked(mkdir).mockRejectedValue(new Error('Disk full'));
 
 			const ctx = create_mock_deploy_task_context({dry: true});
@@ -247,9 +244,9 @@ describe('deploy_task error handling', () => {
 
 		test('propagates fs_empty_dir errors', async () => {
 			const {fs_empty_dir} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
-			const {existsSync} = await import('node:fs');
+			const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
 
-			vi.mocked(existsSync).mockReturnValue(true);
+			vi.mocked(fs_exists).mockResolvedValue(true);
 			vi.mocked(fs_empty_dir).mockRejectedValue(new Error('Failed to empty directory'));
 
 			const ctx = create_mock_deploy_task_context({dry: true});
@@ -257,12 +254,12 @@ describe('deploy_task error handling', () => {
 			await expect(deploy_task.run(ctx)).rejects.toThrow('Failed to empty directory');
 		});
 
-		test('propagates readdirSync errors', async () => {
-			const {readdirSync} = await import('node:fs');
-			const {existsSync} = await import('node:fs');
+		test('propagates readdir errors', async () => {
+			const {readdir} = vi.mocked(await import('node:fs/promises'));
+			const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
 
-			vi.mocked(existsSync).mockReturnValue(true);
-			vi.mocked(readdirSync).mockImplementation(() => {
+			vi.mocked(fs_exists).mockResolvedValue(true);
+			vi.mocked(readdir).mockImplementation(() => {
 				throw new Error('Cannot read directory');
 			});
 
@@ -273,9 +270,9 @@ describe('deploy_task error handling', () => {
 
 		test('propagates cp errors', async () => {
 			const {cp} = await import('node:fs/promises');
-			const {existsSync} = await import('node:fs');
+			const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
 
-			vi.mocked(existsSync).mockReturnValue(true);
+			vi.mocked(fs_exists).mockResolvedValue(true);
 			vi.mocked(cp).mockRejectedValue(new Error('Failed to copy files'));
 
 			const ctx = create_mock_deploy_task_context({dry: true});
@@ -287,9 +284,9 @@ describe('deploy_task error handling', () => {
 	describe('spawn operation failures', () => {
 		test('propagates spawn errors for git reset', async () => {
 			const {spawn} = vi.mocked(await import('@ryanatkn/belt/process.js'));
-			const {existsSync} = await import('node:fs');
+			const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
 
-			vi.mocked(existsSync).mockReturnValue(true);
+			vi.mocked(fs_exists).mockResolvedValue(true);
 
 			// Make git reset fail
 			vi.mocked(spawn).mockImplementation(async (cmd, args) => {
@@ -307,10 +304,10 @@ describe('deploy_task error handling', () => {
 		test('propagates spawn errors for orphan branch creation', async () => {
 			const {git_remote_branch_exists} = vi.mocked(await import('@ryanatkn/belt/git.js'));
 			const {spawn} = vi.mocked(await import('@ryanatkn/belt/process.js'));
-			const {existsSync} = await import('node:fs');
+			const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
 
 			vi.mocked(git_remote_branch_exists).mockResolvedValue(false); // trigger new branch
-			vi.mocked(existsSync).mockReturnValue(false);
+			vi.mocked(fs_exists).mockResolvedValue(false);
 
 			// Make checkout --orphan fail
 			vi.mocked(spawn).mockImplementation(async (cmd, args) => {
@@ -327,9 +324,9 @@ describe('deploy_task error handling', () => {
 
 		test('propagates spawn errors for git add in commit phase', async () => {
 			const {spawn} = vi.mocked(await import('@ryanatkn/belt/process.js'));
-			const {existsSync} = await import('node:fs');
+			const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
 
-			vi.mocked(existsSync).mockImplementation((path: any) => {
+			vi.mocked(fs_exists).mockImplementation((path: any) => {
 				const path_str = String(path);
 				return path_str.includes('build') || path_str.includes('.gro/deploy'); // both exist
 			});
@@ -351,8 +348,8 @@ describe('deploy_task error handling', () => {
 
 	describe('build task failures', () => {
 		test('propagates build task errors', async () => {
-			const {existsSync} = await import('node:fs');
-			vi.mocked(existsSync).mockReturnValue(true);
+			const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+			vi.mocked(fs_exists).mockResolvedValue(true);
 
 			const ctx = create_mock_deploy_task_context({build: true});
 
@@ -363,8 +360,8 @@ describe('deploy_task error handling', () => {
 
 		test('does not make git changes when build fails', async () => {
 			const {spawn} = vi.mocked(await import('@ryanatkn/belt/process.js'));
-			const {existsSync} = await import('node:fs');
-			vi.mocked(existsSync).mockReturnValue(true);
+			const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+			vi.mocked(fs_exists).mockResolvedValue(true);
 
 			const ctx = create_mock_deploy_task_context({build: true, dry: false});
 
@@ -409,8 +406,8 @@ describe('deploy_task error handling', () => {
 
 		test('git operation errors in bad state include actionable message', async () => {
 			const {spawn} = vi.mocked(await import('@ryanatkn/belt/process.js'));
-			const {existsSync} = await import('node:fs');
-			vi.mocked(existsSync).mockReturnValue(true);
+			const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+			vi.mocked(fs_exists).mockResolvedValue(true);
 
 			// Fail during push
 			vi.mocked(spawn).mockImplementation(async (cmd, args) => {

@@ -1,7 +1,7 @@
 import {spawn} from '@ryanatkn/belt/process.js';
 import {z} from 'zod';
 import {styleText as st} from 'node:util';
-import {existsSync} from 'node:fs';
+import {fs_exists} from '@ryanatkn/belt/fs.js';
 import {
 	GitBranch,
 	GitOrigin,
@@ -85,7 +85,7 @@ export const task: Task<Args> = {
 			log.info(st('green', 'dry run!'));
 		}
 
-		const package_json = load_package_json();
+		const package_json = await load_package_json();
 
 		const has_sveltekit_library_result = await has_sveltekit_library(package_json);
 		if (!has_sveltekit_library_result.ok) {
@@ -94,7 +94,7 @@ export const task: Task<Args> = {
 			);
 		}
 
-		const changelog_exists = existsSync(changelog);
+		const changelog_exists = await fs_exists(changelog);
 
 		const found_changeset_cli = find_cli(changeset_cli);
 		if (!found_changeset_cli) {
@@ -178,7 +178,7 @@ export const task: Task<Args> = {
 			// The check above ensures gen is updated.
 			await invoke_task('gen');
 
-			const package_json_after_versioning = load_package_json();
+			const package_json_after_versioning = await load_package_json();
 			version = package_json_after_versioning.version!;
 			if (package_json.version === version) {
 				// The version didn't change.
@@ -217,7 +217,7 @@ export const task: Task<Args> = {
 			);
 		}
 
-		if (!changelog_exists && existsSync(changelog)) {
+		if (!changelog_exists && (await fs_exists(changelog))) {
 			await spawn('git', ['add', changelog]);
 		}
 		await spawn('git', ['commit', '-a', '-m', `publish v${version}`]);

@@ -35,18 +35,15 @@ vi.mock('@ryanatkn/belt/process.js', () => ({
 	spawn: vi.fn(),
 }));
 
-vi.mock('node:fs', () => ({
-	existsSync: vi.fn(),
-	readdirSync: vi.fn(),
-}));
-
 vi.mock('node:fs/promises', () => ({
 	cp: vi.fn(),
 	mkdir: vi.fn(),
 	rm: vi.fn(),
+	readdir: vi.fn(),
 }));
 
 vi.mock('@ryanatkn/belt/fs.js', () => ({
+	fs_exists: vi.fn(),
 	fs_empty_dir: vi.fn(),
 }));
 
@@ -71,10 +68,10 @@ describe('deploy_task target branch creation (remote does not exist)', () => {
 
 	describe('deploy directory cleanup', () => {
 		test('deletes existing deploy directory', async () => {
-			const {existsSync} = await import('node:fs');
+			const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
 			const {rm, mkdir} = await import('node:fs/promises');
 
-			vi.mocked(existsSync).mockReturnValue(true); // deploy dir exists
+			vi.mocked(fs_exists).mockResolvedValue(true); // deploy dir exists
 
 			const ctx = create_mock_deploy_task_context({dry: true});
 
@@ -87,11 +84,11 @@ describe('deploy_task target branch creation (remote does not exist)', () => {
 		});
 
 		test('skips deletion when deploy directory does not exist', async () => {
-			const {existsSync} = await import('node:fs');
+			const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
 			const {rm, mkdir} = await import('node:fs/promises');
 
 			// deploy dir doesn't exist, but build_dir does
-			vi.mocked(existsSync).mockImplementation((path: any) => String(path).includes('build'));
+			vi.mocked(fs_exists).mockImplementation((path: any) => String(path).includes('build'));
 
 			const ctx = create_mock_deploy_task_context({dry: true});
 
@@ -104,10 +101,10 @@ describe('deploy_task target branch creation (remote does not exist)', () => {
 		});
 
 		test('uses custom deploy_dir path', async () => {
-			const {existsSync} = await import('node:fs');
+			const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
 			const {rm, mkdir} = await import('node:fs/promises');
 
-			vi.mocked(existsSync).mockReturnValue(true);
+			vi.mocked(fs_exists).mockResolvedValue(true);
 
 			const ctx = create_mock_deploy_task_context({
 				deploy_dir: 'custom/path',

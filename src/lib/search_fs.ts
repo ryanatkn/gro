@@ -2,7 +2,8 @@ import {EMPTY_OBJECT} from '@ryanatkn/belt/object.js';
 import {to_array} from '@ryanatkn/belt/array.js';
 import {ensure_end} from '@ryanatkn/belt/string.js';
 import {isAbsolute, join} from 'node:path';
-import {existsSync, readdirSync} from 'node:fs';
+import {readdir} from 'node:fs/promises';
+import {fs_exists} from '@ryanatkn/belt/fs.js';
 import type {FileFilter, ResolvedPath, PathFilter} from '@ryanatkn/belt/path.js';
 
 export interface SearchFsOptions {
@@ -28,10 +29,10 @@ export interface SearchFsOptions {
 	cwd?: string | null;
 }
 
-export const search_fs = (
+export const search_fs = async (
 	dir: string,
 	options: SearchFsOptions = EMPTY_OBJECT,
-): Array<ResolvedPath> => {
+): Promise<Array<ResolvedPath>> => {
 	const {
 		filter,
 		file_filter,
@@ -49,27 +50,25 @@ export const search_fs = (
 			? undefined
 			: to_array(file_filter);
 
-	if (!existsSync(final_dir)) return [];
+	if (!(await fs_exists(final_dir))) return [];
 
 	const paths: Array<ResolvedPath> = [];
-	crawl(final_dir, paths, filters, file_filters, include_directories, null);
+	await crawl(final_dir, paths, filters, file_filters, include_directories, null);
 
 	return sort ? paths.sort(typeof sort === 'boolean' ? default_sort : sort) : paths;
 };
 
 const default_sort = (a: ResolvedPath, b: ResolvedPath): number => a.path.localeCompare(b.path);
 
-const crawl = (
+const crawl = async (
 	dir: string,
 	paths: Array<ResolvedPath>,
 	filters: Array<PathFilter> | undefined,
 	file_filter: Array<FileFilter> | undefined,
 	include_directories: boolean,
 	base_dir: string | null,
-): Array<ResolvedPath> => {
-	// This sync version is significantly faster than using the `fs/promises` version -
-	// it doesn't parallelize but that's not the common case in Gro.
-	const dirents = readdirSync(dir, {withFileTypes: true});
+): Promise<Array<ResolvedPath>> => {
+	const dirents = await readdir(dir, {withFileTypes: true});
 	for (const dirent of dirents) {
 		const {name, parentPath} = dirent;
 		const is_directory = dirent.isDirectory();
@@ -82,7 +81,8 @@ const crawl = (
 			if (include_directories) {
 				paths.push({path, id: dir_id, is_directory: true});
 			}
-			crawl(dir_id, paths, filters, file_filter, include_directories, path);
+			// eslint-disable-next-line no-await-in-loop
+			await crawl(dir_id, paths, filters, file_filter, include_directories, path);
 		} else if (!file_filter || file_filter.every((f) => f(id))) {
 			paths.push({path, id, is_directory: false});
 		}
@@ -90,9 +90,10 @@ const crawl = (
 	return paths;
 };
 
-export const find_first_existing_file = (paths: Array<string>): string | null => {
+export const find_first_existing_file = async (paths: Array<string>): Promise<string | null> => {
 	for (const path of paths) {
-		if (existsSync(path)) {
+		// eslint-disable-next-line no-await-in-loop
+		if (await fs_exists(path)) {
 			return path;
 		}
 	}

@@ -48,7 +48,7 @@ export const gro_plugin_gen = ({
 				// Some parts of the build may have already happened,
 				// making us miss `build` events for gen dependencies,
 				// so we run a full `gen` here even if it's usually wasteful.
-				const found = find_genfiles(input_paths, root_dirs, config);
+				const found = await find_genfiles(input_paths, root_dirs, config);
 				if (found.ok && found.value.resolved_input_files.length > 0) {
 					await gen();
 				}

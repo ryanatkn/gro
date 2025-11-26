@@ -4,10 +4,10 @@ import {resolve} from 'node:path';
 import {search_fs} from '../lib/search_fs.ts';
 
 describe('search_fs', () => {
-	test('search_fs basic behavior', () => {
+	test('search_fs basic behavior', async () => {
 		const ignored_path = 'test1.foo.ts';
 		let has_ignored_path = false;
-		const result = search_fs('./src/test/fixtures', {
+		const result = await search_fs('./src/test/fixtures', {
 			filter: (path) => {
 				if (!has_ignored_path) has_ignored_path = path.endsWith(ignored_path);
 				return !path.endsWith(ignored_path);

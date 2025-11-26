@@ -2,9 +2,9 @@ import {spawn} from '@ryanatkn/belt/process.js';
 import {print_error} from '@ryanatkn/belt/print.js';
 import {styleText as st} from 'node:util';
 import {z} from 'zod';
-import {cp, mkdir, rm} from 'node:fs/promises';
+import {cp, mkdir, readdir, rm} from 'node:fs/promises';
 import {join, resolve} from 'node:path';
-import {existsSync, readdirSync} from 'node:fs';
+import {fs_exists, fs_empty_dir} from '@ryanatkn/belt/fs.js';
 import {
 	git_check_clean_workspace,
 	git_checkout,
@@ -21,7 +21,6 @@ import {
 	git_clone_locally,
 	git_current_branch_name,
 } from '@ryanatkn/belt/git.js';
-import {fs_empty_dir} from '@ryanatkn/belt/fs.js';
 
 import {TaskError, type Task} from './task.ts';
 import {print_path} from './paths.ts';
@@ -154,7 +153,7 @@ export const task: Task<Args> = {
 			// First, check if the deploy dir exists, and if so, attempt to sync it.
 			// If anything goes wrong, delete the directory and we'll initialize it
 			// using the same code path as if it didn't exist in the first place.
-			if (existsSync(resolved_deploy_dir)) {
+			if (await fs_exists(resolved_deploy_dir)) {
 				if (target !== (await git_current_branch_name(target_spawn_options))) {
 					// We're in a bad state because the target branch has changed,
 					// so delete the directory and continue as if it wasn't there.
@@ -175,7 +174,7 @@ export const task: Task<Args> = {
 
 			// Second, initialize the deploy dir if needed.
 			// It may not exist, or it may have been deleted after failing to sync above.
-			if (!existsSync(resolved_deploy_dir)) {
+			if (!(await fs_exists(resolved_deploy_dir))) {
 				const local_deploy_branch_exists = await git_local_branch_exists(target);
 				await git_fetch(origin, ('+' + target + ':' + target) as GitBranch); // fetch+merge and allow non-fastforward updates with the +
 				await git_clone_locally(origin, target, dir, resolved_deploy_dir);
@@ -193,7 +192,7 @@ export const task: Task<Args> = {
 			// Remote target branch does not exist, so start from scratch
 
 			// Delete the deploy dir and recreate it
-			if (existsSync(resolved_deploy_dir)) {
+			if (await fs_exists(resolved_deploy_dir)) {
 				await rm(resolved_deploy_dir, {recursive: true});
 				await mkdir(resolved_deploy_dir, {recursive: true});
 			}
@@ -238,13 +237,14 @@ export const task: Task<Args> = {
 		}
 
 		// Verify build output exists
-		if (!existsSync(build_dir)) {
+		if (!(await fs_exists(build_dir))) {
 			throw new TaskError(`Directory to deploy does not exist after building: ${build_dir}`);
 		}
 
 		// Copy the build
+		const build_entries = await readdir(build_dir);
 		await Promise.all(
-			readdirSync(build_dir).map((path) =>
+			build_entries.map((path) =>
 				cp(join(build_dir, path), join(resolved_deploy_dir, path), {recursive: true}),
 			),
 		);

@@ -19,7 +19,7 @@ export const format_file = async (
 	const final_base_options =
 		base_options !== undefined
 			? base_options
-			: (cached_base_options = load_package_json().prettier as any);
+			: (cached_base_options = (await load_package_json()).prettier as any);
 	let final_options = options;
 	if (options.filepath && !options.parser) {
 		const {filepath, ...rest} = options;

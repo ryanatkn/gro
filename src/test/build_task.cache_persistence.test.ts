@@ -10,14 +10,16 @@ vi.mock('@ryanatkn/belt/git.js', () => ({
 	git_current_commit_hash: vi.fn(),
 }));
 
-vi.mock('node:fs', () => ({
-	existsSync: vi.fn(),
-	rmSync: vi.fn(),
-	mkdirSync: vi.fn(),
-	readFileSync: vi.fn(),
-	writeFileSync: vi.fn(),
-	readdirSync: vi.fn(),
-	statSync: vi.fn(),
+// Mock async fs functions used by build.task.ts and build_cache.ts (discover_build_output_dirs)
+vi.mock('node:fs/promises', () => ({
+	rm: vi.fn(),
+	readdir: vi.fn(),
+	stat: vi.fn(),
+}));
+
+// Mock fs_exists from belt
+vi.mock('@ryanatkn/belt/fs.js', () => ({
+	fs_exists: vi.fn(),
 }));
 
 vi.mock('../lib/clean_fs.ts', () => ({
@@ -153,22 +155,23 @@ describe('build_task cache persistence', () => {
 
 	test('still deletes dist when force_build with dirty workspace', async () => {
 		const {git_check_clean_workspace} = vi.mocked(await import('@ryanatkn/belt/git.js'));
-		const {existsSync, rmSync, readdirSync, statSync} = await import('node:fs');
+		const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+		const {rm, readdir, stat} = vi.mocked(await import('node:fs/promises'));
 
 		// Workspace is dirty, force_build is true
 		vi.mocked(git_check_clean_workspace).mockResolvedValue('Modified files:\n  src/foo.ts');
-		vi.mocked(existsSync).mockReturnValue(true); // All files exist
-		vi.mocked(readdirSync).mockReturnValue(['dist_server'] as any);
-		vi.mocked(statSync).mockReturnValue({isDirectory: () => true} as any);
+		vi.mocked(fs_exists).mockResolvedValue(true); // All files exist
+		vi.mocked(readdir).mockResolvedValue(['dist_server'] as any);
+		vi.mocked(stat).mockResolvedValue({isDirectory: () => true} as any);
 
 		const ctx = create_mock_build_task_context({force_build: true});
 
 		await build_task.run(ctx);
 
 		// Should still delete all build outputs (dirty workspace protection via discover_build_output_dirs)
-		expect(rmSync).toHaveBeenCalledWith('build', {recursive: true, force: true});
-		expect(rmSync).toHaveBeenCalledWith('dist', {recursive: true, force: true});
-		expect(rmSync).toHaveBeenCalledWith('dist_server', {recursive: true, force: true});
+		expect(rm).toHaveBeenCalledWith('build', {recursive: true, force: true});
+		expect(rm).toHaveBeenCalledWith('dist', {recursive: true, force: true});
+		expect(rm).toHaveBeenCalledWith('dist_server', {recursive: true, force: true});
 	});
 
 	test('build_dirs parameter is correctly threaded through clean workspace path', async () => {

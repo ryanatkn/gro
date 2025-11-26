@@ -68,7 +68,7 @@ export const invoke_task = async (
 
 	// Check if the caller just wants to see the version.
 	if (!task_name && (args?.version || args?.v)) {
-		const gro_package_json = load_gro_package_json();
+		const gro_package_json = await load_gro_package_json();
 		log.info(`${st('gray', 'v')}${st('cyan', gro_package_json.version)}`);
 		await finish();
 		return;
@@ -81,7 +81,7 @@ export const invoke_task = async (
 
 	// Find the task or directory specified by the `input_path`.
 	// Fall back to searching the Gro directory as well.
-	const found = find_tasks([input_path], task_root_dirs, config);
+	const found = await find_tasks([input_path], task_root_dirs, config);
 	if (!found.ok) {
 		log_error_reasons(log, found.reasons);
 		throw new SilentError();
