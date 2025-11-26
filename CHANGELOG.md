@@ -1,5 +1,11 @@
 # @ryanatkn/gro
 
+## 0.179.0
+
+### Minor Changes
+
+- upgrade belt and chokidar@5 ([627b6c2](https://github.com/ryanatkn/gro/commit/627b6c2))
+
 ## 0.178.0
 
 ### Minor Changes
