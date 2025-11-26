@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type {Snippet} from 'svelte';
 	import Docs from '@ryanatkn/fuz/Docs.svelte';
-	import {pkg_context} from '@ryanatkn/fuz/pkg.svelte.js';
+	import {library_context} from '@ryanatkn/fuz/library.svelte.js';
 
 	import {tomes} from '$routes/docs/tomes.js';
 
@@ -11,9 +11,9 @@
 		children: Snippet;
 	} = $props();
 
-	const pkg = pkg_context.get();
+	const library = library_context.get();
 </script>
 
-<Docs {tomes} {pkg}>
+<Docs {tomes} {library}>
 	{@render children()}
 </Docs>

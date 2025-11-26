@@ -5,9 +5,9 @@
 
 	import Themed from '@ryanatkn/fuz/Themed.svelte';
 	import type {Snippet} from 'svelte';
-	import {Pkg, pkg_context} from '@ryanatkn/fuz/pkg.svelte.js';
+	import {Library, library_context} from '@ryanatkn/fuz/library.svelte.js';
 
-	import {package_json, source_json} from './package.ts';
+	import {library_json} from './library.js';
 
 	// TODO add website, rewriting the markdown docs as Svelte
 
@@ -17,7 +17,7 @@
 		children: Snippet;
 	} = $props();
 
-	pkg_context.set(new Pkg(package_json, source_json));
+	library_context.set(new Library(library_json));
 </script>
 
 <svelte:head>

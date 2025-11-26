@@ -1,31 +1,31 @@
 <script lang="ts">
-	import PackageDetail from '@ryanatkn/fuz/PackageDetail.svelte';
+	import LibraryDetail from '@ryanatkn/fuz/LibraryDetail.svelte';
 	import DocsFooter from '@ryanatkn/fuz/DocsFooter.svelte';
 	import EcosystemLinksPanel from '@ryanatkn/fuz/EcosystemLinksPanel.svelte';
 	import Breadcrumb from '@ryanatkn/fuz/Breadcrumb.svelte';
-	import {pkg_context} from '@ryanatkn/fuz/pkg.svelte.js';
+	import {library_context} from '@ryanatkn/fuz/library.svelte.js';
 
-	const pkg = pkg_context.get();
+	const library = library_context.get();
 </script>
 
 <main class="width_upto_md">
 	<section class="mt_xl3">
 		<header class="box">
-			<h1>{pkg.repo_name}</h1>
+			<h1>{library.repo_name}</h1>
 		</header>
-		<Breadcrumb>{pkg.package_json.glyph}</Breadcrumb>
+		<Breadcrumb>{library.package_json.glyph}</Breadcrumb>
 	</section>
 	<EcosystemLinksPanel />
 	<section class="box width_100 mb_lg">
 		<div class="panel p_md width_upto_md">
-			<PackageDetail {pkg} />
+			<LibraryDetail {library} />
 		</div>
 	</section>
 	<section class="box">
 		<nav class="mb_lg">
-			<Breadcrumb>{pkg.package_json.glyph}</Breadcrumb>
+			<Breadcrumb>{library.package_json.glyph}</Breadcrumb>
 		</nav>
-		<DocsFooter {pkg} />
+		<DocsFooter {library} />
 	</section>
 </main>
 

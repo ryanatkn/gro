@@ -1,6 +1,6 @@
 import type {Tome} from '@ryanatkn/fuz/tome.js';
 import ApiPage from '$routes/docs/api/+page.svelte';
-import PackagePage from '$routes/docs/package/+page.svelte';
+import LibraryPage from '$routes/docs/library/+page.svelte';
 
 export const tomes: Array<Tome> = [
 	{
@@ -9,14 +9,14 @@ export const tomes: Array<Tome> = [
 		Component: ApiPage,
 		related_tomes: [],
 		related_modules: [],
-		related_identifiers: [],
+		related_declarations: [],
 	},
 	{
-		name: 'package',
+		name: 'library',
 		category: 'reference',
-		Component: PackagePage,
+		Component: LibraryPage,
 		related_tomes: [],
 		related_modules: [],
-		related_identifiers: [],
+		related_declarations: [],
 	},
 ];

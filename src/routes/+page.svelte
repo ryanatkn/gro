@@ -5,9 +5,9 @@
 	import Card from '@ryanatkn/fuz/Card.svelte';
 	import {gro_logo} from '@ryanatkn/fuz/logos.js';
 	import HiddenPersonalLinks from '@ryanatkn/fuz/HiddenPersonalLinks.svelte';
-	import {pkg_context} from '@ryanatkn/fuz/pkg.svelte.js';
+	import {library_context} from '@ryanatkn/fuz/library.svelte.js';
 
-	const pkg = pkg_context.get();
+	const library = library_context.get();
 </script>
 
 <main class="box width_100">
@@ -19,10 +19,12 @@
 			</a>
 		</section>
 		<section>
-			<Card href={resolve('/docs')}>docs{#snippet icon()}{pkg.package_json.glyph}{/snippet}</Card>
+			<Card href={resolve('/docs')}
+				>docs{#snippet icon()}{library.package_json.glyph}{/snippet}</Card
+			>
 		</section>
 		<section>
-			<DocsFooter {pkg}>
+			<DocsFooter {library}>
 				{#snippet logo_header()}<a href={resolve('/about')} class="mb_xs">about</a>{/snippet}
 				<HiddenPersonalLinks />
 			</DocsFooter>

@@ -163,10 +163,6 @@ a.chip {
 .justify_content_space_between {
 	justify-content: space-between;
 }
-.font_size_md {
-	font-size: var(--font_size_md);
-	--font_size: var(--font_size_md);
-}
 .font_size_xl {
 	font-size: var(--font_size_xl);
 	--font_size: var(--font_size_xl);

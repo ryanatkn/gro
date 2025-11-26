@@ -100,7 +100,8 @@ export const gro_plugin_sveltekit_app = ({
 					: well_known_source_json === true
 						? source_json
 						: await well_known_source_json(source_json);
-				const serialized_source_json = mapped_source_json && source_json_serialize(mapped_source_json);
+				const serialized_source_json =
+					mapped_source_json && source_json_serialize(mapped_source_json);
 
 				// TODO this strategy means the files aren't available during development --
 				// maybe a Vite middleware is best? what if this plugin added its plugin to your `vite.config.ts`?
@@ -116,7 +117,10 @@ export const gro_plugin_sveltekit_app = ({
 							)
 						: null,
 					serialized_source_json
-						? create_temporarily(join(assets_path, '.well-known/source.json'), serialized_source_json)
+						? create_temporarily(
+								join(assets_path, '.well-known/source.json'),
+								serialized_source_json,
+							)
 						: null,
 					serialized_source_json && well_known_src_files
 						? copy_temporarily(

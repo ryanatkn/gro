@@ -11,7 +11,9 @@ import {parse_exports} from './parse_exports.ts';
 import {TS_MATCHER, SVELTE_MATCHER, JSON_MATCHER, CSS_MATCHER} from './constants.ts';
 import {search_fs} from './search_fs.ts';
 
-export type SourceJsonMapper = (source_json: SourceJson) => SourceJson | null | Promise<SourceJson | null>;
+export type SourceJsonMapper = (
+	source_json: SourceJson,
+) => SourceJson | null | Promise<SourceJson | null>;
 
 export const source_json_create = (
 	package_json: PackageJson,
