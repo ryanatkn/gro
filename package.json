@@ -82,7 +82,7 @@
   "devDependencies": {
     "@changesets/changelog-git": "^0.2.1",
     "@changesets/types": "^6.1.0",
-    "@ryanatkn/belt": "^0.40.0",
+    "@ryanatkn/belt": "^0.40.2",
     "@ryanatkn/eslint-config": "^0.9.0",
     "@ryanatkn/fuz": "^0.165.0",
     "@ryanatkn/fuz_code": "^0.36.0",
