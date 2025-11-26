@@ -1,0 +1,1979 @@
+{
+  "name": "@ryanatkn/gro",
+  "version": "0.179.0",
+  "modules": [
+    {
+      "path": "index.ts",
+      "declarations": [
+        {
+          "name": "GroConfig",
+          "kind": "type"
+        },
+        {
+          "name": "CreateGroConfig",
+          "kind": "type"
+        },
+        {
+          "name": "RawGroConfig",
+          "kind": "type"
+        },
+        {
+          "name": "Plugin",
+          "kind": "type"
+        },
+        {
+          "name": "replace_plugin",
+          "kind": "function"
+        },
+        {
+          "name": "Gen",
+          "kind": "type"
+        },
+        {
+          "name": "GenContext",
+          "kind": "type"
+        },
+        {
+          "name": "Task",
+          "kind": "type"
+        },
+        {
+          "name": "TaskContext",
+          "kind": "type"
+        },
+        {
+          "name": "TaskError",
+          "kind": "class"
+        }
+      ]
+    },
+    {
+      "path": "args.ts",
+      "declarations": [
+        {
+          "name": "Args",
+          "kind": "type"
+        },
+        {
+          "name": "ArgValue",
+          "kind": "type"
+        },
+        {
+          "name": "ArgSchema",
+          "kind": "type"
+        },
+        {
+          "name": "parse_args",
+          "kind": "function"
+        },
+        {
+          "name": "serialize_args",
+          "kind": "function"
+        },
+        {
+          "name": "to_task_args",
+          "kind": "function"
+        },
+        {
+          "name": "to_raw_rest_args",
+          "kind": "function"
+        },
+        {
+          "name": "to_forwarded_args",
+          "kind": "function"
+        },
+        {
+          "name": "to_forwarded_args_by_command",
+          "kind": "function"
+        },
+        {
+          "name": "to_implicit_forwarded_args",
+          "kind": "function"
+        },
+        {
+          "name": "print_command_args",
+          "kind": "function"
+        }
+      ]
+    },
+    {
+      "path": "build_cache.ts",
+      "declarations": [
+        {
+          "name": "BUILD_CACHE_METADATA_FILENAME",
+          "kind": "variable"
+        },
+        {
+          "name": "BUILD_CACHE_VERSION",
+          "kind": "variable"
+        },
+        {
+          "name": "BuildOutputEntry",
+          "kind": "variable"
+        },
+        {
+          "name": "BuildCacheMetadata",
+          "kind": "variable"
+        },
+        {
+          "name": "compute_build_cache_key",
+          "kind": "function"
+        },
+        {
+          "name": "load_build_cache_metadata",
+          "kind": "function"
+        },
+        {
+          "name": "save_build_cache_metadata",
+          "kind": "function"
+        },
+        {
+          "name": "validate_build_cache",
+          "kind": "function"
+        },
+        {
+          "name": "is_build_cache_valid",
+          "kind": "function"
+        },
+        {
+          "name": "collect_build_outputs",
+          "kind": "function"
+        },
+        {
+          "name": "discover_build_output_dirs",
+          "kind": "function"
+        },
+        {
+          "name": "create_build_cache_metadata",
+          "kind": "function"
+        }
+      ]
+    },
+    {
+      "path": "build.task.ts",
+      "declarations": [
+        {
+          "name": "Args",
+          "kind": "variable"
+        },
+        {
+          "name": "GIT_SHORT_HASH_LENGTH",
+          "kind": "variable"
+        },
+        {
+          "name": "task",
+          "kind": "variable"
+        }
+      ]
+    },
+    {
+      "path": "changelog.ts",
+      "declarations": [
+        {
+          "name": "update_changelog",
+          "kind": "function"
+        }
+      ]
+    },
+    {
+      "path": "changeset_helpers.ts",
+      "declarations": [
+        {
+          "name": "CHANGESET_RESTRICTED_ACCESS",
+          "kind": "variable"
+        },
+        {
+          "name": "CHANGESET_PUBLIC_ACCESS",
+          "kind": "variable"
+        },
+        {
+          "name": "ChangesetAccess",
+          "kind": "variable"
+        },
+        {
+          "name": "CHANGESET_CLI",
+          "kind": "variable"
+        },
+        {
+          "name": "CHANGESET_DIR",
+          "kind": "variable"
+        },
+        {
+          "name": "ChangesetBump",
+          "kind": "variable"
+        }
+      ]
+    },
+    {
+      "path": "changeset.task.ts",
+      "declarations": [
+        {
+          "name": "Args",
+          "kind": "variable"
+        },
+        {
+          "name": "task",
+          "kind": "variable"
+        }
+      ]
+    },
+    {
+      "path": "check.task.ts",
+      "declarations": [
+        {
+          "name": "Args",
+          "kind": "variable"
+        },
+        {
+          "name": "task",
+          "kind": "variable"
+        }
+      ]
+    },
+    {
+      "path": "child_process_logging.ts",
+      "declarations": [
+        {
+          "name": "map_child_process_output",
+          "kind": "function"
+        },
+        {
+          "name": "configure_colored_output_with_path_replacement",
+          "kind": "function"
+        }
+      ]
+    },
+    {
+      "path": "clean_fs.ts",
+      "declarations": [
+        {
+          "name": "clean_fs",
+          "kind": "function"
+        }
+      ]
+    },
+    {
+      "path": "clean.task.ts",
+      "declarations": [
+        {
+          "name": "Args",
+          "kind": "variable"
+        },
+        {
+          "name": "task",
+          "kind": "variable"
+        }
+      ]
+    },
+    {
+      "path": "cli.ts",
+      "declarations": [
+        {
+          "name": "Cli",
+          "kind": "type"
+        },
+        {
+          "name": "find_cli",
+          "kind": "function"
+        },
+        {
+          "name": "spawn_cli",
+          "kind": "function"
+        },
+        {
+          "name": "spawn_cli_process",
+          "kind": "function"
+        },
+        {
+          "name": "resolve_cli",
+          "kind": "function"
+        },
+        {
+          "name": "to_cli_name",
+          "kind": "function"
+        }
+      ]
+    },
+    {
+      "path": "commit.task.ts",
+      "declarations": [
+        {
+          "name": "Args",
+          "kind": "variable"
+        },
+        {
+          "name": "task",
+          "kind": "variable"
+        }
+      ]
+    },
+    {
+      "path": "constants.ts",
+      "declarations": [
+        {
+          "name": "SOURCE_DIRNAME",
+          "kind": "variable"
+        },
+        {
+          "name": "GRO_DIRNAME",
+          "kind": "variable"
+        },
+        {
+          "name": "GRO_DIST_PREFIX",
+          "kind": "variable"
+        },
+        {
+          "name": "SERVER_DIST_PATH",
+          "kind": "variable"
+        },
+        {
+          "name": "GRO_DEV_DIRNAME",
+          "kind": "variable"
+        },
+        {
+          "name": "SOURCE_DIR",
+          "kind": "variable"
+        },
+        {
+          "name": "GRO_DIR",
+          "kind": "variable"
+        },
+        {
+          "name": "GRO_DEV_DIR",
+          "kind": "variable"
+        },
+        {
+          "name": "GRO_CONFIG_FILENAME",
+          "kind": "variable"
+        },
+        {
+          "name": "README_FILENAME",
+          "kind": "variable"
+        },
+        {
+          "name": "SVELTE_CONFIG_FILENAME",
+          "kind": "variable"
+        },
+        {
+          "name": "VITE_CONFIG_FILENAME",
+          "kind": "variable"
+        },
+        {
+          "name": "NODE_MODULES_DIRNAME",
+          "kind": "variable"
+        },
+        {
+          "name": "PACKAGE_JSON_FILENAME",
+          "kind": "variable"
+        },
+        {
+          "name": "LOCKFILE_FILENAME",
+          "kind": "variable"
+        },
+        {
+          "name": "SVELTEKIT_DEV_DIRNAME",
+          "kind": "variable"
+        },
+        {
+          "name": "SVELTEKIT_BUILD_DIRNAME",
+          "kind": "variable"
+        },
+        {
+          "name": "SVELTEKIT_DIST_DIRNAME",
+          "kind": "variable"
+        },
+        {
+          "name": "SVELTEKIT_VITE_CACHE_PATH",
+          "kind": "variable"
+        },
+        {
+          "name": "GITHUB_DIRNAME",
+          "kind": "variable"
+        },
+        {
+          "name": "GIT_DIRNAME",
+          "kind": "variable"
+        },
+        {
+          "name": "TSCONFIG_FILENAME",
+          "kind": "variable"
+        },
+        {
+          "name": "TS_MATCHER",
+          "kind": "variable"
+        },
+        {
+          "name": "JS_MATCHER",
+          "kind": "variable"
+        },
+        {
+          "name": "JSON_MATCHER",
+          "kind": "variable"
+        },
+        {
+          "name": "SVELTE_MATCHER",
+          "kind": "variable"
+        },
+        {
+          "name": "SVELTE_RUNES_MATCHER",
+          "kind": "variable"
+        },
+        {
+          "name": "CSS_MATCHER",
+          "kind": "variable"
+        },
+        {
+          "name": "SVELTE_SCRIPT_MATCHER",
+          "kind": "variable"
+        },
+        {
+          "name": "SVELTEKIT_ENV_MATCHER",
+          "kind": "variable"
+        },
+        {
+          "name": "SVELTEKIT_GLOBAL_SPECIFIER",
+          "kind": "variable"
+        },
+        {
+          "name": "EVERYTHING_MATCHER",
+          "kind": "variable"
+        },
+        {
+          "name": "JS_CLI_DEFAULT",
+          "kind": "variable"
+        },
+        {
+          "name": "PM_CLI_DEFAULT",
+          "kind": "variable"
+        },
+        {
+          "name": "PRETTIER_CLI_DEFAULT",
+          "kind": "variable"
+        },
+        {
+          "name": "SVELTEKIT_CLI",
+          "kind": "variable"
+        },
+        {
+          "name": "SVELTE_CHECK_CLI",
+          "kind": "variable"
+        },
+        {
+          "name": "SVELTE_PACKAGE_CLI",
+          "kind": "variable"
+        },
+        {
+          "name": "SVELTE_PACKAGE_DEP_NAME",
+          "kind": "variable"
+        },
+        {
+          "name": "VITE_CLI",
+          "kind": "variable"
+        },
+        {
+          "name": "VITEST_CLI",
+          "kind": "variable"
+        }
+      ]
+    },
+    {
+      "path": "deploy.task.ts",
+      "declarations": [
+        {
+          "name": "Args",
+          "kind": "variable"
+        },
+        {
+          "name": "task",
+          "kind": "variable"
+        }
+      ]
+    },
+    {
+      "path": "dev.task.ts",
+      "declarations": [
+        {
+          "name": "Args",
+          "kind": "variable"
+        },
+        {
+          "name": "DevTask_Context",
+          "kind": "type"
+        },
+        {
+          "name": "task",
+          "kind": "variable"
+        }
+      ]
+    },
+    {
+      "path": "disknode.ts",
+      "declarations": [
+        {
+          "name": "Disknode",
+          "kind": "type"
+        }
+      ]
+    },
+    {
+      "path": "env.ts",
+      "declarations": [
+        {
+          "name": "load_env",
+          "kind": "function"
+        },
+        {
+          "name": "load_from_env",
+          "kind": "function"
+        },
+        {
+          "name": "merge_envs",
+          "kind": "function"
+        },
+        {
+          "name": "is_private_env",
+          "kind": "function"
+        },
+        {
+          "name": "is_public_env",
+          "kind": "function"
+        }
+      ]
+    },
+    {
+      "path": "esbuild_helpers.ts",
+      "declarations": [
+        {
+          "name": "print_build_result",
+          "kind": "function"
+        },
+        {
+          "name": "to_define_import_meta_env",
+          "kind": "function"
+        },
+        {
+          "name": "default_ts_transform_options",
+          "kind": "variable"
+        }
+      ]
+    },
+    {
+      "path": "esbuild_plugin_external_worker.ts",
+      "declarations": [
+        {
+          "name": "EsbuildPluginExternalWorkerOptions",
+          "kind": "type"
+        },
+        {
+          "name": "esbuild_plugin_external_worker",
+          "kind": "function"
+        }
+      ]
+    },
+    {
+      "path": "esbuild_plugin_svelte.ts",
+      "declarations": [
+        {
+          "name": "EsbuildPluginSvelteOptions",
+          "kind": "type"
+        },
+        {
+          "name": "esbuild_plugin_svelte",
+          "kind": "function"
+        }
+      ]
+    },
+    {
+      "path": "esbuild_plugin_sveltekit_local_imports.ts",
+      "declarations": [
+        {
+          "name": "esbuild_plugin_sveltekit_local_imports",
+          "kind": "function"
+        }
+      ]
+    },
+    {
+      "path": "esbuild_plugin_sveltekit_shim_alias.ts",
+      "declarations": [
+        {
+          "name": "EsbuildPluginSveltekitShimAliasOptions",
+          "kind": "type"
+        },
+        {
+          "name": "esbuild_plugin_sveltekit_shim_alias",
+          "kind": "function"
+        }
+      ]
+    },
+    {
+      "path": "esbuild_plugin_sveltekit_shim_app.ts",
+      "declarations": [
+        {
+          "name": "EsbuildPluginSveltekitShimAppOptions",
+          "kind": "type"
+        },
+        {
+          "name": "esbuild_plugin_sveltekit_shim_app",
+          "kind": "function"
+        }
+      ]
+    },
+    {
+      "path": "esbuild_plugin_sveltekit_shim_env.ts",
+      "declarations": [
+        {
+          "name": "EsbuildPluginSveltekitShimEnvOptions",
+          "kind": "type"
+        },
+        {
+          "name": "esbuild_plugin_sveltekit_shim_env",
+          "kind": "function"
+        }
+      ]
+    },
+    {
+      "path": "filer.ts",
+      "declarations": [
+        {
+          "name": "OnFilerChange",
+          "kind": "type"
+        },
+        {
+          "name": "FilerOptions",
+          "kind": "type"
+        },
+        {
+          "name": "Filer",
+          "kind": "class"
+        },
+        {
+          "name": "filter_dependents",
+          "kind": "function"
+        }
+      ]
+    },
+    {
+      "path": "format_directory.ts",
+      "declarations": [
+        {
+          "name": "format_directory",
+          "kind": "function"
+        }
+      ]
+    },
+    {
+      "path": "format_file.ts",
+      "declarations": [
+        {
+          "name": "format_file",
+          "kind": "function"
+        }
+      ]
+    },
+    {
+      "path": "format.task.ts",
+      "declarations": [
+        {
+          "name": "Args",
+          "kind": "variable"
+        },
+        {
+          "name": "task",
+          "kind": "variable"
+        }
+      ]
+    },
+    {
+      "path": "gen_helpers.ts",
+      "declarations": [
+        {
+          "name": "should_trigger_gen",
+          "kind": "function"
+        }
+      ]
+    },
+    {
+      "path": "gen.task.ts",
+      "declarations": [
+        {
+          "name": "Args",
+          "kind": "variable"
+        },
+        {
+          "name": "task",
+          "kind": "variable"
+        }
+      ]
+    },
+    {
+      "path": "gen.ts",
+      "declarations": [
+        {
+          "name": "GEN_FILE_PATTERN_TEXT",
+          "kind": "variable"
+        },
+        {
+          "name": "GEN_FILE_PATTERN",
+          "kind": "variable"
+        },
+        {
+          "name": "is_gen_path",
+          "kind": "function"
+        },
+        {
+          "name": "GenResult",
+          "kind": "type"
+        },
+        {
+          "name": "GenFile",
+          "kind": "type"
+        },
+        {
+          "name": "GenDependencies",
+          "kind": "type"
+        },
+        {
+          "name": "GenDependenciesConfig",
+          "kind": "type"
+        },
+        {
+          "name": "GenDependenciesResolver",
+          "kind": "type"
+        },
+        {
+          "name": "Gen",
+          "kind": "type"
+        },
+        {
+          "name": "GenFunction",
+          "kind": "type"
+        },
+        {
+          "name": "GenConfig",
+          "kind": "type"
+        },
+        {
+          "name": "GenContext",
+          "kind": "type"
+        },
+        {
+          "name": "RawGenResult",
+          "kind": "type"
+        },
+        {
+          "name": "RawGenFile",
+          "kind": "type"
+        },
+        {
+          "name": "GenResults",
+          "kind": "type"
+        },
+        {
+          "name": "GenfileModuleResult",
+          "kind": "type"
+        },
+        {
+          "name": "GenfileModuleResultSuccess",
+          "kind": "type"
+        },
+        {
+          "name": "GenfileModuleResultFailure",
+          "kind": "type"
+        },
+        {
+          "name": "to_gen_result",
+          "kind": "function"
+        },
+        {
+          "name": "to_output_file_name",
+          "kind": "function"
+        },
+        {
+          "name": "AnalyzedGenResult",
+          "kind": "type"
+        },
+        {
+          "name": "analyze_gen_results",
+          "kind": "function"
+        },
+        {
+          "name": "analyze_gen_result",
+          "kind": "function"
+        },
+        {
+          "name": "write_gen_results",
+          "kind": "function"
+        },
+        {
+          "name": "FoundGenfiles",
+          "kind": "type"
+        },
+        {
+          "name": "FindGenfilesResult",
+          "kind": "type"
+        },
+        {
+          "name": "FindGenfilesFailure",
+          "kind": "type"
+        },
+        {
+          "name": "find_genfiles",
+          "kind": "function"
+        },
+        {
+          "name": "GenfileModule",
+          "kind": "type"
+        },
+        {
+          "name": "GenfileModuleMeta",
+          "kind": "type"
+        },
+        {
+          "name": "LoadedGenfiles",
+          "kind": "type"
+        },
+        {
+          "name": "LoadGenfilesResult",
+          "kind": "type"
+        },
+        {
+          "name": "LoadGenfilesFailure",
+          "kind": "type"
+        },
+        {
+          "name": "load_genfiles",
+          "kind": "function"
+        },
+        {
+          "name": "validate_gen_module",
+          "kind": "function"
+        },
+        {
+          "name": "normalize_gen_config",
+          "kind": "function"
+        }
+      ]
+    },
+    {
+      "path": "github.ts",
+      "declarations": [
+        {
+          "name": "GITHUB_REPO_MATCHER",
+          "kind": "variable"
+        },
+        {
+          "name": "GithubPullRequest",
+          "kind": "variable"
+        },
+        {
+          "name": "github_fetch_commit_prs",
+          "kind": "function"
+        }
+      ]
+    },
+    {
+      "path": "gro_config.ts",
+      "declarations": [
+        {
+          "name": "EMPTY_BUILD_CACHE_CONFIG_HASH",
+          "kind": "variable"
+        },
+        {
+          "name": "GroConfig",
+          "kind": "type"
+        },
+        {
+          "name": "RawGroConfig",
+          "kind": "type"
+        },
+        {
+          "name": "CreateGroConfig",
+          "kind": "type"
+        },
+        {
+          "name": "create_empty_gro_config",
+          "kind": "function"
+        },
+        {
+          "name": "SEARCH_EXCLUDER_DEFAULT",
+          "kind": "variable"
+        },
+        {
+          "name": "EXPORTS_EXCLUDER_DEFAULT",
+          "kind": "variable"
+        },
+        {
+          "name": "cook_gro_config",
+          "kind": "function"
+        },
+        {
+          "name": "GroConfigModule",
+          "kind": "type"
+        },
+        {
+          "name": "load_gro_config",
+          "kind": "function"
+        },
+        {
+          "name": "validate_gro_config_module",
+          "kind": "function"
+        }
+      ]
+    },
+    {
+      "path": "gro_helpers.ts",
+      "declarations": [
+        {
+          "name": "resolve_gro_module_path",
+          "kind": "function"
+        },
+        {
+          "name": "spawn_with_loader",
+          "kind": "function"
+        }
+      ]
+    },
+    {
+      "path": "gro_plugin_gen.ts",
+      "declarations": [
+        {
+          "name": "TaskArgs",
+          "kind": "type"
+        },
+        {
+          "name": "GroPluginGenOptions",
+          "kind": "type"
+        },
+        {
+          "name": "gro_plugin_gen",
+          "kind": "function"
+        }
+      ]
+    },
+    {
+      "path": "gro_plugin_server.ts",
+      "declarations": [
+        {
+          "name": "SERVER_SOURCE_ID",
+          "kind": "variable"
+        },
+        {
+          "name": "has_server",
+          "kind": "function"
+        },
+        {
+          "name": "GroPluginServerOptions",
+          "kind": "type"
+        },
+        {
+          "name": "Outpaths",
+          "kind": "type"
+        },
+        {
+          "name": "CreateOutpaths",
+          "kind": "type"
+        },
+        {
+          "name": "gro_plugin_server",
+          "kind": "function"
+        }
+      ]
+    },
+    {
+      "path": "gro_plugin_sveltekit_app.ts",
+      "declarations": [
+        {
+          "name": "GroPluginSveltekitAppOptions",
+          "kind": "type"
+        },
+        {
+          "name": "HostTarget",
+          "kind": "type"
+        },
+        {
+          "name": "CopyFileFilter",
+          "kind": "type"
+        },
+        {
+          "name": "gro_plugin_sveltekit_app",
+          "kind": "function"
+        }
+      ]
+    },
+    {
+      "path": "gro_plugin_sveltekit_library.ts",
+      "declarations": [
+        {
+          "name": "GroPluginSveltekitLibraryOptions",
+          "kind": "type"
+        },
+        {
+          "name": "gro_plugin_sveltekit_library",
+          "kind": "function"
+        }
+      ]
+    },
+    {
+      "path": "gro.config.default.ts",
+      "declarations": [
+        {
+          "name": "default",
+          "kind": "function"
+        }
+      ]
+    },
+    {
+      "path": "gro.ts"
+    },
+    {
+      "path": "hash.ts",
+      "declarations": [
+        {
+          "name": "to_hash",
+          "kind": "function"
+        }
+      ]
+    },
+    {
+      "path": "index.ts",
+      "declarations": [
+        {
+          "name": "GroConfig",
+          "kind": "type"
+        },
+        {
+          "name": "CreateGroConfig",
+          "kind": "type"
+        },
+        {
+          "name": "RawGroConfig",
+          "kind": "type"
+        },
+        {
+          "name": "Plugin",
+          "kind": "type"
+        },
+        {
+          "name": "replace_plugin",
+          "kind": "function"
+        },
+        {
+          "name": "Gen",
+          "kind": "type"
+        },
+        {
+          "name": "GenContext",
+          "kind": "type"
+        },
+        {
+          "name": "Task",
+          "kind": "type"
+        },
+        {
+          "name": "TaskContext",
+          "kind": "type"
+        },
+        {
+          "name": "TaskError",
+          "kind": "class"
+        }
+      ]
+    },
+    {
+      "path": "input_path.ts",
+      "declarations": [
+        {
+          "name": "InputPath",
+          "kind": "variable"
+        },
+        {
+          "name": "RawInputPath",
+          "kind": "variable"
+        },
+        {
+          "name": "to_input_path",
+          "kind": "function"
+        },
+        {
+          "name": "to_input_paths",
+          "kind": "function"
+        },
+        {
+          "name": "PossiblePath",
+          "kind": "type"
+        },
+        {
+          "name": "get_possible_paths",
+          "kind": "function"
+        },
+        {
+          "name": "ResolvedInputPath",
+          "kind": "type"
+        },
+        {
+          "name": "ResolvedInputFile",
+          "kind": "type"
+        },
+        {
+          "name": "ResolvedInputPaths",
+          "kind": "type"
+        },
+        {
+          "name": "resolve_input_paths",
+          "kind": "function"
+        },
+        {
+          "name": "ResolvedInputFiles",
+          "kind": "type"
+        },
+        {
+          "name": "resolve_input_files",
+          "kind": "function"
+        }
+      ]
+    },
+    {
+      "path": "invoke_task.ts",
+      "declarations": [
+        {
+          "name": "invoke_task",
+          "kind": "function"
+        }
+      ]
+    },
+    {
+      "path": "invoke.ts"
+    },
+    {
+      "path": "lint.task.ts",
+      "declarations": [
+        {
+          "name": "Args",
+          "kind": "variable"
+        },
+        {
+          "name": "task",
+          "kind": "variable"
+        }
+      ]
+    },
+    {
+      "path": "loader.ts",
+      "declarations": [
+        {
+          "name": "load",
+          "kind": "function"
+        },
+        {
+          "name": "resolve",
+          "kind": "function"
+        }
+      ]
+    },
+    {
+      "path": "module.ts",
+      "declarations": [
+        {
+          "name": "MODULE_PATH_SRC_PREFIX",
+          "kind": "variable"
+        },
+        {
+          "name": "MODULE_PATH_LIB_PREFIX",
+          "kind": "variable"
+        },
+        {
+          "name": "is_external_module",
+          "kind": "function"
+        }
+      ]
+    },
+    {
+      "path": "modules.ts",
+      "declarations": [
+        {
+          "name": "ModuleMeta",
+          "kind": "type"
+        },
+        {
+          "name": "LoadModuleResult",
+          "kind": "type"
+        },
+        {
+          "name": "LoadModuleFailure",
+          "kind": "type"
+        },
+        {
+          "name": "load_module",
+          "kind": "function"
+        },
+        {
+          "name": "LoadModulesFailure",
+          "kind": "type"
+        },
+        {
+          "name": "LoadModulesResult",
+          "kind": "type"
+        },
+        {
+          "name": "load_modules",
+          "kind": "function"
+        }
+      ]
+    },
+    {
+      "path": "package_json.ts",
+      "declarations": [
+        {
+          "name": "PackageJsonMapper",
+          "kind": "type"
+        },
+        {
+          "name": "EMPTY_PACKAGE_JSON",
+          "kind": "variable"
+        },
+        {
+          "name": "load_package_json",
+          "kind": "function"
+        },
+        {
+          "name": "sync_package_json",
+          "kind": "function"
+        },
+        {
+          "name": "load_gro_package_json",
+          "kind": "function"
+        },
+        {
+          "name": "write_package_json",
+          "kind": "function"
+        },
+        {
+          "name": "serialize_package_json",
+          "kind": "function"
+        },
+        {
+          "name": "update_package_json",
+          "kind": "function"
+        },
+        {
+          "name": "to_package_exports",
+          "kind": "function"
+        },
+        {
+          "name": "parse_repo_url",
+          "kind": "function"
+        },
+        {
+          "name": "has_dep",
+          "kind": "function"
+        },
+        {
+          "name": "PackageJsonDep",
+          "kind": "type"
+        },
+        {
+          "name": "extract_deps",
+          "kind": "function"
+        }
+      ]
+    },
+    {
+      "path": "parse_exports_context.ts",
+      "declarations": [
+        {
+          "name": "ParseExportsContext",
+          "kind": "class"
+        }
+      ]
+    },
+    {
+      "path": "parse_exports.ts",
+      "declarations": [
+        {
+          "name": "Declaration",
+          "kind": "type"
+        },
+        {
+          "name": "ExportDeclaration",
+          "kind": "type"
+        },
+        {
+          "name": "parse_exports",
+          "kind": "function"
+        },
+        {
+          "name": "infer_declarations_from_file_type",
+          "kind": "function"
+        },
+        {
+          "name": "process_ts_exports",
+          "kind": "function"
+        }
+      ]
+    },
+    {
+      "path": "parse_imports.ts",
+      "declarations": [
+        {
+          "name": "ImportSpecifier",
+          "kind": "type"
+        },
+        {
+          "name": "parse_imports",
+          "kind": "function"
+        }
+      ]
+    },
+    {
+      "path": "paths.ts",
+      "declarations": [
+        {
+          "name": "LIB_DIRNAME",
+          "kind": "variable"
+        },
+        {
+          "name": "LIB_PATH",
+          "kind": "variable"
+        },
+        {
+          "name": "LIB_DIR",
+          "kind": "variable"
+        },
+        {
+          "name": "ROUTES_DIRNAME",
+          "kind": "variable"
+        },
+        {
+          "name": "Paths",
+          "kind": "type"
+        },
+        {
+          "name": "create_paths",
+          "kind": "function"
+        },
+        {
+          "name": "infer_paths",
+          "kind": "function"
+        },
+        {
+          "name": "is_gro_id",
+          "kind": "function"
+        },
+        {
+          "name": "to_root_path",
+          "kind": "function"
+        },
+        {
+          "name": "path_id_to_base_path",
+          "kind": "function"
+        },
+        {
+          "name": "base_path_to_path_id",
+          "kind": "function"
+        },
+        {
+          "name": "print_path",
+          "kind": "function"
+        },
+        {
+          "name": "replace_extension",
+          "kind": "function"
+        },
+        {
+          "name": "paths",
+          "kind": "variable"
+        },
+        {
+          "name": "GRO_PACKAGE_DIR",
+          "kind": "variable"
+        },
+        {
+          "name": "IS_THIS_GRO",
+          "kind": "variable"
+        },
+        {
+          "name": "gro_paths",
+          "kind": "variable"
+        },
+        {
+          "name": "GRO_DIST_DIR",
+          "kind": "variable"
+        }
+      ]
+    },
+    {
+      "path": "plugin.ts",
+      "declarations": [
+        {
+          "name": "Plugin",
+          "kind": "type"
+        },
+        {
+          "name": "CreateConfigPlugins",
+          "kind": "type"
+        },
+        {
+          "name": "PluginContext",
+          "kind": "type"
+        },
+        {
+          "name": "Plugins",
+          "kind": "class"
+        },
+        {
+          "name": "replace_plugin",
+          "kind": "function"
+        }
+      ]
+    },
+    {
+      "path": "publish.task.ts",
+      "declarations": [
+        {
+          "name": "Args",
+          "kind": "variable"
+        },
+        {
+          "name": "task",
+          "kind": "variable"
+        }
+      ]
+    },
+    {
+      "path": "register.ts"
+    },
+    {
+      "path": "reinstall.task.ts",
+      "declarations": [
+        {
+          "name": "Args",
+          "kind": "variable"
+        },
+        {
+          "name": "task",
+          "kind": "variable"
+        }
+      ]
+    },
+    {
+      "path": "release.task.ts",
+      "declarations": [
+        {
+          "name": "Args",
+          "kind": "variable"
+        },
+        {
+          "name": "task",
+          "kind": "variable"
+        }
+      ]
+    },
+    {
+      "path": "resolve_specifier.ts",
+      "declarations": [
+        {
+          "name": "ResolvedSpecifier",
+          "kind": "type"
+        },
+        {
+          "name": "resolve_specifier",
+          "kind": "function"
+        }
+      ]
+    },
+    {
+      "path": "resolve.task.ts",
+      "declarations": [
+        {
+          "name": "Args",
+          "kind": "variable"
+        },
+        {
+          "name": "task",
+          "kind": "variable"
+        }
+      ]
+    },
+    {
+      "path": "run_gen.ts",
+      "declarations": [
+        {
+          "name": "GEN_NO_PROD_MESSAGE",
+          "kind": "variable"
+        },
+        {
+          "name": "run_gen",
+          "kind": "function"
+        }
+      ]
+    },
+    {
+      "path": "run_task.ts",
+      "declarations": [
+        {
+          "name": "RunTaskResult",
+          "kind": "type"
+        },
+        {
+          "name": "run_task",
+          "kind": "function"
+        }
+      ]
+    },
+    {
+      "path": "run.task.ts",
+      "declarations": [
+        {
+          "name": "Args",
+          "kind": "variable"
+        },
+        {
+          "name": "task",
+          "kind": "variable"
+        }
+      ]
+    },
+    {
+      "path": "search_fs.ts",
+      "declarations": [
+        {
+          "name": "SearchFsOptions",
+          "kind": "type"
+        },
+        {
+          "name": "search_fs",
+          "kind": "function"
+        },
+        {
+          "name": "find_first_existing_file",
+          "kind": "function"
+        }
+      ]
+    },
+    {
+      "path": "source_json.ts",
+      "declarations": [
+        {
+          "name": "SourceJsonMapper",
+          "kind": "type"
+        },
+        {
+          "name": "source_json_create",
+          "kind": "function"
+        },
+        {
+          "name": "source_json_serialize",
+          "kind": "function"
+        },
+        {
+          "name": "source_modules_create",
+          "kind": "function"
+        }
+      ]
+    },
+    {
+      "path": "svelte_config.ts",
+      "declarations": [
+        {
+          "name": "load_svelte_config",
+          "kind": "function"
+        },
+        {
+          "name": "ParsedSvelteConfig",
+          "kind": "type"
+        },
+        {
+          "name": "parse_svelte_config",
+          "kind": "function"
+        },
+        {
+          "name": "to_default_compile_module_options",
+          "kind": "function"
+        },
+        {
+          "name": "default_svelte_config",
+          "kind": "variable"
+        }
+      ]
+    },
+    {
+      "path": "sveltekit_helpers.ts",
+      "declarations": [
+        {
+          "name": "has_sveltekit_app",
+          "kind": "function"
+        },
+        {
+          "name": "has_sveltekit_library",
+          "kind": "function"
+        },
+        {
+          "name": "sveltekit_sync",
+          "kind": "function"
+        },
+        {
+          "name": "sveltekit_sync_if_available",
+          "kind": "function"
+        },
+        {
+          "name": "sveltekit_sync_if_obviously_needed",
+          "kind": "function"
+        },
+        {
+          "name": "SveltePackageOptions",
+          "kind": "type"
+        },
+        {
+          "name": "run_svelte_package",
+          "kind": "function"
+        },
+        {
+          "name": "map_sveltekit_aliases",
+          "kind": "function"
+        }
+      ]
+    },
+    {
+      "path": "sveltekit_shim_app_environment.ts",
+      "declarations": [
+        {
+          "name": "browser",
+          "kind": "variable"
+        },
+        {
+          "name": "building",
+          "kind": "variable"
+        },
+        {
+          "name": "dev",
+          "kind": "variable"
+        },
+        {
+          "name": "version",
+          "kind": "variable"
+        }
+      ]
+    },
+    {
+      "path": "sveltekit_shim_app_forms.ts",
+      "declarations": [
+        {
+          "name": "applyAction",
+          "kind": "function"
+        },
+        {
+          "name": "deserialize",
+          "kind": "function"
+        },
+        {
+          "name": "enhance",
+          "kind": "function"
+        }
+      ]
+    },
+    {
+      "path": "sveltekit_shim_app_navigation.ts",
+      "declarations": [
+        {
+          "name": "afterNavigate",
+          "kind": "function"
+        },
+        {
+          "name": "beforeNavigate",
+          "kind": "function"
+        },
+        {
+          "name": "disableScrollHandling",
+          "kind": "function"
+        },
+        {
+          "name": "goto",
+          "kind": "function"
+        },
+        {
+          "name": "invalidate",
+          "kind": "function"
+        },
+        {
+          "name": "invalidateAll",
+          "kind": "function"
+        },
+        {
+          "name": "preloadCode",
+          "kind": "function"
+        },
+        {
+          "name": "preloadData",
+          "kind": "function"
+        }
+      ]
+    },
+    {
+      "path": "sveltekit_shim_app_paths.ts",
+      "declarations": [
+        {
+          "name": "assets",
+          "kind": "variable"
+        },
+        {
+          "name": "base",
+          "kind": "variable"
+        },
+        {
+          "name": "resolve",
+          "kind": "function"
+        },
+        {
+          "name": "resolveRoute",
+          "kind": "function"
+        },
+        {
+          "name": "asset",
+          "kind": "function"
+        }
+      ]
+    },
+    {
+      "path": "sveltekit_shim_app_state.ts",
+      "declarations": [
+        {
+          "name": "navigating",
+          "kind": "variable"
+        },
+        {
+          "name": "page",
+          "kind": "variable"
+        },
+        {
+          "name": "updated",
+          "kind": "variable"
+        }
+      ]
+    },
+    {
+      "path": "sveltekit_shim_app.ts",
+      "declarations": [
+        {
+          "name": "SVELTEKIT_SHIM_APP_PATHS_MATCHER",
+          "kind": "variable"
+        },
+        {
+          "name": "SVELTEKIT_SHIM_APP_ENVIRONMENT_MATCHER",
+          "kind": "variable"
+        },
+        {
+          "name": "sveltekit_shim_app_specifiers",
+          "kind": "variable"
+        },
+        {
+          "name": "render_sveltekit_shim_app_paths",
+          "kind": "function"
+        },
+        {
+          "name": "render_sveltekit_shim_app_environment",
+          "kind": "function"
+        }
+      ]
+    },
+    {
+      "path": "sveltekit_shim_env.ts",
+      "declarations": [
+        {
+          "name": "render_env_shim_module",
+          "kind": "function"
+        }
+      ]
+    },
+    {
+      "path": "sync.task.ts",
+      "declarations": [
+        {
+          "name": "Args",
+          "kind": "variable"
+        },
+        {
+          "name": "task",
+          "kind": "variable"
+        }
+      ]
+    },
+    {
+      "path": "task_logging.ts",
+      "declarations": [
+        {
+          "name": "log_tasks",
+          "kind": "function"
+        },
+        {
+          "name": "log_error_reasons",
+          "kind": "function"
+        },
+        {
+          "name": "log_task_help",
+          "kind": "function"
+        }
+      ]
+    },
+    {
+      "path": "task.ts",
+      "declarations": [
+        {
+          "name": "Task",
+          "kind": "type"
+        },
+        {
+          "name": "TaskContext",
+          "kind": "type"
+        },
+        {
+          "name": "InvokeTask",
+          "kind": "type"
+        },
+        {
+          "name": "TASK_FILE_SUFFIX_TS",
+          "kind": "variable"
+        },
+        {
+          "name": "TASK_FILE_SUFFIX_JS",
+          "kind": "variable"
+        },
+        {
+          "name": "TASK_FILE_SUFFIXES",
+          "kind": "variable"
+        },
+        {
+          "name": "is_task_path",
+          "kind": "function"
+        },
+        {
+          "name": "to_task_name",
+          "kind": "function"
+        },
+        {
+          "name": "TaskError",
+          "kind": "class"
+        },
+        {
+          "name": "SilentError",
+          "kind": "class"
+        },
+        {
+          "name": "FoundTask",
+          "kind": "type"
+        },
+        {
+          "name": "FoundTasks",
+          "kind": "type"
+        },
+        {
+          "name": "FindTasksResult",
+          "kind": "type"
+        },
+        {
+          "name": "FindModulesFailure",
+          "kind": "type"
+        },
+        {
+          "name": "find_tasks",
+          "kind": "function"
+        },
+        {
+          "name": "LoadedTasks",
+          "kind": "type"
+        },
+        {
+          "name": "TaskModule",
+          "kind": "type"
+        },
+        {
+          "name": "TaskModuleMeta",
+          "kind": "type"
+        },
+        {
+          "name": "LoadTasksResult",
+          "kind": "type"
+        },
+        {
+          "name": "LoadTasksFailure",
+          "kind": "type"
+        },
+        {
+          "name": "load_tasks",
+          "kind": "function"
+        },
+        {
+          "name": "validate_task_module",
+          "kind": "function"
+        }
+      ]
+    },
+    {
+      "path": "test.task.ts",
+      "declarations": [
+        {
+          "name": "Args",
+          "kind": "variable"
+        },
+        {
+          "name": "task",
+          "kind": "variable"
+        }
+      ]
+    },
+    {
+      "path": "typecheck.task.ts",
+      "declarations": [
+        {
+          "name": "Args",
+          "kind": "variable"
+        },
+        {
+          "name": "task",
+          "kind": "variable"
+        }
+      ]
+    },
+    {
+      "path": "upgrade.task.ts",
+      "declarations": [
+        {
+          "name": "Args",
+          "kind": "variable"
+        },
+        {
+          "name": "task",
+          "kind": "variable"
+        }
+      ]
+    },
+    {
+      "path": "watch_dir.ts",
+      "declarations": [
+        {
+          "name": "WatchNodeFs",
+          "kind": "type"
+        },
+        {
+          "name": "WatcherChange",
+          "kind": "type"
+        },
+        {
+          "name": "WatcherChangeType",
+          "kind": "type"
+        },
+        {
+          "name": "WatcherChangeCallback",
+          "kind": "type"
+        },
+        {
+          "name": "WatchDirOptions",
+          "kind": "type"
+        },
+        {
+          "name": "watch_dir",
+          "kind": "function"
+        }
+      ]
+    }
+  ]
+}
