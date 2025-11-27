@@ -133,12 +133,12 @@ export const init_test_env = async (
 	let contents: string;
 	try {
 		contents = await readFile(env_file, 'utf8');
-	} catch (err) {
-		if ((err as NodeJS.ErrnoException).code === 'ENOENT') {
+	} catch (error) {
+		if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
 			await writeFile(env_file, line + '\n', 'utf8');
 			return true;
 		}
-		throw err;
+		throw error;
 	}
 
 	const lines = contents.split('\n');
