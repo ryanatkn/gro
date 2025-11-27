@@ -90,7 +90,7 @@ export const library_json: LibraryJson = {
 			'@changesets/types': '^6.1.0',
 			'@ryanatkn/belt': '^0.41.1',
 			'@ryanatkn/eslint-config': '^0.9.0',
-			'@ryanatkn/fuz': 'file:../fuz',
+			'@ryanatkn/fuz': '^0.167.0',
 			'@ryanatkn/fuz_code': '^0.36.0',
 			'@ryanatkn/moss': '^0.39.0',
 			'@sveltejs/adapter-static': '^3.0.10',
@@ -772,7 +772,7 @@ export const library_json: LibraryJson = {
 					{
 						name: 'Cli',
 						kind: 'type',
-						source_line: 19,
+						source_line: 20,
 						type_signature: 'Cli',
 					},
 					{
@@ -780,10 +780,10 @@ export const library_json: LibraryJson = {
 						kind: 'function',
 						doc_comment:
 							'Searches the filesystem for the CLI `name`, first local to the cwd and then globally.',
-						source_line: 27,
+						source_line: 28,
 						type_signature:
-							'(name: string, cwd?: string | URL, options?: SpawnOptions | undefined): Cli | null',
-						return_type: 'Cli | null',
+							'(name: string, cwd?: string | URL, options?: SpawnOptions | undefined): Promise<Cli | null>',
+						return_type: 'Promise<Cli | null>',
 						return_description: '`null` if not found locally or globally',
 						parameters: [
 							{
@@ -807,7 +807,7 @@ export const library_json: LibraryJson = {
 						kind: 'function',
 						doc_comment:
 							"Spawns a CLI if available using Belt's `spawn`.\nIf a string is provided for `name_or_cli`, it checks first local to the cwd and then globally.",
-						source_line: 48,
+						source_line: 49,
 						type_signature:
 							'(name_or_cli: string | Cli, args?: string[], log?: Logger | undefined, options?: SpawnOptions | undefined): Promise<SpawnResult | undefined>',
 						return_type: 'Promise<SpawnResult | undefined>',
@@ -839,10 +839,10 @@ export const library_json: LibraryJson = {
 						kind: 'function',
 						doc_comment:
 							"Spawns a CLI if available using Belt's `spawn_process`.\nIf a string is provided for `name_or_cli`, it checks first local to the cwd and then globally.",
-						source_line: 64,
+						source_line: 65,
 						type_signature:
-							'(name_or_cli: string | Cli, args?: string[], log?: Logger | undefined, options?: SpawnOptions | undefined): SpawnedProcess | undefined',
-						return_type: 'SpawnedProcess | undefined',
+							'(name_or_cli: string | Cli, args?: string[], log?: Logger | undefined, options?: SpawnOptions | undefined): Promise<SpawnedProcess | undefined>',
+						return_type: 'Promise<SpawnedProcess | undefined>',
 						return_description: '`undefined` if no CLI is found, or the spawn result',
 						parameters: [
 							{
@@ -869,10 +869,10 @@ export const library_json: LibraryJson = {
 					{
 						name: 'resolve_cli',
 						kind: 'function',
-						source_line: 75,
+						source_line: 76,
 						type_signature:
-							'(name_or_cli: string | Cli, args: string[] | undefined, cwd: string | URL | undefined, log?: Logger | undefined, options?: SpawnOptions | undefined): Cli | undefined',
-						return_type: 'Cli | undefined',
+							'(name_or_cli: string | Cli, args: string[] | undefined, cwd: string | URL | undefined, log?: Logger | undefined, options?: SpawnOptions | undefined): Promise<...>',
+						return_type: 'Promise<Cli | undefined>',
 						parameters: [
 							{
 								name: 'name_or_cli',
@@ -902,7 +902,7 @@ export const library_json: LibraryJson = {
 					{
 						name: 'to_cli_name',
 						kind: 'function',
-						source_line: 96,
+						source_line: 97,
 						type_signature: '(cli: string | Cli): string',
 						return_type: 'string',
 						parameters: [
@@ -3463,13 +3463,13 @@ export const library_json: LibraryJson = {
 					{
 						name: 'InputPath',
 						kind: 'type',
-						source_line: 14,
+						source_line: 13,
 						type_signature: 'ZodString',
 					},
 					{
 						name: 'RawInputPath',
 						kind: 'type',
-						source_line: 17,
+						source_line: 16,
 						type_signature: 'ZodString',
 					},
 					{
@@ -3477,7 +3477,7 @@ export const library_json: LibraryJson = {
 						kind: 'function',
 						doc_comment:
 							'Raw input paths are paths that users provide to Gro to reference files for tasks and gen.\n\nA raw input path can be to a file or directory in the following forms:\n\n- an absolute path, preserved\n- an explicit relative path, e.g. `./src/foo`, resolved to `root_path` which defaults to the cwd\n- an implicit relative path, e.g. `src/foo`, preserved\n- an implicit relative path prefixed with `gro/`, transformed to absolute in the Gro directory\n\nThus, input paths are either absolute or implicitly relative.',
-						source_line: 32,
+						source_line: 31,
 						type_signature: '(raw_input_path: RawInputPath, root_path?: string): InputPath',
 						return_type: 'InputPath',
 						parameters: [
@@ -3495,7 +3495,7 @@ export const library_json: LibraryJson = {
 					{
 						name: 'to_input_paths',
 						kind: 'function',
-						source_line: 44,
+						source_line: 43,
 						type_signature:
 							'(raw_input_paths: RawInputPath[], root_path?: string | undefined): InputPath[]',
 						return_type: 'InputPath[]',
@@ -3514,7 +3514,7 @@ export const library_json: LibraryJson = {
 					{
 						name: 'PossiblePath',
 						kind: 'type',
-						source_line: 49,
+						source_line: 48,
 						type_signature: 'PossiblePath',
 						properties: [
 							{
@@ -3539,7 +3539,7 @@ export const library_json: LibraryJson = {
 						kind: 'function',
 						doc_comment:
 							'Gets a list of possible source ids for each input path with `extensions`,\nduplicating each under `root_dirs`, without checking the filesystem.',
-						source_line: 59,
+						source_line: 58,
 						type_signature:
 							'(input_path: InputPath, root_dirs: PathId[], extensions: string[]): Promise<PossiblePath[]>',
 						return_type: 'Promise<PossiblePath[]>',
@@ -3561,7 +3561,7 @@ export const library_json: LibraryJson = {
 					{
 						name: 'ResolvedInputPath',
 						kind: 'type',
-						source_line: 98,
+						source_line: 97,
 						type_signature: 'ResolvedInputPath',
 						properties: [
 							{
@@ -3589,7 +3589,7 @@ export const library_json: LibraryJson = {
 					{
 						name: 'ResolvedInputFile',
 						kind: 'type',
-						source_line: 105,
+						source_line: 104,
 						type_signature: 'ResolvedInputFile',
 						properties: [
 							{
@@ -3612,7 +3612,7 @@ export const library_json: LibraryJson = {
 					{
 						name: 'ResolvedInputPaths',
 						kind: 'type',
-						source_line: 111,
+						source_line: 110,
 						type_signature: 'ResolvedInputPaths',
 						properties: [
 							{
@@ -3637,7 +3637,7 @@ export const library_json: LibraryJson = {
 						kind: 'function',
 						doc_comment:
 							"Gets the path data for each input path, checking the filesystem for the possibilities\nand stopping at the first existing file or falling back to the first existing directory.\nIf none is found for an input path, it's added to `unmapped_input_paths`.",
-						source_line: 122,
+						source_line: 121,
 						type_signature:
 							'(input_paths: InputPath[], root_dirs: PathId[], extensions: string[]): Promise<ResolvedInputPaths>',
 						return_type: 'Promise<ResolvedInputPaths>',
@@ -3659,7 +3659,7 @@ export const library_json: LibraryJson = {
 					{
 						name: 'ResolvedInputFiles',
 						kind: 'type',
-						source_line: 178,
+						source_line: 177,
 						type_signature: 'ResolvedInputFiles',
 						properties: [
 							{
@@ -3684,7 +3684,7 @@ export const library_json: LibraryJson = {
 						kind: 'function',
 						doc_comment:
 							'Finds all of the matching files for the given input paths.\nDe-dupes source ids.',
-						source_line: 188,
+						source_line: 187,
 						type_signature:
 							'(resolved_input_paths: ResolvedInputPath[], search?: (dir: string) => Promise<ResolvedPath[]>): Promise<ResolvedInputFiles>',
 						return_type: 'Promise<ResolvedInputFiles>',
@@ -5102,13 +5102,13 @@ export const library_json: LibraryJson = {
 					{
 						name: 'SourceJsonMapper',
 						kind: 'type',
-						source_line: 14,
+						source_line: 13,
 						type_signature: 'SourceJsonMapper',
 					},
 					{
 						name: 'source_json_create',
 						kind: 'function',
-						source_line: 18,
+						source_line: 17,
 						type_signature:
 							'(package_json: { [x: string]: unknown; name: string; version: string; private?: boolean | undefined; public?: boolean | undefined; description?: string | undefined; motto?: string | undefined; glyph?: string | undefined; ... 24 more ...; exports?: string | ... 2 more ... | undefined; }, lib_path?: string | undefined, log?: Logger | undefined): Promise<...>',
 						return_type:
@@ -5133,7 +5133,7 @@ export const library_json: LibraryJson = {
 					{
 						name: 'source_json_serialize',
 						kind: 'function',
-						source_line: 29,
+						source_line: 28,
 						type_signature:
 							'(source_json: { [x: string]: unknown; name: string; version: string; modules?: { [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: "function" | "type" | "json" | "variable" | "class" | "constructor" | "component" | "css"; ... 19 more ...; alias_of?: { ...; } | undefined; }[] | undefined; module_comment?: string | undefined; dependencies?: string[] | undefined; dependents?: string[] | undefined; }[] | undefined; }): string',
 						return_type: 'string',
@@ -5147,7 +5147,7 @@ export const library_json: LibraryJson = {
 					{
 						name: 'source_modules_create',
 						kind: 'function',
-						source_line: 34,
+						source_line: 33,
 						type_signature:
 							'(exports: string | Record<string, unknown> | null | undefined, lib_path?: string, log?: Logger | undefined): Promise<{ [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; ... 21 more ...; alias_of?: { ...; } | undefined; }[] | undefined; module_comment?: string | undefined; dependencies?: string[] | undefined; dependents?: string[] | undefined; }[] | undefined>',
 						return_type:
