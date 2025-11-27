@@ -78,7 +78,12 @@ describe('deploy_task dry mode', () => {
 			// Should perform all preparation steps
 			expect(git_checkout).toHaveBeenCalled();
 			expect(git_pull).toHaveBeenCalled();
-			expect(ctx.invoke_task).toHaveBeenCalledWith('build', {gen: true});
+			expect(ctx.invoke_task).toHaveBeenCalledWith('build', {
+				sync: true,
+				gen: true,
+				install: true,
+				force_build: false,
+			});
 			expect(fs_empty_dir).toHaveBeenCalled();
 			expect(cp).toHaveBeenCalled();
 

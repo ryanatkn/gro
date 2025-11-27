@@ -107,7 +107,12 @@ describe('deploy_task integration scenarios', () => {
 			expect(git_delete_local_branch).toHaveBeenCalledWith('main', expect.anything());
 
 			// Should build and copy files
-			expect(ctx.invoke_task).toHaveBeenCalledWith('build', {gen: true});
+			expect(ctx.invoke_task).toHaveBeenCalledWith('build', {
+				sync: true,
+				gen: true,
+				install: true,
+				force_build: false,
+			});
 
 			// Should commit and push deployment
 			expect(spawn).toHaveBeenCalledWith('git', ['add', '.', '-f'], expect.anything());
@@ -189,7 +194,12 @@ describe('deploy_task integration scenarios', () => {
 			expect(fs_empty_dir).toHaveBeenCalled();
 
 			// Should build and copy
-			expect(ctx.invoke_task).toHaveBeenCalledWith('build', {gen: true});
+			expect(ctx.invoke_task).toHaveBeenCalledWith('build', {
+				sync: true,
+				gen: true,
+				install: true,
+				force_build: false,
+			});
 
 			// Should commit and push
 			expect(spawn).toHaveBeenCalledWith('git', ['commit', '-m', 'deployment'], expect.anything());
@@ -341,7 +351,12 @@ describe('deploy_task integration scenarios', () => {
 
 			// Should do all prep work
 			expect(git_checkout).toHaveBeenCalled();
-			expect(ctx.invoke_task).toHaveBeenCalledWith('build', {gen: true});
+			expect(ctx.invoke_task).toHaveBeenCalledWith('build', {
+				sync: true,
+				gen: true,
+				install: true,
+				force_build: false,
+			});
 			expect(cp).toHaveBeenCalled();
 
 			// Should NOT push

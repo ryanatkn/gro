@@ -26,8 +26,13 @@ export const create_mock_deploy_task_context = (
 		reset: false,
 		build: true,
 		'no-build': false,
+		sync: true,
+		'no-sync': false,
 		gen: true,
 		'no-gen': false,
+		install: true,
+		'no-install': false,
+		force_build: false,
 		pull: true,
 		'no-pull': false,
 	} as Args);

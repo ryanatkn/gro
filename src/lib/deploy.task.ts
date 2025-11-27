@@ -71,8 +71,19 @@ export const Args = z.strictObject({
 		.default(false),
 	build: z.boolean().meta({description: 'dual of no-build'}).default(true),
 	'no-build': z.boolean().meta({description: 'opt out of building'}).default(false),
+	sync: z.boolean().meta({description: 'dual of no-sync'}).default(true),
+	'no-sync': z.boolean().meta({description: 'opt out of gro sync in build'}).default(false),
 	gen: z.boolean().meta({description: 'dual of no-gen'}).default(true),
-	'no-gen': z.boolean().meta({description: 'opt out of gro gen'}).default(false),
+	'no-gen': z.boolean().meta({description: 'opt out of gro gen in build'}).default(false),
+	install: z.boolean().meta({description: 'dual of no-install'}).default(true),
+	'no-install': z
+		.boolean()
+		.meta({description: 'opt out of installing packages before building'})
+		.default(false),
+	force_build: z
+		.boolean()
+		.meta({description: 'force a fresh build, ignoring the cache'})
+		.default(false),
 	pull: z.boolean().meta({description: 'dual of no-pull'}).default(true),
 	'no-pull': z.boolean().meta({description: 'opt out of git pull'}).default(false),
 });
@@ -94,7 +105,10 @@ export const task: Task<Args> = {
 			dangerous,
 			reset,
 			build,
+			sync,
 			gen,
+			install,
+			force_build,
 			pull,
 		} = args;
 
@@ -224,7 +238,7 @@ export const task: Task<Args> = {
 		// Build
 		try {
 			if (build) {
-				await invoke_task('build', {gen});
+				await invoke_task('build', {sync, gen, install, force_build});
 			}
 		} catch (error) {
 			log.error(
