@@ -71,6 +71,8 @@ export const Args = z.strictObject({
 		.default(false),
 	build: z.boolean().meta({description: 'dual of no-build'}).default(true),
 	'no-build': z.boolean().meta({description: 'opt out of building'}).default(false),
+	gen: z.boolean().meta({description: 'dual of no-gen'}).default(true),
+	'no-gen': z.boolean().meta({description: 'opt out of gro gen'}).default(false),
 	pull: z.boolean().meta({description: 'dual of no-pull'}).default(true),
 	'no-pull': z.boolean().meta({description: 'opt out of git pull'}).default(false),
 });
@@ -92,6 +94,7 @@ export const task: Task<Args> = {
 			dangerous,
 			reset,
 			build,
+			gen,
 			pull,
 		} = args;
 
@@ -221,7 +224,7 @@ export const task: Task<Args> = {
 		// Build
 		try {
 			if (build) {
-				await invoke_task('build');
+				await invoke_task('build', {gen});
 			}
 		} catch (error) {
 			log.error(

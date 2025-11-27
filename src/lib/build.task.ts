@@ -20,6 +20,8 @@ import {paths} from './paths.ts';
 export const Args = z.strictObject({
 	sync: z.boolean().meta({description: 'dual of no-sync'}).default(true),
 	'no-sync': z.boolean().meta({description: 'opt out of gro sync'}).default(false),
+	gen: z.boolean().meta({description: 'dual of no-gen'}).default(true),
+	'no-gen': z.boolean().meta({description: 'opt out of gro gen'}).default(false),
 	install: z.boolean().meta({description: 'dual of no-install'}).default(true),
 	'no-install': z // convenience, same as `gro build -- gro sync --no-install` but the latter takes precedence
 		.boolean()
@@ -50,11 +52,15 @@ export const task: Task<Args> = {
 	Args,
 	run: async (ctx): Promise<void> => {
 		const {args, invoke_task, log, config} = ctx;
-		const {sync, install, force_build} = args;
+		const {sync, gen, install, force_build} = args;
 
 		if (sync || install) {
 			if (!sync) log.warn('sync is false but install is true, so ignoring the sync option');
-			await invoke_task('sync', {install});
+			await invoke_task('sync', {install, gen: false});
+		}
+
+		if (gen) {
+			await invoke_task('gen');
 		}
 
 		// Batch git calls upfront for performance (spawning processes is expensive)

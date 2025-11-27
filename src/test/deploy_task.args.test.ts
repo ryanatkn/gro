@@ -176,7 +176,7 @@ describe('deploy_task args', () => {
 
 			await deploy_task.run(ctx);
 
-			expect(ctx.invoke_task).toHaveBeenCalledWith('build');
+			expect(ctx.invoke_task).toHaveBeenCalledWith('build', {gen: true});
 		});
 
 		test('skips build task when no-build=true', async () => {

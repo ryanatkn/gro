@@ -73,7 +73,7 @@ describe('deploy_task build integration', () => {
 
 			await deploy_task.run(ctx);
 
-			expect(ctx.invoke_task).toHaveBeenCalledWith('build');
+			expect(ctx.invoke_task).toHaveBeenCalledWith('build', {gen: true});
 		});
 
 		test('skips build task when build=false', async () => {
@@ -280,7 +280,7 @@ describe('deploy_task build integration', () => {
 			await deploy_task.run(ctx);
 
 			// invoke_task should be called before fs_exists checks build dir
-			expect(ctx.invoke_task).toHaveBeenCalledWith('build');
+			expect(ctx.invoke_task).toHaveBeenCalledWith('build', {gen: true});
 		});
 	});
 
