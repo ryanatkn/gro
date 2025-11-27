@@ -85,9 +85,11 @@ export class Filer {
 			dependencies: new Map(),
 		};
 		this.files.set(id, file);
-		// TODO this may need to be batched/deferred
+		// Defer external file change notification to avoid reentrancy during queue processing
 		if (file.external) {
-			this.#on_change({type: 'add', path: file.id, is_directory: false});
+			queueMicrotask(() => {
+				this.#on_change({type: 'add', path: file.id, is_directory: false});
+			});
 		}
 		return file;
 	};
@@ -231,10 +233,13 @@ export class Filer {
 		try {
 			[stats, new_contents] = await Promise.all([stat(id), readFile(id, 'utf8')]);
 		} catch (error) {
-			if ((error as NodeJS.ErrnoException).code !== 'ENOENT') {
+			const code = (error as NodeJS.ErrnoException).code;
+			// Treat file as deleted/inaccessible for common error codes
+			if (code === 'ENOENT' || code === 'EACCES' || code === 'EPERM') {
+				// File doesn't exist or is inaccessible, treat as deleted
+			} else {
 				throw error;
 			}
-			// ENOENT: file doesn't exist, treat as deleted
 		}
 
 		const old_mtime = file.mtime;
@@ -252,7 +257,14 @@ export class Filer {
 		const dependencies_before = new Set(file.dependencies.keys());
 		const dependencies_removed = new Set(dependencies_before);
 
-		const imported = file.contents ? parse_imports(file.id, file.contents) : [];
+		let imported: Array<string> = [];
+		if (file.contents) {
+			try {
+				imported = parse_imports(file.id, file.contents);
+			} catch (error) {
+				this.#log?.error('[filer] Failed to parse imports', file.id, error);
+			}
+		}
 		for (const specifier of imported) {
 			if (SVELTEKIT_GLOBAL_SPECIFIER.test(specifier)) continue;
 			const path = map_sveltekit_aliases(specifier, aliases);
@@ -414,21 +426,26 @@ export const filter_dependents = (
 	searched: Set<PathId> = new Set(),
 	log?: Logger,
 ): Set<PathId> => {
-	const {dependents} = disknode;
-	for (const dependent_id of dependents.keys()) {
-		if (searched.has(dependent_id)) continue;
-		searched.add(dependent_id);
-		if (!filter || filter(dependent_id)) {
-			results.add(dependent_id);
+	// Use iterative approach to avoid stack overflow on deep dependency trees
+	const stack = [disknode];
+
+	while (stack.length > 0) {
+		const current = stack.pop()!;
+		for (const dependent_id of current.dependents.keys()) {
+			if (searched.has(dependent_id)) continue;
+			searched.add(dependent_id);
+			if (!filter || filter(dependent_id)) {
+				results.add(dependent_id);
+			}
+			const dependent_disknode = get_by_id(dependent_id);
+			if (!dependent_disknode) {
+				log?.warn(
+					`[filer.filter_dependents] dependent source file ${dependent_id} not found for ${current.id}`,
+				);
+				continue;
+			}
+			stack.push(dependent_disknode);
 		}
-		const dependent_disknode = get_by_id(dependent_id);
-		if (!dependent_disknode) {
-			log?.warn(
-				`[filer.filter_dependents] dependent source file ${dependent_id} not found for ${disknode.id}`,
-			);
-			continue;
-		}
-		filter_dependents(dependent_disknode, get_by_id, filter, results, searched);
 	}
 	return results;
 };
