@@ -1,5 +1,5 @@
 import {EMPTY_OBJECT} from '@ryanatkn/belt/object.js';
-import {readFileSync, statSync} from 'node:fs';
+import {readFile, stat} from 'node:fs/promises';
 import {dirname, resolve} from 'node:path';
 import type {OmitStrict} from '@ryanatkn/belt/types.js';
 import {isBuiltin} from 'node:module';
@@ -50,6 +50,9 @@ export class Filer {
 	#watching: WatchNodeFs | undefined;
 	#initing: Promise<void> | undefined;
 	#closing: Promise<void> | undefined;
+
+	#change_queue: Array<WatcherChange> = [];
+	#processing_queue = false;
 
 	constructor(options: FilerOptions = EMPTY_OBJECT) {
 		this.#watch_dir = options.watch_dir ?? watch_dir;
@@ -136,6 +139,9 @@ export class Filer {
 		try {
 			await watcher.init();
 
+			// Wait for any queued changes from init to be processed
+			await this.#drain_queue();
+
 			// check if close() was called during init
 			if (this.#closing) {
 				await watcher.close();
@@ -169,6 +175,8 @@ export class Filer {
 		this.#listeners.clear();
 		this.files.clear();
 		this.#watching = undefined;
+		this.#change_queue = [];
+		this.#processing_queue = false;
 		// #initing is handled in finally block of init()
 	}
 
@@ -214,15 +222,15 @@ export class Filer {
 		this.#cleanup();
 	}
 
-	#update(id: PathId): Disknode | null {
+	async #update(id: PathId): Promise<Disknode | null> {
 		const file = this.get_or_create(id);
 
-		let stats: ReturnType<typeof statSync> | null = null;
+		let stats: Awaited<ReturnType<typeof stat>> | null = null;
 		let new_contents: string | null = null; // TODO need to lazily load contents, probably turn `Disknode` into a class
 
 		try {
-			stats = statSync(id);
-			new_contents = readFileSync(id, 'utf8');
+			stats = await stat(id);
+			new_contents = await readFile(id, 'utf8');
 		} catch (error) {
 			if ((error as NodeJS.ErrnoException).code !== 'ENOENT') {
 				throw error;
@@ -335,26 +343,61 @@ export class Filer {
 		// keep watching active even with no listeners, only close() tears down
 	}
 
+	async #drain_queue(): Promise<void> {
+		// Wait for queue to be empty and not processing
+		while (this.#change_queue.length > 0 || this.#processing_queue) {
+			// If processing is active, wait a tick for it to finish
+			// If queue has items, trigger processing
+			if (this.#processing_queue) {
+				await new Promise((resolve) => setImmediate(resolve)); // eslint-disable-line no-await-in-loop
+			} else if (this.#change_queue.length > 0) {
+				await this.#process_queue(); // eslint-disable-line no-await-in-loop
+			}
+		}
+	}
+
+	async #process_queue(): Promise<void> {
+		// Prevent concurrent processing
+		if (this.#processing_queue) return;
+		this.#processing_queue = true;
+
+		try {
+			while (this.#change_queue.length > 0) {
+				const change = this.#change_queue.shift()!;
+
+				if (this.#closing) continue; // ignore changes during close
+				if (change.is_directory) continue; // TODO manage directories?
+
+				let disknode: Disknode | null;
+				switch (change.type) {
+					case 'add':
+					case 'update': {
+						disknode = await this.#update(change.path); // eslint-disable-line no-await-in-loop
+						break;
+					}
+					case 'delete': {
+						disknode = this.#remove(change.path);
+						break;
+					}
+					default:
+						throw new UnreachableError(change.type);
+				}
+
+				if (disknode && this.#listeners.size > 0) {
+					this.#notify_change(change, disknode);
+				}
+			}
+		} finally {
+			this.#processing_queue = false;
+		}
+	}
+
 	#on_change: WatcherChangeCallback = (change) => {
-		if (this.#closing) return; // ignore changes during close
-		if (change.is_directory) return; // TODO manage directories?
-		let disknode: Disknode | null;
-		switch (change.type) {
-			case 'add':
-			case 'update': {
-				disknode = this.#update(change.path);
-				break;
-			}
-			case 'delete': {
-				disknode = this.#remove(change.path);
-				break;
-			}
-			default:
-				throw new UnreachableError(change.type);
-		}
-		if (disknode && this.#listeners.size > 0) {
-			this.#notify_change(change, disknode);
-		}
+		// Enqueue the change (sync callback from chokidar)
+		this.#change_queue.push(change);
+
+		// Start processing if not already running
+		void this.#process_queue();
 	};
 
 	#is_external(id: PathId): boolean {

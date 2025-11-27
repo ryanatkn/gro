@@ -771,3 +771,145 @@ test('concurrent close() calls share same promise', async () => {
 	// Still only one close call
 	assert.equal(close_call_count, 1, 'watcher.close() should still only be called once');
 });
+
+// Async queue tests
+test('processes rapid changes to different files in order', async () => {
+	const events: Array<{type: string; path: string}> = [];
+
+	const mock_watch_dir = vi.fn((options) => {
+		const mock_watcher: WatchNodeFs = {
+			init: vi.fn(async () => {
+				// Simulate rapid-fire changes to different files
+				options.on_change({type: 'add', path: '/test/file1.ts', is_directory: false});
+				options.on_change({type: 'add', path: '/test/file2.ts', is_directory: false});
+				options.on_change({type: 'add', path: '/test/file3.ts', is_directory: false});
+				options.on_change({type: 'add', path: '/test/file4.ts', is_directory: false});
+			}),
+			close: vi.fn(async () => {}),
+		};
+		return mock_watcher;
+	});
+
+	const filer = new Filer({watch_dir: mock_watch_dir});
+
+	await filer.watch((change) => {
+		events.push({type: change.type, path: change.path});
+	});
+
+	// All events should be processed in the order they arrived
+	assert.equal(events.length, 4);
+	assert.equal(events[0]!.path, '/test/file1.ts');
+	assert.equal(events[1]!.path, '/test/file2.ts');
+	assert.equal(events[2]!.path, '/test/file3.ts');
+	assert.equal(events[3]!.path, '/test/file4.ts');
+});
+
+test('queue is fully drained after init completes', async () => {
+	const events: Array<string> = [];
+	const mock_watch_dir = create_mock_watch_dir();
+	const filer = new Filer({watch_dir: mock_watch_dir});
+
+	await filer.init();
+
+	// Add listener after init - should sync all existing files
+	await filer.watch((change) => {
+		events.push(change.path);
+	});
+
+	// All 3 files from mock should have been synced, meaning queue was drained
+	assert.equal(events.length, 3);
+	assert.equal(filer.files.size, 3);
+});
+
+test('new changes are queued while processing', async () => {
+	let init_resolve: () => void;
+	const init_complete: Promise<void> = new Promise((resolve) => {
+		init_resolve = resolve;
+	});
+
+	const events: Array<string> = [];
+
+	const mock_watch_dir = vi.fn((options) => {
+		const mock_watcher: WatchNodeFs = {
+			init: vi.fn(async () => {
+				// Add first file
+				options.on_change({type: 'add', path: '/test/file1.ts', is_directory: false});
+
+				// Wait briefly then add another file (simulating change during processing)
+				await new Promise((resolve) => setTimeout(resolve, 5));
+				options.on_change({type: 'add', path: '/test/file2.ts', is_directory: false});
+
+				init_resolve();
+			}),
+			close: vi.fn(async () => {}),
+		};
+		return mock_watcher;
+	});
+
+	const filer = new Filer({watch_dir: mock_watch_dir});
+
+	await filer.watch((change) => {
+		events.push(change.path);
+	});
+
+	await init_complete;
+
+	// Both files should be processed
+	assert.equal(events.length, 2);
+	assert.ok(events.includes('/test/file1.ts'));
+	assert.ok(events.includes('/test/file2.ts'));
+
+	// Both files should exist in filer state
+	assert.equal(filer.files.size, 2);
+});
+
+test('handles many rapid changes efficiently', async () => {
+	const file_count = 100;
+	const events: Array<{type: string; path: string}> = [];
+
+	const mock_watch_dir = vi.fn((options) => {
+		const mock_watcher: WatchNodeFs = {
+			init: vi.fn(async () => {
+				// Simulate many rapid file additions
+				for (let i = 0; i < file_count; i++) {
+					options.on_change({
+						type: 'add',
+						path: `/test/file${i}.ts`,
+						is_directory: false,
+					});
+				}
+			}),
+			close: vi.fn(async () => {}),
+		};
+		return mock_watcher;
+	});
+
+	const filer = new Filer({watch_dir: mock_watch_dir});
+
+	await filer.watch((change) => {
+		events.push({type: change.type, path: change.path});
+	});
+
+	// All files should be processed
+	assert.equal(events.length, file_count);
+
+	// All files should exist in filer
+	assert.equal(filer.files.size, file_count);
+});
+
+test('state cleanup on close', async () => {
+	const mock_watch_dir = create_mock_watch_dir();
+
+	const filer = new Filer({watch_dir: mock_watch_dir});
+	await filer.init();
+
+	// Verify files were loaded
+	assert.equal(filer.files.size, 3);
+	assert.equal(filer.inited, true);
+
+	await filer.close();
+
+	// All state should be cleared on close
+	assert.equal(filer.files.size, 0);
+	assert.equal(filer.inited, false);
+});
