@@ -92,7 +92,7 @@ export const task: Task<Args> = {
 
 		const bump: ChangesetBump = minor ? 'minor' : major ? 'major' : 'patch';
 
-		const found_changeset_cli = find_cli(changeset_cli);
+		const found_changeset_cli = await find_cli(changeset_cli);
 		if (!found_changeset_cli) {
 			throw new TaskError(
 				'changeset command not found: install @changesets/cli locally or globally',

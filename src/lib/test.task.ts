@@ -35,7 +35,7 @@ export const task: Task<Args> = {
 			throw new TaskError('no test runner found, install vitest');
 		}
 
-		if (!find_cli(VITEST_CLI)) {
+		if (!(await find_cli(VITEST_CLI))) {
 			throw new TaskError('vitest is a dependency but not installed; run `npm i`?');
 		}
 

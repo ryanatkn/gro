@@ -1,11 +1,10 @@
 import {dirname, isAbsolute, join, resolve} from 'node:path';
 import {stat} from 'node:fs/promises';
-import {fs_exists} from '@ryanatkn/belt/fs.js';
+import {fs_exists, fs_search} from '@ryanatkn/belt/fs.js';
 import {strip_start} from '@ryanatkn/belt/string.js';
 import {z} from 'zod';
 import type {Flavored} from '@ryanatkn/belt/types.js';
 import type {PathInfo, PathId, ResolvedPath} from '@ryanatkn/belt/path.js';
-import {fs_search} from '@ryanatkn/belt/fs.js';
 
 import {GRO_PACKAGE_DIR, GRO_DIST_DIR} from './paths.ts';
 import {TASK_FILE_SUFFIX_JS} from './task.ts';
