@@ -1942,7 +1942,7 @@ export const library_json: LibraryJson = {
 					{
 						name: 'filter_dependents',
 						kind: 'function',
-						source_line: 367,
+						source_line: 421,
 						type_signature:
 							'(disknode: Disknode, get_by_id: (id: PathId) => Disknode | undefined, filter?: FileFilter | undefined, results?: Set<PathId>, searched?: Set<...>, log?: Logger | undefined): Set<...>',
 						return_type: 'Set<PathId>',
