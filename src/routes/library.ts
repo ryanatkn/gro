@@ -90,18 +90,18 @@ export const library_json: LibraryJson = {
 			'@changesets/types': '^6.1.0',
 			'@ryanatkn/belt': '^0.41.1',
 			'@ryanatkn/eslint-config': '^0.9.0',
-			'@ryanatkn/fuz': '^0.167.0',
+			'@ryanatkn/fuz': '^0.168.0',
 			'@ryanatkn/fuz_code': '^0.36.0',
 			'@ryanatkn/moss': '^0.39.0',
 			'@sveltejs/adapter-static': '^3.0.10',
 			'@sveltejs/kit': '^2.49.0',
-			'@sveltejs/package': '^2.5.6',
+			'@sveltejs/package': '^2.5.7',
 			'@sveltejs/vite-plugin-svelte': '^6.2.1',
 			'@types/node': '^24.10.1',
 			esbuild: '^0.27.0',
 			eslint: '^9.39.1',
 			'eslint-plugin-svelte': '^3.13.0',
-			svelte: '^5.44.1',
+			svelte: '^5.45.2',
 			'svelte-check': '^4.3.4',
 			typescript: '^5.9.3',
 			'typescript-eslint': '^8.48.0',
@@ -5601,7 +5601,7 @@ export const library_json: LibraryJson = {
 						kind: 'variable',
 						source_line: 11,
 						type_signature:
-							'{ <Success extends Record<string, unknown> | undefined, Failure extends Record<string, unknown> | undefined>(result: ActionResult<Success, Failure>): Promise<void>; <Success extends Record<string, unknown> | undefined, Failure extends Record<string, unknown> | undefined>(result: ActionResult<...>): Promise<...>; }',
+							'<Success extends Record<string, unknown> | undefined, Failure extends Record<string, unknown> | undefined>(result: ActionResult<Success, Failure>) => Promise<void>',
 					},
 					{
 						name: 'deserialize',
@@ -5645,55 +5645,51 @@ export const library_json: LibraryJson = {
 						name: 'afterNavigate',
 						kind: 'variable',
 						source_line: 16,
-						type_signature:
-							'{ (callback: (navigation: AfterNavigate) => void): void; (callback: (navigation: AfterNavigate) => void): void; }',
+						type_signature: '(callback: (navigation: AfterNavigate) => void) => void',
 					},
 					{
 						name: 'beforeNavigate',
 						kind: 'variable',
 						source_line: 17,
-						type_signature:
-							'{ (callback: (navigation: BeforeNavigate) => void): void; (callback: (navigation: BeforeNavigate) => void): void; }',
+						type_signature: '(callback: (navigation: BeforeNavigate) => void) => void',
 					},
 					{
 						name: 'disableScrollHandling',
 						kind: 'variable',
 						source_line: 18,
-						type_signature: '{ (): void; (): void; }',
+						type_signature: '() => void',
 					},
 					{
 						name: 'goto',
 						kind: 'variable',
 						source_line: 19,
 						type_signature:
-							'{ (url: string | URL, opts?: { replaceState?: boolean | undefined; noScroll?: boolean | undefined; keepFocus?: boolean | undefined; invalidateAll?: boolean | undefined; invalidate?: (string | ... 1 more ... | ((url: URL) => boolean))[] | undefined; state?: PageState | undefined; } | undefined): Promise<...>; (url: s...',
+							'(url: string | URL, opts?: { replaceState?: boolean | undefined; noScroll?: boolean | undefined; keepFocus?: boolean | undefined; invalidateAll?: boolean | undefined; invalidate?: (string | ... 1 more ... | ((url: URL) => boolean))[] | undefined; state?: PageState | undefined; } | undefined) => Promise<...>',
 					},
 					{
 						name: 'invalidate',
 						kind: 'variable',
 						source_line: 20,
-						type_signature:
-							'{ (resource: string | URL | ((url: URL) => boolean)): Promise<void>; (resource: string | URL | ((url: URL) => boolean)): Promise<void>; }',
+						type_signature: '(resource: string | URL | ((url: URL) => boolean)) => Promise<void>',
 					},
 					{
 						name: 'invalidateAll',
 						kind: 'variable',
 						source_line: 21,
-						type_signature: '{ (): Promise<void>; (): Promise<void>; }',
+						type_signature: '() => Promise<void>',
 					},
 					{
 						name: 'preloadCode',
 						kind: 'variable',
 						source_line: 22,
-						type_signature:
-							'{ (pathname: string): Promise<void>; (pathname: string): Promise<void>; }',
+						type_signature: '(pathname: string) => Promise<void>',
 					},
 					{
 						name: 'preloadData',
 						kind: 'variable',
 						source_line: 23,
 						type_signature:
-							'{ (href: string): Promise<{ type: "loaded"; status: number; data: Record<string, any>; } | { type: "redirect"; location: string; }>; (href: string): Promise<{ type: "loaded"; status: number; data: Record<...>; } | { ...; }>; }',
+							'(href: string) => Promise<{ type: "loaded"; status: number; data: Record<string, any>; } | { type: "redirect"; location: string; }>',
 					},
 				],
 			},
@@ -5734,7 +5730,7 @@ export const library_json: LibraryJson = {
 						doc_comment: '',
 						source_line: 23,
 						type_signature:
-							'{ <T extends RouteId | Pathname>(...args: ResolveArgs<T>): "/" | "/about" | "/docs" | "/docs/api" | "/docs/library" | "/history" | `${`/docs/api/${string}` & {}}` | `${`/docs/api/${string}/` & {}}` | ... 12 more ... | `/${string}/history/`; <T extends RouteId | Pathname>(...args: ResolveArgs<...>): "/" | ... 19 more...',
+							'<T extends RouteId | Pathname>(...args: ResolveArgs<T>) => "/" | "/about" | "/docs" | "/docs/api" | "/docs/library" | "/history" | `${`/docs/api/${string}` & {}}` | `${`/docs/api/${string}/` & {}}` | ... 12 more ... | `/${string}/history/`',
 					},
 					{
 						name: 'asset',
