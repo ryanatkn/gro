@@ -34,19 +34,16 @@ vi.mock('@ryanatkn/belt/process.js', () => ({
 	spawn: vi.fn(),
 }));
 
-vi.mock('node:fs', () => ({
-	existsSync: vi.fn(),
-	readdirSync: vi.fn(),
-}));
-
 vi.mock('node:fs/promises', () => ({
 	cp: vi.fn(),
 	mkdir: vi.fn(),
 	rm: vi.fn(),
+	readdir: vi.fn(),
 }));
 
 vi.mock('@ryanatkn/belt/fs.js', () => ({
 	fs_empty_dir: vi.fn(),
+	fs_exists: vi.fn(),
 }));
 
 describe('deploy_task args', () => {
@@ -66,8 +63,8 @@ describe('deploy_task args', () => {
 
 	test('uses default args when none provided', async () => {
 		const {git_checkout, git_pull} = vi.mocked(await import('@ryanatkn/belt/git.js'));
-		const {existsSync} = await import('node:fs');
-		vi.mocked(existsSync).mockReturnValue(true);
+		const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+		vi.mocked(fs_exists).mockResolvedValue(true);
 
 		const ctx = create_mock_deploy_task_context({dry: true}); // dry to skip push
 
@@ -80,8 +77,8 @@ describe('deploy_task args', () => {
 
 	test('respects custom source branch', async () => {
 		const {git_checkout, git_pull} = vi.mocked(await import('@ryanatkn/belt/git.js'));
-		const {existsSync} = await import('node:fs');
-		vi.mocked(existsSync).mockReturnValue(true);
+		const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+		vi.mocked(fs_exists).mockResolvedValue(true);
 
 		const ctx = create_mock_deploy_task_context({
 			source: 'develop',
@@ -96,8 +93,8 @@ describe('deploy_task args', () => {
 
 	test('respects custom target branch with force flag', async () => {
 		const {git_current_branch_name} = vi.mocked(await import('@ryanatkn/belt/git.js'));
-		const {existsSync} = await import('node:fs');
-		vi.mocked(existsSync).mockReturnValue(true);
+		const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+		vi.mocked(fs_exists).mockResolvedValue(true);
 		vi.mocked(git_current_branch_name).mockResolvedValue('custom-deploy');
 
 		const ctx = create_mock_deploy_task_context({
@@ -116,8 +113,8 @@ describe('deploy_task args', () => {
 
 	test('respects custom origin', async () => {
 		const {git_pull, git_remote_branch_exists} = vi.mocked(await import('@ryanatkn/belt/git.js'));
-		const {existsSync} = await import('node:fs');
-		vi.mocked(existsSync).mockReturnValue(true);
+		const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+		vi.mocked(fs_exists).mockResolvedValue(true);
 
 		const ctx = create_mock_deploy_task_context({
 			origin: 'upstream',
@@ -132,9 +129,8 @@ describe('deploy_task args', () => {
 
 	test('respects custom deploy_dir', async () => {
 		const {git_current_branch_name} = vi.mocked(await import('@ryanatkn/belt/git.js'));
-		const {existsSync} = await import('node:fs');
-		const {fs_empty_dir} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
-		vi.mocked(existsSync).mockReturnValue(true);
+		const {fs_exists, fs_empty_dir} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+		vi.mocked(fs_exists).mockResolvedValue(true);
 
 		const ctx = create_mock_deploy_task_context({
 			deploy_dir: 'custom/deploy',
@@ -149,11 +145,11 @@ describe('deploy_task args', () => {
 	});
 
 	test('respects custom build_dir', async () => {
-		const {existsSync, readdirSync} = await import('node:fs');
-		const {cp} = await import('node:fs/promises');
+		const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+		const {cp, readdir} = vi.mocked(await import('node:fs/promises'));
 
-		vi.mocked(existsSync).mockReturnValue(true);
-		vi.mocked(readdirSync).mockReturnValue(['index.html'] as any);
+		vi.mocked(fs_exists).mockResolvedValue(true);
+		vi.mocked(readdir).mockResolvedValue(['index.html'] as any);
 
 		const ctx = create_mock_deploy_task_context({
 			build_dir: 'dist',
@@ -163,7 +159,7 @@ describe('deploy_task args', () => {
 		await deploy_task.run(ctx);
 
 		// Should read from custom build_dir
-		expect(readdirSync).toHaveBeenCalledWith('dist');
+		expect(readdir).toHaveBeenCalledWith('dist');
 		expect(cp).toHaveBeenCalledWith(
 			expect.stringContaining('dist/'),
 			expect.anything(),
@@ -173,19 +169,24 @@ describe('deploy_task args', () => {
 
 	describe('build/no-build dual args', () => {
 		test('calls build task when build=true (default)', async () => {
-			const {existsSync} = await import('node:fs');
-			vi.mocked(existsSync).mockReturnValue(true);
+			const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+			vi.mocked(fs_exists).mockResolvedValue(true);
 
 			const ctx = create_mock_deploy_task_context({dry: true});
 
 			await deploy_task.run(ctx);
 
-			expect(ctx.invoke_task).toHaveBeenCalledWith('build');
+			expect(ctx.invoke_task).toHaveBeenCalledWith('build', {
+				sync: true,
+				gen: true,
+				install: true,
+				force_build: false,
+			});
 		});
 
 		test('skips build task when no-build=true', async () => {
-			const {existsSync} = await import('node:fs');
-			vi.mocked(existsSync).mockReturnValue(true);
+			const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+			vi.mocked(fs_exists).mockResolvedValue(true);
 
 			const ctx = create_mock_deploy_task_context({
 				build: false,
@@ -199,8 +200,8 @@ describe('deploy_task args', () => {
 		});
 
 		test('skips build task when build=false', async () => {
-			const {existsSync} = await import('node:fs');
-			vi.mocked(existsSync).mockReturnValue(true);
+			const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+			vi.mocked(fs_exists).mockResolvedValue(true);
 
 			const ctx = create_mock_deploy_task_context({
 				build: false,
@@ -216,8 +217,8 @@ describe('deploy_task args', () => {
 	describe('pull/no-pull dual args', () => {
 		test('pulls source branch when pull=true (default)', async () => {
 			const {git_pull} = vi.mocked(await import('@ryanatkn/belt/git.js'));
-			const {existsSync} = await import('node:fs');
-			vi.mocked(existsSync).mockReturnValue(true);
+			const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+			vi.mocked(fs_exists).mockResolvedValue(true);
 
 			const ctx = create_mock_deploy_task_context({dry: true});
 
@@ -229,8 +230,8 @@ describe('deploy_task args', () => {
 
 		test('skips source pull when no-pull=true', async () => {
 			const {git_pull} = vi.mocked(await import('@ryanatkn/belt/git.js'));
-			const {existsSync} = await import('node:fs');
-			vi.mocked(existsSync).mockReturnValue(true);
+			const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+			vi.mocked(fs_exists).mockResolvedValue(true);
 
 			const ctx = create_mock_deploy_task_context({
 				pull: false,
@@ -247,8 +248,8 @@ describe('deploy_task args', () => {
 
 		test('skips source pull when pull=false', async () => {
 			const {git_pull} = vi.mocked(await import('@ryanatkn/belt/git.js'));
-			const {existsSync} = await import('node:fs');
-			vi.mocked(existsSync).mockReturnValue(true);
+			const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+			vi.mocked(fs_exists).mockResolvedValue(true);
 
 			const ctx = create_mock_deploy_task_context({
 				pull: false,

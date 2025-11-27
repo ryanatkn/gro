@@ -423,7 +423,7 @@ Core systems (src/lib/):
 
 Key utilities:
 
-- Filesystem: `filer.ts`, `fs.ts`, `paths.ts`, `search_fs.ts`
+- Filesystem: `filer.ts`, `paths.ts`
 - Module handling: `modules.ts`, `format_file.ts`, `package_json.ts`, `args.ts`
 - SvelteKit integration: `svelte_config.ts`, `sveltekit_shim_*.ts`,
   `esbuild_plugin_sveltekit_*.ts`

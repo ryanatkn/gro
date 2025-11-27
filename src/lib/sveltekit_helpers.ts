@@ -73,7 +73,7 @@ export const sveltekit_sync_if_available = async (
 	sveltekit_cli: string | Cli = SVELTEKIT_CLI,
 ): Promise<void> => {
 	const found_sveltekit_cli =
-		typeof sveltekit_cli === 'string' ? find_cli(sveltekit_cli) : sveltekit_cli;
+		typeof sveltekit_cli === 'string' ? await find_cli(sveltekit_cli) : sveltekit_cli;
 	if (found_sveltekit_cli) {
 		return sveltekit_sync(found_sveltekit_cli);
 	}
@@ -89,7 +89,7 @@ export const sveltekit_sync_if_obviously_needed = async (
 		return;
 	}
 	const found_sveltekit_cli =
-		typeof sveltekit_cli === 'string' ? find_cli(sveltekit_cli) : sveltekit_cli;
+		typeof sveltekit_cli === 'string' ? await find_cli(sveltekit_cli) : sveltekit_cli;
 	if (!found_sveltekit_cli) {
 		return;
 	}
@@ -160,7 +160,7 @@ export const run_svelte_package = async (
 		);
 	}
 	const cli_name = typeof cli === 'string' ? cli : cli.name;
-	const found_svelte_package_cli = cli === cli_name ? find_cli(cli) : (cli as Cli);
+	const found_svelte_package_cli = cli === cli_name ? await find_cli(cli) : (cli as Cli);
 	if (found_svelte_package_cli?.kind !== 'local') {
 		throw new TaskError(
 			`Failed to find SvelteKit packaging CLI \`${cli_name}\`, do you need to run \`${pm_cli} install\`?`,

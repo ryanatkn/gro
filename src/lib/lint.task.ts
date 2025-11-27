@@ -21,7 +21,7 @@ export const task: Task<Args> = {
 	run: async ({log, args}): Promise<void> => {
 		const {_, eslint_cli} = args;
 
-		const found_eslint_cli = find_cli(eslint_cli);
+		const found_eslint_cli = await find_cli(eslint_cli);
 		if (!found_eslint_cli) {
 			// TODO maybe make this an option?
 			log.info('ESLint is not installed; skipping linting');

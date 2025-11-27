@@ -1,6 +1,6 @@
 import {spawn} from '@ryanatkn/belt/process.js';
 import {z} from 'zod';
-import {rmSync} from 'node:fs';
+import {rm} from 'node:fs/promises';
 import {GitOrigin, git_pull} from '@ryanatkn/belt/git.js';
 
 import {TaskError, type Task} from './task.ts';
@@ -75,15 +75,15 @@ export const task: Task<Args> = {
 
 		if (delete_node_modules) {
 			log.info(`deleting node_modules at `, node_modules_path);
-			rmSync(node_modules_path, {recursive: true, force: true});
+			await rm(node_modules_path, {recursive: true, force: true});
 		}
 
 		if (delete_lockfile) {
 			log.info(`deleting lockfile at`, lockfile_path);
-			rmSync(lockfile_path, {force: true});
+			await rm(lockfile_path, {force: true});
 		}
 
-		const package_json = load_package_json();
+		const package_json = await load_package_json();
 
 		const all_deps = extract_deps(package_json);
 

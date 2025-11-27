@@ -16,14 +16,16 @@ vi.mock('@ryanatkn/belt/git.js', () => ({
 	git_current_commit_hash: vi.fn(),
 }));
 
-vi.mock('node:fs', () => ({
-	existsSync: vi.fn(),
-	readFileSync: vi.fn(),
-	writeFileSync: vi.fn(),
-	mkdirSync: vi.fn(),
-	rmSync: vi.fn(),
-	statSync: vi.fn(),
-	readdirSync: vi.fn(),
+// Mock async fs functions for discover_build_output_dirs and collect_build_outputs
+vi.mock('node:fs/promises', () => ({
+	readdir: vi.fn(),
+	stat: vi.fn(),
+	readFile: vi.fn(),
+}));
+
+// Mock fs_exists from belt
+vi.mock('@ryanatkn/belt/fs.js', () => ({
+	fs_exists: vi.fn(),
 }));
 
 vi.mock('$lib/hash.js', () => ({
@@ -31,19 +33,26 @@ vi.mock('$lib/hash.js', () => ({
 }));
 
 describe('create_build_cache_metadata', () => {
-	beforeEach(() => {
+	beforeEach(async () => {
 		vi.clearAllMocks();
+		// Set up default async mocks for discover_build_output_dirs
+		const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+		const {readdir, stat} = vi.mocked(await import('node:fs/promises'));
+		vi.mocked(fs_exists).mockResolvedValue(false);
+		vi.mocked(readdir).mockResolvedValue([] as any);
+		vi.mocked(stat).mockResolvedValue({isDirectory: () => true} as any);
 	});
 
 	test('creates complete metadata object', async () => {
 		const {git_current_commit_hash} = await import('@ryanatkn/belt/git.js');
-		const {existsSync, readdirSync, statSync} = await import('node:fs');
+		const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+		const {readdir, stat} = vi.mocked(await import('node:fs/promises'));
 		const {to_hash} = await import('$lib/hash.js');
 
 		vi.mocked(git_current_commit_hash).mockResolvedValue('abc123');
-		vi.mocked(existsSync).mockReturnValue(false);
-		vi.mocked(readdirSync).mockReturnValue([] as any);
-		vi.mocked(statSync).mockReturnValue(mock_dir_stats());
+		vi.mocked(fs_exists).mockResolvedValue(false);
+		vi.mocked(readdir).mockResolvedValue([] as any);
+		vi.mocked(stat).mockResolvedValue(mock_dir_stats());
 		vi.mocked(to_hash).mockResolvedValue('hash123');
 
 		const config = await create_mock_config();
@@ -61,23 +70,28 @@ describe('create_build_cache_metadata', () => {
 
 	test('creates metadata with actual build outputs', async () => {
 		const {git_current_commit_hash} = await import('@ryanatkn/belt/git.js');
-		const {existsSync, readdirSync, readFileSync, statSync} = await import('node:fs');
+		const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+		const {readdir, stat, readFile} = vi.mocked(await import('node:fs/promises'));
 		const {to_hash} = await import('$lib/hash.js');
 
 		vi.mocked(git_current_commit_hash).mockResolvedValue('abc123');
-		vi.mocked(existsSync).mockImplementation((path: any) => path === 'build');
-		vi.mocked(readdirSync).mockImplementation((path: any) => {
-			if (path === '.') return [] as any;
+		vi.mocked(fs_exists).mockImplementation((path: any) => Promise.resolve(path === 'build'));
+		// Set up async mocks for discover_build_output_dirs and collect_build_outputs
+		vi.mocked(readdir).mockImplementation((path: any) => {
+			if (path === '.') return Promise.resolve([] as any);
 			if (path === 'build') {
-				return [mock_file_entry('index.html'), mock_file_entry('bundle.js')] as any;
+				return Promise.resolve([
+					mock_file_entry('index.html'),
+					mock_file_entry('bundle.js'),
+				] as any);
 			}
-			return [] as any;
+			return Promise.resolve([] as any);
 		});
-		vi.mocked(statSync).mockImplementation((path: any) => {
-			if (String(path) === 'build') return mock_dir_stats();
-			return mock_file_stats();
+		vi.mocked(stat).mockImplementation((path: any) => {
+			if (String(path) === 'build') return Promise.resolve(mock_dir_stats());
+			return Promise.resolve(mock_file_stats());
 		});
-		vi.mocked(readFileSync).mockReturnValue(Buffer.from('content'));
+		vi.mocked(readFile).mockResolvedValue(Buffer.from('content'));
 
 		let hash_count = 0;
 		// eslint-disable-next-line @typescript-eslint/require-await
@@ -103,31 +117,32 @@ describe('create_build_cache_metadata', () => {
 
 	test('creates metadata with multiple build directories', async () => {
 		const {git_current_commit_hash} = await import('@ryanatkn/belt/git.js');
-		const {existsSync, readdirSync, readFileSync, statSync} = await import('node:fs');
+		const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+		const {readdir, stat, readFile} = vi.mocked(await import('node:fs/promises'));
 		const {to_hash} = await import('$lib/hash.js');
 
 		vi.mocked(git_current_commit_hash).mockResolvedValue('abc123');
 
-		vi.mocked(existsSync).mockReturnValue(true);
-
-		vi.mocked(readdirSync).mockImplementation((path: any) => {
+		vi.mocked(fs_exists).mockResolvedValue(true);
+		// Set up async mocks for discover_build_output_dirs and collect_build_outputs
+		vi.mocked(readdir).mockImplementation((path: any) => {
 			if (path === '.') {
-				return ['dist_server', 'src', 'node_modules'] as any;
+				return Promise.resolve(['dist_server', 'src', 'node_modules'] as any);
 			}
 			if (path === 'build') {
-				return [mock_file_entry('app.js')] as any;
+				return Promise.resolve([mock_file_entry('app.js')] as any);
 			}
 			if (path === 'dist') {
-				return [mock_file_entry('lib.js')] as any;
+				return Promise.resolve([mock_file_entry('lib.js')] as any);
 			}
 			if (path === 'dist_server') {
-				return [mock_file_entry('server.js')] as any;
+				return Promise.resolve([mock_file_entry('server.js')] as any);
 			}
-			return [] as any;
+			return Promise.resolve([] as any);
 		});
 
-		vi.mocked(statSync).mockReturnValue(mock_dir_stats());
-		vi.mocked(readFileSync).mockReturnValue(Buffer.from('content'));
+		vi.mocked(stat).mockResolvedValue(mock_dir_stats());
+		vi.mocked(readFile).mockResolvedValue(Buffer.from('content'));
 
 		let hash_count = 0;
 		// eslint-disable-next-line @typescript-eslint/require-await
@@ -147,17 +162,19 @@ describe('create_build_cache_metadata', () => {
 
 	test('handles empty build directories', async () => {
 		const {git_current_commit_hash} = await import('@ryanatkn/belt/git.js');
-		const {existsSync, readdirSync, statSync} = await import('node:fs');
+		const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+		const {readdir, stat} = vi.mocked(await import('node:fs/promises'));
 		const {to_hash} = await import('$lib/hash.js');
 
 		vi.mocked(git_current_commit_hash).mockResolvedValue('abc123');
-		vi.mocked(existsSync).mockImplementation((path: any) => path === 'build');
-		vi.mocked(readdirSync).mockImplementation((path: any) => {
-			if (path === '.') return [] as any;
-			if (path === 'build') return [] as any;
-			return [] as any;
+		vi.mocked(fs_exists).mockImplementation((path: any) => Promise.resolve(path === 'build'));
+		// Set up async mocks for discover_build_output_dirs and collect_build_outputs
+		vi.mocked(readdir).mockImplementation((path: any) => {
+			if (path === '.') return Promise.resolve([] as any);
+			if (path === 'build') return Promise.resolve([] as any);
+			return Promise.resolve([] as any);
 		});
-		vi.mocked(statSync).mockReturnValue(mock_dir_stats());
+		vi.mocked(stat).mockResolvedValue({isDirectory: () => true} as any);
 		vi.mocked(to_hash).mockResolvedValue('hash123');
 
 		const config = await create_mock_config();
@@ -172,40 +189,41 @@ describe('create_build_cache_metadata', () => {
 
 	test('creates metadata with deeply nested file structures', async () => {
 		const {git_current_commit_hash} = await import('@ryanatkn/belt/git.js');
-		const {existsSync, readdirSync, readFileSync, statSync} = await import('node:fs');
+		const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+		const {readdir, stat, readFile} = vi.mocked(await import('node:fs/promises'));
 		const {to_hash} = await import('$lib/hash.js');
 
 		vi.mocked(git_current_commit_hash).mockResolvedValue('abc123');
-		vi.mocked(existsSync).mockImplementation((path: any) => path === 'build');
-
-		vi.mocked(readdirSync).mockImplementation((path: any) => {
+		vi.mocked(fs_exists).mockImplementation((path: any) => Promise.resolve(path === 'build'));
+		// Set up async mocks for discover_build_output_dirs and collect_build_outputs
+		vi.mocked(readdir).mockImplementation((path: any) => {
 			const path_str = String(path);
-			if (path_str === '.') return [] as any;
+			if (path_str === '.') return Promise.resolve([] as any); // no dist_* directories
 			if (path_str === 'build') {
-				return [mock_dir_entry('assets')] as any;
+				return Promise.resolve([mock_dir_entry('assets')] as any);
 			}
 			if (path_str === 'build/assets') {
-				return [mock_dir_entry('js')] as any;
+				return Promise.resolve([mock_dir_entry('js')] as any);
 			}
 			if (path_str === 'build/assets/js') {
-				return [mock_dir_entry('lib')] as any;
+				return Promise.resolve([mock_dir_entry('lib')] as any);
 			}
 			if (path_str === 'build/assets/js/lib') {
-				return [mock_dir_entry('utils')] as any;
+				return Promise.resolve([mock_dir_entry('utils')] as any);
 			}
 			if (path_str === 'build/assets/js/lib/utils') {
-				return [mock_file_entry('helper.js')] as any;
+				return Promise.resolve([mock_file_entry('helper.js')] as any);
 			}
-			return [] as any;
+			return Promise.resolve([] as any);
 		});
 
-		vi.mocked(statSync).mockImplementation((path: any) => {
+		vi.mocked(stat).mockImplementation((path: any) => {
 			if (String(path).endsWith('.js')) {
-				return mock_file_stats(256);
+				return Promise.resolve(mock_file_stats(256));
 			}
-			return mock_dir_stats();
+			return Promise.resolve(mock_dir_stats());
 		});
-		vi.mocked(readFileSync).mockReturnValue(Buffer.from('content'));
+		vi.mocked(readFile).mockResolvedValue(Buffer.from('content'));
 		vi.mocked(to_hash).mockResolvedValue('deep_hash');
 
 		const config = await create_mock_config();
@@ -221,22 +239,23 @@ describe('create_build_cache_metadata', () => {
 
 	test('handles build directories with many files', async () => {
 		const {git_current_commit_hash} = await import('@ryanatkn/belt/git.js');
-		const {existsSync, readdirSync, readFileSync, statSync} = await import('node:fs');
+		const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+		const {readdir, stat, readFile} = vi.mocked(await import('node:fs/promises'));
 		const {to_hash} = await import('$lib/hash.js');
 
 		vi.mocked(git_current_commit_hash).mockResolvedValue('abc123');
-		vi.mocked(existsSync).mockImplementation((path: any) => path === 'build');
+		vi.mocked(fs_exists).mockImplementation((path: any) => Promise.resolve(path === 'build'));
 
 		const files = Array.from({length: 15}, (_, i) => mock_file_entry(`file${i}.js`));
-
-		vi.mocked(readdirSync).mockImplementation((path: any) => {
-			if (path === '.') return [] as any;
-			if (path === 'build') return files as any;
-			return [] as any;
+		// Set up async mocks for discover_build_output_dirs and collect_build_outputs
+		vi.mocked(readdir).mockImplementation((path: any) => {
+			if (path === '.') return Promise.resolve([] as any); // no dist_* directories
+			if (path === 'build') return Promise.resolve(files as any);
+			return Promise.resolve([] as any);
 		});
 
-		vi.mocked(statSync).mockReturnValue(mock_file_stats(2048));
-		vi.mocked(readFileSync).mockReturnValue(Buffer.from('content'));
+		vi.mocked(stat).mockResolvedValue(mock_file_stats(2048));
+		vi.mocked(readFile).mockResolvedValue(Buffer.from('content'));
 
 		let hash_count = 0;
 		// eslint-disable-next-line @typescript-eslint/require-await
@@ -257,13 +276,14 @@ describe('create_build_cache_metadata', () => {
 
 	test('creates metadata with null git commit', async () => {
 		const {git_current_commit_hash} = await import('@ryanatkn/belt/git.js');
-		const {existsSync, readdirSync, statSync} = await import('node:fs');
+		const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+		const {readdir, stat} = vi.mocked(await import('node:fs/promises'));
 		const {to_hash} = await import('$lib/hash.js');
 
 		vi.mocked(git_current_commit_hash).mockResolvedValue(null);
-		vi.mocked(existsSync).mockReturnValue(false);
-		vi.mocked(readdirSync).mockReturnValue([] as any);
-		vi.mocked(statSync).mockReturnValue(mock_dir_stats());
+		vi.mocked(fs_exists).mockResolvedValue(false);
+		vi.mocked(readdir).mockResolvedValue([] as any);
+		vi.mocked(stat).mockResolvedValue(mock_dir_stats());
 		vi.mocked(to_hash).mockResolvedValue('hash123');
 
 		const config = await create_mock_config();
@@ -280,13 +300,14 @@ describe('create_build_cache_metadata', () => {
 
 	test('includes correct build_cache_config_hash', async () => {
 		const {git_current_commit_hash} = await import('@ryanatkn/belt/git.js');
-		const {existsSync, readdirSync, statSync} = await import('node:fs');
+		const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+		const {readdir, stat} = vi.mocked(await import('node:fs/promises'));
 		const {to_hash} = await import('$lib/hash.js');
 
 		vi.mocked(git_current_commit_hash).mockResolvedValue('abc123');
-		vi.mocked(existsSync).mockReturnValue(false);
-		vi.mocked(readdirSync).mockReturnValue([]);
-		vi.mocked(statSync).mockReturnValue(mock_dir_stats());
+		vi.mocked(fs_exists).mockResolvedValue(false);
+		vi.mocked(readdir).mockResolvedValue([] as any);
+		vi.mocked(stat).mockResolvedValue(mock_dir_stats());
 		vi.mocked(to_hash).mockResolvedValue('custom_config_hash');
 
 		const config = await create_mock_config({

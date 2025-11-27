@@ -37,18 +37,15 @@ vi.mock('@ryanatkn/belt/process.js', () => ({
 	spawn: vi.fn(),
 }));
 
-vi.mock('node:fs', () => ({
-	existsSync: vi.fn(),
-	readdirSync: vi.fn(),
-}));
-
 vi.mock('node:fs/promises', () => ({
 	cp: vi.fn(),
 	mkdir: vi.fn(),
 	rm: vi.fn(),
+	readdir: vi.fn(),
 }));
 
 vi.mock('@ryanatkn/belt/fs.js', () => ({
+	fs_exists: vi.fn(),
 	fs_empty_dir: vi.fn(),
 }));
 
@@ -70,9 +67,9 @@ describe('deploy_task deploy directory operations', () => {
 	describe('deploy directory cleanup', () => {
 		test('empties deploy_dir before copying build output', async () => {
 			const {fs_empty_dir} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
-			const {existsSync} = await import('node:fs');
+			const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
 
-			vi.mocked(existsSync).mockReturnValue(true);
+			vi.mocked(fs_exists).mockResolvedValue(true);
 
 			const ctx = create_mock_deploy_task_context({
 				deploy_dir: '.gro/deploy',
@@ -87,9 +84,9 @@ describe('deploy_task deploy directory operations', () => {
 
 		test('preserves .git directory when emptying deploy_dir', async () => {
 			const {fs_empty_dir} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
-			const {existsSync} = await import('node:fs');
+			const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
 
-			vi.mocked(existsSync).mockReturnValue(true);
+			vi.mocked(fs_exists).mockResolvedValue(true);
 
 			const ctx = create_mock_deploy_task_context({dry: true});
 
@@ -111,9 +108,9 @@ describe('deploy_task deploy directory operations', () => {
 		test('empty happens after target branch preparation', async () => {
 			const {git_pull} = vi.mocked(await import('@ryanatkn/belt/git.js'));
 			const {fs_empty_dir} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
-			const {existsSync} = await import('node:fs');
+			const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
 
-			vi.mocked(existsSync).mockReturnValue(true);
+			vi.mocked(fs_exists).mockResolvedValue(true);
 
 			const ctx = create_mock_deploy_task_context({dry: true});
 
@@ -129,9 +126,9 @@ describe('deploy_task deploy directory operations', () => {
 		test('empty happens before copying files', async () => {
 			const {fs_empty_dir} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
 			const {cp} = await import('node:fs/promises');
-			const {existsSync} = await import('node:fs');
+			const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
 
-			vi.mocked(existsSync).mockReturnValue(true);
+			vi.mocked(fs_exists).mockResolvedValue(true);
 
 			const ctx = create_mock_deploy_task_context({dry: true});
 
@@ -147,12 +144,12 @@ describe('deploy_task deploy directory operations', () => {
 
 	describe('file copying', () => {
 		test('copies all files from build_dir to deploy_dir', async () => {
-			const {readdirSync} = await import('node:fs');
+			const {readdir} = vi.mocked(await import('node:fs/promises'));
 			const {cp} = await import('node:fs/promises');
-			const {existsSync} = await import('node:fs');
+			const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
 
-			vi.mocked(existsSync).mockReturnValue(true);
-			vi.mocked(readdirSync).mockReturnValue(['index.html', 'assets', 'favicon.ico'] as any);
+			vi.mocked(fs_exists).mockResolvedValue(true);
+			vi.mocked(readdir).mockResolvedValue(['index.html', 'assets', 'favicon.ico'] as any);
 
 			const ctx = create_mock_deploy_task_context({
 				build_dir: 'build',
@@ -183,12 +180,12 @@ describe('deploy_task deploy directory operations', () => {
 		});
 
 		test('uses custom build_dir and deploy_dir paths', async () => {
-			const {readdirSync} = await import('node:fs');
+			const {readdir} = vi.mocked(await import('node:fs/promises'));
 			const {cp} = await import('node:fs/promises');
-			const {existsSync} = await import('node:fs');
+			const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
 
-			vi.mocked(existsSync).mockReturnValue(true);
-			vi.mocked(readdirSync).mockReturnValue(['app.js'] as any);
+			vi.mocked(fs_exists).mockResolvedValue(true);
+			vi.mocked(readdir).mockResolvedValue(['app.js'] as any);
 
 			const ctx = create_mock_deploy_task_context({
 				build_dir: 'dist',
@@ -208,12 +205,12 @@ describe('deploy_task deploy directory operations', () => {
 		});
 
 		test('copies directories recursively', async () => {
-			const {readdirSync} = await import('node:fs');
+			const {readdir} = vi.mocked(await import('node:fs/promises'));
 			const {cp} = await import('node:fs/promises');
-			const {existsSync} = await import('node:fs');
+			const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
 
-			vi.mocked(existsSync).mockReturnValue(true);
-			vi.mocked(readdirSync).mockReturnValue(['assets'] as any);
+			vi.mocked(fs_exists).mockResolvedValue(true);
+			vi.mocked(readdir).mockResolvedValue(['assets'] as any);
 
 			const ctx = create_mock_deploy_task_context({dry: true});
 
@@ -224,12 +221,12 @@ describe('deploy_task deploy directory operations', () => {
 		});
 
 		test('copies all files in parallel', async () => {
-			const {readdirSync} = await import('node:fs');
+			const {readdir} = vi.mocked(await import('node:fs/promises'));
 			const {cp} = await import('node:fs/promises');
-			const {existsSync} = await import('node:fs');
+			const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
 
-			vi.mocked(existsSync).mockReturnValue(true);
-			vi.mocked(readdirSync).mockReturnValue(['file1.html', 'file2.html', 'file3.html'] as any);
+			vi.mocked(fs_exists).mockResolvedValue(true);
+			vi.mocked(readdir).mockResolvedValue(['file1.html', 'file2.html', 'file3.html'] as any);
 
 			// Track when cp is called
 			let concurrent_calls = 0;
@@ -251,12 +248,12 @@ describe('deploy_task deploy directory operations', () => {
 		});
 
 		test('handles empty build directory', async () => {
-			const {readdirSync} = await import('node:fs');
+			const {readdir} = vi.mocked(await import('node:fs/promises'));
 			const {cp} = await import('node:fs/promises');
-			const {existsSync} = await import('node:fs');
+			const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
 
-			vi.mocked(existsSync).mockReturnValue(true);
-			vi.mocked(readdirSync).mockReturnValue([] as any); // empty
+			vi.mocked(fs_exists).mockResolvedValue(true);
+			vi.mocked(readdir).mockResolvedValue([] as any); // empty
 
 			const ctx = create_mock_deploy_task_context({dry: true});
 
@@ -270,9 +267,9 @@ describe('deploy_task deploy directory operations', () => {
 	describe('error handling', () => {
 		test('propagates error when empty_dir fails', async () => {
 			const {fs_empty_dir} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
-			const {existsSync} = await import('node:fs');
+			const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
 
-			vi.mocked(existsSync).mockReturnValue(true);
+			vi.mocked(fs_exists).mockResolvedValue(true);
 			vi.mocked(fs_empty_dir).mockRejectedValue(new Error('Permission denied'));
 
 			const ctx = create_mock_deploy_task_context({dry: true});
@@ -280,12 +277,12 @@ describe('deploy_task deploy directory operations', () => {
 			await expect(deploy_task.run(ctx)).rejects.toThrow('Permission denied');
 		});
 
-		test('propagates error when readdirSync fails', async () => {
-			const {readdirSync} = await import('node:fs');
-			const {existsSync} = await import('node:fs');
+		test('propagates error when readdir fails', async () => {
+			const {readdir} = vi.mocked(await import('node:fs/promises'));
+			const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
 
-			vi.mocked(existsSync).mockReturnValue(true);
-			vi.mocked(readdirSync).mockImplementation(() => {
+			vi.mocked(fs_exists).mockResolvedValue(true);
+			vi.mocked(readdir).mockImplementation(() => {
 				throw new Error('Cannot read directory');
 			});
 
@@ -295,12 +292,12 @@ describe('deploy_task deploy directory operations', () => {
 		});
 
 		test('propagates error when cp fails', async () => {
-			const {readdirSync} = await import('node:fs');
+			const {readdir} = vi.mocked(await import('node:fs/promises'));
 			const {cp} = await import('node:fs/promises');
-			const {existsSync} = await import('node:fs');
+			const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
 
-			vi.mocked(existsSync).mockReturnValue(true);
-			vi.mocked(readdirSync).mockReturnValue(['index.html'] as any);
+			vi.mocked(fs_exists).mockResolvedValue(true);
+			vi.mocked(readdir).mockResolvedValue(['index.html'] as any);
 			vi.mocked(cp).mockRejectedValue(new Error('Disk full'));
 
 			const ctx = create_mock_deploy_task_context({dry: true});
@@ -309,12 +306,12 @@ describe('deploy_task deploy directory operations', () => {
 		});
 
 		test('fails if any parallel copy fails', async () => {
-			const {readdirSync} = await import('node:fs');
+			const {readdir} = vi.mocked(await import('node:fs/promises'));
 			const {cp} = await import('node:fs/promises');
-			const {existsSync} = await import('node:fs');
+			const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
 
-			vi.mocked(existsSync).mockReturnValue(true);
-			vi.mocked(readdirSync).mockReturnValue(['file1.html', 'file2.html', 'file3.html'] as any);
+			vi.mocked(fs_exists).mockResolvedValue(true);
+			vi.mocked(readdir).mockResolvedValue(['file1.html', 'file2.html', 'file3.html'] as any);
 
 			// Second copy fails
 			let call_count = 0;

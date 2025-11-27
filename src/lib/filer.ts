@@ -1,5 +1,5 @@
 import {EMPTY_OBJECT} from '@ryanatkn/belt/object.js';
-import {readFileSync, statSync} from 'node:fs';
+import {readFile, stat} from 'node:fs/promises';
 import {dirname, resolve} from 'node:path';
 import type {OmitStrict} from '@ryanatkn/belt/types.js';
 import {isBuiltin} from 'node:module';
@@ -51,6 +51,9 @@ export class Filer {
 	#initing: Promise<void> | undefined;
 	#closing: Promise<void> | undefined;
 
+	#change_queue: Array<WatcherChange> = [];
+	#processing_promise: Promise<void> | null = null;
+
 	constructor(options: FilerOptions = EMPTY_OBJECT) {
 		this.#watch_dir = options.watch_dir ?? watch_dir;
 		this.#watch_dir_options = options.watch_dir_options ?? EMPTY_OBJECT;
@@ -82,9 +85,11 @@ export class Filer {
 			dependencies: new Map(),
 		};
 		this.files.set(id, file);
-		// TODO this may need to be batched/deferred
+		// Defer external file change notification to avoid reentrancy during queue processing
 		if (file.external) {
-			this.#on_change({type: 'add', path: file.id, is_directory: false});
+			queueMicrotask(() => {
+				this.#on_change({type: 'add', path: file.id, is_directory: false});
+			});
 		}
 		return file;
 	};
@@ -117,10 +122,10 @@ export class Filer {
 		this.#initing = this.#init();
 		try {
 			await this.#initing;
-		} catch (err) {
+		} catch (error) {
 			// use shared cleanup logic
 			this.#cleanup();
-			throw err;
+			throw error;
 		} finally {
 			this.#initing = undefined;
 		}
@@ -136,6 +141,9 @@ export class Filer {
 		try {
 			await watcher.init();
 
+			// Wait for any queued changes from init to be processed
+			await this.#drain_queue();
+
 			// check if close() was called during init
 			if (this.#closing) {
 				await watcher.close();
@@ -144,14 +152,14 @@ export class Filer {
 
 			// only set after successful init and not closing
 			this.#watching = watcher;
-		} catch (err) {
+		} catch (error) {
 			// clean up watcher on error, but don't let close error mask init error
 			try {
 				await watcher.close();
 			} catch {
 				// ignore close errors - init error is more important
 			}
-			throw err;
+			throw error;
 		}
 	}
 
@@ -169,6 +177,8 @@ export class Filer {
 		this.#listeners.clear();
 		this.files.clear();
 		this.#watching = undefined;
+		this.#change_queue = [];
+		this.#processing_promise = null;
 		// #initing is handled in finally block of init()
 	}
 
@@ -214,20 +224,22 @@ export class Filer {
 		this.#cleanup();
 	}
 
-	#update(id: PathId): Disknode | null {
+	async #update(id: PathId): Promise<Disknode | null> {
 		const file = this.get_or_create(id);
 
-		let stats: ReturnType<typeof statSync> | null = null;
+		let stats: Awaited<ReturnType<typeof stat>> | null = null;
 		let new_contents: string | null = null; // TODO need to lazily load contents, probably turn `Disknode` into a class
 
 		try {
-			stats = statSync(id);
-			new_contents = readFileSync(id, 'utf8');
-		} catch (err) {
-			if ((err as NodeJS.ErrnoException).code !== 'ENOENT') {
-				throw err;
+			[stats, new_contents] = await Promise.all([stat(id), readFile(id, 'utf8')]);
+		} catch (error) {
+			const code = (error as NodeJS.ErrnoException).code;
+			// Treat file as deleted/inaccessible for common error codes
+			if (code === 'ENOENT' || code === 'EACCES' || code === 'EPERM') {
+				// File doesn't exist or is inaccessible, treat as deleted
+			} else {
+				throw error;
 			}
-			// ENOENT: file doesn't exist, treat as deleted
 		}
 
 		const old_mtime = file.mtime;
@@ -245,7 +257,14 @@ export class Filer {
 		const dependencies_before = new Set(file.dependencies.keys());
 		const dependencies_removed = new Set(dependencies_before);
 
-		const imported = file.contents ? parse_imports(file.id, file.contents) : [];
+		let imported: Array<string> = [];
+		if (file.contents) {
+			try {
+				imported = parse_imports(file.id, file.contents);
+			} catch (error) {
+				this.#log?.error('[filer] Failed to parse imports', file.id, error);
+			}
+		}
 		for (const specifier of imported) {
 			if (SVELTEKIT_GLOBAL_SPECIFIER.test(specifier)) continue;
 			const path = map_sveltekit_aliases(specifier, aliases);
@@ -253,7 +272,7 @@ export class Filer {
 			let path_id;
 			// TODO can we replace `resolve_specifier` with `import.meta.resolve` completely now outside of esbuild plugins?
 			if (path[0] === '.' || path[0] === '/') {
-				const resolved = resolve_specifier(path, dir);
+				const resolved = await resolve_specifier(path, dir); // eslint-disable-line no-await-in-loop
 				path_id = resolved.path_id;
 			} else {
 				if (isBuiltin(path)) continue;
@@ -304,8 +323,8 @@ export class Filer {
 		for (const disknode of this.files.values()) {
 			try {
 				listener({type: 'add', path: disknode.id, is_directory: false}, disknode);
-			} catch (err) {
-				this.#log?.error('[filer] Listener error during sync:', err);
+			} catch (error) {
+				this.#log?.error('[filer] Listener error during sync:', error);
 			}
 		}
 	}
@@ -314,8 +333,8 @@ export class Filer {
 		for (const listener of this.#listeners) {
 			try {
 				listener(change, disknode);
-			} catch (err) {
-				this.#log?.error('[filer] Listener error during change notification:', err);
+			} catch (error) {
+				this.#log?.error('[filer] Listener error during change notification:', error);
 			}
 		}
 	}
@@ -335,26 +354,61 @@ export class Filer {
 		// keep watching active even with no listeners, only close() tears down
 	}
 
+	async #drain_queue(): Promise<void> {
+		// Wait for queue to be empty and no active processing
+		while (this.#change_queue.length > 0 || this.#processing_promise) {
+			await this.#process_queue(); // eslint-disable-line no-await-in-loop
+		}
+	}
+
+	async #process_queue(): Promise<void> {
+		// If already processing, return the existing promise
+		if (this.#processing_promise) return this.#processing_promise;
+
+		// Create and track the processing promise
+		this.#processing_promise = this.#do_process_queue();
+
+		try {
+			await this.#processing_promise;
+		} finally {
+			this.#processing_promise = null;
+		}
+	}
+
+	async #do_process_queue(): Promise<void> {
+		while (this.#change_queue.length > 0) {
+			const change = this.#change_queue.shift()!;
+
+			if (this.#closing) continue; // ignore changes during close
+			if (change.is_directory) continue; // TODO manage directories?
+
+			let disknode: Disknode | null;
+			switch (change.type) {
+				case 'add':
+				case 'update': {
+					disknode = await this.#update(change.path); // eslint-disable-line no-await-in-loop
+					break;
+				}
+				case 'delete': {
+					disknode = this.#remove(change.path);
+					break;
+				}
+				default:
+					throw new UnreachableError(change.type);
+			}
+
+			if (disknode && this.#listeners.size > 0) {
+				this.#notify_change(change, disknode);
+			}
+		}
+	}
+
 	#on_change: WatcherChangeCallback = (change) => {
-		if (this.#closing) return; // ignore changes during close
-		if (change.is_directory) return; // TODO manage directories?
-		let disknode: Disknode | null;
-		switch (change.type) {
-			case 'add':
-			case 'update': {
-				disknode = this.#update(change.path);
-				break;
-			}
-			case 'delete': {
-				disknode = this.#remove(change.path);
-				break;
-			}
-			default:
-				throw new UnreachableError(change.type);
-		}
-		if (disknode && this.#listeners.size > 0) {
-			this.#notify_change(change, disknode);
-		}
+		// Enqueue the change (sync callback from chokidar)
+		this.#change_queue.push(change);
+
+		// Start processing if not already running
+		void this.#process_queue();
 	};
 
 	#is_external(id: PathId): boolean {
@@ -372,21 +426,26 @@ export const filter_dependents = (
 	searched: Set<PathId> = new Set(),
 	log?: Logger,
 ): Set<PathId> => {
-	const {dependents} = disknode;
-	for (const dependent_id of dependents.keys()) {
-		if (searched.has(dependent_id)) continue;
-		searched.add(dependent_id);
-		if (!filter || filter(dependent_id)) {
-			results.add(dependent_id);
+	// Use iterative approach to avoid stack overflow on deep dependency trees
+	const stack = [disknode];
+
+	while (stack.length > 0) {
+		const current = stack.pop()!;
+		for (const dependent_id of current.dependents.keys()) {
+			if (searched.has(dependent_id)) continue;
+			searched.add(dependent_id);
+			if (!filter || filter(dependent_id)) {
+				results.add(dependent_id);
+			}
+			const dependent_disknode = get_by_id(dependent_id);
+			if (!dependent_disknode) {
+				log?.warn(
+					`[filer.filter_dependents] dependent source file ${dependent_id} not found for ${current.id}`,
+				);
+				continue;
+			}
+			stack.push(dependent_disknode);
 		}
-		const dependent_disknode = get_by_id(dependent_id);
-		if (!dependent_disknode) {
-			log?.warn(
-				`[filer.filter_dependents] dependent source file ${dependent_id} not found for ${disknode.id}`,
-			);
-			continue;
-		}
-		filter_dependents(dependent_disknode, get_by_id, filter, results, searched);
 	}
 	return results;
 };

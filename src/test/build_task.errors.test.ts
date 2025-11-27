@@ -10,14 +10,16 @@ vi.mock('@ryanatkn/belt/git.js', () => ({
 	git_current_commit_hash: vi.fn(),
 }));
 
-vi.mock('node:fs', () => ({
-	existsSync: vi.fn(),
-	rmSync: vi.fn(),
-	mkdirSync: vi.fn(),
-	readFileSync: vi.fn(),
-	writeFileSync: vi.fn(),
-	readdirSync: vi.fn(),
-	statSync: vi.fn(),
+// Mock async fs functions used by build.task.ts and build_cache.ts (discover_build_output_dirs)
+vi.mock('node:fs/promises', () => ({
+	rm: vi.fn(),
+	readdir: vi.fn(),
+	stat: vi.fn(),
+}));
+
+// Mock fs_exists from belt
+vi.mock('@ryanatkn/belt/fs.js', () => ({
+	fs_exists: vi.fn(),
 }));
 
 vi.mock('../lib/clean_fs.ts', () => ({
@@ -86,17 +88,16 @@ describe('build_task error handling', () => {
 
 	test('handles file system errors during cache deletion', async () => {
 		const {git_check_clean_workspace} = vi.mocked(await import('@ryanatkn/belt/git.js'));
-		const {existsSync, rmSync, readdirSync} = await import('node:fs');
+		const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+		const {rm, readdir} = vi.mocked(await import('node:fs/promises'));
 
 		// Workspace is dirty
 		vi.mocked(git_check_clean_workspace).mockResolvedValue('Modified files:\n  src/foo.ts');
-		vi.mocked(existsSync).mockReturnValue(true);
-		vi.mocked(readdirSync).mockReturnValue([]);
+		vi.mocked(fs_exists).mockResolvedValue(true);
+		vi.mocked(readdir).mockResolvedValue([]);
 
-		// rmSync throws an error
-		vi.mocked(rmSync).mockImplementation(() => {
-			throw new Error('Permission denied');
-		});
+		// rm rejects with an error
+		vi.mocked(rm).mockRejectedValue(new Error('Permission denied'));
 
 		const ctx = create_mock_build_task_context();
 

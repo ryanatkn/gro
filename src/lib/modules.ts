@@ -38,8 +38,8 @@ export const load_module = async <TModule extends Record<string, any>>(
 			import_path = url.href;
 		}
 		mod = await import(import_path);
-	} catch (err) {
-		return {ok: false, type: 'failed_import', id, error: err};
+	} catch (error) {
+		return {ok: false, type: 'failed_import', id, error};
 	}
 	if (validate && !validate(mod)) {
 		return {ok: false, type: 'failed_validation', id, mod, validation: validate.name};

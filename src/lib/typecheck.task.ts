@@ -37,10 +37,10 @@ export const task: Task<Args> = {
 		await sveltekit_sync_if_available();
 
 		// Prefer svelte-check if available.
-		const found_svelte_check_cli = find_cli(svelte_check_cli);
+		const found_svelte_check_cli = await find_cli(svelte_check_cli);
 		if (found_svelte_check_cli) {
 			const serialized = serialize_args(to_forwarded_args(svelte_check_cli));
-			const spawned = spawn_cli_process(found_svelte_check_cli, serialized, undefined, {
+			const spawned = await spawn_cli_process(found_svelte_check_cli, serialized, undefined, {
 				stdio: ['inherit', 'pipe', 'pipe'],
 				env: {...process.env, FORCE_COLOR: '1'}, // Needed for colors (maybe make an option)
 			});
@@ -61,7 +61,7 @@ export const task: Task<Args> = {
 		}
 
 		// Fall back to tsc.
-		const found_typescript_cli = find_cli(typescript_cli);
+		const found_typescript_cli = await find_cli(typescript_cli);
 		if (found_typescript_cli) {
 			const forwarded = to_forwarded_args(typescript_cli);
 			if (!forwarded.noEmit) forwarded.noEmit = true;

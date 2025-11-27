@@ -6,6 +6,7 @@ import {styleText as st} from 'node:util';
 import type {Result} from '@ryanatkn/belt/result.js';
 import {isAbsolute, join, relative} from 'node:path';
 import type {PathId} from '@ryanatkn/belt/path.js';
+import {fs_search} from '@ryanatkn/belt/fs.js';
 
 import type {Args} from './args.ts';
 import type {GroConfig} from './gro_config.ts';
@@ -18,7 +19,6 @@ import {
 	type ResolvedInputPath,
 } from './input_path.ts';
 import {GRO_DIST_DIR, print_path} from './paths.ts';
-import {search_fs} from './search_fs.ts';
 import {load_modules, type LoadModulesFailure, type ModuleMeta} from './modules.ts';
 import type {Filer} from './filer.ts';
 
@@ -126,15 +126,15 @@ export type FindModulesFailure =
 /**
  * Finds modules from input paths. (see `src/lib/input_path.ts` for more)
  */
-export const find_tasks = (
+export const find_tasks = async (
 	input_paths: Array<InputPath>,
 	task_root_dirs: Array<PathId>,
 	config: GroConfig,
 	timings?: Timings,
-): FindTasksResult => {
+): Promise<FindTasksResult> => {
 	// Check which extension variation works - if it's a directory, prefer others first!
 	const timing_to_resolve_input_paths = timings?.start('resolve input paths');
-	const {resolved_input_paths, unmapped_input_paths} = resolve_input_paths(
+	const {resolved_input_paths, unmapped_input_paths} = await resolve_input_paths(
 		input_paths,
 		task_root_dirs,
 		TASK_FILE_SUFFIXES,
@@ -159,11 +159,13 @@ export const find_tasks = (
 	// Find all of the files for any directories.
 	const timing_to_resolve_input_files = timings?.start('resolve input files');
 	const {resolved_input_files, resolved_input_files_by_root_dir, input_directories_with_no_files} =
-		resolve_input_files(resolved_input_paths, (id) =>
-			search_fs(id, {
-				filter: config.search_filters,
-				file_filter: (p) => TASK_FILE_SUFFIXES.some((s) => p.endsWith(s)),
-			}),
+		await resolve_input_files(
+			resolved_input_paths,
+			async (id) =>
+				await fs_search(id, {
+					filter: config.search_filters,
+					file_filter: (p) => TASK_FILE_SUFFIXES.some((s) => p.endsWith(s)),
+				}),
 		);
 	timing_to_resolve_input_files?.();
 

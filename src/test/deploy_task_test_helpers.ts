@@ -26,6 +26,13 @@ export const create_mock_deploy_task_context = (
 		reset: false,
 		build: true,
 		'no-build': false,
+		sync: true,
+		'no-sync': false,
+		gen: true,
+		'no-gen': false,
+		install: true,
+		'no-install': false,
+		force_build: false,
 		pull: true,
 		'no-pull': false,
 	} as Args);
@@ -74,11 +81,11 @@ export const setup_successful_git_mocks = async () => {
  * Sets up common fs mocks for successful scenarios.
  */
 export const setup_successful_fs_mocks = async () => {
-	const {existsSync, readdirSync} = await import('node:fs');
-	const {cp, mkdir, rm} = await import('node:fs/promises');
+	const {fs_exists} = await import('@ryanatkn/belt/fs.js');
+	const {cp, mkdir, rm, readdir} = await import('node:fs/promises');
 
-	vi.mocked(existsSync).mockReturnValue(true);
-	vi.mocked(readdirSync).mockReturnValue(['index.html', 'assets'] as any);
+	vi.mocked(fs_exists).mockResolvedValue(true);
+	vi.mocked(readdir).mockResolvedValue(['index.html', 'assets'] as any);
 	vi.mocked(cp).mockResolvedValue(undefined);
 	vi.mocked(mkdir).mockResolvedValue(undefined);
 	vi.mocked(rm).mockResolvedValue(undefined);

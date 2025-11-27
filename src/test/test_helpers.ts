@@ -1,4 +1,4 @@
-import {existsSync, readFileSync, writeFileSync} from 'node:fs';
+import {readFile, writeFile} from 'node:fs/promises';
 import {join} from 'node:path';
 import ts from 'typescript';
 import {vi} from 'vitest';
@@ -121,18 +121,26 @@ let inited = false;
  *
  * @returns boolean indicating if the env file was created or not
  */
-export const init_test_env = (dir = process.cwd(), env_filename = '.env'): boolean => {
+export const init_test_env = async (
+	dir = process.cwd(),
+	env_filename = '.env',
+): Promise<boolean> => {
 	if (inited) return false;
 	inited = true;
 
 	const env_file = join(dir, env_filename);
 
-	if (!existsSync(env_file)) {
-		writeFileSync(env_file, line + '\n', 'utf8');
-		return true;
+	let contents: string;
+	try {
+		contents = await readFile(env_file, 'utf8');
+	} catch (error) {
+		if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
+			await writeFile(env_file, line + '\n', 'utf8');
+			return true;
+		}
+		throw error;
 	}
 
-	const contents = readFileSync(env_file, 'utf8');
 	const lines = contents.split('\n');
 	if (lines.includes(line)) {
 		return false; // already exists
@@ -147,7 +155,7 @@ export const init_test_env = (dir = process.cwd(), env_filename = '.env'): boole
 		// if the line exists but with a different value, replace it
 		new_contents = contents.replace(new RegExp(`${SOME_PUBLIC_ENV_VAR_NAME}=.*`), line);
 	}
-	writeFileSync(env_file, new_contents, 'utf8');
+	await writeFile(env_file, new_contents, 'utf8');
 
 	return true;
 };

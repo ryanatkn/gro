@@ -13,14 +13,16 @@ vi.mock('@ryanatkn/belt/git.js', () => ({
 	git_current_commit_hash: vi.fn(),
 }));
 
-vi.mock('node:fs', () => ({
-	existsSync: vi.fn(),
-	rmSync: vi.fn(),
-	mkdirSync: vi.fn(),
-	readFileSync: vi.fn(),
-	writeFileSync: vi.fn(),
-	readdirSync: vi.fn(),
-	statSync: vi.fn(),
+// Mock async fs functions used by build.task.ts and build_cache.ts (discover_build_output_dirs)
+vi.mock('node:fs/promises', () => ({
+	rm: vi.fn(),
+	readdir: vi.fn(),
+	stat: vi.fn(),
+}));
+
+// Mock fs_exists from belt
+vi.mock('@ryanatkn/belt/fs.js', () => ({
+	fs_exists: vi.fn(),
 }));
 
 vi.mock('../lib/clean_fs.ts', () => ({
@@ -82,37 +84,38 @@ describe('build_task workspace state', () => {
 
 	test('deletes cache and dist outputs when workspace is dirty', async () => {
 		const {git_check_clean_workspace} = vi.mocked(await import('@ryanatkn/belt/git.js'));
-		const {existsSync, rmSync, readdirSync, statSync} = await import('node:fs');
+		const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+		const {rm, readdir, stat} = vi.mocked(await import('node:fs/promises'));
 
 		// workspace has uncommitted changes
 		vi.mocked(git_check_clean_workspace).mockResolvedValue('Modified files:\n  src/foo.ts');
 
-		// Cache file and all build dirs exist
-		vi.mocked(existsSync).mockReturnValue(true);
+		// Cache file and all build dirs exist (fs_exists used for cache check and discover_build_output_dirs)
+		vi.mocked(fs_exists).mockResolvedValue(true);
 
-		// Mock discover_build_output_dirs() internals
-		vi.mocked(readdirSync).mockReturnValue(['dist_server', 'dist_worker', 'other'] as any);
-		vi.mocked(statSync).mockReturnValue({isDirectory: () => true} as any);
+		// Mock discover_build_output_dirs() internals - async readdir/stat for dist_* checks
+		vi.mocked(readdir).mockResolvedValue(['dist_server', 'dist_worker', 'other'] as any);
+		vi.mocked(stat).mockResolvedValue({isDirectory: () => true} as any);
 
 		const ctx = create_mock_build_task_context();
 
 		await build_task.run(ctx);
 
 		// Should delete cache file
-		expect(rmSync).toHaveBeenCalledWith(join('./.gro/', 'build.json'), {force: true});
+		expect(rm).toHaveBeenCalledWith(join('./.gro/', 'build.json'), {force: true});
 
 		// Should delete build/ directory (via discover_build_output_dirs)
-		expect(rmSync).toHaveBeenCalledWith('build', {recursive: true, force: true});
+		expect(rm).toHaveBeenCalledWith('build', {recursive: true, force: true});
 
 		// Should delete dist/ directory
-		expect(rmSync).toHaveBeenCalledWith('dist', {recursive: true, force: true});
+		expect(rm).toHaveBeenCalledWith('dist', {recursive: true, force: true});
 
 		// Should delete all dist_* directories
-		expect(rmSync).toHaveBeenCalledWith('dist_server', {recursive: true, force: true});
-		expect(rmSync).toHaveBeenCalledWith('dist_worker', {recursive: true, force: true});
+		expect(rm).toHaveBeenCalledWith('dist_server', {recursive: true, force: true});
+		expect(rm).toHaveBeenCalledWith('dist_worker', {recursive: true, force: true});
 
 		// Should not delete non-build directories
-		expect(rmSync).not.toHaveBeenCalledWith('other', expect.anything());
+		expect(rm).not.toHaveBeenCalledWith('other', expect.anything());
 
 		// Should log dirty workspace message
 		expect(ctx.log.info).toHaveBeenCalledWith(
@@ -123,14 +126,14 @@ describe('build_task workspace state', () => {
 	test('runs full build when workspace is dirty', async () => {
 		const {git_check_clean_workspace} = vi.mocked(await import('@ryanatkn/belt/git.js'));
 		const {is_build_cache_valid} = vi.mocked(await import('../lib/build_cache.ts'));
-		const {readdirSync} = await import('node:fs');
+		const {readdir} = vi.mocked(await import('node:fs/promises'));
 		const {Plugins} = vi.mocked(await import('../lib/plugin.ts'));
 		const mock_plugins = create_mock_plugins();
 		vi.mocked(Plugins.create).mockResolvedValue(mock_plugins as any);
 
 		// workspace has uncommitted changes
 		vi.mocked(git_check_clean_workspace).mockResolvedValue('Modified files:\n  src/foo.ts');
-		vi.mocked(readdirSync).mockReturnValue([]);
+		vi.mocked(readdir).mockResolvedValue([]);
 
 		const ctx = create_mock_build_task_context();
 
@@ -148,11 +151,11 @@ describe('build_task workspace state', () => {
 	test('does not save cache when workspace is dirty', async () => {
 		const {git_check_clean_workspace} = vi.mocked(await import('@ryanatkn/belt/git.js'));
 		const {save_build_cache_metadata} = vi.mocked(await import('../lib/build_cache.ts'));
-		const {readdirSync} = await import('node:fs');
+		const {readdir} = vi.mocked(await import('node:fs/promises'));
 
 		// workspace has uncommitted changes
 		vi.mocked(git_check_clean_workspace).mockResolvedValue('Modified files:\n  src/foo.ts');
-		vi.mocked(readdirSync).mockReturnValue([]);
+		vi.mocked(readdir).mockResolvedValue([]);
 
 		const ctx = create_mock_build_task_context();
 
@@ -164,7 +167,8 @@ describe('build_task workspace state', () => {
 
 	test('handles missing cache file gracefully when workspace is dirty', async () => {
 		const {git_check_clean_workspace} = vi.mocked(await import('@ryanatkn/belt/git.js'));
-		const {existsSync, rmSync, readdirSync, statSync} = await import('node:fs');
+		const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+		const {rm, readdir, stat} = vi.mocked(await import('node:fs/promises'));
 		const {Plugins} = vi.mocked(await import('../lib/plugin.ts'));
 		const mock_plugins = create_mock_plugins();
 		vi.mocked(Plugins.create).mockResolvedValue(mock_plugins as any);
@@ -173,24 +177,24 @@ describe('build_task workspace state', () => {
 		vi.mocked(git_check_clean_workspace).mockResolvedValue('Modified files:\n  src/foo.ts');
 
 		// Cache file does not exist, but build dirs do
-		vi.mocked(existsSync).mockImplementation((path: any) => {
+		vi.mocked(fs_exists).mockImplementation(async (path: any) => {
 			const path_str = String(path);
 			if (path_str.includes('build.json')) return false; // Cache file doesn't exist
 			return true; // build dirs exist
 		});
-		vi.mocked(readdirSync).mockReturnValue([]);
-		vi.mocked(statSync).mockReturnValue({isDirectory: () => true} as any);
+		vi.mocked(readdir).mockResolvedValue([]);
+		vi.mocked(stat).mockResolvedValue({isDirectory: () => true} as any);
 
 		const ctx = create_mock_build_task_context();
 
 		await build_task.run(ctx);
 
 		// Should NOT delete cache file since it doesn't exist
-		expect(rmSync).not.toHaveBeenCalledWith(join('./.gro/', 'build.json'), {force: true});
+		expect(rm).not.toHaveBeenCalledWith(join('./.gro/', 'build.json'), {force: true});
 
 		// Should still delete build outputs (since they exist via discover_build_output_dirs)
-		expect(rmSync).toHaveBeenCalledWith('build', {recursive: true, force: true});
-		expect(rmSync).toHaveBeenCalledWith('dist', {recursive: true, force: true});
+		expect(rm).toHaveBeenCalledWith('build', {recursive: true, force: true});
+		expect(rm).toHaveBeenCalledWith('dist', {recursive: true, force: true});
 
 		// Should not throw
 		expect(mock_plugins.setup).toHaveBeenCalled();
@@ -198,7 +202,8 @@ describe('build_task workspace state', () => {
 
 	test('handles missing dist directories gracefully when workspace is dirty', async () => {
 		const {git_check_clean_workspace} = vi.mocked(await import('@ryanatkn/belt/git.js'));
-		const {existsSync, rmSync, readdirSync} = await import('node:fs');
+		const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+		const {rm, readdir} = vi.mocked(await import('node:fs/promises'));
 		const {Plugins} = vi.mocked(await import('../lib/plugin.ts'));
 		const mock_plugins = create_mock_plugins();
 		vi.mocked(Plugins.create).mockResolvedValue(mock_plugins as any);
@@ -207,23 +212,23 @@ describe('build_task workspace state', () => {
 		vi.mocked(git_check_clean_workspace).mockResolvedValue('Modified files:\n  src/foo.ts');
 
 		// Cache file exists, no build directories exist
-		vi.mocked(existsSync).mockImplementation((path: any) => {
+		vi.mocked(fs_exists).mockImplementation(async (path: any) => {
 			const path_str = String(path);
 			if (path_str.includes('build.json')) return true; // Cache file exists
 			return false; // No build dirs exist
 		});
-		vi.mocked(readdirSync).mockReturnValue([]); // No dist_* directories
+		vi.mocked(readdir).mockResolvedValue([]); // No dist_* directories
 
 		const ctx = create_mock_build_task_context();
 
 		await build_task.run(ctx);
 
 		// Should delete cache file (since it exists)
-		expect(rmSync).toHaveBeenCalledWith(join('./.gro/', 'build.json'), {force: true});
+		expect(rm).toHaveBeenCalledWith(join('./.gro/', 'build.json'), {force: true});
 
 		// Should NOT delete build/dist since they don't exist (discover_build_output_dirs returns empty)
-		expect(rmSync).not.toHaveBeenCalledWith('build', expect.anything());
-		expect(rmSync).not.toHaveBeenCalledWith('dist', expect.anything());
+		expect(rm).not.toHaveBeenCalledWith('build', expect.anything());
+		expect(rm).not.toHaveBeenCalledWith('dist', expect.anything());
 
 		// Should not throw
 		expect(mock_plugins.setup).toHaveBeenCalled();
@@ -288,12 +293,12 @@ describe('build_task workspace state', () => {
 
 		test('succeeds when dirty workspace stays dirty with same status', async () => {
 			const {git_check_clean_workspace} = vi.mocked(await import('@ryanatkn/belt/git.js'));
-			const {readdirSync} = await import('node:fs');
+			const {readdir} = vi.mocked(await import('node:fs/promises'));
 
 			// Workspace stays dirty with same status throughout
 			const dirty_status = 'Modified files:\n  src/foo.ts';
 			vi.mocked(git_check_clean_workspace).mockResolvedValue(dirty_status);
-			vi.mocked(readdirSync).mockReturnValue([]);
+			vi.mocked(readdir).mockResolvedValue([]);
 
 			const ctx = create_mock_build_task_context();
 
@@ -303,7 +308,7 @@ describe('build_task workspace state', () => {
 
 		test('throws TaskError when dirty workspace gets different dirty status during build', async () => {
 			const {git_check_clean_workspace} = vi.mocked(await import('@ryanatkn/belt/git.js'));
-			const {readdirSync} = await import('node:fs');
+			const {readdir} = vi.mocked(await import('node:fs/promises'));
 
 			// Workspace starts with one dirty status, changes to different dirty status
 			let call_count = 0;
@@ -313,7 +318,7 @@ describe('build_task workspace state', () => {
 					? 'Modified files:\n  src/foo.ts'
 					: 'Modified files:\n  src/foo.ts\n  src/bar.ts'; // Added file!
 			});
-			vi.mocked(readdirSync).mockReturnValue([]);
+			vi.mocked(readdir).mockResolvedValue([]);
 
 			const ctx = create_mock_build_task_context();
 

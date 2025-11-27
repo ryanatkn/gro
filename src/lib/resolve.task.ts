@@ -15,7 +15,7 @@ export type Args = z.infer<typeof Args>;
 export const task: Task<Args> = {
 	summary: 'diagnostic that logs resolved filesystem info for the given input paths',
 	Args,
-	run: ({args, config, log}): void => {
+	run: async ({args, config, log}): Promise<void> => {
 		const {_, verbose} = args;
 
 		if (verbose) log.info('raw input paths:', _);
@@ -27,7 +27,7 @@ export const task: Task<Args> = {
 		if (verbose) log.info('task root paths:', task_root_dirs);
 
 		const {resolved_input_paths, possible_paths_by_input_path, unmapped_input_paths} =
-			resolve_input_paths(input_paths, task_root_dirs, TASK_FILE_SUFFIXES);
+			await resolve_input_paths(input_paths, task_root_dirs, TASK_FILE_SUFFIXES);
 		if (verbose) log.info('resolved_input_paths:', resolved_input_paths);
 		if (verbose) log.info('possible_paths_by_input_path:', possible_paths_by_input_path);
 		if (verbose) log.info('unmapped_input_paths:', unmapped_input_paths);

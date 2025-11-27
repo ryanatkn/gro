@@ -24,14 +24,17 @@ vi.mock('$lib/paths.js', () => ({
 	},
 }));
 
-vi.mock('node:fs', () => ({
-	existsSync: vi.fn(),
-	readFileSync: vi.fn(),
-	writeFileSync: vi.fn(),
-	mkdirSync: vi.fn(),
-	rmSync: vi.fn(),
-	statSync: vi.fn(),
-	readdirSync: vi.fn(),
+vi.mock('node:fs/promises', () => ({
+	readFile: vi.fn(),
+	writeFile: vi.fn(),
+	mkdir: vi.fn(),
+	rm: vi.fn(),
+	stat: vi.fn(),
+	readdir: vi.fn(),
+}));
+
+vi.mock('@ryanatkn/belt/fs.js', () => ({
+	fs_exists: vi.fn(),
 }));
 
 vi.mock('$lib/hash.js', () => ({
@@ -45,7 +48,8 @@ describe('is_build_cache_valid', () => {
 
 	test('returns true when cache keys match and outputs valid', async () => {
 		const {git_current_commit_hash} = await import('@ryanatkn/belt/git.js');
-		const {existsSync, readFileSync} = await import('node:fs');
+		const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+		const {readFile} = vi.mocked(await import('node:fs/promises'));
 		const {to_hash} = await import('$lib/hash.js');
 
 		const metadata = create_mock_build_cache_metadata({
@@ -53,8 +57,8 @@ describe('is_build_cache_valid', () => {
 			build_cache_config_hash: 'jkl012',
 		});
 
-		vi.mocked(existsSync).mockReturnValue(true);
-		vi.mocked(readFileSync).mockReturnValue(JSON.stringify(metadata));
+		vi.mocked(fs_exists).mockResolvedValue(true);
+		vi.mocked(readFile).mockResolvedValue(JSON.stringify(metadata));
 		vi.mocked(git_current_commit_hash).mockResolvedValue('abc123');
 		vi.mocked(to_hash).mockResolvedValue('jkl012');
 
@@ -71,9 +75,9 @@ describe('is_build_cache_valid', () => {
 	});
 
 	test('returns false when no metadata exists', async () => {
-		const {existsSync} = await import('node:fs');
+		const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
 
-		vi.mocked(existsSync).mockReturnValue(false);
+		vi.mocked(fs_exists).mockResolvedValue(false);
 
 		const config = await create_mock_config();
 		const log = create_mock_logger();
@@ -86,12 +90,13 @@ describe('is_build_cache_valid', () => {
 
 	test('returns false when git commit differs', async () => {
 		const {git_current_commit_hash} = await import('@ryanatkn/belt/git.js');
-		const {existsSync, readFileSync} = await import('node:fs');
+		const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+		const {readFile} = vi.mocked(await import('node:fs/promises'));
 
 		const metadata = create_mock_build_cache_metadata({git_commit: 'old_commit'});
 
-		vi.mocked(existsSync).mockReturnValue(true);
-		vi.mocked(readFileSync).mockReturnValue(JSON.stringify(metadata));
+		vi.mocked(fs_exists).mockResolvedValue(true);
+		vi.mocked(readFile).mockResolvedValue(JSON.stringify(metadata));
 		vi.mocked(git_current_commit_hash).mockResolvedValue('new_commit');
 
 		const config = await create_mock_config();
@@ -105,7 +110,8 @@ describe('is_build_cache_valid', () => {
 
 	test('returns false when build_cache_config hash differs', async () => {
 		const {git_current_commit_hash} = await import('@ryanatkn/belt/git.js');
-		const {existsSync, readFileSync} = await import('node:fs');
+		const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+		const {readFile} = vi.mocked(await import('node:fs/promises'));
 		const {to_hash} = await import('$lib/hash.js');
 
 		const metadata = create_mock_build_cache_metadata({
@@ -113,8 +119,8 @@ describe('is_build_cache_valid', () => {
 			build_cache_config_hash: 'old_config_hash',
 		});
 
-		vi.mocked(existsSync).mockReturnValue(true);
-		vi.mocked(readFileSync).mockReturnValue(JSON.stringify(metadata));
+		vi.mocked(fs_exists).mockResolvedValue(true);
+		vi.mocked(readFile).mockResolvedValue(JSON.stringify(metadata));
 		vi.mocked(git_current_commit_hash).mockResolvedValue('abc123');
 		vi.mocked(to_hash).mockResolvedValue('new_config_hash');
 

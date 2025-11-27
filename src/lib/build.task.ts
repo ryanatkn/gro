@@ -1,8 +1,9 @@
 import {z} from 'zod';
 import {styleText as st} from 'node:util';
 import {git_check_clean_workspace, git_current_commit_hash} from '@ryanatkn/belt/git.js';
-import {rmSync, existsSync} from 'node:fs';
+import {rm} from 'node:fs/promises';
 import {join} from 'node:path';
+import {fs_exists} from '@ryanatkn/belt/fs.js';
 
 import {TaskError, type Task} from './task.ts';
 import {Plugins} from './plugin.ts';
@@ -19,6 +20,8 @@ import {paths} from './paths.ts';
 export const Args = z.strictObject({
 	sync: z.boolean().meta({description: 'dual of no-sync'}).default(true),
 	'no-sync': z.boolean().meta({description: 'opt out of gro sync'}).default(false),
+	gen: z.boolean().meta({description: 'dual of no-gen'}).default(true),
+	'no-gen': z.boolean().meta({description: 'opt out of gro gen'}).default(false),
 	install: z.boolean().meta({description: 'dual of no-install'}).default(true),
 	'no-install': z // convenience, same as `gro build -- gro sync --no-install` but the latter takes precedence
 		.boolean()
@@ -49,11 +52,15 @@ export const task: Task<Args> = {
 	Args,
 	run: async (ctx): Promise<void> => {
 		const {args, invoke_task, log, config} = ctx;
-		const {sync, install, force_build} = args;
+		const {sync, gen, install, force_build} = args;
 
 		if (sync || install) {
 			if (!sync) log.warn('sync is false but install is true, so ignoring the sync option');
-			await invoke_task('sync', {install});
+			await invoke_task('sync', {install, gen: false});
+		}
+
+		if (gen) {
+			await invoke_task('gen');
 		}
 
 		// Batch git calls upfront for performance (spawning processes is expensive)
@@ -81,15 +88,13 @@ export const task: Task<Args> = {
 			// Rationale: Uncommitted changes could be reverted, leaving cached outputs from reverted code.
 			// This conservative approach prioritizes safety over convenience during development.
 			const cache_path = join(paths.build, 'build.json');
-			if (existsSync(cache_path)) {
-				rmSync(cache_path, {force: true});
+			if (await fs_exists(cache_path)) {
+				await rm(cache_path, {force: true});
 			}
 
 			// Delete all build output directories
-			build_dirs = discover_build_output_dirs();
-			for (const dir of build_dirs) {
-				rmSync(dir, {recursive: true, force: true});
-			}
+			build_dirs = await discover_build_output_dirs();
+			await Promise.all(build_dirs.map((dir) => rm(dir, {recursive: true, force: true})));
 
 			log.info(st('yellow', 'workspace has uncommitted changes - skipping build cache'));
 			// Skip clean_fs - already manually cleaned cache and all build outputs above
@@ -138,7 +143,7 @@ export const task: Task<Args> = {
 			} else {
 				// Commit is stable - safe to save cache
 				const metadata = await create_build_cache_metadata(config, log, initial_commit, build_dirs);
-				save_build_cache_metadata(metadata, log);
+				await save_build_cache_metadata(metadata, log);
 				log.debug('Build cache metadata saved');
 			}
 		}

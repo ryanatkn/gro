@@ -4,15 +4,16 @@ import {discover_build_output_dirs, collect_build_outputs} from '../lib/build_ca
 
 import {mock_file_stats, mock_file_entry, mock_dir_entry} from './build_cache_test_helpers.ts';
 
-// Mock dependencies
-vi.mock('node:fs', () => ({
-	existsSync: vi.fn(),
-	readFileSync: vi.fn(),
-	writeFileSync: vi.fn(),
-	mkdirSync: vi.fn(),
-	rmSync: vi.fn(),
-	statSync: vi.fn(),
-	readdirSync: vi.fn(),
+// Mock dependencies - discover_build_output_dirs and collect_build_outputs now use async fs functions
+vi.mock('node:fs/promises', () => ({
+	readdir: vi.fn(),
+	stat: vi.fn(),
+	readFile: vi.fn(),
+}));
+
+// Mock fs_exists from belt
+vi.mock('@ryanatkn/belt/fs.js', () => ({
+	fs_exists: vi.fn(),
 }));
 
 vi.mock('$lib/hash.js', () => ({
@@ -25,103 +26,107 @@ describe('discover_build_output_dirs', () => {
 	});
 
 	test('returns all existing build directories', async () => {
-		const {existsSync, readdirSync, statSync} = await import('node:fs');
+		const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+		const {readdir, stat} = vi.mocked(await import('node:fs/promises'));
 
 		// Mock all directories exist
-		vi.mocked(existsSync).mockReturnValue(true);
-		vi.mocked(readdirSync).mockReturnValue([
+		vi.mocked(fs_exists).mockResolvedValue(true);
+		vi.mocked(readdir).mockResolvedValue([
 			'dist_server',
 			'dist_worker',
 			'node_modules',
 			'src',
 		] as any);
-		vi.mocked(statSync).mockReturnValue({isDirectory: () => true} as any);
+		vi.mocked(stat).mockResolvedValue({isDirectory: () => true} as any);
 
-		const result = discover_build_output_dirs();
+		const result = await discover_build_output_dirs();
 
 		expect(result).toEqual(['build', 'dist', 'dist_server', 'dist_worker']);
 	});
 
 	test('returns only directories that exist', async () => {
-		const {existsSync, readdirSync, statSync} = await import('node:fs');
+		const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+		const {readdir, stat} = vi.mocked(await import('node:fs/promises'));
 
 		// Only dist and dist_server exist
-		vi.mocked(existsSync).mockImplementation((path: any) => {
-			return path === 'dist';
+		vi.mocked(fs_exists).mockImplementation((path: any) => {
+			return Promise.resolve(path === 'dist');
 		});
-		vi.mocked(readdirSync).mockReturnValue(['dist_server', 'other'] as any);
-		vi.mocked(statSync).mockReturnValue({isDirectory: () => true} as any);
+		vi.mocked(readdir).mockResolvedValue(['dist_server', 'other'] as any);
+		vi.mocked(stat).mockResolvedValue({isDirectory: () => true} as any);
 
-		const result = discover_build_output_dirs();
+		const result = await discover_build_output_dirs();
 
 		expect(result).toEqual(['dist', 'dist_server']);
 	});
 
 	test('returns empty array when no build directories exist', async () => {
-		const {existsSync, readdirSync} = await import('node:fs');
+		const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+		const {readdir} = vi.mocked(await import('node:fs/promises'));
 
-		vi.mocked(existsSync).mockReturnValue(false);
-		vi.mocked(readdirSync).mockReturnValue([] as any);
+		vi.mocked(fs_exists).mockResolvedValue(false);
+		vi.mocked(readdir).mockResolvedValue([] as any);
 
-		const result = discover_build_output_dirs();
+		const result = await discover_build_output_dirs();
 
 		expect(result).toEqual([]);
 	});
 
 	test('filters out non-directory dist_ entries', async () => {
-		const {existsSync, readdirSync, statSync} = await import('node:fs');
+		const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+		const {readdir, stat} = vi.mocked(await import('node:fs/promises'));
 
-		vi.mocked(existsSync).mockImplementation((path: any) => path === 'build');
-		vi.mocked(readdirSync).mockReturnValue([
+		vi.mocked(fs_exists).mockImplementation((path: any) => Promise.resolve(path === 'build'));
+		vi.mocked(readdir).mockResolvedValue([
 			'dist_server',
 			'dist_readme.md', // file, not directory
 		] as any);
-		vi.mocked(statSync).mockImplementation((path: any) => {
+		vi.mocked(stat).mockImplementation((path: any) => {
 			if (String(path) === 'dist_server') {
-				return {isDirectory: () => true} as any;
+				return Promise.resolve({isDirectory: () => true} as any);
 			}
-			return {isDirectory: () => false} as any;
+			return Promise.resolve({isDirectory: () => false} as any);
 		});
 
-		const result = discover_build_output_dirs();
+		const result = await discover_build_output_dirs();
 
 		expect(result).toEqual(['build', 'dist_server']);
 		expect(result).not.toContain('dist_readme.md');
 	});
 
 	test('handles permission errors on directory listing', async () => {
-		const {existsSync, readdirSync, statSync} = await import('node:fs');
+		const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+		const {readdir, stat} = vi.mocked(await import('node:fs/promises'));
 
-		vi.mocked(existsSync).mockReturnValue(true);
+		vi.mocked(fs_exists).mockResolvedValue(true);
 
-		// readdirSync throws permission error
-		vi.mocked(readdirSync).mockImplementation(() => {
-			throw new Error('EACCES: permission denied');
-		});
-		vi.mocked(statSync).mockReturnValue({isDirectory: () => true} as any);
+		// readdir throws permission error
+		vi.mocked(readdir).mockRejectedValue(new Error('EACCES: permission denied'));
+		vi.mocked(stat).mockResolvedValue({isDirectory: () => true} as any);
 
 		// Should throw - permission errors are fatal
-		expect(() => discover_build_output_dirs()).toThrow('EACCES: permission denied');
+		await expect(discover_build_output_dirs()).rejects.toThrow('EACCES: permission denied');
 	});
 
 	test('handles files named with dist_ prefix', async () => {
-		const {existsSync, readdirSync, statSync} = await import('node:fs');
+		const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+		const {readdir, stat} = vi.mocked(await import('node:fs/promises'));
 
-		vi.mocked(existsSync).mockReturnValue(true);
-		vi.mocked(readdirSync).mockReturnValue([
+		vi.mocked(fs_exists).mockResolvedValue(true);
+		vi.mocked(readdir).mockResolvedValue([
 			'dist_config.json', // file, not directory
 			'dist_server', // directory
 		] as any);
 
-		// Mock statSync to differentiate files vs directories
-		vi.mocked(statSync).mockImplementation((path: any) => {
+		// Mock stat to differentiate files vs directories
+		vi.mocked(stat).mockImplementation((path: any) => {
 			if (String(path) === 'dist_server') {
-				return {isDirectory: () => true} as any;
+				return Promise.resolve({isDirectory: () => true} as any);
 			}
-			return {isDirectory: () => false} as any;
+			return Promise.resolve({isDirectory: () => false} as any);
 		});
 
-		const result = discover_build_output_dirs();
+		const result = await discover_build_output_dirs();
 
 		// Should include directory but not file
 		expect(result).toContain('dist_server');
@@ -129,18 +134,19 @@ describe('discover_build_output_dirs', () => {
 	});
 
 	test('skips non-dist_ prefixed directories', async () => {
-		const {existsSync, readdirSync, statSync} = await import('node:fs');
+		const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+		const {readdir, stat} = vi.mocked(await import('node:fs/promises'));
 
-		vi.mocked(existsSync).mockReturnValue(true);
-		vi.mocked(readdirSync).mockReturnValue([
+		vi.mocked(fs_exists).mockResolvedValue(true);
+		vi.mocked(readdir).mockResolvedValue([
 			'node_modules',
 			'src',
 			'dist_server', // should be included
 			'output', // should not be included
 		] as any);
-		vi.mocked(statSync).mockReturnValue({isDirectory: () => true} as any);
+		vi.mocked(stat).mockResolvedValue({isDirectory: () => true} as any);
 
-		const result = discover_build_output_dirs();
+		const result = await discover_build_output_dirs();
 
 		expect(result).toEqual(['build', 'dist', 'dist_server']);
 		expect(result).not.toContain('node_modules');
@@ -155,16 +161,17 @@ describe('collect_build_outputs', () => {
 	});
 
 	test('hashes all files in build directory', async () => {
-		const {existsSync, readdirSync, readFileSync, statSync} = await import('node:fs');
+		const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+		const {readdir, readFile, stat} = vi.mocked(await import('node:fs/promises'));
 		const {to_hash} = await import('$lib/hash.js');
 
-		vi.mocked(existsSync).mockReturnValue(true);
-		vi.mocked(readdirSync).mockReturnValue([
+		vi.mocked(fs_exists).mockResolvedValue(true);
+		vi.mocked(readdir).mockResolvedValue([
 			mock_file_entry('index.html'),
 			mock_file_entry('bundle.js'),
 		] as any);
-		vi.mocked(statSync).mockReturnValue(mock_file_stats());
-		vi.mocked(readFileSync).mockReturnValue(Buffer.from('content'));
+		vi.mocked(stat).mockResolvedValue(mock_file_stats());
+		vi.mocked(readFile).mockResolvedValue(Buffer.from('content'));
 
 		let hash_count = 0;
 		// eslint-disable-next-line @typescript-eslint/require-await
@@ -192,16 +199,17 @@ describe('collect_build_outputs', () => {
 	});
 
 	test('skips build.json file', async () => {
-		const {existsSync, readdirSync, readFileSync, statSync} = await import('node:fs');
+		const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+		const {readdir, readFile, stat} = vi.mocked(await import('node:fs/promises'));
 		const {to_hash} = await import('$lib/hash.js');
 
-		vi.mocked(existsSync).mockReturnValue(true);
-		vi.mocked(readdirSync).mockReturnValue([
+		vi.mocked(fs_exists).mockResolvedValue(true);
+		vi.mocked(readdir).mockResolvedValue([
 			mock_file_entry('build.json'),
 			mock_file_entry('index.html'),
 		] as any);
-		vi.mocked(statSync).mockReturnValue(mock_file_stats());
-		vi.mocked(readFileSync).mockReturnValue(Buffer.from('content'));
+		vi.mocked(stat).mockResolvedValue(mock_file_stats());
+		vi.mocked(readFile).mockResolvedValue(Buffer.from('content'));
 		vi.mocked(to_hash).mockResolvedValue('hash');
 
 		const result = await collect_build_outputs(['build']);
@@ -212,9 +220,9 @@ describe('collect_build_outputs', () => {
 	});
 
 	test('returns empty array for non-existent directory', async () => {
-		const {existsSync} = await import('node:fs');
+		const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
 
-		vi.mocked(existsSync).mockReturnValue(false);
+		vi.mocked(fs_exists).mockResolvedValue(false);
 
 		const result = await collect_build_outputs(['build']);
 
@@ -222,17 +230,18 @@ describe('collect_build_outputs', () => {
 	});
 
 	test('hashes all files in directory', async () => {
-		const {existsSync, readdirSync, readFileSync, statSync} = await import('node:fs');
+		const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+		const {readdir, readFile, stat} = vi.mocked(await import('node:fs/promises'));
 		const {to_hash} = await import('$lib/hash.js');
 
-		vi.mocked(existsSync).mockReturnValue(true);
-		vi.mocked(readdirSync).mockReturnValue([
+		vi.mocked(fs_exists).mockResolvedValue(true);
+		vi.mocked(readdir).mockResolvedValue([
 			mock_file_entry('file1.js'),
 			mock_file_entry('file2.js'),
 			mock_file_entry('file3.js'),
 		] as any);
-		vi.mocked(statSync).mockReturnValue(mock_file_stats());
-		vi.mocked(readFileSync).mockReturnValue(Buffer.from('content'));
+		vi.mocked(stat).mockResolvedValue(mock_file_stats());
+		vi.mocked(readFile).mockResolvedValue(Buffer.from('content'));
 		vi.mocked(to_hash).mockResolvedValue('hash');
 
 		const result = await collect_build_outputs(['build']);
@@ -245,26 +254,27 @@ describe('collect_build_outputs', () => {
 	});
 
 	test('hashes files from multiple directories', async () => {
-		const {existsSync, readdirSync, readFileSync, statSync} = await import('node:fs');
+		const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+		const {readdir, readFile, stat} = vi.mocked(await import('node:fs/promises'));
 		const {to_hash} = await import('$lib/hash.js');
 
-		vi.mocked(existsSync).mockReturnValue(true);
+		vi.mocked(fs_exists).mockResolvedValue(true);
 
-		vi.mocked(readdirSync).mockImplementation((path: any) => {
+		vi.mocked(readdir).mockImplementation((path: any) => {
 			if (path === 'build') {
-				return [mock_file_entry('index.html')] as any;
+				return Promise.resolve([mock_file_entry('index.html')] as any);
 			}
 			if (path === 'dist') {
-				return [mock_file_entry('index.js')] as any;
+				return Promise.resolve([mock_file_entry('index.js')] as any);
 			}
 			if (path === 'dist_server') {
-				return [mock_file_entry('server.js')] as any;
+				return Promise.resolve([mock_file_entry('server.js')] as any);
 			}
-			return [] as any;
+			return Promise.resolve([] as any);
 		});
 
-		vi.mocked(statSync).mockReturnValue(mock_file_stats());
-		vi.mocked(readFileSync).mockReturnValue(Buffer.from('content'));
+		vi.mocked(stat).mockResolvedValue(mock_file_stats());
+		vi.mocked(readFile).mockResolvedValue(Buffer.from('content'));
 
 		let hash_count = 0;
 		// eslint-disable-next-line @typescript-eslint/require-await
@@ -284,33 +294,34 @@ describe('collect_build_outputs', () => {
 	});
 
 	test('hashes files in deeply nested directories', async () => {
-		const {existsSync, readdirSync, readFileSync, statSync} = await import('node:fs');
+		const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+		const {readdir, readFile, stat} = vi.mocked(await import('node:fs/promises'));
 		const {to_hash} = await import('$lib/hash.js');
 
-		vi.mocked(existsSync).mockReturnValue(true);
+		vi.mocked(fs_exists).mockResolvedValue(true);
 
-		vi.mocked(readdirSync).mockImplementation((path: any) => {
+		vi.mocked(readdir).mockImplementation((path: any) => {
 			const path_str = String(path);
 			if (path_str === 'build') {
-				return [mock_dir_entry('assets')] as any;
+				return Promise.resolve([mock_dir_entry('assets')] as any);
 			}
 			if (path_str === 'build/assets') {
-				return [mock_dir_entry('js')] as any;
+				return Promise.resolve([mock_dir_entry('js')] as any);
 			}
 			if (path_str === 'build/assets/js') {
-				return [mock_dir_entry('vendor')] as any;
+				return Promise.resolve([mock_dir_entry('vendor')] as any);
 			}
 			if (path_str === 'build/assets/js/vendor') {
-				return [mock_dir_entry('libs')] as any;
+				return Promise.resolve([mock_dir_entry('libs')] as any);
 			}
 			if (path_str === 'build/assets/js/vendor/libs') {
-				return [mock_file_entry('foo.js')] as any;
+				return Promise.resolve([mock_file_entry('foo.js')] as any);
 			}
-			return [] as any;
+			return Promise.resolve([] as any);
 		});
 
-		vi.mocked(statSync).mockReturnValue(mock_file_stats());
-		vi.mocked(readFileSync).mockReturnValue(Buffer.from('content'));
+		vi.mocked(stat).mockResolvedValue(mock_file_stats());
+		vi.mocked(readFile).mockResolvedValue(Buffer.from('content'));
 		vi.mocked(to_hash).mockResolvedValue('deep_hash');
 
 		const result = await collect_build_outputs(['build']);

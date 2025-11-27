@@ -33,7 +33,7 @@
 	box-shadow: var(
 		--pane_shadow,
 		/* TODO this is terrible, maybe add all the variables? should be culled anyway? */
-			var(--shadow_bottom_md)
+		var(--shadow_bottom_md)
 			color-mix(in hsl, var(--shadow_color) var(--shadow_alpha_3), transparent)
 	);
 	border-radius: var(--border_radius_xs);

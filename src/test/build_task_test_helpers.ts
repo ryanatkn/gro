@@ -15,6 +15,8 @@ export const create_mock_build_task_context = (
 	create_mock_task_context(args, config, {
 		sync: true,
 		'no-sync': false,
+		gen: true,
+		'no-gen': false,
 		install: true,
 		'no-install': false,
 		force_build: false,

@@ -3,7 +3,7 @@ import {spawn_cli} from '@ryanatkn/gro/cli.js';
 
 import {TaskError, type Task} from './task.ts';
 import {find_cli} from './cli.ts';
-import {has_dep} from './package_json.ts';
+import {has_dep, load_package_json} from './package_json.ts';
 import {serialize_args, to_implicit_forwarded_args} from './args.ts';
 import {VITEST_CLI} from './constants.ts';
 import {paths} from './paths.ts';
@@ -30,11 +30,12 @@ export const task: Task<Args> = {
 	run: async ({args}): Promise<void> => {
 		const {_: patterns, dir, fail_without_tests, t} = args;
 
-		if (!has_dep(VITEST_CLI)) {
+		const package_json = await load_package_json();
+		if (!has_dep(VITEST_CLI, package_json)) {
 			throw new TaskError('no test runner found, install vitest');
 		}
 
-		if (!find_cli(VITEST_CLI)) {
+		if (!(await find_cli(VITEST_CLI))) {
 			throw new TaskError('vitest is a dependency but not installed; run `npm i`?');
 		}
 

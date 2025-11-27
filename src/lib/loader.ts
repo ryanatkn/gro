@@ -233,7 +233,7 @@ export const resolve: ResolveHook = async (specifier, context, nextResolve) => {
 		return nextResolve(s, context);
 	}
 
-	const resolved = resolve_specifier(s, dirname(fileURLToPath(parent_url)));
+	const resolved = await resolve_specifier(s, dirname(fileURLToPath(parent_url)));
 
 	return {
 		url: pathToFileURL(resolved.path_id_with_querystring).href,

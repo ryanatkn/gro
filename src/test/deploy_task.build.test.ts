@@ -34,18 +34,15 @@ vi.mock('@ryanatkn/belt/process.js', () => ({
 	spawn: vi.fn(),
 }));
 
-vi.mock('node:fs', () => ({
-	existsSync: vi.fn(),
-	readdirSync: vi.fn(),
-}));
-
 vi.mock('node:fs/promises', () => ({
 	cp: vi.fn(),
 	mkdir: vi.fn(),
 	rm: vi.fn(),
+	readdir: vi.fn(),
 }));
 
 vi.mock('@ryanatkn/belt/fs.js', () => ({
+	fs_exists: vi.fn(),
 	fs_empty_dir: vi.fn(),
 }));
 
@@ -66,8 +63,8 @@ describe('deploy_task build integration', () => {
 
 	describe('build task invocation', () => {
 		test('invokes build task when build=true', async () => {
-			const {existsSync} = await import('node:fs');
-			vi.mocked(existsSync).mockReturnValue(true);
+			const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+			vi.mocked(fs_exists).mockResolvedValue(true);
 
 			const ctx = create_mock_deploy_task_context({
 				build: true,
@@ -76,12 +73,17 @@ describe('deploy_task build integration', () => {
 
 			await deploy_task.run(ctx);
 
-			expect(ctx.invoke_task).toHaveBeenCalledWith('build');
+			expect(ctx.invoke_task).toHaveBeenCalledWith('build', {
+				sync: true,
+				gen: true,
+				install: true,
+				force_build: false,
+			});
 		});
 
 		test('skips build task when build=false', async () => {
-			const {existsSync} = await import('node:fs');
-			vi.mocked(existsSync).mockReturnValue(true);
+			const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+			vi.mocked(fs_exists).mockResolvedValue(true);
 
 			const ctx = create_mock_deploy_task_context({
 				build: false,
@@ -95,8 +97,8 @@ describe('deploy_task build integration', () => {
 
 		test('build happens after source and target branch preparation', async () => {
 			const {git_checkout} = vi.mocked(await import('@ryanatkn/belt/git.js'));
-			const {existsSync} = await import('node:fs');
-			vi.mocked(existsSync).mockReturnValue(true);
+			const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+			vi.mocked(fs_exists).mockResolvedValue(true);
 
 			const ctx = create_mock_deploy_task_context({
 				build: true,
@@ -118,9 +120,9 @@ describe('deploy_task build integration', () => {
 
 	describe('build directory validation', () => {
 		test('checks that build_dir exists after building', async () => {
-			const {existsSync} = await import('node:fs');
+			const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
 
-			vi.mocked(existsSync).mockReturnValue(true);
+			vi.mocked(fs_exists).mockResolvedValue(true);
 
 			const ctx = create_mock_deploy_task_context({
 				build: true,
@@ -130,17 +132,17 @@ describe('deploy_task build integration', () => {
 
 			await deploy_task.run(ctx);
 
-			// Should check build_dir exists (after multiple other existsSync calls)
-			const exists_calls = (existsSync as any).mock.calls;
+			// Should check build_dir exists (after multiple other fs_exists calls)
+			const exists_calls = (fs_exists as any).mock.calls;
 			const build_check = exists_calls.find((call: any) => call[0] === 'build');
 			expect(build_check).toBeDefined();
 		});
 
 		test('throws error when build_dir missing', async () => {
-			const {existsSync} = await import('node:fs');
+			const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
 
 			// Everything exists except build_dir
-			vi.mocked(existsSync).mockImplementation((path: any) => {
+			vi.mocked(fs_exists).mockImplementation((path: any) => {
 				const path_str = String(path);
 				return !path_str.includes('build'); // build dir doesn't exist
 			});
@@ -156,9 +158,9 @@ describe('deploy_task build integration', () => {
 		});
 
 		test('validates custom build_dir path', async () => {
-			const {existsSync} = await import('node:fs');
+			const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
 
-			vi.mocked(existsSync).mockImplementation((path: any) => {
+			vi.mocked(fs_exists).mockImplementation((path: any) => {
 				const path_str = String(path);
 				return !path_str.includes('dist'); // custom dist dir doesn't exist
 			});
@@ -176,8 +178,8 @@ describe('deploy_task build integration', () => {
 
 	describe('build task failure handling', () => {
 		test('catches build error and throws TaskError', async () => {
-			const {existsSync} = await import('node:fs');
-			vi.mocked(existsSync).mockReturnValue(true);
+			const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+			vi.mocked(fs_exists).mockResolvedValue(true);
 
 			const ctx = create_mock_deploy_task_context({build: true});
 
@@ -189,8 +191,8 @@ describe('deploy_task build integration', () => {
 		});
 
 		test('logs build failure with git safety message', async () => {
-			const {existsSync} = await import('node:fs');
-			vi.mocked(existsSync).mockReturnValue(true);
+			const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+			vi.mocked(fs_exists).mockResolvedValue(true);
 
 			const ctx = create_mock_deploy_task_context({build: true, dry: false});
 
@@ -209,8 +211,8 @@ describe('deploy_task build integration', () => {
 
 		test('does not modify git when build fails', async () => {
 			const {spawn} = vi.mocked(await import('@ryanatkn/belt/process.js'));
-			const {existsSync} = await import('node:fs');
-			vi.mocked(existsSync).mockReturnValue(true);
+			const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+			vi.mocked(fs_exists).mockResolvedValue(true);
 
 			const ctx = create_mock_deploy_task_context({build: true, dry: false});
 
@@ -232,8 +234,8 @@ describe('deploy_task build integration', () => {
 		});
 
 		test('shows different message in dry mode when build fails', async () => {
-			const {existsSync} = await import('node:fs');
-			vi.mocked(existsSync).mockReturnValue(true);
+			const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+			vi.mocked(fs_exists).mockResolvedValue(true);
 
 			const ctx = create_mock_deploy_task_context({build: true, dry: true});
 
@@ -248,11 +250,12 @@ describe('deploy_task build integration', () => {
 
 	describe('build task success scenarios', () => {
 		test('continues to file copying after successful build', async () => {
-			const {existsSync, readdirSync} = await import('node:fs');
+			const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+			const {readdir} = vi.mocked(await import('node:fs/promises'));
 			const {cp} = await import('node:fs/promises');
 
-			vi.mocked(existsSync).mockReturnValue(true);
-			vi.mocked(readdirSync).mockReturnValue(['index.html', 'assets'] as any);
+			vi.mocked(fs_exists).mockResolvedValue(true);
+			vi.mocked(readdir).mockResolvedValue(['index.html', 'assets'] as any);
 
 			const ctx = create_mock_deploy_task_context({
 				build: true,
@@ -268,9 +271,9 @@ describe('deploy_task build integration', () => {
 		});
 
 		test('creates build_dir before checking if it exists', async () => {
-			const {existsSync} = await import('node:fs');
+			const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
 
-			vi.mocked(existsSync).mockReturnValue(true);
+			vi.mocked(fs_exists).mockResolvedValue(true);
 
 			const ctx = create_mock_deploy_task_context({
 				build: true,
@@ -281,17 +284,22 @@ describe('deploy_task build integration', () => {
 
 			await deploy_task.run(ctx);
 
-			// invoke_task should be called before existsSync checks build dir
-			expect(ctx.invoke_task).toHaveBeenCalledWith('build');
+			// invoke_task should be called before fs_exists checks build dir
+			expect(ctx.invoke_task).toHaveBeenCalledWith('build', {
+				sync: true,
+				gen: true,
+				install: true,
+				force_build: false,
+			});
 		});
 	});
 
 	describe('build-less deploy', () => {
 		test('skips build and uses existing build_dir when no-build=true', async () => {
-			const {existsSync} = await import('node:fs');
+			const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
 			const {cp} = await import('node:fs/promises');
 
-			vi.mocked(existsSync).mockReturnValue(true);
+			vi.mocked(fs_exists).mockResolvedValue(true);
 
 			const ctx = create_mock_deploy_task_context({
 				build: false,
@@ -308,10 +316,10 @@ describe('deploy_task build integration', () => {
 		});
 
 		test('fails gracefully when build_dir missing and no-build=true', async () => {
-			const {existsSync} = await import('node:fs');
+			const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
 
 			// build_dir doesn't exist, deploy_dir does
-			vi.mocked(existsSync).mockImplementation((path: any) => {
+			vi.mocked(fs_exists).mockImplementation((path: any) => {
 				const path_str = String(path);
 				return !path_str.includes('build'); // build_dir: false, deploy_dir: true
 			});

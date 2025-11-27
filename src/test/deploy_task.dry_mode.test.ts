@@ -34,18 +34,15 @@ vi.mock('@ryanatkn/belt/process.js', () => ({
 	spawn: vi.fn(),
 }));
 
-vi.mock('node:fs', () => ({
-	existsSync: vi.fn(),
-	readdirSync: vi.fn(),
-}));
-
 vi.mock('node:fs/promises', () => ({
 	cp: vi.fn(),
 	mkdir: vi.fn(),
 	rm: vi.fn(),
+	readdir: vi.fn(),
 }));
 
 vi.mock('@ryanatkn/belt/fs.js', () => ({
+	fs_exists: vi.fn(),
 	fs_empty_dir: vi.fn(),
 }));
 
@@ -70,9 +67,9 @@ describe('deploy_task dry mode', () => {
 			const {fs_empty_dir} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
 			const {cp} = await import('node:fs/promises');
 			const {spawn} = vi.mocked(await import('@ryanatkn/belt/process.js'));
-			const {existsSync} = await import('node:fs');
+			const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
 
-			vi.mocked(existsSync).mockReturnValue(true);
+			vi.mocked(fs_exists).mockResolvedValue(true);
 
 			const ctx = create_mock_deploy_task_context({dry: true});
 
@@ -81,7 +78,12 @@ describe('deploy_task dry mode', () => {
 			// Should perform all preparation steps
 			expect(git_checkout).toHaveBeenCalled();
 			expect(git_pull).toHaveBeenCalled();
-			expect(ctx.invoke_task).toHaveBeenCalledWith('build');
+			expect(ctx.invoke_task).toHaveBeenCalledWith('build', {
+				sync: true,
+				gen: true,
+				install: true,
+				force_build: false,
+			});
 			expect(fs_empty_dir).toHaveBeenCalled();
 			expect(cp).toHaveBeenCalled();
 
@@ -100,8 +102,8 @@ describe('deploy_task dry mode', () => {
 		});
 
 		test('logs success message with deploy_dir path', async () => {
-			const {existsSync} = await import('node:fs');
-			vi.mocked(existsSync).mockReturnValue(true);
+			const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+			vi.mocked(fs_exists).mockResolvedValue(true);
 
 			const ctx = create_mock_deploy_task_context({
 				dry: true,
@@ -119,8 +121,8 @@ describe('deploy_task dry mode', () => {
 		});
 
 		test('uses custom deploy_dir in success message', async () => {
-			const {existsSync} = await import('node:fs');
-			vi.mocked(existsSync).mockReturnValue(true);
+			const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+			vi.mocked(fs_exists).mockResolvedValue(true);
 
 			const ctx = create_mock_deploy_task_context({
 				dry: true,
@@ -138,8 +140,8 @@ describe('deploy_task dry mode', () => {
 
 		test('returns early after logging success', async () => {
 			const {spawn} = vi.mocked(await import('@ryanatkn/belt/process.js'));
-			const {existsSync} = await import('node:fs');
-			vi.mocked(existsSync).mockReturnValue(true);
+			const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+			vi.mocked(fs_exists).mockResolvedValue(true);
 
 			const ctx = create_mock_deploy_task_context({dry: true});
 
@@ -155,8 +157,8 @@ describe('deploy_task dry mode', () => {
 
 	describe('dry mode with build failure', () => {
 		test('shows dry deploy failed message when build fails', async () => {
-			const {existsSync} = await import('node:fs');
-			vi.mocked(existsSync).mockReturnValue(true);
+			const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+			vi.mocked(fs_exists).mockResolvedValue(true);
 
 			const ctx = create_mock_deploy_task_context({
 				dry: true,
@@ -172,8 +174,8 @@ describe('deploy_task dry mode', () => {
 		});
 
 		test('still shows no git changes message on build failure', async () => {
-			const {existsSync} = await import('node:fs');
-			vi.mocked(existsSync).mockReturnValue(true);
+			const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+			vi.mocked(fs_exists).mockResolvedValue(true);
 
 			const ctx = create_mock_deploy_task_context({
 				dry: true,
@@ -196,10 +198,10 @@ describe('deploy_task dry mode', () => {
 
 	describe('dry mode with missing build_dir', () => {
 		test('throws error when build_dir missing', async () => {
-			const {existsSync} = await import('node:fs');
+			const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
 
 			// build_dir doesn't exist
-			vi.mocked(existsSync).mockImplementation((path: any) => {
+			vi.mocked(fs_exists).mockImplementation((path: any) => {
 				const path_str = String(path);
 				return !path_str.includes('build');
 			});
@@ -214,8 +216,8 @@ describe('deploy_task dry mode', () => {
 	describe('dry mode integration', () => {
 		test('dry mode works with custom branches', async () => {
 			const {git_checkout} = vi.mocked(await import('@ryanatkn/belt/git.js'));
-			const {existsSync} = await import('node:fs');
-			vi.mocked(existsSync).mockReturnValue(true);
+			const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+			vi.mocked(fs_exists).mockResolvedValue(true);
 
 			const ctx = create_mock_deploy_task_context({
 				dry: true,
@@ -236,8 +238,8 @@ describe('deploy_task dry mode', () => {
 		});
 
 		test('dry mode works with no-build flag', async () => {
-			const {existsSync} = await import('node:fs');
-			vi.mocked(existsSync).mockReturnValue(true);
+			const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+			vi.mocked(fs_exists).mockResolvedValue(true);
 
 			const ctx = create_mock_deploy_task_context({
 				dry: true,
@@ -258,8 +260,8 @@ describe('deploy_task dry mode', () => {
 
 		test('dry mode works with reset flag', async () => {
 			const {git_reset_branch_to_first_commit} = vi.mocked(await import('@ryanatkn/belt/git.js'));
-			const {existsSync} = await import('node:fs');
-			vi.mocked(existsSync).mockReturnValue(true);
+			const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+			vi.mocked(fs_exists).mockResolvedValue(true);
 
 			const ctx = create_mock_deploy_task_context({
 				dry: true,
@@ -281,8 +283,8 @@ describe('deploy_task dry mode', () => {
 	describe('non-dry mode', () => {
 		test('performs commit and push when dry=false', async () => {
 			const {spawn} = vi.mocked(await import('@ryanatkn/belt/process.js'));
-			const {existsSync} = await import('node:fs');
-			vi.mocked(existsSync).mockReturnValue(true);
+			const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+			vi.mocked(fs_exists).mockResolvedValue(true);
 
 			const ctx = create_mock_deploy_task_context({dry: false});
 
@@ -299,8 +301,8 @@ describe('deploy_task dry mode', () => {
 		});
 
 		test('logs deployed message when dry=false', async () => {
-			const {existsSync} = await import('node:fs');
-			vi.mocked(existsSync).mockReturnValue(true);
+			const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+			vi.mocked(fs_exists).mockResolvedValue(true);
 
 			const ctx = create_mock_deploy_task_context({dry: false});
 

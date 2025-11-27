@@ -83,8 +83,8 @@ describe('build_task args and sync/install', () => {
 
 		await build_task.run(ctx);
 
-		// Should call sync task with install arg
-		expect(ctx.invoke_task).toHaveBeenCalledWith('sync', {install: true});
+		// Should call sync task with install arg and gen: false
+		expect(ctx.invoke_task).toHaveBeenCalledWith('sync', {install: true, gen: false});
 	});
 
 	test('skips sync task when sync is false', async () => {
@@ -94,11 +94,11 @@ describe('build_task args and sync/install', () => {
 		vi.mocked(git_check_clean_workspace).mockResolvedValue(null);
 		vi.mocked(is_build_cache_valid).mockResolvedValue(false);
 
-		const ctx = create_mock_build_task_context({sync: false, install: false});
+		const ctx = create_mock_build_task_context({sync: false, install: false, gen: false});
 
 		await build_task.run(ctx);
 
-		// Should NOT call sync task
+		// Should NOT call any tasks
 		expect(ctx.invoke_task).not.toHaveBeenCalled();
 	});
 
@@ -118,8 +118,8 @@ describe('build_task args and sync/install', () => {
 			expect.stringContaining('sync is false but install is true'),
 		);
 
-		// Should still call sync (install takes precedence)
-		expect(ctx.invoke_task).toHaveBeenCalledWith('sync', {install: true});
+		// Should still call sync (install takes precedence) with gen: false
+		expect(ctx.invoke_task).toHaveBeenCalledWith('sync', {install: true, gen: false});
 	});
 
 	describe('sync task failures', () => {
@@ -133,8 +133,8 @@ describe('build_task args and sync/install', () => {
 			// Should propagate the error
 			await expect(build_task.run(ctx)).rejects.toThrow('Sync task failed');
 
-			// Should have attempted to invoke sync
-			expect(ctx.invoke_task).toHaveBeenCalledWith('sync', {install: true});
+			// Should have attempted to invoke sync with gen: false
+			expect(ctx.invoke_task).toHaveBeenCalledWith('sync', {install: true, gen: false});
 		});
 
 		test('fails build early without running plugin lifecycle when sync fails', async () => {

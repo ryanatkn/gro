@@ -7,10 +7,10 @@ import {paths} from '../lib/paths.js';
 const dir = paths.source + 'test/fixtures/';
 
 describe('resolve_specifier', () => {
-	test('resolves a specifier to a file that exists with an unknown file extension', () => {
+	test('resolves a specifier to a file that exists with an unknown file extension', async () => {
 		const specifier = join(dir, 'test_file.other.ext');
 		const path_id = specifier;
-		expect(resolve_specifier(specifier, dir)).toEqual({
+		expect(await resolve_specifier(specifier, dir)).toEqual({
 			path_id,
 			path_id_with_querystring: path_id,
 			specifier,
@@ -20,10 +20,10 @@ describe('resolve_specifier', () => {
 		});
 	});
 
-	test('resolves a TS specifier', () => {
+	test('resolves a TS specifier', async () => {
 		const specifier = join(dir, 'test_ts.ts');
 		const path_id = specifier;
-		expect(resolve_specifier(specifier, dir)).toEqual({
+		expect(await resolve_specifier(specifier, dir)).toEqual({
 			path_id,
 			path_id_with_querystring: path_id,
 			specifier,
@@ -33,10 +33,10 @@ describe('resolve_specifier', () => {
 		});
 	});
 
-	test('resolves a TS specifier that does not exist', () => {
+	test('resolves a TS specifier that does not exist', async () => {
 		const specifier = join(dir, 'this_test_ts_does_not_exist.ts');
 		const path_id = specifier;
-		expect(resolve_specifier(specifier, dir)).toEqual({
+		expect(await resolve_specifier(specifier, dir)).toEqual({
 			path_id,
 			path_id_with_querystring: path_id,
 			specifier,
@@ -46,11 +46,11 @@ describe('resolve_specifier', () => {
 		});
 	});
 
-	test('resolves a `?raw` ts specifier', () => {
+	test('resolves a `?raw` ts specifier', async () => {
 		const path = join(dir, 'test_ts.ts');
 		const specifier = path + '?raw';
 		const path_id = path;
-		expect(resolve_specifier(specifier, dir)).toEqual({
+		expect(await resolve_specifier(specifier, dir)).toEqual({
 			path_id,
 			path_id_with_querystring: path_id + '?raw',
 			specifier,
@@ -60,9 +60,9 @@ describe('resolve_specifier', () => {
 		});
 	});
 
-	test('resolves relative ts specifiers', () => {
+	test('resolves relative ts specifiers', async () => {
 		const path_id1 = join(dir, 'test_ts.ts');
-		expect(resolve_specifier('./test_ts.ts', dir)).toEqual({
+		expect(await resolve_specifier('./test_ts.ts', dir)).toEqual({
 			path_id: path_id1,
 			path_id_with_querystring: path_id1,
 			specifier: './test_ts.ts',
@@ -71,7 +71,7 @@ describe('resolve_specifier', () => {
 			raw: false,
 		});
 		const path_id2 = join(dir, 'a/b/test_ts.ts');
-		expect(resolve_specifier('./a/b/test_ts.ts', dir)).toEqual({
+		expect(await resolve_specifier('./a/b/test_ts.ts', dir)).toEqual({
 			path_id: path_id2,
 			path_id_with_querystring: path_id2,
 			specifier: './a/b/test_ts.ts',
@@ -80,7 +80,7 @@ describe('resolve_specifier', () => {
 			raw: false,
 		});
 		const path_id3 = join(dir, '../../test_ts.ts');
-		expect(resolve_specifier('../../test_ts.ts', dir)).toEqual({
+		expect(await resolve_specifier('../../test_ts.ts', dir)).toEqual({
 			path_id: path_id3,
 			path_id_with_querystring: path_id3,
 			specifier: '../../test_ts.ts',
@@ -89,7 +89,7 @@ describe('resolve_specifier', () => {
 			raw: false,
 		});
 		const path_id4 = join(dir, '../../test_ts.ts');
-		expect(resolve_specifier('../../test_ts.ts?raw', dir)).toEqual({
+		expect(await resolve_specifier('../../test_ts.ts?raw', dir)).toEqual({
 			path_id: path_id4,
 			path_id_with_querystring: path_id4 + '?raw',
 			specifier: '../../test_ts.ts?raw',
@@ -99,10 +99,10 @@ describe('resolve_specifier', () => {
 		});
 	});
 
-	test('resolves an extensionless specifier', () => {
+	test('resolves an extensionless specifier', async () => {
 		const specifier = join(dir, 'test_ts');
 		const path_id = specifier + '.ts';
-		expect(resolve_specifier(specifier, dir)).toEqual({
+		expect(await resolve_specifier(specifier, dir)).toEqual({
 			path_id,
 			path_id_with_querystring: path_id,
 			specifier,
@@ -112,10 +112,10 @@ describe('resolve_specifier', () => {
 		});
 	});
 
-	test('resolves a js specifier', () => {
+	test('resolves a js specifier', async () => {
 		const specifier = join(dir, 'test_js.js');
 		const path_id = specifier;
-		expect(resolve_specifier(specifier, dir)).toEqual({
+		expect(await resolve_specifier(specifier, dir)).toEqual({
 			path_id,
 			path_id_with_querystring: path_id,
 			specifier,
@@ -125,10 +125,10 @@ describe('resolve_specifier', () => {
 		});
 	});
 
-	test('resolves a js specifier as ts for a file that does not exist', () => {
+	test('resolves a js specifier as ts for a file that does not exist', async () => {
 		const specifier = join(dir, 'test_missing.js');
 		const path_id = join(dir, 'test_missing.ts');
-		expect(resolve_specifier(specifier, dir)).toEqual({
+		expect(await resolve_specifier(specifier, dir)).toEqual({
 			path_id,
 			path_id_with_querystring: path_id,
 			specifier,
@@ -138,10 +138,10 @@ describe('resolve_specifier', () => {
 		});
 	});
 
-	test('resolves an extensionless specifier for a file that does not exist', () => {
+	test('resolves an extensionless specifier for a file that does not exist', async () => {
 		const specifier = join(dir, 'test_missing');
 		const path_id = specifier + '.ts';
-		expect(resolve_specifier(specifier, dir)).toEqual({
+		expect(await resolve_specifier(specifier, dir)).toEqual({
 			path_id,
 			path_id_with_querystring: path_id,
 			specifier,

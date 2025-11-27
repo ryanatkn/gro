@@ -1,5 +1,5 @@
-import {rm} from 'node:fs/promises';
-import {readdirSync, type RmOptions} from 'node:fs';
+import {readdir, rm} from 'node:fs/promises';
+import type {RmOptions} from 'node:fs';
 
 import {paths} from './paths.ts';
 import {
@@ -35,8 +35,8 @@ export const clean_fs = async (
 		promises.push(rm(paths.build_dev, rm_options));
 	}
 	if (build || build_dist) {
-		const paths = readdirSync('.').filter((p) => p.startsWith(GRO_DIST_PREFIX));
-		for (const path of paths) {
+		const dir_paths = (await readdir('.')).filter((p) => p.startsWith(GRO_DIST_PREFIX));
+		for (const path of dir_paths) {
 			promises.push(rm(path, rm_options));
 		}
 	}

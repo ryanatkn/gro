@@ -31,10 +31,10 @@ test('to_input_paths', () => {
 	]);
 });
 
-test('get_possible_paths with an implicit relative path', () => {
+test('get_possible_paths with an implicit relative path', async () => {
 	const input_path = 'src/foo/bar';
 	expect(
-		get_possible_paths(
+		await get_possible_paths(
 			input_path,
 			[resolve('src/foo'), resolve('src/baz'), resolve('src'), resolve('.')],
 			['.ext.ts'],
@@ -83,36 +83,36 @@ test('get_possible_paths with an implicit relative path', () => {
 	]);
 });
 
-test('get_possible_paths in the gro directory', () => {
+test('get_possible_paths in the gro directory', async () => {
 	const input_path = resolve('src/foo/bar');
-	expect(get_possible_paths(input_path, [], ['.ext.ts'])).toEqual([
+	expect(await get_possible_paths(input_path, [], ['.ext.ts'])).toEqual([
 		{id: input_path, input_path: resolve('src/foo/bar'), root_dir: resolve('src/foo')},
 		{id: input_path + '.ext.ts', input_path: resolve('src/foo/bar'), root_dir: resolve('src/foo')},
 	]);
 });
 
-test('get_possible_paths does not repeat the extension', () => {
+test('get_possible_paths does not repeat the extension', async () => {
 	const input_path = resolve('src/foo/bar.ext.ts');
-	expect(get_possible_paths(input_path, [], ['.ext.ts'])).toEqual([
+	expect(await get_possible_paths(input_path, [], ['.ext.ts'])).toEqual([
 		{id: input_path, input_path: resolve('src/foo/bar.ext.ts'), root_dir: resolve('src/foo')},
 	]);
 });
 
-test('get_possible_paths does not repeat with the same root directory', () => {
+test('get_possible_paths does not repeat with the same root directory', async () => {
 	const input_path = resolve('src/foo/bar.ext.ts');
-	expect(get_possible_paths(input_path, [paths.root, paths.root], ['.ext.ts'])).toEqual([
+	expect(await get_possible_paths(input_path, [paths.root, paths.root], ['.ext.ts'])).toEqual([
 		{id: input_path, input_path: resolve('src/foo/bar.ext.ts'), root_dir: resolve('src/foo')},
 	]);
 });
 
-test('get_possible_paths implied to be a directory by trailing slash', () => {
+test('get_possible_paths implied to be a directory by trailing slash', async () => {
 	const input_path = resolve('src/foo/bar') + '/';
-	expect(get_possible_paths(input_path, [], ['.ext.ts'])).toEqual([
+	expect(await get_possible_paths(input_path, [], ['.ext.ts'])).toEqual([
 		{id: input_path, input_path: resolve('src/foo/bar') + '/', root_dir: resolve('src/foo')},
 	]);
 });
 
-test('resolve_input_files', () => {
+test('resolve_input_files', async () => {
 	const test_files: Record<string, Array<ResolvedPath>> = {
 		'fake/test1.ext.ts': [
 			{id: 'fake/test1.ext.ts', path: 'fake/test1.ext.ts', is_directory: false},
@@ -195,7 +195,9 @@ test('resolve_input_files', () => {
 		input_path: 'fake3/test',
 		root_dir: process.cwd(),
 	};
-	const result = resolve_input_files([a, b, c, d, e, f, g, h, i], (dir) => test_files[dir]!);
+	const result = await resolve_input_files([a, b, c, d, e, f, g, h, i], (dir) =>
+		Promise.resolve(test_files[dir]!),
+	);
 	const resolved_input_files: Array<ResolvedInputFile> = [
 		{id: a.id, input_path: a.input_path, resolved_input_path: a},
 		{id: b.id, input_path: b.input_path, resolved_input_path: b},

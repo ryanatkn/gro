@@ -1,6 +1,6 @@
 import {z} from 'zod';
 import {styleText as st} from 'node:util';
-import {existsSync} from 'node:fs';
+import {fs_exists} from '@ryanatkn/belt/fs.js';
 
 import {TaskError, type Task} from './task.ts';
 import {resolve_gro_module_path, spawn_with_loader} from './gro_helpers.ts';
@@ -39,7 +39,7 @@ export const task: Task<Args> = {
 			return;
 		}
 
-		if (!existsSync(path)) {
+		if (!(await fs_exists(path))) {
 			throw new TaskError('Cannot find file to run at path: ' + path);
 		}
 

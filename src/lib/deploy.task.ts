@@ -2,9 +2,9 @@ import {spawn} from '@ryanatkn/belt/process.js';
 import {print_error} from '@ryanatkn/belt/print.js';
 import {styleText as st} from 'node:util';
 import {z} from 'zod';
-import {cp, mkdir, rm} from 'node:fs/promises';
+import {cp, mkdir, readdir, rm} from 'node:fs/promises';
 import {join, resolve} from 'node:path';
-import {existsSync, readdirSync} from 'node:fs';
+import {fs_exists, fs_empty_dir} from '@ryanatkn/belt/fs.js';
 import {
 	git_check_clean_workspace,
 	git_checkout,
@@ -21,7 +21,6 @@ import {
 	git_clone_locally,
 	git_current_branch_name,
 } from '@ryanatkn/belt/git.js';
-import {fs_empty_dir} from '@ryanatkn/belt/fs.js';
 
 import {TaskError, type Task} from './task.ts';
 import {print_path} from './paths.ts';
@@ -72,6 +71,19 @@ export const Args = z.strictObject({
 		.default(false),
 	build: z.boolean().meta({description: 'dual of no-build'}).default(true),
 	'no-build': z.boolean().meta({description: 'opt out of building'}).default(false),
+	sync: z.boolean().meta({description: 'dual of no-sync'}).default(true),
+	'no-sync': z.boolean().meta({description: 'opt out of gro sync in build'}).default(false),
+	gen: z.boolean().meta({description: 'dual of no-gen'}).default(true),
+	'no-gen': z.boolean().meta({description: 'opt out of gro gen in build'}).default(false),
+	install: z.boolean().meta({description: 'dual of no-install'}).default(true),
+	'no-install': z
+		.boolean()
+		.meta({description: 'opt out of installing packages before building'})
+		.default(false),
+	force_build: z
+		.boolean()
+		.meta({description: 'force a fresh build, ignoring the cache'})
+		.default(false),
 	pull: z.boolean().meta({description: 'dual of no-pull'}).default(true),
 	'no-pull': z.boolean().meta({description: 'opt out of git pull'}).default(false),
 });
@@ -93,6 +105,10 @@ export const task: Task<Args> = {
 			dangerous,
 			reset,
 			build,
+			sync,
+			gen,
+			install,
+			force_build,
 			pull,
 		} = args;
 
@@ -154,7 +170,7 @@ export const task: Task<Args> = {
 			// First, check if the deploy dir exists, and if so, attempt to sync it.
 			// If anything goes wrong, delete the directory and we'll initialize it
 			// using the same code path as if it didn't exist in the first place.
-			if (existsSync(resolved_deploy_dir)) {
+			if (await fs_exists(resolved_deploy_dir)) {
 				if (target !== (await git_current_branch_name(target_spawn_options))) {
 					// We're in a bad state because the target branch has changed,
 					// so delete the directory and continue as if it wasn't there.
@@ -175,7 +191,7 @@ export const task: Task<Args> = {
 
 			// Second, initialize the deploy dir if needed.
 			// It may not exist, or it may have been deleted after failing to sync above.
-			if (!existsSync(resolved_deploy_dir)) {
+			if (!(await fs_exists(resolved_deploy_dir))) {
 				const local_deploy_branch_exists = await git_local_branch_exists(target);
 				await git_fetch(origin, ('+' + target + ':' + target) as GitBranch); // fetch+merge and allow non-fastforward updates with the +
 				await git_clone_locally(origin, target, dir, resolved_deploy_dir);
@@ -193,7 +209,7 @@ export const task: Task<Args> = {
 			// Remote target branch does not exist, so start from scratch
 
 			// Delete the deploy dir and recreate it
-			if (existsSync(resolved_deploy_dir)) {
+			if (await fs_exists(resolved_deploy_dir)) {
 				await rm(resolved_deploy_dir, {recursive: true});
 				await mkdir(resolved_deploy_dir, {recursive: true});
 			}
@@ -222,14 +238,14 @@ export const task: Task<Args> = {
 		// Build
 		try {
 			if (build) {
-				await invoke_task('build');
+				await invoke_task('build', {sync, gen, install, force_build});
 			}
-		} catch (err) {
+		} catch (error) {
 			log.error(
 				st('red', 'build failed'),
 				'but',
 				st('green', 'no changes were made to git'),
-				print_error(err),
+				print_error(error),
 			);
 			if (dry) {
 				log.info(st('red', 'dry deploy failed'));
@@ -238,13 +254,14 @@ export const task: Task<Args> = {
 		}
 
 		// Verify build output exists
-		if (!existsSync(build_dir)) {
+		if (!(await fs_exists(build_dir))) {
 			throw new TaskError(`Directory to deploy does not exist after building: ${build_dir}`);
 		}
 
 		// Copy the build
+		const build_entries = await readdir(build_dir);
 		await Promise.all(
-			readdirSync(build_dir).map((path) =>
+			build_entries.map((path) =>
 				cp(join(build_dir, path), join(resolved_deploy_dir, path), {recursive: true}),
 			),
 		);
@@ -260,8 +277,8 @@ export const task: Task<Args> = {
 			await spawn('git', ['add', '.', '-f'], target_spawn_options);
 			await spawn('git', ['commit', '-m', 'deployment'], target_spawn_options);
 			await spawn('git', ['push', origin, target, '-f'], target_spawn_options); // force push because we may be resetting the branch, see the checks above to make this safer
-		} catch (err) {
-			log.error(st('red', 'updating git failed:'), print_error(err));
+		} catch (error) {
+			log.error(st('red', 'updating git failed:'), print_error(error));
 			throw new TaskError(`Deploy failed in a bad state: built but not pushed, see error above.`);
 		}
 
