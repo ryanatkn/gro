@@ -1,7 +1,8 @@
 import {test, assert, vi} from 'vitest';
 
 import type {WatchNodeFs} from '../lib/watch_dir.ts';
-import {Filer} from '../lib/filer.ts';
+import {Filer, filter_dependents} from '../lib/filer.ts';
+import type {Disknode} from '../lib/disknode.ts';
 
 /* eslint-disable @typescript-eslint/require-await */
 /* eslint-disable @typescript-eslint/no-empty-function */
@@ -912,4 +913,429 @@ test('state cleanup on close', async () => {
 	// All state should be cleared on close
 	assert.equal(filer.files.size, 0);
 	assert.equal(filer.inited, false);
+});
+
+test('queue processes all changes even when they arrive during processing', async () => {
+	let first_batch_complete: () => void;
+	const first_batch_promise: Promise<void> = new Promise((resolve) => {
+		first_batch_complete = resolve;
+	});
+
+	const events: Array<string> = [];
+
+	const mock_watch_dir = vi.fn((options) => {
+		const mock_watcher: WatchNodeFs = {
+			init: vi.fn(async () => {
+				// Add initial files
+				options.on_change({type: 'add', path: '/test/file1.ts', is_directory: false});
+
+				// Wait a bit then add more while processing
+				await new Promise((resolve) => setTimeout(resolve, 10));
+				options.on_change({type: 'add', path: '/test/file2.ts', is_directory: false});
+				options.on_change({type: 'add', path: '/test/file3.ts', is_directory: false});
+
+				first_batch_complete();
+			}),
+			close: vi.fn(async () => {}),
+		};
+		return mock_watcher;
+	});
+
+	const filer = new Filer({watch_dir: mock_watch_dir});
+
+	await filer.watch((change) => {
+		events.push(change.path);
+	});
+
+	await first_batch_promise;
+
+	// All files should be processed, even those added during async processing
+	assert.equal(events.length, 3);
+	assert.ok(events.includes('/test/file1.ts'));
+	assert.ok(events.includes('/test/file2.ts'));
+	assert.ok(events.includes('/test/file3.ts'));
+});
+
+test('files with no actual changes do not re-notify', async () => {
+	let update_count = 0;
+
+	const mock_watch_dir = vi.fn((options) => {
+		const mock_watcher: WatchNodeFs = {
+			init: vi.fn(async () => {
+				// First add creates the disknode (triggers notification even though file doesn't exist)
+				options.on_change({type: 'add', path: '/test/file.ts', is_directory: false});
+				// Second update sees no change (mtime/contents both null → null, no notification)
+				options.on_change({type: 'update', path: '/test/file.ts', is_directory: false});
+				// Third update also sees no change
+				options.on_change({type: 'update', path: '/test/file.ts', is_directory: false});
+			}),
+			close: vi.fn(async () => {}),
+		};
+		return mock_watcher;
+	});
+
+	const filer = new Filer({watch_dir: mock_watch_dir});
+
+	await filer.watch(() => {
+		update_count++;
+	});
+
+	// Only the first add should notify (creates disknode), subsequent updates see no change
+	assert.equal(update_count, 1);
+});
+
+test('watch_dir filter controls which files are tracked', async () => {
+	const mock_watch_dir = vi.fn((options) => {
+		const mock_watcher: WatchNodeFs = {
+			init: vi.fn(async () => {
+				// In real usage, watch_dir applies the filter and only calls on_change for matching files
+				// Simulate that here by checking the filter
+				if (!options.filter || options.filter('/test/included.ts', false)) {
+					options.on_change({type: 'add', path: '/test/included.ts', is_directory: false});
+				}
+				// excluded.ts is filtered out, so on_change is not called for it
+			}),
+			close: vi.fn(async () => {}),
+		};
+		return mock_watcher;
+	});
+
+	// Filter out files with "excluded" in the name
+	const filer = new Filer({
+		watch_dir: mock_watch_dir,
+		watch_dir_options: {
+			filter: (path) => !path.includes('excluded'),
+		},
+	});
+
+	await filer.init();
+
+	// Only the included file should be tracked
+	assert.equal(filer.files.size, 1);
+	assert.ok(filer.get_by_id('/test/included.ts'));
+	assert.ok(!filer.get_by_id('/test/excluded.ts'));
+});
+
+test('filter method returns matching disknodes', async () => {
+	const mock_watch_dir = create_mock_watch_dir();
+	const filer = new Filer({watch_dir: mock_watch_dir});
+
+	await filer.init();
+
+	// Filter for files containing "file1"
+	const results = filer.filter((disknode) => disknode.id.includes('file1'));
+
+	assert.ok(results);
+	assert.equal(results.length, 1);
+	assert.equal(results[0]!.id, '/test/file1.ts');
+});
+
+test('filter method returns null when no matches', async () => {
+	const mock_watch_dir = create_mock_watch_dir();
+	const filer = new Filer({watch_dir: mock_watch_dir});
+
+	await filer.init();
+
+	// Filter for non-existent files
+	const results = filer.filter((disknode) => disknode.id.includes('nonexistent'));
+
+	assert.equal(results, null);
+});
+
+test('removed files are deleted from map when no dependents', async () => {
+	let on_change_callback: ((change: any) => void) | null = null as any;
+
+	const mock_watch_dir = vi.fn((options) => {
+		on_change_callback = options.on_change;
+		const mock_watcher: WatchNodeFs = {
+			init: vi.fn(async () => {
+				options.on_change({type: 'add', path: '/test/file.ts', is_directory: false});
+			}),
+			close: vi.fn(async () => {}),
+		};
+		return mock_watcher;
+	});
+
+	const filer = new Filer({watch_dir: mock_watch_dir});
+	await filer.init();
+
+	// File should be tracked
+	const initial_size = filer.files.size;
+	assert.equal(initial_size, 1);
+	assert.ok(filer.get_by_id('/test/file.ts'));
+
+	// Simulate deletion via the on_change callback
+	assert.ok(on_change_callback);
+	on_change_callback({type: 'delete', path: '/test/file.ts', is_directory: false});
+
+	// Wait for queue processing
+	await new Promise((resolve) => setTimeout(resolve, 10));
+
+	// File should be completely removed from the map since it has no dependents
+	// (files with dependents would stay in memory with null contents)
+	assert.equal(filer.files.size, 0);
+	assert.ok(!filer.get_by_id('/test/file.ts'));
+});
+
+test('external files are marked correctly', async () => {
+	const mock_watch_dir = vi.fn((options) => {
+		const mock_watcher: WatchNodeFs = {
+			init: vi.fn(async () => {
+				// This file is outside root_dir
+				options.on_change({type: 'add', path: '/outside/file.ts', is_directory: false});
+				// This file is inside root_dir (/test is the default root)
+				options.on_change({type: 'add', path: '/test/file.ts', is_directory: false});
+			}),
+			close: vi.fn(async () => {}),
+		};
+		return mock_watcher;
+	});
+
+	const filer = new Filer({
+		watch_dir: mock_watch_dir,
+		watch_dir_options: {dir: '/test'},
+	});
+
+	await filer.init();
+
+	const external_file = filer.get_by_id('/outside/file.ts');
+	const internal_file = filer.get_by_id('/test/file.ts');
+
+	assert.ok(external_file);
+	assert.equal(external_file.external, true);
+
+	assert.ok(internal_file);
+	assert.equal(internal_file.external, false);
+});
+
+test('get_or_create creates disknode if not exists', async () => {
+	const mock_watch_dir = create_mock_watch_dir();
+	const filer = new Filer({watch_dir: mock_watch_dir});
+
+	await filer.init();
+
+	// Get a file that doesn't exist yet
+	const new_file = filer.get_or_create('/test/new-file.ts');
+
+	assert.ok(new_file);
+	assert.equal(new_file.id, '/test/new-file.ts');
+	assert.equal(new_file.contents, null);
+	assert.ok(new_file.dependencies instanceof Map);
+	assert.ok(new_file.dependents instanceof Map);
+
+	// Second call should return the same instance
+	const same_file = filer.get_or_create('/test/new-file.ts');
+	assert.equal(new_file, same_file);
+});
+
+test('directories are ignored by queue processor', async () => {
+	const events: Array<string> = [];
+
+	const mock_watch_dir = vi.fn((options) => {
+		const mock_watcher: WatchNodeFs = {
+			init: vi.fn(async () => {
+				options.on_change({type: 'add', path: '/test/dir', is_directory: true});
+				options.on_change({type: 'add', path: '/test/file.ts', is_directory: false});
+			}),
+			close: vi.fn(async () => {}),
+		};
+		return mock_watcher;
+	});
+
+	const filer = new Filer({watch_dir: mock_watch_dir});
+
+	await filer.watch((change) => {
+		events.push(change.path);
+	});
+
+	// Only the file should trigger events, not the directory
+	assert.equal(events.length, 1);
+	assert.equal(events[0], '/test/file.ts');
+});
+
+// filter_dependents tests
+test('filter_dependents finds direct dependents', () => {
+	// Create a simple dependency graph: A <- B <- C
+	const fileA: Disknode = {
+		id: '/test/a.ts',
+		contents: 'export const a = 1',
+		external: false,
+		ctime: 1,
+		mtime: 1,
+		dependents: new Map(),
+		dependencies: new Map(),
+	};
+
+	const fileB: Disknode = {
+		id: '/test/b.ts',
+		contents: "import {a} from './a'",
+		external: false,
+		ctime: 1,
+		mtime: 1,
+		dependents: new Map(),
+		dependencies: new Map(),
+	};
+
+	const fileC: Disknode = {
+		id: '/test/c.ts',
+		contents: "import {b} from './b'",
+		external: false,
+		ctime: 1,
+		mtime: 1,
+		dependents: new Map(),
+		dependencies: new Map(),
+	};
+
+	// Set up dependencies: A <- B <- C
+	fileB.dependencies.set(fileA.id, fileA);
+	fileA.dependents.set(fileB.id, fileB);
+
+	fileC.dependencies.set(fileB.id, fileB);
+	fileB.dependents.set(fileC.id, fileC);
+
+	const get_by_id = (id: string) => {
+		if (id === fileA.id) return fileA;
+		if (id === fileB.id) return fileB;
+		if (id === fileC.id) return fileC;
+		return undefined;
+	};
+
+	// Find all dependents of A
+	const results = filter_dependents(fileA, get_by_id);
+
+	assert.equal(results.size, 2);
+	assert.ok(results.has(fileB.id));
+	assert.ok(results.has(fileC.id));
+});
+
+test('filter_dependents with filter predicate', () => {
+	// Create dependency graph: A <- B <- C
+	const fileA: Disknode = {
+		id: '/test/a.ts',
+		contents: 'export const a = 1',
+		external: false,
+		ctime: 1,
+		mtime: 1,
+		dependents: new Map(),
+		dependencies: new Map(),
+	};
+
+	const fileB: Disknode = {
+		id: '/test/b.js',
+		contents: "import {a} from './a'",
+		external: false,
+		ctime: 1,
+		mtime: 1,
+		dependents: new Map(),
+		dependencies: new Map(),
+	};
+
+	const fileC: Disknode = {
+		id: '/test/c.ts',
+		contents: "import {b} from './b'",
+		external: false,
+		ctime: 1,
+		mtime: 1,
+		dependents: new Map(),
+		dependencies: new Map(),
+	};
+
+	// Set up dependencies
+	fileB.dependencies.set(fileA.id, fileA);
+	fileA.dependents.set(fileB.id, fileB);
+
+	fileC.dependencies.set(fileB.id, fileB);
+	fileB.dependents.set(fileC.id, fileC);
+
+	const get_by_id = (id: string) => {
+		if (id === fileA.id) return fileA;
+		if (id === fileB.id) return fileB;
+		if (id === fileC.id) return fileC;
+		return undefined;
+	};
+
+	// Find only .ts dependents of A
+	const results = filter_dependents(fileA, get_by_id, (id) => id.endsWith('.ts'));
+
+	// Should only include C (not B which is .js)
+	assert.equal(results.size, 1);
+	assert.ok(results.has(fileC.id));
+	assert.ok(!results.has(fileB.id));
+});
+
+test('filter_dependents handles circular dependencies', () => {
+	// Create circular dependency: A <- B <- C <- A
+	const fileA: Disknode = {
+		id: '/test/a.ts',
+		contents: "import {c} from './c'",
+		external: false,
+		ctime: 1,
+		mtime: 1,
+		dependents: new Map(),
+		dependencies: new Map(),
+	};
+
+	const fileB: Disknode = {
+		id: '/test/b.ts',
+		contents: "import {a} from './a'",
+		external: false,
+		ctime: 1,
+		mtime: 1,
+		dependents: new Map(),
+		dependencies: new Map(),
+	};
+
+	const fileC: Disknode = {
+		id: '/test/c.ts',
+		contents: "import {b} from './b'",
+		external: false,
+		ctime: 1,
+		mtime: 1,
+		dependents: new Map(),
+		dependencies: new Map(),
+	};
+
+	// Set up circular dependencies
+	fileB.dependencies.set(fileA.id, fileA);
+	fileA.dependents.set(fileB.id, fileB);
+
+	fileC.dependencies.set(fileB.id, fileB);
+	fileB.dependents.set(fileC.id, fileC);
+
+	fileA.dependencies.set(fileC.id, fileC);
+	fileC.dependents.set(fileA.id, fileA);
+
+	const get_by_id = (id: string) => {
+		if (id === fileA.id) return fileA;
+		if (id === fileB.id) return fileB;
+		if (id === fileC.id) return fileC;
+		return undefined;
+	};
+
+	// Should handle circular deps without infinite loop
+	const results = filter_dependents(fileA, get_by_id);
+
+	// Should include all files in the cycle
+	assert.equal(results.size, 3);
+	assert.ok(results.has(fileA.id));
+	assert.ok(results.has(fileB.id));
+	assert.ok(results.has(fileC.id));
+});
+
+test('filter_dependents returns empty set when no dependents', () => {
+	const fileA: Disknode = {
+		id: '/test/a.ts',
+		contents: 'export const a = 1',
+		external: false,
+		ctime: 1,
+		mtime: 1,
+		dependents: new Map(),
+		dependencies: new Map(),
+	};
+
+	const get_by_id = (id: string) => (id === fileA.id ? fileA : undefined);
+
+	const results = filter_dependents(fileA, get_by_id);
+
+	assert.equal(results.size, 0);
 });

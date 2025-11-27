@@ -52,7 +52,7 @@ export class Filer {
 	#closing: Promise<void> | undefined;
 
 	#change_queue: Array<WatcherChange> = [];
-	#processing_queue = false;
+	#processing_promise: Promise<void> | null = null;
 
 	constructor(options: FilerOptions = EMPTY_OBJECT) {
 		this.#watch_dir = options.watch_dir ?? watch_dir;
@@ -176,7 +176,7 @@ export class Filer {
 		this.files.clear();
 		this.#watching = undefined;
 		this.#change_queue = [];
-		this.#processing_queue = false;
+		this.#processing_promise = null;
 		// #initing is handled in finally block of init()
 	}
 
@@ -229,8 +229,7 @@ export class Filer {
 		let new_contents: string | null = null; // TODO need to lazily load contents, probably turn `Disknode` into a class
 
 		try {
-			stats = await stat(id);
-			new_contents = await readFile(id, 'utf8');
+			[stats, new_contents] = await Promise.all([stat(id), readFile(id, 'utf8')]);
 		} catch (error) {
 			if ((error as NodeJS.ErrnoException).code !== 'ENOENT') {
 				throw error;
@@ -344,51 +343,51 @@ export class Filer {
 	}
 
 	async #drain_queue(): Promise<void> {
-		// Wait for queue to be empty and not processing
-		while (this.#change_queue.length > 0 || this.#processing_queue) {
-			// If processing is active, wait a tick for it to finish
-			// If queue has items, trigger processing
-			if (this.#processing_queue) {
-				await new Promise((resolve) => setImmediate(resolve)); // eslint-disable-line no-await-in-loop
-			} else if (this.#change_queue.length > 0) {
-				await this.#process_queue(); // eslint-disable-line no-await-in-loop
-			}
+		// Wait for queue to be empty and no active processing
+		while (this.#change_queue.length > 0 || this.#processing_promise) {
+			await this.#process_queue(); // eslint-disable-line no-await-in-loop
 		}
 	}
 
 	async #process_queue(): Promise<void> {
-		// Prevent concurrent processing
-		if (this.#processing_queue) return;
-		this.#processing_queue = true;
+		// If already processing, return the existing promise
+		if (this.#processing_promise) return this.#processing_promise;
+
+		// Create and track the processing promise
+		this.#processing_promise = this.#do_process_queue();
 
 		try {
-			while (this.#change_queue.length > 0) {
-				const change = this.#change_queue.shift()!;
-
-				if (this.#closing) continue; // ignore changes during close
-				if (change.is_directory) continue; // TODO manage directories?
-
-				let disknode: Disknode | null;
-				switch (change.type) {
-					case 'add':
-					case 'update': {
-						disknode = await this.#update(change.path); // eslint-disable-line no-await-in-loop
-						break;
-					}
-					case 'delete': {
-						disknode = this.#remove(change.path);
-						break;
-					}
-					default:
-						throw new UnreachableError(change.type);
-				}
-
-				if (disknode && this.#listeners.size > 0) {
-					this.#notify_change(change, disknode);
-				}
-			}
+			await this.#processing_promise;
 		} finally {
-			this.#processing_queue = false;
+			this.#processing_promise = null;
+		}
+	}
+
+	async #do_process_queue(): Promise<void> {
+		while (this.#change_queue.length > 0) {
+			const change = this.#change_queue.shift()!;
+
+			if (this.#closing) continue; // ignore changes during close
+			if (change.is_directory) continue; // TODO manage directories?
+
+			let disknode: Disknode | null;
+			switch (change.type) {
+				case 'add':
+				case 'update': {
+					disknode = await this.#update(change.path); // eslint-disable-line no-await-in-loop
+					break;
+				}
+				case 'delete': {
+					disknode = this.#remove(change.path);
+					break;
+				}
+				default:
+					throw new UnreachableError(change.type);
+			}
+
+			if (disknode && this.#listeners.size > 0) {
+				this.#notify_change(change, disknode);
+			}
 		}
 	}
 
