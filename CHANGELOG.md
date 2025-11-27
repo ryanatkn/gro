@@ -1,5 +1,16 @@
 # @ryanatkn/gro
 
+## 0.180.0
+
+### Minor Changes
+
+- change to async IO ([#583](https://github.com/ryanatkn/gro/pull/583))
+- upgrade belt ([#583](https://github.com/ryanatkn/gro/pull/583))
+
+### Patch Changes
+
+- improve `Filer` internals ([#583](https://github.com/ryanatkn/gro/pull/583))
+
 ## 0.179.0
 
 ### Minor Changes
