@@ -6,6 +6,7 @@ import {styleText as st} from 'node:util';
 import type {Result} from '@ryanatkn/belt/result.js';
 import {isAbsolute, join, relative} from 'node:path';
 import type {PathId} from '@ryanatkn/belt/path.js';
+import {fs_search} from '@ryanatkn/belt/fs.js';
 
 import type {Args} from './args.ts';
 import type {GroConfig} from './gro_config.ts';
@@ -18,7 +19,6 @@ import {
 	type ResolvedInputPath,
 } from './input_path.ts';
 import {GRO_DIST_DIR, print_path} from './paths.ts';
-import {search_fs} from './search_fs.ts';
 import {load_modules, type LoadModulesFailure, type ModuleMeta} from './modules.ts';
 import type {Filer} from './filer.ts';
 
@@ -159,11 +159,13 @@ export const find_tasks = async (
 	// Find all of the files for any directories.
 	const timing_to_resolve_input_files = timings?.start('resolve input files');
 	const {resolved_input_files, resolved_input_files_by_root_dir, input_directories_with_no_files} =
-		await resolve_input_files(resolved_input_paths, async (id) =>
-			search_fs(id, {
-				filter: config.search_filters,
-				file_filter: (p) => TASK_FILE_SUFFIXES.some((s) => p.endsWith(s)),
-			}),
+		await resolve_input_files(
+			resolved_input_paths,
+			async (id) =>
+				await fs_search(id, {
+					filter: config.search_filters,
+					file_filter: (p) => TASK_FILE_SUFFIXES.some((s) => p.endsWith(s)),
+				}),
 		);
 	timing_to_resolve_input_files?.();
 

@@ -117,10 +117,10 @@ export class Filer {
 		this.#initing = this.#init();
 		try {
 			await this.#initing;
-		} catch (err) {
+		} catch (error) {
 			// use shared cleanup logic
 			this.#cleanup();
-			throw err;
+			throw error;
 		} finally {
 			this.#initing = undefined;
 		}
@@ -144,14 +144,14 @@ export class Filer {
 
 			// only set after successful init and not closing
 			this.#watching = watcher;
-		} catch (err) {
+		} catch (error) {
 			// clean up watcher on error, but don't let close error mask init error
 			try {
 				await watcher.close();
 			} catch {
 				// ignore close errors - init error is more important
 			}
-			throw err;
+			throw error;
 		}
 	}
 
@@ -223,9 +223,9 @@ export class Filer {
 		try {
 			stats = statSync(id);
 			new_contents = readFileSync(id, 'utf8');
-		} catch (err) {
-			if ((err as NodeJS.ErrnoException).code !== 'ENOENT') {
-				throw err;
+		} catch (error) {
+			if ((error as NodeJS.ErrnoException).code !== 'ENOENT') {
+				throw error;
 			}
 			// ENOENT: file doesn't exist, treat as deleted
 		}
@@ -304,8 +304,8 @@ export class Filer {
 		for (const disknode of this.files.values()) {
 			try {
 				listener({type: 'add', path: disknode.id, is_directory: false}, disknode);
-			} catch (err) {
-				this.#log?.error('[filer] Listener error during sync:', err);
+			} catch (error) {
+				this.#log?.error('[filer] Listener error during sync:', error);
 			}
 		}
 	}
@@ -314,8 +314,8 @@ export class Filer {
 		for (const listener of this.#listeners) {
 			try {
 				listener(change, disknode);
-			} catch (err) {
-				this.#log?.error('[filer] Listener error during change notification:', err);
+			} catch (error) {
+				this.#log?.error('[filer] Listener error during change notification:', error);
 			}
 		}
 	}

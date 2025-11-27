@@ -5,6 +5,7 @@ import {plural, strip_end} from '@ryanatkn/belt/string.js';
 import type {Logger} from '@ryanatkn/belt/log.js';
 import {styleText as st} from 'node:util';
 import {PackageJson, PackageJsonExports} from '@ryanatkn/belt/package_json.js';
+import {fs_search} from '@ryanatkn/belt/fs.js';
 
 import {paths, gro_paths, IS_THIS_GRO} from './paths.ts';
 import {
@@ -16,7 +17,6 @@ import {
 	JSON_MATCHER,
 	CSS_MATCHER,
 } from './constants.ts';
-import {search_fs} from './search_fs.ts';
 import {has_sveltekit_library} from './sveltekit_helpers.ts';
 import {GITHUB_REPO_MATCHER} from './github.ts';
 
@@ -38,8 +38,8 @@ export const load_package_json = async (
 	}
 	try {
 		package_json = JSON.parse(await load_package_json_contents(dir));
-	} catch (err) {
-		log?.error(st('yellow', `Failed to load package.json in ${dir}`), err);
+	} catch (error) {
+		log?.error(st('yellow', `Failed to load package.json in ${dir}`), error);
 		return EMPTY_PACKAGE_JSON;
 	}
 	if (parse) {
@@ -58,7 +58,7 @@ export const sync_package_json = async (
 	dir = paths.root,
 	exports_dir = paths.lib,
 ): Promise<{package_json: PackageJson | null; changed: boolean}> => {
-	const exported_files = await search_fs(exports_dir);
+	const exported_files = await fs_search(exports_dir);
 	const exported_paths = exported_files.map((f) => f.path);
 	const updated = await update_package_json(
 		async (package_json) => {

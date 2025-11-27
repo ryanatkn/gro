@@ -1,7 +1,7 @@
 import {basename} from 'node:path';
+import {fs_search} from '@ryanatkn/belt/fs.js';
 
 import {type Gen} from '../lib/gen.ts';
-import {search_fs} from '../lib/search_fs.ts';
 import {
 	create_gen_doc_context,
 	create_root_link,
@@ -22,7 +22,7 @@ export const gen: Gen = async ({origin_id}) => {
 
 	// TODO this is GitHub-specific
 	const root_link = create_root_link(root_path);
-	const doc_files = await search_fs(origin_dir);
+	const doc_files = await fs_search(origin_dir);
 	const doc_paths: Array<string> = [];
 	for (const {path} of doc_files) {
 		if (path === output_file_name || !path.endsWith('.md')) {

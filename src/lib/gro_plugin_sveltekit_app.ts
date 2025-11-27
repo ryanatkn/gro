@@ -154,9 +154,9 @@ export const gro_plugin_sveltekit_app = ({
 					if (!spawned?.ok) {
 						throw new TaskError(`${vite_cli} build failed with exit code ${spawned?.code}`);
 					}
-				} catch (err) {
+				} catch (error) {
 					await cleanup();
-					throw err;
+					throw error;
 				}
 				await cleanup();
 			}

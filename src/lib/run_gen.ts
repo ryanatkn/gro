@@ -56,11 +56,11 @@ export const run_gen = async (
 			let raw_gen_result: RawGenResult;
 			try {
 				raw_gen_result = await gen_config.generate(gen_ctx);
-			} catch (err) {
+			} catch (error) {
 				return {
 					ok: false,
 					id,
-					error: err,
+					error,
 					reason: st('red', `Error generating ${print_path(id)}`),
 					elapsed: timing_for_module(),
 				};
@@ -77,10 +77,10 @@ export const run_gen = async (
 							if (!file.format) return file;
 							try {
 								return {...file, content: await format_file(file.content, {filepath: file.id})};
-							} catch (err) {
+							} catch (error) {
 								log.error(
 									st('red', `Error formatting ${print_path(file.id)} via ${print_path(id)}`),
-									print_error(err),
+									print_error(error),
 								);
 								return file;
 							}

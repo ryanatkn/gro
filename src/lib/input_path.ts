@@ -5,9 +5,9 @@ import {strip_start} from '@ryanatkn/belt/string.js';
 import {z} from 'zod';
 import type {Flavored} from '@ryanatkn/belt/types.js';
 import type {PathInfo, PathId, ResolvedPath} from '@ryanatkn/belt/path.js';
+import {fs_search} from '@ryanatkn/belt/fs.js';
 
 import {GRO_PACKAGE_DIR, GRO_DIST_DIR} from './paths.ts';
-import {search_fs} from './search_fs.ts';
 import {TASK_FILE_SUFFIX_JS} from './task.ts';
 
 // TODO Flavored doesn't work when used in schemas, use Zod brand instead? problem is ergonomics
@@ -187,7 +187,7 @@ export interface ResolvedInputFiles {
  */
 export const resolve_input_files = async (
 	resolved_input_paths: Array<ResolvedInputPath>,
-	search: (dir: string) => Promise<Array<ResolvedPath>> = search_fs,
+	search: (dir: string) => Promise<Array<ResolvedPath>> = fs_search,
 ): Promise<ResolvedInputFiles> => {
 	const resolved_input_files: Array<ResolvedInputFile> = [];
 	// Add all input paths initially, and remove each when resolved to a file.

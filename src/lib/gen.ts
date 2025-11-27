@@ -6,6 +6,7 @@ import type {Timings} from '@ryanatkn/belt/timings.js';
 import {styleText as st} from 'node:util';
 import type {PathId} from '@ryanatkn/belt/path.js';
 import {map_concurrent} from '@ryanatkn/belt/async.js';
+import {fs_search} from '@ryanatkn/belt/fs.js';
 
 import {print_path} from './paths.ts';
 import type {GroConfig} from './gro_config.ts';
@@ -18,7 +19,6 @@ import {
 	type ResolvedInputFile,
 	type ResolvedInputPath,
 } from './input_path.ts';
-import {search_fs} from './search_fs.ts';
 import type {Filer} from './filer.ts';
 import type {InvokeTask} from './task.ts';
 
@@ -221,8 +221,8 @@ export const analyze_gen_result = async (file: GenFile): Promise<AnalyzedGenResu
 	let existing_content: string;
 	try {
 		existing_content = await readFile(file.id, 'utf8');
-	} catch (err) {
-		if ((err as NodeJS.ErrnoException).code === 'ENOENT') {
+	} catch (error) {
+		if (error.code === 'ENOENT') {
 			return {
 				file,
 				existing_content: null,
@@ -230,7 +230,7 @@ export const analyze_gen_result = async (file: GenFile): Promise<AnalyzedGenResu
 				has_changed: true,
 			};
 		}
-		throw err;
+		throw error;
 	}
 	return {
 		file,
@@ -324,15 +324,17 @@ export const find_genfiles = async (
 	}
 
 	// Find all of the files for any directories.
-	const timing_to_search_fs = timings?.start('find files');
+	const timing_to_fs_search = timings?.start('find files');
 	const {resolved_input_files, resolved_input_files_by_root_dir, input_directories_with_no_files} =
-		await resolve_input_files(resolved_input_paths, async (id) =>
-			search_fs(id, {
-				filter: config.search_filters,
-				file_filter: (p) => extensions.some((e) => p.includes(e)),
-			}),
+		await resolve_input_files(
+			resolved_input_paths,
+			async (id) =>
+				await fs_search(id, {
+					filter: config.search_filters,
+					file_filter: (p) => extensions.some((e) => p.includes(e)),
+				}),
 		);
-	timing_to_search_fs?.();
+	timing_to_fs_search?.();
 
 	// Error if any input path has no files. (means we have an empty directory)
 	if (input_directories_with_no_files.length) {

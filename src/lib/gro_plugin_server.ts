@@ -217,8 +217,8 @@ export const gro_plugin_server = ({
 					let build_result;
 					try {
 						build_result = await build_ctx!.rebuild();
-					} catch (err) {
-						log.error('[gro_plugin_server] build failed', err);
+					} catch (error) {
+						log.error('[gro_plugin_server] build failed', error);
 						return;
 					}
 					const {metafile} = build_result;

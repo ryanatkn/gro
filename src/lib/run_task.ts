@@ -63,19 +63,19 @@ export const run_task = async (
 			invoke_task: (invoked_task_name, invoked_args, invoked_config) =>
 				invoke_task(invoked_task_name, invoked_args, invoked_config ?? config, filer, timings, log),
 		});
-	} catch (err) {
+	} catch (error) {
 		return {
 			ok: false,
 			reason: st(
 				'red',
-				err?.constructor?.name === 'TaskError'
-					? (err.message as string)
+				error?.constructor?.name === 'TaskError'
+					? (error.message as string)
 					: `Unexpected error running task ${st(
 							'cyan',
 							task_meta.name,
 						)}. If this is unexpected try running \`${config.pm_cli} install\` and \`gro clean\`.`,
 			),
-			error: err,
+			error,
 		};
 	}
 	return {ok: true, output};

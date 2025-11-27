@@ -5,11 +5,11 @@ import ts from 'typescript';
 import type {PackageJson, PackageJsonExports} from '@ryanatkn/belt/package_json.js';
 import {SourceJson, type ModuleJson, type DeclarationKind} from '@ryanatkn/belt/source_json.js';
 import type {Logger} from '@ryanatkn/belt/log.js';
+import {fs_search} from '@ryanatkn/belt/fs.js';
 
 import {paths, replace_extension} from './paths.ts';
 import {parse_exports} from './parse_exports.ts';
 import {TS_MATCHER, SVELTE_MATCHER, JSON_MATCHER, CSS_MATCHER} from './constants.ts';
-import {search_fs} from './search_fs.ts';
 
 export type SourceJsonMapper = (
 	source_json: SourceJson,
@@ -113,7 +113,7 @@ const collect_file_paths = async (
 		if (k.includes('*')) {
 			// Handle pattern exports by finding matching files in lib
 			// eslint-disable-next-line no-await-in-loop
-			const matching_files = await search_fs(lib_path, {
+			const matching_files = await fs_search(lib_path, {
 				file_filter: (path) => {
 					const p = path.replace(ensure_end(lib_path, '/'), '');
 					// Only match files in the root directory (no subdirectories)

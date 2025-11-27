@@ -223,12 +223,12 @@ export const task: Task<Args> = {
 			if (build) {
 				await invoke_task('build');
 			}
-		} catch (err) {
+		} catch (error) {
 			log.error(
 				st('red', 'build failed'),
 				'but',
 				st('green', 'no changes were made to git'),
-				print_error(err),
+				print_error(error),
 			);
 			if (dry) {
 				log.info(st('red', 'dry deploy failed'));
@@ -260,8 +260,8 @@ export const task: Task<Args> = {
 			await spawn('git', ['add', '.', '-f'], target_spawn_options);
 			await spawn('git', ['commit', '-m', 'deployment'], target_spawn_options);
 			await spawn('git', ['push', origin, target, '-f'], target_spawn_options); // force push because we may be resetting the branch, see the checks above to make this safer
-		} catch (err) {
-			log.error(st('red', 'updating git failed:'), print_error(err));
+		} catch (error) {
+			log.error(st('red', 'updating git failed:'), print_error(error));
 			throw new TaskError(`Deploy failed in a bad state: built but not pushed, see error above.`);
 		}
 

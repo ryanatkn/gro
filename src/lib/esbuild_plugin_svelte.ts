@@ -71,8 +71,8 @@ export const esbuild_plugin_svelte = (options: EsbuildPluginSvelteOptions): esbu
 						contents,
 						warnings: warnings.map((w) => convert_svelte_message_to_esbuild(filename, source, w)),
 					};
-				} catch (err) {
-					return {errors: [convert_svelte_message_to_esbuild(path, source, err)]};
+				} catch (error) {
+					return {errors: [convert_svelte_message_to_esbuild(path, source, error)]};
 				}
 			});
 
@@ -90,8 +90,8 @@ export const esbuild_plugin_svelte = (options: EsbuildPluginSvelteOptions): esbu
 						contents,
 						warnings: warnings.map((w) => convert_svelte_message_to_esbuild(filename, source, w)),
 					};
-				} catch (err) {
-					return {errors: [convert_svelte_message_to_esbuild(path, source, err)]};
+				} catch (error) {
+					return {errors: [convert_svelte_message_to_esbuild(path, source, error)]};
 				}
 			});
 		},
