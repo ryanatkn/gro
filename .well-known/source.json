@@ -1,6 +1,6 @@
 {
   "name": "@ryanatkn/gro",
-  "version": "0.179.0",
+  "version": "0.180.0",
   "modules": [
     {
       "path": "index.ts",
@@ -1530,23 +1530,6 @@
         {
           "name": "task",
           "kind": "variable"
-        }
-      ]
-    },
-    {
-      "path": "search_fs.ts",
-      "declarations": [
-        {
-          "name": "SearchFsOptions",
-          "kind": "type"
-        },
-        {
-          "name": "search_fs",
-          "kind": "function"
-        },
-        {
-          "name": "find_first_existing_file",
-          "kind": "function"
         }
       ]
     },
