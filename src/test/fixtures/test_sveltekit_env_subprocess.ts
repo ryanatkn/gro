@@ -11,7 +11,7 @@ async function runTest() {
 	console.log('Testing SvelteKit $env import shimming...\n');
 
 	// Set up the test environment first - this must happen before any dynamic imports
-	init_test_env();
+	await init_test_env();
 
 	const VALUE = 'SOME_PUBLIC_ENV_VAR';
 
