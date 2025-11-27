@@ -279,9 +279,9 @@ test('handles same mtime but different contents', async () => {
 	const filer = new Filer({watch_dir: mock_watch_dir});
 	await filer.init();
 
-	const fileBefore = filer.get_by_id('/test/file.ts');
-	assert.ok(fileBefore);
-	const mtimeBefore = fileBefore.mtime;
+	const file_before = filer.get_by_id('/test/file.ts');
+	assert.ok(file_before);
+	const mtime_before = file_before.mtime;
 
 	// Simulate update with same mtime
 	assert.ok(on_change_callback);
@@ -290,10 +290,10 @@ test('handles same mtime but different contents', async () => {
 	// Wait for queue processing
 	await new Promise((resolve) => setTimeout(resolve, 10));
 
-	const fileAfter = filer.get_by_id('/test/file.ts');
-	assert.ok(fileAfter);
+	const file_after = filer.get_by_id('/test/file.ts');
+	assert.ok(file_after);
 	// mtime should be tracked
-	assert.equal(fileAfter.mtime, mtimeBefore);
+	assert.equal(file_after.mtime, mtime_before);
 });
 
 test('handles parse_imports throwing error', async () => {
@@ -339,9 +339,9 @@ test('handles very deep dependency chain', async () => {
 
 		// Link dependencies
 		if (i > 0) {
-			const prevFile = files[i - 1]!;
-			file.dependencies.set(prevFile.id, prevFile);
-			prevFile.dependents.set(file.id, file);
+			const prev_file = files[i - 1]!;
+			file.dependencies.set(prev_file.id, prev_file);
+			prev_file.dependents.set(file.id, file);
 		}
 	}
 

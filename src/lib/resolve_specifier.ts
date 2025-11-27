@@ -1,5 +1,5 @@
 import {extname, isAbsolute, join, relative} from 'node:path';
-import {existsSync} from 'node:fs';
+import {fs_exists} from '@ryanatkn/belt/fs.js';
 import type {PathId} from '@ryanatkn/belt/path.js';
 
 import {replace_extension} from './paths.ts';
@@ -26,7 +26,10 @@ export interface ResolvedSpecifier {
  * and infer the correct extension following Vite conventions.
  * If no `.js` file is found for the specifier on the filesystem, it assumes `.ts`.
  */
-export const resolve_specifier = (specifier: string, dir: string): ResolvedSpecifier => {
+export const resolve_specifier = async (
+	specifier: string,
+	dir: string,
+): Promise<ResolvedSpecifier> => {
 	const raw = specifier.endsWith('?raw'); // TODO more robust detection? other values?
 	const final_specifier = raw ? specifier.substring(0, specifier.length - 4) : specifier;
 	const absolute_path = isAbsolute(final_specifier) ? final_specifier : join(dir, final_specifier);
@@ -39,7 +42,7 @@ export const resolve_specifier = (specifier: string, dir: string): ResolvedSpeci
 	const is_js = ext === '.js';
 	const is_ts = ext === '.ts';
 
-	if (!is_js && !is_ts && existsSync(absolute_path)) {
+	if (!is_js && !is_ts && (await fs_exists(absolute_path))) {
 		// unrecognized extension and the file exists
 		mapped_path = absolute_path;
 		path_id = absolute_path;
@@ -52,7 +55,8 @@ export const resolve_specifier = (specifier: string, dir: string): ResolvedSpeci
 		// extensionless, or js that points to ts, or just js
 		const js_id = is_js ? absolute_path : absolute_path + '.js';
 		const ts_id = is_js ? replace_extension(absolute_path, '.ts') : absolute_path + '.ts';
-		if (!existsSync(ts_id) && existsSync(js_id)) {
+		const [ts_exists, js_exists] = await Promise.all([fs_exists(ts_id), fs_exists(js_id)]);
+		if (!ts_exists && js_exists) {
 			mapped_path = js_id;
 			path_id = js_id;
 			namespace = 'sveltekit_local_imports_js';

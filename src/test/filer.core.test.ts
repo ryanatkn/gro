@@ -585,7 +585,7 @@ test('external files that do not exist on disk do not notify listeners', async (
 		events.push({type: change.type, path: change.path});
 	});
 
-	const initialEventCount = events.length;
+	const initial_event_count = events.length;
 
 	// Create external file that doesn't exist on disk
 	filer.get_or_create('/node_modules/nonexistent/index.js');
@@ -594,9 +594,9 @@ test('external files that do not exist on disk do not notify listeners', async (
 	await new Promise((resolve) => setTimeout(resolve, 20));
 
 	// Should not trigger notification (file doesn't exist, no change detected)
-	const newEvents = events.slice(initialEventCount);
+	const new_events = events.slice(initial_event_count);
 	assert.ok(
-		!newEvents.some((e) => e.path === '/node_modules/nonexistent/index.js'),
+		!new_events.some((e) => e.path === '/node_modules/nonexistent/index.js'),
 		'Non-existent external file should not trigger change notification',
 	);
 
@@ -619,8 +619,8 @@ test('multiple get_or_create calls for same external file return same instance',
 	assert.equal(external1, external2);
 
 	// Should only have one entry in files
-	const allExternal = Array.from(filer.files.values()).filter(
+	const all_external = Array.from(filer.files.values()).filter(
 		(f) => f.id === '/node_modules/foo/index.js',
 	);
-	assert.equal(allExternal.length, 1);
+	assert.equal(all_external.length, 1);
 });

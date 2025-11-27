@@ -272,7 +272,7 @@ export class Filer {
 			let path_id;
 			// TODO can we replace `resolve_specifier` with `import.meta.resolve` completely now outside of esbuild plugins?
 			if (path[0] === '.' || path[0] === '/') {
-				const resolved = resolve_specifier(path, dir);
+				const resolved = await resolve_specifier(path, dir); // eslint-disable-line no-await-in-loop
 				path_id = resolved.path_id;
 			} else {
 				if (isBuiltin(path)) continue;

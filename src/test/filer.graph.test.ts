@@ -210,17 +210,17 @@ test('tracks dependencies when file imports are parsed', async () => {
 	const filer = new Filer({watch_dir: mock_watch_dir});
 	await filer.init();
 
-	const fileA = filer.get_by_id('/test/a.ts');
-	const fileB = filer.get_by_id('/test/b.ts');
+	const file_a = filer.get_by_id('/test/a.ts');
+	const file_b = filer.get_by_id('/test/b.ts');
 
-	assert.ok(fileA);
-	assert.ok(fileB);
+	assert.ok(file_a);
+	assert.ok(file_b);
 
 	// Both files should have dependency/dependent maps initialized
-	assert.ok(fileA.dependencies instanceof Map);
-	assert.ok(fileA.dependents instanceof Map);
-	assert.ok(fileB.dependencies instanceof Map);
-	assert.ok(fileB.dependents instanceof Map);
+	assert.ok(file_a.dependencies instanceof Map);
+	assert.ok(file_a.dependents instanceof Map);
+	assert.ok(file_b.dependencies instanceof Map);
+	assert.ok(file_b.dependents instanceof Map);
 });
 
 test('updates dependency graph when file contents change', async () => {
@@ -325,17 +325,17 @@ test('deleted file with dependents stays in memory', async () => {
 	const filer = new Filer({watch_dir: mock_watch_dir});
 	await filer.init();
 
-	const fileA = filer.get_by_id('/test/a.ts');
-	const fileB = filer.get_by_id('/test/b.ts');
+	const file_a = filer.get_by_id('/test/a.ts');
+	const file_b = filer.get_by_id('/test/b.ts');
 
-	assert.ok(fileA);
-	assert.ok(fileB);
+	assert.ok(file_a);
+	assert.ok(file_b);
 
 	// Manually set up dependency: B depends on A
-	fileB.dependencies.set(fileA.id, fileA);
-	fileA.dependents.set(fileB.id, fileB);
+	file_b.dependencies.set(file_a.id, file_a);
+	file_a.dependents.set(file_b.id, file_b);
 
-	const sizeBefore = filer.files.size;
+	const size_before = filer.files.size;
 
 	// Delete A while B still depends on it
 	assert.ok(on_change_callback);
@@ -345,16 +345,16 @@ test('deleted file with dependents stays in memory', async () => {
 	await new Promise((resolve) => setTimeout(resolve, 10));
 
 	// A should still be in memory since B depends on it
-	const fileAAfter = filer.get_by_id('/test/a.ts');
-	assert.ok(fileAAfter, 'File A should still exist since B depends on it');
-	assert.equal(fileAAfter.contents, null, 'Contents should be cleared');
+	const file_a_after = filer.get_by_id('/test/a.ts');
+	assert.ok(file_a_after, 'File A should still exist since B depends on it');
+	assert.equal(file_a_after.contents, null, 'Contents should be cleared');
 
 	// File should still be in the map
 	assert.ok(filer.files.has('/test/a.ts'));
 
 	// File count should not change since A is kept in memory due to dependent
-	assert.equal(filer.files.size, sizeBefore, 'File count should remain the same');
+	assert.equal(filer.files.size, size_before, 'File count should remain the same');
 
 	// B should still have A as a dependency (dependency tracking preserved)
-	assert.ok(fileAAfter.dependents.has('/test/b.ts'));
+	assert.ok(file_a_after.dependents.has('/test/b.ts'));
 });
