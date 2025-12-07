@@ -5,7 +5,7 @@ import type {LibraryJson} from '@fuzdev/fuz_util/library_json.js';
 export const library_json: LibraryJson = {
 	package_json: {
 		name: '@ryanatkn/gro',
-		version: '0.180.0',
+		version: '0.181.0',
 		description: 'task runner and toolkit extending SvelteKit',
 		motto: 'generate, run, optimize',
 		glyph: '🌰',
@@ -142,7 +142,7 @@ export const library_json: LibraryJson = {
 	},
 	source_json: {
 		name: '@ryanatkn/gro',
-		version: '0.180.0',
+		version: '0.181.0',
 		modules: [
 			{
 				path: 'args.ts',
