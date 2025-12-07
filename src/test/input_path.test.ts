@@ -1,6 +1,6 @@
 import {test, expect} from 'vitest';
 import {resolve} from 'node:path';
-import type {ResolvedPath} from '@ryanatkn/belt/path.js';
+import type {ResolvedPath} from '@fuzdev/fuz_util/path.js';
 
 import {
 	to_input_path,

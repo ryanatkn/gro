@@ -1,6 +1,6 @@
 import {z} from 'zod';
 import {styleText as st} from 'node:util';
-import {fs_exists} from '@ryanatkn/belt/fs.js';
+import {fs_exists} from '@fuzdev/fuz_util/fs.js';
 
 import {TaskError, type Task} from './task.ts';
 import {resolve_gro_module_path, spawn_with_loader} from './gro_helpers.ts';

@@ -2,7 +2,7 @@ import {compile, compileModule, preprocess} from 'svelte/compiler';
 import {fileURLToPath, pathToFileURL} from 'node:url';
 import {dirname, join} from 'node:path';
 import type {LoadHook, ResolveHook} from 'node:module';
-import {escape_regexp} from '@ryanatkn/belt/regexp.js';
+import {escape_regexp} from '@fuzdev/fuz_util/regexp.js';
 import {readFileSync} from 'node:fs';
 import ts_blank_space from 'ts-blank-space';
 

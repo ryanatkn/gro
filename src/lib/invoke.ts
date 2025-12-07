@@ -1,5 +1,5 @@
-import {attach_process_error_handlers} from '@ryanatkn/belt/process.js';
-import {configure_print_colors} from '@ryanatkn/belt/print.js';
+import {attach_process_error_handlers} from '@fuzdev/fuz_util/process.js';
+import {configure_print_colors} from '@fuzdev/fuz_util/print.js';
 
 import {invoke_task} from './invoke_task.ts';
 import {to_task_args} from './args.ts';

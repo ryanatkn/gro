@@ -1,5 +1,5 @@
 <script lang="ts">
-	import ApiModule from '@ryanatkn/fuz/ApiModule.svelte';
+	import ApiModule from '@fuzdev/fuz_ui/ApiModule.svelte';
 
 	const {params} = $props();
 

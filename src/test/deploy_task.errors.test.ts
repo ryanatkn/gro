@@ -12,8 +12,8 @@ import {
 /* eslint-disable @typescript-eslint/require-await */
 
 // Mock dependencies
-vi.mock('@ryanatkn/belt/git.js', async (import_original) => {
-	const actual = await import_original<typeof import('@ryanatkn/belt/git.js')>();
+vi.mock('@fuzdev/fuz_util/git.js', async (import_original) => {
+	const actual = await import_original<typeof import('@fuzdev/fuz_util/git.js')>();
 	return {
 		...actual,
 		git_check_clean_workspace: vi.fn(),
@@ -31,7 +31,7 @@ vi.mock('@ryanatkn/belt/git.js', async (import_original) => {
 	};
 });
 
-vi.mock('@ryanatkn/belt/process.js', () => ({
+vi.mock('@fuzdev/fuz_util/process.js', () => ({
 	spawn: vi.fn(),
 }));
 
@@ -42,7 +42,7 @@ vi.mock('node:fs/promises', () => ({
 	readdir: vi.fn(),
 }));
 
-vi.mock('@ryanatkn/belt/fs.js', () => ({
+vi.mock('@fuzdev/fuz_util/fs.js', () => ({
 	fs_exists: vi.fn(),
 	fs_empty_dir: vi.fn(),
 }));
@@ -54,7 +54,7 @@ describe('deploy_task error handling', () => {
 		await setup_successful_fs_mocks();
 		await setup_successful_spawn_mock();
 
-		const {fs_empty_dir} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+		const {fs_empty_dir} = vi.mocked(await import('@fuzdev/fuz_util/fs.js'));
 		vi.mocked(fs_empty_dir).mockResolvedValue(undefined);
 	});
 
@@ -64,7 +64,7 @@ describe('deploy_task error handling', () => {
 
 	describe('git operation failures', () => {
 		test('propagates git_check_clean_workspace errors', async () => {
-			const {git_check_clean_workspace} = vi.mocked(await import('@ryanatkn/belt/git.js'));
+			const {git_check_clean_workspace} = vi.mocked(await import('@fuzdev/fuz_util/git.js'));
 
 			vi.mocked(git_check_clean_workspace).mockRejectedValue(new Error('Git not installed'));
 
@@ -74,7 +74,7 @@ describe('deploy_task error handling', () => {
 		});
 
 		test('propagates git_check_setting_pull_rebase errors', async () => {
-			const {git_check_setting_pull_rebase} = vi.mocked(await import('@ryanatkn/belt/git.js'));
+			const {git_check_setting_pull_rebase} = vi.mocked(await import('@fuzdev/fuz_util/git.js'));
 
 			vi.mocked(git_check_setting_pull_rebase).mockRejectedValue(
 				new Error('Failed to read git config'),
@@ -86,7 +86,7 @@ describe('deploy_task error handling', () => {
 		});
 
 		test('propagates git_local_branch_exists errors', async () => {
-			const {git_local_branch_exists} = vi.mocked(await import('@ryanatkn/belt/git.js'));
+			const {git_local_branch_exists} = vi.mocked(await import('@fuzdev/fuz_util/git.js'));
 
 			vi.mocked(git_local_branch_exists).mockRejectedValue(new Error('Git command failed'));
 
@@ -96,7 +96,9 @@ describe('deploy_task error handling', () => {
 		});
 
 		test('propagates git_fetch errors', async () => {
-			const {git_local_branch_exists, git_fetch} = vi.mocked(await import('@ryanatkn/belt/git.js'));
+			const {git_local_branch_exists, git_fetch} = vi.mocked(
+				await import('@fuzdev/fuz_util/git.js'),
+			);
 
 			vi.mocked(git_local_branch_exists).mockResolvedValue(false); // trigger fetch
 			vi.mocked(git_fetch).mockRejectedValue(new Error('Network error'));
@@ -107,7 +109,7 @@ describe('deploy_task error handling', () => {
 		});
 
 		test('propagates git_checkout errors', async () => {
-			const {git_checkout} = vi.mocked(await import('@ryanatkn/belt/git.js'));
+			const {git_checkout} = vi.mocked(await import('@fuzdev/fuz_util/git.js'));
 
 			vi.mocked(git_checkout).mockRejectedValue(new Error('Branch not found'));
 
@@ -117,7 +119,7 @@ describe('deploy_task error handling', () => {
 		});
 
 		test('propagates git_pull errors', async () => {
-			const {git_pull} = vi.mocked(await import('@ryanatkn/belt/git.js'));
+			const {git_pull} = vi.mocked(await import('@fuzdev/fuz_util/git.js'));
 
 			vi.mocked(git_pull).mockRejectedValue(new Error('Pull failed: merge conflicts'));
 
@@ -127,7 +129,7 @@ describe('deploy_task error handling', () => {
 		});
 
 		test('propagates git_remote_branch_exists errors', async () => {
-			const {git_remote_branch_exists} = vi.mocked(await import('@ryanatkn/belt/git.js'));
+			const {git_remote_branch_exists} = vi.mocked(await import('@fuzdev/fuz_util/git.js'));
 
 			vi.mocked(git_remote_branch_exists).mockRejectedValue(new Error('Remote not found'));
 
@@ -138,9 +140,9 @@ describe('deploy_task error handling', () => {
 
 		test('propagates git_clone_locally errors', async () => {
 			const {git_remote_branch_exists, git_clone_locally} = vi.mocked(
-				await import('@ryanatkn/belt/git.js'),
+				await import('@fuzdev/fuz_util/git.js'),
 			);
-			const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+			const {fs_exists} = vi.mocked(await import('@fuzdev/fuz_util/fs.js'));
 
 			vi.mocked(git_remote_branch_exists).mockResolvedValue(false); // trigger new branch path
 			vi.mocked(fs_exists).mockResolvedValue(false);
@@ -152,8 +154,8 @@ describe('deploy_task error handling', () => {
 		});
 
 		test('propagates git_current_branch_name errors', async () => {
-			const {git_current_branch_name} = vi.mocked(await import('@ryanatkn/belt/git.js'));
-			const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+			const {git_current_branch_name} = vi.mocked(await import('@fuzdev/fuz_util/git.js'));
+			const {fs_exists} = vi.mocked(await import('@fuzdev/fuz_util/fs.js'));
 
 			vi.mocked(fs_exists).mockResolvedValue(true); // deploy dir exists
 			vi.mocked(git_current_branch_name).mockRejectedValue(new Error('Not a git repository'));
@@ -165,8 +167,8 @@ describe('deploy_task error handling', () => {
 
 		test('propagates git_delete_local_branch errors', async () => {
 			const {git_local_branch_exists, git_delete_local_branch, git_remote_branch_exists} =
-				vi.mocked(await import('@ryanatkn/belt/git.js'));
-			const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+				vi.mocked(await import('@fuzdev/fuz_util/git.js'));
+			const {fs_exists} = vi.mocked(await import('@fuzdev/fuz_util/fs.js'));
 
 			// Trigger local branch deletion (line 182 - deploy_dir doesn't exist, remote exists, local branch doesn't exist before fetch)
 			vi.mocked(fs_exists).mockImplementation((path: any) => {
@@ -186,8 +188,8 @@ describe('deploy_task error handling', () => {
 		});
 
 		test('propagates git_reset_branch_to_first_commit errors', async () => {
-			const {git_reset_branch_to_first_commit} = vi.mocked(await import('@ryanatkn/belt/git.js'));
-			const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+			const {git_reset_branch_to_first_commit} = vi.mocked(await import('@fuzdev/fuz_util/git.js'));
+			const {fs_exists} = vi.mocked(await import('@fuzdev/fuz_util/fs.js'));
 
 			vi.mocked(fs_exists).mockResolvedValue(true);
 			vi.mocked(git_reset_branch_to_first_commit).mockRejectedValue(new Error('Reset failed'));
@@ -203,7 +205,7 @@ describe('deploy_task error handling', () => {
 
 	describe('filesystem operation failures', () => {
 		test('propagates fs_exists errors', async () => {
-			const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+			const {fs_exists} = vi.mocked(await import('@fuzdev/fuz_util/fs.js'));
 
 			vi.mocked(fs_exists).mockImplementation(() => {
 				throw new Error('Permission denied');
@@ -215,9 +217,9 @@ describe('deploy_task error handling', () => {
 		});
 
 		test('propagates rm errors', async () => {
-			const {git_remote_branch_exists} = vi.mocked(await import('@ryanatkn/belt/git.js'));
+			const {git_remote_branch_exists} = vi.mocked(await import('@fuzdev/fuz_util/git.js'));
 			const {rm} = await import('node:fs/promises');
-			const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+			const {fs_exists} = vi.mocked(await import('@fuzdev/fuz_util/fs.js'));
 
 			vi.mocked(git_remote_branch_exists).mockResolvedValue(false); // trigger deletion
 			vi.mocked(fs_exists).mockResolvedValue(true); // deploy dir exists
@@ -229,9 +231,9 @@ describe('deploy_task error handling', () => {
 		});
 
 		test('propagates mkdir errors', async () => {
-			const {git_remote_branch_exists} = vi.mocked(await import('@ryanatkn/belt/git.js'));
+			const {git_remote_branch_exists} = vi.mocked(await import('@fuzdev/fuz_util/git.js'));
 			const {mkdir} = await import('node:fs/promises');
-			const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+			const {fs_exists} = vi.mocked(await import('@fuzdev/fuz_util/fs.js'));
 
 			vi.mocked(git_remote_branch_exists).mockResolvedValue(false);
 			vi.mocked(fs_exists).mockResolvedValue(true);
@@ -243,8 +245,8 @@ describe('deploy_task error handling', () => {
 		});
 
 		test('propagates fs_empty_dir errors', async () => {
-			const {fs_empty_dir} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
-			const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+			const {fs_empty_dir} = vi.mocked(await import('@fuzdev/fuz_util/fs.js'));
+			const {fs_exists} = vi.mocked(await import('@fuzdev/fuz_util/fs.js'));
 
 			vi.mocked(fs_exists).mockResolvedValue(true);
 			vi.mocked(fs_empty_dir).mockRejectedValue(new Error('Failed to empty directory'));
@@ -256,7 +258,7 @@ describe('deploy_task error handling', () => {
 
 		test('propagates readdir errors', async () => {
 			const {readdir} = vi.mocked(await import('node:fs/promises'));
-			const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+			const {fs_exists} = vi.mocked(await import('@fuzdev/fuz_util/fs.js'));
 
 			vi.mocked(fs_exists).mockResolvedValue(true);
 			vi.mocked(readdir).mockImplementation(() => {
@@ -270,7 +272,7 @@ describe('deploy_task error handling', () => {
 
 		test('propagates cp errors', async () => {
 			const {cp} = await import('node:fs/promises');
-			const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+			const {fs_exists} = vi.mocked(await import('@fuzdev/fuz_util/fs.js'));
 
 			vi.mocked(fs_exists).mockResolvedValue(true);
 			vi.mocked(cp).mockRejectedValue(new Error('Failed to copy files'));
@@ -283,8 +285,8 @@ describe('deploy_task error handling', () => {
 
 	describe('spawn operation failures', () => {
 		test('propagates spawn errors for git reset', async () => {
-			const {spawn} = vi.mocked(await import('@ryanatkn/belt/process.js'));
-			const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+			const {spawn} = vi.mocked(await import('@fuzdev/fuz_util/process.js'));
+			const {fs_exists} = vi.mocked(await import('@fuzdev/fuz_util/fs.js'));
 
 			vi.mocked(fs_exists).mockResolvedValue(true);
 
@@ -302,9 +304,9 @@ describe('deploy_task error handling', () => {
 		});
 
 		test('propagates spawn errors for orphan branch creation', async () => {
-			const {git_remote_branch_exists} = vi.mocked(await import('@ryanatkn/belt/git.js'));
-			const {spawn} = vi.mocked(await import('@ryanatkn/belt/process.js'));
-			const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+			const {git_remote_branch_exists} = vi.mocked(await import('@fuzdev/fuz_util/git.js'));
+			const {spawn} = vi.mocked(await import('@fuzdev/fuz_util/process.js'));
+			const {fs_exists} = vi.mocked(await import('@fuzdev/fuz_util/fs.js'));
 
 			vi.mocked(git_remote_branch_exists).mockResolvedValue(false); // trigger new branch
 			vi.mocked(fs_exists).mockResolvedValue(false);
@@ -323,8 +325,8 @@ describe('deploy_task error handling', () => {
 		});
 
 		test('propagates spawn errors for git add in commit phase', async () => {
-			const {spawn} = vi.mocked(await import('@ryanatkn/belt/process.js'));
-			const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+			const {spawn} = vi.mocked(await import('@fuzdev/fuz_util/process.js'));
+			const {fs_exists} = vi.mocked(await import('@fuzdev/fuz_util/fs.js'));
 
 			vi.mocked(fs_exists).mockImplementation((path: any) => {
 				const path_str = String(path);
@@ -348,7 +350,7 @@ describe('deploy_task error handling', () => {
 
 	describe('build task failures', () => {
 		test('propagates build task errors', async () => {
-			const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+			const {fs_exists} = vi.mocked(await import('@fuzdev/fuz_util/fs.js'));
 			vi.mocked(fs_exists).mockResolvedValue(true);
 
 			const ctx = create_mock_deploy_task_context({build: true});
@@ -359,8 +361,8 @@ describe('deploy_task error handling', () => {
 		});
 
 		test('does not make git changes when build fails', async () => {
-			const {spawn} = vi.mocked(await import('@ryanatkn/belt/process.js'));
-			const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+			const {spawn} = vi.mocked(await import('@fuzdev/fuz_util/process.js'));
+			const {fs_exists} = vi.mocked(await import('@fuzdev/fuz_util/fs.js'));
 			vi.mocked(fs_exists).mockResolvedValue(true);
 
 			const ctx = create_mock_deploy_task_context({build: true, dry: false});
@@ -388,7 +390,7 @@ describe('deploy_task error handling', () => {
 		});
 
 		test('dirty workspace error includes git status output', async () => {
-			const {git_check_clean_workspace} = vi.mocked(await import('@ryanatkn/belt/git.js'));
+			const {git_check_clean_workspace} = vi.mocked(await import('@fuzdev/fuz_util/git.js'));
 
 			vi.mocked(git_check_clean_workspace).mockResolvedValue(
 				'Modified files:\n  src/foo.ts\n  src/bar.ts',
@@ -405,8 +407,8 @@ describe('deploy_task error handling', () => {
 		});
 
 		test('git operation errors in bad state include actionable message', async () => {
-			const {spawn} = vi.mocked(await import('@ryanatkn/belt/process.js'));
-			const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+			const {spawn} = vi.mocked(await import('@fuzdev/fuz_util/process.js'));
+			const {fs_exists} = vi.mocked(await import('@fuzdev/fuz_util/fs.js'));
 			vi.mocked(fs_exists).mockResolvedValue(true);
 
 			// Fail during push

@@ -1,6 +1,6 @@
 import {styleText as st} from 'node:util';
-import type {Timings} from '@ryanatkn/belt/timings.js';
-import type {Logger} from '@ryanatkn/belt/log.js';
+import type {Timings} from '@fuzdev/fuz_util/timings.js';
+import type {Logger} from '@fuzdev/fuz_util/log.js';
 import {z} from 'zod';
 
 import {parse_args, type Args} from './args.ts';

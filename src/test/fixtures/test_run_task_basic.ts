@@ -3,8 +3,8 @@
 
 /* eslint-disable */
 
-import {Timings} from '@ryanatkn/belt/timings.js';
-import {Logger} from '@ryanatkn/belt/log.js';
+import {Timings} from '@fuzdev/fuz_util/timings.js';
+import {Logger} from '@fuzdev/fuz_util/log.js';
 
 import {run_task} from '../../lib/run_task.ts';
 import {load_gro_config} from '../../lib/gro_config.ts';

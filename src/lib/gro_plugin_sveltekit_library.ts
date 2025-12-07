@@ -1,4 +1,4 @@
-import {print_spawn_result, spawn} from '@ryanatkn/belt/process.js';
+import {print_spawn_result, spawn} from '@fuzdev/fuz_util/process.js';
 
 import type {Plugin} from './plugin.ts';
 import {TaskError} from './task.ts';

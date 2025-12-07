@@ -1,5 +1,5 @@
 import {describe, test, expect, vi, beforeEach} from 'vitest';
-import {json_stringify_deterministic} from '@ryanatkn/belt/json.js';
+import {json_stringify_deterministic} from '@fuzdev/fuz_util/json.js';
 
 import {compute_build_cache_key} from '../lib/build_cache.ts';
 
@@ -8,7 +8,7 @@ import {create_mock_logger, create_mock_config} from './build_cache_test_helpers
 /* eslint-disable @typescript-eslint/require-await */
 
 // Mock dependencies
-vi.mock('@ryanatkn/belt/git.js', () => ({
+vi.mock('@fuzdev/fuz_util/git.js', () => ({
 	git_current_commit_hash: vi.fn(),
 }));
 
@@ -22,7 +22,7 @@ describe('compute_build_cache_key', () => {
 	});
 
 	test('returns consistent hash components for same inputs', async () => {
-		const {git_current_commit_hash} = await import('@ryanatkn/belt/git.js');
+		const {git_current_commit_hash} = await import('@fuzdev/fuz_util/git.js');
 		const {to_hash} = await import('$lib/hash.js');
 
 		vi.mocked(git_current_commit_hash).mockResolvedValue('abc123');
@@ -40,7 +40,7 @@ describe('compute_build_cache_key', () => {
 	});
 
 	test('handles missing git repository', async () => {
-		const {git_current_commit_hash} = await import('@ryanatkn/belt/git.js');
+		const {git_current_commit_hash} = await import('@fuzdev/fuz_util/git.js');
 		const {to_hash} = await import('$lib/hash.js');
 
 		vi.mocked(git_current_commit_hash).mockResolvedValue(null);
@@ -56,7 +56,7 @@ describe('compute_build_cache_key', () => {
 	});
 
 	test('hashes build_cache_config when provided', async () => {
-		const {git_current_commit_hash} = await import('@ryanatkn/belt/git.js');
+		const {git_current_commit_hash} = await import('@fuzdev/fuz_util/git.js');
 		const {to_hash} = await import('$lib/hash.js');
 
 		vi.mocked(git_current_commit_hash).mockResolvedValue('abc123');
@@ -76,7 +76,7 @@ describe('compute_build_cache_key', () => {
 	});
 
 	test('produces consistent hash for build_cache_config regardless of key order', async () => {
-		const {git_current_commit_hash} = await import('@ryanatkn/belt/git.js');
+		const {git_current_commit_hash} = await import('@fuzdev/fuz_util/git.js');
 
 		vi.mocked(git_current_commit_hash).mockResolvedValue('abc123');
 
@@ -103,7 +103,7 @@ describe('compute_build_cache_key', () => {
 	});
 
 	test('handles async build_cache_config function', async () => {
-		const {git_current_commit_hash} = await import('@ryanatkn/belt/git.js');
+		const {git_current_commit_hash} = await import('@fuzdev/fuz_util/git.js');
 
 		vi.mocked(git_current_commit_hash).mockResolvedValue('abc123');
 

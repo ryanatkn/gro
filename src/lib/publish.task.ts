@@ -1,7 +1,7 @@
-import {spawn} from '@ryanatkn/belt/process.js';
+import {spawn} from '@fuzdev/fuz_util/process.js';
 import {z} from 'zod';
 import {styleText as st} from 'node:util';
-import {fs_exists} from '@ryanatkn/belt/fs.js';
+import {fs_exists} from '@fuzdev/fuz_util/fs.js';
 import {
 	GitBranch,
 	GitOrigin,
@@ -9,7 +9,7 @@ import {
 	git_checkout,
 	git_fetch,
 	git_pull,
-} from '@ryanatkn/belt/git.js';
+} from '@fuzdev/fuz_util/git.js';
 
 import {TaskError, type Task} from './task.ts';
 import {load_package_json, parse_repo_url} from './package_json.ts';

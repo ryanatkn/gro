@@ -1,6 +1,6 @@
 import {describe, test, expect} from 'vitest';
 import {resolve} from 'node:path';
-import {noop} from '@ryanatkn/belt/function.js';
+import {noop} from '@fuzdev/fuz_util/function.js';
 
 import {
 	is_task_path,

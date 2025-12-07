@@ -61,7 +61,7 @@ export const setup_successful_git_mocks = async () => {
 		git_delete_local_branch,
 		git_push_to_create,
 		git_reset_branch_to_first_commit,
-	} = vi.mocked(await import('@ryanatkn/belt/git.js'));
+	} = vi.mocked(await import('@fuzdev/fuz_util/git.js'));
 
 	vi.mocked(git_check_clean_workspace).mockResolvedValue(null);
 	vi.mocked(git_check_setting_pull_rebase).mockResolvedValue(true);
@@ -81,7 +81,7 @@ export const setup_successful_git_mocks = async () => {
  * Sets up common fs mocks for successful scenarios.
  */
 export const setup_successful_fs_mocks = async () => {
-	const {fs_exists} = await import('@ryanatkn/belt/fs.js');
+	const {fs_exists} = await import('@fuzdev/fuz_util/fs.js');
 	const {cp, mkdir, rm, readdir} = await import('node:fs/promises');
 
 	vi.mocked(fs_exists).mockResolvedValue(true);
@@ -95,6 +95,6 @@ export const setup_successful_fs_mocks = async () => {
  * Sets up common spawn mock for successful scenarios.
  */
 export const setup_successful_spawn_mock = async () => {
-	const {spawn} = vi.mocked(await import('@ryanatkn/belt/process.js'));
+	const {spawn} = vi.mocked(await import('@fuzdev/fuz_util/process.js'));
 	vi.mocked(spawn).mockResolvedValue({code: 0} as any);
 };

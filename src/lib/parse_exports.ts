@@ -1,9 +1,9 @@
 import ts from 'typescript';
 import {extname} from 'node:path';
-import type {Flavored} from '@ryanatkn/belt/types.js';
-import type {Logger} from '@ryanatkn/belt/log.js';
-import type {DeclarationKind} from '@ryanatkn/belt/source_json.js';
-import type {PathId} from '@ryanatkn/belt/path.js';
+import type {Flavored} from '@fuzdev/fuz_util/types.js';
+import type {Logger} from '@fuzdev/fuz_util/log.js';
+import type {DeclarationKind} from '@fuzdev/fuz_util/source_json.js';
+import type {PathId} from '@fuzdev/fuz_util/path.js';
 
 import {TS_MATCHER} from './constants.ts';
 import {ParseExportsContext} from './parse_exports_context.ts';

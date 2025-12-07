@@ -1,4 +1,4 @@
-import {print_spawn_result} from '@ryanatkn/belt/process.js';
+import {print_spawn_result} from '@fuzdev/fuz_util/process.js';
 import {z} from 'zod';
 
 import {TaskError, type Task} from './task.ts';

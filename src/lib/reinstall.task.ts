@@ -1,5 +1,5 @@
 import {z} from 'zod';
-import {spawn} from '@ryanatkn/belt/process.js';
+import {spawn} from '@fuzdev/fuz_util/process.js';
 import {rm} from 'node:fs/promises';
 
 import {TaskError, type Task} from './task.ts';

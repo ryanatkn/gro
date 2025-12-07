@@ -8,7 +8,7 @@ import {create_mock_build_task_context, create_mock_plugins} from './build_task_
 /* eslint-disable @typescript-eslint/require-await */
 
 // Mock dependencies
-vi.mock('@ryanatkn/belt/git.js', () => ({
+vi.mock('@fuzdev/fuz_util/git.js', () => ({
 	git_check_clean_workspace: vi.fn(),
 	git_current_commit_hash: vi.fn(),
 }));
@@ -21,7 +21,7 @@ vi.mock('node:fs/promises', () => ({
 }));
 
 // Mock fs_exists from belt
-vi.mock('@ryanatkn/belt/fs.js', () => ({
+vi.mock('@fuzdev/fuz_util/fs.js', () => ({
 	fs_exists: vi.fn(),
 }));
 
@@ -83,8 +83,8 @@ describe('build_task workspace state', () => {
 	});
 
 	test('deletes cache and dist outputs when workspace is dirty', async () => {
-		const {git_check_clean_workspace} = vi.mocked(await import('@ryanatkn/belt/git.js'));
-		const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+		const {git_check_clean_workspace} = vi.mocked(await import('@fuzdev/fuz_util/git.js'));
+		const {fs_exists} = vi.mocked(await import('@fuzdev/fuz_util/fs.js'));
 		const {rm, readdir, stat} = vi.mocked(await import('node:fs/promises'));
 
 		// workspace has uncommitted changes
@@ -124,7 +124,7 @@ describe('build_task workspace state', () => {
 	});
 
 	test('runs full build when workspace is dirty', async () => {
-		const {git_check_clean_workspace} = vi.mocked(await import('@ryanatkn/belt/git.js'));
+		const {git_check_clean_workspace} = vi.mocked(await import('@fuzdev/fuz_util/git.js'));
 		const {is_build_cache_valid} = vi.mocked(await import('../lib/build_cache.ts'));
 		const {readdir} = vi.mocked(await import('node:fs/promises'));
 		const {Plugins} = vi.mocked(await import('../lib/plugin.ts'));
@@ -149,7 +149,7 @@ describe('build_task workspace state', () => {
 	});
 
 	test('does not save cache when workspace is dirty', async () => {
-		const {git_check_clean_workspace} = vi.mocked(await import('@ryanatkn/belt/git.js'));
+		const {git_check_clean_workspace} = vi.mocked(await import('@fuzdev/fuz_util/git.js'));
 		const {save_build_cache_metadata} = vi.mocked(await import('../lib/build_cache.ts'));
 		const {readdir} = vi.mocked(await import('node:fs/promises'));
 
@@ -166,8 +166,8 @@ describe('build_task workspace state', () => {
 	});
 
 	test('handles missing cache file gracefully when workspace is dirty', async () => {
-		const {git_check_clean_workspace} = vi.mocked(await import('@ryanatkn/belt/git.js'));
-		const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+		const {git_check_clean_workspace} = vi.mocked(await import('@fuzdev/fuz_util/git.js'));
+		const {fs_exists} = vi.mocked(await import('@fuzdev/fuz_util/fs.js'));
 		const {rm, readdir, stat} = vi.mocked(await import('node:fs/promises'));
 		const {Plugins} = vi.mocked(await import('../lib/plugin.ts'));
 		const mock_plugins = create_mock_plugins();
@@ -201,8 +201,8 @@ describe('build_task workspace state', () => {
 	});
 
 	test('handles missing dist directories gracefully when workspace is dirty', async () => {
-		const {git_check_clean_workspace} = vi.mocked(await import('@ryanatkn/belt/git.js'));
-		const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+		const {git_check_clean_workspace} = vi.mocked(await import('@fuzdev/fuz_util/git.js'));
+		const {fs_exists} = vi.mocked(await import('@fuzdev/fuz_util/fs.js'));
 		const {rm, readdir} = vi.mocked(await import('node:fs/promises'));
 		const {Plugins} = vi.mocked(await import('../lib/plugin.ts'));
 		const mock_plugins = create_mock_plugins();
@@ -236,7 +236,7 @@ describe('build_task workspace state', () => {
 
 	describe('post-build workspace verification', () => {
 		test('throws TaskError when plugin modifies source files during build', async () => {
-			const {git_check_clean_workspace} = vi.mocked(await import('@ryanatkn/belt/git.js'));
+			const {git_check_clean_workspace} = vi.mocked(await import('@fuzdev/fuz_util/git.js'));
 			const {is_build_cache_valid} = vi.mocked(await import('../lib/build_cache.ts'));
 
 			// Workspace starts clean, but becomes dirty after build
@@ -258,7 +258,7 @@ describe('build_task workspace state', () => {
 		});
 
 		test('throws TaskError when clean workspace becomes dirty with untracked files', async () => {
-			const {git_check_clean_workspace} = vi.mocked(await import('@ryanatkn/belt/git.js'));
+			const {git_check_clean_workspace} = vi.mocked(await import('@fuzdev/fuz_util/git.js'));
 			const {is_build_cache_valid} = vi.mocked(await import('../lib/build_cache.ts'));
 
 			// Workspace starts clean, but has untracked files after build
@@ -278,7 +278,7 @@ describe('build_task workspace state', () => {
 		});
 
 		test('succeeds when workspace stays clean throughout build', async () => {
-			const {git_check_clean_workspace} = vi.mocked(await import('@ryanatkn/belt/git.js'));
+			const {git_check_clean_workspace} = vi.mocked(await import('@fuzdev/fuz_util/git.js'));
 			const {is_build_cache_valid} = vi.mocked(await import('../lib/build_cache.ts'));
 
 			// Workspace stays clean throughout
@@ -292,7 +292,7 @@ describe('build_task workspace state', () => {
 		});
 
 		test('succeeds when dirty workspace stays dirty with same status', async () => {
-			const {git_check_clean_workspace} = vi.mocked(await import('@ryanatkn/belt/git.js'));
+			const {git_check_clean_workspace} = vi.mocked(await import('@fuzdev/fuz_util/git.js'));
 			const {readdir} = vi.mocked(await import('node:fs/promises'));
 
 			// Workspace stays dirty with same status throughout
@@ -307,7 +307,7 @@ describe('build_task workspace state', () => {
 		});
 
 		test('throws TaskError when dirty workspace gets different dirty status during build', async () => {
-			const {git_check_clean_workspace} = vi.mocked(await import('@ryanatkn/belt/git.js'));
+			const {git_check_clean_workspace} = vi.mocked(await import('@fuzdev/fuz_util/git.js'));
 			const {readdir} = vi.mocked(await import('node:fs/promises'));
 
 			// Workspace starts with one dirty status, changes to different dirty status

@@ -1,6 +1,6 @@
-import {spawn} from '@ryanatkn/belt/process.js';
+import {spawn} from '@fuzdev/fuz_util/process.js';
 import {z} from 'zod';
-import {GitOrigin} from '@ryanatkn/belt/git.js';
+import {GitOrigin} from '@fuzdev/fuz_util/git.js';
 
 import type {Task} from './task.ts';
 import {clean_fs} from './clean_fs.ts';

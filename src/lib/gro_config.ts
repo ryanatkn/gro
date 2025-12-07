@@ -1,8 +1,8 @@
 import {join, resolve} from 'node:path';
-import {fs_exists} from '@ryanatkn/belt/fs.js';
-import {identity} from '@ryanatkn/belt/function.js';
-import type {PathFilter, PathId} from '@ryanatkn/belt/path.js';
-import {json_stringify_deterministic} from '@ryanatkn/belt/json.js';
+import {fs_exists} from '@fuzdev/fuz_util/fs.js';
+import {identity} from '@fuzdev/fuz_util/function.js';
+import type {PathFilter, PathId} from '@fuzdev/fuz_util/path.js';
+import {json_stringify_deterministic} from '@fuzdev/fuz_util/json.js';
 
 import {GRO_DIST_DIR, IS_THIS_GRO, paths} from './paths.ts';
 import {

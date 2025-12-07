@@ -1,7 +1,7 @@
 import {styleText as st} from 'node:util';
-import {create_stopwatch, Timings} from '@ryanatkn/belt/timings.js';
-import {print_ms, print_timings} from '@ryanatkn/belt/print.js';
-import {Logger} from '@ryanatkn/belt/log.js';
+import {create_stopwatch, Timings} from '@fuzdev/fuz_util/timings.js';
+import {print_ms, print_timings} from '@fuzdev/fuz_util/print.js';
+import {Logger} from '@fuzdev/fuz_util/log.js';
 
 import {to_forwarded_args, type Args} from './args.ts';
 import {run_task} from './run_task.ts';

@@ -13,7 +13,7 @@ import type {
 	asset as base_asset,
 	resolveRoute as base_resolveRoute,
 } from '$app/paths';
-import {noop} from '@ryanatkn/belt/function.js';
+import {noop} from '@fuzdev/fuz_util/function.js';
 
 export const assets = '';
 /** @deprecated */

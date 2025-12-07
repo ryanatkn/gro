@@ -1,5 +1,5 @@
 import {test, expect} from 'vitest';
-import {PackageJson, PackageJsonExports} from '@ryanatkn/belt/package_json.js';
+import {PackageJson, PackageJsonExports} from '@fuzdev/fuz_util/package_json.js';
 
 import {
 	load_package_json,

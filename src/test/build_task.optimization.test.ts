@@ -5,7 +5,7 @@ import {task as build_task} from '../lib/build.task.ts';
 import {create_mock_build_task_context, create_mock_plugins} from './build_task_test_helpers.ts';
 
 // Mock dependencies
-vi.mock('@ryanatkn/belt/git.js', () => ({
+vi.mock('@fuzdev/fuz_util/git.js', () => ({
 	git_check_clean_workspace: vi.fn(),
 	git_current_commit_hash: vi.fn(),
 }));
@@ -74,7 +74,7 @@ describe('build_task optimization', () => {
 
 	test('batches initial git calls together', async () => {
 		const {git_check_clean_workspace, git_current_commit_hash} = vi.mocked(
-			await import('@ryanatkn/belt/git.js'),
+			await import('@fuzdev/fuz_util/git.js'),
 		);
 		const {is_build_cache_valid} = vi.mocked(await import('../lib/build_cache.ts'));
 		const {to_hash} = vi.mocked(await import('../lib/hash.ts'));
@@ -119,7 +119,7 @@ describe('build_task optimization', () => {
 
 	test('passes pre-computed values to avoid re-reading git', async () => {
 		const {git_check_clean_workspace, git_current_commit_hash} = vi.mocked(
-			await import('@ryanatkn/belt/git.js'),
+			await import('@fuzdev/fuz_util/git.js'),
 		);
 		const {is_build_cache_valid, create_build_cache_metadata} = vi.mocked(
 			await import('../lib/build_cache.ts'),

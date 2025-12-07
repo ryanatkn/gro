@@ -1,12 +1,12 @@
-import type {Logger} from '@ryanatkn/belt/log.js';
+import type {Logger} from '@fuzdev/fuz_util/log.js';
 import {join, basename, dirname, isAbsolute} from 'node:path';
 import {mkdir, readFile, writeFile} from 'node:fs/promises';
-import type {Result} from '@ryanatkn/belt/result.js';
-import type {Timings} from '@ryanatkn/belt/timings.js';
+import type {Result} from '@fuzdev/fuz_util/result.js';
+import type {Timings} from '@fuzdev/fuz_util/timings.js';
 import {styleText as st} from 'node:util';
-import type {PathId} from '@ryanatkn/belt/path.js';
-import {map_concurrent} from '@ryanatkn/belt/async.js';
-import {fs_search} from '@ryanatkn/belt/fs.js';
+import type {PathId} from '@fuzdev/fuz_util/path.js';
+import {map_concurrent} from '@fuzdev/fuz_util/async.js';
+import {fs_search} from '@fuzdev/fuz_util/fs.js';
 
 import {print_path} from './paths.ts';
 import type {GroConfig} from './gro_config.ts';

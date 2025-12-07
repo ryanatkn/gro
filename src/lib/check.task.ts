@@ -1,7 +1,7 @@
 import {z} from 'zod';
-import {spawn} from '@ryanatkn/belt/process.js';
+import {spawn} from '@fuzdev/fuz_util/process.js';
 import {styleText as st} from 'node:util';
-import {git_check_clean_workspace} from '@ryanatkn/belt/git.js';
+import {git_check_clean_workspace} from '@fuzdev/fuz_util/git.js';
 
 import {TaskError, type Task} from './task.ts';
 import {sync_package_json} from './package_json.ts';

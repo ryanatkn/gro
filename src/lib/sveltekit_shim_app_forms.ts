@@ -6,7 +6,7 @@ import type {
 	deserialize as base_deserialize,
 	enhance as base_enhance,
 } from '$app/forms';
-import {noop, noop_async} from '@ryanatkn/belt/function.js';
+import {noop, noop_async} from '@fuzdev/fuz_util/function.js';
 
 export const applyAction: typeof base_applyAction = noop_async;
 export const deserialize: typeof base_deserialize = () => ({}) as any;

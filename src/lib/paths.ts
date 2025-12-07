@@ -1,8 +1,8 @@
 import {join, extname, relative, basename} from 'node:path';
 import {fileURLToPath} from 'node:url';
-import {ensure_end, strip_end} from '@ryanatkn/belt/string.js';
+import {ensure_end, strip_end} from '@fuzdev/fuz_util/string.js';
 import {styleText as st} from 'node:util';
-import type {PathId} from '@ryanatkn/belt/path.js';
+import type {PathId} from '@fuzdev/fuz_util/path.js';
 
 import {
 	GRO_CONFIG_FILENAME,

@@ -1,7 +1,7 @@
 import {test, expect} from 'vitest';
-import {Logger} from '@ryanatkn/belt/log.js';
+import {Logger} from '@fuzdev/fuz_util/log.js';
 import {readFile, writeFile} from 'node:fs/promises';
-import type {FetchValueCache} from '@ryanatkn/belt/fetch.js';
+import type {FetchValueCache} from '@fuzdev/fuz_util/fetch.js';
 
 import {update_changelog} from '../lib/changelog.ts';
 import {load_from_env} from '../lib/env.ts';

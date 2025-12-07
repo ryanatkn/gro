@@ -1,13 +1,13 @@
-import {EMPTY_OBJECT} from '@ryanatkn/belt/object.js';
+import {EMPTY_OBJECT} from '@fuzdev/fuz_util/object.js';
 import {readFile, stat} from 'node:fs/promises';
 import {dirname, resolve} from 'node:path';
-import type {OmitStrict} from '@ryanatkn/belt/types.js';
+import type {OmitStrict} from '@fuzdev/fuz_util/types.js';
 import {isBuiltin} from 'node:module';
 import {fileURLToPath, pathToFileURL} from 'node:url';
-import {UnreachableError} from '@ryanatkn/belt/error.js';
-import type {Logger} from '@ryanatkn/belt/log.js';
-import type {PackageJson} from '@ryanatkn/belt/package_json.js';
-import type {FileFilter, PathId} from '@ryanatkn/belt/path.js';
+import {UnreachableError} from '@fuzdev/fuz_util/error.js';
+import type {Logger} from '@fuzdev/fuz_util/log.js';
+import type {PackageJson} from '@fuzdev/fuz_util/package_json.js';
+import type {FileFilter, PathId} from '@fuzdev/fuz_util/path.js';
 
 import {
 	watch_dir,

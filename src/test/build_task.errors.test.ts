@@ -5,7 +5,7 @@ import {task as build_task} from '../lib/build.task.ts';
 import {create_mock_build_task_context, create_mock_plugins} from './build_task_test_helpers.ts';
 
 // Mock dependencies
-vi.mock('@ryanatkn/belt/git.js', () => ({
+vi.mock('@fuzdev/fuz_util/git.js', () => ({
 	git_check_clean_workspace: vi.fn(),
 	git_current_commit_hash: vi.fn(),
 }));
@@ -18,7 +18,7 @@ vi.mock('node:fs/promises', () => ({
 }));
 
 // Mock fs_exists from belt
-vi.mock('@ryanatkn/belt/fs.js', () => ({
+vi.mock('@fuzdev/fuz_util/fs.js', () => ({
 	fs_exists: vi.fn(),
 }));
 
@@ -75,7 +75,7 @@ describe('build_task error handling', () => {
 	});
 
 	test('handles git command failures gracefully', async () => {
-		const {git_check_clean_workspace} = vi.mocked(await import('@ryanatkn/belt/git.js'));
+		const {git_check_clean_workspace} = vi.mocked(await import('@fuzdev/fuz_util/git.js'));
 
 		// Git command throws an error
 		vi.mocked(git_check_clean_workspace).mockRejectedValue(new Error('git command not found'));
@@ -87,8 +87,8 @@ describe('build_task error handling', () => {
 	});
 
 	test('handles file system errors during cache deletion', async () => {
-		const {git_check_clean_workspace} = vi.mocked(await import('@ryanatkn/belt/git.js'));
-		const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+		const {git_check_clean_workspace} = vi.mocked(await import('@fuzdev/fuz_util/git.js'));
+		const {fs_exists} = vi.mocked(await import('@fuzdev/fuz_util/fs.js'));
 		const {rm, readdir} = vi.mocked(await import('node:fs/promises'));
 
 		// Workspace is dirty
@@ -106,7 +106,7 @@ describe('build_task error handling', () => {
 	});
 
 	test('handles cache validation errors gracefully', async () => {
-		const {git_check_clean_workspace} = vi.mocked(await import('@ryanatkn/belt/git.js'));
+		const {git_check_clean_workspace} = vi.mocked(await import('@fuzdev/fuz_util/git.js'));
 		const {is_build_cache_valid} = vi.mocked(await import('../lib/build_cache.ts'));
 
 		// Workspace is clean, but cache validation throws

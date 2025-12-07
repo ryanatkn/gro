@@ -14,8 +14,8 @@ import {
 /* eslint-disable @typescript-eslint/require-await */
 
 // Mock dependencies
-vi.mock('@ryanatkn/belt/git.js', async (import_original) => {
-	const actual = await import_original<typeof import('@ryanatkn/belt/git.js')>();
+vi.mock('@fuzdev/fuz_util/git.js', async (import_original) => {
+	const actual = await import_original<typeof import('@fuzdev/fuz_util/git.js')>();
 	return {
 		...actual,
 		git_check_clean_workspace: vi.fn(),
@@ -33,7 +33,7 @@ vi.mock('@ryanatkn/belt/git.js', async (import_original) => {
 	};
 });
 
-vi.mock('@ryanatkn/belt/process.js', () => ({
+vi.mock('@fuzdev/fuz_util/process.js', () => ({
 	spawn: vi.fn(),
 }));
 
@@ -44,7 +44,7 @@ vi.mock('node:fs/promises', () => ({
 	readdir: vi.fn(),
 }));
 
-vi.mock('@ryanatkn/belt/fs.js', () => ({
+vi.mock('@fuzdev/fuz_util/fs.js', () => ({
 	fs_exists: vi.fn(),
 	fs_empty_dir: vi.fn(),
 }));
@@ -56,7 +56,7 @@ describe('deploy_task commit and push', () => {
 		await setup_successful_fs_mocks();
 		await setup_successful_spawn_mock();
 
-		const {fs_empty_dir} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+		const {fs_empty_dir} = vi.mocked(await import('@fuzdev/fuz_util/fs.js'));
 		vi.mocked(fs_empty_dir).mockResolvedValue(undefined);
 	});
 
@@ -66,8 +66,8 @@ describe('deploy_task commit and push', () => {
 
 	describe('git add', () => {
 		test('adds all files with force flag', async () => {
-			const {spawn} = vi.mocked(await import('@ryanatkn/belt/process.js'));
-			const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+			const {spawn} = vi.mocked(await import('@fuzdev/fuz_util/process.js'));
+			const {fs_exists} = vi.mocked(await import('@fuzdev/fuz_util/fs.js'));
 			vi.mocked(fs_exists).mockResolvedValue(true);
 
 			const ctx = create_mock_deploy_task_context({dry: false});
@@ -78,8 +78,8 @@ describe('deploy_task commit and push', () => {
 		});
 
 		test('uses custom deploy_dir for git add', async () => {
-			const {spawn} = vi.mocked(await import('@ryanatkn/belt/process.js'));
-			const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+			const {spawn} = vi.mocked(await import('@fuzdev/fuz_util/process.js'));
+			const {fs_exists} = vi.mocked(await import('@fuzdev/fuz_util/fs.js'));
 			vi.mocked(fs_exists).mockResolvedValue(true);
 
 			const ctx = create_mock_deploy_task_context({
@@ -95,9 +95,9 @@ describe('deploy_task commit and push', () => {
 		});
 
 		test('git add happens after file copying', async () => {
-			const {spawn} = vi.mocked(await import('@ryanatkn/belt/process.js'));
+			const {spawn} = vi.mocked(await import('@fuzdev/fuz_util/process.js'));
 			const {cp} = await import('node:fs/promises');
-			const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+			const {fs_exists} = vi.mocked(await import('@fuzdev/fuz_util/fs.js'));
 			vi.mocked(fs_exists).mockResolvedValue(true);
 
 			const ctx = create_mock_deploy_task_context({dry: false});
@@ -117,8 +117,8 @@ describe('deploy_task commit and push', () => {
 
 	describe('git commit', () => {
 		test('commits with deployment message', async () => {
-			const {spawn} = vi.mocked(await import('@ryanatkn/belt/process.js'));
-			const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+			const {spawn} = vi.mocked(await import('@fuzdev/fuz_util/process.js'));
+			const {fs_exists} = vi.mocked(await import('@fuzdev/fuz_util/fs.js'));
 			vi.mocked(fs_exists).mockResolvedValue(true);
 
 			const ctx = create_mock_deploy_task_context({dry: false});
@@ -131,8 +131,8 @@ describe('deploy_task commit and push', () => {
 		});
 
 		test('uses custom deploy_dir for git commit', async () => {
-			const {spawn} = vi.mocked(await import('@ryanatkn/belt/process.js'));
-			const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+			const {spawn} = vi.mocked(await import('@fuzdev/fuz_util/process.js'));
+			const {fs_exists} = vi.mocked(await import('@fuzdev/fuz_util/fs.js'));
 			vi.mocked(fs_exists).mockResolvedValue(true);
 
 			const ctx = create_mock_deploy_task_context({
@@ -148,8 +148,8 @@ describe('deploy_task commit and push', () => {
 		});
 
 		test('git commit happens after git add', async () => {
-			const {spawn} = vi.mocked(await import('@ryanatkn/belt/process.js'));
-			const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+			const {spawn} = vi.mocked(await import('@fuzdev/fuz_util/process.js'));
+			const {fs_exists} = vi.mocked(await import('@fuzdev/fuz_util/fs.js'));
 			vi.mocked(fs_exists).mockResolvedValue(true);
 
 			const ctx = create_mock_deploy_task_context({dry: false});
@@ -173,8 +173,8 @@ describe('deploy_task commit and push', () => {
 
 	describe('git push', () => {
 		test('pushes with force flag to target branch', async () => {
-			const {spawn} = vi.mocked(await import('@ryanatkn/belt/process.js'));
-			const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+			const {spawn} = vi.mocked(await import('@fuzdev/fuz_util/process.js'));
+			const {fs_exists} = vi.mocked(await import('@fuzdev/fuz_util/fs.js'));
 			vi.mocked(fs_exists).mockResolvedValue(true);
 
 			const ctx = create_mock_deploy_task_context({dry: false});
@@ -187,8 +187,8 @@ describe('deploy_task commit and push', () => {
 		});
 
 		test('uses custom origin and target branch', async () => {
-			const {spawn} = vi.mocked(await import('@ryanatkn/belt/process.js'));
-			const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+			const {spawn} = vi.mocked(await import('@fuzdev/fuz_util/process.js'));
+			const {fs_exists} = vi.mocked(await import('@fuzdev/fuz_util/fs.js'));
 			vi.mocked(fs_exists).mockResolvedValue(true);
 
 			const ctx = create_mock_deploy_task_context({
@@ -206,8 +206,8 @@ describe('deploy_task commit and push', () => {
 		});
 
 		test('uses custom deploy_dir for git push', async () => {
-			const {spawn} = vi.mocked(await import('@ryanatkn/belt/process.js'));
-			const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+			const {spawn} = vi.mocked(await import('@fuzdev/fuz_util/process.js'));
+			const {fs_exists} = vi.mocked(await import('@fuzdev/fuz_util/fs.js'));
 			vi.mocked(fs_exists).mockResolvedValue(true);
 
 			const ctx = create_mock_deploy_task_context({
@@ -221,8 +221,8 @@ describe('deploy_task commit and push', () => {
 		});
 
 		test('git push happens after git commit', async () => {
-			const {spawn} = vi.mocked(await import('@ryanatkn/belt/process.js'));
-			const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+			const {spawn} = vi.mocked(await import('@fuzdev/fuz_util/process.js'));
+			const {fs_exists} = vi.mocked(await import('@fuzdev/fuz_util/fs.js'));
 			vi.mocked(fs_exists).mockResolvedValue(true);
 
 			const ctx = create_mock_deploy_task_context({dry: false});
@@ -244,8 +244,8 @@ describe('deploy_task commit and push', () => {
 		});
 
 		test('force pushes to allow non-fastforward updates', async () => {
-			const {spawn} = vi.mocked(await import('@ryanatkn/belt/process.js'));
-			const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+			const {spawn} = vi.mocked(await import('@fuzdev/fuz_util/process.js'));
+			const {fs_exists} = vi.mocked(await import('@fuzdev/fuz_util/fs.js'));
 			vi.mocked(fs_exists).mockResolvedValue(true);
 
 			const ctx = create_mock_deploy_task_context({dry: false});
@@ -262,7 +262,7 @@ describe('deploy_task commit and push', () => {
 
 	describe('success logging', () => {
 		test('logs deployed message on success', async () => {
-			const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+			const {fs_exists} = vi.mocked(await import('@fuzdev/fuz_util/fs.js'));
 			vi.mocked(fs_exists).mockResolvedValue(true);
 
 			const ctx = create_mock_deploy_task_context({dry: false});
@@ -273,7 +273,7 @@ describe('deploy_task commit and push', () => {
 		});
 
 		test('does not log dry deploy message when dry=false', async () => {
-			const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+			const {fs_exists} = vi.mocked(await import('@fuzdev/fuz_util/fs.js'));
 			vi.mocked(fs_exists).mockResolvedValue(true);
 
 			const ctx = create_mock_deploy_task_context({dry: false});
@@ -286,8 +286,8 @@ describe('deploy_task commit and push', () => {
 
 	describe('error handling', () => {
 		test('catches and logs git add failure', async () => {
-			const {spawn} = vi.mocked(await import('@ryanatkn/belt/process.js'));
-			const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+			const {spawn} = vi.mocked(await import('@fuzdev/fuz_util/process.js'));
+			const {fs_exists} = vi.mocked(await import('@fuzdev/fuz_util/fs.js'));
 			vi.mocked(fs_exists).mockResolvedValue(true);
 
 			// Make git add fail
@@ -316,8 +316,8 @@ describe('deploy_task commit and push', () => {
 		});
 
 		test('catches and logs git commit failure', async () => {
-			const {spawn} = vi.mocked(await import('@ryanatkn/belt/process.js'));
-			const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+			const {spawn} = vi.mocked(await import('@fuzdev/fuz_util/process.js'));
+			const {fs_exists} = vi.mocked(await import('@fuzdev/fuz_util/fs.js'));
 			vi.mocked(fs_exists).mockResolvedValue(true);
 
 			// Make git commit fail
@@ -346,8 +346,8 @@ describe('deploy_task commit and push', () => {
 		});
 
 		test('catches and logs git push failure', async () => {
-			const {spawn} = vi.mocked(await import('@ryanatkn/belt/process.js'));
-			const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+			const {spawn} = vi.mocked(await import('@fuzdev/fuz_util/process.js'));
+			const {fs_exists} = vi.mocked(await import('@fuzdev/fuz_util/fs.js'));
 			vi.mocked(fs_exists).mockResolvedValue(true);
 
 			// Make git push fail
@@ -376,8 +376,8 @@ describe('deploy_task commit and push', () => {
 		});
 
 		test('error message indicates bad state (built but not pushed)', async () => {
-			const {spawn} = vi.mocked(await import('@ryanatkn/belt/process.js'));
-			const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+			const {spawn} = vi.mocked(await import('@fuzdev/fuz_util/process.js'));
+			const {fs_exists} = vi.mocked(await import('@fuzdev/fuz_util/fs.js'));
 			vi.mocked(fs_exists).mockResolvedValue(true);
 
 			// Make push fail
@@ -402,8 +402,8 @@ describe('deploy_task commit and push', () => {
 
 	describe('operation order', () => {
 		test('all operations happen in correct sequence', async () => {
-			const {spawn} = vi.mocked(await import('@ryanatkn/belt/process.js'));
-			const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+			const {spawn} = vi.mocked(await import('@fuzdev/fuz_util/process.js'));
+			const {fs_exists} = vi.mocked(await import('@fuzdev/fuz_util/fs.js'));
 			vi.mocked(fs_exists).mockResolvedValue(true);
 
 			const ctx = create_mock_deploy_task_context({dry: false});

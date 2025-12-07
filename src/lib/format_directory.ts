@@ -1,5 +1,5 @@
-import type {SpawnResult} from '@ryanatkn/belt/process.js';
-import type {Logger} from '@ryanatkn/belt/log.js';
+import type {SpawnResult} from '@fuzdev/fuz_util/process.js';
+import type {Logger} from '@fuzdev/fuz_util/log.js';
 
 import {paths} from './paths.ts';
 import {

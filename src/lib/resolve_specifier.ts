@@ -1,6 +1,6 @@
 import {extname, isAbsolute, join, relative} from 'node:path';
-import {fs_exists} from '@ryanatkn/belt/fs.js';
-import type {PathId} from '@ryanatkn/belt/path.js';
+import {fs_exists} from '@fuzdev/fuz_util/fs.js';
+import type {PathId} from '@fuzdev/fuz_util/path.js';
 
 import {replace_extension} from './paths.ts';
 

@@ -9,7 +9,7 @@ import {
 } from './build_cache_test_helpers.ts';
 
 // Mock dependencies
-vi.mock('@ryanatkn/belt/git.js', () => ({
+vi.mock('@fuzdev/fuz_util/git.js', () => ({
 	git_current_commit_hash: vi.fn(),
 }));
 
@@ -33,7 +33,7 @@ vi.mock('node:fs/promises', () => ({
 	readdir: vi.fn(),
 }));
 
-vi.mock('@ryanatkn/belt/fs.js', () => ({
+vi.mock('@fuzdev/fuz_util/fs.js', () => ({
 	fs_exists: vi.fn(),
 }));
 
@@ -47,9 +47,9 @@ describe('race condition: cache file modification during validation', () => {
 	});
 
 	test('handles cache file being modified while reading', async () => {
-		const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+		const {fs_exists} = vi.mocked(await import('@fuzdev/fuz_util/fs.js'));
 		const {readFile} = vi.mocked(await import('node:fs/promises'));
-		const {git_current_commit_hash} = await import('@ryanatkn/belt/git.js');
+		const {git_current_commit_hash} = await import('@fuzdev/fuz_util/git.js');
 		const {to_hash} = await import('$lib/hash.js');
 
 		const initial_metadata = create_mock_build_cache_metadata({git_commit: 'abc123'});
@@ -103,9 +103,9 @@ describe('race condition: cache file modification during validation', () => {
 	});
 
 	test('handles multiple concurrent build validation operations', async () => {
-		const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+		const {fs_exists} = vi.mocked(await import('@fuzdev/fuz_util/fs.js'));
 		const {readFile} = vi.mocked(await import('node:fs/promises'));
-		const {git_current_commit_hash} = await import('@ryanatkn/belt/git.js');
+		const {git_current_commit_hash} = await import('@fuzdev/fuz_util/git.js');
 		const {to_hash} = await import('$lib/hash.js');
 
 		const metadata = create_mock_build_cache_metadata({git_commit: 'abc123'});

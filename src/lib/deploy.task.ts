@@ -1,10 +1,10 @@
-import {spawn} from '@ryanatkn/belt/process.js';
-import {print_error} from '@ryanatkn/belt/print.js';
+import {spawn} from '@fuzdev/fuz_util/process.js';
+import {print_error} from '@fuzdev/fuz_util/print.js';
 import {styleText as st} from 'node:util';
 import {z} from 'zod';
 import {cp, mkdir, readdir, rm} from 'node:fs/promises';
 import {join, resolve} from 'node:path';
-import {fs_exists, fs_empty_dir} from '@ryanatkn/belt/fs.js';
+import {fs_exists, fs_empty_dir} from '@fuzdev/fuz_util/fs.js';
 import {
 	git_check_clean_workspace,
 	git_checkout,
@@ -20,7 +20,7 @@ import {
 	git_check_setting_pull_rebase,
 	git_clone_locally,
 	git_current_branch_name,
-} from '@ryanatkn/belt/git.js';
+} from '@fuzdev/fuz_util/git.js';
 
 import {TaskError, type Task} from './task.ts';
 import {print_path} from './paths.ts';

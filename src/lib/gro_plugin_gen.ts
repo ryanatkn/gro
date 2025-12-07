@@ -1,6 +1,6 @@
-import {EMPTY_OBJECT} from '@ryanatkn/belt/object.js';
-import {throttle} from '@ryanatkn/belt/throttle.js';
-import {UnreachableError} from '@ryanatkn/belt/error.js';
+import {EMPTY_OBJECT} from '@fuzdev/fuz_util/object.js';
+import {throttle} from '@fuzdev/fuz_util/throttle.js';
+import {UnreachableError} from '@fuzdev/fuz_util/error.js';
 
 import type {Plugin} from './plugin.ts';
 import type {Args} from './args.ts';

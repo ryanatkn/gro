@@ -1,8 +1,8 @@
 <script lang="ts">
-	import LibraryDetail from '@ryanatkn/fuz/LibraryDetail.svelte';
-	import TomeContent from '@ryanatkn/fuz/TomeContent.svelte';
-	import {get_tome_by_name} from '@ryanatkn/fuz/tome.js';
-	import {library_context} from '@ryanatkn/fuz/library.svelte.js';
+	import LibraryDetail from '@fuzdev/fuz_ui/LibraryDetail.svelte';
+	import TomeContent from '@fuzdev/fuz_ui/TomeContent.svelte';
+	import {get_tome_by_name} from '@fuzdev/fuz_ui/tome.js';
+	import {library_context} from '@fuzdev/fuz_ui/library.svelte.js';
 
 	const tome = get_tome_by_name('library');
 

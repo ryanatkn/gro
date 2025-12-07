@@ -1,8 +1,8 @@
 import * as esbuild from 'esbuild';
-import type {Logger} from '@ryanatkn/belt/log.js';
+import type {Logger} from '@fuzdev/fuz_util/log.js';
 import {basename} from 'node:path';
 import type {CompileOptions, ModuleCompileOptions, PreprocessorGroup} from 'svelte/compiler';
-import type {PathId} from '@ryanatkn/belt/path.js';
+import type {PathId} from '@fuzdev/fuz_util/path.js';
 
 import {print_build_result, to_define_import_meta_env} from './esbuild_helpers.ts';
 import {resolve_specifier} from './resolve_specifier.ts';
