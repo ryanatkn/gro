@@ -6,7 +6,12 @@
 
 [`npm i -D @ryanatkn/gro`](https://www.npmjs.com/package/@ryanatkn/gro)
 
-[Windows won't be supported](https://github.com/ryanatkn/gro/issues/319), I chose Bash instead.
+> ⚠️ I still use Gro heavily but I'm transitioning to Rust-based tooling
+> with [Fuz](https://github.com/fuzdev) using [Deno](https://github.com/denoland) as a sidecar.
+> I consider Gro deprecated but there should be a migration path.
+> Please open issues if you need help.
+
+> ⚠️[Windows won't be supported](https://github.com/ryanatkn/gro/issues/319), I chose Bash instead.
 
 Docs at [gro.ryanatkn.com/docs](https://gro.ryanatkn.com/docs) and [src/docs](./src/docs).
 
