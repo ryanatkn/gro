@@ -12,7 +12,7 @@ vi.mock('node:fs/promises', () => ({
 }));
 
 // Mock fs_exists from belt
-vi.mock('@ryanatkn/belt/fs.js', () => ({
+vi.mock('@fuzdev/fuz_util/fs.js', () => ({
 	fs_exists: vi.fn(),
 }));
 
@@ -26,7 +26,7 @@ describe('discover_build_output_dirs', () => {
 	});
 
 	test('returns all existing build directories', async () => {
-		const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+		const {fs_exists} = vi.mocked(await import('@fuzdev/fuz_util/fs.js'));
 		const {readdir, stat} = vi.mocked(await import('node:fs/promises'));
 
 		// Mock all directories exist
@@ -45,7 +45,7 @@ describe('discover_build_output_dirs', () => {
 	});
 
 	test('returns only directories that exist', async () => {
-		const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+		const {fs_exists} = vi.mocked(await import('@fuzdev/fuz_util/fs.js'));
 		const {readdir, stat} = vi.mocked(await import('node:fs/promises'));
 
 		// Only dist and dist_server exist
@@ -61,7 +61,7 @@ describe('discover_build_output_dirs', () => {
 	});
 
 	test('returns empty array when no build directories exist', async () => {
-		const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+		const {fs_exists} = vi.mocked(await import('@fuzdev/fuz_util/fs.js'));
 		const {readdir} = vi.mocked(await import('node:fs/promises'));
 
 		vi.mocked(fs_exists).mockResolvedValue(false);
@@ -73,7 +73,7 @@ describe('discover_build_output_dirs', () => {
 	});
 
 	test('filters out non-directory dist_ entries', async () => {
-		const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+		const {fs_exists} = vi.mocked(await import('@fuzdev/fuz_util/fs.js'));
 		const {readdir, stat} = vi.mocked(await import('node:fs/promises'));
 
 		vi.mocked(fs_exists).mockImplementation((path: any) => Promise.resolve(path === 'build'));
@@ -95,7 +95,7 @@ describe('discover_build_output_dirs', () => {
 	});
 
 	test('handles permission errors on directory listing', async () => {
-		const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+		const {fs_exists} = vi.mocked(await import('@fuzdev/fuz_util/fs.js'));
 		const {readdir, stat} = vi.mocked(await import('node:fs/promises'));
 
 		vi.mocked(fs_exists).mockResolvedValue(true);
@@ -109,7 +109,7 @@ describe('discover_build_output_dirs', () => {
 	});
 
 	test('handles files named with dist_ prefix', async () => {
-		const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+		const {fs_exists} = vi.mocked(await import('@fuzdev/fuz_util/fs.js'));
 		const {readdir, stat} = vi.mocked(await import('node:fs/promises'));
 
 		vi.mocked(fs_exists).mockResolvedValue(true);
@@ -134,7 +134,7 @@ describe('discover_build_output_dirs', () => {
 	});
 
 	test('skips non-dist_ prefixed directories', async () => {
-		const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+		const {fs_exists} = vi.mocked(await import('@fuzdev/fuz_util/fs.js'));
 		const {readdir, stat} = vi.mocked(await import('node:fs/promises'));
 
 		vi.mocked(fs_exists).mockResolvedValue(true);
@@ -161,7 +161,7 @@ describe('collect_build_outputs', () => {
 	});
 
 	test('hashes all files in build directory', async () => {
-		const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+		const {fs_exists} = vi.mocked(await import('@fuzdev/fuz_util/fs.js'));
 		const {readdir, readFile, stat} = vi.mocked(await import('node:fs/promises'));
 		const {to_hash} = await import('$lib/hash.js');
 
@@ -199,7 +199,7 @@ describe('collect_build_outputs', () => {
 	});
 
 	test('skips build.json file', async () => {
-		const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+		const {fs_exists} = vi.mocked(await import('@fuzdev/fuz_util/fs.js'));
 		const {readdir, readFile, stat} = vi.mocked(await import('node:fs/promises'));
 		const {to_hash} = await import('$lib/hash.js');
 
@@ -220,7 +220,7 @@ describe('collect_build_outputs', () => {
 	});
 
 	test('returns empty array for non-existent directory', async () => {
-		const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+		const {fs_exists} = vi.mocked(await import('@fuzdev/fuz_util/fs.js'));
 
 		vi.mocked(fs_exists).mockResolvedValue(false);
 
@@ -230,7 +230,7 @@ describe('collect_build_outputs', () => {
 	});
 
 	test('hashes all files in directory', async () => {
-		const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+		const {fs_exists} = vi.mocked(await import('@fuzdev/fuz_util/fs.js'));
 		const {readdir, readFile, stat} = vi.mocked(await import('node:fs/promises'));
 		const {to_hash} = await import('$lib/hash.js');
 
@@ -254,7 +254,7 @@ describe('collect_build_outputs', () => {
 	});
 
 	test('hashes files from multiple directories', async () => {
-		const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+		const {fs_exists} = vi.mocked(await import('@fuzdev/fuz_util/fs.js'));
 		const {readdir, readFile, stat} = vi.mocked(await import('node:fs/promises'));
 		const {to_hash} = await import('$lib/hash.js');
 
@@ -294,7 +294,7 @@ describe('collect_build_outputs', () => {
 	});
 
 	test('hashes files in deeply nested directories', async () => {
-		const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+		const {fs_exists} = vi.mocked(await import('@fuzdev/fuz_util/fs.js'));
 		const {readdir, readFile, stat} = vi.mocked(await import('node:fs/promises'));
 		const {to_hash} = await import('$lib/hash.js');
 

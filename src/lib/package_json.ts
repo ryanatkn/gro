@@ -1,11 +1,11 @@
 import {z} from 'zod';
 import {join} from 'node:path';
 import {readFile, writeFile} from 'node:fs/promises';
-import {plural, strip_end} from '@ryanatkn/belt/string.js';
-import type {Logger} from '@ryanatkn/belt/log.js';
+import {plural, strip_end} from '@fuzdev/fuz_util/string.js';
+import type {Logger} from '@fuzdev/fuz_util/log.js';
 import {styleText as st} from 'node:util';
-import {PackageJson, PackageJsonExports} from '@ryanatkn/belt/package_json.js';
-import {fs_search} from '@ryanatkn/belt/fs.js';
+import {PackageJson, PackageJsonExports} from '@fuzdev/fuz_util/package_json.js';
+import {fs_search} from '@fuzdev/fuz_util/fs.js';
 
 import {paths, gro_paths, IS_THIS_GRO} from './paths.ts';
 import {

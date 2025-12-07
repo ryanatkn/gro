@@ -1,11 +1,11 @@
 <script lang="ts">
 	import {resolve} from '$app/paths';
-	import DocsFooter from '@ryanatkn/fuz/DocsFooter.svelte';
-	import Svg from '@ryanatkn/fuz/Svg.svelte';
-	import Card from '@ryanatkn/fuz/Card.svelte';
-	import {gro_logo} from '@ryanatkn/fuz/logos.js';
-	import HiddenPersonalLinks from '@ryanatkn/fuz/HiddenPersonalLinks.svelte';
-	import {library_context} from '@ryanatkn/fuz/library.svelte.js';
+	import DocsFooter from '@fuzdev/fuz_ui/DocsFooter.svelte';
+	import Svg from '@fuzdev/fuz_ui/Svg.svelte';
+	import Card from '@fuzdev/fuz_ui/Card.svelte';
+	import {gro_logo} from '@fuzdev/fuz_ui/logos.js';
+	import HiddenPersonalLinks from '@fuzdev/fuz_ui/HiddenPersonalLinks.svelte';
+	import {library_context} from '@fuzdev/fuz_ui/library.svelte.js';
 
 	const library = library_context.get();
 </script>

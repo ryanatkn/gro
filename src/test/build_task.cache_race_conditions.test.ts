@@ -5,7 +5,7 @@ import {task as build_task} from '../lib/build.task.ts';
 import {create_mock_build_task_context, create_mock_plugins} from './build_task_test_helpers.ts';
 
 // Mock dependencies
-vi.mock('@ryanatkn/belt/git.js', () => ({
+vi.mock('@fuzdev/fuz_util/git.js', () => ({
 	git_check_clean_workspace: vi.fn(),
 	git_current_commit_hash: vi.fn(),
 }));
@@ -74,7 +74,7 @@ describe('build_task cache race conditions', () => {
 
 	test('detects commit change during build and skips cache save', async () => {
 		const {git_check_clean_workspace, git_current_commit_hash} = vi.mocked(
-			await import('@ryanatkn/belt/git.js'),
+			await import('@fuzdev/fuz_util/git.js'),
 		);
 		const {is_build_cache_valid, save_build_cache_metadata} = vi.mocked(
 			await import('../lib/build_cache.ts'),
@@ -122,7 +122,7 @@ describe('build_task cache race conditions', () => {
 
 	test('saves cache when commit is stable throughout build', async () => {
 		const {git_check_clean_workspace, git_current_commit_hash} = vi.mocked(
-			await import('@ryanatkn/belt/git.js'),
+			await import('@fuzdev/fuz_util/git.js'),
 		);
 		const {is_build_cache_valid, create_build_cache_metadata, save_build_cache_metadata} =
 			vi.mocked(await import('../lib/build_cache.ts'));
@@ -168,7 +168,7 @@ describe('build_task cache race conditions', () => {
 
 	test('logs commit hashes when race condition detected', async () => {
 		const {git_check_clean_workspace, git_current_commit_hash} = vi.mocked(
-			await import('@ryanatkn/belt/git.js'),
+			await import('@fuzdev/fuz_util/git.js'),
 		);
 		const {is_build_cache_valid} = vi.mocked(await import('../lib/build_cache.ts'));
 		const {to_hash} = vi.mocked(await import('../lib/hash.ts'));

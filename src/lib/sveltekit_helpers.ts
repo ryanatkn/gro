@@ -1,8 +1,8 @@
-import type {Result} from '@ryanatkn/belt/result.js';
-import type {Logger} from '@ryanatkn/belt/log.js';
+import type {Result} from '@fuzdev/fuz_util/result.js';
+import type {Logger} from '@fuzdev/fuz_util/log.js';
 import {join} from 'node:path';
-import type {PackageJson} from '@ryanatkn/belt/package_json.js';
-import {fs_exists} from '@ryanatkn/belt/fs.js';
+import type {PackageJson} from '@fuzdev/fuz_util/package_json.js';
+import {fs_exists} from '@fuzdev/fuz_util/fs.js';
 
 import {has_dep} from './package_json.ts';
 import {default_svelte_config, type ParsedSvelteConfig} from './svelte_config.ts';

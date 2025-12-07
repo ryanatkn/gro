@@ -1,5 +1,5 @@
 import type * as esbuild from 'esbuild';
-import {escape_regexp} from '@ryanatkn/belt/regexp.js';
+import {escape_regexp} from '@fuzdev/fuz_util/regexp.js';
 import {join} from 'node:path';
 
 export interface EsbuildPluginSveltekitShimAliasOptions {

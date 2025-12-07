@@ -1,4 +1,4 @@
-import type {PathId} from '@ryanatkn/belt/path.js';
+import type {PathId} from '@fuzdev/fuz_util/path.js';
 
 // TODO extract more here from Filer
 

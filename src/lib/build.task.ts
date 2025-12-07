@@ -1,9 +1,9 @@
 import {z} from 'zod';
 import {styleText as st} from 'node:util';
-import {git_check_clean_workspace, git_current_commit_hash} from '@ryanatkn/belt/git.js';
+import {git_check_clean_workspace, git_current_commit_hash} from '@fuzdev/fuz_util/git.js';
 import {rm} from 'node:fs/promises';
 import {join} from 'node:path';
-import {fs_exists} from '@ryanatkn/belt/fs.js';
+import {fs_exists} from '@fuzdev/fuz_util/fs.js';
 
 import {TaskError, type Task} from './task.ts';
 import {Plugins} from './plugin.ts';

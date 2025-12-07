@@ -5,7 +5,7 @@ import {task as build_task} from '../lib/build.task.ts';
 import {create_mock_build_task_context, create_mock_plugins} from './build_task_test_helpers.ts';
 
 // Mock dependencies
-vi.mock('@ryanatkn/belt/git.js', () => ({
+vi.mock('@fuzdev/fuz_util/git.js', () => ({
 	git_check_clean_workspace: vi.fn(),
 	git_current_commit_hash: vi.fn(),
 }));
@@ -18,7 +18,7 @@ vi.mock('node:fs/promises', () => ({
 }));
 
 // Mock fs_exists from belt
-vi.mock('@ryanatkn/belt/fs.js', () => ({
+vi.mock('@fuzdev/fuz_util/fs.js', () => ({
 	fs_exists: vi.fn(),
 }));
 
@@ -76,7 +76,7 @@ describe('build_task cache persistence', () => {
 
 	test('runs build when cache is invalid and saves cache after successful build', async () => {
 		const {git_check_clean_workspace, git_current_commit_hash} = vi.mocked(
-			await import('@ryanatkn/belt/git.js'),
+			await import('@fuzdev/fuz_util/git.js'),
 		);
 		const {is_build_cache_valid, create_build_cache_metadata, save_build_cache_metadata} =
 			vi.mocked(await import('../lib/build_cache.ts'));
@@ -124,7 +124,7 @@ describe('build_task cache persistence', () => {
 
 	test('saves cache when force_build with clean workspace', async () => {
 		const {git_check_clean_workspace, git_current_commit_hash} = vi.mocked(
-			await import('@ryanatkn/belt/git.js'),
+			await import('@fuzdev/fuz_util/git.js'),
 		);
 		const {save_build_cache_metadata, create_build_cache_metadata} = vi.mocked(
 			await import('../lib/build_cache.ts'),
@@ -154,8 +154,8 @@ describe('build_task cache persistence', () => {
 	});
 
 	test('still deletes dist when force_build with dirty workspace', async () => {
-		const {git_check_clean_workspace} = vi.mocked(await import('@ryanatkn/belt/git.js'));
-		const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+		const {git_check_clean_workspace} = vi.mocked(await import('@fuzdev/fuz_util/git.js'));
+		const {fs_exists} = vi.mocked(await import('@fuzdev/fuz_util/fs.js'));
 		const {rm, readdir, stat} = vi.mocked(await import('node:fs/promises'));
 
 		// Workspace is dirty, force_build is true
@@ -179,7 +179,7 @@ describe('build_task cache persistence', () => {
 		// but not utilized in current code paths: dirty workspace doesn't save cache,
 		// clean workspace doesn't pre-discover, so build_dirs is always undefined when passed
 		const {git_check_clean_workspace, git_current_commit_hash} = vi.mocked(
-			await import('@ryanatkn/belt/git.js'),
+			await import('@fuzdev/fuz_util/git.js'),
 		);
 		const {is_build_cache_valid, create_build_cache_metadata} = vi.mocked(
 			await import('../lib/build_cache.ts'),
@@ -218,7 +218,7 @@ describe('build_task cache persistence', () => {
 
 	test('handles build when not in a git repository', async () => {
 		const {git_check_clean_workspace, git_current_commit_hash} = vi.mocked(
-			await import('@ryanatkn/belt/git.js'),
+			await import('@fuzdev/fuz_util/git.js'),
 		);
 		const {is_build_cache_valid, create_build_cache_metadata, save_build_cache_metadata} =
 			vi.mocked(await import('../lib/build_cache.ts'));
@@ -264,7 +264,7 @@ describe('build_task cache persistence', () => {
 	describe('cache metadata creation failures', () => {
 		test('propagates error when create_build_cache_metadata throws', async () => {
 			const {git_check_clean_workspace, git_current_commit_hash} = vi.mocked(
-				await import('@ryanatkn/belt/git.js'),
+				await import('@fuzdev/fuz_util/git.js'),
 			);
 			const {is_build_cache_valid, create_build_cache_metadata} = vi.mocked(
 				await import('../lib/build_cache.ts'),
@@ -300,7 +300,7 @@ describe('build_task cache persistence', () => {
 
 		test('build fails if cache metadata creation throws (cache errors are fatal in clean workspace)', async () => {
 			const {git_check_clean_workspace, git_current_commit_hash} = vi.mocked(
-				await import('@ryanatkn/belt/git.js'),
+				await import('@fuzdev/fuz_util/git.js'),
 			);
 			const {is_build_cache_valid, create_build_cache_metadata, save_build_cache_metadata} =
 				vi.mocked(await import('../lib/build_cache.ts'));

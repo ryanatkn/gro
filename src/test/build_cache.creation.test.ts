@@ -12,7 +12,7 @@ import {
 } from './build_cache_test_helpers.ts';
 
 // Mock dependencies
-vi.mock('@ryanatkn/belt/git.js', () => ({
+vi.mock('@fuzdev/fuz_util/git.js', () => ({
 	git_current_commit_hash: vi.fn(),
 }));
 
@@ -24,7 +24,7 @@ vi.mock('node:fs/promises', () => ({
 }));
 
 // Mock fs_exists from belt
-vi.mock('@ryanatkn/belt/fs.js', () => ({
+vi.mock('@fuzdev/fuz_util/fs.js', () => ({
 	fs_exists: vi.fn(),
 }));
 
@@ -36,7 +36,7 @@ describe('create_build_cache_metadata', () => {
 	beforeEach(async () => {
 		vi.clearAllMocks();
 		// Set up default async mocks for discover_build_output_dirs
-		const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+		const {fs_exists} = vi.mocked(await import('@fuzdev/fuz_util/fs.js'));
 		const {readdir, stat} = vi.mocked(await import('node:fs/promises'));
 		vi.mocked(fs_exists).mockResolvedValue(false);
 		vi.mocked(readdir).mockResolvedValue([] as any);
@@ -44,8 +44,8 @@ describe('create_build_cache_metadata', () => {
 	});
 
 	test('creates complete metadata object', async () => {
-		const {git_current_commit_hash} = await import('@ryanatkn/belt/git.js');
-		const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+		const {git_current_commit_hash} = await import('@fuzdev/fuz_util/git.js');
+		const {fs_exists} = vi.mocked(await import('@fuzdev/fuz_util/fs.js'));
 		const {readdir, stat} = vi.mocked(await import('node:fs/promises'));
 		const {to_hash} = await import('$lib/hash.js');
 
@@ -69,8 +69,8 @@ describe('create_build_cache_metadata', () => {
 	});
 
 	test('creates metadata with actual build outputs', async () => {
-		const {git_current_commit_hash} = await import('@ryanatkn/belt/git.js');
-		const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+		const {git_current_commit_hash} = await import('@fuzdev/fuz_util/git.js');
+		const {fs_exists} = vi.mocked(await import('@fuzdev/fuz_util/fs.js'));
 		const {readdir, stat, readFile} = vi.mocked(await import('node:fs/promises'));
 		const {to_hash} = await import('$lib/hash.js');
 
@@ -116,8 +116,8 @@ describe('create_build_cache_metadata', () => {
 	});
 
 	test('creates metadata with multiple build directories', async () => {
-		const {git_current_commit_hash} = await import('@ryanatkn/belt/git.js');
-		const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+		const {git_current_commit_hash} = await import('@fuzdev/fuz_util/git.js');
+		const {fs_exists} = vi.mocked(await import('@fuzdev/fuz_util/fs.js'));
 		const {readdir, stat, readFile} = vi.mocked(await import('node:fs/promises'));
 		const {to_hash} = await import('$lib/hash.js');
 
@@ -161,8 +161,8 @@ describe('create_build_cache_metadata', () => {
 	});
 
 	test('handles empty build directories', async () => {
-		const {git_current_commit_hash} = await import('@ryanatkn/belt/git.js');
-		const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+		const {git_current_commit_hash} = await import('@fuzdev/fuz_util/git.js');
+		const {fs_exists} = vi.mocked(await import('@fuzdev/fuz_util/fs.js'));
 		const {readdir, stat} = vi.mocked(await import('node:fs/promises'));
 		const {to_hash} = await import('$lib/hash.js');
 
@@ -188,8 +188,8 @@ describe('create_build_cache_metadata', () => {
 	});
 
 	test('creates metadata with deeply nested file structures', async () => {
-		const {git_current_commit_hash} = await import('@ryanatkn/belt/git.js');
-		const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+		const {git_current_commit_hash} = await import('@fuzdev/fuz_util/git.js');
+		const {fs_exists} = vi.mocked(await import('@fuzdev/fuz_util/fs.js'));
 		const {readdir, stat, readFile} = vi.mocked(await import('node:fs/promises'));
 		const {to_hash} = await import('$lib/hash.js');
 
@@ -238,8 +238,8 @@ describe('create_build_cache_metadata', () => {
 	});
 
 	test('handles build directories with many files', async () => {
-		const {git_current_commit_hash} = await import('@ryanatkn/belt/git.js');
-		const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+		const {git_current_commit_hash} = await import('@fuzdev/fuz_util/git.js');
+		const {fs_exists} = vi.mocked(await import('@fuzdev/fuz_util/fs.js'));
 		const {readdir, stat, readFile} = vi.mocked(await import('node:fs/promises'));
 		const {to_hash} = await import('$lib/hash.js');
 
@@ -275,8 +275,8 @@ describe('create_build_cache_metadata', () => {
 	});
 
 	test('creates metadata with null git commit', async () => {
-		const {git_current_commit_hash} = await import('@ryanatkn/belt/git.js');
-		const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+		const {git_current_commit_hash} = await import('@fuzdev/fuz_util/git.js');
+		const {fs_exists} = vi.mocked(await import('@fuzdev/fuz_util/fs.js'));
 		const {readdir, stat} = vi.mocked(await import('node:fs/promises'));
 		const {to_hash} = await import('$lib/hash.js');
 
@@ -299,8 +299,8 @@ describe('create_build_cache_metadata', () => {
 	});
 
 	test('includes correct build_cache_config_hash', async () => {
-		const {git_current_commit_hash} = await import('@ryanatkn/belt/git.js');
-		const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+		const {git_current_commit_hash} = await import('@fuzdev/fuz_util/git.js');
+		const {fs_exists} = vi.mocked(await import('@fuzdev/fuz_util/fs.js'));
 		const {readdir, stat} = vi.mocked(await import('node:fs/promises'));
 		const {to_hash} = await import('$lib/hash.js');
 

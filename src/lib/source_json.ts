@@ -1,10 +1,10 @@
 import {join} from 'node:path';
-import {ensure_end, strip_start} from '@ryanatkn/belt/string.js';
-import {fs_exists, fs_search} from '@ryanatkn/belt/fs.js';
+import {ensure_end, strip_start} from '@fuzdev/fuz_util/string.js';
+import {fs_exists, fs_search} from '@fuzdev/fuz_util/fs.js';
 import ts from 'typescript';
-import type {PackageJson, PackageJsonExports} from '@ryanatkn/belt/package_json.js';
-import {SourceJson, type ModuleJson, type DeclarationKind} from '@ryanatkn/belt/source_json.js';
-import type {Logger} from '@ryanatkn/belt/log.js';
+import type {PackageJson, PackageJsonExports} from '@fuzdev/fuz_util/package_json.js';
+import {SourceJson, type ModuleJson, type DeclarationKind} from '@fuzdev/fuz_util/source_json.js';
+import type {Logger} from '@fuzdev/fuz_util/log.js';
 
 import {paths, replace_extension} from './paths.ts';
 import {parse_exports} from './parse_exports.ts';

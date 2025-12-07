@@ -1,11 +1,11 @@
 <script lang="ts">
-	import '@ryanatkn/moss/style.css';
-	import '@ryanatkn/moss/theme.css';
+	import '@fuzdev/fuz_css/style.css';
+	import '@fuzdev/fuz_css/theme.css';
 	import '$routes/moss.css';
 
-	import Themed from '@ryanatkn/fuz/Themed.svelte';
+	import Themed from '@fuzdev/fuz_ui/Themed.svelte';
 	import type {Snippet} from 'svelte';
-	import {Library, library_context} from '@ryanatkn/fuz/library.svelte.js';
+	import {Library, library_context} from '@fuzdev/fuz_ui/library.svelte.js';
 
 	import {library_json} from './library.js';
 

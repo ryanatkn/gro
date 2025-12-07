@@ -1,7 +1,7 @@
-import {spawn} from '@ryanatkn/belt/process.js';
+import {spawn} from '@fuzdev/fuz_util/process.js';
 import {z} from 'zod';
 import {rm} from 'node:fs/promises';
-import {GitOrigin, git_pull} from '@ryanatkn/belt/git.js';
+import {GitOrigin, git_pull} from '@fuzdev/fuz_util/git.js';
 
 import {TaskError, type Task} from './task.ts';
 import {extract_deps, load_package_json, type PackageJsonDep} from './package_json.ts';

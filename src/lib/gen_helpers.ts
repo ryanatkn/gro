@@ -1,7 +1,7 @@
 import {resolve} from 'node:path';
-import type {Logger} from '@ryanatkn/belt/log.js';
-import type {Timings} from '@ryanatkn/belt/timings.js';
-import type {PathId} from '@ryanatkn/belt/path.js';
+import type {Logger} from '@fuzdev/fuz_util/log.js';
+import type {Timings} from '@fuzdev/fuz_util/timings.js';
+import type {PathId} from '@fuzdev/fuz_util/path.js';
 
 import type {GroConfig} from './gro_config.ts';
 import {filter_dependents, type Filer} from './filer.ts';

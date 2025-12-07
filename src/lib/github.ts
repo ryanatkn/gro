@@ -2,8 +2,8 @@
 // for now it's just calling a single endpoint so we do it manually
 // and we specify just the types we need
 
-import {FetchValueCache, fetch_value} from '@ryanatkn/belt/fetch.js';
-import type {Logger} from '@ryanatkn/belt/log.js';
+import {FetchValueCache, fetch_value} from '@fuzdev/fuz_util/fetch.js';
+import type {Logger} from '@fuzdev/fuz_util/log.js';
 import {z} from 'zod';
 
 export const GITHUB_REPO_MATCHER = /.+github.com\/(.+)\/(.+)/;

@@ -2,9 +2,9 @@ import {readFile, writeFile} from 'node:fs/promises';
 import {join} from 'node:path';
 import ts from 'typescript';
 import {vi} from 'vitest';
-import type {Logger} from '@ryanatkn/belt/log.js';
-import type {Timings} from '@ryanatkn/belt/timings.js';
-import {json_stringify_deterministic} from '@ryanatkn/belt/json.js';
+import type {Logger} from '@fuzdev/fuz_util/log.js';
+import type {Timings} from '@fuzdev/fuz_util/timings.js';
+import {json_stringify_deterministic} from '@fuzdev/fuz_util/json.js';
 
 import type {GroConfig} from '../lib/gro_config.ts';
 import {to_hash} from '../lib/hash.ts';

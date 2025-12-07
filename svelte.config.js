@@ -1,7 +1,7 @@
 import {vitePreprocess} from '@sveltejs/vite-plugin-svelte';
 import adapter from '@sveltejs/adapter-static';
-import {create_csp_directives} from '@ryanatkn/fuz/csp.js';
-import {csp_trusted_sources_of_ryanatkn} from '@ryanatkn/fuz/csp_of_ryanatkn.js';
+import {create_csp_directives} from '@fuzdev/fuz_ui/csp.js';
+import {csp_trusted_sources_of_ryanatkn} from '@fuzdev/fuz_ui/csp_of_ryanatkn.js';
 
 /** @type {import('@sveltejs/kit').Config} */
 export default {

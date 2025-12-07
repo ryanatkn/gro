@@ -1,7 +1,7 @@
 <script lang="ts">
-	import DocsContent from '@ryanatkn/fuz/DocsContent.svelte';
-	import {tomes_context} from '@ryanatkn/fuz/tome.js';
-	import {library_context} from '@ryanatkn/fuz/library.svelte.js';
+	import DocsContent from '@fuzdev/fuz_ui/DocsContent.svelte';
+	import {tomes_context} from '@fuzdev/fuz_ui/tome.js';
+	import {library_context} from '@fuzdev/fuz_ui/library.svelte.js';
 
 	const tomes_by_name = tomes_context.get();
 

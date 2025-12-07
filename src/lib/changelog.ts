@@ -1,7 +1,7 @@
 import {readFile, writeFile} from 'node:fs/promises';
 import {z} from 'zod';
-import type {Logger} from '@ryanatkn/belt/log.js';
-import type {FetchValueCache} from '@ryanatkn/belt/fetch.js';
+import type {Logger} from '@fuzdev/fuz_util/log.js';
+import type {FetchValueCache} from '@fuzdev/fuz_util/fetch.js';
 
 import {github_fetch_commit_prs} from './github.ts';
 

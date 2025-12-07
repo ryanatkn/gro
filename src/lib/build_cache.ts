@@ -1,10 +1,10 @@
 import {mkdir, readdir, readFile, rm, stat, writeFile} from 'node:fs/promises';
 import {join} from 'node:path';
-import type {Logger} from '@ryanatkn/belt/log.js';
+import type {Logger} from '@fuzdev/fuz_util/log.js';
 import {styleText as st} from 'node:util';
-import {git_current_commit_hash} from '@ryanatkn/belt/git.js';
-import {fs_exists} from '@ryanatkn/belt/fs.js';
-import {map_concurrent} from '@ryanatkn/belt/async.js';
+import {git_current_commit_hash} from '@fuzdev/fuz_util/git.js';
+import {fs_exists} from '@fuzdev/fuz_util/fs.js';
+import {map_concurrent} from '@fuzdev/fuz_util/async.js';
 import {z} from 'zod';
 
 import {to_hash} from './hash.ts';

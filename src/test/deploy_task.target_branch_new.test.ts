@@ -12,8 +12,8 @@ import {
 /* eslint-disable @typescript-eslint/require-await */
 
 // Mock dependencies
-vi.mock('@ryanatkn/belt/git.js', async (import_original) => {
-	const actual = await import_original<typeof import('@ryanatkn/belt/git.js')>();
+vi.mock('@fuzdev/fuz_util/git.js', async (import_original) => {
+	const actual = await import_original<typeof import('@fuzdev/fuz_util/git.js')>();
 	return {
 		...actual,
 		git_check_clean_workspace: vi.fn(),
@@ -31,7 +31,7 @@ vi.mock('@ryanatkn/belt/git.js', async (import_original) => {
 	};
 });
 
-vi.mock('@ryanatkn/belt/process.js', () => ({
+vi.mock('@fuzdev/fuz_util/process.js', () => ({
 	spawn: vi.fn(),
 }));
 
@@ -42,7 +42,7 @@ vi.mock('node:fs/promises', () => ({
 	readdir: vi.fn(),
 }));
 
-vi.mock('@ryanatkn/belt/fs.js', () => ({
+vi.mock('@fuzdev/fuz_util/fs.js', () => ({
 	fs_exists: vi.fn(),
 	fs_empty_dir: vi.fn(),
 }));
@@ -54,11 +54,11 @@ describe('deploy_task target branch creation (remote does not exist)', () => {
 		await setup_successful_fs_mocks();
 		await setup_successful_spawn_mock();
 
-		const {fs_empty_dir} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+		const {fs_empty_dir} = vi.mocked(await import('@fuzdev/fuz_util/fs.js'));
 		vi.mocked(fs_empty_dir).mockResolvedValue(undefined);
 
 		// Default: remote target does NOT exist
-		const {git_remote_branch_exists} = vi.mocked(await import('@ryanatkn/belt/git.js'));
+		const {git_remote_branch_exists} = vi.mocked(await import('@fuzdev/fuz_util/git.js'));
 		vi.mocked(git_remote_branch_exists).mockResolvedValue(false);
 	});
 
@@ -68,7 +68,7 @@ describe('deploy_task target branch creation (remote does not exist)', () => {
 
 	describe('deploy directory cleanup', () => {
 		test('deletes existing deploy directory', async () => {
-			const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+			const {fs_exists} = vi.mocked(await import('@fuzdev/fuz_util/fs.js'));
 			const {rm, mkdir} = await import('node:fs/promises');
 
 			vi.mocked(fs_exists).mockResolvedValue(true); // deploy dir exists
@@ -84,7 +84,7 @@ describe('deploy_task target branch creation (remote does not exist)', () => {
 		});
 
 		test('skips deletion when deploy directory does not exist', async () => {
-			const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+			const {fs_exists} = vi.mocked(await import('@fuzdev/fuz_util/fs.js'));
 			const {rm, mkdir} = await import('node:fs/promises');
 
 			// deploy dir doesn't exist, but build_dir does
@@ -101,7 +101,7 @@ describe('deploy_task target branch creation (remote does not exist)', () => {
 		});
 
 		test('uses custom deploy_dir path', async () => {
-			const {fs_exists} = vi.mocked(await import('@ryanatkn/belt/fs.js'));
+			const {fs_exists} = vi.mocked(await import('@fuzdev/fuz_util/fs.js'));
 			const {rm, mkdir} = await import('node:fs/promises');
 
 			vi.mocked(fs_exists).mockResolvedValue(true);
@@ -121,7 +121,7 @@ describe('deploy_task target branch creation (remote does not exist)', () => {
 	describe('local target branch cleanup', () => {
 		test('deletes local target branch if it exists', async () => {
 			const {git_local_branch_exists, git_delete_local_branch} = vi.mocked(
-				await import('@ryanatkn/belt/git.js'),
+				await import('@fuzdev/fuz_util/git.js'),
 			);
 
 			// Mock target branch exists locally
@@ -139,7 +139,7 @@ describe('deploy_task target branch creation (remote does not exist)', () => {
 
 		test('skips deletion when local target branch does not exist', async () => {
 			const {git_local_branch_exists, git_delete_local_branch} = vi.mocked(
-				await import('@ryanatkn/belt/git.js'),
+				await import('@fuzdev/fuz_util/git.js'),
 			);
 
 			// Mock target branch doesn't exist locally
@@ -156,7 +156,7 @@ describe('deploy_task target branch creation (remote does not exist)', () => {
 
 	describe('orphan branch creation', () => {
 		test('clones source branch locally to deploy dir', async () => {
-			const {git_clone_locally} = vi.mocked(await import('@ryanatkn/belt/git.js'));
+			const {git_clone_locally} = vi.mocked(await import('@fuzdev/fuz_util/git.js'));
 
 			const ctx = create_mock_deploy_task_context({
 				source: 'main',
@@ -176,7 +176,7 @@ describe('deploy_task target branch creation (remote does not exist)', () => {
 		});
 
 		test('creates orphan target branch in deploy dir', async () => {
-			const {spawn} = vi.mocked(await import('@ryanatkn/belt/process.js'));
+			const {spawn} = vi.mocked(await import('@fuzdev/fuz_util/process.js'));
 
 			const ctx = create_mock_deploy_task_context({
 				target: 'deploy',
@@ -192,7 +192,7 @@ describe('deploy_task target branch creation (remote does not exist)', () => {
 		});
 
 		test('removes all files in orphan branch', async () => {
-			const {spawn} = vi.mocked(await import('@ryanatkn/belt/process.js'));
+			const {spawn} = vi.mocked(await import('@fuzdev/fuz_util/process.js'));
 
 			const ctx = create_mock_deploy_task_context({dry: true});
 
@@ -205,7 +205,7 @@ describe('deploy_task target branch creation (remote does not exist)', () => {
 		});
 
 		test('creates initial .gitkeep file', async () => {
-			const {spawn} = vi.mocked(await import('@ryanatkn/belt/process.js'));
+			const {spawn} = vi.mocked(await import('@fuzdev/fuz_util/process.js'));
 
 			const ctx = create_mock_deploy_task_context({dry: true});
 
@@ -218,7 +218,7 @@ describe('deploy_task target branch creation (remote does not exist)', () => {
 		});
 
 		test('adds .gitkeep to git', async () => {
-			const {spawn} = vi.mocked(await import('@ryanatkn/belt/process.js'));
+			const {spawn} = vi.mocked(await import('@fuzdev/fuz_util/process.js'));
 
 			const ctx = create_mock_deploy_task_context({dry: true});
 
@@ -231,7 +231,7 @@ describe('deploy_task target branch creation (remote does not exist)', () => {
 		});
 
 		test('commits initial commit', async () => {
-			const {spawn} = vi.mocked(await import('@ryanatkn/belt/process.js'));
+			const {spawn} = vi.mocked(await import('@fuzdev/fuz_util/process.js'));
 
 			const ctx = create_mock_deploy_task_context({dry: true});
 
@@ -244,7 +244,7 @@ describe('deploy_task target branch creation (remote does not exist)', () => {
 		});
 
 		test('operations happen in correct order', async () => {
-			const {spawn} = vi.mocked(await import('@ryanatkn/belt/process.js'));
+			const {spawn} = vi.mocked(await import('@fuzdev/fuz_util/process.js'));
 
 			const ctx = create_mock_deploy_task_context({dry: true});
 
@@ -274,7 +274,7 @@ describe('deploy_task target branch creation (remote does not exist)', () => {
 
 	describe('remote branch creation', () => {
 		test('pushes to create remote target branch', async () => {
-			const {git_push_to_create} = vi.mocked(await import('@ryanatkn/belt/git.js'));
+			const {git_push_to_create} = vi.mocked(await import('@fuzdev/fuz_util/git.js'));
 
 			const ctx = create_mock_deploy_task_context({dry: true});
 
@@ -287,7 +287,7 @@ describe('deploy_task target branch creation (remote does not exist)', () => {
 		});
 
 		test('uses custom origin and target', async () => {
-			const {git_push_to_create} = vi.mocked(await import('@ryanatkn/belt/git.js'));
+			const {git_push_to_create} = vi.mocked(await import('@fuzdev/fuz_util/git.js'));
 
 			const ctx = create_mock_deploy_task_context({
 				origin: 'upstream',
@@ -306,7 +306,7 @@ describe('deploy_task target branch creation (remote does not exist)', () => {
 
 	describe('cleanup after creation', () => {
 		test('deletes source branch from deploy dir', async () => {
-			const {git_delete_local_branch} = vi.mocked(await import('@ryanatkn/belt/git.js'));
+			const {git_delete_local_branch} = vi.mocked(await import('@fuzdev/fuz_util/git.js'));
 
 			const ctx = create_mock_deploy_task_context({
 				source: 'main',
@@ -322,7 +322,7 @@ describe('deploy_task target branch creation (remote does not exist)', () => {
 		});
 
 		test('deletes custom source branch from deploy dir', async () => {
-			const {git_delete_local_branch} = vi.mocked(await import('@ryanatkn/belt/git.js'));
+			const {git_delete_local_branch} = vi.mocked(await import('@fuzdev/fuz_util/git.js'));
 
 			const ctx = create_mock_deploy_task_context({
 				source: 'develop',
@@ -339,7 +339,7 @@ describe('deploy_task target branch creation (remote does not exist)', () => {
 
 	describe('error handling', () => {
 		test('propagates error when git_clone_locally fails', async () => {
-			const {git_clone_locally} = vi.mocked(await import('@ryanatkn/belt/git.js'));
+			const {git_clone_locally} = vi.mocked(await import('@fuzdev/fuz_util/git.js'));
 
 			vi.mocked(git_clone_locally).mockRejectedValue(new Error('Clone failed'));
 
@@ -349,7 +349,7 @@ describe('deploy_task target branch creation (remote does not exist)', () => {
 		});
 
 		test('propagates error when orphan branch creation fails', async () => {
-			const {spawn} = vi.mocked(await import('@ryanatkn/belt/process.js'));
+			const {spawn} = vi.mocked(await import('@fuzdev/fuz_util/process.js'));
 
 			// Make checkout --orphan fail
 			vi.mocked(spawn).mockImplementation(async (cmd, args) => {
@@ -365,7 +365,7 @@ describe('deploy_task target branch creation (remote does not exist)', () => {
 		});
 
 		test('propagates error when push fails', async () => {
-			const {git_push_to_create} = vi.mocked(await import('@ryanatkn/belt/git.js'));
+			const {git_push_to_create} = vi.mocked(await import('@fuzdev/fuz_util/git.js'));
 
 			vi.mocked(git_push_to_create).mockRejectedValue(new Error('Push failed'));
 

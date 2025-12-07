@@ -1,9 +1,9 @@
-import type {Timings} from '@ryanatkn/belt/timings.js';
-import {UnreachableError} from '@ryanatkn/belt/error.js';
-import type {Result} from '@ryanatkn/belt/result.js';
-import {print_error} from '@ryanatkn/belt/print.js';
+import type {Timings} from '@fuzdev/fuz_util/timings.js';
+import {UnreachableError} from '@fuzdev/fuz_util/error.js';
+import type {Result} from '@fuzdev/fuz_util/result.js';
+import {print_error} from '@fuzdev/fuz_util/print.js';
 import {pathToFileURL} from 'node:url';
-import type {PathId} from '@ryanatkn/belt/path.js';
+import type {PathId} from '@fuzdev/fuz_util/path.js';
 
 import type {ResolvedInputFile} from './input_path.ts';
 import {print_path} from './paths.ts';

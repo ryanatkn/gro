@@ -1,7 +1,7 @@
 import {styleText as st} from 'node:util';
-import type {Logger} from '@ryanatkn/belt/log.js';
-import {plural} from '@ryanatkn/belt/string.js';
-import {print_value} from '@ryanatkn/belt/print.js';
+import type {Logger} from '@fuzdev/fuz_util/log.js';
+import {plural} from '@fuzdev/fuz_util/string.js';
+import {print_value} from '@fuzdev/fuz_util/print.js';
 import {z} from 'zod';
 
 import type {ArgSchema} from './args.ts';

@@ -1,6 +1,6 @@
 import ts from 'typescript';
-import type {Logger} from '@ryanatkn/belt/log.js';
-import type {DeclarationKind} from '@ryanatkn/belt/source_json.js';
+import type {Logger} from '@fuzdev/fuz_util/log.js';
+import type {DeclarationKind} from '@fuzdev/fuz_util/source_json.js';
 
 import type {ExportDeclaration} from './parse_exports.ts';
 

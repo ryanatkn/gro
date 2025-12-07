@@ -5,7 +5,7 @@ import {task as build_task} from '../lib/build.task.ts';
 import {create_mock_build_task_context, create_mock_plugins} from './build_task_test_helpers.ts';
 
 // Mock dependencies
-vi.mock('@ryanatkn/belt/git.js', () => ({
+vi.mock('@fuzdev/fuz_util/git.js', () => ({
 	git_check_clean_workspace: vi.fn(),
 	git_current_commit_hash: vi.fn(),
 }));
@@ -74,7 +74,7 @@ describe('build_task cache validation', () => {
 
 	test('skips build when cache is valid', async () => {
 		const {git_check_clean_workspace, git_current_commit_hash} = vi.mocked(
-			await import('@ryanatkn/belt/git.js'),
+			await import('@fuzdev/fuz_util/git.js'),
 		);
 		const {is_build_cache_valid} = vi.mocked(await import('../lib/build_cache.ts'));
 		const {to_hash} = vi.mocked(await import('../lib/hash.ts'));
@@ -112,7 +112,7 @@ describe('build_task cache validation', () => {
 	});
 
 	test('forces rebuild even when cache is valid with force_build flag', async () => {
-		const {git_check_clean_workspace} = vi.mocked(await import('@ryanatkn/belt/git.js'));
+		const {git_check_clean_workspace} = vi.mocked(await import('@fuzdev/fuz_util/git.js'));
 		const {is_build_cache_valid} = vi.mocked(await import('../lib/build_cache.ts'));
 		const {Plugins} = vi.mocked(await import('../lib/plugin.ts'));
 		const mock_plugins = create_mock_plugins();
@@ -140,7 +140,7 @@ describe('build_task cache validation', () => {
 
 	test('cache validation works with null git commit', async () => {
 		const {git_check_clean_workspace, git_current_commit_hash} = vi.mocked(
-			await import('@ryanatkn/belt/git.js'),
+			await import('@fuzdev/fuz_util/git.js'),
 		);
 		const {is_build_cache_valid} = vi.mocked(await import('../lib/build_cache.ts'));
 		const {to_hash} = vi.mocked(await import('../lib/hash.ts'));

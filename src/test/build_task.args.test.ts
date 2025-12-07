@@ -5,7 +5,7 @@ import {task as build_task} from '../lib/build.task.ts';
 import {create_mock_build_task_context, create_mock_plugins} from './build_task_test_helpers.ts';
 
 // Mock dependencies
-vi.mock('@ryanatkn/belt/git.js', () => ({
+vi.mock('@fuzdev/fuz_util/git.js', () => ({
 	git_check_clean_workspace: vi.fn(),
 	git_current_commit_hash: vi.fn(),
 }));
@@ -73,7 +73,7 @@ describe('build_task args and sync/install', () => {
 	});
 
 	test('calls sync task when sync is true', async () => {
-		const {git_check_clean_workspace} = vi.mocked(await import('@ryanatkn/belt/git.js'));
+		const {git_check_clean_workspace} = vi.mocked(await import('@fuzdev/fuz_util/git.js'));
 		const {is_build_cache_valid} = vi.mocked(await import('../lib/build_cache.ts'));
 
 		vi.mocked(git_check_clean_workspace).mockResolvedValue(null);
@@ -88,7 +88,7 @@ describe('build_task args and sync/install', () => {
 	});
 
 	test('skips sync task when sync is false', async () => {
-		const {git_check_clean_workspace} = vi.mocked(await import('@ryanatkn/belt/git.js'));
+		const {git_check_clean_workspace} = vi.mocked(await import('@fuzdev/fuz_util/git.js'));
 		const {is_build_cache_valid} = vi.mocked(await import('../lib/build_cache.ts'));
 
 		vi.mocked(git_check_clean_workspace).mockResolvedValue(null);
@@ -103,7 +103,7 @@ describe('build_task args and sync/install', () => {
 	});
 
 	test('warns when sync is false but install is true', async () => {
-		const {git_check_clean_workspace} = vi.mocked(await import('@ryanatkn/belt/git.js'));
+		const {git_check_clean_workspace} = vi.mocked(await import('@fuzdev/fuz_util/git.js'));
 		const {is_build_cache_valid} = vi.mocked(await import('../lib/build_cache.ts'));
 
 		vi.mocked(git_check_clean_workspace).mockResolvedValue(null);

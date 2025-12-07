@@ -1,7 +1,7 @@
-import type {SpawnedProcess} from '@ryanatkn/belt/process.js';
+import type {SpawnedProcess} from '@fuzdev/fuz_util/process.js';
 import {cp, mkdir, rm, writeFile} from 'node:fs/promises';
 import {dirname, join} from 'node:path';
-import {fs_exists} from '@ryanatkn/belt/fs.js';
+import {fs_exists} from '@fuzdev/fuz_util/fs.js';
 
 import type {Plugin} from './plugin.ts';
 import {serialize_args, to_forwarded_args} from './args.ts';
