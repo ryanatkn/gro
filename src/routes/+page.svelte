@@ -3,8 +3,7 @@
 	import DocsFooter from '@fuzdev/fuz_ui/DocsFooter.svelte';
 	import Svg from '@fuzdev/fuz_ui/Svg.svelte';
 	import Card from '@fuzdev/fuz_ui/Card.svelte';
-	import {gro_logo} from '@fuzdev/fuz_ui/logos.js';
-	import HiddenPersonalLinks from '@fuzdev/fuz_ui/HiddenPersonalLinks.svelte';
+	import {logo_gro} from '@fuzdev/fuz_ui/logos.js';
 	import {library_context} from '@fuzdev/fuz_ui/library.svelte.js';
 
 	const library = library_context.get();
@@ -15,7 +14,7 @@
 		<section class="box">
 			<h1>gro</h1>
 			<a class="panel p_md box mb_xl3" title="source repo" href="https://github.com/ryanatkn/gro">
-				<Svg data={gro_logo} size="var(--icon_size_lg)" />
+				<Svg data={logo_gro} size="var(--icon_size_lg)" />
 			</a>
 		</section>
 		<section>
@@ -26,7 +25,6 @@
 		<section>
 			<DocsFooter {library}>
 				{#snippet logo_header()}<a href={resolve('/about')} class="mb_xs">about</a>{/snippet}
-				<HiddenPersonalLinks />
 			</DocsFooter>
 		</section>
 	</div>

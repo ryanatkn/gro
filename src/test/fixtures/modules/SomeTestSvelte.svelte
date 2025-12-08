@@ -5,11 +5,9 @@
 </script>
 
 <script lang="ts">
-	interface Props {
+	const {b = 'ok'}: {
 		b: string;
-	}
-
-	const {b = 'ok'}: Props = $props();
+	} = $props();
 
 	// `
 	// ``
