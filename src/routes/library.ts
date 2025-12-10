@@ -91,7 +91,7 @@ export const library_json: LibraryJson = {
 			'@fuzdev/fuz_code': '^0.38.0',
 			'@fuzdev/fuz_css': '^0.42.1',
 			'@fuzdev/fuz_ui': '^0.172.0',
-			'@fuzdev/fuz_util': '^0.42.0',
+			'@fuzdev/fuz_util': '^0.43.0',
 			'@ryanatkn/eslint-config': '^0.9.0',
 			'@sveltejs/adapter-static': '^3.0.10',
 			'@sveltejs/kit': '^2.49.1',
@@ -806,7 +806,7 @@ export const library_json: LibraryJson = {
 						name: 'spawn_cli',
 						kind: 'function',
 						doc_comment:
-							"Spawns a CLI if available using Belt's `spawn`.\nIf a string is provided for `name_or_cli`, it checks first local to the cwd and then globally.",
+							"Spawns a CLI if available using fuz_util's `spawn`.\nIf a string is provided for `name_or_cli`, it checks first local to the cwd and then globally.",
 						source_line: 49,
 						type_signature:
 							'(name_or_cli: string | Cli, args?: string[], log?: Logger | undefined, options?: SpawnOptions | undefined): Promise<SpawnResult | undefined>',
@@ -838,7 +838,7 @@ export const library_json: LibraryJson = {
 						name: 'spawn_cli_process',
 						kind: 'function',
 						doc_comment:
-							"Spawns a CLI if available using Belt's `spawn_process`.\nIf a string is provided for `name_or_cli`, it checks first local to the cwd and then globally.",
+							"Spawns a CLI if available using fuz_util's `spawn_process`.\nIf a string is provided for `name_or_cli`, it checks first local to the cwd and then globally.",
 						source_line: 65,
 						type_signature:
 							'(name_or_cli: string | Cli, args?: string[], log?: Logger | undefined, options?: SpawnOptions | undefined): Promise<SpawnedProcess | undefined>',

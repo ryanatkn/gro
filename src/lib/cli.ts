@@ -15,7 +15,7 @@ import type {PathId} from '@fuzdev/fuz_util/path.js';
 import {NODE_MODULES_DIRNAME} from './constants.ts';
 import {print_command_args} from './args.ts';
 
-// TODO maybe upstream to Belt?
+// TODO maybe upstream to fuz_util?
 
 export type Cli =
 	| {kind: 'local'; name: string; id: PathId}
@@ -42,7 +42,7 @@ export const find_cli = async (
 };
 
 /**
- * Spawns a CLI if available using Belt's `spawn`.
+ * Spawns a CLI if available using fuz_util's `spawn`.
  * If a string is provided for `name_or_cli`, it checks first local to the cwd and then globally.
  * @returns `undefined` if no CLI is found, or the spawn result
  */
@@ -58,7 +58,7 @@ export const spawn_cli = async (
 };
 
 /**
- * Spawns a CLI if available using Belt's `spawn_process`.
+ * Spawns a CLI if available using fuz_util's `spawn_process`.
  * If a string is provided for `name_or_cli`, it checks first local to the cwd and then globally.
  * @returns `undefined` if no CLI is found, or the spawn result
  */

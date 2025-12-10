@@ -5,7 +5,9 @@
 </script>
 
 <script lang="ts">
-	const {b = 'ok'}: {
+	const {
+		b = 'ok',
+	}: {
 		b: string;
 	} = $props();
 
