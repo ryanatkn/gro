@@ -96,7 +96,9 @@ describe('deploy_task error handling', () => {
 		});
 
 		test('propagates git_fetch errors', async () => {
-			const {git_local_branch_exists, git_fetch} = vi.mocked(await import('@fuzdev/fuz_util/git.js'));
+			const {git_local_branch_exists, git_fetch} = vi.mocked(
+				await import('@fuzdev/fuz_util/git.js'),
+			);
 
 			vi.mocked(git_local_branch_exists).mockResolvedValue(false); // trigger fetch
 			vi.mocked(git_fetch).mockRejectedValue(new Error('Network error'));

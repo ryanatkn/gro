@@ -23,7 +23,7 @@ vi.mock('node:fs/promises', () => ({
 	readFile: vi.fn(),
 }));
 
-// Mock fs_exists from belt
+// Mock fs_exists from fuz_util
 vi.mock('@fuzdev/fuz_util/fs.js', () => ({
 	fs_exists: vi.fn(),
 }));

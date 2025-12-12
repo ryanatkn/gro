@@ -1,5 +1,11 @@
 # @ryanatkn/gro
 
+## 0.181.0
+
+### Minor Changes
+
+- migrate to fuzdev deps
+
 ## 0.180.0
 
 ### Minor Changes

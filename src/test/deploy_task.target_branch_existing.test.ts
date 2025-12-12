@@ -69,7 +69,9 @@ describe('deploy_task target branch sync (remote exists)', () => {
 
 	describe('deploy dir exists with correct branch', () => {
 		test('resets and pulls when deploy dir has correct branch', async () => {
-			const {git_current_branch_name, git_pull} = vi.mocked(await import('@fuzdev/fuz_util/git.js'));
+			const {git_current_branch_name, git_pull} = vi.mocked(
+				await import('@fuzdev/fuz_util/git.js'),
+			);
 			const {spawn} = vi.mocked(await import('@fuzdev/fuz_util/process.js'));
 			const {fs_exists} = vi.mocked(await import('@fuzdev/fuz_util/fs.js'));
 

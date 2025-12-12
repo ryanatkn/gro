@@ -5,7 +5,7 @@ import type {LibraryJson} from '@fuzdev/fuz_util/library_json.js';
 export const library_json: LibraryJson = {
 	package_json: {
 		name: '@ryanatkn/gro',
-		version: '0.180.0',
+		version: '0.181.0',
 		description: 'task runner and toolkit extending SvelteKit',
 		motto: 'generate, run, optimize',
 		glyph: '🌰',
@@ -67,7 +67,7 @@ export const library_json: LibraryJson = {
 			zod: '^4.1.13',
 		},
 		peerDependencies: {
-			'@fuzdev/fuz_util': '>=0.41.1',
+			'@fuzdev/fuz_util': '>=0.42.0',
 			'@sveltejs/kit': '^2',
 			esbuild: '^0.27.0',
 			svelte: '^5',
@@ -88,24 +88,24 @@ export const library_json: LibraryJson = {
 		devDependencies: {
 			'@changesets/changelog-git': '^0.2.1',
 			'@changesets/types': '^6.1.0',
-			'@fuzdev/fuz_util': '^0.41.1',
+			'@fuzdev/fuz_code': '^0.38.0',
+			'@fuzdev/fuz_css': '^0.42.1',
+			'@fuzdev/fuz_ui': '^0.172.0',
+			'@fuzdev/fuz_util': '^0.43.0',
 			'@ryanatkn/eslint-config': '^0.9.0',
-			'@fuzdev/fuz_ui': '^0.168.0',
-			'@fuzdev/fuz_code': '^0.36.0',
-			'@fuzdev/fuz_css': '^0.39.0',
 			'@sveltejs/adapter-static': '^3.0.10',
-			'@sveltejs/kit': '^2.49.0',
+			'@sveltejs/kit': '^2.49.1',
 			'@sveltejs/package': '^2.5.7',
 			'@sveltejs/vite-plugin-svelte': '^6.2.1',
 			'@types/node': '^24.10.1',
-			esbuild: '^0.27.0',
+			esbuild: '^0.27.1',
 			eslint: '^9.39.1',
-			'eslint-plugin-svelte': '^3.13.0',
-			svelte: '^5.45.2',
+			'eslint-plugin-svelte': '^3.13.1',
+			svelte: '^5.45.6',
 			'svelte-check': '^4.3.4',
 			typescript: '^5.9.3',
-			'typescript-eslint': '^8.48.0',
-			vitest: '^4.0.14',
+			'typescript-eslint': '^8.48.1',
+			vitest: '^4.0.15',
 		},
 		prettier: {
 			plugins: ['prettier-plugin-svelte'],
@@ -142,7 +142,7 @@ export const library_json: LibraryJson = {
 	},
 	source_json: {
 		name: '@ryanatkn/gro',
-		version: '0.180.0',
+		version: '0.181.0',
 		modules: [
 			{
 				path: 'args.ts',
@@ -806,7 +806,7 @@ export const library_json: LibraryJson = {
 						name: 'spawn_cli',
 						kind: 'function',
 						doc_comment:
-							"Spawns a CLI if available using Belt's `spawn`.\nIf a string is provided for `name_or_cli`, it checks first local to the cwd and then globally.",
+							"Spawns a CLI if available using fuz_util's `spawn`.\nIf a string is provided for `name_or_cli`, it checks first local to the cwd and then globally.",
 						source_line: 49,
 						type_signature:
 							'(name_or_cli: string | Cli, args?: string[], log?: Logger | undefined, options?: SpawnOptions | undefined): Promise<SpawnResult | undefined>',
@@ -838,7 +838,7 @@ export const library_json: LibraryJson = {
 						name: 'spawn_cli_process',
 						kind: 'function',
 						doc_comment:
-							"Spawns a CLI if available using Belt's `spawn_process`.\nIf a string is provided for `name_or_cli`, it checks first local to the cwd and then globally.",
+							"Spawns a CLI if available using fuz_util's `spawn_process`.\nIf a string is provided for `name_or_cli`, it checks first local to the cwd and then globally.",
 						source_line: 65,
 						type_signature:
 							'(name_or_cli: string | Cli, args?: string[], log?: Logger | undefined, options?: SpawnOptions | undefined): Promise<SpawnedProcess | undefined>',

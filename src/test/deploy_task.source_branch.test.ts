@@ -66,7 +66,9 @@ describe('deploy_task source branch preparation', () => {
 
 	describe('source branch fetching', () => {
 		test('fetches source branch when it does not exist locally', async () => {
-			const {git_local_branch_exists, git_fetch} = vi.mocked(await import('@fuzdev/fuz_util/git.js'));
+			const {git_local_branch_exists, git_fetch} = vi.mocked(
+				await import('@fuzdev/fuz_util/git.js'),
+			);
 			const {fs_exists} = vi.mocked(await import('@fuzdev/fuz_util/fs.js'));
 
 			vi.mocked(git_local_branch_exists).mockResolvedValue(false); // source doesn't exist
@@ -84,7 +86,9 @@ describe('deploy_task source branch preparation', () => {
 		});
 
 		test('skips fetch when source branch exists locally', async () => {
-			const {git_local_branch_exists, git_fetch} = vi.mocked(await import('@fuzdev/fuz_util/git.js'));
+			const {git_local_branch_exists, git_fetch} = vi.mocked(
+				await import('@fuzdev/fuz_util/git.js'),
+			);
 			const {fs_exists} = vi.mocked(await import('@fuzdev/fuz_util/fs.js'));
 
 			vi.mocked(git_local_branch_exists).mockResolvedValue(true); // source exists
@@ -102,7 +106,9 @@ describe('deploy_task source branch preparation', () => {
 		});
 
 		test('uses custom origin when fetching', async () => {
-			const {git_local_branch_exists, git_fetch} = vi.mocked(await import('@fuzdev/fuz_util/git.js'));
+			const {git_local_branch_exists, git_fetch} = vi.mocked(
+				await import('@fuzdev/fuz_util/git.js'),
+			);
 			const {fs_exists} = vi.mocked(await import('@fuzdev/fuz_util/fs.js'));
 
 			vi.mocked(git_local_branch_exists).mockResolvedValue(false);
@@ -322,7 +328,9 @@ describe('deploy_task source branch preparation', () => {
 
 	describe('error handling', () => {
 		test('propagates error when git_fetch fails', async () => {
-			const {git_local_branch_exists, git_fetch} = vi.mocked(await import('@fuzdev/fuz_util/git.js'));
+			const {git_local_branch_exists, git_fetch} = vi.mocked(
+				await import('@fuzdev/fuz_util/git.js'),
+			);
 
 			vi.mocked(git_local_branch_exists).mockResolvedValue(false);
 			vi.mocked(git_fetch).mockRejectedValue(new Error('Failed to fetch'));
