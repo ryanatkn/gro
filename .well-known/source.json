@@ -1,6 +1,6 @@
 {
   "name": "@ryanatkn/gro",
-  "version": "0.181.0",
+  "version": "0.182.0",
   "modules": [
     {
       "path": "index.ts",
@@ -984,10 +984,6 @@
       "declarations": [
         {
           "name": "GroPluginSveltekitAppOptions",
-          "kind": "type"
-        },
-        {
-          "name": "HostTarget",
           "kind": "type"
         },
         {
