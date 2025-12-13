@@ -1,5 +1,11 @@
 # @ryanatkn/gro
 
+## 0.182.0
+
+### Minor Changes
+
+- replace `gro_plugin_sveltekit_app` option `host_target` with `include_nojekyll` ([751adf4](https://github.com/ryanatkn/gro/commit/751adf4))
+
 ## 0.181.0
 
 ### Minor Changes
