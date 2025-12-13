@@ -33,9 +33,7 @@ const config: CreateGroConfig = async (cfg, svelte_config) => {
 			gro_plugin_gen(),
 			has_server_result.ok ? gro_plugin_server() : null,
 			has_sveltekit_library_result.ok ? gro_plugin_sveltekit_library() : null,
-			has_sveltekit_app_result.ok
-				? gro_plugin_sveltekit_app({host_target: has_server_result.ok ? 'node' : 'github_pages'})
-				: null,
+			has_sveltekit_app_result.ok ? gro_plugin_sveltekit_app() : null,
 		].filter((v) => v !== null);
 
 	return cfg;

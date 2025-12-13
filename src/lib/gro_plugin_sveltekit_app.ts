@@ -15,10 +15,13 @@ import {SOURCE_DIRNAME, VITE_CLI} from './constants.ts';
 
 export interface GroPluginSveltekitAppOptions {
 	/**
-	 * Used for finalizing a SvelteKit build like adding a `.nojekyll` file for GitHub Pages.
-	 * @default 'github_pages'
+	 * Whether to include a `.nojekyll` file in the build output.
+	 * GitHub Pages processes files with Jekyll by default, breaking files/dirs prefixed with `_`.
+	 * The `.nojekyll` file tells GitHub Pages to skip Jekyll processing.
+	 *
+	 * @default `true` if the SvelteKit adapter name contains 'static'
 	 */
-	host_target?: HostTarget;
+	include_nojekyll?: boolean;
 
 	/**
 	 * If truthy, adds `/.well-known/package.json` to the static output.
@@ -43,12 +46,10 @@ export interface GroPluginSveltekitAppOptions {
 	vite_cli?: string;
 }
 
-export type HostTarget = 'github_pages' | 'static' | 'node';
-
 export type CopyFileFilter = (file_path: string) => boolean;
 
 export const gro_plugin_sveltekit_app = ({
-	host_target = 'github_pages',
+	include_nojekyll,
 	well_known_package_json,
 	well_known_source_json,
 	well_known_src_files,
@@ -57,7 +58,7 @@ export const gro_plugin_sveltekit_app = ({
 	let sveltekit_process: SpawnedProcess | undefined = undefined;
 	return {
 		name: 'gro_plugin_sveltekit_app',
-		setup: async ({dev, watch, log, config}) => {
+		setup: async ({dev, watch, log, config, svelte_config}) => {
 			const found_vite_cli = await find_cli(vite_cli);
 			if (!found_vite_cli)
 				throw Error(
@@ -110,6 +111,12 @@ export const gro_plugin_sveltekit_app = ({
 				// copy files to `static` before building, in such a way
 				// that's non-destructive to existing files and dirs and easy to clean up
 				const {assets_path} = default_svelte_config;
+
+				// detect whether to include .nojekyll based on adapter if not explicitly set
+				const adapter_name = svelte_config.svelte_config?.kit?.adapter?.name;
+				const should_include_nojekyll =
+					include_nojekyll ?? (adapter_name ? adapter_name.includes('static') : false);
+
 				const cleanup_promises = [
 					serialized_package_json
 						? create_temporarily(
@@ -133,15 +140,7 @@ export const gro_plugin_sveltekit_app = ({
 									: well_known_src_files,
 							)
 						: null,
-					/**
-					 * GitHub pages processes everything with Jekyll by default,
-					 * breaking things like files and dirs prefixed with an underscore.
-					 * This adds a `.nojekyll` file to the root of the output
-					 * to tell GitHub Pages to treat the outputs as plain static files.
-					 */
-					host_target === 'github_pages'
-						? create_temporarily(join(assets_path, '.nojekyll'), '')
-						: null,
+					should_include_nojekyll ? create_temporarily(join(assets_path, '.nojekyll'), '') : null,
 				].filter((v): v is Promise<AsyncCleanup> => v != null);
 				const cleanups = await Promise.all(cleanup_promises);
 				const cleanup = async () => {

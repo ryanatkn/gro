@@ -87,7 +87,7 @@ const config: CreateGroConfig = async (cfg) => {
 		const updated_plugins = replace_plugin(
 			await get_base_plugins(ctx),
 			gro_plugin_sveltekit_app({
-				// host_target?: HostTarget;
+				// include_nojekyll?: boolean;
 				// well_known_package_json?: boolean | MapPackageJson;
 			}),
 			// 'gro_plugin_sveltekit_app', // optional name if they don't match

@@ -3283,11 +3283,11 @@ export const library_json: LibraryJson = {
 						type_signature: 'GroPluginSveltekitAppOptions',
 						properties: [
 							{
-								name: 'host_target',
+								name: 'include_nojekyll',
 								kind: 'variable',
-								type_signature: 'HostTarget',
+								type_signature: 'boolean',
 								doc_comment:
-									'Used for finalizing a SvelteKit build like adding a `.nojekyll` file for GitHub Pages.',
+									'Whether to include a `.nojekyll` file in the build output.\nGitHub Pages processes files with Jekyll by default, breaking files/dirs prefixed with `_`.\nThe `.nojekyll` file tells GitHub Pages to skip Jekyll processing.',
 							},
 							{
 								name: 'well_known_package_json',
@@ -3319,23 +3319,17 @@ export const library_json: LibraryJson = {
 						],
 					},
 					{
-						name: 'HostTarget',
-						kind: 'type',
-						source_line: 46,
-						type_signature: 'HostTarget',
-					},
-					{
 						name: 'CopyFileFilter',
 						kind: 'type',
-						source_line: 48,
+						source_line: 49,
 						type_signature: 'CopyFileFilter',
 					},
 					{
 						name: 'gro_plugin_sveltekit_app',
 						kind: 'function',
-						source_line: 50,
+						source_line: 51,
 						type_signature:
-							'({ host_target, well_known_package_json, well_known_source_json, well_known_src_files, vite_cli, }?: GroPluginSveltekitAppOptions): Plugin<PluginContext<object>>',
+							'({ include_nojekyll, well_known_package_json, well_known_source_json, well_known_src_files, vite_cli, }?: GroPluginSveltekitAppOptions): Plugin<PluginContext<object>>',
 						return_type: 'Plugin<PluginContext<object>>',
 						parameters: [
 							{
@@ -3406,7 +3400,7 @@ export const library_json: LibraryJson = {
 					{
 						name: 'default',
 						kind: 'variable',
-						source_line: 44,
+						source_line: 42,
 						type_signature: 'CreateGroConfig',
 					},
 				],
