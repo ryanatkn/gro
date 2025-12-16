@@ -8,12 +8,12 @@
 - [dev](dev.md)
 - [gen](gen.md)
 - [gro_plugin_sveltekit_app](gro_plugin_sveltekit_app.md)
-- [package_json](package_json.md)
 - [plugin](plugin.md)
 - [publish](publish.md)
 - [task](task.md)
 - [tasks](tasks.md)
 - [test](test.md)
+- [vite_plugin_well_known](vite_plugin_well_known.md)
 
 > <sub>[gro](/../..) / docs / README.md</sub>
 
