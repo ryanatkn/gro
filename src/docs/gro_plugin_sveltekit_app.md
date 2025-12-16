@@ -12,7 +12,6 @@ const config: GroConfigCreator = async (cfg) => {
 	cfg.plugins = async () => [
 		// this is included in the default config for SvelteKit projects:
 		gro_plugin_sveltekit_app({
-			// include_nojekyll?: boolean;
 			// well_known_package_json?: boolean | MapPackageJson;
 			// well_known_source_json?: boolean | MapSourceJson;
 			// well_known_src_files?: boolean | CopyFileFilter;
@@ -38,15 +37,6 @@ export interface MapSourceJson {
 	(source_json: SourceJson): SourceJson | null | Promise<SourceJson | null>;
 }
 ```
-
-## `include_nojekyll`
-
-GitHub Pages processes files with Jekyll by default,
-which breaks files and directories prefixed with `_` like SvelteKit's `_app/`.
-The `.nojekyll` file tells GitHub Pages to skip Jekyll processing.
-
-By default, `.nojekyll` is included if the SvelteKit adapter name contains `'static'`.
-Set `include_nojekyll` to `true` or `false` to override this behavior.
 
 ## `well_known_package_json`
 

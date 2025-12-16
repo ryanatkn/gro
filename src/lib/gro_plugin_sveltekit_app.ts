@@ -15,15 +15,6 @@ import {SOURCE_DIRNAME, VITE_CLI} from './constants.ts';
 
 export interface GroPluginSveltekitAppOptions {
 	/**
-	 * Whether to include a `.nojekyll` file in the build output.
-	 * GitHub Pages processes files with Jekyll by default, breaking files/dirs prefixed with `_`.
-	 * The `.nojekyll` file tells GitHub Pages to skip Jekyll processing.
-	 *
-	 * @default `true` if the SvelteKit adapter name contains 'static'
-	 */
-	include_nojekyll?: boolean;
-
-	/**
 	 * If truthy, adds `/.well-known/package.json` to the static output.
 	 * If a function, maps the value.
 	 */
@@ -49,7 +40,6 @@ export interface GroPluginSveltekitAppOptions {
 export type CopyFileFilter = (file_path: string) => boolean;
 
 export const gro_plugin_sveltekit_app = ({
-	include_nojekyll,
 	well_known_package_json,
 	well_known_source_json,
 	well_known_src_files,
@@ -58,7 +48,7 @@ export const gro_plugin_sveltekit_app = ({
 	let sveltekit_process: SpawnedProcess | undefined = undefined;
 	return {
 		name: 'gro_plugin_sveltekit_app',
-		setup: async ({dev, watch, log, config, svelte_config}) => {
+		setup: async ({dev, watch, log, config}) => {
 			const found_vite_cli = await find_cli(vite_cli);
 			if (!found_vite_cli)
 				throw Error(
@@ -112,11 +102,6 @@ export const gro_plugin_sveltekit_app = ({
 				// that's non-destructive to existing files and dirs and easy to clean up
 				const {assets_path} = default_svelte_config;
 
-				// detect whether to include .nojekyll based on adapter if not explicitly set
-				const adapter_name = svelte_config.svelte_config?.kit?.adapter?.name;
-				const should_include_nojekyll =
-					include_nojekyll ?? (adapter_name ? adapter_name.includes('static') : false);
-
 				const cleanup_promises = [
 					serialized_package_json
 						? create_temporarily(
@@ -140,7 +125,6 @@ export const gro_plugin_sveltekit_app = ({
 									: well_known_src_files,
 							)
 						: null,
-					should_include_nojekyll ? create_temporarily(join(assets_path, '.nojekyll'), '') : null,
 				].filter((v): v is Promise<AsyncCleanup> => v != null);
 				const cleanups = await Promise.all(cleanup_promises);
 				const cleanup = async () => {
