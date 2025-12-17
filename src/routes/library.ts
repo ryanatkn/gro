@@ -1214,7 +1214,6 @@ export const library_json: LibraryJson = {
 					'test.task.ts',
 					'typecheck.task.ts',
 					'upgrade.task.ts',
-					'vite_plugin_well_known.ts',
 				],
 			},
 			{
@@ -2995,7 +2994,7 @@ export const library_json: LibraryJson = {
 					},
 				],
 				dependencies: ['constants.ts', 'gro.config.default.ts', 'hash.ts', 'paths.ts'],
-				dependents: ['invoke.ts', 'vite_plugin_well_known.ts'],
+				dependents: ['invoke.ts'],
 			},
 			{
 				path: 'gro_helpers.ts',
@@ -3406,7 +3405,7 @@ export const library_json: LibraryJson = {
 			{
 				path: 'index.ts',
 				declarations: [],
-				dependencies: ['plugin.ts', 'task.ts', 'vite_plugin_well_known.ts'],
+				dependencies: ['plugin.ts', 'task.ts'],
 			},
 			{
 				path: 'input_path.ts',
@@ -4151,7 +4150,6 @@ export const library_json: LibraryJson = {
 					'sync.task.ts',
 					'test.task.ts',
 					'upgrade.task.ts',
-					'vite_plugin_well_known.ts',
 				],
 			},
 			{
@@ -5122,7 +5120,6 @@ export const library_json: LibraryJson = {
 					},
 				],
 				dependencies: ['constants.ts', 'parse_exports.ts', 'paths.ts'],
-				dependents: ['vite_plugin_well_known.ts'],
 			},
 			{
 				path: 'svelte_config.ts',
@@ -6324,58 +6321,6 @@ export const library_json: LibraryJson = {
 				path: 'upgrade.task.ts',
 				declarations: [],
 				dependencies: ['args.ts', 'cli.ts', 'constants.ts', 'package_json.ts', 'task.ts'],
-			},
-			{
-				path: 'vite_plugin_well_known.ts',
-				declarations: [
-					{
-						name: 'VitePluginWellKnownOptions',
-						kind: 'type',
-						source_line: 13,
-						type_signature: 'VitePluginWellKnownOptions',
-						properties: [
-							{
-								name: 'package_json',
-								kind: 'variable',
-								type_signature: 'boolean | PackageJsonMapper',
-								doc_comment:
-									'If truthy, outputs `/.well-known/package.json`.\nIf a function, maps the value.',
-							},
-							{
-								name: 'source_json',
-								kind: 'variable',
-								type_signature: 'boolean | SourceJsonMapper',
-								doc_comment:
-									'If truthy, outputs `/.well-known/source.json`.\nIf a function, maps the value.',
-							},
-							{
-								name: 'src_files',
-								kind: 'variable',
-								type_signature: 'boolean | CopyFileFilter',
-								doc_comment:
-									'If truthy, copies `src/` to `/.well-known/src/`.\nPass a function to customize which files get copied.',
-							},
-						],
-						also_exported_from: ['index.ts'],
-					},
-					{
-						name: 'vite_plugin_well_known',
-						kind: 'function',
-						source_line: 42,
-						type_signature: '(options?: VitePluginWellKnownOptions): Plugin<any>',
-						return_type: 'Plugin<any>',
-						parameters: [
-							{
-								name: 'options',
-								type: 'VitePluginWellKnownOptions',
-								default_value: '{}',
-							},
-						],
-						also_exported_from: ['index.ts'],
-					},
-				],
-				dependencies: ['constants.ts', 'gro_config.ts', 'package_json.ts', 'source_json.ts'],
-				dependents: ['index.ts'],
 			},
 			{
 				path: 'watch_dir.ts',

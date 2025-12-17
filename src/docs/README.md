@@ -13,7 +13,6 @@
 - [task](task.md)
 - [tasks](tasks.md)
 - [test](test.md)
-- [vite_plugin_well_known](vite_plugin_well_known.md)
 
 > <sub>[gro](/../..) / docs / README.md</sub>
 

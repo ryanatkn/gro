@@ -23,4 +23,4 @@ In development (`gro dev`), spawns `vite dev` with watch mode.
 
 In production (`gro build`), runs `vite build`.
 
-For publishing `.well-known/` metadata, see [`vite_plugin_well_known`](./vite_plugin_well_known.md).
+For publishing `.well-known/` metadata, see [`vite_plugin_well_known`](https://ui.fuz.dev/docs/vite_plugin_well_known) (now in `@fuzdev/fuz_ui`).
