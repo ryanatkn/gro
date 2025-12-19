@@ -1,5 +1,12 @@
 # @ryanatkn/gro
 
+## 0.184.0
+
+### Minor Changes
+
+- remove `load_package_json` for `package_json_load` ([e2594cb](https://github.com/ryanatkn/gro/commit/e2594cb))
+- rename some interfaces ([0375266](https://github.com/ryanatkn/gro/commit/0375266))
+
 ## 0.183.0
 
 ### Minor Changes
