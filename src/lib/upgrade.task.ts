@@ -4,7 +4,7 @@ import {rm} from 'node:fs/promises';
 import {GitOrigin, git_pull} from '@fuzdev/fuz_util/git.js';
 
 import {TaskError, type Task} from './task.ts';
-import {extract_deps, load_package_json, type PackageJsonDep} from './package_json.ts';
+import {package_json_extract_dependencies, package_json_load, type PackageJsonDep} from './package_json.ts';
 import {spawn_cli} from './cli.ts';
 import {serialize_args, to_forwarded_args} from './args.ts';
 import {NODE_MODULES_DIRNAME} from './constants.ts';
@@ -83,9 +83,9 @@ export const task: Task<Args> = {
 			await rm(lockfile_path, {force: true});
 		}
 
-		const package_json = await load_package_json();
+		const package_json = await package_json_load();
 
-		const all_deps = extract_deps(package_json);
+		const all_deps = package_json_extract_dependencies(package_json);
 
 		const deps = only.length
 			? all_deps.filter((d) => only.includes(d.name))

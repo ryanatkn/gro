@@ -1,7 +1,7 @@
 import prettier from 'prettier';
 import {extname} from 'node:path';
 
-import {load_package_json} from './package_json.ts';
+import {package_json_load} from './package_json.ts';
 
 let cached_base_options: prettier.Options | undefined;
 
@@ -19,7 +19,7 @@ export const format_file = async (
 	const final_base_options =
 		base_options !== undefined
 			? base_options
-			: (cached_base_options = (await load_package_json()).prettier as any);
+			: (cached_base_options = (await package_json_load()).prettier as any);
 	let final_options = options;
 	if (options.filepath && !options.parser) {
 		const {filepath, ...rest} = options;

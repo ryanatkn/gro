@@ -25,11 +25,6 @@ export const source_json_create = async (
 		modules: await source_modules_create(package_json.exports, lib_path, log),
 	});
 
-export const source_json_serialize = (source_json: SourceJson): string => {
-	const parsed = SourceJson.parse(source_json);
-	return JSON.stringify(parsed, null, 2) + '\n';
-};
-
 export const source_modules_create = async (
 	exports: PackageJsonExports | undefined,
 	lib_path = paths.lib,

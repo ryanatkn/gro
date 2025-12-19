@@ -7,7 +7,7 @@ import {to_forwarded_args, type Args} from './args.ts';
 import {run_task} from './run_task.ts';
 import {to_input_path, RawInputPath} from './input_path.ts';
 import {find_tasks, load_tasks, SilentError} from './task.ts';
-import {load_gro_package_json} from './package_json.ts';
+import {package_json_load_for_gro} from './package_json.ts';
 import {log_tasks, log_error_reasons} from './task_logging.ts';
 import type {GroConfig} from './gro_config.ts';
 import {Filer} from './filer.ts';
@@ -68,7 +68,7 @@ export const invoke_task = async (
 
 	// Check if the caller just wants to see the version.
 	if (!task_name && (args?.version || args?.v)) {
-		const gro_package_json = await load_gro_package_json();
+		const gro_package_json = await package_json_load_for_gro();
 		log.info(`${st('gray', 'v')}${st('cyan', gro_package_json.version)}`);
 		await finish();
 		return;
