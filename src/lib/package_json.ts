@@ -51,9 +51,6 @@ export const package_json_load = async (
 	return package_json;
 };
 
-// TODO remove
-export const load_package_json = package_json_load;
-
 export const package_json_sync = async (
 	map_package_json: PackageJsonMapper,
 	log: Logger,
