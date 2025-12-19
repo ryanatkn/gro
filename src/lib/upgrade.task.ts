@@ -4,7 +4,11 @@ import {rm} from 'node:fs/promises';
 import {GitOrigin, git_pull} from '@fuzdev/fuz_util/git.js';
 
 import {TaskError, type Task} from './task.ts';
-import {package_json_extract_dependencies, package_json_load, type PackageJsonDep} from './package_json.ts';
+import {
+	package_json_extract_dependencies,
+	package_json_load,
+	type PackageJsonDep,
+} from './package_json.ts';
 import {spawn_cli} from './cli.ts';
 import {serialize_args, to_forwarded_args} from './args.ts';
 import {NODE_MODULES_DIRNAME} from './constants.ts';

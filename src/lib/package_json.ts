@@ -88,7 +88,8 @@ export const package_json_sync = async (
 	return updated;
 };
 
-export const package_json_load_for_gro = (): Promise<PackageJson> => package_json_load(gro_paths.root);
+export const package_json_load_for_gro = (): Promise<PackageJson> =>
+	package_json_load(gro_paths.root);
 
 // TODO probably make this nullable and make callers handle failures
 const package_json_load_contents = (dir: string): Promise<string> =>
@@ -237,7 +238,9 @@ export interface PackageJsonDep {
 	version: string;
 }
 
-export const package_json_extract_dependencies = (package_json: PackageJson): Array<PackageJsonDep> => {
+export const package_json_extract_dependencies = (
+	package_json: PackageJson,
+): Array<PackageJsonDep> => {
 	const deps_by_name: Map<string, PackageJsonDep> = new Map();
 	// Earlier versions override later ones, so peer deps goes last.
 	const add_deps = (deps: Record<string, string> | undefined) => {
