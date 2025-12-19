@@ -1,7 +1,7 @@
 {
 	"package_json": {
 		"name": "@ryanatkn/gro",
-		"version": "0.183.0",
+		"version": "0.184.0",
 		"description": "task runner and toolkit extending SvelteKit",
 		"motto": "generate, run, optimize",
 		"glyph": "🌰",
@@ -84,7 +84,7 @@
 			"@changesets/types": "^6.1.0",
 			"@fuzdev/fuz_code": "^0.38.0",
 			"@fuzdev/fuz_css": "^0.42.1",
-			"@fuzdev/fuz_ui": "^0.173.0",
+			"@fuzdev/fuz_ui": "^0.174.0",
 			"@fuzdev/fuz_util": "^0.45.0",
 			"@ryanatkn/eslint-config": "^0.9.0",
 			"@sveltejs/adapter-static": "^3.0.10",
@@ -145,7 +145,7 @@
 	},
 	"source_json": {
 		"name": "@ryanatkn/gro",
-		"version": "0.183.0",
+		"version": "0.184.0",
 		"modules": [
 			{
 				"path": "args.ts",
@@ -2858,7 +2858,7 @@
 							{
 								"name": "plugins",
 								"kind": "variable",
-								"type_signature": "CreateConfigPlugins",
+								"type_signature": "PluginsCreateConfig",
 								"doc_comment": ""
 							},
 							{
@@ -2921,7 +2921,7 @@
 							{
 								"name": "plugins",
 								"kind": "variable",
-								"type_signature": "CreateConfigPlugins"
+								"type_signature": "PluginsCreateConfig"
 							},
 							{
 								"name": "map_package_json",
@@ -4073,15 +4073,9 @@
 						]
 					},
 					{
-						"name": "load_package_json",
-						"kind": "variable",
-						"source_line": 55,
-						"type_signature": "(dir?: string, cache?: Record<string, { [x: string]: unknown; name: string; version: string; private?: boolean | undefined; description?: string | undefined; motto?: string | undefined; glyph?: string | undefined; ... 24 more ...; exports?: string | ... 2 more ... | undefined; }> | undefined, parse?: boolean, log?: ..."
-					},
-					{
 						"name": "package_json_sync",
 						"kind": "function",
-						"source_line": 57,
+						"source_line": 54,
 						"type_signature": "(map_package_json: PackageJsonMapper, log: Logger, write?: boolean, dir?: string, exports_dir?: string): Promise<{ package_json: { [x: string]: unknown; name: string; version: string; ... 28 more ...; exports?: string | ... 2 more ... | undefined; } | null; changed: boolean; }>",
 						"return_type": "Promise<{ package_json: { [x: string]: unknown; name: string; version: string; private?: boolean | undefined; description?: string | undefined; motto?: string | undefined; glyph?: string | undefined; ... 24 more ...; exports?: string | ... 2 more ... | undefined; } | null; changed: boolean; }>",
 						"parameters": [
@@ -4113,7 +4107,7 @@
 					{
 						"name": "package_json_load_for_gro",
 						"kind": "function",
-						"source_line": 91,
+						"source_line": 88,
 						"type_signature": "(): Promise<{ [x: string]: unknown; name: string; version: string; private?: boolean | undefined; description?: string | undefined; motto?: string | undefined; glyph?: string | undefined; logo?: string | undefined; ... 23 more ...; exports?: string | ... 2 more ... | undefined; }>",
 						"return_type": "Promise<{ [x: string]: unknown; name: string; version: string; private?: boolean | undefined; description?: string | undefined; motto?: string | undefined; glyph?: string | undefined; logo?: string | undefined; ... 23 more ...; exports?: string | ... 2 more ... | undefined; }>",
 						"parameters": []
@@ -4121,7 +4115,7 @@
 					{
 						"name": "package_json_write",
 						"kind": "function",
-						"source_line": 98,
+						"source_line": 95,
 						"type_signature": "(serialized_package_json: string): Promise<void>",
 						"return_type": "Promise<void>",
 						"parameters": [
@@ -4134,7 +4128,7 @@
 					{
 						"name": "package_json_serialize",
 						"kind": "function",
-						"source_line": 101,
+						"source_line": 98,
 						"type_signature": "(package_json: { [x: string]: unknown; name: string; version: string; private?: boolean | undefined; description?: string | undefined; motto?: string | undefined; glyph?: string | undefined; logo?: string | undefined; ... 23 more ...; exports?: string | ... 2 more ... | undefined; }): string",
 						"return_type": "string",
 						"parameters": [
@@ -4148,7 +4142,7 @@
 						"name": "package_json_update",
 						"kind": "function",
 						"doc_comment": "Updates package.json. Writes to the filesystem only when contents change.",
-						"source_line": 107,
+						"source_line": 104,
 						"type_signature": "(update: (package_json: { [x: string]: unknown; name: string; version: string; private?: boolean | undefined; description?: string | undefined; motto?: string | undefined; glyph?: string | undefined; logo?: string | undefined; ... 23 more ...; exports?: string | ... 2 more ... | undefined; }) => { ...; } | ... 1 more ... | null, dir?: string, write?: boolean): Promise<...>",
 						"return_type": "Promise<{ package_json: { [x: string]: unknown; name: string; version: string; private?: boolean | undefined; description?: string | undefined; motto?: string | undefined; glyph?: string | undefined; ... 24 more ...; exports?: string | ... 2 more ... | undefined; } | null; changed: boolean; }>",
 						"parameters": [
@@ -4171,7 +4165,7 @@
 					{
 						"name": "package_json_to_exports",
 						"kind": "function",
-						"source_line": 128,
+						"source_line": 125,
 						"type_signature": "(paths: string[]): string | Record<string, unknown> | null",
 						"return_type": "string | Record<string, unknown> | null",
 						"parameters": [
@@ -4184,7 +4178,7 @@
 					{
 						"name": "package_json_parse_repo_url",
 						"kind": "function",
-						"source_line": 183,
+						"source_line": 180,
 						"type_signature": "(package_json: { [x: string]: unknown; name: string; version: string; private?: boolean | undefined; description?: string | undefined; motto?: string | undefined; glyph?: string | undefined; logo?: string | undefined; ... 23 more ...; exports?: string | ... 2 more ... | undefined; }): { ...; } | undefined",
 						"return_type": "{ owner: string; repo: string; } | undefined",
 						"parameters": [
@@ -4197,7 +4191,7 @@
 					{
 						"name": "package_json_has_dependency",
 						"kind": "function",
-						"source_line": 231,
+						"source_line": 228,
 						"type_signature": "(dep_name: string, package_json: { [x: string]: unknown; name: string; version: string; private?: boolean | undefined; description?: string | undefined; motto?: string | undefined; glyph?: string | undefined; ... 24 more ...; exports?: string | ... 2 more ... | undefined; }): boolean",
 						"return_type": "boolean",
 						"parameters": [
@@ -4214,7 +4208,7 @@
 					{
 						"name": "PackageJsonDep",
 						"kind": "type",
-						"source_line": 236,
+						"source_line": 233,
 						"type_signature": "PackageJsonDep",
 						"properties": [
 							{
@@ -4232,7 +4226,7 @@
 					{
 						"name": "package_json_extract_dependencies",
 						"kind": "function",
-						"source_line": 241,
+						"source_line": 238,
 						"type_signature": "(package_json: { [x: string]: unknown; name: string; version: string; private?: boolean | undefined; description?: string | undefined; motto?: string | undefined; glyph?: string | undefined; logo?: string | undefined; ... 23 more ...; exports?: string | ... 2 more ... | undefined; }): PackageJsonDep[]",
 						"return_type": "PackageJsonDep[]",
 						"parameters": [
@@ -4806,10 +4800,10 @@
 						]
 					},
 					{
-						"name": "CreateConfigPlugins",
+						"name": "PluginsCreateConfig",
 						"kind": "type",
 						"source_line": 14,
-						"type_signature": "CreateConfigPlugins<TPluginContext>",
+						"type_signature": "PluginsCreateConfig<TPluginContext>",
 						"generic_params": [
 							{
 								"name": "TPluginContext",
@@ -4927,7 +4921,7 @@
 						]
 					},
 					{
-						"name": "replace_plugin",
+						"name": "plugin_replace",
 						"kind": "function",
 						"doc_comment": "Replaces a plugin by name in `plugins` without mutating the param.\nThrows if the plugin name cannot be found.",
 						"source_line": 96,
@@ -4938,7 +4932,7 @@
 							{
 								"name": "plugins",
 								"type": "Plugin<PluginContext<object>>[]",
-								"description": "- accepts the same types as the return value of `CreateConfigPlugins`"
+								"description": "- accepts the same types as the return value of `PluginsCreateConfig`"
 							},
 							{
 								"name": "new_plugin",
@@ -5232,7 +5226,7 @@
 						]
 					},
 					{
-						"name": "source_modules_create",
+						"name": "source_json_modules_create",
 						"kind": "function",
 						"source_line": 28,
 						"type_signature": "(exports: string | Record<string, unknown> | null | undefined, lib_path?: string, log?: Logger | undefined): Promise<{ [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; ... 21 more ...; alias_of?: { ...; } | undefined; }[] | undefined; module_comment?: string | undefined; dependencies?: string[] | undefined; dependents?: string[] | undefined; }[] | undefined>",
