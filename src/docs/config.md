@@ -86,9 +86,7 @@ const config: CreateGroConfig = async (cfg) => {
 		// replace a base plugin with `import {replace_plugin} from '@ryanatkn/gro';`:
 		const updated_plugins = replace_plugin(
 			await get_base_plugins(ctx),
-			gro_plugin_sveltekit_app({
-				// well_known_package_json?: boolean | MapPackageJson;
-			}),
+			gro_plugin_sveltekit_app(),
 			// 'gro_plugin_sveltekit_app', // optional name if they don't match
 		);
 		return updated_plugins.concat(create_some_custom_plugin());

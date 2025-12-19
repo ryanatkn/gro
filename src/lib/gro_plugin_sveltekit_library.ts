@@ -2,7 +2,7 @@ import {print_spawn_result, spawn} from '@fuzdev/fuz_util/process.js';
 
 import type {Plugin} from './plugin.ts';
 import {TaskError} from './task.ts';
-import {load_package_json} from './package_json.ts';
+import {package_json_load} from './package_json.ts';
 import {run_svelte_package, type SveltePackageOptions} from './sveltekit_helpers.ts';
 import {SVELTE_PACKAGE_CLI} from './constants.ts';
 
@@ -27,7 +27,7 @@ export const gro_plugin_sveltekit_library = ({
 		name: 'gro_plugin_sveltekit_library',
 		setup: async ({dev, log, config}) => {
 			if (!dev) {
-				const package_json = await load_package_json();
+				const package_json = await package_json_load();
 				await run_svelte_package(
 					package_json,
 					svelte_package_options,
@@ -38,7 +38,7 @@ export const gro_plugin_sveltekit_library = ({
 			}
 		},
 		adapt: async ({log, timings, config}) => {
-			const package_json = await load_package_json();
+			const package_json = await package_json_load();
 			// link the CLI binaries if they exist
 			if (package_json.bin) {
 				const timing_to_link = timings.start(`${config.pm_cli} link`);

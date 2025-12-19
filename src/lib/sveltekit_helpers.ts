@@ -4,7 +4,7 @@ import {join} from 'node:path';
 import type {PackageJson} from '@fuzdev/fuz_util/package_json.js';
 import {fs_exists} from '@fuzdev/fuz_util/fs.js';
 
-import {has_dep} from './package_json.ts';
+import {package_json_has_dependency} from './package_json.ts';
 import {default_svelte_config, type ParsedSvelteConfig} from './svelte_config.ts';
 import {
 	SVELTE_CONFIG_FILENAME,
@@ -41,7 +41,7 @@ export const has_sveltekit_library = async (
 		return {ok: false, message: `no SvelteKit lib directory found at ${svelte_config.lib_path}`};
 	}
 
-	if (!has_dep(dep_name, package_json)) {
+	if (!package_json_has_dependency(dep_name, package_json)) {
 		return {
 			ok: false,
 			message: `no dependency found in package.json for ${dep_name}`,

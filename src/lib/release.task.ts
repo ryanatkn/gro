@@ -2,7 +2,7 @@ import {z} from 'zod';
 
 import type {Task} from './task.ts';
 import {has_sveltekit_library, has_sveltekit_app} from './sveltekit_helpers.ts';
-import {load_package_json} from './package_json.ts';
+import {package_json_load} from './package_json.ts';
 
 /** @nodocs */
 export const Args = z.strictObject({});
@@ -13,7 +13,7 @@ export const task: Task<Args> = {
 	summary: 'publish and deploy',
 	Args,
 	run: async ({invoke_task}) => {
-		const package_json = await load_package_json();
+		const package_json = await package_json_load();
 
 		const publish = (await has_sveltekit_library(package_json)).ok;
 		if (publish) {

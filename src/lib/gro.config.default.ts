@@ -4,7 +4,7 @@ import {has_server, gro_plugin_server} from './gro_plugin_server.ts';
 import {gro_plugin_sveltekit_app} from './gro_plugin_sveltekit_app.ts';
 import {has_sveltekit_app, has_sveltekit_library} from './sveltekit_helpers.ts';
 import {gro_plugin_gen} from './gro_plugin_gen.ts';
-import {load_package_json} from './package_json.ts';
+import {package_json_load} from './package_json.ts';
 
 // TODO hacky, maybe extract utils?
 
@@ -18,7 +18,7 @@ import {load_package_json} from './package_json.ts';
  * - if `src/lib/server/server.ts`, assumes a Node server - needs config
  */
 const config: CreateGroConfig = async (cfg, svelte_config) => {
-	const package_json = await load_package_json(); // TODO gets wastefully loaded by some plugins, maybe put in plugin/task context? how does that interact with `map_package_json`?
+	const package_json = await package_json_load(); // TODO gets wastefully loaded by some plugins, maybe put in plugin/task context? how does that interact with `map_package_json`?
 
 	const [has_server_result, has_sveltekit_library_result, has_sveltekit_app_result] =
 		await Promise.all([

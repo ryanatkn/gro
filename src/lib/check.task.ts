@@ -4,7 +4,7 @@ import {styleText as st} from 'node:util';
 import {git_check_clean_workspace} from '@fuzdev/fuz_util/git.js';
 
 import {TaskError, type Task} from './task.ts';
-import {sync_package_json} from './package_json.ts';
+import {package_json_sync} from './package_json.ts';
 
 /** @nodocs */
 export const Args = z.strictObject({
@@ -62,7 +62,7 @@ export const task: Task<Args> = {
 		}
 
 		if (package_json && config.map_package_json) {
-			const {changed} = await sync_package_json(config.map_package_json, log, false);
+			const {changed} = await package_json_sync(config.map_package_json, log, false);
 			if (changed) {
 				throw new TaskError('package.json is out of date, run `gro sync` to update it');
 			} else {

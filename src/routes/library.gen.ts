@@ -1,3 +1,4 @@
+import type {Gen} from '@ryanatkn/gro';
 import {library_gen} from '@fuzdev/fuz_ui/library_gen.js';
 
-export const gen = library_gen();
+export const gen: Gen = library_gen();

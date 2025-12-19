@@ -22,7 +22,7 @@ import {
 	CHANGESET_PUBLIC_ACCESS,
 	CHANGESET_RESTRICTED_ACCESS,
 } from './changeset_helpers.ts';
-import {load_package_json} from './package_json.ts';
+import {package_json_load} from './package_json.ts';
 
 /** @nodocs */
 export const Args = z.strictObject({
@@ -99,7 +99,7 @@ export const task: Task<Args> = {
 			);
 		}
 
-		const package_json = await load_package_json();
+		const package_json = await package_json_load();
 
 		const has_sveltekit_library_result = await has_sveltekit_library(package_json, svelte_config);
 		if (!has_sveltekit_library_result.ok) {

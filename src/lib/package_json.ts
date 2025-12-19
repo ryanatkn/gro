@@ -24,9 +24,9 @@ export type PackageJsonMapper = (
 	package_json: PackageJson,
 ) => PackageJson | null | Promise<PackageJson | null>;
 
-export const EMPTY_PACKAGE_JSON: PackageJson = {name: '', version: ''};
+export const PACKAGE_JSON_EMPTY: PackageJson = {name: '', version: ''};
 
-export const load_package_json = async (
+export const package_json_load = async (
 	dir = IS_THIS_GRO ? gro_paths.root : paths.root,
 	cache?: Record<string, PackageJson>,
 	parse = true, // TODO pass `false` here in more places, especially anything perf-sensitive like work on startup
@@ -37,10 +37,10 @@ export const load_package_json = async (
 		return cache[dir]!;
 	}
 	try {
-		package_json = JSON.parse(await load_package_json_contents(dir));
+		package_json = JSON.parse(await package_json_load_contents(dir));
 	} catch (error) {
 		log?.error(st('yellow', `Failed to load package.json in ${dir}`), error);
-		return EMPTY_PACKAGE_JSON;
+		return PACKAGE_JSON_EMPTY;
 	}
 	if (parse) {
 		package_json = parse_package_json(PackageJson, package_json);
@@ -51,7 +51,10 @@ export const load_package_json = async (
 	return package_json;
 };
 
-export const sync_package_json = async (
+// TODO remove
+export const load_package_json = package_json_load;
+
+export const package_json_sync = async (
 	map_package_json: PackageJsonMapper,
 	log: Logger,
 	write = true,
@@ -60,10 +63,10 @@ export const sync_package_json = async (
 ): Promise<{package_json: PackageJson | null; changed: boolean}> => {
 	const exported_files = await fs_search(exports_dir);
 	const exported_paths = exported_files.map((f) => f.path);
-	const updated = await update_package_json(
+	const updated = await package_json_update(
 		async (package_json) => {
 			if ((await has_sveltekit_library(package_json)).ok) {
-				package_json.exports = to_package_exports(exported_paths);
+				package_json.exports = package_json_to_exports(exported_paths);
 			}
 			const mapped = await map_package_json(package_json);
 			return mapped ? parse_package_json(PackageJson, mapped) : mapped;
@@ -85,43 +88,44 @@ export const sync_package_json = async (
 	return updated;
 };
 
-export const load_gro_package_json = (): Promise<PackageJson> => load_package_json(gro_paths.root);
+export const package_json_load_for_gro = (): Promise<PackageJson> =>
+	package_json_load(gro_paths.root);
 
 // TODO probably make this nullable and make callers handle failures
-const load_package_json_contents = (dir: string): Promise<string> =>
+const package_json_load_contents = (dir: string): Promise<string> =>
 	readFile(join(dir, PACKAGE_JSON_FILENAME), 'utf8');
 
-export const write_package_json = (serialized_package_json: string): Promise<void> =>
+export const package_json_write = (serialized_package_json: string): Promise<void> =>
 	writeFile(join(paths.root, PACKAGE_JSON_FILENAME), serialized_package_json);
 
-export const serialize_package_json = (package_json: PackageJson): string =>
+export const package_json_serialize = (package_json: PackageJson): string =>
 	JSON.stringify(parse_package_json(PackageJson, package_json), null, 2) + '\n';
 
 /**
  * Updates package.json. Writes to the filesystem only when contents change.
  */
-export const update_package_json = async (
+export const package_json_update = async (
 	update: (package_json: PackageJson) => PackageJson | null | Promise<PackageJson | null>,
 	dir = paths.root,
 	write = true,
 ): Promise<{package_json: PackageJson | null; changed: boolean}> => {
-	const original_contents = await load_package_json_contents(dir);
+	const original_contents = await package_json_load_contents(dir);
 	const original = JSON.parse(original_contents);
 	const updated = await update(original);
 	if (updated === null) {
 		return {package_json: original, changed: false};
 	}
-	const updated_contents = serialize_package_json(updated);
+	const updated_contents = package_json_serialize(updated);
 	if (updated_contents === original_contents) {
 		return {package_json: original, changed: false};
 	}
-	if (write) await write_package_json(updated_contents);
+	if (write) await package_json_write(updated_contents);
 	return {package_json: updated, changed: true};
 };
 
 const is_index = (path: string): boolean => path === 'index.ts' || path === 'index.js';
 
-export const to_package_exports = (paths: Array<string>): PackageJsonExports => {
+export const package_json_to_exports = (paths: Array<string>): PackageJsonExports => {
 	const has_index = paths.some(is_index);
 	const has_js = paths.some((p) => TS_MATCHER.test(p) || JS_MATCHER.test(p));
 	const has_svelte = paths.some((p) => SVELTE_MATCHER.test(p));
@@ -176,7 +180,7 @@ export const to_package_exports = (paths: Array<string>): PackageJsonExports => 
 
 const IMPORT_PREFIX = './' + SVELTEKIT_DIST_DIRNAME + '/';
 
-export const parse_repo_url = (
+export const package_json_parse_repo_url = (
 	package_json: PackageJson,
 ): {owner: string; repo: string} | undefined => {
 	const {repository} = package_json;
@@ -224,7 +228,7 @@ const parse_or_throw_formatted_error = <T extends z.ZodType>(
 	return parsed.data;
 };
 
-export const has_dep = (dep_name: string, package_json: PackageJson): boolean =>
+export const package_json_has_dependency = (dep_name: string, package_json: PackageJson): boolean =>
 	!!package_json.devDependencies?.[dep_name] ||
 	!!package_json.dependencies?.[dep_name] ||
 	!!package_json.peerDependencies?.[dep_name];
@@ -234,7 +238,9 @@ export interface PackageJsonDep {
 	version: string;
 }
 
-export const extract_deps = (package_json: PackageJson): Array<PackageJsonDep> => {
+export const package_json_extract_dependencies = (
+	package_json: PackageJson,
+): Array<PackageJsonDep> => {
 	const deps_by_name: Map<string, PackageJsonDep> = new Map();
 	// Earlier versions override later ones, so peer deps goes last.
 	const add_deps = (deps: Record<string, string> | undefined) => {

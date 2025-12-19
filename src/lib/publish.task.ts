@@ -12,7 +12,7 @@ import {
 } from '@fuzdev/fuz_util/git.js';
 
 import {TaskError, type Task} from './task.ts';
-import {load_package_json, parse_repo_url} from './package_json.ts';
+import {package_json_load, package_json_parse_repo_url} from './package_json.ts';
 import {find_cli, spawn_cli} from './cli.ts';
 import {has_sveltekit_library} from './sveltekit_helpers.ts';
 import {update_changelog} from './changelog.ts';
@@ -85,7 +85,7 @@ export const task: Task<Args> = {
 			log.info(st('green', 'dry run!'));
 		}
 
-		const package_json = await load_package_json();
+		const package_json = await package_json_load();
 
 		const has_sveltekit_library_result = await has_sveltekit_library(package_json);
 		if (!has_sveltekit_library_result.ok) {
@@ -140,7 +140,7 @@ export const task: Task<Args> = {
 			if (typeof package_json.version !== 'string') {
 				throw new TaskError('Failed to find package.json version');
 			}
-			const parsed_repo_url = parse_repo_url(package_json);
+			const parsed_repo_url = package_json_parse_repo_url(package_json);
 			if (!parsed_repo_url) {
 				throw new TaskError(
 					'package.json `repository` must contain a repo url (and GitHub only for now, sorry),' +
@@ -178,7 +178,7 @@ export const task: Task<Args> = {
 			// The check above ensures gen is updated.
 			await invoke_task('gen');
 
-			const package_json_after_versioning = await load_package_json();
+			const package_json_after_versioning = await package_json_load();
 			version = package_json_after_versioning.version!;
 			if (package_json.version === version) {
 				// The version didn't change.

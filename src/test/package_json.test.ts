@@ -2,26 +2,26 @@ import {test, expect} from 'vitest';
 import {PackageJson, PackageJsonExports} from '@fuzdev/fuz_util/package_json.js';
 
 import {
-	load_package_json,
-	parse_repo_url,
-	serialize_package_json,
-	to_package_exports,
+	package_json_load,
+	package_json_parse_repo_url,
+	package_json_serialize,
+	package_json_to_exports,
 } from '../lib/package_json.ts';
 
-test('load_package_json', async () => {
-	const package_json = await load_package_json();
+test('package_json_load', async () => {
+	const package_json = await package_json_load();
 	expect(package_json).toBeTruthy();
 	const parsed = PackageJson.parse(package_json);
 	expect(parsed).toBeTruthy();
-	serialize_package_json(package_json);
+	package_json_serialize(package_json);
 });
 
-test('load_package_json with cache', async () => {
+test('package_json_load with cache', async () => {
 	const cache = {};
-	const package_json1 = await load_package_json(undefined, cache);
+	const package_json1 = await package_json_load(undefined, cache);
 	expect(package_json1).toBeTruthy();
 	expect(Object.keys(cache).length).toBe(1);
-	const package_json2 = await load_package_json(undefined, cache);
+	const package_json2 = await package_json_load(undefined, cache);
 	expect(Object.keys(cache).length).toBe(1);
 	expect(package_json1).toBe(package_json2);
 });
@@ -40,22 +40,22 @@ test('PackageJson.parse fails with bad data', () => {
 	expect(err).toBeTruthy();
 });
 
-test('serialize_package_json', () => {
-	serialize_package_json({name: 'abc', version: '123'});
+test('package_json_serialize', () => {
+	package_json_serialize({name: 'abc', version: '123'});
 });
 
-test('serialize_package_json fails with bad data', () => {
+test('package_json_serialize fails with bad data', () => {
 	let err;
 	try {
-		serialize_package_json({version: '123'} as any);
+		package_json_serialize({version: '123'} as any);
 	} catch (_err) {
 		err = _err;
 	}
 	expect(err).toBeTruthy();
 });
 
-test('to_package_exports', () => {
-	expect(to_package_exports(['a/b.ts'])).toEqual({
+test('package_json_to_exports', () => {
+	expect(package_json_to_exports(['a/b.ts'])).toEqual({
 		'./package.json': './package.json',
 		'./*.js': {
 			default: './dist/*.js',
@@ -66,7 +66,7 @@ test('to_package_exports', () => {
 			types: './dist/*.d.ts',
 		},
 	});
-	expect(to_package_exports(['*.svelte', '*.ts', '*.json', 'index.ts'])).toEqual({
+	expect(package_json_to_exports(['*.svelte', '*.ts', '*.json', 'index.ts'])).toEqual({
 		'.': {
 			default: './dist/index.js',
 			types: './dist/index.d.ts',
@@ -92,8 +92,8 @@ test('to_package_exports', () => {
 	});
 });
 
-test('parse_repo_url', async () => {
-	const parsed = parse_repo_url(await load_package_json());
+test('package_json_parse_repo_url', async () => {
+	const parsed = package_json_parse_repo_url(await package_json_load());
 	expect(parsed?.owner).toBe('ryanatkn');
 	expect(parsed?.repo).toBe('gro');
 });
