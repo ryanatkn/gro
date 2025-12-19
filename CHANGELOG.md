@@ -1,5 +1,12 @@
 # @ryanatkn/gro
 
+## 0.183.0
+
+### Minor Changes
+
+- use fuz_ui vite plugin and remove related functionality ([#585](https://github.com/ryanatkn/gro/pull/585))
+- remove `include_nojekyll`, add `.nojekyll` manually to ./static ([79c5b3c](https://github.com/ryanatkn/gro/commit/79c5b3c))
+
 ## 0.182.0
 
 ### Minor Changes
