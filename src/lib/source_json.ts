@@ -22,10 +22,10 @@ export const source_json_create = async (
 	SourceJson.parse({
 		name: package_json.name,
 		version: package_json.version,
-		modules: await source_modules_create(package_json.exports, lib_path, log),
+		modules: await source_json_modules_create(package_json.exports, lib_path, log),
 	});
 
-export const source_modules_create = async (
+export const source_json_modules_create = async (
 	exports: PackageJsonExports | undefined,
 	lib_path = paths.lib,
 	log?: Logger,

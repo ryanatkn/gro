@@ -292,7 +292,7 @@ Config interface:
 
 ```typescript
 interface GroConfig {
-  plugins: CreateConfigPlugins; // Function returning array of plugins
+  plugins: PluginsCreateConfig; // Function returning array of plugins
   map_package_json: MapPackageJson | null; // Hook for package.json automations
   task_root_dirs: Array<PathId>; // Where to search for tasks
   search_filters: Array<PathFilter>; // Exclude patterns for discovery

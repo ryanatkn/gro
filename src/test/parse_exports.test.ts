@@ -331,7 +331,7 @@ describe('process_ts_exports', () => {
 				name: string;
 			}
 
-			export const replace_plugin = (
+			export const plugin_replace = (
 				plugins,
 				new_plugin,
 				name = new_plugin.name,
@@ -341,7 +341,7 @@ describe('process_ts_exports', () => {
 		`;
 
 		const index_module = `
-			export {type Plugin, replace_plugin} from './plugin_module.ts';
+			export {type Plugin, plugin_replace} from './plugin_module.ts';
 		`;
 
 		const {
@@ -356,14 +356,14 @@ describe('process_ts_exports', () => {
 
 		expect(create_declaration_map(declarations)).toEqual({
 			Plugin: 'type',
-			replace_plugin: 'function',
+			plugin_replace: 'function',
 		});
 	});
 
-	test('correctly identifies replace_plugin from actual plugin.ts', () => {
+	test('correctly identifies plugin_replace from actual plugin.ts', () => {
 		// Create a simplified version of the index.ts content
 		const index_code = `
-			export {type Plugin, replace_plugin} from './plugin.ts';
+			export {type Plugin, plugin_replace} from './plugin.ts';
 		`;
 
 		// Create the test environment with the actual plugin.ts file
@@ -371,9 +371,9 @@ describe('process_ts_exports', () => {
 
 		const declarations = process_ts_exports(source_file, program, export_symbols);
 
-		// Find the replace_plugin export
-		const replace_plugin_declaration = declarations.find((d) => d.name === 'replace_plugin');
-		expect(replace_plugin_declaration).toBeTruthy();
-		expect(replace_plugin_declaration?.kind).toBe('function');
+		// Find the plugin_replace export
+		const plugin_replace_declaration = declarations.find((d) => d.name === 'plugin_replace');
+		expect(plugin_replace_declaration).toBeTruthy();
+		expect(plugin_replace_declaration?.kind).toBe('function');
 	});
 });

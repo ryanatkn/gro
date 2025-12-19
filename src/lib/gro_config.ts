@@ -15,7 +15,7 @@ import {
 	SVELTEKIT_DIST_DIRNAME,
 } from './constants.ts';
 import create_default_config from './gro.config.default.ts';
-import type {CreateConfigPlugins} from './plugin.ts';
+import type {PluginsCreateConfig} from './plugin.ts';
 import type {PackageJsonMapper} from './package_json.ts';
 import type {ParsedSvelteConfig} from './svelte_config.ts';
 import {to_hash} from './hash.ts';
@@ -36,7 +36,7 @@ export interface GroConfig extends RawGroConfig {
 	/**
 	 * @see https://github.com/ryanatkn/gro/blob/main/src/docs/plugin.md
 	 */
-	plugins: CreateConfigPlugins;
+	plugins: PluginsCreateConfig;
 	/**
 	 * Maps the project's `package.json` before writing it to the filesystem.
 	 * The `package_json` argument may be mutated, but the return value is what's used by the caller.
@@ -78,7 +78,7 @@ export interface GroConfig extends RawGroConfig {
  * @see https://github.com/ryanatkn/gro/blob/main/src/docs/config.md
  */
 export interface RawGroConfig {
-	plugins?: CreateConfigPlugins;
+	plugins?: PluginsCreateConfig;
 	map_package_json?: PackageJsonMapper | null;
 	task_root_dirs?: Array<string>;
 	search_filters?: PathFilter | Array<PathFilter> | null;

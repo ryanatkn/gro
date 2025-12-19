@@ -2720,7 +2720,7 @@
 							{
 								"name": "plugins",
 								"kind": "variable",
-								"type_signature": "CreateConfigPlugins",
+								"type_signature": "PluginsCreateConfig",
 								"doc_comment": ""
 							},
 							{
@@ -2779,7 +2779,7 @@
 							{
 								"name": "plugins",
 								"kind": "variable",
-								"type_signature": "CreateConfigPlugins"
+								"type_signature": "PluginsCreateConfig"
 							},
 							{
 								"name": "map_package_json",
@@ -4548,10 +4548,10 @@
 						"also_exported_from": ["index.ts"]
 					},
 					{
-						"name": "CreateConfigPlugins",
+						"name": "PluginsCreateConfig",
 						"kind": "type",
 						"source_line": 14,
-						"type_signature": "CreateConfigPlugins<TPluginContext>",
+						"type_signature": "PluginsCreateConfig<TPluginContext>",
 						"generic_params": [
 							{
 								"name": "TPluginContext",
@@ -4661,7 +4661,7 @@
 						]
 					},
 					{
-						"name": "replace_plugin",
+						"name": "plugin_replace",
 						"kind": "function",
 						"doc_comment": "Replaces a plugin by name in `plugins` without mutating the param.\nThrows if the plugin name cannot be found.",
 						"source_line": 96,
@@ -4672,7 +4672,7 @@
 							{
 								"name": "plugins",
 								"type": "Plugin<PluginContext<object>>[]",
-								"description": "- accepts the same types as the return value of `CreateConfigPlugins`"
+								"description": "- accepts the same types as the return value of `PluginsCreateConfig`"
 							},
 							{
 								"name": "new_plugin",
@@ -4932,7 +4932,7 @@
 						]
 					},
 					{
-						"name": "source_modules_create",
+						"name": "source_json_modules_create",
 						"kind": "function",
 						"source_line": 28,
 						"type_signature": "(exports: string | Record<string, unknown> | null | undefined, lib_path?: string, log?: Logger | undefined): Promise<{ [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; ... 21 more ...; alias_of?: { ...; } | undefined; }[] | undefined; module_comment?: string | undefined; dependencies?: string[] | undefined; dependents?: string[] | undefined; }[] | undefined>",

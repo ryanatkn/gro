@@ -1459,7 +1459,7 @@
 
 ### Patch Changes
 
-- improve type of `replace_plugin` ([9165ab8](https://github.com/ryanatkn/gro/commit/9165ab8))
+- improve type of `plugin_replace` ([9165ab8](https://github.com/ryanatkn/gro/commit/9165ab8))
 
 ## 0.98.2
 
@@ -1564,7 +1564,7 @@
 
 ### Patch Changes
 
-- add replace_plugin helper ([#423](https://github.com/ryanatkn/gro/pull/423))
+- add plugin_replace helper ([#423](https://github.com/ryanatkn/gro/pull/423))
 - fix loading package.json ([#423](https://github.com/ryanatkn/gro/pull/423))
 
 ## 0.95.0

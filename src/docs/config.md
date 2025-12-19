@@ -44,7 +44,7 @@ export interface CreateGroConfig {
 
 // The strict variant that's used internally and exposed to users in tasks and elsewhere.
 export interface GroConfig extends RawGroConfig {
-	plugins: CreateConfigPlugins;
+	plugins: PluginsCreateConfig;
 	map_package_json: MapPackageJson | null;
 	task_root_dirs: Array<PathId>;
 	search_filters: Array<PathFilter>;
@@ -54,7 +54,7 @@ export interface GroConfig extends RawGroConfig {
 
 // The relaxed variant that users can provide. Superset of `GroConfig`.
 export interface RawGroConfig {
-	plugins?: CreateConfigPlugins;
+	plugins?: PluginsCreateConfig;
 	map_package_json?: MapPackageJson | null;
 	task_root_dirs?: Array<string>;
 	search_filters?: PathFilter | Array<PathFilter> | null;
@@ -83,8 +83,8 @@ const config: CreateGroConfig = async (cfg) => {
 	// example extending the default plugins:
 	const get_base_plugins = cfg.plugins;
 	cfg.plugins = async (ctx) => {
-		// replace a base plugin with `import {replace_plugin} from '@ryanatkn/gro';`:
-		const updated_plugins = replace_plugin(
+		// replace a base plugin with `import {plugin_replace} from '@ryanatkn/gro';`:
+		const updated_plugins = plugin_replace(
 			await get_base_plugins(ctx),
 			gro_plugin_sveltekit_app(),
 			// 'gro_plugin_sveltekit_app', // optional name if they don't match
@@ -125,7 +125,7 @@ Read more about plugins and the `Plugin` in
 [plugin.md](plugin.md), [dev.md](dev.md#plugin), and [build.md](build.md#plugin).
 
 ```ts
-export type CreateConfigPlugins<TPluginContext extends PluginContext = PluginContext> = (
+export type PluginsCreateConfig<TPluginContext extends PluginContext = PluginContext> = (
 	ctx: TPluginContext,
 ) => Array<Plugin<TPluginContext>> | Promise<Array<Plugin<TPluginContext>>>;
 ```

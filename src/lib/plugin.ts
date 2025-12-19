@@ -11,7 +11,7 @@ export interface Plugin<TPluginContext extends PluginContext = PluginContext> {
 	teardown?: (ctx: TPluginContext) => void | Promise<void>;
 }
 
-export type CreateConfigPlugins<TPluginContext extends PluginContext = PluginContext> = (
+export type PluginsCreateConfig<TPluginContext extends PluginContext = PluginContext> = (
 	ctx: TPluginContext,
 ) => Array<Plugin<TPluginContext>> | Promise<Array<Plugin<TPluginContext>>>;
 
@@ -88,12 +88,12 @@ export class Plugins<TPluginContext extends PluginContext> {
 /**
  * Replaces a plugin by name in `plugins` without mutating the param.
  * Throws if the plugin name cannot be found.
- * @param plugins - accepts the same types as the return value of `CreateConfigPlugins`
+ * @param plugins - accepts the same types as the return value of `PluginsCreateConfig`
  * @param new_plugin
  * @param name - @default new_plugin.name
  * @returns `plugins` with `new_plugin` at the index of the plugin with `name`
  */
-export const replace_plugin = (
+export const plugin_replace = (
 	plugins: Array<Plugin>,
 	new_plugin: Plugin,
 	name = new_plugin.name,
