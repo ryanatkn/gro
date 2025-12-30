@@ -1,6 +1,6 @@
 import {relative} from 'node:path';
 
-import {type Gen} from '../lib/gen.ts';
+import type {Gen} from '../lib/gen.ts';
 import {paths} from '../lib/paths.ts';
 import {log_error_reasons} from '../lib/task_logging.ts';
 import {find_tasks, load_tasks, TaskError} from '../lib/task.ts';

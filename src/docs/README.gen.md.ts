@@ -1,7 +1,7 @@
 import {basename} from 'node:path';
 import {fs_search} from '@fuzdev/fuz_util/fs.js';
 
-import {type Gen} from '../lib/gen.ts';
+import type {Gen} from '../lib/gen.ts';
 import {
 	create_gen_doc_context,
 	create_root_link,
