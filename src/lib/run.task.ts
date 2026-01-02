@@ -9,6 +9,8 @@ import {serialize_args, to_implicit_forwarded_args} from './args.ts';
 /**
  * Runs a TypeScript file with Gro's loader, forwarding all args to the script.
  * Useful for scripts that need SvelteKit shims ($lib, $env, etc).
+ *
+ * @module
  */
 
 /** @nodocs */

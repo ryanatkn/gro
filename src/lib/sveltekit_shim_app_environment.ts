@@ -6,6 +6,8 @@
  * but exists here for the sake of the Node loader.
  * There may be a cleaner workaround but I couldn't find it.
  * @see https://github.com/nodejs/loaders for details about the forthcoming virtual file support
+ *
+ * @module
  */
 
 export const browser = false;
