@@ -1,4 +1,14 @@
 {
+	"name": "@ryanatkn/gro",
+	"repo_name": "gro",
+	"repo_url": "https://github.com/ryanatkn/gro",
+	"owner_name": "ryanatkn",
+	"homepage_url": "https://gro.ryanatkn.com/",
+	"logo_url": "https://gro.ryanatkn.com/logo.svg",
+	"logo_alt": "a pixelated green oak acorn with a glint of sun",
+	"npm_url": "https://www.npmjs.com/package/@ryanatkn/gro",
+	"changelog_url": "https://github.com/ryanatkn/gro/blob/main/CHANGELOG.md",
+	"published": true,
 	"package_json": {
 		"name": "@ryanatkn/gro",
 		"version": "0.184.0",
@@ -54,8 +64,8 @@
 			"esm-env": "^1.2.2",
 			"mri": "^1.2.0",
 			"oxc-parser": "^0.99.0",
-			"prettier": "^3.6.2",
-			"prettier-plugin-svelte": "^3.4.0",
+			"prettier": "^3.7.4",
+			"prettier-plugin-svelte": "^3.4.1",
 			"ts-blank-space": "^0.6.2",
 			"tslib": "^2.8.1",
 			"zod": "^4.1.13"
@@ -84,8 +94,8 @@
 			"@changesets/types": "^6.1.0",
 			"@fuzdev/fuz_code": "^0.38.0",
 			"@fuzdev/fuz_css": "^0.42.1",
-			"@fuzdev/fuz_ui": "^0.174.0",
-			"@fuzdev/fuz_util": "^0.45.0",
+			"@fuzdev/fuz_ui": "^0.176.1",
+			"@fuzdev/fuz_util": "^0.45.1",
 			"@ryanatkn/eslint-config": "^0.9.0",
 			"@sveltejs/adapter-static": "^3.0.10",
 			"@sveltejs/kit": "^2.49.1",
@@ -3084,7 +3094,7 @@
 						"kind": "function",
 						"doc_comment": "Runs a file using the Gro loader.\n\nUses conditional exports to correctly set up `esm-env` as development by default,\nso if you want production set `NODE_ENV=production`.",
 						"see_also": [
-							"https://nodejs.org/api/packages.html#conditional-exports *"
+							"https://nodejs.org/api/packages.html#conditional-exports"
 						],
 						"source_line": 83,
 						"type_signature": "(loader_path: string, invoke_path: string, argv: string[], js_cli?: string): Promise<SpawnResult>",
@@ -5637,25 +5647,25 @@
 						"see_also": [
 							"https://github.com/nodejs/loaders for details about the forthcoming virtual file support"
 						],
-						"source_line": 11,
+						"source_line": 13,
 						"type_signature": "false"
 					},
 					{
 						"name": "building",
 						"kind": "variable",
-						"source_line": 12,
+						"source_line": 14,
 						"type_signature": "false"
 					},
 					{
 						"name": "dev",
 						"kind": "variable",
-						"source_line": 13,
+						"source_line": 15,
 						"type_signature": "true"
 					},
 					{
 						"name": "version",
 						"kind": "variable",
-						"source_line": 14,
+						"source_line": 16,
 						"type_signature": "\"TODO\""
 					}
 				],
@@ -5762,20 +5772,20 @@
 					{
 						"name": "assets",
 						"kind": "variable",
-						"source_line": 18,
+						"source_line": 20,
 						"type_signature": "\"\""
 					},
 					{
 						"name": "base",
 						"kind": "variable",
 						"doc_comment": "",
-						"source_line": 20,
+						"source_line": 22,
 						"type_signature": "\"\""
 					},
 					{
 						"name": "resolve",
 						"kind": "function",
-						"source_line": 21,
+						"source_line": 23,
 						"type_signature": "<T extends RouteId | Pathname>(...args: ResolveArgs<T>): \"/\" | \"/about\" | \"/docs\" | \"/docs/api\" | \"/docs/library\" | \"/history\" | `${`/docs/api/${string}` & {}}` | `${`/docs/api/${string}/` & {}}` | ... 12 more ... | `/${string}/history/`",
 						"return_type": "\"/\" | \"/about\" | \"/docs\" | \"/docs/api\" | \"/docs/library\" | \"/history\" | `${`/docs/api/${string}` & {}}` | `${`/docs/api/${string}/` & {}}` | `/${string}/` | `/${string}/about` | `/${string}/docs` | `/${string}/docs/api` | `/${string}/docs/library` | `/${string}/history` | ... 6 more ... | `/${string}/history/`",
 						"parameters": [
@@ -5789,13 +5799,13 @@
 						"name": "resolveRoute",
 						"kind": "variable",
 						"doc_comment": "",
-						"source_line": 23,
+						"source_line": 25,
 						"type_signature": "<T extends RouteId | Pathname>(...args: ResolveArgs<T>) => \"/\" | \"/about\" | \"/docs\" | \"/docs/api\" | \"/docs/library\" | \"/history\" | `${`/docs/api/${string}` & {}}` | `${`/docs/api/${string}/` & {}}` | ... 12 more ... | `/${string}/history/`"
 					},
 					{
 						"name": "asset",
 						"kind": "function",
-						"source_line": 24,
+						"source_line": 26,
 						"type_signature": "(file: \"/.nojekyll\" | \"/CNAME\" | \"/favicon.png\" | \"/logo.svg\" | \"/robots.txt\" | (string & {})): string",
 						"return_type": "string",
 						"parameters": [
@@ -6582,15 +6592,5 @@
 				]
 			}
 		]
-	},
-	"name": "@ryanatkn/gro",
-	"repo_name": "gro",
-	"repo_url": "https://github.com/ryanatkn/gro",
-	"owner_name": "ryanatkn",
-	"homepage_url": "https://gro.ryanatkn.com/",
-	"logo_url": "https://gro.ryanatkn.com/logo.svg",
-	"logo_alt": "a pixelated green oak acorn with a glint of sun",
-	"npm_url": "https://www.npmjs.com/package/@ryanatkn/gro",
-	"changelog_url": "https://github.com/ryanatkn/gro/blob/main/CHANGELOG.md",
-	"published": true
+	}
 }
