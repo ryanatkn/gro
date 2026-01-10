@@ -246,6 +246,7 @@ export const write_gen_results = async (
 	log: Logger,
 ): Promise<void> => {
 	const files = gen_results.successes.flatMap((result) => result.files);
+	// TODO BLOCK use each_concurrent? or return results?
 	await map_concurrent(
 		files,
 		async (file) => {
