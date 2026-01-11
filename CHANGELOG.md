@@ -1,5 +1,11 @@
 # @ryanatkn/gro
 
+## 0.185.0
+
+### Minor Changes
+
+- use content hash for change detection, ignoring mtime ([#587](https://github.com/ryanatkn/gro/pull/587))
+
 ## 0.184.0
 
 ### Minor Changes
