@@ -2496,7 +2496,7 @@
 					{
 						"name": "FoundGenfiles",
 						"kind": "type",
-						"source_line": 271,
+						"source_line": 270,
 						"type_signature": "FoundGenfiles",
 						"properties": [
 							{
@@ -2519,20 +2519,20 @@
 					{
 						"name": "FindGenfilesResult",
 						"kind": "type",
-						"source_line": 277,
+						"source_line": 276,
 						"type_signature": "FindGenfilesResult"
 					},
 					{
 						"name": "FindGenfilesFailure",
 						"kind": "type",
-						"source_line": 278,
+						"source_line": 277,
 						"type_signature": "FindGenfilesFailure"
 					},
 					{
 						"name": "find_genfiles",
 						"kind": "function",
 						"doc_comment": "Finds modules from input paths. (see `src/lib/input_path.ts` for more)",
-						"source_line": 297,
+						"source_line": 296,
 						"type_signature": "(input_paths: InputPath[], root_dirs: PathId[], config: GroConfig, timings?: Timings | undefined): Promise<FindGenfilesResult>",
 						"return_type": "Promise<FindGenfilesResult>",
 						"parameters": [
@@ -2558,7 +2558,7 @@
 					{
 						"name": "GenfileModule",
 						"kind": "type",
-						"source_line": 365,
+						"source_line": 364,
 						"type_signature": "GenfileModule",
 						"properties": [
 							{
@@ -2571,13 +2571,13 @@
 					{
 						"name": "GenfileModuleMeta",
 						"kind": "type",
-						"source_line": 369,
+						"source_line": 368,
 						"type_signature": "GenfileModuleMeta"
 					},
 					{
 						"name": "LoadedGenfiles",
 						"kind": "type",
-						"source_line": 371,
+						"source_line": 370,
 						"type_signature": "LoadedGenfiles",
 						"properties": [
 							{
@@ -2595,19 +2595,19 @@
 					{
 						"name": "LoadGenfilesResult",
 						"kind": "type",
-						"source_line": 376,
+						"source_line": 375,
 						"type_signature": "LoadGenfilesResult"
 					},
 					{
 						"name": "LoadGenfilesFailure",
 						"kind": "type",
-						"source_line": 377,
+						"source_line": 376,
 						"type_signature": "LoadGenfilesFailure"
 					},
 					{
 						"name": "load_genfiles",
 						"kind": "function",
-						"source_line": 379,
+						"source_line": 378,
 						"type_signature": "(found_genfiles: FoundGenfiles, timings?: Timings | undefined): Promise<LoadGenfilesResult>",
 						"return_type": "Promise<LoadGenfilesResult>",
 						"parameters": [
@@ -2625,7 +2625,7 @@
 					{
 						"name": "validate_gen_module",
 						"kind": "function",
-						"source_line": 398,
+						"source_line": 397,
 						"type_signature": "(mod: Record<string, any>): mod is GenfileModule",
 						"return_type": "boolean",
 						"parameters": [
@@ -2638,7 +2638,7 @@
 					{
 						"name": "normalize_gen_config",
 						"kind": "function",
-						"source_line": 406,
+						"source_line": 405,
 						"type_signature": "(gen: Gen): GenConfig",
 						"return_type": "GenConfig",
 						"parameters": [
