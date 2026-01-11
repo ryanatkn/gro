@@ -79,6 +79,6 @@ test('SEARCH_EXCLUDER_DEFAULT', () => {
 });
 
 test('EMPTY_BUILD_CACHE_CONFIG_HASH matches hash of empty string', async () => {
-	const computed_hash = await to_hash(new TextEncoder().encode(''));
+	const computed_hash = await to_hash('');
 	expect(EMPTY_BUILD_CACHE_CONFIG_HASH).toBe(computed_hash);
 });

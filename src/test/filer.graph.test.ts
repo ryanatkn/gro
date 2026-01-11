@@ -7,38 +7,23 @@ import type {Disknode} from '../lib/disknode.ts';
 /* eslint-disable @typescript-eslint/require-await */
 /* eslint-disable @typescript-eslint/no-empty-function */
 
+const create_test_disknode = (id: string, contents: string | null = null): Disknode => ({
+	id,
+	contents,
+	external: false,
+	ctime: 1,
+	mtime: 1,
+	content_hash: null,
+	dependents: new Map(),
+	dependencies: new Map(),
+});
+
 // filter_dependents tests
 test('filter_dependents finds direct dependents', () => {
 	// Create a simple dependency graph: A <- B <- C
-	const fileA: Disknode = {
-		id: '/test/a.ts',
-		contents: 'export const a = 1',
-		external: false,
-		ctime: 1,
-		mtime: 1,
-		dependents: new Map(),
-		dependencies: new Map(),
-	};
-
-	const fileB: Disknode = {
-		id: '/test/b.ts',
-		contents: "import {a} from './a'",
-		external: false,
-		ctime: 1,
-		mtime: 1,
-		dependents: new Map(),
-		dependencies: new Map(),
-	};
-
-	const fileC: Disknode = {
-		id: '/test/c.ts',
-		contents: "import {b} from './b'",
-		external: false,
-		ctime: 1,
-		mtime: 1,
-		dependents: new Map(),
-		dependencies: new Map(),
-	};
+	const fileA = create_test_disknode('/test/a.ts', 'export const a = 1');
+	const fileB = create_test_disknode('/test/b.ts', "import {a} from './a'");
+	const fileC = create_test_disknode('/test/c.ts', "import {b} from './b'");
 
 	// Set up dependencies: A <- B <- C
 	fileB.dependencies.set(fileA.id, fileA);
@@ -64,35 +49,9 @@ test('filter_dependents finds direct dependents', () => {
 
 test('filter_dependents with filter predicate', () => {
 	// Create dependency graph: A <- B <- C
-	const fileA: Disknode = {
-		id: '/test/a.ts',
-		contents: 'export const a = 1',
-		external: false,
-		ctime: 1,
-		mtime: 1,
-		dependents: new Map(),
-		dependencies: new Map(),
-	};
-
-	const fileB: Disknode = {
-		id: '/test/b.js',
-		contents: "import {a} from './a'",
-		external: false,
-		ctime: 1,
-		mtime: 1,
-		dependents: new Map(),
-		dependencies: new Map(),
-	};
-
-	const fileC: Disknode = {
-		id: '/test/c.ts',
-		contents: "import {b} from './b'",
-		external: false,
-		ctime: 1,
-		mtime: 1,
-		dependents: new Map(),
-		dependencies: new Map(),
-	};
+	const fileA = create_test_disknode('/test/a.ts', 'export const a = 1');
+	const fileB = create_test_disknode('/test/b.js', "import {a} from './a'");
+	const fileC = create_test_disknode('/test/c.ts', "import {b} from './b'");
 
 	// Set up dependencies
 	fileB.dependencies.set(fileA.id, fileA);
@@ -119,35 +78,9 @@ test('filter_dependents with filter predicate', () => {
 
 test('filter_dependents handles circular dependencies', () => {
 	// Create circular dependency: A <- B <- C <- A
-	const fileA: Disknode = {
-		id: '/test/a.ts',
-		contents: "import {c} from './c'",
-		external: false,
-		ctime: 1,
-		mtime: 1,
-		dependents: new Map(),
-		dependencies: new Map(),
-	};
-
-	const fileB: Disknode = {
-		id: '/test/b.ts',
-		contents: "import {a} from './a'",
-		external: false,
-		ctime: 1,
-		mtime: 1,
-		dependents: new Map(),
-		dependencies: new Map(),
-	};
-
-	const fileC: Disknode = {
-		id: '/test/c.ts',
-		contents: "import {b} from './b'",
-		external: false,
-		ctime: 1,
-		mtime: 1,
-		dependents: new Map(),
-		dependencies: new Map(),
-	};
+	const fileA = create_test_disknode('/test/a.ts', "import {c} from './c'");
+	const fileB = create_test_disknode('/test/b.ts', "import {a} from './a'");
+	const fileC = create_test_disknode('/test/c.ts', "import {b} from './b'");
 
 	// Set up circular dependencies
 	fileB.dependencies.set(fileA.id, fileA);
@@ -177,15 +110,7 @@ test('filter_dependents handles circular dependencies', () => {
 });
 
 test('filter_dependents returns empty set when no dependents', () => {
-	const fileA: Disknode = {
-		id: '/test/a.ts',
-		contents: 'export const a = 1',
-		external: false,
-		ctime: 1,
-		mtime: 1,
-		dependents: new Map(),
-		dependencies: new Map(),
-	};
+	const fileA = create_test_disknode('/test/a.ts', 'export const a = 1');
 
 	const get_by_id = (id: string) => (id === fileA.id ? fileA : undefined);
 
@@ -255,35 +180,9 @@ test('updates dependency graph when file contents change', async () => {
 
 test('cascading invalidation through dependency chain', async () => {
 	// Create dependency chain: a.ts <- b.ts <- c.ts
-	const fileA: Disknode = {
-		id: '/test/a.ts',
-		contents: 'export const a = 1',
-		external: false,
-		ctime: 1,
-		mtime: 1,
-		dependents: new Map(),
-		dependencies: new Map(),
-	};
-
-	const fileB: Disknode = {
-		id: '/test/b.ts',
-		contents: "import {a} from './a'",
-		external: false,
-		ctime: 1,
-		mtime: 1,
-		dependents: new Map(),
-		dependencies: new Map(),
-	};
-
-	const fileC: Disknode = {
-		id: '/test/c.ts',
-		contents: "import {b} from './b'",
-		external: false,
-		ctime: 1,
-		mtime: 1,
-		dependents: new Map(),
-		dependencies: new Map(),
-	};
+	const fileA = create_test_disknode('/test/a.ts', 'export const a = 1');
+	const fileB = create_test_disknode('/test/b.ts', "import {a} from './a'");
+	const fileC = create_test_disknode('/test/c.ts', "import {b} from './b'");
 
 	// Set up dependency chain
 	fileB.dependencies.set(fileA.id, fileA);

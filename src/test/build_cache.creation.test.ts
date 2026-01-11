@@ -312,7 +312,7 @@ describe('create_build_cache_metadata', () => {
 
 		const config = await create_mock_config({
 			build_cache_config: {
-				api_endpoint: 'https://api.example.com',
+				api_endpoint: 'https://api.fuz.dev',
 				feature_flags: {experimental: true},
 			},
 		});

@@ -63,7 +63,7 @@ describe('compute_build_cache_key', () => {
 		vi.mocked(to_hash).mockResolvedValue('custom_hash');
 
 		const config = await create_mock_config({
-			build_cache_config: {api_url: 'https://example.com'},
+			build_cache_config: {api_url: 'https://fuz.dev'},
 		});
 		const log = create_mock_logger();
 
@@ -71,7 +71,7 @@ describe('compute_build_cache_key', () => {
 
 		expect(result.build_cache_config_hash).toBeTruthy();
 		expect(to_hash).toHaveBeenCalledWith(
-			new TextEncoder().encode(json_stringify_deterministic({api_url: 'https://example.com'})),
+			json_stringify_deterministic({api_url: 'https://fuz.dev'}),
 		);
 	});
 

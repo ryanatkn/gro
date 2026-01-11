@@ -84,7 +84,7 @@
     "@fuzdev/fuz_code": "^0.38.0",
     "@fuzdev/fuz_css": "^0.42.1",
     "@fuzdev/fuz_ui": "^0.177.0",
-    "@fuzdev/fuz_util": "^0.45.1",
+    "@fuzdev/fuz_util": "^0.45.3",
     "@ryanatkn/eslint-config": "^0.9.0",
     "@sveltejs/adapter-static": "^3.0.10",
     "@sveltejs/kit": "^2.49.1",

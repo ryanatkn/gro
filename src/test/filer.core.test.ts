@@ -88,6 +88,20 @@ test('disknode structure is valid', async () => {
 	assert.equal(typeof file1.external, 'boolean');
 	assert.ok(file1.dependencies instanceof Map);
 	assert.ok(file1.dependents instanceof Map);
+	// content_hash is null when file doesn't exist on disk (mock files)
+	assert.equal(file1.content_hash, null);
+});
+
+test('disknode content_hash is null when created via get_or_create', async () => {
+	const mock_watch_dir = create_mock_watch_dir();
+	const filer = new Filer({watch_dir: mock_watch_dir});
+	await filer.init();
+
+	// Create a new disknode for a file that doesn't exist
+	const new_file = filer.get_or_create('/test/nonexistent.ts');
+	assert.ok(new_file);
+	assert.equal(new_file.contents, null);
+	assert.equal(new_file.content_hash, null);
 });
 
 test('close() cleans up resources', async () => {

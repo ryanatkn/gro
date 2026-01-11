@@ -48,6 +48,7 @@ const create_disknode = (
 		external: false,
 		ctime: null,
 		mtime: null,
+		content_hash: null,
 		dependencies: new Map(),
 		dependents: new Map(),
 	};

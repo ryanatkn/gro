@@ -7,6 +7,17 @@ import type {Disknode} from '../lib/disknode.ts';
 /* eslint-disable @typescript-eslint/require-await */
 /* eslint-disable @typescript-eslint/no-empty-function */
 
+const create_test_disknode = (id: string, contents: string | null = null): Disknode => ({
+	id,
+	contents,
+	external: false,
+	ctime: 1,
+	mtime: 1,
+	content_hash: null,
+	dependents: new Map(),
+	dependencies: new Map(),
+});
+
 // Initialization error tests
 test('error in watch_dir.init() is handled', async () => {
 	const mock_watch_dir = vi.fn(() => {
@@ -326,15 +337,10 @@ test('handles very deep dependency chain', async () => {
 	const files: Array<Disknode> = [];
 
 	for (let i = 0; i < depth; i++) {
-		const file: Disknode = {
-			id: `/test/file${i}.ts`,
-			contents: i > 0 ? `import {x} from './file${i - 1}'` : 'export const x = 1',
-			external: false,
-			ctime: 1,
-			mtime: 1,
-			dependents: new Map(),
-			dependencies: new Map(),
-		};
+		const file = create_test_disknode(
+			`/test/file${i}.ts`,
+			i > 0 ? `import {x} from './file${i - 1}'` : 'export const x = 1',
+		);
 		files.push(file);
 
 		// Link dependencies

@@ -175,9 +175,7 @@ export const cook_gro_config = async (raw_config: RawGroConfig): Promise<GroConf
 			typeof build_cache_config === 'function' ? await build_cache_config() : build_cache_config;
 
 		// Hash the JSON representation with deterministic key ordering
-		build_cache_config_hash = await to_hash(
-			new TextEncoder().encode(json_stringify_deterministic(resolved)),
-		);
+		build_cache_config_hash = await to_hash(json_stringify_deterministic(resolved));
 	}
 
 	// Delete the raw value to ensure it doesn't persist in memory

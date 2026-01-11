@@ -293,7 +293,7 @@ For complex scenarios, you can provide an async function:
 // gro.config.ts
 export default {
 	build_cache_config: async () => {
-		const config_data = await fetch('https://api.example.com/build-config').then((r) => r.json());
+		const config_data = await fetch('https://api.fuz.dev/build-config').then((r) => r.json());
 
 		return {
 			remote_config_version: config_data.version,

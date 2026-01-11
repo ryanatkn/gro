@@ -95,7 +95,7 @@
 			"@fuzdev/fuz_code": "^0.38.0",
 			"@fuzdev/fuz_css": "^0.42.1",
 			"@fuzdev/fuz_ui": "^0.177.0",
-			"@fuzdev/fuz_util": "^0.45.1",
+			"@fuzdev/fuz_util": "^0.45.3",
 			"@ryanatkn/eslint-config": "^0.9.0",
 			"@sveltejs/adapter-static": "^3.0.10",
 			"@sveltejs/kit": "^2.49.1",
@@ -1227,6 +1227,12 @@
 								"type_signature": "number | null"
 							},
 							{
+								"name": "content_hash",
+								"kind": "variable",
+								"type_signature": "string | null",
+								"doc_comment": "SHA-256 hash of `contents`. `null` iff `contents` is `null`.\nUsed for content-based change detection and caching."
+							},
+							{
 								"name": "dependents",
 								"kind": "variable",
 								"type_signature": "Map<PathId, Disknode>"
@@ -1774,13 +1780,13 @@
 					{
 						"name": "OnFilerChange",
 						"kind": "type",
-						"source_line": 29,
+						"source_line": 30,
 						"type_signature": "OnFilerChange"
 					},
 					{
 						"name": "FilerOptions",
 						"kind": "type",
-						"source_line": 31,
+						"source_line": 32,
 						"type_signature": "FilerOptions",
 						"properties": [
 							{
@@ -1808,7 +1814,7 @@
 					{
 						"name": "Filer",
 						"kind": "class",
-						"source_line": 38,
+						"source_line": 39,
 						"members": [
 							{
 								"name": "root_dir",
@@ -1886,7 +1892,7 @@
 					{
 						"name": "filter_dependents",
 						"kind": "function",
-						"source_line": 421,
+						"source_line": 428,
 						"type_signature": "(disknode: Disknode, get_by_id: (id: PathId) => Disknode | undefined, filter?: FileFilter | undefined, results?: Set<PathId>, searched?: Set<...>, log?: Logger | undefined): Set<...>",
 						"return_type": "Set<PathId>",
 						"parameters": [
@@ -1923,6 +1929,7 @@
 				],
 				"dependencies": [
 					"constants.ts",
+					"hash.ts",
 					"parse_imports.ts",
 					"paths.ts",
 					"resolve_specifier.ts",
@@ -2870,7 +2877,7 @@
 					{
 						"name": "GroConfigModule",
 						"kind": "type",
-						"source_line": 201,
+						"source_line": 199,
 						"type_signature": "GroConfigModule",
 						"properties": [
 							{
@@ -2884,7 +2891,7 @@
 					{
 						"name": "load_gro_config",
 						"kind": "function",
-						"source_line": 205,
+						"source_line": 203,
 						"type_signature": "(dir?: string): Promise<GroConfig>",
 						"return_type": "Promise<GroConfig>",
 						"parameters": [
@@ -2898,7 +2905,7 @@
 					{
 						"name": "validate_gro_config_module",
 						"kind": "function",
-						"source_line": 228,
+						"source_line": 226,
 						"type_signature": "(config_module: any, config_path: string): asserts config_module is GroConfigModule",
 						"return_type": "void",
 						"parameters": [
@@ -3291,25 +3298,28 @@
 					{
 						"name": "to_hash",
 						"kind": "function",
-						"doc_comment": "",
+						"doc_comment": "Computes a cryptographic hash of the given data.",
 						"see_also": ["https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto"],
-						"source_line": 6,
-						"type_signature": "(data: BufferSource, algorithm?: \"SHA-1\" | \"SHA-256\" | \"SHA-384\" | \"SHA-512\"): Promise<string>",
+						"source_line": 14,
+						"type_signature": "(data: string | BufferSource, algorithm?: \"SHA-1\" | \"SHA-256\" | \"SHA-384\" | \"SHA-512\"): Promise<string>",
 						"return_type": "Promise<string>",
+						"return_description": "Hexadecimal hash string.",
 						"parameters": [
 							{
 								"name": "data",
-								"type": "BufferSource"
+								"type": "string | BufferSource",
+								"description": "- String or binary data to hash. Strings are UTF-8 encoded internally."
 							},
 							{
 								"name": "algorithm",
 								"type": "\"SHA-1\" | \"SHA-256\" | \"SHA-384\" | \"SHA-512\"",
+								"description": "- Hash algorithm to use. Defaults to SHA-256.",
 								"default_value": "'SHA-256'"
 							}
 						]
 					}
 				],
-				"dependents": ["build_cache.ts", "gro_config.ts"]
+				"dependents": ["build_cache.ts", "filer.ts", "gro_config.ts"]
 			},
 			{
 				"path": "index.ts",
@@ -4945,7 +4955,7 @@
 						"name": "source_json_modules_create",
 						"kind": "function",
 						"source_line": 28,
-						"type_signature": "(exports: string | Record<string, unknown> | null | undefined, lib_path?: string, log?: Logger | undefined): Promise<{ [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; ... 21 more ...; alias_of?: { ...; } | undefined; }[] | undefined; module_comment?: string | undefined; dependencies?: string[] | undefined; dependents?: string[] | undefined; }[] | undefined>",
+						"type_signature": "(exports: string | Record<string, unknown> | null | undefined, lib_path?: string, log?: Logger | undefined): Promise<{ [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; ... 21 more ...; alias_of?: { ...; } | undefined; }[] | undefined; module_comment?: string | undefined; dependencies?: string[] | undefined; dependents?: string[] | undefined; star_exports?: string[] | undefined; }[] | undefined>",
 						"return_type": "Promise<{ [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"type\" | \"json\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; doc_comment?: string | undefined; ... 18 more ...; alias_of?: { ...; } | undefined; }[] | undefined; module_comment?: str...",
 						"parameters": [
 							{
