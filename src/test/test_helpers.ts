@@ -40,16 +40,14 @@ export const create_mock_config = async (
 	let build_cache_config_hash: string;
 
 	if (!build_cache_config) {
-		build_cache_config_hash = await to_hash(new TextEncoder().encode(''));
+		build_cache_config_hash = await to_hash('');
 	} else {
 		// Resolve if it's a function
 		const resolved =
 			typeof build_cache_config === 'function' ? await build_cache_config() : build_cache_config;
 
 		// Hash the JSON representation with deterministic key ordering
-		build_cache_config_hash = await to_hash(
-			new TextEncoder().encode(json_stringify_deterministic(resolved)),
-		);
+		build_cache_config_hash = await to_hash(json_stringify_deterministic(resolved));
 	}
 
 	return {

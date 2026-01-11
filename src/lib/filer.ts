@@ -23,6 +23,7 @@ import {default_svelte_config} from './svelte_config.ts';
 import {map_sveltekit_aliases} from './sveltekit_helpers.ts';
 import {SVELTEKIT_GLOBAL_SPECIFIER} from './constants.ts';
 import type {Disknode} from './disknode.ts';
+import {to_hash} from './hash.ts';
 
 const aliases = Object.entries(default_svelte_config.alias);
 
@@ -81,6 +82,7 @@ export class Filer {
 			external: this.#is_external(id), // TODO maybe filter externals by default? the user needs to configure the filer then
 			ctime: null,
 			mtime: null,
+			content_hash: null,
 			dependents: new Map(),
 			dependencies: new Map(),
 		};
@@ -242,15 +244,19 @@ export class Filer {
 			}
 		}
 
-		const old_mtime = file.mtime;
+		// Compute hash for new contents
+		const new_hash = new_contents !== null ? await to_hash(new_contents) : null;
+
 		file.ctime = stats?.ctimeMs ?? null;
 		file.mtime = stats?.mtimeMs ?? null;
 
-		if (file.mtime === old_mtime && file.contents === new_contents) {
+		// Use hash comparison for change detection (content-based, not mtime-based)
+		if (file.content_hash === new_hash) {
 			return null;
 		}
 
 		file.contents = new_contents;
+		file.content_hash = new_hash;
 
 		const dir = dirname(file.id);
 
@@ -308,6 +314,7 @@ export class Filer {
 		if (!file) return null; // this is safe because the object would exist if any other file referenced it as a dependency or dependent
 
 		file.contents = null; // clear contents in case it gets re-added later, we want the change to be detected
+		file.content_hash = null; // clear hash so re-add detects the change
 
 		file.dependencies.clear();
 
