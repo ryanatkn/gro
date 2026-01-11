@@ -403,7 +403,7 @@ test('files with no actual changes do not re-notify', async () => {
 			init: vi.fn(async () => {
 				// First add creates the disknode (triggers notification even though file doesn't exist)
 				options.on_change({type: 'add', path: '/test/file.ts', is_directory: false});
-				// Second update sees no change (mtime/contents both null → null, no notification)
+				// Second update sees no change (content_hash both null → null, no notification)
 				options.on_change({type: 'update', path: '/test/file.ts', is_directory: false});
 				// Third update also sees no change
 				options.on_change({type: 'update', path: '/test/file.ts', is_directory: false});
@@ -419,7 +419,7 @@ test('files with no actual changes do not re-notify', async () => {
 		update_count++;
 	});
 
-	// Only the first add should notify (creates disknode), subsequent updates see no change
+	// Only the first add should notify (creates disknode), subsequent updates see no change (hash-based detection)
 	assert.equal(update_count, 1);
 });
 

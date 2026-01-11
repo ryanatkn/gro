@@ -3,13 +3,27 @@ import {describe, test, expect} from 'vitest';
 import {to_hash} from '../lib/hash.ts';
 
 describe('to_hash', () => {
-	test('turns a Uint8Array into a string', async () => {
+	test('hashes a string', async () => {
+		expect(typeof (await to_hash('hey'))).toBe('string');
+	});
+
+	test('hashes a Uint8Array', async () => {
 		expect(typeof (await to_hash(new TextEncoder().encode('hey')))).toBe('string');
 	});
 
-	test('returns the same value given the same input', async () => {
+	test('returns the same value given the same string input', async () => {
+		expect(await to_hash('hey')).toBe(await to_hash('hey'));
+	});
+
+	test('returns the same value given the same buffer input', async () => {
 		const input = new TextEncoder().encode('hey');
 		expect(await to_hash(input)).toBe(await to_hash(input));
+	});
+
+	test('string and buffer produce same hash', async () => {
+		const str = 'some_test_string';
+		const buffer = new TextEncoder().encode(str);
+		expect(await to_hash(str)).toBe(await to_hash(buffer));
 	});
 
 	test('checks against an implementation copied from MDN', async () => {

@@ -16,6 +16,11 @@ export interface Disknode {
 	external: boolean;
 	ctime: number | null;
 	mtime: number | null;
+	/**
+	 * SHA-256 hash of `contents`. `null` iff `contents` is `null`.
+	 * Used for content-based change detection and caching.
+	 */
+	content_hash: string | null;
 	dependents: Map<PathId, Disknode>;
 	dependencies: Map<PathId, Disknode>;
 }
