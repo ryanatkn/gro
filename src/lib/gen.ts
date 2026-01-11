@@ -5,7 +5,7 @@ import type {Result} from '@fuzdev/fuz_util/result.js';
 import type {Timings} from '@fuzdev/fuz_util/timings.js';
 import {styleText as st} from 'node:util';
 import type {PathId} from '@fuzdev/fuz_util/path.js';
-import {map_concurrent} from '@fuzdev/fuz_util/async.js';
+import {each_concurrent, map_concurrent} from '@fuzdev/fuz_util/async.js';
 import {fs_search} from '@fuzdev/fuz_util/fs.js';
 
 import {print_path} from './paths.ts';
@@ -246,8 +246,7 @@ export const write_gen_results = async (
 	log: Logger,
 ): Promise<void> => {
 	const files = gen_results.successes.flatMap((result) => result.files);
-	// TODO BLOCK use each_concurrent? or return results?
-	await map_concurrent(
+	await each_concurrent(
 		files,
 		async (file) => {
 			const analyzed = analyzed_gen_results.find((r) => r.file.id === file.id);
