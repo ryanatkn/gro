@@ -2,4 +2,4 @@
 '@ryanatkn/gro': minor
 ---
 
-use hash for change detection instead of mtime
+use content hash for change detection, ignoring mtime
