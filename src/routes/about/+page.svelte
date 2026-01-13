@@ -16,7 +16,7 @@
 		<Breadcrumb>{library.package_json.glyph}</Breadcrumb>
 	</section>
 	<EcosystemLinksPanel />
-	<section class="box width_100 mb_lg">
+	<section class="box width:100% mb_lg">
 		<div class="panel p_md width_upto_md">
 			<LibraryDetail {library} />
 		</div>

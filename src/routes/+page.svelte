@@ -9,7 +9,7 @@
 	const library = library_context.get();
 </script>
 
-<main class="box width_100">
+<main class="box width:100%">
 	<div class="box width_upto_md">
 		<section class="box">
 			<h1>gro</h1>
