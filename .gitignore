@@ -1,14 +1,15 @@
 # Deps
-node_modules
+node_modules/
 
 # Output
-/.svelte-kit
-/build
-/dist
-/dist_*
-/target
-/.gro
-/.zzz
+.svelte-kit/
+build/
+dist/
+dist_*/
+target/
+.gro/
+.fuz/
+.zzz/
 
 # Env
 .env*

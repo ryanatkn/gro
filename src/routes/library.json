@@ -71,7 +71,7 @@
 			"zod": "^4.1.13"
 		},
 		"peerDependencies": {
-			"@fuzdev/fuz_util": ">=0.42.0",
+			"@fuzdev/fuz_util": ">=0.45.3",
 			"@sveltejs/kit": "^2",
 			"esbuild": "^0.27.0",
 			"svelte": "^5",
@@ -93,8 +93,8 @@
 			"@changesets/changelog-git": "^0.2.1",
 			"@changesets/types": "^6.1.0",
 			"@fuzdev/fuz_code": "^0.38.0",
-			"@fuzdev/fuz_css": "^0.42.1",
-			"@fuzdev/fuz_ui": "^0.177.0",
+			"@fuzdev/fuz_css": "^0.44.1",
+			"@fuzdev/fuz_ui": "^0.178.1",
 			"@fuzdev/fuz_util": "^0.45.3",
 			"@ryanatkn/eslint-config": "^0.9.0",
 			"@sveltejs/adapter-static": "^3.0.10",
@@ -102,6 +102,7 @@
 			"@sveltejs/package": "^2.5.7",
 			"@sveltejs/vite-plugin-svelte": "^6.2.1",
 			"@types/node": "^24.10.1",
+			"@webref/css": "^8.2.0",
 			"esbuild": "^0.27.1",
 			"eslint": "^9.39.1",
 			"eslint-plugin-svelte": "^3.13.1",

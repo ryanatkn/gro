@@ -9,8 +9,8 @@
 	const library = library_context.get();
 </script>
 
-<main class="box width_100">
-	<div class="box width_upto_md">
+<main class="box width:100%">
+	<div class="box width_atmost_md">
 		<section class="box">
 			<h1>gro</h1>
 			<a class="panel p_md box mb_xl3" title="source repo" href="https://github.com/ryanatkn/gro">
