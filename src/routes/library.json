@@ -93,7 +93,7 @@
 			"@changesets/changelog-git": "^0.2.1",
 			"@changesets/types": "^6.1.0",
 			"@fuzdev/fuz_code": "^0.38.0",
-			"@fuzdev/fuz_css": "^0.44.0",
+			"@fuzdev/fuz_css": "^0.44.1",
 			"@fuzdev/fuz_ui": "^0.178.1",
 			"@fuzdev/fuz_util": "^0.45.3",
 			"@ryanatkn/eslint-config": "^0.9.0",
