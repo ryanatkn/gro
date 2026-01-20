@@ -2,7 +2,6 @@ import {compile, compileModule, preprocess} from 'svelte/compiler';
 import {fileURLToPath, pathToFileURL} from 'node:url';
 import {dirname, join} from 'node:path';
 import type {LoadHook, ResolveHook} from 'node:module';
-import {escape_regexp} from '@fuzdev/fuz_util/regexp.js';
 import {readFileSync} from 'node:fs';
 import ts_blank_space from 'ts-blank-space';
 
@@ -15,9 +14,8 @@ import {
 	sveltekit_shim_app_specifiers,
 } from './sveltekit_shim_app.ts';
 import {default_svelte_config} from './svelte_config.ts';
-import {IS_THIS_GRO, paths} from './paths.ts';
+import {paths} from './paths.ts';
 import {
-	NODE_MODULES_DIRNAME,
 	TS_MATCHER,
 	SVELTE_MATCHER,
 	SVELTE_RUNES_MATCHER,
@@ -74,7 +72,6 @@ const {
 const aliases = Object.entries(alias);
 
 const RAW_MATCHER = /(%3Fraw|\.css|\.svg)$/; // TODO others? configurable?
-const NODE_MODULES_MATCHER = new RegExp(escape_regexp('/' + NODE_MODULES_DIRNAME + '/'), 'u');
 
 /** @nodocs */
 export const load: LoadHook = async (url, context, nextLoad) => {
@@ -212,24 +209,17 @@ export const resolve: ResolveHook = async (specifier, context, nextResolve) => {
 		return nextResolve(shimmed, context);
 	}
 
-	// Special case for Gro's dependencies that import into Gro.
-	// Without this, we'd need to add a dev dep to Gro for Gro, which causes problems.
-	// TODO maybe make this generic, checking `package_json.name` against `s` and map it, possibly need to export `resolve_exported_value`
-	if (IS_THIS_GRO && s.startsWith('@ryanatkn/gro')) {
-		s = join(dir, 'dist', s.substring(13));
-	}
+	// Apply SvelteKit aliases (handles self-referencing packages like @fuzdev/fuz_util -> src/lib)
+	s = map_sveltekit_aliases(s, aliases);
 
-	const parent_url = context.parentURL;
-	if (!parent_url || NODE_MODULES_MATCHER.test(parent_url)) {
+	// Bare specifiers (not starting with . or /) use Node's default resolution
+	if (s[0] !== '.' && s[0] !== '/') {
 		return nextResolve(s, context);
 	}
 
-	s = map_sveltekit_aliases(s, aliases);
-
-	// The specifier has now been mapped to its final form, so we can inspect it.
-
-	// Imports into `node_modules` use the default algorithm, and the rest use use Vite conventions.
-	if (s[0] !== '.' && s[0] !== '/') {
+	// Resolve paths using Vite conventions
+	const parent_url = context.parentURL;
+	if (!parent_url) {
 		return nextResolve(s, context);
 	}
 
