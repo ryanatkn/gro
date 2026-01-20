@@ -1,5 +1,15 @@
 # @ryanatkn/gro
 
+## 0.186.0
+
+### Minor Changes
+
+- update fuz_util ([#586](https://github.com/ryanatkn/gro/pull/586))
+
+### Patch Changes
+
+- fix aliases in loader ([#586](https://github.com/ryanatkn/gro/pull/586))
+
 ## 0.185.0
 
 ### Minor Changes
