@@ -15,11 +15,7 @@ import {
 } from './sveltekit_shim_app.ts';
 import {default_svelte_config} from './svelte_config.ts';
 import {paths} from './paths.ts';
-import {
-	TS_MATCHER,
-	SVELTE_MATCHER,
-	SVELTE_RUNES_MATCHER,
-} from './constants.ts';
+import {TS_MATCHER, SVELTE_MATCHER, SVELTE_RUNES_MATCHER} from './constants.ts';
 import {resolve_specifier} from './resolve_specifier.ts';
 import {map_sveltekit_aliases} from './sveltekit_helpers.ts';
 
