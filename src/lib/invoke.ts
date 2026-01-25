@@ -1,4 +1,4 @@
-import {attach_process_error_handlers} from '@fuzdev/fuz_util/process.js';
+import {attach_process_error_handler} from '@fuzdev/fuz_util/process.js';
 import {configure_print_colors} from '@fuzdev/fuz_util/print.js';
 
 import {invoke_task} from './invoke_task.ts';
@@ -18,10 +18,10 @@ and the rest of the args are forwarded to the task's `run` function.
 */
 
 // handle uncaught errors
-attach_process_error_handlers(
-	(err) => (err.constructor.name === 'TaskError' ? 'TaskError' : null),
-	(err) => (err.constructor.name === 'SilentError' ? '' : null),
-);
+attach_process_error_handler({
+	to_error_label: (err) => (err.constructor.name === 'TaskError' ? 'TaskError' : null),
+	map_error_text: (err) => (err.constructor.name === 'SilentError' ? '' : null),
+});
 
 if (!process.env.NO_COLOR) {
 	const {styleText} = await import('node:util');
