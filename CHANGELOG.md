@@ -1,5 +1,11 @@
 # @ryanatkn/gro
 
+## 0.189.0
+
+### Minor Changes
+
+- rework args ([#592](https://github.com/ryanatkn/gro/pull/592))
+
 ## 0.188.0
 
 ### Minor Changes
