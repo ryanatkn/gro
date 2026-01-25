@@ -1,5 +1,6 @@
 import {z} from 'zod';
 import {spawn_cli} from '@ryanatkn/gro/cli.js';
+import {spawn_result_to_message} from '@fuzdev/fuz_util/process.js';
 
 import {TaskError, type Task} from './task.ts';
 import {find_cli} from './cli.ts';
@@ -53,7 +54,9 @@ export const task: Task<Args> = {
 
 		const spawned = await spawn_cli(VITEST_CLI, vitest_args);
 		if (!spawned?.ok) {
-			throw new TaskError(`vitest failed with exit code ${spawned?.code}`);
+			throw new TaskError(
+				`vitest failed: ${spawned ? spawn_result_to_message(spawned) : 'unknown error'}`,
+			);
 		}
 	},
 };

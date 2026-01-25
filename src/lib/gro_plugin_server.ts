@@ -225,7 +225,7 @@ export const gro_plugin_server = ({
 					if (!metafile) return;
 					print_build_result(log, build_result);
 					deps = parse_deps(metafile.inputs, dir);
-					server_process?.restart();
+					void server_process?.restart();
 				},
 				{delay: rebuild_throttle_delay},
 			);
