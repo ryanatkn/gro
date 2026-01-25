@@ -57,9 +57,9 @@ export const to_forwarded_args_by_command = (
 		const args = argv_parse(argv);
 		let command = args._.shift();
 		if (!command) {
-			throw Error(
-				`Malformed args following a \`--\`. Expected a rest arg command: \`${argv.join(' ')}\``,
-			);
+			// Skip sections without a command name - these are handled by `to_implicit_forwarded_args`.
+			// This allows `gro run script.ts -- --help` to pass `--help` to the script.
+			continue;
 		}
 		// Gro commands get combined with their task name.
 		if (command === 'gro') {

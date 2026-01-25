@@ -39,11 +39,17 @@ describe('to_forwarded_args_by_command', () => {
 		});
 	});
 
-	test('throws when no command after --', () => {
+	test('skips sections without command name (handled by to_implicit_forwarded_args)', () => {
+		// Sections starting with flags (no command) are skipped, not thrown
+		// This allows `gro run script.ts -- --help` to pass `--help` to the script
 		const raw_rest_args = to_raw_rest_args('gro test -- --flag'.split(' '));
-		expect(() => to_forwarded_args_by_command(raw_rest_args)).toThrow(
-			'Malformed args following a `--`. Expected a rest arg command',
-		);
+		expect(to_forwarded_args_by_command(raw_rest_args)).toEqual({});
+	});
+
+	test('skips command-less sections but parses command sections', () => {
+		// Mixed: one section has command, one doesn't
+		const raw_rest_args = to_raw_rest_args('gro test -- --flag -- eslint --fix'.split(' '));
+		expect(to_forwarded_args_by_command(raw_rest_args)).toEqual({eslint: {fix: true}});
 	});
 
 	test('throws when gro without taskname', () => {
