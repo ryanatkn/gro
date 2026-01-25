@@ -1,102 +1,13 @@
 import {styleText as st} from 'node:util';
-import mri from 'mri';
-import type {z} from 'zod';
+import {argv_parse, type Args} from '@fuzdev/fuz_util/args.js';
 
 /**
- * These extend the CLI args for tasks.
- * Anything can be assigned to a task's `args`. It's just a mutable POJO dictionary.
- * Downstream tasks will see args that upstream events mutate,
- * unless `invoke_task` is called with modified args.
- * Upstream tasks can use listeners to respond to downstream events and values.
- * It's a beautiful mutable spaghetti mess. cant get enough
- * The raw CLI args are handled by `mri` - https://github.com/lukeed/mri
- */
-export interface Args {
-	_?: Array<string>;
-	help?: boolean;
-	[key: string]: ArgValue;
-}
-
-export type ArgValue = string | number | boolean | undefined | Array<string | number | boolean>;
-
-export interface ArgSchema {
-	type: string;
-	default: ArgValue;
-	description: string;
-}
-
-/**
- * Parses user input args with a Zod schema.
- * Sets the correct source of truth for `no-` versions of args,
- * to the opposite of the unprefixed versions when not included in `unparsed_args`.
- * This is needed because CLI args don't have a normal way of setting falsy values,
- * so instead the args parser `mri` will pass through the truthy versions of args
- * without the `no-` prefix.
- * When we declare task args schemas,
- * we need include both versions with their defaults to get correct `--help` output.
- * Parsing like this also ensures data consistency for both versions because `mri` only creates one.
- * A simpler implementation could replace `mri`, but it handles some finicky details well.
- */
-export const parse_args = <
-	TOutput extends Record<string, ArgValue> = Args,
-	TInput extends Record<string, ArgValue> = Args,
->(
-	unparsed_args: TInput,
-	schema: z.ZodType<TOutput, TInput>,
-): z.ZodSafeParseResult<TOutput> => {
-	const parsed = schema.safeParse(unparsed_args);
-	if (parsed.success) {
-		// mutate `data` with the correct source of truth for `no-` prefixed args
-		const {data} = parsed;
-		for (const key in parsed.data) {
-			if (key.startsWith('no-')) {
-				const base_key = key.substring(3);
-				if (!(key in unparsed_args)) {
-					(data as any)[key] = !data[base_key];
-				} else if (!(base_key in unparsed_args)) {
-					(data as any)[base_key] = !data[key];
-				}
-			}
-		}
-	}
-	return parsed;
-};
-
-/**
- * Serializes parsed `Args` for CLI commands.
- */
-export const serialize_args = (args: Args): Array<string> => {
-	const result: Array<string> = [];
-	const add_value = (name: string, value: string | number | boolean | undefined): void => {
-		if (value === undefined) return;
-		result.push(name);
-		if (typeof value !== 'boolean') {
-			result.push(value + '');
-		}
-	};
-	let _: Array<string> | null = null;
-	for (const [key, value] of Object.entries(args)) {
-		if (key === '_') {
-			_ = value ? (value as Array<any>).map((v) => (v === undefined ? '' : v + '')) : [];
-		} else {
-			const name = `${key.length === 1 ? '-' : '--'}${key}`;
-			if (Array.isArray(value)) {
-				for (const v of value) add_value(name, v);
-			} else {
-				add_value(name, value);
-			}
-		}
-	}
-	return _ ? [..._, ...result] : result;
-};
-
-/**
- * Parses `task_name` and `args` from `process.argv` using `mri`,
+ * Parses `task_name` and `args` from `process.argv`,
  * ignoring anything after any `--`.
  */
 export const to_task_args = (argv = process.argv): {task_name: string; args: Args} => {
 	const forwarded_index = argv.indexOf('--');
-	const args = mri(forwarded_index === -1 ? argv.slice(2) : argv.slice(2, forwarded_index));
+	const args = argv_parse(forwarded_index === -1 ? argv.slice(2) : argv.slice(2, forwarded_index));
 	const task_name = args._.shift() ?? '';
 	if (!args._.length) delete (args as Args)._; // enable schema defaults
 	return {task_name, args};
@@ -143,7 +54,7 @@ export const to_forwarded_args_by_command = (
 	// which is assumed to be the CLI command that gets forwarded the args.
 	const forwarded_args_by_command: Record<string, Args> = {};
 	for (const argv of argvs) {
-		const args = mri(argv);
+		const args = argv_parse(argv);
 		let command = args._.shift();
 		if (!command) {
 			throw Error(
@@ -191,7 +102,7 @@ export const to_implicit_forwarded_args = (
 		argv = argv.slice(1);
 	}
 
-	const args = mri(argv);
+	const args = argv_parse(argv);
 	if (!args._.length) delete (args as Args)._;
 	return args;
 };

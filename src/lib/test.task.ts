@@ -1,13 +1,14 @@
-import {z} from 'zod';
-import {spawn_cli} from '@ryanatkn/gro/cli.js';
+import {args_serialize} from '@fuzdev/fuz_util/args.js';
 import {spawn_result_to_message} from '@fuzdev/fuz_util/process.js';
+import {spawn_cli} from '@ryanatkn/gro/cli.js';
+import {z} from 'zod';
 
-import {TaskError, type Task} from './task.ts';
+import {to_implicit_forwarded_args} from './args.ts';
 import {find_cli} from './cli.ts';
-import {package_json_has_dependency, package_json_load} from './package_json.ts';
-import {serialize_args, to_implicit_forwarded_args} from './args.ts';
 import {VITEST_CLI} from './constants.ts';
+import {package_json_has_dependency, package_json_load} from './package_json.ts';
 import {paths} from './paths.ts';
+import {TaskError, type Task} from './task.ts';
 
 /** @nodocs */
 export const Args = z.strictObject({
@@ -50,7 +51,7 @@ export const task: Task<Args> = {
 		if (t) {
 			vitest_args.push('-t', t);
 		}
-		vitest_args.push(...serialize_args(to_implicit_forwarded_args(VITEST_CLI)));
+		vitest_args.push(...args_serialize(to_implicit_forwarded_args(VITEST_CLI)));
 
 		const spawned = await spawn_cli(VITEST_CLI, vitest_args);
 		if (!spawned?.ok) {

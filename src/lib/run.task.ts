@@ -1,11 +1,12 @@
-import {z} from 'zod';
-import {styleText as st} from 'node:util';
+import {args_serialize} from '@fuzdev/fuz_util/args.js';
 import {fs_exists} from '@fuzdev/fuz_util/fs.js';
-
-import {TaskError, type Task} from './task.ts';
-import {resolve_gro_module_path, spawn_with_loader} from './gro_helpers.ts';
 import {spawn_result_to_message} from '@fuzdev/fuz_util/process.js';
-import {serialize_args, to_implicit_forwarded_args} from './args.ts';
+import {styleText as st} from 'node:util';
+import {z} from 'zod';
+
+import {to_implicit_forwarded_args} from './args.ts';
+import {resolve_gro_module_path, spawn_with_loader} from './gro_helpers.ts';
+import {TaskError, type Task} from './task.ts';
 
 /**
  * Runs a TypeScript file with Gro's loader, forwarding all args to the script.
@@ -51,7 +52,7 @@ export const task: Task<Args> = {
 		const implicit_args = to_implicit_forwarded_args();
 
 		// Reconstruct argv: positional args + explicit named args + implicit args after --
-		const named_argv = serialize_args({...forwarded_args, ...implicit_args});
+		const named_argv = args_serialize({...forwarded_args, ...implicit_args});
 		const full_argv = [...positional_argv, ...named_argv];
 
 		const loader_path = resolve_gro_module_path('loader.js');

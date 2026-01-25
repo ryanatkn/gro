@@ -62,7 +62,6 @@
 			"chokidar": "^5.0.0",
 			"dotenv": "^17.2.3",
 			"esm-env": "^1.2.2",
-			"mri": "^1.2.0",
 			"oxc-parser": "^0.99.0",
 			"prettier": "^3.7.4",
 			"prettier-plugin-svelte": "^3.4.1",
@@ -71,7 +70,7 @@
 			"zod": "^4.1.13"
 		},
 		"peerDependencies": {
-			"@fuzdev/fuz_util": ">=0.47.0",
+			"@fuzdev/fuz_util": ">=0.48.0",
 			"@sveltejs/kit": "^2",
 			"esbuild": "^0.27.0",
 			"svelte": "^5",
@@ -95,7 +94,7 @@
 			"@fuzdev/fuz_code": "^0.40.0",
 			"@fuzdev/fuz_css": "^0.44.1",
 			"@fuzdev/fuz_ui": "^0.179.0",
-			"@fuzdev/fuz_util": "^0.47.0",
+			"@fuzdev/fuz_util": "^0.48.0",
 			"@ryanatkn/eslint-config": "^0.9.0",
 			"@sveltejs/adapter-static": "^3.0.10",
 			"@sveltejs/kit": "^2.49.1",
@@ -153,90 +152,10 @@
 				"path": "args.ts",
 				"declarations": [
 					{
-						"name": "Args",
-						"kind": "type",
-						"doc_comment": "These extend the CLI args for tasks.\nAnything can be assigned to a task's `args`. It's just a mutable POJO dictionary.\nDownstream tasks will see args that upstream events mutate,\nunless `invoke_task` is called with modified args.\nUpstream tasks can use listeners to respond to downstream events and values.\nIt's a beautiful mutable spaghetti mess. cant get enough\nThe raw CLI args are handled by `mri` - https://github.com/lukeed/mri",
-						"source_line": 14,
-						"type_signature": "Args",
-						"properties": [
-							{
-								"name": "_",
-								"kind": "variable",
-								"type_signature": "Array<string>"
-							},
-							{
-								"name": "help",
-								"kind": "variable",
-								"type_signature": "boolean"
-							}
-						]
-					},
-					{
-						"name": "ArgValue",
-						"kind": "type",
-						"source_line": 20,
-						"type_signature": "ArgValue"
-					},
-					{
-						"name": "ArgSchema",
-						"kind": "type",
-						"source_line": 22,
-						"type_signature": "ArgSchema",
-						"properties": [
-							{
-								"name": "type",
-								"kind": "variable",
-								"type_signature": "string"
-							},
-							{
-								"name": "default",
-								"kind": "variable",
-								"type_signature": "ArgValue"
-							},
-							{
-								"name": "description",
-								"kind": "variable",
-								"type_signature": "string"
-							}
-						]
-					},
-					{
-						"name": "parse_args",
-						"kind": "function",
-						"doc_comment": "Parses user input args with a Zod schema.\nSets the correct source of truth for `no-` versions of args,\nto the opposite of the unprefixed versions when not included in `unparsed_args`.\nThis is needed because CLI args don't have a normal way of setting falsy values,\nso instead the args parser `mri` will pass through the truthy versions of args\nwithout the `no-` prefix.\nWhen we declare task args schemas,\nwe need include both versions with their defaults to get correct `--help` output.\nParsing like this also ensures data consistency for both versions because `mri` only creates one.\nA simpler implementation could replace `mri`, but it handles some finicky details well.",
-						"source_line": 40,
-						"type_signature": "<TOutput extends Record<string, ArgValue> = Args, TInput extends Record<string, ArgValue> = Args>(unparsed_args: TInput, schema: ZodType<TOutput, TInput, $ZodTypeInternals<TOutput, TInput>>): ZodSafeParseResult<...>",
-						"return_type": "ZodSafeParseResult<TOutput>",
-						"parameters": [
-							{
-								"name": "unparsed_args",
-								"type": "TInput"
-							},
-							{
-								"name": "schema",
-								"type": "ZodType<TOutput, TInput, $ZodTypeInternals<TOutput, TInput>>"
-							}
-						]
-					},
-					{
-						"name": "serialize_args",
-						"kind": "function",
-						"doc_comment": "Serializes parsed `Args` for CLI commands.",
-						"source_line": 68,
-						"type_signature": "(args: Args): string[]",
-						"return_type": "string[]",
-						"parameters": [
-							{
-								"name": "args",
-								"type": "Args"
-							}
-						]
-					},
-					{
 						"name": "to_task_args",
 						"kind": "function",
-						"doc_comment": "Parses `task_name` and `args` from `process.argv` using `mri`,\nignoring anything after any `--`.",
-						"source_line": 97,
+						"doc_comment": "Parses `task_name` and `args` from `process.argv`,\nignoring anything after any `--`.",
+						"source_line": 8,
 						"type_signature": "(argv?: string[]): { task_name: string; args: Args; }",
 						"return_type": "{ task_name: string; args: Args; }",
 						"parameters": [
@@ -251,7 +170,7 @@
 						"name": "to_raw_rest_args",
 						"kind": "function",
 						"doc_comment": "Gets the array of raw string args starting with the first `--`, if any.",
-						"source_line": 108,
+						"source_line": 19,
 						"type_signature": "(argv?: string[]): string[]",
 						"return_type": "string[]",
 						"parameters": [
@@ -266,7 +185,7 @@
 						"name": "to_forwarded_args",
 						"kind": "function",
 						"doc_comment": "Parses `process.argv` for the specified `command`, so given\n`gro taskname arg1 --arg2 -- eslint eslintarg1 --eslintarg2 -- tsc --tscarg1 --tscarg2`\nthe `command` `'eslint'` returns `eslintarg1 --eslintarg2`\nand `'tsc'` returns `--tscarg1` and `--tscarg2`.",
-						"source_line": 119,
+						"source_line": 30,
 						"type_signature": "(command: string, raw_rest_args?: string[] | undefined, cache?: Record<string, Args | undefined>): Args",
 						"return_type": "Args",
 						"parameters": [
@@ -289,7 +208,7 @@
 					{
 						"name": "to_forwarded_args_by_command",
 						"kind": "function",
-						"source_line": 125,
+						"source_line": 36,
 						"type_signature": "(raw_rest_args?: string[]): Record<string, Args | undefined>",
 						"return_type": "Record<string, Args | undefined>",
 						"parameters": [
@@ -307,7 +226,7 @@
 						"examples": [
 							"```ts\n// `gro test -- --watch` → {watch: true}\n// `gro test -- foo.test.ts` → {_: ['foo.test.ts']}\n// `gro test -- vitest --watch` with command_to_strip='vitest' → {watch: true}\nto_implicit_forwarded_args('vitest')\n```"
 						],
-						"source_line": 181,
+						"source_line": 92,
 						"type_signature": "(command_to_strip?: string | undefined, raw_rest_args?: string[]): Args",
 						"return_type": "Args",
 						"parameters": [
@@ -326,7 +245,7 @@
 					{
 						"name": "print_command_args",
 						"kind": "function",
-						"source_line": 199,
+						"source_line": 110,
 						"type_signature": "(serialized_args: string[]): string",
 						"return_type": "string",
 						"parameters": [
@@ -345,7 +264,6 @@
 					"invoke_task.ts",
 					"lint.task.ts",
 					"run.task.ts",
-					"run_task.ts",
 					"sveltekit_helpers.ts",
 					"test.task.ts",
 					"typecheck.task.ts",
@@ -1947,7 +1865,7 @@
 						"name": "format_directory",
 						"kind": "function",
 						"doc_comment": "Formats a directory on the filesystem.\nIf the source directory is given, it also formats all of the root directory files.\nThis is separated from `./format_file` to avoid importing all of the `prettier` code\ninside modules that import this one. (which has a nontrivial cost)",
-						"source_line": 34,
+						"source_line": 35,
 						"type_signature": "(log: Logger, dir: string, check?: boolean, extensions?: string, root_paths?: string, prettier_cli?: string | Cli, pm_cli?: string): Promise<SpawnResult>",
 						"return_type": "Promise<SpawnResult>",
 						"parameters": [
@@ -3198,7 +3116,7 @@
 					{
 						"name": "GroPluginSveltekitAppOptions",
 						"kind": "type",
-						"source_line": 9,
+						"source_line": 10,
 						"type_signature": "GroPluginSveltekitAppOptions",
 						"properties": [
 							{
@@ -3212,7 +3130,7 @@
 					{
 						"name": "gro_plugin_sveltekit_app",
 						"kind": "function",
-						"source_line": 16,
+						"source_line": 17,
 						"type_signature": "({ vite_cli, }?: GroPluginSveltekitAppOptions): Plugin<PluginContext<object>>",
 						"return_type": "Plugin<PluginContext<object>>",
 						"parameters": [
@@ -3573,7 +3491,7 @@
 						"name": "invoke_task",
 						"kind": "function",
 						"doc_comment": "Invokes Gro tasks by name using the filesystem as the source.\n\nWhen a task is invoked,\nGro first searches for tasks in the current working directory.\nand falls back to searching Gro's directory, if the two are different.\nSee `src/lib/input_path.ts` for info about what \"task_name\" can refer to.\nIf it matches a directory, all of the tasks within it are logged,\nboth in the current working directory and Gro.\n\nThis code is particularly hairy because\nwe're accepting a wide range of user input\nand trying to do the right thing.\nPrecise error messages are especially difficult and\nthere are some subtle differences in the complex logical branches.\nThe comments describe each condition.",
-						"source_line": 37,
+						"source_line": 38,
 						"type_signature": "(task_name: RawInputPath, args: Args | undefined, config: GroConfig, initial_filer?: Filer | undefined, initial_timings?: Timings | null | undefined, parent_log?: Logger | undefined): Promise<...>",
 						"return_type": "Promise<void>",
 						"parameters": [
@@ -4911,7 +4829,7 @@
 						]
 					}
 				],
-				"dependencies": ["args.ts", "svelte_config.ts", "task.ts", "task_logging.ts"],
+				"dependencies": ["svelte_config.ts", "task.ts", "task_logging.ts"],
 				"dependents": ["invoke_task.ts"]
 			},
 			{
@@ -4934,7 +4852,7 @@
 						"kind": "function",
 						"source_line": 17,
 						"type_signature": "(package_json: { [x: string]: unknown; name: string; version: string; private?: boolean | undefined; description?: string | undefined; motto?: string | undefined; glyph?: string | undefined; logo?: string | undefined; ... 23 more ...; exports?: string | ... 2 more ... | undefined; }, lib_path?: string | undefined, log?: Logger | undefined): Promise<...>",
-						"return_type": "Promise<{ [x: string]: unknown; name: string; version: string; modules?: { [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"type\" | \"json\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; ... 19 more ...; alias_of?: { ...; } | undefined; }[] | ...",
+						"return_type": "Promise<{ [x: string]: unknown; name: string; version: string; modules?: { [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"type\" | \"constructor\" | \"json\" | \"variable\" | \"class\" | \"component\" | \"css\"; ... 19 more ...; alias_of?: { ...; } | undefined; }[] | ...",
 						"parameters": [
 							{
 								"name": "package_json",
@@ -4957,7 +4875,7 @@
 						"kind": "function",
 						"source_line": 28,
 						"type_signature": "(exports: string | Record<string, unknown> | null | undefined, lib_path?: string, log?: Logger | undefined): Promise<{ [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; ... 21 more ...; alias_of?: { ...; } | undefined; }[] | undefined; module_comment?: string | undefined; dependencies?: string[] | undefined; dependents?: string[] | undefined; star_exports?: string[] | undefined; }[] | undefined>",
-						"return_type": "Promise<{ [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"type\" | \"json\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; doc_comment?: string | undefined; ... 18 more ...; alias_of?: { ...; } | undefined; }[] | undefined; module_comment?: str...",
+						"return_type": "Promise<{ [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"type\" | \"constructor\" | \"json\" | \"variable\" | \"class\" | \"component\" | \"css\"; doc_comment?: string | undefined; ... 18 more ...; alias_of?: { ...; } | undefined; }[] | undefined; module_comment?: str...",
 						"parameters": [
 							{
 								"name": "exports",
@@ -5129,7 +5047,7 @@
 					{
 						"name": "has_sveltekit_app",
 						"kind": "function",
-						"source_line": 20,
+						"source_line": 21,
 						"type_signature": "(svelte_config_path?: string): Promise<Result<object, { message: string; }>>",
 						"return_type": "Promise<Result<object, { message: string; }>>",
 						"parameters": [
@@ -5143,7 +5061,7 @@
 					{
 						"name": "has_sveltekit_library",
 						"kind": "function",
-						"source_line": 30,
+						"source_line": 31,
 						"type_signature": "(package_json: { [x: string]: unknown; name: string; version: string; private?: boolean | undefined; description?: string | undefined; motto?: string | undefined; glyph?: string | undefined; logo?: string | undefined; ... 23 more ...; exports?: string | ... 2 more ... | undefined; }, svelte_config?: ParsedSvelteConfig, dep_name?: string): Promise<...>",
 						"return_type": "Promise<Result<object, { message: string; }>>",
 						"parameters": [
@@ -5166,7 +5084,7 @@
 					{
 						"name": "sveltekit_sync",
 						"kind": "function",
-						"source_line": 54,
+						"source_line": 55,
 						"type_signature": "(sveltekit_cli?: string | Cli, pm_cli?: string): Promise<void>",
 						"return_type": "Promise<void>",
 						"parameters": [
@@ -5186,7 +5104,7 @@
 						"name": "sveltekit_sync_if_available",
 						"kind": "function",
 						"doc_comment": "If the SvelteKit CLI is found and its `.svelte-kit` directory is not, run `svelte-kit sync`.",
-						"source_line": 72,
+						"source_line": 73,
 						"type_signature": "(sveltekit_cli?: string | Cli): Promise<void>",
 						"return_type": "Promise<void>",
 						"parameters": [
@@ -5201,7 +5119,7 @@
 						"name": "sveltekit_sync_if_obviously_needed",
 						"kind": "function",
 						"doc_comment": "If the SvelteKit CLI is found and its `.svelte-kit` directory is not, run `svelte-kit sync`.",
-						"source_line": 85,
+						"source_line": 86,
 						"type_signature": "(sveltekit_cli?: string | Cli): Promise<void>",
 						"return_type": "Promise<void>",
 						"parameters": [
@@ -5217,7 +5135,7 @@
 						"kind": "type",
 						"doc_comment": "Options to the SvelteKit packaging CLI.",
 						"see_also": ["https://kit.svelte.dev/docs/packaging#options"],
-						"source_line": 103,
+						"source_line": 104,
 						"type_signature": "SveltePackageOptions",
 						"properties": [
 							{
@@ -5279,7 +5197,7 @@
 					{
 						"name": "run_svelte_package",
 						"kind": "function",
-						"source_line": 149,
+						"source_line": 150,
 						"type_signature": "(package_json: { [x: string]: unknown; name: string; version: string; private?: boolean | undefined; description?: string | undefined; motto?: string | undefined; glyph?: string | undefined; logo?: string | undefined; ... 23 more ...; exports?: string | ... 2 more ... | undefined; }, options: SveltePackageOptions | undefined, cli: string | Cli, log: Logger, pm_cli: string): Promise<...>",
 						"return_type": "Promise<void>",
 						"parameters": [
@@ -5309,7 +5227,7 @@
 						"name": "map_sveltekit_aliases",
 						"kind": "function",
 						"doc_comment": "Map an import specifier with the SvelteKit aliases.",
-						"source_line": 180,
+						"source_line": 181,
 						"type_signature": "(specifier: string, aliases: [string, string][]): string",
 						"return_type": "string",
 						"parameters": [
@@ -5673,7 +5591,7 @@
 					{
 						"name": "log_tasks",
 						"kind": "function",
-						"source_line": 11,
+						"source_line": 10,
 						"type_signature": "(log: Logger, loaded_tasks: LoadedTasks, log_intro?: boolean): void",
 						"return_type": "void",
 						"parameters": [
@@ -5695,7 +5613,7 @@
 					{
 						"name": "log_error_reasons",
 						"kind": "function",
-						"source_line": 47,
+						"source_line": 46,
 						"type_signature": "(log: Logger, reasons: string[]): void",
 						"return_type": "void",
 						"parameters": [
@@ -5712,7 +5630,7 @@
 					{
 						"name": "log_task_help",
 						"kind": "function",
-						"source_line": 55,
+						"source_line": 54,
 						"type_signature": "(log: Logger, meta: TaskModuleMeta): void",
 						"return_type": "void",
 						"parameters": [
@@ -5736,7 +5654,7 @@
 					{
 						"name": "Task",
 						"kind": "type",
-						"source_line": 25,
+						"source_line": 24,
 						"type_signature": "Task<TArgs, TArgsSchema, TReturn>",
 						"generic_params": [
 							{
@@ -5775,7 +5693,7 @@
 					{
 						"name": "TaskContext",
 						"kind": "type",
-						"source_line": 35,
+						"source_line": 34,
 						"type_signature": "TaskContext<TArgs>",
 						"generic_params": [
 							{
@@ -5825,31 +5743,31 @@
 					{
 						"name": "InvokeTask",
 						"kind": "type",
-						"source_line": 45,
+						"source_line": 44,
 						"type_signature": "InvokeTask"
 					},
 					{
 						"name": "TASK_FILE_SUFFIX_TS",
 						"kind": "variable",
-						"source_line": 47,
+						"source_line": 46,
 						"type_signature": "\".task.ts\""
 					},
 					{
 						"name": "TASK_FILE_SUFFIX_JS",
 						"kind": "variable",
-						"source_line": 48,
+						"source_line": 47,
 						"type_signature": "\".task.js\""
 					},
 					{
 						"name": "TASK_FILE_SUFFIXES",
 						"kind": "variable",
-						"source_line": 49,
+						"source_line": 48,
 						"type_signature": "string[]"
 					},
 					{
 						"name": "is_task_path",
 						"kind": "function",
-						"source_line": 51,
+						"source_line": 50,
 						"type_signature": "(path: string): boolean",
 						"return_type": "boolean",
 						"parameters": [
@@ -5862,7 +5780,7 @@
 					{
 						"name": "to_task_name",
 						"kind": "function",
-						"source_line": 54,
+						"source_line": 53,
 						"type_signature": "(id: PathId, task_root_dir: PathId, input_path: InputPath, root_path: PathId): string",
 						"return_type": "string",
 						"parameters": [
@@ -5888,7 +5806,7 @@
 						"name": "TaskError",
 						"kind": "class",
 						"doc_comment": "This is used by tasks to signal a known failure.\nIt's useful for cleaning up logging because\nwe usually don't need their stack trace.",
-						"source_line": 83,
+						"source_line": 82,
 						"extends": ["Error"],
 						"implements": [],
 						"members": [],
@@ -5898,7 +5816,7 @@
 						"name": "SilentError",
 						"kind": "class",
 						"doc_comment": "This is used to tell Gro to exit silently, usually still with with a non-zero exit code.\nUsing it means error logging is handled by the code that threw it.",
-						"source_line": 89,
+						"source_line": 88,
 						"extends": ["Error"],
 						"implements": [],
 						"members": []
@@ -5906,7 +5824,7 @@
 					{
 						"name": "FoundTask",
 						"kind": "type",
-						"source_line": 91,
+						"source_line": 90,
 						"type_signature": "FoundTask",
 						"properties": [
 							{
@@ -5929,7 +5847,7 @@
 					{
 						"name": "FoundTasks",
 						"kind": "type",
-						"source_line": 97,
+						"source_line": 96,
 						"type_signature": "FoundTasks",
 						"properties": [
 							{
@@ -5962,20 +5880,20 @@
 					{
 						"name": "FindTasksResult",
 						"kind": "type",
-						"source_line": 105,
+						"source_line": 104,
 						"type_signature": "FindTasksResult"
 					},
 					{
 						"name": "FindModulesFailure",
 						"kind": "type",
-						"source_line": 106,
+						"source_line": 105,
 						"type_signature": "FindModulesFailure"
 					},
 					{
 						"name": "find_tasks",
 						"kind": "function",
 						"doc_comment": "Finds modules from input paths. (see `src/lib/input_path.ts` for more)",
-						"source_line": 129,
+						"source_line": 128,
 						"type_signature": "(input_paths: InputPath[], task_root_dirs: PathId[], config: GroConfig, timings?: Timings | undefined): Promise<FindTasksResult>",
 						"return_type": "Promise<FindTasksResult>",
 						"parameters": [
@@ -6001,7 +5919,7 @@
 					{
 						"name": "LoadedTasks",
 						"kind": "type",
-						"source_line": 201,
+						"source_line": 200,
 						"type_signature": "LoadedTasks",
 						"properties": [
 							{
@@ -6019,7 +5937,7 @@
 					{
 						"name": "TaskModule",
 						"kind": "type",
-						"source_line": 206,
+						"source_line": 205,
 						"type_signature": "TaskModule",
 						"properties": [
 							{
@@ -6032,7 +5950,7 @@
 					{
 						"name": "TaskModuleMeta",
 						"kind": "type",
-						"source_line": 210,
+						"source_line": 209,
 						"type_signature": "TaskModuleMeta",
 						"extends": ["ModuleMeta<TaskModule>"],
 						"properties": [
@@ -6046,19 +5964,19 @@
 					{
 						"name": "LoadTasksResult",
 						"kind": "type",
-						"source_line": 214,
+						"source_line": 213,
 						"type_signature": "LoadTasksResult"
 					},
 					{
 						"name": "LoadTasksFailure",
 						"kind": "type",
-						"source_line": 215,
+						"source_line": 214,
 						"type_signature": "LoadTasksFailure"
 					},
 					{
 						"name": "load_tasks",
 						"kind": "function",
-						"source_line": 217,
+						"source_line": 216,
 						"type_signature": "(found_tasks: FoundTasks, root_path?: PathId): Promise<LoadTasksResult>",
 						"return_type": "Promise<LoadTasksResult>",
 						"parameters": [
@@ -6076,7 +5994,7 @@
 					{
 						"name": "validate_task_module",
 						"kind": "function",
-						"source_line": 245,
+						"source_line": 244,
 						"type_signature": "(mod: Record<string, any>): mod is TaskModule",
 						"return_type": "boolean",
 						"parameters": [

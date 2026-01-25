@@ -51,7 +51,6 @@
     "chokidar": "^5.0.0",
     "dotenv": "^17.2.3",
     "esm-env": "^1.2.2",
-    "mri": "^1.2.0",
     "oxc-parser": "^0.99.0",
     "prettier": "^3.7.4",
     "prettier-plugin-svelte": "^3.4.1",
@@ -60,7 +59,7 @@
     "zod": "^4.1.13"
   },
   "peerDependencies": {
-    "@fuzdev/fuz_util": ">=0.47.0",
+    "@fuzdev/fuz_util": ">=0.48.0",
     "@sveltejs/kit": "^2",
     "esbuild": "^0.27.0",
     "svelte": "^5",
@@ -84,7 +83,7 @@
     "@fuzdev/fuz_code": "^0.40.0",
     "@fuzdev/fuz_css": "^0.44.1",
     "@fuzdev/fuz_ui": "^0.179.0",
-    "@fuzdev/fuz_util": "^0.47.0",
+    "@fuzdev/fuz_util": "^0.48.0",
     "@ryanatkn/eslint-config": "^0.9.0",
     "@sveltejs/adapter-static": "^3.0.10",
     "@sveltejs/kit": "^2.49.1",

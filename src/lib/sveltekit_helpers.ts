@@ -1,21 +1,22 @@
-import type {Result} from '@fuzdev/fuz_util/result.js';
-import type {Logger} from '@fuzdev/fuz_util/log.js';
-import {join} from 'node:path';
-import type {PackageJson} from '@fuzdev/fuz_util/package_json.js';
+import {args_serialize} from '@fuzdev/fuz_util/args.js';
 import {fs_exists} from '@fuzdev/fuz_util/fs.js';
+import type {Logger} from '@fuzdev/fuz_util/log.js';
+import type {PackageJson} from '@fuzdev/fuz_util/package_json.js';
+import type {Result} from '@fuzdev/fuz_util/result.js';
+import {join} from 'node:path';
 
-import {package_json_has_dependency} from './package_json.ts';
-import {default_svelte_config, type ParsedSvelteConfig} from './svelte_config.ts';
+import {to_forwarded_args} from './args.ts';
+import {find_cli, spawn_cli, to_cli_name, type Cli} from './cli.ts';
 import {
-	SVELTE_CONFIG_FILENAME,
-	SVELTEKIT_DEV_DIRNAME,
 	PM_CLI_DEFAULT,
+	SVELTE_CONFIG_FILENAME,
 	SVELTE_PACKAGE_DEP_NAME,
 	SVELTEKIT_CLI,
+	SVELTEKIT_DEV_DIRNAME,
 } from './constants.ts';
-import {find_cli, spawn_cli, to_cli_name, type Cli} from './cli.ts';
+import {package_json_has_dependency} from './package_json.ts';
+import {default_svelte_config, type ParsedSvelteConfig} from './svelte_config.ts';
 import {TaskError} from './task.ts';
-import {serialize_args, to_forwarded_args} from './args.ts';
 
 export const has_sveltekit_app = async (
 	svelte_config_path: string = SVELTE_CONFIG_FILENAME,
@@ -166,7 +167,7 @@ export const run_svelte_package = async (
 			`Failed to find SvelteKit packaging CLI \`${cli_name}\`, do you need to run \`${pm_cli} install\`?`,
 		);
 	}
-	const serialized_args = serialize_args({
+	const serialized_args = args_serialize({
 		...options,
 		...to_forwarded_args(cli_name),
 	});

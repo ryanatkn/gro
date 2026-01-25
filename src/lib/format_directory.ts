@@ -1,7 +1,9 @@
-import type {SpawnResult} from '@fuzdev/fuz_util/process.js';
+import {args_serialize} from '@fuzdev/fuz_util/args.js';
 import type {Logger} from '@fuzdev/fuz_util/log.js';
+import type {SpawnResult} from '@fuzdev/fuz_util/process.js';
 
-import {paths} from './paths.ts';
+import {to_forwarded_args} from './args.ts';
+import {spawn_cli, to_cli_name, type Cli} from './cli.ts';
 import {
 	GITHUB_DIRNAME,
 	README_FILENAME,
@@ -12,8 +14,7 @@ import {
 	PM_CLI_DEFAULT,
 	PRETTIER_CLI_DEFAULT,
 } from './constants.ts';
-import {serialize_args, to_forwarded_args} from './args.ts';
-import {spawn_cli, to_cli_name, type Cli} from './cli.ts';
+import {paths} from './paths.ts';
 
 const EXTENSIONS_DEFAULT = 'ts,js,json,svelte,html,css,md,yml';
 const ROOT_PATHS_DEFAULT = `${[
@@ -42,7 +43,7 @@ export const format_directory = async (
 ): Promise<SpawnResult> => {
 	const forwarded_args = to_forwarded_args(to_cli_name(prettier_cli));
 	forwarded_args[check ? 'check' : 'write'] = true;
-	const serialized_args = serialize_args(forwarded_args);
+	const serialized_args = args_serialize(forwarded_args);
 	serialized_args.push(`${dir}**/*.{${extensions}}`);
 	if (dir === paths.source) {
 		serialized_args.push(`${paths.root}{${root_paths}}`);
