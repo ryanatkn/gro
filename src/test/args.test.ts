@@ -1,63 +1,14 @@
+import {args_serialize} from '@fuzdev/fuz_util/args.js';
 import {describe, test, expect} from 'vitest';
 import mri from 'mri';
 
 import {
-	serialize_args,
 	to_forwarded_args,
 	to_forwarded_args_by_command,
 	to_raw_rest_args,
 	to_implicit_forwarded_args,
 	to_task_args,
 } from '../lib/args.ts';
-
-describe('serialize_args', () => {
-	test('basic behavior', () => {
-		const raw = ['a', '-i', '1', 'b', 'c', '-i', '-i', 'three'];
-		const parsed = mri(raw);
-		expect(parsed).toEqual({_: ['a', 'b', 'c'], i: [1, true, 'three']});
-		const serialized = serialize_args(parsed);
-		expect(serialized).toEqual(['a', 'b', 'c', '-i', '1', '-i', '-i', 'three']); // sorted
-	});
-
-	test('empty object', () => {
-		expect(serialize_args({})).toEqual([]);
-	});
-
-	test('only flags', () => {
-		const serialized = serialize_args({watch: true, coverage: true});
-		expect(serialized).toEqual(['--watch', '--coverage']);
-	});
-
-	test('undefined values filtered', () => {
-		const serialized = serialize_args({watch: undefined, coverage: true});
-		expect(serialized).toEqual(['--coverage']);
-	});
-
-	test('empty _ array', () => {
-		const serialized = serialize_args({_: []});
-		expect(serialized).toEqual([]);
-	});
-
-	test('single char flags', () => {
-		const serialized = serialize_args({w: true, t: 'foo'});
-		expect(serialized).toEqual(['-w', '-t', 'foo']);
-	});
-
-	test('mixed single and double dash', () => {
-		const serialized = serialize_args({w: true, watch: true});
-		expect(serialized).toEqual(['-w', '--watch']);
-	});
-
-	test('array values', () => {
-		const serialized = serialize_args({flag: ['a', 'b', 'c']});
-		expect(serialized).toEqual(['--flag', 'a', '--flag', 'b', '--flag', 'c']);
-	});
-
-	test('positionals come first', () => {
-		const serialized = serialize_args({_: ['foo', 'bar'], watch: true});
-		expect(serialized).toEqual(['foo', 'bar', '--watch']);
-	});
-});
 
 describe('to_forwarded_args_by_command', () => {
 	test('basic behavior', () => {
@@ -329,14 +280,14 @@ describe('integration: round-trip parsing', () => {
 	test('serialize and parse produces same args', () => {
 		// Note: false boolean values cannot round-trip (--flag is always true in mri)
 		const original = {_: ['foo', 'bar'], watch: true, count: 3};
-		const serialized = serialize_args(original);
+		const serialized = args_serialize(original);
 		const reparsed = mri(serialized);
 		expect(reparsed).toEqual(original);
 	});
 
 	test('complex args round-trip', () => {
 		const original = {_: ['a', 'b'], flag: ['x', 'y', 'z'], w: true, count: 42};
-		const serialized = serialize_args(original);
+		const serialized = args_serialize(original);
 		const reparsed = mri(serialized);
 		expect(reparsed).toEqual(original);
 	});

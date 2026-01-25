@@ -1,9 +1,10 @@
-import {styleText as st} from 'node:util';
-import {create_stopwatch, Timings} from '@fuzdev/fuz_util/timings.js';
-import {print_ms, print_timings} from '@fuzdev/fuz_util/print.js';
+import type {Args} from '@fuzdev/fuz_util/args.js';
 import {Logger} from '@fuzdev/fuz_util/log.js';
+import {print_ms, print_timings} from '@fuzdev/fuz_util/print.js';
+import {create_stopwatch, Timings} from '@fuzdev/fuz_util/timings.js';
+import {styleText as st} from 'node:util';
 
-import {to_forwarded_args, type Args} from './args.ts';
+import {to_forwarded_args} from './args.ts';
 import {run_task} from './run_task.ts';
 import {to_input_path, RawInputPath} from './input_path.ts';
 import {find_tasks, load_tasks, SilentError} from './task.ts';

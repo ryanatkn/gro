@@ -1,9 +1,9 @@
+import type {Args} from '@fuzdev/fuz_util/args.js';
+import {UnreachableError} from '@fuzdev/fuz_util/error.js';
 import {EMPTY_OBJECT} from '@fuzdev/fuz_util/object.js';
 import {throttle} from '@fuzdev/fuz_util/throttle.js';
-import {UnreachableError} from '@fuzdev/fuz_util/error.js';
 
 import type {Plugin} from './plugin.ts';
-import type {Args} from './args.ts';
 import {paths} from './paths.ts';
 import {find_genfiles, is_gen_path} from './gen.ts';
 import {filter_dependents} from './filer.ts';

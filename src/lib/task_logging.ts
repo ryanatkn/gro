@@ -1,10 +1,9 @@
-import {styleText as st} from 'node:util';
+import type {ArgSchema} from '@fuzdev/fuz_util/args.js';
 import type {Logger} from '@fuzdev/fuz_util/log.js';
-import {plural} from '@fuzdev/fuz_util/string.js';
 import {print_value} from '@fuzdev/fuz_util/print.js';
+import {plural} from '@fuzdev/fuz_util/string.js';
+import {styleText as st} from 'node:util';
 import {z} from 'zod';
-
-import type {ArgSchema} from './args.ts';
 import type {LoadedTasks, TaskModuleMeta} from './task.ts';
 import {print_path} from './paths.ts';
 

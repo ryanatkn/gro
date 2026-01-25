@@ -1,15 +1,15 @@
-import {styleText as st} from 'node:util';
-import type {Timings} from '@fuzdev/fuz_util/timings.js';
+import {args_parse, type Args} from '@fuzdev/fuz_util/args.js';
 import type {Logger} from '@fuzdev/fuz_util/log.js';
+import type {Timings} from '@fuzdev/fuz_util/timings.js';
+import {styleText as st} from 'node:util';
 import {z} from 'zod';
 
-import {parse_args, type Args} from './args.ts';
-import type {invoke_task as base_invoke_task} from './invoke_task.ts';
-import {log_task_help} from './task_logging.ts';
-import type {GroConfig} from './gro_config.ts';
-import {TaskError, type TaskModuleMeta} from './task.ts';
-import {default_svelte_config} from './svelte_config.ts';
 import type {Filer} from './filer.ts';
+import type {GroConfig} from './gro_config.ts';
+import type {invoke_task as base_invoke_task} from './invoke_task.ts';
+import {default_svelte_config} from './svelte_config.ts';
+import {TaskError, type TaskModuleMeta} from './task.ts';
+import {log_task_help} from './task_logging.ts';
 
 export type RunTaskResult =
 	| {
@@ -41,7 +41,7 @@ export const run_task = async (
 	// Parse and validate args.
 	let args = unparsed_args;
 	if (task.Args) {
-		const parsed = parse_args(unparsed_args, task.Args);
+		const parsed = args_parse(unparsed_args, task.Args);
 		if (!parsed.success) {
 			throw new TaskError(
 				`Failed task args validation for task '${task_meta.name}':\n${z.prettifyError(parsed.error)}`,
