@@ -270,7 +270,6 @@ Gro builds on
 [Vite](https://github.com/vitejs/vite) ∙
 [esbuild](https://github.com/evanw/esbuild) ∙
 [Vitest](https://github.com/vitest-dev/vitest) ∙
-[mri](https://github.com/lukeed/mri) ∙
 [chokidar](https://github.com/paulmillr/chokidar) ∙
 [zod](https://github.com/colinhacks/zod) ∙
 [@fuzdev/fuz_util](https://github.com/fuzdev/fuz_util) ∙
