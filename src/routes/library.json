@@ -71,7 +71,7 @@
 			"zod": "^4.1.13"
 		},
 		"peerDependencies": {
-			"@fuzdev/fuz_util": ">=0.45.3",
+			"@fuzdev/fuz_util": ">=0.46.0",
 			"@sveltejs/kit": "^2",
 			"esbuild": "^0.27.0",
 			"svelte": "^5",
@@ -95,7 +95,7 @@
 			"@fuzdev/fuz_code": "^0.40.0",
 			"@fuzdev/fuz_css": "^0.44.1",
 			"@fuzdev/fuz_ui": "^0.179.0",
-			"@fuzdev/fuz_util": "^0.45.3",
+			"@fuzdev/fuz_util": "^0.46.0",
 			"@ryanatkn/eslint-config": "^0.9.0",
 			"@sveltejs/adapter-static": "^3.0.10",
 			"@sveltejs/kit": "^2.49.1",

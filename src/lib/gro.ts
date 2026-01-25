@@ -4,6 +4,8 @@
 
 import {join} from 'node:path';
 
+import {spawn_result_is_exited} from '@fuzdev/fuz_util/process.js';
+
 import {resolve_gro_module_path, spawn_with_loader} from './gro_helpers.ts';
 
 /*
@@ -23,5 +25,5 @@ const loader_path = join(invoke_path, '../loader.js');
 
 const spawned = await spawn_with_loader(loader_path, invoke_path, process.argv.slice(2));
 if (!spawned.ok) {
-	process.exitCode = spawned.code || 1;
+	process.exitCode = spawn_result_is_exited(spawned) ? spawned.code : 1;
 }

@@ -16,9 +16,8 @@ test(
 		const result = await spawn_with_loader(loader_path, test_script, []);
 
 		// The spawn_with_loader function handles output automatically
-		// Just check if the process succeeded
+		// Just check if the process succeeded (ok implies code === 0)
 		expect(result.ok).toBe(true);
-		expect(result.code).toBe(0);
 	},
 	TEST_TIMEOUT_MD,
 );
