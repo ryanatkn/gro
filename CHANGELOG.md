@@ -1,5 +1,11 @@
 # @ryanatkn/gro
 
+## 0.188.0
+
+### Minor Changes
+
+- upgrade fuz_util ([63fb148](https://github.com/ryanatkn/gro/commit/63fb148))
+
 ## 0.187.0
 
 ### Minor Changes
