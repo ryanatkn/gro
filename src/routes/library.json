@@ -62,7 +62,6 @@
 			"chokidar": "^5.0.0",
 			"dotenv": "^17.2.3",
 			"esm-env": "^1.2.2",
-			"mri": "^1.2.0",
 			"oxc-parser": "^0.99.0",
 			"prettier": "^3.7.4",
 			"prettier-plugin-svelte": "^3.4.1",
@@ -156,7 +155,7 @@
 						"name": "to_task_args",
 						"kind": "function",
 						"doc_comment": "Parses `task_name` and `args` from `process.argv` using `mri`,\nignoring anything after any `--`.",
-						"source_line": 9,
+						"source_line": 8,
 						"type_signature": "(argv?: string[]): { task_name: string; args: Args; }",
 						"return_type": "{ task_name: string; args: Args; }",
 						"parameters": [
@@ -171,7 +170,7 @@
 						"name": "to_raw_rest_args",
 						"kind": "function",
 						"doc_comment": "Gets the array of raw string args starting with the first `--`, if any.",
-						"source_line": 20,
+						"source_line": 19,
 						"type_signature": "(argv?: string[]): string[]",
 						"return_type": "string[]",
 						"parameters": [
@@ -186,7 +185,7 @@
 						"name": "to_forwarded_args",
 						"kind": "function",
 						"doc_comment": "Parses `process.argv` for the specified `command`, so given\n`gro taskname arg1 --arg2 -- eslint eslintarg1 --eslintarg2 -- tsc --tscarg1 --tscarg2`\nthe `command` `'eslint'` returns `eslintarg1 --eslintarg2`\nand `'tsc'` returns `--tscarg1` and `--tscarg2`.",
-						"source_line": 31,
+						"source_line": 30,
 						"type_signature": "(command: string, raw_rest_args?: string[] | undefined, cache?: Record<string, Args | undefined>): Args",
 						"return_type": "Args",
 						"parameters": [
@@ -209,7 +208,7 @@
 					{
 						"name": "to_forwarded_args_by_command",
 						"kind": "function",
-						"source_line": 37,
+						"source_line": 36,
 						"type_signature": "(raw_rest_args?: string[]): Record<string, Args | undefined>",
 						"return_type": "Record<string, Args | undefined>",
 						"parameters": [
@@ -227,7 +226,7 @@
 						"examples": [
 							"```ts\n// `gro test -- --watch` → {watch: true}\n// `gro test -- foo.test.ts` → {_: ['foo.test.ts']}\n// `gro test -- vitest --watch` with command_to_strip='vitest' → {watch: true}\nto_implicit_forwarded_args('vitest')\n```"
 						],
-						"source_line": 93,
+						"source_line": 92,
 						"type_signature": "(command_to_strip?: string | undefined, raw_rest_args?: string[]): Args",
 						"return_type": "Args",
 						"parameters": [
@@ -246,7 +245,7 @@
 					{
 						"name": "print_command_args",
 						"kind": "function",
-						"source_line": 111,
+						"source_line": 110,
 						"type_signature": "(serialized_args: string[]): string",
 						"return_type": "string",
 						"parameters": [

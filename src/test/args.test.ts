@@ -1,6 +1,5 @@
-import {args_serialize} from '@fuzdev/fuz_util/args.js';
+import {args_serialize, argv_parse} from '@fuzdev/fuz_util/args.js';
 import {describe, test, expect} from 'vitest';
-import mri from 'mri';
 
 import {
 	to_forwarded_args,
@@ -276,19 +275,78 @@ describe('to_raw_rest_args', () => {
 	});
 });
 
+describe('to_forwarded_args', () => {
+	test('returns args for existing command', () => {
+		const raw_rest_args = to_raw_rest_args('gro test -- eslint --fix'.split(' '));
+		expect(to_forwarded_args('eslint', raw_rest_args)).toEqual({fix: true});
+	});
+
+	test('returns empty object for non-existent command', () => {
+		const raw_rest_args = to_raw_rest_args('gro test -- eslint --fix'.split(' '));
+		expect(to_forwarded_args('tsc', raw_rest_args)).toEqual({});
+	});
+
+	test('uses provided cache', () => {
+		const raw_rest_args = to_raw_rest_args('gro test -- eslint --fix'.split(' '));
+		const cache = to_forwarded_args_by_command(raw_rest_args);
+		// Same cache should be reused
+		expect(to_forwarded_args('eslint', raw_rest_args, cache)).toEqual({fix: true});
+		expect(to_forwarded_args('tsc', raw_rest_args, cache)).toEqual({});
+	});
+});
+
 describe('integration: round-trip parsing', () => {
 	test('serialize and parse produces same args', () => {
 		// Note: false boolean values cannot round-trip (--flag is always true in mri)
 		const original = {_: ['foo', 'bar'], watch: true, count: 3};
 		const serialized = args_serialize(original);
-		const reparsed = mri(serialized);
+		const reparsed = argv_parse(serialized);
 		expect(reparsed).toEqual(original);
 	});
 
 	test('complex args round-trip', () => {
 		const original = {_: ['a', 'b'], flag: ['x', 'y', 'z'], w: true, count: 42};
 		const serialized = args_serialize(original);
-		const reparsed = mri(serialized);
+		const reparsed = argv_parse(serialized);
 		expect(reparsed).toEqual(original);
+	});
+
+	test('empty args round-trip', () => {
+		const original = {};
+		const serialized = args_serialize(original);
+		const reparsed = argv_parse(serialized);
+		// mri always adds _ array
+		expect(reparsed).toEqual({_: []});
+	});
+
+	test('only positionals round-trip', () => {
+		const original = {_: ['src', 'lib', 'test']};
+		const serialized = args_serialize(original);
+		const reparsed = argv_parse(serialized);
+		expect(reparsed).toEqual(original);
+	});
+
+	test('no- prefix round-trip', () => {
+		// --no-watch is parsed as {watch: false} by argv_parse (mri behavior)
+		// This means serialization of {no-watch: true} cannot round-trip perfectly
+		// since --no-watch becomes {watch: false}, not {no-watch: true}
+		const original = {_: [], 'no-watch': true};
+		const serialized = args_serialize(original);
+		expect(serialized).toEqual(['--no-watch']);
+		const reparsed = argv_parse(serialized);
+		// The --no-watch flag becomes {watch: false}, not {no-watch: true}
+		expect(reparsed.watch).toBe(false);
+		expect(reparsed['no-watch']).toBeUndefined();
+	});
+
+	test('string values with spaces require quoting at shell level', () => {
+		// args_serialize produces separate array elements
+		// shell would need to quote them, but mri sees them as separate
+		const original = {_: [], message: 'hello world'};
+		const serialized = args_serialize(original);
+		expect(serialized).toEqual(['--message', 'hello world']);
+		// When passed as array to mri (simulating proper shell quoting), it works
+		const reparsed = argv_parse(serialized);
+		expect(reparsed.message).toBe('hello world');
 	});
 });

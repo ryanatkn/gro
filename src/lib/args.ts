@@ -1,6 +1,5 @@
 import {styleText as st} from 'node:util';
-import mri from 'mri';
-import type {Args} from '@fuzdev/fuz_util/args.js';
+import {argv_parse, type Args} from '@fuzdev/fuz_util/args.js';
 
 /**
  * Parses `task_name` and `args` from `process.argv` using `mri`,
@@ -8,7 +7,7 @@ import type {Args} from '@fuzdev/fuz_util/args.js';
  */
 export const to_task_args = (argv = process.argv): {task_name: string; args: Args} => {
 	const forwarded_index = argv.indexOf('--');
-	const args = mri(forwarded_index === -1 ? argv.slice(2) : argv.slice(2, forwarded_index));
+	const args = argv_parse(forwarded_index === -1 ? argv.slice(2) : argv.slice(2, forwarded_index));
 	const task_name = args._.shift() ?? '';
 	if (!args._.length) delete (args as Args)._; // enable schema defaults
 	return {task_name, args};
@@ -55,7 +54,7 @@ export const to_forwarded_args_by_command = (
 	// which is assumed to be the CLI command that gets forwarded the args.
 	const forwarded_args_by_command: Record<string, Args> = {};
 	for (const argv of argvs) {
-		const args = mri(argv);
+		const args = argv_parse(argv);
 		let command = args._.shift();
 		if (!command) {
 			throw Error(
@@ -103,7 +102,7 @@ export const to_implicit_forwarded_args = (
 		argv = argv.slice(1);
 	}
 
-	const args = mri(argv);
+	const args = argv_parse(argv);
 	if (!args._.length) delete (args as Args)._;
 	return args;
 };
