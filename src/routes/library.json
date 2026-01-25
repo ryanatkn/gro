@@ -154,7 +154,7 @@
 					{
 						"name": "to_task_args",
 						"kind": "function",
-						"doc_comment": "Parses `task_name` and `args` from `process.argv` using `mri`,\nignoring anything after any `--`.",
+						"doc_comment": "Parses `task_name` and `args` from `process.argv`,\nignoring anything after any `--`.",
 						"source_line": 8,
 						"type_signature": "(argv?: string[]): { task_name: string; args: Args; }",
 						"return_type": "{ task_name: string; args: Args; }",
@@ -4852,7 +4852,7 @@
 						"kind": "function",
 						"source_line": 17,
 						"type_signature": "(package_json: { [x: string]: unknown; name: string; version: string; private?: boolean | undefined; description?: string | undefined; motto?: string | undefined; glyph?: string | undefined; logo?: string | undefined; ... 23 more ...; exports?: string | ... 2 more ... | undefined; }, lib_path?: string | undefined, log?: Logger | undefined): Promise<...>",
-						"return_type": "Promise<{ [x: string]: unknown; name: string; version: string; modules?: { [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"type\" | \"json\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; ... 19 more ...; alias_of?: { ...; } | undefined; }[] | ...",
+						"return_type": "Promise<{ [x: string]: unknown; name: string; version: string; modules?: { [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"type\" | \"constructor\" | \"json\" | \"variable\" | \"class\" | \"component\" | \"css\"; ... 19 more ...; alias_of?: { ...; } | undefined; }[] | ...",
 						"parameters": [
 							{
 								"name": "package_json",
@@ -4875,7 +4875,7 @@
 						"kind": "function",
 						"source_line": 28,
 						"type_signature": "(exports: string | Record<string, unknown> | null | undefined, lib_path?: string, log?: Logger | undefined): Promise<{ [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; ... 21 more ...; alias_of?: { ...; } | undefined; }[] | undefined; module_comment?: string | undefined; dependencies?: string[] | undefined; dependents?: string[] | undefined; star_exports?: string[] | undefined; }[] | undefined>",
-						"return_type": "Promise<{ [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"type\" | \"json\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; doc_comment?: string | undefined; ... 18 more ...; alias_of?: { ...; } | undefined; }[] | undefined; module_comment?: str...",
+						"return_type": "Promise<{ [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"type\" | \"constructor\" | \"json\" | \"variable\" | \"class\" | \"component\" | \"css\"; doc_comment?: string | undefined; ... 18 more ...; alias_of?: { ...; } | undefined; }[] | undefined; module_comment?: str...",
 						"parameters": [
 							{
 								"name": "exports",

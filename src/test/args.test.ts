@@ -112,9 +112,9 @@ describe('to_implicit_forwarded_args', () => {
 		expect(to_implicit_forwarded_args(undefined, raw_rest_args)).toEqual({});
 	});
 
-	test('parses all args after first -- (mri handles -- separator)', () => {
+	test('parses all args after first -- (argv_parse handles -- separator)', () => {
 		const raw_rest_args = to_raw_rest_args('gro test -- --watch -- eslint --fix'.split(' '));
-		// mri treats everything after first -- as input, and filters internal -- separators
+		// argv_parse treats everything after first -- as input, and filters internal -- separators
 		expect(to_implicit_forwarded_args(undefined, raw_rest_args)).toEqual({
 			_: ['eslint', '--fix'],
 			watch: true,
@@ -134,7 +134,7 @@ describe('to_implicit_forwarded_args', () => {
 
 	test('command stripping with multiple -- sections', () => {
 		const raw_rest_args = to_raw_rest_args('gro test -- vitest --watch -- other --flag'.split(' '));
-		// Strips 'vitest', mri handles the rest
+		// Strips 'vitest', argv_parse handles the rest
 		expect(to_implicit_forwarded_args('vitest', raw_rest_args)).toEqual({
 			_: ['other', '--flag'],
 			watch: true,
@@ -155,7 +155,7 @@ describe('to_implicit_forwarded_args', () => {
 	test('wrong command to strip with multiple sections', () => {
 		const raw_rest_args = to_raw_rest_args('gro test -- eslint --fix -- vitest --watch'.split(' '));
 		// command_to_strip='vitest' but first arg is 'eslint', so nothing stripped
-		// mri parses --fix as a flag, not a positional
+		// argv_parse treats --fix as a flag, not a positional
 		expect(to_implicit_forwarded_args('vitest', raw_rest_args)).toEqual({
 			_: ['eslint', 'vitest', '--watch'],
 			fix: true,
@@ -173,7 +173,7 @@ describe('to_implicit_forwarded_args', () => {
 
 	test('numeric positionals', () => {
 		const raw_rest_args = to_raw_rest_args('gro test -- 123 456 --count 789'.split(' '));
-		// mri keeps positionals as strings from argv, but parses flag values as numbers
+		// argv_parse keeps positionals as strings from argv, but coerces flag values as numbers
 		expect(to_implicit_forwarded_args(undefined, raw_rest_args)).toEqual({
 			_: ['123', '456'],
 			count: 789,
@@ -297,7 +297,7 @@ describe('to_forwarded_args', () => {
 
 describe('integration: round-trip parsing', () => {
 	test('serialize and parse produces same args', () => {
-		// Note: false boolean values cannot round-trip (--flag is always true in mri)
+		// Note: false boolean values cannot round-trip (--flag is always true in argv_parse)
 		const original = {_: ['foo', 'bar'], watch: true, count: 3};
 		const serialized = args_serialize(original);
 		const reparsed = argv_parse(serialized);
@@ -315,7 +315,7 @@ describe('integration: round-trip parsing', () => {
 		const original = {};
 		const serialized = args_serialize(original);
 		const reparsed = argv_parse(serialized);
-		// mri always adds _ array
+		// argv_parse always adds _ array
 		expect(reparsed).toEqual({_: []});
 	});
 
@@ -327,7 +327,7 @@ describe('integration: round-trip parsing', () => {
 	});
 
 	test('no- prefix round-trip', () => {
-		// --no-watch is parsed as {watch: false} by argv_parse (mri behavior)
+		// --no-watch is parsed as {watch: false} by argv_parse
 		// This means serialization of {no-watch: true} cannot round-trip perfectly
 		// since --no-watch becomes {watch: false}, not {no-watch: true}
 		const original = {_: [], 'no-watch': true};
@@ -341,11 +341,11 @@ describe('integration: round-trip parsing', () => {
 
 	test('string values with spaces require quoting at shell level', () => {
 		// args_serialize produces separate array elements
-		// shell would need to quote them, but mri sees them as separate
+		// shell would need to quote them, but argv_parse sees them as separate
 		const original = {_: [], message: 'hello world'};
 		const serialized = args_serialize(original);
 		expect(serialized).toEqual(['--message', 'hello world']);
-		// When passed as array to mri (simulating proper shell quoting), it works
+		// When passed as array to argv_parse (simulating proper shell quoting), it works
 		const reparsed = argv_parse(serialized);
 		expect(reparsed.message).toBe('hello world');
 	});

@@ -2,7 +2,7 @@ import {styleText as st} from 'node:util';
 import {argv_parse, type Args} from '@fuzdev/fuz_util/args.js';
 
 /**
- * Parses `task_name` and `args` from `process.argv` using `mri`,
+ * Parses `task_name` and `args` from `process.argv`,
  * ignoring anything after any `--`.
  */
 export const to_task_args = (argv = process.argv): {task_name: string; args: Args} => {
