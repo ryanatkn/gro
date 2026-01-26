@@ -25,5 +25,4 @@ jobs:
           node-version: ${{ matrix.node-version }}
       - run: npm ci
       - run: npm run bootstrap
-      - run: npx @ryanatkn/gro check --workspace
-      - run: npx @ryanatkn/gro build
+      - run: npx @ryanatkn/gro check --workspace --build
