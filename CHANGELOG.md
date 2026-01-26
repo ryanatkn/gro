@@ -1,5 +1,11 @@
 # @ryanatkn/gro
 
+## 0.189.3
+
+### Patch Changes
+
+- improve `gro format` to take rest and forwarded args ([c9de33f](https://github.com/ryanatkn/gro/commit/c9de33f))
+
 ## 0.189.2
 
 ### Patch Changes
