@@ -1,5 +1,11 @@
 # @ryanatkn/gro
 
+## 0.189.2
+
+### Patch Changes
+
+- add `--build` and `--force_build` flags to `gro check` ([2557e50](https://github.com/ryanatkn/gro/commit/2557e50))
+
 ## 0.189.1
 
 ### Patch Changes
