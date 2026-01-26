@@ -1,17 +1,18 @@
-import {spawn} from '@fuzdev/fuz_util/process.js';
-import {z} from 'zod';
-import {rm} from 'node:fs/promises';
+import {args_serialize} from '@fuzdev/fuz_util/args.js';
 import {GitOrigin, git_pull} from '@fuzdev/fuz_util/git.js';
+import {spawn} from '@fuzdev/fuz_util/process.js';
+import {rm} from 'node:fs/promises';
+import {z} from 'zod';
 
-import {TaskError, type Task} from './task.ts';
+import {to_forwarded_args} from './args.ts';
+import {spawn_cli} from './cli.ts';
+import {NODE_MODULES_DIRNAME} from './constants.ts';
 import {
 	package_json_extract_dependencies,
 	package_json_load,
 	type PackageJsonDep,
 } from './package_json.ts';
-import {spawn_cli} from './cli.ts';
-import {serialize_args, to_forwarded_args} from './args.ts';
-import {NODE_MODULES_DIRNAME} from './constants.ts';
+import {TaskError, type Task} from './task.ts';
 
 /** @nodocs */
 export const Args = z.strictObject({
@@ -113,7 +114,7 @@ export const task: Task<Args> = {
 		if (force) {
 			install_args.push('--force');
 		}
-		install_args.push(...serialize_args(to_forwarded_args(config.pm_cli)));
+		install_args.push(...args_serialize(to_forwarded_args(config.pm_cli)));
 		await spawn(config.pm_cli, install_args);
 
 		// TODO @many this relies on npm behavior that changed in v11

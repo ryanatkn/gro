@@ -1,4 +1,4 @@
-import {print_spawn_result, spawn} from '@fuzdev/fuz_util/process.js';
+import {print_spawn_result, spawn, spawn_result_to_message} from '@fuzdev/fuz_util/process.js';
 
 import type {Plugin} from './plugin.ts';
 import {TaskError} from './task.ts';
@@ -46,7 +46,9 @@ export const gro_plugin_sveltekit_library = ({
 					Object.values(package_json.bin).map(async (bin_path) => {
 						const chmod_result = await spawn('chmod', ['+x', bin_path]);
 						if (!chmod_result.ok)
-							log.error(`chmod on bin path ${bin_path} failed with code ${chmod_result.code}`);
+							log.error(
+								`chmod on bin path ${bin_path} failed: ${spawn_result_to_message(chmod_result)}`,
+							);
 					}),
 				);
 				log.info(`linking`);

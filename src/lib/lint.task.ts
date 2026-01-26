@@ -1,9 +1,10 @@
+import {args_serialize} from '@fuzdev/fuz_util/args.js';
 import {print_spawn_result} from '@fuzdev/fuz_util/process.js';
 import {z} from 'zod';
 
-import {TaskError, type Task} from './task.ts';
-import {serialize_args, to_forwarded_args} from './args.ts';
+import {to_forwarded_args} from './args.ts';
 import {find_cli, spawn_cli} from './cli.ts';
+import {TaskError, type Task} from './task.ts';
 
 const ESLINT_CLI = 'eslint';
 
@@ -29,7 +30,7 @@ export const task: Task<Args> = {
 		}
 
 		const forwarded_args = {_, 'max-warnings': 0, ...to_forwarded_args(eslint_cli)};
-		const serialized_args = serialize_args(forwarded_args);
+		const serialized_args = args_serialize(forwarded_args);
 		const eslintResult = await spawn_cli(found_eslint_cli, serialized_args, log);
 		if (!eslintResult?.ok) {
 			throw new TaskError(`ESLint found some problems. ${print_spawn_result(eslintResult!)}`);

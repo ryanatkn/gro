@@ -1,10 +1,11 @@
-import type {SpawnedProcess} from '@fuzdev/fuz_util/process.js';
+import {args_serialize} from '@fuzdev/fuz_util/args.js';
+import {spawn_result_to_message, type SpawnedProcess} from '@fuzdev/fuz_util/process.js';
 
-import type {Plugin} from './plugin.ts';
-import {serialize_args, to_forwarded_args} from './args.ts';
-import {TaskError} from './task.ts';
+import {to_forwarded_args} from './args.ts';
 import {find_cli, spawn_cli, spawn_cli_process} from './cli.ts';
 import {VITE_CLI} from './constants.ts';
+import type {Plugin} from './plugin.ts';
+import {TaskError} from './task.ts';
 
 export interface GroPluginSveltekitAppOptions {
 	/**
@@ -28,7 +29,7 @@ export const gro_plugin_sveltekit_app = ({
 			if (dev) {
 				// `vite dev` in development mode
 				if (watch) {
-					const serialized_args = ['dev', ...serialize_args(to_forwarded_args(vite_cli))];
+					const serialized_args = ['dev', ...args_serialize(to_forwarded_args(vite_cli))];
 					sveltekit_process = await spawn_cli_process(found_vite_cli, serialized_args, log);
 				} else {
 					log.debug(
@@ -38,10 +39,12 @@ export const gro_plugin_sveltekit_app = ({
 				}
 			} else {
 				// `vite build` in production mode
-				const serialized_args = ['build', ...serialize_args(to_forwarded_args(vite_cli))];
+				const serialized_args = ['build', ...args_serialize(to_forwarded_args(vite_cli))];
 				const spawned = await spawn_cli(found_vite_cli, serialized_args, log);
 				if (!spawned?.ok) {
-					throw new TaskError(`${vite_cli} build failed with exit code ${spawned?.code}`);
+					throw new TaskError(
+						`${vite_cli} build failed: ${spawned ? spawn_result_to_message(spawned) : 'unknown error'}`,
+					);
 				}
 			}
 		},

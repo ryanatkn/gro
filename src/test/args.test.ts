@@ -1,63 +1,13 @@
+import {args_serialize, argv_parse} from '@fuzdev/fuz_util/args.js';
 import {describe, test, expect} from 'vitest';
-import mri from 'mri';
 
 import {
-	serialize_args,
 	to_forwarded_args,
 	to_forwarded_args_by_command,
 	to_raw_rest_args,
 	to_implicit_forwarded_args,
 	to_task_args,
 } from '../lib/args.ts';
-
-describe('serialize_args', () => {
-	test('basic behavior', () => {
-		const raw = ['a', '-i', '1', 'b', 'c', '-i', '-i', 'three'];
-		const parsed = mri(raw);
-		expect(parsed).toEqual({_: ['a', 'b', 'c'], i: [1, true, 'three']});
-		const serialized = serialize_args(parsed);
-		expect(serialized).toEqual(['a', 'b', 'c', '-i', '1', '-i', '-i', 'three']); // sorted
-	});
-
-	test('empty object', () => {
-		expect(serialize_args({})).toEqual([]);
-	});
-
-	test('only flags', () => {
-		const serialized = serialize_args({watch: true, coverage: true});
-		expect(serialized).toEqual(['--watch', '--coverage']);
-	});
-
-	test('undefined values filtered', () => {
-		const serialized = serialize_args({watch: undefined, coverage: true});
-		expect(serialized).toEqual(['--coverage']);
-	});
-
-	test('empty _ array', () => {
-		const serialized = serialize_args({_: []});
-		expect(serialized).toEqual([]);
-	});
-
-	test('single char flags', () => {
-		const serialized = serialize_args({w: true, t: 'foo'});
-		expect(serialized).toEqual(['-w', '-t', 'foo']);
-	});
-
-	test('mixed single and double dash', () => {
-		const serialized = serialize_args({w: true, watch: true});
-		expect(serialized).toEqual(['-w', '--watch']);
-	});
-
-	test('array values', () => {
-		const serialized = serialize_args({flag: ['a', 'b', 'c']});
-		expect(serialized).toEqual(['--flag', 'a', '--flag', 'b', '--flag', 'c']);
-	});
-
-	test('positionals come first', () => {
-		const serialized = serialize_args({_: ['foo', 'bar'], watch: true});
-		expect(serialized).toEqual(['foo', 'bar', '--watch']);
-	});
-});
 
 describe('to_forwarded_args_by_command', () => {
 	test('basic behavior', () => {
@@ -89,11 +39,17 @@ describe('to_forwarded_args_by_command', () => {
 		});
 	});
 
-	test('throws when no command after --', () => {
+	test('skips sections without command name (handled by to_implicit_forwarded_args)', () => {
+		// Sections starting with flags (no command) are skipped, not thrown
+		// This allows `gro run script.ts -- --help` to pass `--help` to the script
 		const raw_rest_args = to_raw_rest_args('gro test -- --flag'.split(' '));
-		expect(() => to_forwarded_args_by_command(raw_rest_args)).toThrow(
-			'Malformed args following a `--`. Expected a rest arg command',
-		);
+		expect(to_forwarded_args_by_command(raw_rest_args)).toEqual({});
+	});
+
+	test('skips command-less sections but parses command sections', () => {
+		// Mixed: one section has command, one doesn't
+		const raw_rest_args = to_raw_rest_args('gro test -- --flag -- eslint --fix'.split(' '));
+		expect(to_forwarded_args_by_command(raw_rest_args)).toEqual({eslint: {fix: true}});
 	});
 
 	test('throws when gro without taskname', () => {
@@ -162,9 +118,9 @@ describe('to_implicit_forwarded_args', () => {
 		expect(to_implicit_forwarded_args(undefined, raw_rest_args)).toEqual({});
 	});
 
-	test('parses all args after first -- (mri handles -- separator)', () => {
+	test('parses all args after first -- (argv_parse handles -- separator)', () => {
 		const raw_rest_args = to_raw_rest_args('gro test -- --watch -- eslint --fix'.split(' '));
-		// mri treats everything after first -- as input, and filters internal -- separators
+		// argv_parse treats everything after first -- as input, and filters internal -- separators
 		expect(to_implicit_forwarded_args(undefined, raw_rest_args)).toEqual({
 			_: ['eslint', '--fix'],
 			watch: true,
@@ -184,7 +140,7 @@ describe('to_implicit_forwarded_args', () => {
 
 	test('command stripping with multiple -- sections', () => {
 		const raw_rest_args = to_raw_rest_args('gro test -- vitest --watch -- other --flag'.split(' '));
-		// Strips 'vitest', mri handles the rest
+		// Strips 'vitest', argv_parse handles the rest
 		expect(to_implicit_forwarded_args('vitest', raw_rest_args)).toEqual({
 			_: ['other', '--flag'],
 			watch: true,
@@ -205,7 +161,7 @@ describe('to_implicit_forwarded_args', () => {
 	test('wrong command to strip with multiple sections', () => {
 		const raw_rest_args = to_raw_rest_args('gro test -- eslint --fix -- vitest --watch'.split(' '));
 		// command_to_strip='vitest' but first arg is 'eslint', so nothing stripped
-		// mri parses --fix as a flag, not a positional
+		// argv_parse treats --fix as a flag, not a positional
 		expect(to_implicit_forwarded_args('vitest', raw_rest_args)).toEqual({
 			_: ['eslint', 'vitest', '--watch'],
 			fix: true,
@@ -223,7 +179,7 @@ describe('to_implicit_forwarded_args', () => {
 
 	test('numeric positionals', () => {
 		const raw_rest_args = to_raw_rest_args('gro test -- 123 456 --count 789'.split(' '));
-		// mri keeps positionals as strings from argv, but parses flag values as numbers
+		// argv_parse keeps positionals as strings from argv, but coerces flag values as numbers
 		expect(to_implicit_forwarded_args(undefined, raw_rest_args)).toEqual({
 			_: ['123', '456'],
 			count: 789,
@@ -325,19 +281,78 @@ describe('to_raw_rest_args', () => {
 	});
 });
 
+describe('to_forwarded_args', () => {
+	test('returns args for existing command', () => {
+		const raw_rest_args = to_raw_rest_args('gro test -- eslint --fix'.split(' '));
+		expect(to_forwarded_args('eslint', raw_rest_args)).toEqual({fix: true});
+	});
+
+	test('returns empty object for non-existent command', () => {
+		const raw_rest_args = to_raw_rest_args('gro test -- eslint --fix'.split(' '));
+		expect(to_forwarded_args('tsc', raw_rest_args)).toEqual({});
+	});
+
+	test('uses provided cache', () => {
+		const raw_rest_args = to_raw_rest_args('gro test -- eslint --fix'.split(' '));
+		const cache = to_forwarded_args_by_command(raw_rest_args);
+		// Same cache should be reused
+		expect(to_forwarded_args('eslint', raw_rest_args, cache)).toEqual({fix: true});
+		expect(to_forwarded_args('tsc', raw_rest_args, cache)).toEqual({});
+	});
+});
+
 describe('integration: round-trip parsing', () => {
 	test('serialize and parse produces same args', () => {
-		// Note: false boolean values cannot round-trip (--flag is always true in mri)
+		// Note: false boolean values cannot round-trip (--flag is always true in argv_parse)
 		const original = {_: ['foo', 'bar'], watch: true, count: 3};
-		const serialized = serialize_args(original);
-		const reparsed = mri(serialized);
+		const serialized = args_serialize(original);
+		const reparsed = argv_parse(serialized);
 		expect(reparsed).toEqual(original);
 	});
 
 	test('complex args round-trip', () => {
 		const original = {_: ['a', 'b'], flag: ['x', 'y', 'z'], w: true, count: 42};
-		const serialized = serialize_args(original);
-		const reparsed = mri(serialized);
+		const serialized = args_serialize(original);
+		const reparsed = argv_parse(serialized);
 		expect(reparsed).toEqual(original);
+	});
+
+	test('empty args round-trip', () => {
+		const original = {};
+		const serialized = args_serialize(original);
+		const reparsed = argv_parse(serialized);
+		// argv_parse always adds _ array
+		expect(reparsed).toEqual({_: []});
+	});
+
+	test('only positionals round-trip', () => {
+		const original = {_: ['src', 'lib', 'test']};
+		const serialized = args_serialize(original);
+		const reparsed = argv_parse(serialized);
+		expect(reparsed).toEqual(original);
+	});
+
+	test('no- prefix round-trip', () => {
+		// --no-watch is parsed as {watch: false} by argv_parse
+		// This means serialization of {no-watch: true} cannot round-trip perfectly
+		// since --no-watch becomes {watch: false}, not {no-watch: true}
+		const original = {_: [], 'no-watch': true};
+		const serialized = args_serialize(original);
+		expect(serialized).toEqual(['--no-watch']);
+		const reparsed = argv_parse(serialized);
+		// The --no-watch flag becomes {watch: false}, not {no-watch: true}
+		expect(reparsed.watch).toBe(false);
+		expect(reparsed['no-watch']).toBeUndefined();
+	});
+
+	test('string values with spaces require quoting at shell level', () => {
+		// args_serialize produces separate array elements
+		// shell would need to quote them, but argv_parse sees them as separate
+		const original = {_: [], message: 'hello world'};
+		const serialized = args_serialize(original);
+		expect(serialized).toEqual(['--message', 'hello world']);
+		// When passed as array to argv_parse (simulating proper shell quoting), it works
+		const reparsed = argv_parse(serialized);
+		expect(reparsed.message).toBe('hello world');
 	});
 });

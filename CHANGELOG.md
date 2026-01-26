@@ -1,5 +1,29 @@
 # @ryanatkn/gro
 
+## 0.189.1
+
+### Patch Changes
+
+- fix `gro run script.ts -- --help` to pass args after `--` to the script ([f05a9d8](https://github.com/ryanatkn/gro/commit/f05a9d8))
+
+## 0.189.0
+
+### Minor Changes
+
+- rework args ([#592](https://github.com/ryanatkn/gro/pull/592))
+
+## 0.188.0
+
+### Minor Changes
+
+- upgrade fuz_util ([63fb148](https://github.com/ryanatkn/gro/commit/63fb148))
+
+## 0.187.0
+
+### Minor Changes
+
+- upgrade fuz_util ([#591](https://github.com/ryanatkn/gro/pull/591))
+
 ## 0.186.0
 
 ### Minor Changes

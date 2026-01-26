@@ -23,7 +23,6 @@ test(
 		const result = await spawn_with_loader(loaderPath, testScript, []);
 
 		expect(result.ok).toBe(true);
-		expect(result.code).toBe(0);
 	},
 	TEST_TIMEOUT_MD,
 );
@@ -46,7 +45,6 @@ test(
 		const result = await spawn_with_loader(loaderPath, testScript, []);
 
 		expect(result.ok).toBe(true);
-		expect(result.code).toBe(0);
 	},
 	TEST_TIMEOUT_MD,
 );
@@ -69,7 +67,6 @@ test(
 		const result = await spawn_with_loader(loaderPath, testScript, []);
 
 		expect(result.ok).toBe(true);
-		expect(result.code).toBe(0);
 	},
 	TEST_TIMEOUT_MD,
 );
