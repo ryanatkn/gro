@@ -1102,10 +1102,10 @@
 				"path": "dev.task.ts",
 				"declarations": [
 					{
-						"name": "DevTask_Context",
+						"name": "DevTaskContext",
 						"kind": "type",
 						"source_line": 22,
-						"type_signature": "DevTask_Context"
+						"type_signature": "DevTaskContext"
 					}
 				],
 				"dependencies": ["clean_fs.ts", "plugin.ts"]
