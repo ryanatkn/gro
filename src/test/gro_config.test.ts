@@ -55,8 +55,12 @@ test('SEARCH_EXCLUDER_DEFAULT', () => {
 	assert_includes('.git', false);
 	assert_includes('.gro', false);
 	assert_includes('.svelte-kit', false);
+	assert_includes('test', false);
+	assert_includes('benchmark', false);
 
 	assert_includes('a', true);
+	assert_includes('testing', true);
+	assert_includes('benchmarks', true);
 	assert_includes('nodemodules', true);
 
 	// Special exception for `gro/dist/`, but not `gro/build/` etc because they're not usecases.
