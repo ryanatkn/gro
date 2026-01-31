@@ -2786,14 +2786,14 @@
 					{
 						"name": "EXPORTS_EXCLUDER_DEFAULT",
 						"kind": "variable",
-						"source_line": 145,
+						"source_line": 147,
 						"type_signature": "RegExp"
 					},
 					{
 						"name": "cook_gro_config",
 						"kind": "function",
 						"doc_comment": "Transforms a `RawGroConfig` to the more strict `GroConfig`.\nThis allows users to provide a more relaxed config.\nHashes the `build_cache_config` and deletes the raw value for security.",
-						"source_line": 152,
+						"source_line": 154,
 						"type_signature": "(raw_config: RawGroConfig): Promise<GroConfig>",
 						"return_type": "Promise<GroConfig>",
 						"parameters": [
@@ -2806,7 +2806,7 @@
 					{
 						"name": "GroConfigModule",
 						"kind": "type",
-						"source_line": 199,
+						"source_line": 201,
 						"type_signature": "GroConfigModule",
 						"properties": [
 							{
@@ -2820,7 +2820,7 @@
 					{
 						"name": "load_gro_config",
 						"kind": "function",
-						"source_line": 203,
+						"source_line": 205,
 						"type_signature": "(dir?: string): Promise<GroConfig>",
 						"return_type": "Promise<GroConfig>",
 						"parameters": [
@@ -2834,7 +2834,7 @@
 					{
 						"name": "validate_gro_config_module",
 						"kind": "function",
-						"source_line": 226,
+						"source_line": 228,
 						"type_signature": "(config_module: any, config_path: string): asserts config_module is GroConfigModule",
 						"return_type": "void",
 						"parameters": [
