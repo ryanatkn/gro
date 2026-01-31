@@ -51,8 +51,8 @@ vi.mock('../lib/paths.ts', () => ({
 	},
 }));
 
-vi.mock('../lib/hash.ts', () => ({
-	to_hash: vi.fn(),
+vi.mock('@fuzdev/fuz_util/hash.js', () => ({
+	hash_secure: vi.fn(),
 }));
 
 describe('build_task cache validation', () => {
@@ -77,7 +77,7 @@ describe('build_task cache validation', () => {
 			await import('@fuzdev/fuz_util/git.js'),
 		);
 		const {is_build_cache_valid} = vi.mocked(await import('../lib/build_cache.ts'));
-		const {to_hash} = vi.mocked(await import('../lib/hash.ts'));
+		const {hash_secure} = vi.mocked(await import('@fuzdev/fuz_util/hash.js'));
 		const {Plugins} = vi.mocked(await import('../lib/plugin.ts'));
 		const mock_plugins = create_mock_plugins();
 		vi.mocked(Plugins.create).mockResolvedValue(mock_plugins as any);
@@ -85,7 +85,7 @@ describe('build_task cache validation', () => {
 		// Workspace is clean, cache is valid
 		vi.mocked(git_check_clean_workspace).mockResolvedValue(null);
 		vi.mocked(git_current_commit_hash).mockResolvedValue('abc123');
-		vi.mocked(to_hash).mockResolvedValue('hash123');
+		vi.mocked(hash_secure).mockResolvedValue('hash123');
 		vi.mocked(is_build_cache_valid).mockResolvedValue(true);
 
 		const ctx = create_mock_build_task_context();
@@ -143,7 +143,7 @@ describe('build_task cache validation', () => {
 			await import('@fuzdev/fuz_util/git.js'),
 		);
 		const {is_build_cache_valid} = vi.mocked(await import('../lib/build_cache.ts'));
-		const {to_hash} = vi.mocked(await import('../lib/hash.ts'));
+		const {hash_secure} = vi.mocked(await import('@fuzdev/fuz_util/hash.js'));
 		const {Plugins} = vi.mocked(await import('../lib/plugin.ts'));
 		const mock_plugins = create_mock_plugins();
 		vi.mocked(Plugins.create).mockResolvedValue(mock_plugins as any);
@@ -151,7 +151,7 @@ describe('build_task cache validation', () => {
 		// Not in a git repository
 		vi.mocked(git_check_clean_workspace).mockResolvedValue(null);
 		vi.mocked(git_current_commit_hash).mockResolvedValue(null);
-		vi.mocked(to_hash).mockResolvedValue('hash123');
+		vi.mocked(hash_secure).mockResolvedValue('hash123');
 		vi.mocked(is_build_cache_valid).mockResolvedValue(true);
 
 		const ctx = create_mock_build_task_context();

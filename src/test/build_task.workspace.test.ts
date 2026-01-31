@@ -56,8 +56,8 @@ vi.mock('../lib/paths.ts', () => ({
 	},
 }));
 
-vi.mock('../lib/hash.ts', () => ({
-	to_hash: vi.fn(),
+vi.mock('@fuzdev/fuz_util/hash.js', () => ({
+	hash_secure: vi.fn(),
 }));
 
 describe('build_task workspace state', () => {

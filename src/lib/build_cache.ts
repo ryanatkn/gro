@@ -1,13 +1,13 @@
 import {mkdir, readdir, readFile, rm, stat, writeFile} from 'node:fs/promises';
 import {join} from 'node:path';
-import type {Logger} from '@fuzdev/fuz_util/log.js';
 import {styleText as st} from 'node:util';
+import {z} from 'zod';
+import type {Logger} from '@fuzdev/fuz_util/log.js';
 import {git_current_commit_hash} from '@fuzdev/fuz_util/git.js';
 import {fs_exists} from '@fuzdev/fuz_util/fs.js';
 import {map_concurrent} from '@fuzdev/fuz_util/async.js';
-import {z} from 'zod';
+import {hash_secure} from '@fuzdev/fuz_util/hash.js';
 
-import {to_hash} from './hash.ts';
 import type {GroConfig} from './gro_config.ts';
 import {paths} from './paths.ts';
 import {SVELTEKIT_BUILD_DIRNAME, SVELTEKIT_DIST_DIRNAME, GRO_DIST_PREFIX} from './constants.ts';
@@ -174,7 +174,7 @@ export const validate_build_cache = async (metadata: BuildCacheMetadata): Promis
 		async (output) => {
 			try {
 				const contents = await readFile(output.path);
-				const actual_hash = await to_hash(contents);
+				const actual_hash = await hash_secure(contents);
 				return actual_hash === output.hash;
 			} catch {
 				// File deleted/inaccessible between checks = cache invalid
@@ -249,7 +249,7 @@ export const collect_build_outputs = async (
 		cache_key: string;
 	}
 
-	const files_to_hash: Array<FileEntry> = [];
+	const files_hash_secure: Array<FileEntry> = [];
 
 	// Recursively collect files
 	const collect_files = async (
@@ -273,7 +273,7 @@ export const collect_build_outputs = async (
 				// eslint-disable-next-line no-await-in-loop
 				await collect_files(full_path, relative_path, dir_prefix);
 			} else if (entry.isFile()) {
-				files_to_hash.push({full_path, cache_key});
+				files_hash_secure.push({full_path, cache_key});
 			}
 			// Symlinks are intentionally ignored - we only hash regular files
 		}
@@ -291,11 +291,11 @@ export const collect_build_outputs = async (
 
 	// Hash files with controlled concurrency and collect stats (could be 10k+ files)
 	return map_concurrent(
-		files_to_hash,
+		files_hash_secure,
 		async ({full_path, cache_key}): Promise<BuildOutputEntry> => {
 			const stats = await stat(full_path);
 			const contents = await readFile(full_path);
-			const hash = await to_hash(contents);
+			const hash = await hash_secure(contents);
 
 			return {
 				path: cache_key,

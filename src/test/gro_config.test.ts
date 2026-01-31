@@ -1,11 +1,11 @@
 import {test, expect, vi} from 'vitest';
+import {hash_secure} from '@fuzdev/fuz_util/hash.js';
 
 import {
 	SEARCH_EXCLUDER_DEFAULT,
 	EMPTY_BUILD_CACHE_CONFIG_HASH,
 	load_gro_config,
 } from '../lib/gro_config.ts';
-import {to_hash} from '../lib/hash.ts';
 
 test('load_gro_config', async () => {
 	// Mock the dynamic import to avoid module resolution issues
@@ -83,6 +83,6 @@ test('SEARCH_EXCLUDER_DEFAULT', () => {
 });
 
 test('EMPTY_BUILD_CACHE_CONFIG_HASH matches hash of empty string', async () => {
-	const computed_hash = await to_hash('');
+	const computed_hash = await hash_secure('');
 	expect(EMPTY_BUILD_CACHE_CONFIG_HASH).toBe(computed_hash);
 });
