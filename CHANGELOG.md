@@ -1,5 +1,17 @@
 # @ryanatkn/gro
 
+## 0.190.0
+
+### Minor Changes
+
+- rename `DevTaskContext` from `Dev_Task_Context` ([d9575f8](https://github.com/ryanatkn/gro/commit/d9575f8))
+- upgrade fuz_util ([#593](https://github.com/ryanatkn/gro/pull/593))
+- upgrade fuz_util and use its `hash.ts` module ([#593](https://github.com/ryanatkn/gro/pull/593))
+
+### Patch Changes
+
+- exclude test and benchmark dirs from search ([#590](https://github.com/ryanatkn/gro/pull/590))
+
 ## 0.189.3
 
 ### Patch Changes
