@@ -19,7 +19,7 @@ export const Args = z.strictObject({
 });
 export type Args = z.infer<typeof Args>;
 
-export type DevTask_Context = PluginContext<Args>;
+export type DevTaskContext = PluginContext<Args>;
 
 /** @nodocs */
 export const task: Task<Args> = {

@@ -20,18 +20,22 @@
 }
 /* A pane is a box floating over the page, like for dialogs. By default it's opaque, resetting the background to the initial depth. */
 .pane {
-	background-color: var(--pane_bg, var(--bg));
+	background-color: var(--shade_00);
 	box-shadow: var(
 		--pane_shadow,
 		var(--shadow_bottom_md)
-			color-mix(in hsl, var(--shadow_color) var(--shadow_alpha_3), transparent)
+			color-mix(
+				in hsl,
+				var(--shadow_color, var(--shadow_color_umbra)) var(--shadow_alpha_50),
+				transparent
+			)
 	);
 	border-radius: var(--border_radius_xs);
 }
 /* A panel is a box embedded into the page, useful for visually isolating content. */
 .panel {
 	border-radius: var(--border_radius_xs);
-	background-color: var(--panel_bg, var(--fg_1));
+	background-color: var(--fg_10);
 }
 /*
 TODO other button variants?
@@ -60,7 +64,7 @@ These are used as modifiers to buttons.
 }
 .menu_item {
 	--border_radius: 0;
-	--border_color: var(--border_color_3);
+	--border_color: var(--border_color_30);
 	position: relative;
 	z-index: 2;
 	cursor: pointer;
@@ -72,9 +76,9 @@ These are used as modifiers to buttons.
 	padding: var(--menu_item_padding, var(--space_xs3) var(--space_xs));
 }
 .menu_item.selected {
-	/* TODO different patterns for border and bg? */
-	--border_color: var(--color_a_5);
-	background-color: var(--fg_1);
+	/* TODO different patterns for border and surface? */
+	--border_color: var(--color_a_50);
+	background-color: var(--fg_10);
 	z-index: 1;
 	cursor: default;
 }
@@ -82,13 +86,13 @@ These are used as modifiers to buttons.
 	cursor: pointer;
 }
 .menu_item:hover {
-	--border_color: var(--border_color_3);
-	background-color: var(--fg_0);
+	--border_color: var(--border_color_30);
+	background-color: var(--fg_10);
 }
 .menu_item:active,
 .menu_item.selected:hover {
-	--border_color: var(--border_color_3);
-	background-color: var(--fg_2);
+	--border_color: var(--border_color_30);
+	background-color: var(--fg_20);
 }
 .menu_item.plain {
 	border: none;
@@ -119,11 +123,54 @@ These are used as modifiers to buttons.
 	font-weight: 500;
 	padding-left: var(--space_xs);
 	padding-right: var(--space_xs);
-	background-color: var(--fg_1);
+	background-color: var(--fg_10);
 	border-radius: var(--border_radius_xs);
 }
 a.chip {
 	font-weight: 600;
+}
+.chip.color_a {
+	color: var(--color_a_50);
+	background-color: var(--color_a_10);
+}
+.chip.color_b {
+	color: var(--color_b_50);
+	background-color: var(--color_b_10);
+}
+.chip.color_c {
+	color: var(--color_c_50);
+	background-color: var(--color_c_10);
+}
+.chip.color_d {
+	color: var(--color_d_50);
+	background-color: var(--color_d_10);
+}
+.chip.color_e {
+	color: var(--color_e_50);
+	background-color: var(--color_e_10);
+}
+.chip.color_f {
+	color: var(--color_f_50);
+	background-color: var(--color_f_10);
+}
+.chip.color_g {
+	color: var(--color_g_50);
+	background-color: var(--color_g_10);
+}
+.chip.color_h {
+	color: var(--color_h_50);
+	background-color: var(--color_h_10);
+}
+.chip.color_i {
+	color: var(--color_i_50);
+	background-color: var(--color_i_10);
+}
+.chip.color_j {
+	color: var(--color_j_50);
+	background-color: var(--color_j_10);
+}
+.font_family_mono {
+	font-family: var(--font_family_mono);
 }
 .font_size_md {
 	font-size: var(--font_size_md);
@@ -137,42 +184,55 @@ a.chip {
 	font-size: var(--font_size_xl);
 	--font_size: var(--font_size_xl);
 }
-.text_color_3 {
-	color: var(--text_color_3);
+.text_70 {
+	color: var(--text_70);
+	--text_color: var(--text_70);
 }
-.bg {
-	background-color: var(--bg);
+.shade_00 {
+	background-color: var(--shade_00);
 }
-.color_a_5 {
-	color: var(--color_a_5);
+.color_a_50 {
+	color: var(--color_a_50);
+	--text_color: var(--color_a_50);
 }
-.color_b_5 {
-	color: var(--color_b_5);
+.color_b_50 {
+	color: var(--color_b_50);
+	--text_color: var(--color_b_50);
 }
-.color_c_5 {
-	color: var(--color_c_5);
+.color_c_50 {
+	color: var(--color_c_50);
+	--text_color: var(--color_c_50);
 }
-.color_d_5 {
-	color: var(--color_d_5);
+.color_d_50 {
+	color: var(--color_d_50);
+	--text_color: var(--color_d_50);
 }
-.color_e_5 {
-	color: var(--color_e_5);
+.color_e_50 {
+	color: var(--color_e_50);
+	--text_color: var(--color_e_50);
 }
-.color_f_5 {
-	color: var(--color_f_5);
+.color_f_50 {
+	color: var(--color_f_50);
+	--text_color: var(--color_f_50);
 }
-.color_g_5 {
-	color: var(--color_g_5);
+.color_g_50 {
+	color: var(--color_g_50);
+	--text_color: var(--color_g_50);
 }
-.color_h_5 {
-	color: var(--color_h_5);
+.color_h_50 {
+	color: var(--color_h_50);
+	--text_color: var(--color_h_50);
 }
 .border_radius_sm {
 	border-radius: var(--border_radius_sm);
 }
 .shadow_inset_xs {
 	box-shadow: var(--shadow_inset_xs)
-		color-mix(in hsl, var(--shadow_color) var(--shadow_alpha, var(--shadow_alpha_1)), transparent);
+		color-mix(
+			in hsl,
+			var(--shadow_color, var(--shadow_color_umbra)) var(--shadow_alpha, var(--shadow_alpha_30)),
+			transparent
+		);
 }
 .width_atmost_sm {
 	width: 100%;
@@ -225,6 +285,10 @@ a.chip {
 	padding-top: var(--space_xs);
 	padding-bottom: var(--space_xs);
 }
+.py_md {
+	padding-top: var(--space_md);
+	padding-bottom: var(--space_md);
+}
 .mt_0 {
 	margin-top: 0;
 }
@@ -257,6 +321,9 @@ a.chip {
 }
 .mb_xl9 {
 	margin-bottom: var(--space_xl9);
+}
+.gap_xs2 {
+	gap: var(--space_xs2);
 }
 .gap_md {
 	gap: var(--space_md);

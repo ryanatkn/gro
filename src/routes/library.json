@@ -11,7 +11,7 @@
 	"published": true,
 	"package_json": {
 		"name": "@ryanatkn/gro",
-		"version": "0.189.1",
+		"version": "0.189.3",
 		"description": "task runner and toolkit extending SvelteKit",
 		"motto": "generate, run, optimize",
 		"glyph": "🌰",
@@ -91,10 +91,10 @@
 		"devDependencies": {
 			"@changesets/changelog-git": "^0.2.1",
 			"@changesets/types": "^6.1.0",
-			"@fuzdev/fuz_code": "^0.40.0",
-			"@fuzdev/fuz_css": "^0.44.1",
-			"@fuzdev/fuz_ui": "^0.179.0",
-			"@fuzdev/fuz_util": "^0.48.0",
+			"@fuzdev/fuz_code": "^0.41.0",
+			"@fuzdev/fuz_css": "^0.45.0",
+			"@fuzdev/fuz_ui": "^0.180.0",
+			"@fuzdev/fuz_util": "^0.48.2",
 			"@ryanatkn/eslint-config": "^0.9.0",
 			"@sveltejs/adapter-static": "^3.0.10",
 			"@sveltejs/kit": "^2.50.1",
@@ -105,7 +105,7 @@
 			"esbuild": "^0.27.1",
 			"eslint": "^9.39.1",
 			"eslint-plugin-svelte": "^3.13.1",
-			"svelte": "^5.48.2",
+			"svelte": "^5.48.5",
 			"svelte-check": "^4.3.5",
 			"typescript": "^5.9.3",
 			"typescript-eslint": "^8.48.1",
@@ -146,7 +146,7 @@
 	},
 	"source_json": {
 		"name": "@ryanatkn/gro",
-		"version": "0.189.1",
+		"version": "0.189.3",
 		"modules": [
 			{
 				"path": "args.ts",
@@ -258,7 +258,7 @@
 				],
 				"dependents": [
 					"cli.ts",
-					"format_directory.ts",
+					"format.task.ts",
 					"gro_plugin_sveltekit_app.ts",
 					"invoke.ts",
 					"invoke_task.ts",
@@ -1070,6 +1070,7 @@
 					"esbuild_plugin_sveltekit_shim_app.ts",
 					"esbuild_plugin_sveltekit_shim_env.ts",
 					"filer.ts",
+					"format.task.ts",
 					"format_directory.ts",
 					"gen.task.ts",
 					"gro_config.ts",
@@ -1101,10 +1102,10 @@
 				"path": "dev.task.ts",
 				"declarations": [
 					{
-						"name": "DevTask_Context",
+						"name": "DevTaskContext",
 						"kind": "type",
 						"source_line": 22,
-						"type_signature": "DevTask_Context"
+						"type_signature": "DevTaskContext"
 					}
 				],
 				"dependencies": ["clean_fs.ts", "plugin.ts"]
@@ -1864,9 +1865,9 @@
 					{
 						"name": "format_directory",
 						"kind": "function",
-						"doc_comment": "Formats a directory on the filesystem.\nIf the source directory is given, it also formats all of the root directory files.\nThis is separated from `./format_file` to avoid importing all of the `prettier` code\ninside modules that import this one. (which has a nontrivial cost)",
+						"doc_comment": "Formats files on the filesystem.\nWhen `patterns` is provided, formats those specific files/patterns.\nOtherwise formats `dir` with default extensions, plus root files if `dir` is `paths.source`.\nThis is separated from `./format_file` to avoid importing all of the `prettier` code\ninside modules that import this one. (which has a nontrivial cost)",
 						"source_line": 35,
-						"type_signature": "(log: Logger, dir: string, check?: boolean, extensions?: string, root_paths?: string, prettier_cli?: string | Cli, pm_cli?: string): Promise<SpawnResult>",
+						"type_signature": "(log: Logger, dir: string, check?: boolean, extensions?: string, root_paths?: string, prettier_cli?: string | Cli, pm_cli?: string, additional_args?: Args | undefined, patterns?: string[] | undefined): Promise<...>",
 						"return_type": "Promise<SpawnResult>",
 						"parameters": [
 							{
@@ -1901,11 +1902,21 @@
 								"name": "pm_cli",
 								"type": "string",
 								"default_value": "PM_CLI_DEFAULT"
+							},
+							{
+								"name": "additional_args",
+								"type": "Args | undefined",
+								"optional": true
+							},
+							{
+								"name": "patterns",
+								"type": "string[] | undefined",
+								"optional": true
 							}
 						]
 					}
 				],
-				"dependencies": ["args.ts", "cli.ts", "constants.ts", "paths.ts"],
+				"dependencies": ["cli.ts", "constants.ts", "paths.ts"],
 				"dependents": ["format.task.ts"]
 			},
 			{
@@ -1942,7 +1953,7 @@
 			{
 				"path": "format.task.ts",
 				"declarations": [],
-				"dependencies": ["format_directory.ts", "paths.ts", "task.ts"]
+				"dependencies": ["args.ts", "constants.ts", "format_directory.ts", "paths.ts", "task.ts"]
 			},
 			{
 				"path": "gen_helpers.ts",

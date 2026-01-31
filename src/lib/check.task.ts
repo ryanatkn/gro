@@ -23,6 +23,12 @@ export const Args = z.strictObject({
 		.default(false),
 	lint: z.boolean().meta({description: 'dual of no-lint'}).default(true),
 	'no-lint': z.boolean().meta({description: 'opt out of linting'}).default(false),
+	build: z.boolean().meta({description: 'dual of no-build'}).default(false),
+	'no-build': z.boolean().meta({description: 'opt out of building'}).default(true),
+	force_build: z
+		.boolean()
+		.meta({description: 'force a fresh build, ignoring the cache'})
+		.default(false),
 	sync: z.boolean().meta({description: 'dual of no-sync'}).default(true),
 	'no-sync': z.boolean().meta({description: 'opt out of syncing'}).default(false),
 	install: z.boolean().meta({description: 'opt into installing packages'}).default(false),
@@ -38,7 +44,19 @@ export const task: Task<Args> = {
 	summary: 'check that everything is ready to commit',
 	Args,
 	run: async ({args, invoke_task, log, config}) => {
-		const {typecheck, test, gen, format, package_json, lint, sync, install, workspace} = args;
+		const {
+			typecheck,
+			test,
+			gen,
+			format,
+			package_json,
+			lint,
+			build,
+			force_build,
+			sync,
+			install,
+			workspace,
+		} = args;
 
 		// When checking the workspace, which was added for CI, never sync.
 		// Setup like installing packages and `sveltekit-sync` should be done in the CI setup.
@@ -79,6 +97,11 @@ export const task: Task<Args> = {
 		// but it's better for most usage.
 		if (lint) {
 			await invoke_task('lint');
+		}
+
+		if (build) {
+			// Skip sync/gen/install since check handles those separately
+			await invoke_task('build', {sync: false, gen: false, install: false, force_build});
 		}
 
 		if (workspace) {
