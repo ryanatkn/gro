@@ -51,8 +51,8 @@ vi.mock('../lib/paths.ts', () => ({
 	},
 }));
 
-vi.mock('../lib/hash.ts', () => ({
-	to_hash: vi.fn(),
+vi.mock('@fuzdev/fuz_util/hash.js', () => ({
+	hash_secure: vi.fn(),
 }));
 
 describe('build_task optimization', () => {
@@ -77,12 +77,12 @@ describe('build_task optimization', () => {
 			await import('@fuzdev/fuz_util/git.js'),
 		);
 		const {is_build_cache_valid} = vi.mocked(await import('../lib/build_cache.ts'));
-		const {to_hash} = vi.mocked(await import('../lib/hash.ts'));
+		const {hash_secure} = vi.mocked(await import('@fuzdev/fuz_util/hash.js'));
 
 		vi.mocked(git_check_clean_workspace).mockResolvedValue(null);
 		vi.mocked(git_current_commit_hash).mockResolvedValue('abc123');
 		vi.mocked(is_build_cache_valid).mockResolvedValue(false);
-		vi.mocked(to_hash).mockResolvedValue('hash123');
+		vi.mocked(hash_secure).mockResolvedValue('hash123');
 
 		const ctx = create_mock_build_task_context();
 
@@ -124,12 +124,12 @@ describe('build_task optimization', () => {
 		const {is_build_cache_valid, create_build_cache_metadata} = vi.mocked(
 			await import('../lib/build_cache.ts'),
 		);
-		const {to_hash} = vi.mocked(await import('../lib/hash.ts'));
+		const {hash_secure} = vi.mocked(await import('@fuzdev/fuz_util/hash.js'));
 
 		vi.mocked(git_check_clean_workspace).mockResolvedValue(null);
 		vi.mocked(git_current_commit_hash).mockResolvedValue('abc123');
 		vi.mocked(is_build_cache_valid).mockResolvedValue(false);
-		vi.mocked(to_hash).mockResolvedValue('hash123');
+		vi.mocked(hash_secure).mockResolvedValue('hash123');
 
 		const mock_metadata = {
 			version: '1',

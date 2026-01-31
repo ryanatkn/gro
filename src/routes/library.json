@@ -450,7 +450,7 @@
 						]
 					}
 				],
-				"dependencies": ["constants.ts", "hash.ts", "paths.ts"],
+				"dependencies": ["constants.ts", "paths.ts"],
 				"dependents": ["build.task.ts"]
 			},
 			{
@@ -1849,7 +1849,6 @@
 				],
 				"dependencies": [
 					"constants.ts",
-					"hash.ts",
 					"parse_imports.ts",
 					"paths.ts",
 					"resolve_specifier.ts",
@@ -2850,7 +2849,7 @@
 						]
 					}
 				],
-				"dependencies": ["constants.ts", "gro.config.default.ts", "hash.ts", "paths.ts"],
+				"dependencies": ["constants.ts", "gro.config.default.ts", "paths.ts"],
 				"dependents": ["invoke.ts"]
 			},
 			{
@@ -3221,35 +3220,6 @@
 				"path": "gro.ts",
 				"declarations": [],
 				"dependencies": ["gro_helpers.ts"]
-			},
-			{
-				"path": "hash.ts",
-				"declarations": [
-					{
-						"name": "to_hash",
-						"kind": "function",
-						"doc_comment": "Computes a cryptographic hash of the given data.",
-						"see_also": ["https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto"],
-						"source_line": 14,
-						"type_signature": "(data: string | BufferSource, algorithm?: \"SHA-1\" | \"SHA-256\" | \"SHA-384\" | \"SHA-512\"): Promise<string>",
-						"return_type": "Promise<string>",
-						"return_description": "Hexadecimal hash string.",
-						"parameters": [
-							{
-								"name": "data",
-								"type": "string | BufferSource",
-								"description": "- String or binary data to hash. Strings are UTF-8 encoded internally."
-							},
-							{
-								"name": "algorithm",
-								"type": "\"SHA-1\" | \"SHA-256\" | \"SHA-384\" | \"SHA-512\"",
-								"description": "- Hash algorithm to use. Defaults to SHA-256.",
-								"default_value": "'SHA-256'"
-							}
-						]
-					}
-				],
-				"dependents": ["build_cache.ts", "filer.ts", "gro_config.ts"]
 			},
 			{
 				"path": "index.ts",

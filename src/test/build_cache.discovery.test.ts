@@ -16,8 +16,8 @@ vi.mock('@fuzdev/fuz_util/fs.js', () => ({
 	fs_exists: vi.fn(),
 }));
 
-vi.mock('$lib/hash.js', () => ({
-	to_hash: vi.fn(),
+vi.mock('@fuzdev/fuz_util/hash.js', () => ({
+	hash_secure: vi.fn(),
 }));
 
 describe('discover_build_output_dirs', () => {
@@ -163,7 +163,7 @@ describe('collect_build_outputs', () => {
 	test('hashes all files in build directory', async () => {
 		const {fs_exists} = vi.mocked(await import('@fuzdev/fuz_util/fs.js'));
 		const {readdir, readFile, stat} = vi.mocked(await import('node:fs/promises'));
-		const {to_hash} = await import('$lib/hash.js');
+		const {hash_secure} = await import('@fuzdev/fuz_util/hash.js');
 
 		vi.mocked(fs_exists).mockResolvedValue(true);
 		vi.mocked(readdir).mockResolvedValue([
@@ -175,7 +175,7 @@ describe('collect_build_outputs', () => {
 
 		let hash_count = 0;
 		// eslint-disable-next-line @typescript-eslint/require-await
-		vi.mocked(to_hash).mockImplementation(async () => `hash${++hash_count}`);
+		vi.mocked(hash_secure).mockImplementation(async () => `hash${++hash_count}`);
 
 		const result = await collect_build_outputs(['build']);
 
@@ -201,7 +201,7 @@ describe('collect_build_outputs', () => {
 	test('skips build.json file', async () => {
 		const {fs_exists} = vi.mocked(await import('@fuzdev/fuz_util/fs.js'));
 		const {readdir, readFile, stat} = vi.mocked(await import('node:fs/promises'));
-		const {to_hash} = await import('$lib/hash.js');
+		const {hash_secure} = await import('@fuzdev/fuz_util/hash.js');
 
 		vi.mocked(fs_exists).mockResolvedValue(true);
 		vi.mocked(readdir).mockResolvedValue([
@@ -210,7 +210,7 @@ describe('collect_build_outputs', () => {
 		] as any);
 		vi.mocked(stat).mockResolvedValue(mock_file_stats());
 		vi.mocked(readFile).mockResolvedValue(Buffer.from('content'));
-		vi.mocked(to_hash).mockResolvedValue('hash');
+		vi.mocked(hash_secure).mockResolvedValue('hash');
 
 		const result = await collect_build_outputs(['build']);
 
@@ -232,7 +232,7 @@ describe('collect_build_outputs', () => {
 	test('hashes all files in directory', async () => {
 		const {fs_exists} = vi.mocked(await import('@fuzdev/fuz_util/fs.js'));
 		const {readdir, readFile, stat} = vi.mocked(await import('node:fs/promises'));
-		const {to_hash} = await import('$lib/hash.js');
+		const {hash_secure} = await import('@fuzdev/fuz_util/hash.js');
 
 		vi.mocked(fs_exists).mockResolvedValue(true);
 		vi.mocked(readdir).mockResolvedValue([
@@ -242,7 +242,7 @@ describe('collect_build_outputs', () => {
 		] as any);
 		vi.mocked(stat).mockResolvedValue(mock_file_stats());
 		vi.mocked(readFile).mockResolvedValue(Buffer.from('content'));
-		vi.mocked(to_hash).mockResolvedValue('hash');
+		vi.mocked(hash_secure).mockResolvedValue('hash');
 
 		const result = await collect_build_outputs(['build']);
 
@@ -256,7 +256,7 @@ describe('collect_build_outputs', () => {
 	test('hashes files from multiple directories', async () => {
 		const {fs_exists} = vi.mocked(await import('@fuzdev/fuz_util/fs.js'));
 		const {readdir, readFile, stat} = vi.mocked(await import('node:fs/promises'));
-		const {to_hash} = await import('$lib/hash.js');
+		const {hash_secure} = await import('@fuzdev/fuz_util/hash.js');
 
 		vi.mocked(fs_exists).mockResolvedValue(true);
 
@@ -278,7 +278,7 @@ describe('collect_build_outputs', () => {
 
 		let hash_count = 0;
 		// eslint-disable-next-line @typescript-eslint/require-await
-		vi.mocked(to_hash).mockImplementation(async () => `hash${++hash_count}`);
+		vi.mocked(hash_secure).mockImplementation(async () => `hash${++hash_count}`);
 
 		const result = await collect_build_outputs(['build', 'dist', 'dist_server']);
 
@@ -296,7 +296,7 @@ describe('collect_build_outputs', () => {
 	test('hashes files in deeply nested directories', async () => {
 		const {fs_exists} = vi.mocked(await import('@fuzdev/fuz_util/fs.js'));
 		const {readdir, readFile, stat} = vi.mocked(await import('node:fs/promises'));
-		const {to_hash} = await import('$lib/hash.js');
+		const {hash_secure} = await import('@fuzdev/fuz_util/hash.js');
 
 		vi.mocked(fs_exists).mockResolvedValue(true);
 
@@ -322,7 +322,7 @@ describe('collect_build_outputs', () => {
 
 		vi.mocked(stat).mockResolvedValue(mock_file_stats());
 		vi.mocked(readFile).mockResolvedValue(Buffer.from('content'));
-		vi.mocked(to_hash).mockResolvedValue('deep_hash');
+		vi.mocked(hash_secure).mockResolvedValue('deep_hash');
 
 		const result = await collect_build_outputs(['build']);
 

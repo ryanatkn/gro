@@ -3,6 +3,7 @@ import {fs_exists} from '@fuzdev/fuz_util/fs.js';
 import {identity} from '@fuzdev/fuz_util/function.js';
 import type {PathFilter, PathId} from '@fuzdev/fuz_util/path.js';
 import {json_stringify_deterministic} from '@fuzdev/fuz_util/json.js';
+import {hash_secure} from '@fuzdev/fuz_util/hash.js';
 
 import {GRO_DIST_DIR, IS_THIS_GRO, paths} from './paths.ts';
 import {
@@ -18,7 +19,6 @@ import create_default_config from './gro.config.default.ts';
 import type {PluginsCreateConfig} from './plugin.ts';
 import type {PackageJsonMapper} from './package_json.ts';
 import type {ParsedSvelteConfig} from './svelte_config.ts';
-import {to_hash} from './hash.ts';
 
 /**
  * SHA-256 hash of empty string, used for configs without build_cache_config.
@@ -175,7 +175,7 @@ export const cook_gro_config = async (raw_config: RawGroConfig): Promise<GroConf
 			typeof build_cache_config === 'function' ? await build_cache_config() : build_cache_config;
 
 		// Hash the JSON representation with deterministic key ordering
-		build_cache_config_hash = await to_hash(json_stringify_deterministic(resolved));
+		build_cache_config_hash = await hash_secure(json_stringify_deterministic(resolved));
 	}
 
 	// Delete the raw value to ensure it doesn't persist in memory

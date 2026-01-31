@@ -5,9 +5,9 @@ import {vi} from 'vitest';
 import type {Logger} from '@fuzdev/fuz_util/log.js';
 import type {Timings} from '@fuzdev/fuz_util/timings.js';
 import {json_stringify_deterministic} from '@fuzdev/fuz_util/json.js';
+import {hash_secure} from '@fuzdev/fuz_util/hash.js';
 
 import type {GroConfig} from '../lib/gro_config.ts';
-import {to_hash} from '../lib/hash.ts';
 import type {Filer} from '../lib/filer.ts';
 import type {ParsedSvelteConfig} from '../lib/svelte_config.ts';
 import type {TaskContext, InvokeTask} from '../lib/task.ts';
@@ -40,14 +40,14 @@ export const create_mock_config = async (
 	let build_cache_config_hash: string;
 
 	if (!build_cache_config) {
-		build_cache_config_hash = await to_hash('');
+		build_cache_config_hash = await hash_secure('');
 	} else {
 		// Resolve if it's a function
 		const resolved =
 			typeof build_cache_config === 'function' ? await build_cache_config() : build_cache_config;
 
 		// Hash the JSON representation with deterministic key ordering
-		build_cache_config_hash = await to_hash(json_stringify_deterministic(resolved));
+		build_cache_config_hash = await hash_secure(json_stringify_deterministic(resolved));
 	}
 
 	return {
