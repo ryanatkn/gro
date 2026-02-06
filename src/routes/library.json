@@ -11,7 +11,7 @@
 	"published": true,
 	"package_json": {
 		"name": "@ryanatkn/gro",
-		"version": "0.190.0",
+		"version": "0.190.1",
 		"description": "task runner and toolkit extending SvelteKit",
 		"motto": "generate, run, optimize",
 		"glyph": "🌰",
@@ -146,7 +146,7 @@
 	},
 	"source_json": {
 		"name": "@ryanatkn/gro",
-		"version": "0.190.0",
+		"version": "0.190.1",
 		"modules": [
 			{
 				"path": "args.ts",

@@ -1,5 +1,11 @@
 # @ryanatkn/gro
 
+## 0.190.1
+
+### Patch Changes
+
+- add `filer_options` to `GroConfig` ([0cae1c6](https://github.com/ryanatkn/gro/commit/0cae1c6))
+
 ## 0.190.0
 
 ### Minor Changes
