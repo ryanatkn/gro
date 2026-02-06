@@ -19,6 +19,7 @@ import create_default_config from './gro.config.default.ts';
 import type {PluginsCreateConfig} from './plugin.ts';
 import type {PackageJsonMapper} from './package_json.ts';
 import type {ParsedSvelteConfig} from './svelte_config.ts';
+import type {FilerOptions} from './filer.ts';
 
 /**
  * SHA-256 hash of empty string, used for configs without build_cache_config.
@@ -70,6 +71,11 @@ export interface GroConfig extends RawGroConfig {
 	 * @see RawGroConfig.build_cache_config
 	 */
 	build_cache_config_hash: string;
+	/**
+	 * Options passed to the `Filer` for file watching and import resolution.
+	 * @see FilerOptions
+	 */
+	filer_options: Partial<FilerOptions> | null;
 }
 
 /**
@@ -102,6 +108,11 @@ export interface RawGroConfig {
 	build_cache_config?:
 		| Record<string, unknown>
 		| (() => Record<string, unknown> | Promise<Record<string, unknown>>);
+	/**
+	 * Options passed to the `Filer` for file watching and import resolution.
+	 * @see FilerOptions
+	 */
+	filer_options?: Partial<FilerOptions> | null;
 }
 
 export type CreateGroConfig = (
@@ -122,6 +133,7 @@ export const create_empty_gro_config = (): GroConfig => ({
 	js_cli: JS_CLI_DEFAULT,
 	pm_cli: PM_CLI_DEFAULT,
 	build_cache_config_hash: EMPTY_BUILD_CACHE_CONFIG_HASH,
+	filer_options: null,
 });
 
 /**
@@ -164,6 +176,7 @@ export const cook_gro_config = async (raw_config: RawGroConfig): Promise<GroConf
 		js_cli = empty_config.js_cli,
 		pm_cli = empty_config.pm_cli,
 		build_cache_config,
+		filer_options = empty_config.filer_options,
 	} = raw_config;
 
 	// Hash build_cache_config and delete the raw value
@@ -195,6 +208,7 @@ export const cook_gro_config = async (raw_config: RawGroConfig): Promise<GroConf
 		js_cli,
 		pm_cli,
 		build_cache_config_hash,
+		filer_options: filer_options ?? null,
 	};
 };
 

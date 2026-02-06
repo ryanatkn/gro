@@ -50,7 +50,7 @@ export const invoke_task = async (
 
 	// track if we created the filer
 	const owns_filer = !initial_filer;
-	const filer = initial_filer ?? new Filer({log: log.child('filer')});
+	const filer = initial_filer ?? new Filer({log: log.child('filer'), ...config.filer_options});
 
 	const owns_timings = !initial_timings;
 	const timings = initial_timings ?? new Timings();

@@ -2651,7 +2651,7 @@
 						"name": "EMPTY_BUILD_CACHE_CONFIG_HASH",
 						"kind": "variable",
 						"doc_comment": "SHA-256 hash of empty string, used for configs without build_cache_config.\nThis ensures consistent cache behavior when no custom config is provided.",
-						"source_line": 27,
+						"source_line": 28,
 						"type_signature": "\"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\""
 					},
 					{
@@ -2659,7 +2659,7 @@
 						"kind": "type",
 						"doc_comment": "The config that users can extend via `gro.config.ts`.\nThis is exposed to users in places like tasks and genfiles.",
 						"see_also": ["https://github.com/ryanatkn/gro/blob/main/src/docs/config.md"],
-						"source_line": 35,
+						"source_line": 36,
 						"type_signature": "GroConfig",
 						"extends": ["RawGroConfig"],
 						"properties": [
@@ -2710,6 +2710,12 @@
 								"kind": "variable",
 								"type_signature": "string",
 								"doc_comment": "SHA-256 hash of the user's `build_cache_config` from `gro.config.ts`.\nThis is computed during config normalization and the raw value is immediately deleted.\nIf no `build_cache_config` was provided, this is the hash of an empty string."
+							},
+							{
+								"name": "filer_options",
+								"kind": "variable",
+								"type_signature": "Partial<FilerOptions> | null",
+								"doc_comment": "Options passed to the `Filer` for file watching and import resolution."
 							}
 						],
 						"also_exported_from": ["index.ts"]
@@ -2719,7 +2725,7 @@
 						"kind": "type",
 						"doc_comment": "The relaxed variant of `GroConfig` that users can provide via `gro.config.ts`.\nSuperset of `GroConfig`.",
 						"see_also": ["https://github.com/ryanatkn/gro/blob/main/src/docs/config.md"],
-						"source_line": 80,
+						"source_line": 86,
 						"type_signature": "RawGroConfig",
 						"properties": [
 							{
@@ -2757,6 +2763,12 @@
 								"kind": "variable",
 								"type_signature": "| Record<string, unknown>\n\t\t| (() => Record<string, unknown> | Promise<Record<string, unknown>>)",
 								"doc_comment": "Optional object defining custom build inputs for cache invalidation.\nThis value is hashed during config normalization and used to detect\nwhen builds need to be regenerated due to non-source changes.\n\nUse cases:\n- Environment variables baked into build: `{api_url: process.env.PUBLIC_API_URL}`\n- External data files: `{data: fs.readFileSync('data.json', 'utf-8')}`\n- Build feature flags: `{enable_analytics: true}`\n\nCan be a static object or an async function that returns an object.\n\nIMPORTANT: It's safe to include secrets here because they are hashed and `delete`d\nduring config normalization. The raw value is never logged or persisted."
+							},
+							{
+								"name": "filer_options",
+								"kind": "variable",
+								"type_signature": "Partial<FilerOptions> | null",
+								"doc_comment": "Options passed to the `Filer` for file watching and import resolution."
 							}
 						],
 						"also_exported_from": ["index.ts"]
@@ -2764,14 +2776,14 @@
 					{
 						"name": "CreateGroConfig",
 						"kind": "type",
-						"source_line": 107,
+						"source_line": 118,
 						"type_signature": "CreateGroConfig",
 						"also_exported_from": ["index.ts"]
 					},
 					{
 						"name": "create_empty_gro_config",
 						"kind": "function",
-						"source_line": 112,
+						"source_line": 123,
 						"type_signature": "(): GroConfig",
 						"return_type": "GroConfig",
 						"parameters": []
@@ -2780,20 +2792,20 @@
 						"name": "SEARCH_EXCLUDER_DEFAULT",
 						"kind": "variable",
 						"doc_comment": "The regexp used by default to exclude directories and files\nwhen searching the filesystem for tasks and genfiles.\nCustomize via `search_filters` in the `GroConfig`.\nSee the test cases for the exact behavior.",
-						"source_line": 133,
+						"source_line": 145,
 						"type_signature": "RegExp"
 					},
 					{
 						"name": "EXPORTS_EXCLUDER_DEFAULT",
 						"kind": "variable",
-						"source_line": 147,
+						"source_line": 159,
 						"type_signature": "RegExp"
 					},
 					{
 						"name": "cook_gro_config",
 						"kind": "function",
 						"doc_comment": "Transforms a `RawGroConfig` to the more strict `GroConfig`.\nThis allows users to provide a more relaxed config.\nHashes the `build_cache_config` and deletes the raw value for security.",
-						"source_line": 154,
+						"source_line": 166,
 						"type_signature": "(raw_config: RawGroConfig): Promise<GroConfig>",
 						"return_type": "Promise<GroConfig>",
 						"parameters": [
@@ -2806,7 +2818,7 @@
 					{
 						"name": "GroConfigModule",
 						"kind": "type",
-						"source_line": 201,
+						"source_line": 215,
 						"type_signature": "GroConfigModule",
 						"properties": [
 							{
@@ -2820,7 +2832,7 @@
 					{
 						"name": "load_gro_config",
 						"kind": "function",
-						"source_line": 205,
+						"source_line": 219,
 						"type_signature": "(dir?: string): Promise<GroConfig>",
 						"return_type": "Promise<GroConfig>",
 						"parameters": [
@@ -2834,7 +2846,7 @@
 					{
 						"name": "validate_gro_config_module",
 						"kind": "function",
-						"source_line": 228,
+						"source_line": 242,
 						"type_signature": "(config_module: any, config_path: string): asserts config_module is GroConfigModule",
 						"return_type": "void",
 						"parameters": [
