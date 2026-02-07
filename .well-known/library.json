@@ -11,7 +11,7 @@
 	"published": true,
 	"package_json": {
 		"name": "@ryanatkn/gro",
-		"version": "0.190.1",
+		"version": "0.191.0",
 		"description": "task runner and toolkit extending SvelteKit",
 		"motto": "generate, run, optimize",
 		"glyph": "🌰",
@@ -70,7 +70,7 @@
 			"zod": "^4.1.13"
 		},
 		"peerDependencies": {
-			"@fuzdev/fuz_util": ">=0.48.3",
+			"@fuzdev/fuz_util": ">=0.49.2",
 			"@sveltejs/kit": "^2",
 			"esbuild": "^0.27.0",
 			"svelte": "^5",
@@ -94,7 +94,7 @@
 			"@fuzdev/fuz_code": "^0.41.0",
 			"@fuzdev/fuz_css": "^0.47.0",
 			"@fuzdev/fuz_ui": "^0.181.1",
-			"@fuzdev/fuz_util": "^0.48.3",
+			"@fuzdev/fuz_util": "^0.49.2",
 			"@ryanatkn/eslint-config": "^0.9.0",
 			"@sveltejs/adapter-static": "^3.0.10",
 			"@sveltejs/kit": "^2.50.1",
@@ -155,7 +155,7 @@
 	},
 	"source_json": {
 		"name": "@ryanatkn/gro",
-		"version": "0.190.1",
+		"version": "0.191.0",
 		"modules": [
 			{
 				"path": "args.ts",
@@ -5132,7 +5132,7 @@
 						"kind": "function",
 						"source_line": 17,
 						"type_signature": "(package_json: { [x: string]: unknown; name: string; version: string; private?: boolean | undefined; description?: string | undefined; motto?: string | undefined; glyph?: string | undefined; logo?: string | undefined; ... 23 more ...; exports?: string | ... 2 more ... | undefined; }, lib_path?: string | undefined, log?: Logger | undefined): Promise<...>",
-						"return_type": "Promise<{ [x: string]: unknown; name: string; version: string; modules?: { [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"type\" | \"constructor\" | \"json\" | \"variable\" | \"class\" | \"component\" | \"css\"; ... 19 more ...; alias_of?: { ...; } | undefined; }[] | ...",
+						"return_type": "Promise<{ [x: string]: unknown; name: string; version: string; modules?: { [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"type\" | \"json\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; ... 19 more ...; alias_of?: { ...; } | undefined; }[] | ...",
 						"parameters": [
 							{
 								"name": "package_json",
@@ -5155,7 +5155,7 @@
 						"kind": "function",
 						"source_line": 28,
 						"type_signature": "(exports: string | Record<string, unknown> | null | undefined, lib_path?: string, log?: Logger | undefined): Promise<{ [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; ... 21 more ...; alias_of?: { ...; } | undefined; }[] | undefined; module_comment?: string | undefined; dependencies?: string[] | undefined; dependents?: string[] | undefined; star_exports?: string[] | undefined; }[] | undefined>",
-						"return_type": "Promise<{ [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"type\" | \"constructor\" | \"json\" | \"variable\" | \"class\" | \"component\" | \"css\"; doc_comment?: string | undefined; ... 18 more ...; alias_of?: { ...; } | undefined; }[] | undefined; module_comment?: str...",
+						"return_type": "Promise<{ [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"type\" | \"json\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; doc_comment?: string | undefined; ... 18 more ...; alias_of?: { ...; } | undefined; }[] | undefined; module_comment?: str...",
 						"parameters": [
 							{
 								"name": "exports",
