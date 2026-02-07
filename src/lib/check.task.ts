@@ -1,3 +1,4 @@
+import {readdir} from 'node:fs/promises';
 import {z} from 'zod';
 import {spawn} from '@fuzdev/fuz_util/process.js';
 import {styleText as st} from 'node:util';
@@ -102,6 +103,17 @@ export const task: Task<Args> = {
 		if (build) {
 			// Skip sync/gen/install since check handles those separately
 			await invoke_task('build', {sync: false, gen: false, install: false, force_build});
+		}
+
+		// Disallow TODO*.md files in the project root on CI.
+		if (process.env.CI === 'true') {
+			const root_files = await readdir('.');
+			const todo_files = root_files.filter((f) => f.startsWith('TODO') && f.endsWith('.md'));
+			if (todo_files.length > 0) {
+				throw new TaskError(
+					'Found disallowed TODO*.md files in project root: ' + todo_files.join(', '),
+				);
+			}
 		}
 
 		if (workspace) {
