@@ -1,5 +1,15 @@
 # @ryanatkn/gro
 
+## 0.191.0
+
+### Minor Changes
+
+- upgrade fuz_util ([1c43e8e](https://github.com/ryanatkn/gro/commit/1c43e8e))
+
+### Patch Changes
+
+- error in CI for TODO markdown files ([0a5bc50](https://github.com/ryanatkn/gro/commit/0a5bc50))
+
 ## 0.190.1
 
 ### Patch Changes
