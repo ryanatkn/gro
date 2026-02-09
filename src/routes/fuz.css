@@ -1238,6 +1238,9 @@ a.chip {
 .mt_0 {
 	margin-top: 0;
 }
+.mt_lg {
+	margin-top: var(--space_lg);
+}
 .mt_xl3 {
 	margin-top: var(--space_xl3);
 }
@@ -1309,12 +1312,6 @@ a.chip {
 }
 .top\:0 {
 	top: 0;
-}
-.white-space\:pre {
-	white-space: pre;
-}
-.white-space\:pre-wrap {
-	white-space: pre-wrap;
 }
 .width\:100\% {
 	width: 100%;
