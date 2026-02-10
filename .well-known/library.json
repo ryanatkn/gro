@@ -11,7 +11,7 @@
 	"published": true,
 	"package_json": {
 		"name": "@fuzdev/gro",
-		"version": "0.192.0",
+		"version": "0.192.1",
 		"description": "task runner and toolkit extending SvelteKit",
 		"motto": "generate, run, optimize",
 		"glyph": "🌰",
@@ -160,7 +160,7 @@
 	},
 	"source_json": {
 		"name": "@fuzdev/gro",
-		"version": "0.192.0",
+		"version": "0.192.1",
 		"modules": [
 			{
 				"path": "args.ts",
@@ -479,7 +479,7 @@
 						"name": "GIT_SHORT_HASH_LENGTH",
 						"kind": "variable",
 						"doc_comment": "Length of git commit hash when displayed in logs (standard git convention).",
-						"source_line": 40,
+						"source_line": 44,
 						"type_signature": "7"
 					}
 				],
