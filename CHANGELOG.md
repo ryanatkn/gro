@@ -1,5 +1,15 @@
 # @fuzdev/gro
 
+## 0.192.0
+
+### Minor Changes
+
+- transfer to @fuzdev/gro from @ryanatkn/gro ([#595](https://github.com/fuzdev/gro/pull/595))
+
+### Patch Changes
+
+- upgrade zod ([256ee15](https://github.com/fuzdev/gro/commit/256ee15))
+
 ## 0.191.0
 
 ### Minor Changes
