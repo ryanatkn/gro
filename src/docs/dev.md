@@ -34,7 +34,7 @@ See [plugin.md](plugin.md) to learn more.
       handling a module import waterfall, locally, and http2 didn't help)
 
 <p align="center">
-  <a href="https://github.com/ryanatkn/gro">
+  <a href="https://github.com/fuzdev/gro">
     <img src="static/logo.svg" alt="a pixelated green oak acorn with a glint of sun" width="192" height="192">
   </a>
 </p>

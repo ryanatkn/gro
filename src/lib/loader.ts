@@ -26,7 +26,7 @@ import {map_sveltekit_aliases} from './sveltekit_helpers.ts';
 Usage via `$lib/register.ts`:
 
 ```bash
-node --import @ryanatkn/gro/register.js foo.ts
+node --import @fuzdev/gro/register.js foo.ts
 ```
 
 Usage via `$lib/run.task.ts`:
@@ -38,7 +38,7 @@ gro run foo.ts
 Direct usage without register (see also `$lib/gro.ts`):
 
 ```bash
-node --import 'data:text/javascript,import {register} from "node:module"; import {pathToFileURL} from "node:url"; register("@ryanatkn/gro/loader.js", pathToFileURL("./"));' --experimental-import-meta-resolve --experimental-strip-types' foo.ts
+node --import 'data:text/javascript,import {register} from "node:module"; import {pathToFileURL} from "node:url"; register("@fuzdev/gro/loader.js", pathToFileURL("./"));' --experimental-import-meta-resolve --experimental-strip-types' foo.ts
 ```
 
 TODO how to improve that gnarly import line? was originally designed for the now-deprecated `--loader`

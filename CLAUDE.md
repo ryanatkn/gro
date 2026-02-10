@@ -3,7 +3,7 @@
 > Task runner and toolkit extending SvelteKit - conventions over configuration,
 > filesystem as API
 
-Gro (`@ryanatkn/gro`) is a dev tool for building TypeScript projects with
+Gro (`@fuzdev/gro`) is a dev tool for building TypeScript projects with
 SvelteKit, providing: convention-based task runner, Node loader for
 TypeScript/Svelte/SvelteKit modules, code generation system, plugin
 architecture, and integrations with Vite, esbuild, Vitest, Prettier, ESLint, and
@@ -74,31 +74,31 @@ Task context:
 
 ```typescript
 interface TaskContext<TArgs = object> {
-  args: TArgs;
-  config: GroConfig;
-  svelte_config: ParsedSvelteConfig;
-  log: Logger;
-  timings: Timings;
-  invoke_task: InvokeTask;
+	args: TArgs;
+	config: GroConfig;
+	svelte_config: ParsedSvelteConfig;
+	log: Logger;
+	timings: Timings;
+	invoke_task: InvokeTask;
 }
 ```
 
 Example task:
 
 ```typescript
-import type { Task } from "@ryanatkn/gro";
-import { z } from "zod";
+import type {Task} from '@fuzdev/gro';
+import {z} from 'zod';
 
 export const Args = z.strictObject({
-  name: z.string().default("world"),
+	name: z.string().default('world'),
 });
 
 export const task: Task<typeof Args> = {
-  summary: "greets someone",
-  Args,
-  run: async ({ args, log }) => {
-    log.info(`Hello, ${args.name}!`);
-  },
+	summary: 'greets someone',
+	Args,
+	run: async ({args, log}) => {
+		log.info(`Hello, ${args.name}!`);
+	},
 };
 ```
 
@@ -108,11 +108,11 @@ Overriding builtin tasks:
 
 ```typescript
 export const task: Task = {
-  run: async ({ invoke_task, args }) => {
-    await setupCustomEnvironment();
-    await invoke_task("gro/test", args); // call builtin
-    await teardownCustomEnvironment();
-  },
+	run: async ({invoke_task, args}) => {
+		await setupCustomEnvironment();
+		await invoke_task('gro/test', args); // call builtin
+		await teardownCustomEnvironment();
+	},
 };
 ```
 
@@ -122,7 +122,7 @@ export const task: Task = {
 
 Custom Node module loader enabling direct execution of TypeScript and Svelte
 files without compilation step. Registered via `gro run foo.ts` or
-`node --import @ryanatkn/gro/register.js foo.ts`.
+`node --import @fuzdev/gro/register.js foo.ts`.
 
 Capabilities:
 
@@ -187,41 +187,41 @@ Gen context:
 
 ```typescript
 interface GenContext {
-  config: GroConfig;
-  svelte_config: ParsedSvelteConfig;
-  filer: Filer;
-  log: Logger;
-  timings: Timings;
-  invoke_task: InvokeTask;
-  origin_id: PathId; // Same as import.meta.url in path form
-  origin_path: string; // origin_id relative to root dir
-  changed_file_id: PathId | undefined; // Only during dependency checking
+	config: GroConfig;
+	svelte_config: ParsedSvelteConfig;
+	filer: Filer;
+	log: Logger;
+	timings: Timings;
+	invoke_task: InvokeTask;
+	origin_id: PathId; // Same as import.meta.url in path form
+	origin_path: string; // origin_id relative to root dir
+	changed_file_id: PathId | undefined; // Only during dependency checking
 }
 ```
 
 Example genfile:
 
 ```typescript
-import type { Gen } from "@ryanatkn/gro";
+import type {Gen} from '@fuzdev/gro';
 
 export const gen: Gen = async () => {
-  const routes = await findRoutes();
-  return `export const ROUTES = ${JSON.stringify(routes)};`;
+	const routes = await findRoutes();
+	return `export const ROUTES = ${JSON.stringify(routes)};`;
 };
 
 // Multiple outputs:
 export const gen: Gen = async () => [
-  { content: "export const foo = 1;", filename: "foo.ts" },
-  { content: '{"version": 1}', filename: "data.json" },
+	{content: 'export const foo = 1;', filename: 'foo.ts'},
+	{content: '{"version": 1}', filename: 'data.json'},
 ];
 
 // With dependencies:
 export const gen: GenConfig = {
-  generate: () => "generated content",
-  dependencies: {
-    patterns: [/\.json$/],
-    files: ["package.json"],
-  },
+	generate: () => 'generated content',
+	dependencies: {
+		patterns: [/\.json$/],
+		files: ['package.json'],
+	},
 };
 ```
 
@@ -251,15 +251,15 @@ Plugin interface:
 
 ```typescript
 interface Plugin<TPluginContext extends PluginContext = PluginContext> {
-  name: string;
-  setup?: (ctx: TPluginContext) => void | Promise<void>;
-  adapt?: (ctx: TPluginContext) => void | Promise<void>;
-  teardown?: (ctx: TPluginContext) => void | Promise<void>;
+	name: string;
+	setup?: (ctx: TPluginContext) => void | Promise<void>;
+	adapt?: (ctx: TPluginContext) => void | Promise<void>;
+	teardown?: (ctx: TPluginContext) => void | Promise<void>;
 }
 
 interface PluginContext<TArgs = object> extends TaskContext<TArgs> {
-  dev: boolean;
-  watch: boolean;
+	dev: boolean;
+	watch: boolean;
 }
 ```
 
@@ -292,12 +292,12 @@ Config interface:
 
 ```typescript
 interface GroConfig {
-  plugins: PluginsCreateConfig; // Function returning array of plugins
-  map_package_json: MapPackageJson | null; // Hook for package.json automations
-  task_root_dirs: Array<PathId>; // Where to search for tasks
-  search_filters: Array<PathFilter>; // Exclude patterns for discovery
-  js_cli: string; // Node-compatible CLI (default: 'node')
-  pm_cli: string; // npm-compatible CLI (default: 'npm')
+	plugins: PluginsCreateConfig; // Function returning array of plugins
+	map_package_json: MapPackageJson | null; // Hook for package.json automations
+	task_root_dirs: Array<PathId>; // Where to search for tasks
+	search_filters: Array<PathFilter>; // Exclude patterns for discovery
+	js_cli: string; // Node-compatible CLI (default: 'node')
+	pm_cli: string; // npm-compatible CLI (default: 'npm')
 }
 ```
 
@@ -309,23 +309,23 @@ to opt out.
 Example config:
 
 ```typescript
-import type { CreateGroConfig } from "@ryanatkn/gro";
+import type {CreateGroConfig} from '@fuzdev/gro';
 
 const config: CreateGroConfig = async (base_config) => {
-  // Extend default plugins
-  const base_plugins = base_config.plugins;
-  base_config.plugins = async (ctx) => {
-    const plugins = await base_plugins(ctx);
-    return [...plugins, myCustomPlugin()];
-  };
+	// Extend default plugins
+	const base_plugins = base_config.plugins;
+	base_config.plugins = async (ctx) => {
+		const plugins = await base_plugins(ctx);
+		return [...plugins, myCustomPlugin()];
+	};
 
-  // Customize package.json automation
-  base_config.map_package_json = (pkg) => {
-    pkg.exports = { ".": "./dist/index.js" };
-    return pkg;
-  };
+	// Customize package.json automation
+	base_config.map_package_json = (pkg) => {
+		pkg.exports = {'.': './dist/index.js'};
+		return pkg;
+	};
 
-  return base_config;
+	return base_config;
 };
 
 export default config;

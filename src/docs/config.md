@@ -25,7 +25,7 @@ A simple config that does nothing:
 
 ```ts
 // gro.config.ts
-import type {CreateGroConfig} from '@ryanatkn/gro';
+import type {CreateGroConfig} from '@fuzdev/gro';
 
 const config: CreateGroConfig = async (cfg) => {
 	// mutate `cfg` or return a new object
@@ -66,8 +66,8 @@ export interface RawGroConfig {
 To define a user config that overrides the default plugins:
 
 ```ts
-import type {CreateGroConfig} from '@ryanatkn/gro';
-import {gro_plugin_sveltekit_app} from '@ryanatkn/gro/gro_plugin_sveltekit_app.js';
+import type {CreateGroConfig} from '@fuzdev/gro';
+import {gro_plugin_sveltekit_app} from '@fuzdev/gro/gro_plugin_sveltekit_app.js';
 
 const config: CreateGroConfig = async (cfg) => {
 	// `cfg`, which has type `GroConfig` and is equal to `create_empty_gro_config()`,
@@ -83,7 +83,7 @@ const config: CreateGroConfig = async (cfg) => {
 	// example extending the default plugins:
 	const get_base_plugins = cfg.plugins;
 	cfg.plugins = async (ctx) => {
-		// replace a base plugin with `import {plugin_replace} from '@ryanatkn/gro';`:
+		// replace a base plugin with `import {plugin_replace} from '@fuzdev/gro';`:
 		const updated_plugins = plugin_replace(
 			await get_base_plugins(ctx),
 			gro_plugin_sveltekit_app(),
@@ -102,7 +102,7 @@ export default config;
 You can also export a config object and use `create_empty_gro_config` to get the defaults:
 
 ```ts
-import {create_empty_gro_config} from '@ryanatkn/gro/gro_config.js';
+import {create_empty_gro_config} from '@fuzdev/gro/gro_config.js';
 
 const config = create_empty_gro_config();
 
@@ -257,7 +257,7 @@ Use `build_cache_config` when your build also depends on:
 
 ```ts
 // gro.config.ts
-import type {GroConfig} from '@ryanatkn/gro';
+import type {GroConfig} from '@fuzdev/gro';
 import {readFileSync} from 'node:fs';
 
 export default {

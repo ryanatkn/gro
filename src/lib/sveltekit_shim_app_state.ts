@@ -24,7 +24,7 @@ export const page: typeof base_page = {
 	route: {id: null},
 	state: {},
 	status: -1,
-	url: new URL('https://github.com/ryanatkn/gro') as any, // TODO maybe use package.json?
+	url: new URL('https://github.com/fuzdev/gro') as any, // TODO maybe use package.json?
 };
 
 export const updated: typeof base_updated = {

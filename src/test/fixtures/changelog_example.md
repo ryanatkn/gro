@@ -1,4 +1,4 @@
-# @ryanatkn/gro
+# @fuzdev/gro
 
 ## 0.6.0
 

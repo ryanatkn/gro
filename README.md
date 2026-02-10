@@ -1,23 +1,23 @@
 # gro <img src="static/logo.svg" alt="a pixelated green oak acorn with a glint of sun" width="32" height="32">
 
-[<img src="static/logo.svg" alt="a pixelated green oak acorn with a glint of sun" align="right" width="192" height="192">](https://gro.ryanatkn.com/)
+[<img src="static/logo.svg" alt="a pixelated green oak acorn with a glint of sun" align="right" width="192" height="192">](https://gro.fuzdev.com/)
 
 > task runner and toolkit extending SvelteKit 🌰 generate, run, optimize
 
-[`npm i -D @ryanatkn/gro`](https://www.npmjs.com/package/@ryanatkn/gro)
+[`npm i -D @fuzdev/gro`](https://www.npmjs.com/package/@fuzdev/gro)
 
 > ⚠️ I still use Gro heavily but I'm transitioning to Rust-based tooling
 > with [Fuz](https://github.com/fuzdev) using [Deno](https://github.com/denoland) as a sidecar.
 > I consider Gro deprecated but there should be a migration path.
 > Please open issues if you need help.
 
-> ⚠️[Windows won't be supported](https://github.com/ryanatkn/gro/issues/319), I chose Bash instead.
+> ⚠️[Windows won't be supported](https://github.com/fuzdev/gro/issues/319), I chose Bash instead.
 
-Docs at [gro.ryanatkn.com/docs](https://gro.ryanatkn.com/docs) and [src/docs](./src/docs).
+Docs at [gro.fuzdev.com/docs](https://gro.fuzdev.com/docs) and [src/docs](./src/docs).
 
 Need help or want to share thoughts? See the
-[issues](https://github.com/ryanatkn/gro/issues) and
-[discussions](https://github.com/ryanatkn/gro/discussions).
+[issues](https://github.com/fuzdev/gro/issues) and
+[discussions](https://github.com/fuzdev/gro/discussions).
 
 ## about
 
@@ -54,12 +54,12 @@ It includes:
       so you can use SvelteKit patterns everywhere
       (these are best-effort shims, not perfect)
     - supports running TypeScript files directly without a task via `gro run a.ts`
-      or `node --import @ryanatkn/gro/register.js a.ts`
+      or `node --import @fuzdev/gro/register.js a.ts`
   - [configurable plugins](/src/docs/plugin.md) to support SvelteKit,
     [auto-restarting Node servers](/src/lib/gro_plugin_server.ts),
     and other external build processes
     - see the [Gro config docs](/src/docs/config.md) and
-      [the default config](https://github.com/ryanatkn/gro/blob/main/src/lib/gro.config.default.ts)
+      [the default config](https://github.com/fuzdev/gro/blob/main/src/lib/gro.config.default.ts)
     - see [`fuz_template`](https://github.com/fuz-dev/fuz_template)
       for a simple starter project example, and
       [`@feltjs/felt`](https://github.com/feltjs/felt) for a more complex example with custom tasks
@@ -71,7 +71,7 @@ It includes:
 
 ## docs
 
-- early API docs at [/docs/api](https://gro.ryanatkn.com/docs/api)
+- early API docs at [/docs/api](https://gro.fuzdev.com/docs/api)
 - developing web frontends, servers, and libraries
   - [config](/src/docs/config.md)
   - [dev](/src/docs/dev.md)
@@ -89,18 +89,18 @@ It includes:
 
 > depends on node >=20.12
 
-Typical usage installs [@ryanatkn/gro](https://www.npmjs.com/package/@ryanatkn/gro)
+Typical usage installs [@fuzdev/gro](https://www.npmjs.com/package/@fuzdev/gro)
 as a dev dependency:
 
 ```bash
-npm i -D @ryanatkn/gro
-npx @ryanatkn/gro # note the package is namespaced, don't install `gro`
+npm i -D @fuzdev/gro
+npx @fuzdev/gro # note the package is namespaced, don't install `gro`
 ```
 
 It's handy to install globally too:
 
 ```bash
-npm i -g @ryanatkn/gro
+npm i -g @fuzdev/gro
 gro
 ```
 
@@ -159,7 +159,7 @@ with [the `gro run` task](/src/lib/run.task.ts) or [register hook](/src/lib/regi
 
 ```bash
 gro run foo.ts
-node --import @ryanatkn/gro/register.js foo.ts
+node --import @fuzdev/gro/register.js foo.ts
 ```
 
 Or programmatically:
@@ -167,7 +167,7 @@ Or programmatically:
 ```js
 // myfile.js
 import {register} from 'node:module';
-register('@ryanatkn/gro/loader.js', import.meta.url);
+register('@fuzdev/gro/loader.js', import.meta.url);
 await import('./foo.ts');
 ```
 

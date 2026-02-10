@@ -8,11 +8,11 @@ export const SVELTEKIT_SHIM_APP_ENVIRONMENT_MATCHER = /\/util\/sveltekit_shim_ap
  * @see https://kit.svelte.dev/docs/modules
  */
 export const sveltekit_shim_app_specifiers = new Map([
-	['$app/environment', '@ryanatkn/gro/sveltekit_shim_app_environment.js'],
-	['$app/forms', '@ryanatkn/gro/sveltekit_shim_app_forms.js'],
-	['$app/navigation', '@ryanatkn/gro/sveltekit_shim_app_navigation.js'],
-	['$app/paths', '@ryanatkn/gro/sveltekit_shim_app_paths.js'],
-	['$app/state', '@ryanatkn/gro/sveltekit_shim_app_state.js'],
+	['$app/environment', '@fuzdev/gro/sveltekit_shim_app_environment.js'],
+	['$app/forms', '@fuzdev/gro/sveltekit_shim_app_forms.js'],
+	['$app/navigation', '@fuzdev/gro/sveltekit_shim_app_navigation.js'],
+	['$app/paths', '@fuzdev/gro/sveltekit_shim_app_paths.js'],
+	['$app/state', '@fuzdev/gro/sveltekit_shim_app_state.js'],
 ]);
 
 export const render_sveltekit_shim_app_paths = (

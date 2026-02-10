@@ -1,16 +1,16 @@
 {
-	"name": "@ryanatkn/gro",
+	"name": "@fuzdev/gro",
 	"repo_name": "gro",
-	"repo_url": "https://github.com/ryanatkn/gro",
+	"repo_url": "https://github.com/fuzdev/gro",
 	"owner_name": "ryanatkn",
-	"homepage_url": "https://gro.ryanatkn.com/",
-	"logo_url": "https://gro.ryanatkn.com/logo.svg",
+	"homepage_url": "https://gro.fuzdev.com/",
+	"logo_url": "https://gro.fuzdev.com/logo.svg",
 	"logo_alt": "a pixelated green oak acorn with a glint of sun",
-	"npm_url": "https://www.npmjs.com/package/@ryanatkn/gro",
-	"changelog_url": "https://github.com/ryanatkn/gro/blob/main/CHANGELOG.md",
+	"npm_url": "https://www.npmjs.com/package/@fuzdev/gro",
+	"changelog_url": "https://github.com/fuzdev/gro/blob/main/CHANGELOG.md",
 	"published": true,
 	"package_json": {
-		"name": "@ryanatkn/gro",
+		"name": "@fuzdev/gro",
 		"version": "0.191.0",
 		"description": "task runner and toolkit extending SvelteKit",
 		"motto": "generate, run, optimize",
@@ -18,7 +18,7 @@
 		"logo": "logo.svg",
 		"logo_alt": "a pixelated green oak acorn with a glint of sun",
 		"license": "MIT",
-		"homepage": "https://gro.ryanatkn.com/",
+		"homepage": "https://gro.fuzdev.com/",
 		"author": {
 			"name": "Ryan Atkinson",
 			"email": "mail@ryanatkn.com",
@@ -26,9 +26,9 @@
 		},
 		"repository": {
 			"type": "git",
-			"url": "git+https://github.com/ryanatkn/gro.git"
+			"url": "git+https://github.com/fuzdev/gro.git"
 		},
-		"bugs": "https://github.com/ryanatkn/gro/issues",
+		"bugs": "https://github.com/fuzdev/gro/issues",
 		"funding": "https://www.ryanatkn.com/funding",
 		"scripts": {
 			"bootstrap": "rm -rf .gro dist && svelte-kit sync && svelte-package && chmod +x ./dist/gro.js && npm link -f",
@@ -150,7 +150,7 @@
 		}
 	},
 	"source_json": {
-		"name": "@ryanatkn/gro",
+		"name": "@fuzdev/gro",
 		"version": "0.191.0",
 		"modules": [
 			{
@@ -2663,7 +2663,7 @@
 						"name": "GroConfig",
 						"kind": "type",
 						"doc_comment": "The config that users can extend via `gro.config.ts`.\nThis is exposed to users in places like tasks and genfiles.",
-						"see_also": ["https://github.com/ryanatkn/gro/blob/main/src/docs/config.md"],
+						"see_also": ["https://github.com/fuzdev/gro/blob/main/src/docs/config.md"],
 						"source_line": 36,
 						"type_signature": "GroConfig",
 						"extends": ["RawGroConfig"],
@@ -2729,7 +2729,7 @@
 						"name": "RawGroConfig",
 						"kind": "type",
 						"doc_comment": "The relaxed variant of `GroConfig` that users can provide via `gro.config.ts`.\nSuperset of `GroConfig`.",
-						"see_also": ["https://github.com/ryanatkn/gro/blob/main/src/docs/config.md"],
+						"see_also": ["https://github.com/fuzdev/gro/blob/main/src/docs/config.md"],
 						"source_line": 86,
 						"type_signature": "RawGroConfig",
 						"properties": [

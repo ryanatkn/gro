@@ -13,7 +13,7 @@
 	<div class="box width_atmost_md">
 		<section class="box">
 			<h1>gro</h1>
-			<a class="panel p_md box mb_xl3" title="source repo" href="https://github.com/ryanatkn/gro">
+			<a class="panel p_md box mb_xl3" title="source repo" href="https://github.com/fuzdev/gro">
 				<Svg data={logo_gro} size="var(--icon_size_lg)" />
 			</a>
 		</section>

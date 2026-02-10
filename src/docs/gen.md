@@ -1,7 +1,7 @@
 # gen
 
 > automated codegen by convention for
-> [Gro](https://github.com/ryanatkn/gro)
+> [Gro](https://github.com/fuzdev/gro)
 
 ## motivation
 
@@ -83,7 +83,7 @@ gro gen --check # exits with error code 1 if anything is new or different; no-op
 Given `src/script.gen.ts`:
 
 ```ts
-import type {Gen} from '@ryanatkn/gro';
+import type {Gen} from '@fuzdev/gro';
 
 export const gen: Gen = () => {
 	const message = 'generated';
@@ -102,7 +102,7 @@ console.log('generated a string');
 Gen files export either a function or object with a `generate` function:
 
 ```ts
-import type {Gen} from '@ryanatkn/gro';
+import type {Gen} from '@fuzdev/gro';
 
 export const gen: Gen = (ctx) => {
 	return 'generated content';
@@ -151,7 +151,7 @@ the default output file name is stripped of its trailing `.ts`.
 Given `src/markup.gen.html.ts`:
 
 ```ts
-import type {Gen} from '@ryanatkn/gro';
+import type {Gen} from '@fuzdev/gro';
 
 export const gen: Gen = () => {
 	const body = 'hi';
@@ -184,7 +184,7 @@ The `gen` function can return an object with custom configuration.
 Given `src/somewhere/originalName.gen.ts`:
 
 ```ts
-import type {Gen} from '@ryanatkn/gro';
+import type {Gen} from '@fuzdev/gro';
 
 export const gen: Gen = () => {
 	const message = 'output path can be relative and name can be anything';
@@ -209,7 +209,7 @@ The `gen` function can also return an array of files.
 Given `src/thing.gen.ts`:
 
 ```ts
-import type {Gen} from '@ryanatkn/gro';
+import type {Gen} from '@fuzdev/gro';
 
 export const gen: Gen = () => {
 	const fieldValue = 1;
@@ -262,7 +262,7 @@ By default, they regenerate only when their imported dependencies or the file it
 The `dependencies` option provides fine-grained control:
 
 ```ts
-import type {GenConfig} from '@ryanatkn/gro';
+import type {GenConfig} from '@fuzdev/gro';
 
 export const gen: GenConfig = {
 	generate: () => 'returns generated contents',
@@ -302,7 +302,7 @@ gro gen --check # exits with error code 1 if anything is new or different; no-op
 or in code:
 
 ```ts
-import type {Task} from '@ryanatkn/gro';
+import type {Task} from '@fuzdev/gro';
 
 export const task: Task = {
 	run: async ({args, invoke_task}) => {
