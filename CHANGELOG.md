@@ -1,5 +1,11 @@
 # @fuzdev/gro
 
+## 0.192.1
+
+### Patch Changes
+
+- add `allow_dirty` prop to build task ([6d402df](https://github.com/fuzdev/gro/commit/6d402df))
+
 ## 0.192.0
 
 ### Minor Changes
