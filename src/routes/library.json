@@ -465,7 +465,7 @@
 						"name": "GIT_SHORT_HASH_LENGTH",
 						"kind": "variable",
 						"doc_comment": "Length of git commit hash when displayed in logs (standard git convention).",
-						"source_line": 40,
+						"source_line": 44,
 						"type_signature": "7"
 					}
 				],

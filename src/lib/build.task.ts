@@ -31,6 +31,10 @@ export const Args = z.strictObject({
 		.boolean()
 		.meta({description: 'force a fresh build, ignoring the cache'})
 		.default(false),
+	allow_dirty: z
+		.boolean()
+		.meta({description: 'skip the post-build dirty workspace check'})
+		.default(false),
 });
 export type Args = z.infer<typeof Args>;
 
@@ -52,7 +56,7 @@ export const task: Task<Args> = {
 	Args,
 	run: async (ctx): Promise<void> => {
 		const {args, invoke_task, log, config} = ctx;
-		const {sync, gen, install, force_build} = args;
+		const {sync, gen, install, force_build, allow_dirty} = args;
 
 		if (sync || install) {
 			if (!sync) log.warn('sync is false but install is true, so ignoring the sync option');
@@ -113,17 +117,19 @@ export const task: Task<Args> = {
 		await plugins.teardown();
 
 		// Verify workspace didn't become dirty during build
-		const final_workspace_status = await git_check_clean_workspace();
-		if (final_workspace_status !== workspace_status) {
-			// Workspace state changed during build - this indicates a problem
-			throw new TaskError(
-				'Build process modified tracked files or created untracked files.\n\n' +
-					'Git status after build:\n' +
-					final_workspace_status +
-					'\n\n' +
-					'Builds should only write to output directories (build/, dist/, etc.).\n' +
-					'This usually indicates a plugin or build step is incorrectly modifying source files.',
-			);
+		if (!allow_dirty) {
+			const final_workspace_status = await git_check_clean_workspace();
+			if (final_workspace_status !== workspace_status) {
+				// Workspace state changed during build - this indicates a problem
+				throw new TaskError(
+					'Build process modified tracked files or created untracked files.\n\n' +
+						'Git status after build:\n' +
+						final_workspace_status +
+						'\n\n' +
+						'Builds should only write to output directories (build/, dist/, etc.).\n' +
+						'This usually indicates a plugin or build step is incorrectly modifying source files.',
+				);
+			}
 		}
 
 		// Save build cache metadata after successful build (only if workspace is clean)
