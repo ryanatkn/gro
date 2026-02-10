@@ -24,7 +24,7 @@ const changelog_cache_fixture: FetchValueCache = new Map(
 test('update_changelog', async () => {
 	const original = await readFile(fixture_path, 'utf8');
 	const result = await update_changelog(
-		'ryanatkn',
+		'fuzdev',
 		'gro',
 		fixture_path,
 		token,
