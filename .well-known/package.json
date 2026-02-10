@@ -1,13 +1,13 @@
 {
-	"name": "@ryanatkn/gro",
-	"version": "0.191.0",
+	"name": "@fuzdev/gro",
+	"version": "0.192.0",
 	"description": "task runner and toolkit extending SvelteKit",
 	"motto": "generate, run, optimize",
 	"glyph": "🌰",
 	"logo": "logo.svg",
 	"logo_alt": "a pixelated green oak acorn with a glint of sun",
 	"license": "MIT",
-	"homepage": "https://gro.ryanatkn.com/",
+	"homepage": "https://gro.fuzdev.com/",
 	"author": {
 		"name": "Ryan Atkinson",
 		"email": "mail@ryanatkn.com",
@@ -15,9 +15,9 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/ryanatkn/gro.git"
+		"url": "git+https://github.com/fuzdev/gro.git"
 	},
-	"bugs": "https://github.com/ryanatkn/gro/issues",
+	"bugs": "https://github.com/fuzdev/gro/issues",
 	"funding": "https://www.ryanatkn.com/funding",
 	"scripts": {
 		"bootstrap": "rm -rf .gro dist && svelte-kit sync && svelte-package && chmod +x ./dist/gro.js && npm link -f",
