@@ -31,11 +31,11 @@ export const EMPTY_BUILD_CACHE_CONFIG_HASH =
 /**
  * The config that users can extend via `gro.config.ts`.
  * This is exposed to users in places like tasks and genfiles.
- * @see https://github.com/ryanatkn/gro/blob/main/src/docs/config.md
+ * @see https://github.com/fuzdev/gro/blob/main/src/docs/config.md
  */
 export interface GroConfig extends RawGroConfig {
 	/**
-	 * @see https://github.com/ryanatkn/gro/blob/main/src/docs/plugin.md
+	 * @see https://github.com/fuzdev/gro/blob/main/src/docs/plugin.md
 	 */
 	plugins: PluginsCreateConfig;
 	/**
@@ -81,7 +81,7 @@ export interface GroConfig extends RawGroConfig {
 /**
  * The relaxed variant of `GroConfig` that users can provide via `gro.config.ts`.
  * Superset of `GroConfig`.
- * @see https://github.com/ryanatkn/gro/blob/main/src/docs/config.md
+ * @see https://github.com/fuzdev/gro/blob/main/src/docs/config.md
  */
 export interface RawGroConfig {
 	plugins?: PluginsCreateConfig;

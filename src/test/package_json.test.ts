@@ -94,7 +94,7 @@ test('package_json_to_exports', () => {
 
 test('package_json_parse_repo_url', async () => {
 	const parsed = package_json_parse_repo_url(await package_json_load());
-	expect(parsed?.owner).toBe('ryanatkn');
+	expect(parsed?.owner).toBe('fuzdev');
 	expect(parsed?.repo).toBe('gro');
 });
 

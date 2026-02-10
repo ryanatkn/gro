@@ -1,7 +1,7 @@
 # task
 
 > task runner for
-> [Gro](https://github.com/ryanatkn/gro)
+> [Gro](https://github.com/fuzdev/gro)
 
 ## contents
 
@@ -29,7 +29,7 @@ and defers composition to the user in regular TypeScript modules.
   in its configurable directory, so creating a new task
   is as simple as [creating a new file](#define-a-task), no config needed
   (defaults to `src/lib`, see the config option [`task_root_dirs`](./config.md#task_root_dirs))
-- to view [the available tasks](https://github.com/ryanatkn/gro/blob/main/src/docs/tasks.md)
+- to view [the available tasks](https://github.com/fuzdev/gro/blob/main/src/docs/tasks.md)
   run `gro` with no arguments
 - task definitions are just objects with an async `run` function and some optional properties,
   so composing tasks is explicit in your code, just like any other module
@@ -100,7 +100,7 @@ $ NO_COLOR=1 gro
 
 ```ts
 // src/lib/some/file.task.ts
-import type {Task} from '@ryanatkn/gro';
+import type {Task} from '@fuzdev/gro';
 
 export const task: Task = {
 	run: async ({log, args}) => {
@@ -123,7 +123,7 @@ Minimum with [`Args`](#task-args):
 
 ```ts
 // src/lib/some/withargs.task.ts
-import type {Task} from '@ryanatkn/gro';
+import type {Task} from '@fuzdev/gro';
 import {z} from 'zod';
 
 export const Args = z.strictObject({
@@ -142,7 +142,7 @@ export const task: Task = {
 ### type `Task`
 
 ```ts
-import type {Task} from '@ryanatkn/gro';
+import type {Task} from '@fuzdev/gro';
 
 export interface Task<
 	TArgs = Args, // same as `z.infer<typeof Args>`
@@ -158,7 +158,7 @@ export interface Task<
 ### type `TaskContext`
 
 ```ts
-import type {TaskContext} from '@ryanatkn/gro';
+import type {TaskContext} from '@fuzdev/gro';
 
 export interface TaskContext<TArgs = object> {
 	args: TArgs;
@@ -193,7 +193,7 @@ gro some/file
 
 ```ts
 // src/lib/some/file.task.ts
-import type {Task} from '@ryanatkn/gro';
+import type {Task} from '@fuzdev/gro';
 
 export const task: Task = {
 	run: async ({args, invoke_task}) => {
@@ -228,13 +228,13 @@ $ gro test
 
 ```ts
 // src/lib/test.task.ts
-import type {Task} from '@ryanatkn/gro';
+import type {Task} from '@fuzdev/gro';
 
 export const task: Task = {
 	run: async ({args, invoke_task}) => {
 		await doSomethingFirst();
 		// As discussed in the `invoke_task` section above,
-		// it's possible to `import {task as groBuiltinTestTask} from '@ryanatkn/gro/test.task.js'`
+		// it's possible to `import {task as groBuiltinTestTask} from '@fuzdev/gro/test.task.js'`
 		// and then call `groBuiltinTestTask.run` directly,
 		// but that loses some important benefits.
 		// Still, the task is available to import if you want it for any reason!
@@ -262,7 +262,7 @@ Using zod has some benefits:
 
 ```ts
 // src/lib/dosomething.task.ts
-import type {Task} from '@ryanatkn/gro';
+import type {Task} from '@fuzdev/gro';
 import type {z} from 'zod';
 
 export const Args = z.strictObject({
@@ -325,7 +325,7 @@ To suppress logging the stack trace for an error,
 throw a `TaskError`.
 
 ```ts
-import {Task, TaskError} from '@ryanatkn/gro';
+import {Task, TaskError} from '@fuzdev/gro';
 
 export const task: Task = {
 	run: async () => {

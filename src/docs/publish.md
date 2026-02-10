@@ -6,12 +6,12 @@ Here's how to publish a new version of a repo with Gro, including for Gro itself
 
 Gro uses SvelteKit's [`@sveltejs/package`](https://kit.svelte.dev/docs/packaging)
 with the task `gro publish` to publish packages to npm.
-Gro's default config enables [`@ryanatkn/gro/gro_plugin_sveltekit_library.js`](../lib/gro_plugin_sveltekit_library.ts)
+Gro's default config enables [`@fuzdev/gro/gro_plugin_sveltekit_library.js`](../lib/gro_plugin_sveltekit_library.ts)
 if it detects `@sveltejs/package` installed as a dependency in the package.json.
 
 ```bash
 # enable `gro publish` to publish to npm:
-npm i -D @sveltejs/package # enables `@ryanatkn/gro/gro_plugin_sveltekit_library.js`
+npm i -D @sveltejs/package # enables `@fuzdev/gro/gro_plugin_sveltekit_library.js`
 gro sync # updates package.json "exports"
 git commit -am "..."
 # `gro publish` calls `svelte-package`
@@ -30,7 +30,7 @@ npm login # and follow the instructions
 
 ## using changesets
 
-The [`gro publish` task](https://github.com/ryanatkn/gro/blob/main/src/lib/publish.task.ts)
+The [`gro publish` task](https://github.com/fuzdev/gro/blob/main/src/lib/publish.task.ts)
 integrates with [Changesets](https://github.com/changesets/changesets)
 to publish packages to [npm](https://npmjs.com/). Internally the task calls both
 [`changeset version`](https://github.com/changesets/changesets/blob/main/packages/README.md#version)

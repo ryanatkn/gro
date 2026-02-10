@@ -20,7 +20,7 @@
 </script>
 
 <svelte:head>
-	<title>@ryanatkn/gro</title>
+	<title>@fuzdev/gro</title>
 </svelte:head>
 
 <Themed>

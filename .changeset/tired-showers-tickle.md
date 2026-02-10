@@ -1,5 +1,5 @@
 ---
-'@ryanatkn/gro': patch
+'@fuzdev/gro': patch
 ---
 
 upgrade zod
