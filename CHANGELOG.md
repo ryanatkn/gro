@@ -365,7 +365,7 @@
 
 - extract `pkg.ts` to Fuz ([#550](https://github.com/fuzdev/gro/pull/550))
 - upgrade zod@4 ([#550](https://github.com/fuzdev/gro/pull/550))
-- remove `DeclarationKind`, use instead `import type {SrcModuleDeclarationKind} from '@ryanatkn/belt/src_json.js';` ([#550](https://github.com/fuzdev/gro/pull/550))
+- remove `DeclarationKind`, use instead `import type {SrcModuleDeclarationKind} from '@fuzdev/fuz_util/src_json.js';` ([#550](https://github.com/fuzdev/gro/pull/550))
 
 ### Patch Changes
 
@@ -499,7 +499,7 @@
 
 ### Patch Changes
 
-- upgrade @ryanatkn/belt@0.30.2 from 0.30.1 ([bb285d6](https://github.com/fuzdev/gro/commit/bb285d6))
+- upgrade @fuzdev/fuz_util@0.30.2 from 0.30.1 ([bb285d6](https://github.com/fuzdev/gro/commit/bb285d6))
 
 ## 0.150.0
 
@@ -517,7 +517,7 @@
 
 ### Patch Changes
 
-- upgrade @ryanatkn/belt@0.30.1 ([7df1504](https://github.com/fuzdev/gro/commit/7df1504))
+- upgrade @fuzdev/fuz_util@0.30.1 ([7df1504](https://github.com/fuzdev/gro/commit/7df1504))
 
 ## 0.149.0
 
@@ -535,7 +535,7 @@
 
 ### Minor Changes
 
-- upgrade `@ryanatkn/belt@0.29.0` from `0.28.0` ([#522](https://github.com/fuzdev/gro/pull/522))
+- upgrade `@fuzdev/fuz_util@0.29.0` from `0.28.0` ([#522](https://github.com/fuzdev/gro/pull/522))
 
 ## 0.147.1
 
@@ -553,7 +553,7 @@
 
 ### Patch Changes
 
-- upgrade `@ryanatkn/belt@0.26.1` from `0.26.0` and `tslib@2.8.1` from `2.8.0` ([a0764b6](https://github.com/fuzdev/gro/commit/a0764b6))
+- upgrade `@fuzdev/fuz_util@0.26.1` from `0.26.0` and `tslib@2.8.1` from `2.8.0` ([a0764b6](https://github.com/fuzdev/gro/commit/a0764b6))
 
 ## 0.146.1
 
@@ -587,7 +587,7 @@
 
 ### Minor Changes
 
-- upgrade `@ryanatkn/belt0.26.0` from `0.25.3` ([#516](https://github.com/fuzdev/gro/pull/516))
+- upgrade `@fuzdev/fuz_util0.26.0` from `0.25.3` ([#516](https://github.com/fuzdev/gro/pull/516))
 - upgrade `esm-env@1.1.4` from `1.0.0` ([#517](https://github.com/fuzdev/gro/pull/517))
 - change `Options` interface convention to fully qualify the identifer, so `Options` becomes `FilerOptions` etc ([#515](https://github.com/fuzdev/gro/pull/515))
 
@@ -710,7 +710,7 @@
 
 ### Minor Changes
 
-- move `throttle` to `@ryanatkn/belt` and upgrade to `0.25.2` from `0.25.0` ([#505](https://github.com/fuzdev/gro/pull/505))
+- move `throttle` to `@fuzdev/fuz_util` and upgrade to `0.25.2` from `0.25.0` ([#505](https://github.com/fuzdev/gro/pull/505))
 
 ### Patch Changes
 
@@ -801,7 +801,7 @@
 
 ### Patch Changes
 
-- upgrade `@ryanatkn/belt@0.24.12` ([d1ae0e2](https://github.com/fuzdev/gro/commit/d1ae0e2))
+- upgrade `@fuzdev/fuz_util@0.24.12` ([d1ae0e2](https://github.com/fuzdev/gro/commit/d1ae0e2))
 
 ## 0.133.6
 
@@ -897,7 +897,7 @@
 
 - fix check to not sync ([#485](https://github.com/fuzdev/gro/pull/485))
 - add `sync` and `no-sync` args to `gro check` ([#485](https://github.com/fuzdev/gro/pull/485))
-- upgrade `@ryanatkn/belt@0.24.4` from `0.24.2` ([#485](https://github.com/fuzdev/gro/pull/485))
+- upgrade `@fuzdev/fuz_util@0.24.4` from `0.24.2` ([#485](https://github.com/fuzdev/gro/pull/485))
 
 ## 0.129.14
 
@@ -909,7 +909,7 @@
 
 ### Patch Changes
 
-- upgrade `@ryanatkn/belt@0.24.4` ([4d46d33](https://github.com/fuzdev/gro/commit/4d46d33))
+- upgrade `@fuzdev/fuz_util@0.24.4` ([4d46d33](https://github.com/fuzdev/gro/commit/4d46d33))
 
 ## 0.129.12
 
@@ -965,7 +965,7 @@
 ### Patch Changes
 
 - enable tsconfig `declaration` and disable `isolatedModules` because SvelteKit does it ([2a936af](https://github.com/fuzdev/gro/commit/2a936af))
-- upgrade `@ryanatkn/belt@0.24.3` ([0b74b12](https://github.com/fuzdev/gro/commit/0b74b12))
+- upgrade `@fuzdev/fuz_util@0.24.3` ([0b74b12](https://github.com/fuzdev/gro/commit/0b74b12))
 
 ## 0.129.3
 
@@ -984,7 +984,7 @@
 
 ### Patch Changes
 
-- upgrade `@ryanatkn/belt@0.24.2` from `0.24.1` ([a107801](https://github.com/fuzdev/gro/commit/a107801))
+- upgrade `@fuzdev/fuz_util@0.24.2` from `0.24.1` ([a107801](https://github.com/fuzdev/gro/commit/a107801))
 
 ## 0.129.0
 
@@ -1000,7 +1000,7 @@
 
 ### Minor Changes
 
-- upgrade `@ryanatkn/belt@0.24` and fix task timings ([9dc0a5f](https://github.com/fuzdev/gro/commit/9dc0a5f))
+- upgrade `@fuzdev/fuz_util@0.24` and fix task timings ([9dc0a5f](https://github.com/fuzdev/gro/commit/9dc0a5f))
 
 ## 0.127.1
 
@@ -1071,7 +1071,7 @@
 ### Minor Changes
 
 - remove `resolved_input_paths_by_input_path` and `resolved_input_files_by_input_path` ([#471](https://github.com/fuzdev/gro/pull/471))
-- upgrade `@ryanatkn/belt@0.21` ([46a03e8](https://github.com/fuzdev/gro/commit/46a03e8))
+- upgrade `@fuzdev/fuz_util@0.21` ([46a03e8](https://github.com/fuzdev/gro/commit/46a03e8))
 
 ### Patch Changes
 
@@ -1242,7 +1242,7 @@
 
 ### Patch Changes
 
-- upgrade @ryanatkn/belt ([3622e1d](https://github.com/fuzdev/gro/commit/3622e1d))
+- upgrade @fuzdev/fuz_util ([3622e1d](https://github.com/fuzdev/gro/commit/3622e1d))
 
 ## 0.112.3
 
@@ -1309,7 +1309,7 @@
 
 ### Minor Changes
 
-- upgrade @ryanatkn/belt@0.19 ([0f53451](https://github.com/fuzdev/gro/commit/0f53451))
+- upgrade @fuzdev/fuz_util@0.19 ([0f53451](https://github.com/fuzdev/gro/commit/0f53451))
 
 ### Patch Changes
 
@@ -1342,13 +1342,13 @@
 
 ### Patch Changes
 
-- upgrade @ryanatkn/belt ([dfcbe4c](https://github.com/fuzdev/gro/commit/dfcbe4c))
+- upgrade @fuzdev/fuz_util ([dfcbe4c](https://github.com/fuzdev/gro/commit/dfcbe4c))
 
 ## 0.107.2
 
 ### Patch Changes
 
-- upgrade @ryanatkn/belt ([4baf889](https://github.com/fuzdev/gro/commit/4baf889))
+- upgrade @fuzdev/fuz_util ([4baf889](https://github.com/fuzdev/gro/commit/4baf889))
 
 ## 0.107.1
 
@@ -1377,7 +1377,7 @@
 
 ### Patch Changes
 
-- upgrade @ryanatkn/belt to use `fetch_value` ([#439](https://github.com/fuzdev/gro/pull/439))
+- upgrade @fuzdev/fuz_util to use `fetch_value` ([#439](https://github.com/fuzdev/gro/pull/439))
 
 ## 0.105.4
 
@@ -1439,7 +1439,7 @@
 - replace `exists.ts` with `fs.ts` and add `empty_dir` ([#429](https://github.com/fuzdev/gro/pull/429))
 - stop using `git workspace` for `gro deploy` ([#429](https://github.com/fuzdev/gro/pull/429))
 - upgrade deps: ([#437](https://github.com/fuzdev/gro/pull/437))
-  - @ryanatkn/belt@18
+  - @fuzdev/fuz_util@18
   - prettier@3.1.1
   - ts-morph@21
 
@@ -1530,7 +1530,7 @@
 
 ### Minor Changes
 
-- upgrade `@ryanatkn/belt@0.16` ([88ac35b](https://github.com/fuzdev/gro/commit/88ac35b))
+- upgrade `@fuzdev/fuz_util@0.16` ([88ac35b](https://github.com/fuzdev/gro/commit/88ac35b))
 
 ## 0.99.0
 
@@ -1626,7 +1626,7 @@
 
 ### Patch Changes
 
-- upgrade @ryanatkn/belt@0.15.1 from 0.15.0 ([52fad99](https://github.com/fuzdev/gro/commit/52fad99))
+- upgrade @fuzdev/fuz_util@0.15.1 from 0.15.0 ([52fad99](https://github.com/fuzdev/gro/commit/52fad99))
 
 ## 0.95.4
 
@@ -1737,7 +1737,7 @@
 
 ### Minor Changes
 
-- upgrade to @ryanatkn/belt@0.15 from 0.14 ([18cbcb5](https://github.com/fuzdev/gro/commit/18cbcb5))
+- upgrade to @fuzdev/fuz_util@0.15 from 0.14 ([18cbcb5](https://github.com/fuzdev/gro/commit/18cbcb5))
 
 ## 0.90.3
 
@@ -1825,7 +1825,7 @@
 ### Minor Changes
 
 - remove execSync usage ([#407](https://github.com/fuzdev/gro/pull/407))
-- upgrade to `@ryanatkn/belt@0.14.0` from `0.13.0` ([#407](https://github.com/fuzdev/gro/pull/407))
+- upgrade to `@fuzdev/fuz_util@0.14.0` from `0.13.0` ([#407](https://github.com/fuzdev/gro/pull/407))
 
 ## 0.86.0
 
@@ -1868,7 +1868,7 @@
 
 ### Minor Changes
 
-- replace `@feltjs/util` with `@ryanatkn/belt` ([8fcac65](https://github.com/fuzdev/gro/commit/8fcac65))
+- replace `@feltjs/util` with `@fuzdev/fuz_util` ([8fcac65](https://github.com/fuzdev/gro/commit/8fcac65))
 
 ## 0.82.9
 
@@ -1968,7 +1968,7 @@
 
 ## 0.79.0
 
-- **break**: upgrade to `@ryanatkn/belt@0.9.0` and peer dep `svelte@4`,
+- **break**: upgrade to `@fuzdev/fuz_util@0.9.0` and peer dep `svelte@4`,
   and change peer deps to avoid breaking changes
   ([#378](https://github.com/fuzdev/gro/pull/378))
 
@@ -2042,19 +2042,19 @@
 
 ## 0.73.0
 
-- **break**: upgrade dep `@ryanatkn/belt@0.8.0` and `esbuild@0.17.0`
+- **break**: upgrade dep `@fuzdev/fuz_util@0.8.0` and `esbuild@0.17.0`
   ([#366](https://github.com/fuzdev/gro/pull/366))
 - `npm i` before `gro build`, add `--no-install` flag to override
   ([#365](https://github.com/fuzdev/gro/pull/365))
 
 ## 0.72.0
 
-- **break**: upgrade dep `@ryanatkn/belt@0.7.4`
+- **break**: upgrade dep `@fuzdev/fuz_util@0.7.4`
   ([commit](https://github.com/fuzdev/gro/commit/731007d1533f981e524e318c00af3a6fa861e909))
 
 ## 0.71.0
 
-- **break**: upgrade dep `@ryanatkn/belt@0.6.0`
+- **break**: upgrade dep `@fuzdev/fuz_util@0.6.0`
   ([#364](https://github.com/fuzdev/gro/pull/364))
 
 ## 0.70.5
@@ -2067,7 +2067,7 @@
 
 ## 0.70.3
 
-- upgrade `@ryanatkn/belt`
+- upgrade `@fuzdev/fuz_util`
   ([#362](https://github.com/fuzdev/gro/pull/362))
 
 ## 0.70.2
@@ -2122,7 +2122,7 @@
 
 ## 0.67.0
 
-- upgrade `@ryanatkn/belt@0.3.0`
+- upgrade `@fuzdev/fuz_util@0.3.0`
 
 ## 0.66.1
 
@@ -2130,12 +2130,12 @@
 
 ## 0.66.0
 
-- **break**: upgrade `@ryanatkn/belt`
+- **break**: upgrade `@fuzdev/fuz_util`
   ([#356](https://github.com/fuzdev/gro/pull/356))
 
 ## 0.65.0
 
-- **break**: depend on `@ryanatkn/belt` instead of `@feltjs/felt-ui`
+- **break**: depend on `@fuzdev/fuz_util` instead of `@feltjs/felt-ui`
   ([#355](https://github.com/fuzdev/gro/pull/355))
 
 ## 0.64.0
