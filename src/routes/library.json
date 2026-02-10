@@ -281,34 +281,34 @@
 					{
 						"name": "BUILD_CACHE_METADATA_FILENAME",
 						"kind": "variable",
-						"source_line": 15,
+						"source_line": 18,
 						"type_signature": "\"build.json\""
 					},
 					{
 						"name": "BUILD_CACHE_VERSION",
 						"kind": "variable",
-						"source_line": 16,
+						"source_line": 19,
 						"type_signature": "\"1\""
 					},
 					{
 						"name": "BuildOutputEntry",
 						"kind": "type",
 						"doc_comment": "Metadata about a single build output file.\nIncludes cryptographic hash for validation plus filesystem stats for debugging and optimization.",
-						"source_line": 22,
+						"source_line": 25,
 						"type_signature": "ZodObject<{ path: ZodString; hash: ZodString; size: ZodNumber; mtime: ZodNumber; ctime: ZodNumber; mode: ZodNumber; }, $strict>"
 					},
 					{
 						"name": "BuildCacheMetadata",
 						"kind": "type",
 						"doc_comment": "Metadata stored in .gro/ directory to track build cache validity.\nSchema validates structure at load time to catch corrupted cache files.",
-						"source_line": 40,
+						"source_line": 43,
 						"type_signature": "ZodObject<{ version: ZodString; git_commit: ZodNullable<ZodString>; build_cache_config_hash: ZodString; timestamp: ZodString; outputs: ZodArray<...>; }, $strict>"
 					},
 					{
 						"name": "compute_build_cache_key",
 						"kind": "function",
 						"doc_comment": "Computes the cache key components for a build.\nThis determines whether a cached build can be reused.",
-						"source_line": 61,
+						"source_line": 64,
 						"type_signature": "(config: GroConfig, log: Logger, git_commit?: string | null | undefined): Promise<{ git_commit: string | null; build_cache_config_hash: string; }>",
 						"return_type": "Promise<{ git_commit: string | null; build_cache_config_hash: string; }>",
 						"parameters": [
@@ -334,7 +334,7 @@
 						"name": "load_build_cache_metadata",
 						"kind": "function",
 						"doc_comment": "Loads build cache metadata from .gro/ directory.\nInvalid or corrupted cache files are automatically deleted.",
-						"source_line": 86,
+						"source_line": 89,
 						"type_signature": "(): Promise<{ version: string; git_commit: string | null; build_cache_config_hash: string; timestamp: string; outputs: { path: string; hash: string; size: number; mtime: number; ctime: number; mode: number; }[]; } | null>",
 						"return_type": "Promise<{ version: string; git_commit: string | null; build_cache_config_hash: string; timestamp: string; outputs: { path: string; hash: string; size: number; mtime: number; ctime: number; mode: number; }[]; } | null>",
 						"parameters": []
@@ -343,7 +343,7 @@
 						"name": "save_build_cache_metadata",
 						"kind": "function",
 						"doc_comment": "Saves build cache metadata to .gro/ directory.\nErrors are logged but don't fail the build (cache is optional).",
-						"source_line": 128,
+						"source_line": 131,
 						"type_signature": "(metadata: { version: string; git_commit: string | null; build_cache_config_hash: string; timestamp: string; outputs: { path: string; hash: string; size: number; mtime: number; ctime: number; mode: number; }[]; }, log?: Logger | undefined): Promise<...>",
 						"return_type": "Promise<void>",
 						"parameters": [
@@ -361,8 +361,8 @@
 					{
 						"name": "validate_build_cache",
 						"kind": "function",
-						"doc_comment": "Validates that a cached build is still valid by checking stats and hashing outputs.\nUses size as a fast negative check before expensive hashing.\nThis is comprehensive validation to catch manual tampering or corruption.",
-						"source_line": 152,
+						"doc_comment": "Validates that a cached build is still valid by checking stats and hashing outputs.\nUses size as a fast negative check before expensive hashing.\nThis is comprehensive validation to catch manual tampering or corruption.\n\nDelegates to `validate_file_snapshot` from `@fuzdev/fuz_util`.",
+						"source_line": 157,
 						"type_signature": "(metadata: { version: string; git_commit: string | null; build_cache_config_hash: string; timestamp: string; outputs: { path: string; hash: string; size: number; mtime: number; ctime: number; mode: number; }[]; }): Promise<...>",
 						"return_type": "Promise<boolean>",
 						"parameters": [
@@ -376,7 +376,7 @@
 						"name": "is_build_cache_valid",
 						"kind": "function",
 						"doc_comment": "Main function to check if the build cache is valid.\nReturns true if the cached build can be used, false if a fresh build is needed.",
-						"source_line": 197,
+						"source_line": 172,
 						"type_signature": "(config: GroConfig, log: Logger, git_commit?: string | null | undefined): Promise<boolean>",
 						"return_type": "Promise<boolean>",
 						"parameters": [
@@ -401,8 +401,8 @@
 					{
 						"name": "collect_build_outputs",
 						"kind": "function",
-						"doc_comment": "Collects information about all files in build output directories.\nReturns an array of entries with path, hash, size, mtime, ctime, and mode.\n\nFiles are hashed in parallel for performance. For very large builds (10k+ files),\nthis may take several seconds but ensures complete cache validation.",
-						"source_line": 243,
+						"doc_comment": "Collects information about all files in build output directories.\nReturns an array of entries with path, hash, size, mtime, ctime, and mode.\n\nDelegates to `collect_file_snapshot` from `@fuzdev/fuz_util`.",
+						"source_line": 229,
 						"type_signature": "(build_dirs: string[]): Promise<{ path: string; hash: string; size: number; mtime: number; ctime: number; mode: number; }[]>",
 						"return_type": "Promise<{ path: string; hash: string; size: number; mtime: number; ctime: number; mode: number; }[]>",
 						"parameters": [
@@ -417,7 +417,7 @@
 						"name": "discover_build_output_dirs",
 						"kind": "function",
 						"doc_comment": "Discovers all build output directories in the current working directory.\nReturns an array of directory names that exist: build/, dist/, dist_*",
-						"source_line": 317,
+						"source_line": 245,
 						"type_signature": "(): Promise<string[]>",
 						"return_type": "Promise<string[]>",
 						"parameters": []
@@ -426,7 +426,7 @@
 						"name": "create_build_cache_metadata",
 						"kind": "function",
 						"doc_comment": "Creates build cache metadata after a successful build.\nAutomatically discovers all build output directories (build/, dist/, dist_*).",
-						"source_line": 362,
+						"source_line": 290,
 						"type_signature": "(config: GroConfig, log: Logger, git_commit?: string | null | undefined, build_dirs?: string[] | undefined): Promise<{ version: string; git_commit: string | null; build_cache_config_hash: string; timestamp: string; outputs: { ...; }[]; }>",
 						"return_type": "Promise<{ version: string; git_commit: string | null; build_cache_config_hash: string; timestamp: string; outputs: { path: string; hash: string; size: number; mtime: number; ctime: number; mode: number; }[]; }>",
 						"parameters": [

@@ -5,8 +5,11 @@ import {z} from 'zod';
 import type {Logger} from '@fuzdev/fuz_util/log.js';
 import {git_current_commit_hash} from '@fuzdev/fuz_util/git.js';
 import {fs_exists} from '@fuzdev/fuz_util/fs.js';
-import {map_concurrent} from '@fuzdev/fuz_util/async.js';
-import {hash_secure} from '@fuzdev/fuz_util/hash.js';
+import {
+	collect_file_snapshot,
+	validate_file_snapshot,
+	type FileSnapshotEntry,
+} from '@fuzdev/fuz_util/file_snapshot.js';
 
 import type {GroConfig} from './gro_config.ts';
 import {paths} from './paths.ts';
@@ -148,42 +151,14 @@ export const save_build_cache_metadata = async (
  * Validates that a cached build is still valid by checking stats and hashing outputs.
  * Uses size as a fast negative check before expensive hashing.
  * This is comprehensive validation to catch manual tampering or corruption.
+ *
+ * Delegates to `validate_file_snapshot` from `@fuzdev/fuz_util`.
  */
 export const validate_build_cache = async (metadata: BuildCacheMetadata): Promise<boolean> => {
-	// Verify all tracked output files exist and have matching size
-	// Sequential checks with early return for performance
-	for (const output of metadata.outputs) {
-		// eslint-disable-next-line no-await-in-loop
-		if (!(await fs_exists(output.path))) {
-			return false;
-		}
-
-		// Fast negative check: size mismatch = definitely invalid
-		// This avoids expensive file reads and hashing for files that have clearly changed
-		// eslint-disable-next-line no-await-in-loop
-		const stats = await stat(output.path);
-		if (stats.size !== output.size) {
-			return false;
-		}
-	}
-
-	// Size matches for all files - now verify content with cryptographic hashing
-	// Hash files with controlled concurrency (could be 10k+ files)
-	const results = await map_concurrent(
-		metadata.outputs,
-		async (output) => {
-			try {
-				const contents = await readFile(output.path);
-				const actual_hash = await hash_secure(contents);
-				return actual_hash === output.hash;
-			} catch {
-				// File deleted/inaccessible between checks = cache invalid
-				return false;
-			}
-		},
-		20,
-	);
-	return results.every((valid) => valid);
+	return validate_file_snapshot({
+		entries: metadata.outputs,
+		concurrency: 20,
+	});
 };
 
 /**
@@ -232,82 +207,35 @@ export const is_build_cache_valid = async (
 };
 
 /**
+ * Maps a `FileSnapshotEntry` (with all fields enabled) to a `BuildOutputEntry`.
+ */
+const to_build_output_entry = (entry: FileSnapshotEntry): BuildOutputEntry => ({
+	path: entry.path,
+	hash: entry.hash!,
+	size: entry.size!,
+	mtime: entry.mtime!,
+	ctime: entry.ctime!,
+	mode: entry.mode!,
+});
+
+/**
  * Collects information about all files in build output directories.
  * Returns an array of entries with path, hash, size, mtime, ctime, and mode.
  *
- * Files are hashed in parallel for performance. For very large builds (10k+ files),
- * this may take several seconds but ensures complete cache validation.
+ * Delegates to `collect_file_snapshot` from `@fuzdev/fuz_util`.
  *
  * @param build_dirs Array of output directories to scan (e.g., ['build', 'dist', 'dist_server'])
  */
 export const collect_build_outputs = async (
 	build_dirs: Array<string>,
 ): Promise<Array<BuildOutputEntry>> => {
-	// Collect all files to hash first
-	interface FileEntry {
-		full_path: string;
-		cache_key: string;
-	}
-
-	const files_hash_secure: Array<FileEntry> = [];
-
-	// Recursively collect files
-	const collect_files = async (
-		dir: string,
-		relative_base: string,
-		dir_prefix: string,
-	): Promise<void> => {
-		const entries = await readdir(dir, {withFileTypes: true});
-
-		for (const entry of entries) {
-			// Skip metadata file itself
-			if (entry.name === BUILD_CACHE_METADATA_FILENAME) {
-				continue;
-			}
-
-			const full_path = join(dir, entry.name);
-			const relative_path = relative_base ? join(relative_base, entry.name) : entry.name;
-			const cache_key = join(dir_prefix, relative_path);
-
-			if (entry.isDirectory()) {
-				// eslint-disable-next-line no-await-in-loop
-				await collect_files(full_path, relative_path, dir_prefix);
-			} else if (entry.isFile()) {
-				files_hash_secure.push({full_path, cache_key});
-			}
-			// Symlinks are intentionally ignored - we only hash regular files
-		}
-	};
-
-	// Collect files from all build directories sequentially
-	for (const build_dir of build_dirs) {
-		// eslint-disable-next-line no-await-in-loop
-		if (!(await fs_exists(build_dir))) {
-			continue; // Skip non-existent directories
-		}
-		// eslint-disable-next-line no-await-in-loop
-		await collect_files(build_dir, '', build_dir);
-	}
-
-	// Hash files with controlled concurrency and collect stats (could be 10k+ files)
-	return map_concurrent(
-		files_hash_secure,
-		async ({full_path, cache_key}): Promise<BuildOutputEntry> => {
-			const stats = await stat(full_path);
-			const contents = await readFile(full_path);
-			const hash = await hash_secure(contents);
-
-			return {
-				path: cache_key,
-				hash,
-				size: stats.size,
-				mtime: stats.mtimeMs,
-				ctime: stats.ctimeMs,
-				mode: stats.mode,
-			};
-		},
-		20,
-	);
+	const entries = await collect_file_snapshot({
+		dirs: build_dirs,
+		fields: {hash: true, size: true, mtime: true, ctime: true, mode: true},
+		filter: (path) => !path.endsWith(BUILD_CACHE_METADATA_FILENAME),
+		concurrency: 20,
+	});
+	return entries.map(to_build_output_entry);
 };
 
 /**

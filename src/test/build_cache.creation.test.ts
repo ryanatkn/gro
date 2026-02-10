@@ -1,14 +1,12 @@
 import {describe, test, expect, vi, beforeEach} from 'vitest';
+import type {FileSnapshotEntry} from '@fuzdev/fuz_util/file_snapshot.js';
 
 import {create_build_cache_metadata} from '../lib/build_cache.ts';
 
 import {
 	create_mock_logger,
 	create_mock_config,
-	mock_file_stats,
 	mock_dir_stats,
-	mock_file_entry,
-	mock_dir_entry,
 } from './build_cache_test_helpers.ts';
 
 // Mock dependencies
@@ -16,20 +14,21 @@ vi.mock('@fuzdev/fuz_util/git.js', () => ({
 	git_current_commit_hash: vi.fn(),
 }));
 
-// Mock async fs functions for discover_build_output_dirs and collect_build_outputs
+// Mock async fs functions for discover_build_output_dirs (still uses node:fs/promises directly)
 vi.mock('node:fs/promises', () => ({
 	readdir: vi.fn(),
 	stat: vi.fn(),
-	readFile: vi.fn(),
 }));
 
-// Mock fs_exists from fuz_util
+// Mock fs_exists from fuz_util (used by discover_build_output_dirs)
 vi.mock('@fuzdev/fuz_util/fs.js', () => ({
 	fs_exists: vi.fn(),
 }));
 
-vi.mock('@fuzdev/fuz_util/hash.js', () => ({
-	hash_secure: vi.fn(),
+// Mock file_snapshot from fuz_util (used by collect_build_outputs)
+vi.mock('@fuzdev/fuz_util/file_snapshot.js', () => ({
+	collect_file_snapshot: vi.fn(),
+	validate_file_snapshot: vi.fn(),
 }));
 
 describe('create_build_cache_metadata', () => {
@@ -45,15 +44,10 @@ describe('create_build_cache_metadata', () => {
 
 	test('creates complete metadata object', async () => {
 		const {git_current_commit_hash} = await import('@fuzdev/fuz_util/git.js');
-		const {fs_exists} = vi.mocked(await import('@fuzdev/fuz_util/fs.js'));
-		const {readdir, stat} = vi.mocked(await import('node:fs/promises'));
-		const {hash_secure} = await import('@fuzdev/fuz_util/hash.js');
+		const {collect_file_snapshot} = vi.mocked(await import('@fuzdev/fuz_util/file_snapshot.js'));
 
 		vi.mocked(git_current_commit_hash).mockResolvedValue('abc123');
-		vi.mocked(fs_exists).mockResolvedValue(false);
-		vi.mocked(readdir).mockResolvedValue([] as any);
-		vi.mocked(stat).mockResolvedValue(mock_dir_stats());
-		vi.mocked(hash_secure).mockResolvedValue('hash123');
+		vi.mocked(collect_file_snapshot).mockResolvedValue([]);
 
 		const config = await create_mock_config();
 		const log = create_mock_logger();
@@ -71,31 +65,36 @@ describe('create_build_cache_metadata', () => {
 	test('creates metadata with actual build outputs', async () => {
 		const {git_current_commit_hash} = await import('@fuzdev/fuz_util/git.js');
 		const {fs_exists} = vi.mocked(await import('@fuzdev/fuz_util/fs.js'));
-		const {readdir, stat, readFile} = vi.mocked(await import('node:fs/promises'));
-		const {hash_secure} = await import('@fuzdev/fuz_util/hash.js');
+		const {readdir} = vi.mocked(await import('node:fs/promises'));
+		const {collect_file_snapshot} = vi.mocked(await import('@fuzdev/fuz_util/file_snapshot.js'));
 
 		vi.mocked(git_current_commit_hash).mockResolvedValue('abc123');
 		vi.mocked(fs_exists).mockImplementation((path: any) => Promise.resolve(path === 'build'));
-		// Set up async mocks for discover_build_output_dirs and collect_build_outputs
 		vi.mocked(readdir).mockImplementation((path: any) => {
 			if (path === '.') return Promise.resolve([] as any);
-			if (path === 'build') {
-				return Promise.resolve([
-					mock_file_entry('index.html'),
-					mock_file_entry('bundle.js'),
-				] as any);
-			}
 			return Promise.resolve([] as any);
 		});
-		vi.mocked(stat).mockImplementation((path: any) => {
-			if (String(path) === 'build') return Promise.resolve(mock_dir_stats());
-			return Promise.resolve(mock_file_stats());
-		});
-		vi.mocked(readFile).mockResolvedValue(Buffer.from('content'));
 
-		let hash_count = 0;
-		// eslint-disable-next-line @typescript-eslint/require-await
-		vi.mocked(hash_secure).mockImplementation(async () => `hash${++hash_count}`);
+		// Mock collect_file_snapshot to return build outputs
+		const mock_entries: Array<FileSnapshotEntry> = [
+			{
+				path: 'build/index.html',
+				hash: 'hash1',
+				size: 1024,
+				mtime: 1729512000000,
+				ctime: 1729512000000,
+				mode: 33188,
+			},
+			{
+				path: 'build/bundle.js',
+				hash: 'hash2',
+				size: 1024,
+				mtime: 1729512000000,
+				ctime: 1729512000000,
+				mode: 33188,
+			},
+		];
+		vi.mocked(collect_file_snapshot).mockResolvedValue(mock_entries);
 
 		const config = await create_mock_config();
 		const log = create_mock_logger();
@@ -105,12 +104,12 @@ describe('create_build_cache_metadata', () => {
 		expect(result.outputs).toHaveLength(2);
 		expect(result.outputs[0]).toMatchObject({
 			path: 'build/index.html',
-			hash: 'hash2', // hash1 is for config hash
+			hash: 'hash1',
 			size: 1024,
 		});
 		expect(result.outputs[1]).toMatchObject({
 			path: 'build/bundle.js',
-			hash: 'hash3',
+			hash: 'hash2',
 			size: 1024,
 		});
 	});
@@ -118,35 +117,49 @@ describe('create_build_cache_metadata', () => {
 	test('creates metadata with multiple build directories', async () => {
 		const {git_current_commit_hash} = await import('@fuzdev/fuz_util/git.js');
 		const {fs_exists} = vi.mocked(await import('@fuzdev/fuz_util/fs.js'));
-		const {readdir, stat, readFile} = vi.mocked(await import('node:fs/promises'));
-		const {hash_secure} = await import('@fuzdev/fuz_util/hash.js');
+		const {readdir, stat} = vi.mocked(await import('node:fs/promises'));
+		const {collect_file_snapshot} = vi.mocked(await import('@fuzdev/fuz_util/file_snapshot.js'));
 
 		vi.mocked(git_current_commit_hash).mockResolvedValue('abc123');
 
 		vi.mocked(fs_exists).mockResolvedValue(true);
-		// Set up async mocks for discover_build_output_dirs and collect_build_outputs
+		// Set up async mocks for discover_build_output_dirs
 		vi.mocked(readdir).mockImplementation((path: any) => {
 			if (path === '.') {
 				return Promise.resolve(['dist_server', 'src', 'node_modules'] as any);
 			}
-			if (path === 'build') {
-				return Promise.resolve([mock_file_entry('app.js')] as any);
-			}
-			if (path === 'dist') {
-				return Promise.resolve([mock_file_entry('lib.js')] as any);
-			}
-			if (path === 'dist_server') {
-				return Promise.resolve([mock_file_entry('server.js')] as any);
-			}
 			return Promise.resolve([] as any);
 		});
-
 		vi.mocked(stat).mockResolvedValue(mock_dir_stats());
-		vi.mocked(readFile).mockResolvedValue(Buffer.from('content'));
 
-		let hash_count = 0;
-		// eslint-disable-next-line @typescript-eslint/require-await
-		vi.mocked(hash_secure).mockImplementation(async () => `hash${++hash_count}`);
+		// Mock collect_file_snapshot to return files from all dirs
+		const mock_entries: Array<FileSnapshotEntry> = [
+			{
+				path: 'build/app.js',
+				hash: 'hash1',
+				size: 1024,
+				mtime: 1729512000000,
+				ctime: 1729512000000,
+				mode: 33188,
+			},
+			{
+				path: 'dist/lib.js',
+				hash: 'hash2',
+				size: 1024,
+				mtime: 1729512000000,
+				ctime: 1729512000000,
+				mode: 33188,
+			},
+			{
+				path: 'dist_server/server.js',
+				hash: 'hash3',
+				size: 1024,
+				mtime: 1729512000000,
+				ctime: 1729512000000,
+				mode: 33188,
+			},
+		];
+		vi.mocked(collect_file_snapshot).mockResolvedValue(mock_entries);
 
 		const config = await create_mock_config();
 		const log = create_mock_logger();
@@ -163,19 +176,16 @@ describe('create_build_cache_metadata', () => {
 	test('handles empty build directories', async () => {
 		const {git_current_commit_hash} = await import('@fuzdev/fuz_util/git.js');
 		const {fs_exists} = vi.mocked(await import('@fuzdev/fuz_util/fs.js'));
-		const {readdir, stat} = vi.mocked(await import('node:fs/promises'));
-		const {hash_secure} = await import('@fuzdev/fuz_util/hash.js');
+		const {readdir} = vi.mocked(await import('node:fs/promises'));
+		const {collect_file_snapshot} = vi.mocked(await import('@fuzdev/fuz_util/file_snapshot.js'));
 
 		vi.mocked(git_current_commit_hash).mockResolvedValue('abc123');
 		vi.mocked(fs_exists).mockImplementation((path: any) => Promise.resolve(path === 'build'));
-		// Set up async mocks for discover_build_output_dirs and collect_build_outputs
 		vi.mocked(readdir).mockImplementation((path: any) => {
 			if (path === '.') return Promise.resolve([] as any);
-			if (path === 'build') return Promise.resolve([] as any);
 			return Promise.resolve([] as any);
 		});
-		vi.mocked(stat).mockResolvedValue({isDirectory: () => true} as any);
-		vi.mocked(hash_secure).mockResolvedValue('hash123');
+		vi.mocked(collect_file_snapshot).mockResolvedValue([]);
 
 		const config = await create_mock_config();
 		const log = create_mock_logger();
@@ -190,41 +200,27 @@ describe('create_build_cache_metadata', () => {
 	test('creates metadata with deeply nested file structures', async () => {
 		const {git_current_commit_hash} = await import('@fuzdev/fuz_util/git.js');
 		const {fs_exists} = vi.mocked(await import('@fuzdev/fuz_util/fs.js'));
-		const {readdir, stat, readFile} = vi.mocked(await import('node:fs/promises'));
-		const {hash_secure} = await import('@fuzdev/fuz_util/hash.js');
+		const {readdir} = vi.mocked(await import('node:fs/promises'));
+		const {collect_file_snapshot} = vi.mocked(await import('@fuzdev/fuz_util/file_snapshot.js'));
 
 		vi.mocked(git_current_commit_hash).mockResolvedValue('abc123');
 		vi.mocked(fs_exists).mockImplementation((path: any) => Promise.resolve(path === 'build'));
-		// Set up async mocks for discover_build_output_dirs and collect_build_outputs
 		vi.mocked(readdir).mockImplementation((path: any) => {
-			const path_str = String(path);
-			if (path_str === '.') return Promise.resolve([] as any); // no dist_* directories
-			if (path_str === 'build') {
-				return Promise.resolve([mock_dir_entry('assets')] as any);
-			}
-			if (path_str === 'build/assets') {
-				return Promise.resolve([mock_dir_entry('js')] as any);
-			}
-			if (path_str === 'build/assets/js') {
-				return Promise.resolve([mock_dir_entry('lib')] as any);
-			}
-			if (path_str === 'build/assets/js/lib') {
-				return Promise.resolve([mock_dir_entry('utils')] as any);
-			}
-			if (path_str === 'build/assets/js/lib/utils') {
-				return Promise.resolve([mock_file_entry('helper.js')] as any);
-			}
+			if (path === '.') return Promise.resolve([] as any);
 			return Promise.resolve([] as any);
 		});
 
-		vi.mocked(stat).mockImplementation((path: any) => {
-			if (String(path).endsWith('.js')) {
-				return Promise.resolve(mock_file_stats(256));
-			}
-			return Promise.resolve(mock_dir_stats());
-		});
-		vi.mocked(readFile).mockResolvedValue(Buffer.from('content'));
-		vi.mocked(hash_secure).mockResolvedValue('deep_hash');
+		// Mock collect_file_snapshot to return deeply nested file
+		vi.mocked(collect_file_snapshot).mockResolvedValue([
+			{
+				path: 'build/assets/js/lib/utils/helper.js',
+				hash: 'deep_hash',
+				size: 256,
+				mtime: 1729512000000,
+				ctime: 1729512000000,
+				mode: 33188,
+			},
+		]);
 
 		const config = await create_mock_config();
 		const log = create_mock_logger();
@@ -240,33 +236,33 @@ describe('create_build_cache_metadata', () => {
 	test('handles build directories with many files', async () => {
 		const {git_current_commit_hash} = await import('@fuzdev/fuz_util/git.js');
 		const {fs_exists} = vi.mocked(await import('@fuzdev/fuz_util/fs.js'));
-		const {readdir, stat, readFile} = vi.mocked(await import('node:fs/promises'));
-		const {hash_secure} = await import('@fuzdev/fuz_util/hash.js');
+		const {readdir} = vi.mocked(await import('node:fs/promises'));
+		const {collect_file_snapshot} = vi.mocked(await import('@fuzdev/fuz_util/file_snapshot.js'));
 
 		vi.mocked(git_current_commit_hash).mockResolvedValue('abc123');
 		vi.mocked(fs_exists).mockImplementation((path: any) => Promise.resolve(path === 'build'));
-
-		const files = Array.from({length: 15}, (_, i) => mock_file_entry(`file${i}.js`));
-		// Set up async mocks for discover_build_output_dirs and collect_build_outputs
 		vi.mocked(readdir).mockImplementation((path: any) => {
-			if (path === '.') return Promise.resolve([] as any); // no dist_* directories
-			if (path === 'build') return Promise.resolve(files as any);
+			if (path === '.') return Promise.resolve([] as any);
 			return Promise.resolve([] as any);
 		});
 
-		vi.mocked(stat).mockResolvedValue(mock_file_stats(2048));
-		vi.mocked(readFile).mockResolvedValue(Buffer.from('content'));
-
-		let hash_count = 0;
-		// eslint-disable-next-line @typescript-eslint/require-await
-		vi.mocked(hash_secure).mockImplementation(async () => `hash${++hash_count}`);
+		// Mock collect_file_snapshot to return many files
+		const mock_entries: Array<FileSnapshotEntry> = Array.from({length: 15}, (_, i) => ({
+			path: `build/file${i}.js`,
+			hash: `hash${i}`,
+			size: 2048,
+			mtime: 1729512000000,
+			ctime: 1729512000000,
+			mode: 33188,
+		}));
+		vi.mocked(collect_file_snapshot).mockResolvedValue(mock_entries);
 
 		const config = await create_mock_config();
 		const log = create_mock_logger();
 
 		const result = await create_build_cache_metadata(config, log);
 
-		// Should hash all 15 files in parallel
+		// Should have all 15 files
 		expect(result.outputs).toHaveLength(15);
 		// Verify all files are present
 		for (let i = 0; i < 15; i++) {
@@ -276,15 +272,10 @@ describe('create_build_cache_metadata', () => {
 
 	test('creates metadata with null git commit', async () => {
 		const {git_current_commit_hash} = await import('@fuzdev/fuz_util/git.js');
-		const {fs_exists} = vi.mocked(await import('@fuzdev/fuz_util/fs.js'));
-		const {readdir, stat} = vi.mocked(await import('node:fs/promises'));
-		const {hash_secure} = await import('@fuzdev/fuz_util/hash.js');
+		const {collect_file_snapshot} = vi.mocked(await import('@fuzdev/fuz_util/file_snapshot.js'));
 
 		vi.mocked(git_current_commit_hash).mockResolvedValue(null);
-		vi.mocked(fs_exists).mockResolvedValue(false);
-		vi.mocked(readdir).mockResolvedValue([] as any);
-		vi.mocked(stat).mockResolvedValue(mock_dir_stats());
-		vi.mocked(hash_secure).mockResolvedValue('hash123');
+		vi.mocked(collect_file_snapshot).mockResolvedValue([]);
 
 		const config = await create_mock_config();
 		const log = create_mock_logger();
@@ -300,15 +291,10 @@ describe('create_build_cache_metadata', () => {
 
 	test('includes correct build_cache_config_hash', async () => {
 		const {git_current_commit_hash} = await import('@fuzdev/fuz_util/git.js');
-		const {fs_exists} = vi.mocked(await import('@fuzdev/fuz_util/fs.js'));
-		const {readdir, stat} = vi.mocked(await import('node:fs/promises'));
-		const {hash_secure} = await import('@fuzdev/fuz_util/hash.js');
+		const {collect_file_snapshot} = vi.mocked(await import('@fuzdev/fuz_util/file_snapshot.js'));
 
 		vi.mocked(git_current_commit_hash).mockResolvedValue('abc123');
-		vi.mocked(fs_exists).mockResolvedValue(false);
-		vi.mocked(readdir).mockResolvedValue([] as any);
-		vi.mocked(stat).mockResolvedValue(mock_dir_stats());
-		vi.mocked(hash_secure).mockResolvedValue('custom_config_hash');
+		vi.mocked(collect_file_snapshot).mockResolvedValue([]);
 
 		const config = await create_mock_config({
 			build_cache_config: {
@@ -320,8 +306,9 @@ describe('create_build_cache_metadata', () => {
 
 		const result = await create_build_cache_metadata(config, log);
 
-		// Should include the hashed config
-		expect(result.build_cache_config_hash).toBe('custom_config_hash');
+		// Should include a non-empty hashed config
+		expect(result.build_cache_config_hash).toBeTruthy();
+		expect(result.build_cache_config_hash.length).toBeGreaterThan(0);
 		expect(result.git_commit).toBe('abc123');
 	});
 });

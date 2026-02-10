@@ -1,23 +1,23 @@
 import {describe, test, expect, vi, beforeEach} from 'vitest';
+import type {FileSnapshotEntry} from '@fuzdev/fuz_util/file_snapshot.js';
 
 import {discover_build_output_dirs, collect_build_outputs} from '../lib/build_cache.ts';
 
-import {mock_file_stats, mock_file_entry, mock_dir_entry} from './build_cache_test_helpers.ts';
-
-// Mock dependencies - discover_build_output_dirs and collect_build_outputs now use async fs functions
+// Mock dependencies - discover_build_output_dirs still uses node:fs/promises directly
 vi.mock('node:fs/promises', () => ({
 	readdir: vi.fn(),
 	stat: vi.fn(),
-	readFile: vi.fn(),
 }));
 
-// Mock fs_exists from fuz_util
+// Mock fs_exists from fuz_util (used by discover_build_output_dirs)
 vi.mock('@fuzdev/fuz_util/fs.js', () => ({
 	fs_exists: vi.fn(),
 }));
 
-vi.mock('@fuzdev/fuz_util/hash.js', () => ({
-	hash_secure: vi.fn(),
+// Mock file_snapshot from fuz_util (used by collect_build_outputs)
+vi.mock('@fuzdev/fuz_util/file_snapshot.js', () => ({
+	collect_file_snapshot: vi.fn(),
+	validate_file_snapshot: vi.fn(),
 }));
 
 describe('discover_build_output_dirs', () => {
@@ -160,22 +160,28 @@ describe('collect_build_outputs', () => {
 		vi.clearAllMocks();
 	});
 
-	test('hashes all files in build directory', async () => {
-		const {fs_exists} = vi.mocked(await import('@fuzdev/fuz_util/fs.js'));
-		const {readdir, readFile, stat} = vi.mocked(await import('node:fs/promises'));
-		const {hash_secure} = await import('@fuzdev/fuz_util/hash.js');
+	test('collects files from build directory via collect_file_snapshot', async () => {
+		const {collect_file_snapshot} = vi.mocked(await import('@fuzdev/fuz_util/file_snapshot.js'));
 
-		vi.mocked(fs_exists).mockResolvedValue(true);
-		vi.mocked(readdir).mockResolvedValue([
-			mock_file_entry('index.html'),
-			mock_file_entry('bundle.js'),
-		] as any);
-		vi.mocked(stat).mockResolvedValue(mock_file_stats());
-		vi.mocked(readFile).mockResolvedValue(Buffer.from('content'));
-
-		let hash_count = 0;
-		// eslint-disable-next-line @typescript-eslint/require-await
-		vi.mocked(hash_secure).mockImplementation(async () => `hash${++hash_count}`);
+		const mock_entries: Array<FileSnapshotEntry> = [
+			{
+				path: 'build/index.html',
+				hash: 'hash1',
+				size: 1024,
+				mtime: 1729512000000,
+				ctime: 1729512000000,
+				mode: 33188,
+			},
+			{
+				path: 'build/bundle.js',
+				hash: 'hash2',
+				size: 2048,
+				mtime: 1729512000000,
+				ctime: 1729512000000,
+				mode: 33188,
+			},
+		];
+		vi.mocked(collect_file_snapshot).mockResolvedValue(mock_entries);
 
 		const result = await collect_build_outputs(['build']);
 
@@ -191,144 +197,102 @@ describe('collect_build_outputs', () => {
 		expect(result[1]).toEqual({
 			path: 'build/bundle.js',
 			hash: 'hash2',
-			size: 1024,
+			size: 2048,
 			mtime: 1729512000000,
 			ctime: 1729512000000,
 			mode: 33188,
 		});
 	});
 
-	test('skips build.json file', async () => {
-		const {fs_exists} = vi.mocked(await import('@fuzdev/fuz_util/fs.js'));
-		const {readdir, readFile, stat} = vi.mocked(await import('node:fs/promises'));
-		const {hash_secure} = await import('@fuzdev/fuz_util/hash.js');
+	test('passes correct options including build.json filter', async () => {
+		const {collect_file_snapshot} = vi.mocked(await import('@fuzdev/fuz_util/file_snapshot.js'));
 
-		vi.mocked(fs_exists).mockResolvedValue(true);
-		vi.mocked(readdir).mockResolvedValue([
-			mock_file_entry('build.json'),
-			mock_file_entry('index.html'),
-		] as any);
-		vi.mocked(stat).mockResolvedValue(mock_file_stats());
-		vi.mocked(readFile).mockResolvedValue(Buffer.from('content'));
-		vi.mocked(hash_secure).mockResolvedValue('hash');
+		vi.mocked(collect_file_snapshot).mockResolvedValue([]);
 
-		const result = await collect_build_outputs(['build']);
+		await collect_build_outputs(['build']);
 
-		expect(result).toHaveLength(1);
-		expect(result.find((o) => o.path === 'build/build.json')).toBeUndefined();
-		expect(result.find((o) => o.path === 'build/index.html')).toBeDefined();
+		expect(collect_file_snapshot).toHaveBeenCalledWith({
+			dirs: ['build'],
+			fields: {hash: true, size: true, mtime: true, ctime: true, mode: true},
+			filter: expect.any(Function),
+			concurrency: 20,
+		});
+
+		// Verify the filter excludes build.json
+		const call_args = vi.mocked(collect_file_snapshot).mock.calls[0]![0];
+		expect(call_args.filter!('build/build.json')).toBe(false);
+		expect(call_args.filter!('build/index.html')).toBe(true);
 	});
 
-	test('returns empty array for non-existent directory', async () => {
-		const {fs_exists} = vi.mocked(await import('@fuzdev/fuz_util/fs.js'));
+	test('returns empty array when collect_file_snapshot returns empty', async () => {
+		const {collect_file_snapshot} = vi.mocked(await import('@fuzdev/fuz_util/file_snapshot.js'));
 
-		vi.mocked(fs_exists).mockResolvedValue(false);
+		vi.mocked(collect_file_snapshot).mockResolvedValue([]);
 
 		const result = await collect_build_outputs(['build']);
 
 		expect(result).toEqual([]);
 	});
 
-	test('hashes all files in directory', async () => {
-		const {fs_exists} = vi.mocked(await import('@fuzdev/fuz_util/fs.js'));
-		const {readdir, readFile, stat} = vi.mocked(await import('node:fs/promises'));
-		const {hash_secure} = await import('@fuzdev/fuz_util/hash.js');
+	test('collects files from multiple directories', async () => {
+		const {collect_file_snapshot} = vi.mocked(await import('@fuzdev/fuz_util/file_snapshot.js'));
 
-		vi.mocked(fs_exists).mockResolvedValue(true);
-		vi.mocked(readdir).mockResolvedValue([
-			mock_file_entry('file1.js'),
-			mock_file_entry('file2.js'),
-			mock_file_entry('file3.js'),
-		] as any);
-		vi.mocked(stat).mockResolvedValue(mock_file_stats());
-		vi.mocked(readFile).mockResolvedValue(Buffer.from('content'));
-		vi.mocked(hash_secure).mockResolvedValue('hash');
-
-		const result = await collect_build_outputs(['build']);
-
-		// Should hash all 3 files
-		expect(result).toHaveLength(3);
-		expect(result.find((o) => o.path === 'build/file1.js')).toBeDefined();
-		expect(result.find((o) => o.path === 'build/file2.js')).toBeDefined();
-		expect(result.find((o) => o.path === 'build/file3.js')).toBeDefined();
-	});
-
-	test('hashes files from multiple directories', async () => {
-		const {fs_exists} = vi.mocked(await import('@fuzdev/fuz_util/fs.js'));
-		const {readdir, readFile, stat} = vi.mocked(await import('node:fs/promises'));
-		const {hash_secure} = await import('@fuzdev/fuz_util/hash.js');
-
-		vi.mocked(fs_exists).mockResolvedValue(true);
-
-		vi.mocked(readdir).mockImplementation((path: any) => {
-			if (path === 'build') {
-				return Promise.resolve([mock_file_entry('index.html')] as any);
-			}
-			if (path === 'dist') {
-				return Promise.resolve([mock_file_entry('index.js')] as any);
-			}
-			if (path === 'dist_server') {
-				return Promise.resolve([mock_file_entry('server.js')] as any);
-			}
-			return Promise.resolve([] as any);
-		});
-
-		vi.mocked(stat).mockResolvedValue(mock_file_stats());
-		vi.mocked(readFile).mockResolvedValue(Buffer.from('content'));
-
-		let hash_count = 0;
-		// eslint-disable-next-line @typescript-eslint/require-await
-		vi.mocked(hash_secure).mockImplementation(async () => `hash${++hash_count}`);
+		const mock_entries: Array<FileSnapshotEntry> = [
+			{
+				path: 'build/index.html',
+				hash: 'hash1',
+				size: 1024,
+				mtime: 1729512000000,
+				ctime: 1729512000000,
+				mode: 33188,
+			},
+			{
+				path: 'dist/index.js',
+				hash: 'hash2',
+				size: 2048,
+				mtime: 1729512000000,
+				ctime: 1729512000000,
+				mode: 33188,
+			},
+			{
+				path: 'dist_server/server.js',
+				hash: 'hash3',
+				size: 512,
+				mtime: 1729512000000,
+				ctime: 1729512000000,
+				mode: 33188,
+			},
+		];
+		vi.mocked(collect_file_snapshot).mockResolvedValue(mock_entries);
 
 		const result = await collect_build_outputs(['build', 'dist', 'dist_server']);
 
-		// Should hash files from all three directories
 		expect(result).toHaveLength(3);
-		expect(result.find((o) => o.path === 'build/index.html')).toBeDefined();
-		expect(result.find((o) => o.path === 'dist/index.js')).toBeDefined();
-		expect(result.find((o) => o.path === 'dist_server/server.js')).toBeDefined();
-		// Each file should have a unique hash
-		expect(result.find((o) => o.path === 'build/index.html')?.hash).toBe('hash1');
-		expect(result.find((o) => o.path === 'dist/index.js')?.hash).toBe('hash2');
-		expect(result.find((o) => o.path === 'dist_server/server.js')?.hash).toBe('hash3');
+		expect(collect_file_snapshot).toHaveBeenCalledWith(
+			expect.objectContaining({dirs: ['build', 'dist', 'dist_server']}),
+		);
 	});
 
-	test('hashes files in deeply nested directories', async () => {
-		const {fs_exists} = vi.mocked(await import('@fuzdev/fuz_util/fs.js'));
-		const {readdir, readFile, stat} = vi.mocked(await import('node:fs/promises'));
-		const {hash_secure} = await import('@fuzdev/fuz_util/hash.js');
+	test('maps FileSnapshotEntry fields to BuildOutputEntry', async () => {
+		const {collect_file_snapshot} = vi.mocked(await import('@fuzdev/fuz_util/file_snapshot.js'));
 
-		vi.mocked(fs_exists).mockResolvedValue(true);
-
-		vi.mocked(readdir).mockImplementation((path: any) => {
-			const path_str = String(path);
-			if (path_str === 'build') {
-				return Promise.resolve([mock_dir_entry('assets')] as any);
-			}
-			if (path_str === 'build/assets') {
-				return Promise.resolve([mock_dir_entry('js')] as any);
-			}
-			if (path_str === 'build/assets/js') {
-				return Promise.resolve([mock_dir_entry('vendor')] as any);
-			}
-			if (path_str === 'build/assets/js/vendor') {
-				return Promise.resolve([mock_dir_entry('libs')] as any);
-			}
-			if (path_str === 'build/assets/js/vendor/libs') {
-				return Promise.resolve([mock_file_entry('foo.js')] as any);
-			}
-			return Promise.resolve([] as any);
-		});
-
-		vi.mocked(stat).mockResolvedValue(mock_file_stats());
-		vi.mocked(readFile).mockResolvedValue(Buffer.from('content'));
-		vi.mocked(hash_secure).mockResolvedValue('deep_hash');
+		const mock_entries: Array<FileSnapshotEntry> = [
+			{
+				path: 'build/assets/js/vendor/libs/foo.js',
+				hash: 'deep_hash',
+				size: 256,
+				mtime: 1729512000000,
+				ctime: 1729512000000,
+				mode: 33188,
+			},
+		];
+		vi.mocked(collect_file_snapshot).mockResolvedValue(mock_entries);
 
 		const result = await collect_build_outputs(['build']);
 
-		// Should recursively hash deeply nested file
 		const deep_file = result.find((o) => o.path === 'build/assets/js/vendor/libs/foo.js');
 		expect(deep_file).toBeDefined();
 		expect(deep_file?.hash).toBe('deep_hash');
+		expect(deep_file?.size).toBe(256);
 	});
 });
