@@ -457,7 +457,7 @@ body {
 	margin-bottom: var(--space_xl7);
 }
 
-:where(.row, .box, .column) > * {
+:where(.row > *) {
 	margin: 0;
 }
 

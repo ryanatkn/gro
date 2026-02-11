@@ -21,7 +21,7 @@ Key responsibilities:
 - Node loader for TypeScript/Svelte without compilation step
 - Plugin system for dev/build workflows
 - `src_json` generation - analyzes TypeScript/Svelte source to produce metadata
-  consumed by fuz's API documentation system
+  consumed by fuz_ui's API documentation system
 - `.well-known/package.json` and `.well-known/src.json` publishing for package
   metadata
 
