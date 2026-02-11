@@ -1,8 +1,11 @@
 import {test, assert, vi} from 'vitest';
+import {resolve} from 'node:path';
 
 import type {WatchNodeFs} from '../lib/watch_dir.ts';
 import {Filer, filter_dependents} from '../lib/filer.ts';
 import type {Disknode} from '../lib/disknode.ts';
+
+const fixtures_dir = resolve(import.meta.dirname, 'fixtures');
 
 /* eslint-disable @typescript-eslint/require-await */
 /* eslint-disable @typescript-eslint/no-empty-function */
@@ -120,12 +123,14 @@ test('filter_dependents returns empty set when no dependents', () => {
 });
 
 // Dependency graph building and updates tests
-test('tracks dependencies when file imports are parsed', async () => {
+test('builds bidirectional dependency links from parsed imports', async () => {
+	const importer_path = resolve(fixtures_dir, 'filer_local_import.ts');
+	const dep_path = resolve(fixtures_dir, 'filer_builtin_import.ts');
+
 	const mock_watch_dir = vi.fn((options) => {
 		const mock_watcher: WatchNodeFs = {
 			init: vi.fn(async () => {
-				options.on_change({type: 'add', path: '/test/a.ts', is_directory: false});
-				options.on_change({type: 'add', path: '/test/b.ts', is_directory: false});
+				options.on_change({type: 'add', path: importer_path, is_directory: false});
 			}),
 			close: vi.fn(async () => {}),
 		};
@@ -135,27 +140,27 @@ test('tracks dependencies when file imports are parsed', async () => {
 	const filer = new Filer({watch_dir: mock_watch_dir});
 	await filer.init();
 
-	const file_a = filer.get_by_id('/test/a.ts');
-	const file_b = filer.get_by_id('/test/b.ts');
+	const importer = filer.get_by_id(importer_path);
+	assert.ok(importer);
+	assert.ok(importer.contents);
 
-	assert.ok(file_a);
-	assert.ok(file_b);
+	// Importer should have the dependency in its dependencies map
+	assert.ok(importer.dependencies.has(dep_path), 'importer should depend on dep');
 
-	// Both files should have dependency/dependent maps initialized
-	assert.ok(file_a.dependencies instanceof Map);
-	assert.ok(file_a.dependents instanceof Map);
-	assert.ok(file_b.dependencies instanceof Map);
-	assert.ok(file_b.dependents instanceof Map);
+	// Dep should have the importer in its dependents map
+	const dep = filer.get_by_id(dep_path);
+	assert.ok(dep);
+	assert.ok(dep.dependents.has(importer_path), 'dep should have importer as dependent');
 });
 
-test('updates dependency graph when file contents change', async () => {
-	let on_change_callback: ((change: any) => void) | null = null as any;
+test('skips non-file schemes in transitive dependency resolution', async () => {
+	const importer_path = resolve(fixtures_dir, 'filer_local_import.ts');
+	const dep_path = resolve(fixtures_dir, 'filer_builtin_import.ts');
 
 	const mock_watch_dir = vi.fn((options) => {
-		on_change_callback = options.on_change;
 		const mock_watcher: WatchNodeFs = {
 			init: vi.fn(async () => {
-				options.on_change({type: 'add', path: '/test/main.ts', is_directory: false});
+				options.on_change({type: 'add', path: importer_path, is_directory: false});
 			}),
 			close: vi.fn(async () => {}),
 		};
@@ -165,17 +170,19 @@ test('updates dependency graph when file contents change', async () => {
 	const filer = new Filer({watch_dir: mock_watch_dir});
 	await filer.init();
 
-	// Simulate an update to the file
-	assert.ok(on_change_callback);
-	on_change_callback({type: 'update', path: '/test/main.ts', is_directory: false});
+	// Wait for deferred external file processing
+	await new Promise((r) => setTimeout(r, 20));
 
-	// Wait for queue processing
-	await new Promise((resolve) => setTimeout(resolve, 10));
+	// The dependency (filer_builtin_import.ts) imports node:crypto,
+	// which should not appear anywhere in the graph
+	const dep = filer.get_by_id(dep_path);
+	assert.ok(dep);
+	assert.equal(dep.dependencies.size, 0, 'builtin-only file should have no tracked dependencies');
 
-	const main = filer.get_by_id('/test/main.ts');
-	assert.ok(main);
-	// File should be tracked after update
-	assert.equal(main.id, '/test/main.ts');
+	// Verify no file in the graph has a path containing 'crypto'
+	for (const [id] of filer.files) {
+		assert.ok(!id.includes('crypto'), `unexpected crypto entry in graph: ${id}`);
+	}
 });
 
 test('cascading invalidation through dependency chain', async () => {

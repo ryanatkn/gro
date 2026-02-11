@@ -2,7 +2,6 @@ import {EMPTY_OBJECT} from '@fuzdev/fuz_util/object.js';
 import {readFile, stat} from 'node:fs/promises';
 import {dirname, resolve} from 'node:path';
 import type {OmitStrict} from '@fuzdev/fuz_util/types.js';
-import {isBuiltin} from 'node:module';
 import {fileURLToPath, pathToFileURL} from 'node:url';
 import {UnreachableError} from '@fuzdev/fuz_util/error.js';
 import type {Logger} from '@fuzdev/fuz_util/log.js';
@@ -276,20 +275,23 @@ export class Filer {
 			const path = map_sveltekit_aliases(specifier, aliases);
 
 			let path_id;
-			// TODO can we replace `resolve_specifier` with `import.meta.resolve` completely now outside of esbuild plugins?
+			// TODO replace `resolve_specifier` with `import.meta.resolve` for local specifiers too
+			// once we move to explicit extensions (Deno-compatible) - the .js→.ts Vite convention
+			// is the only reason resolve_specifier is still needed here
 			if (path[0] === '.' || path[0] === '/') {
 				const resolved = await resolve_specifier(path, dir); // eslint-disable-line no-await-in-loop
 				path_id = resolved.path_id;
 			} else {
-				if (isBuiltin(path)) continue;
 				const file_url = pathToFileURL(file.id);
+				let resolved_url;
 				try {
-					path_id = fileURLToPath(import.meta.resolve(path, file_url.href));
+					resolved_url = import.meta.resolve(path, file_url.href);
 				} catch (error) {
-					// if resolving fails for any reason, just log and ignore it
 					this.#log?.error('[filer] failed to resolve path', path, file_url.href, error);
 					continue;
 				}
+				if (!resolved_url.startsWith('file:')) continue; // skip node:, npm:, https:, jsr:, etc.
+				path_id = fileURLToPath(resolved_url);
 			}
 			dependencies_removed.delete(path_id);
 			if (!dependencies_before.has(path_id)) {

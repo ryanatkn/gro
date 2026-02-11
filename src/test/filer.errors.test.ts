@@ -1,8 +1,11 @@
 import {test, assert, vi} from 'vitest';
+import {resolve} from 'node:path';
 
 import type {WatchNodeFs} from '../lib/watch_dir.ts';
 import {Filer, filter_dependents} from '../lib/filer.ts';
 import type {Disknode} from '../lib/disknode.ts';
+
+const fixtures_dir = resolve(import.meta.dirname, 'fixtures');
 
 /* eslint-disable @typescript-eslint/require-await */
 /* eslint-disable @typescript-eslint/no-empty-function */
@@ -208,11 +211,13 @@ test('can recover from multiple consecutive init errors', async () => {
 });
 
 // Import resolution edge cases
-test('ignores builtin node modules', async () => {
+test('skips non-file URL schemes from import resolution', async () => {
+	const fixture_path = resolve(fixtures_dir, 'filer_builtin_import.ts');
+
 	const mock_watch_dir = vi.fn((options) => {
 		const mock_watcher: WatchNodeFs = {
 			init: vi.fn(async () => {
-				options.on_change({type: 'add', path: '/test/file.ts', is_directory: false});
+				options.on_change({type: 'add', path: fixture_path, is_directory: false});
 			}),
 			close: vi.fn(async () => {}),
 		};
@@ -222,19 +227,22 @@ test('ignores builtin node modules', async () => {
 	const filer = new Filer({watch_dir: mock_watch_dir});
 	await filer.init();
 
-	const file = filer.get_by_id('/test/file.ts');
+	const file = filer.get_by_id(fixture_path);
 	assert.ok(file);
+	assert.ok(file.contents); // file was actually read
 
-	// Dependencies should not include builtin modules
-	// (this tests the isBuiltin check in the code)
-	assert.ok(file.dependencies instanceof Map);
+	// node:crypto should NOT appear in dependencies (non-file URL scheme)
+	assert.equal(file.dependencies.size, 0, 'builtin imports should not be tracked as dependencies');
 });
 
-test('handles import.meta.resolve failures gracefully', async () => {
+test('resolves file: URLs from import resolution', async () => {
+	const fixture_path = resolve(fixtures_dir, 'filer_local_import.ts');
+	const dep_path = resolve(fixtures_dir, 'filer_builtin_import.ts');
+
 	const mock_watch_dir = vi.fn((options) => {
 		const mock_watcher: WatchNodeFs = {
 			init: vi.fn(async () => {
-				options.on_change({type: 'add', path: '/test/file.ts', is_directory: false});
+				options.on_change({type: 'add', path: fixture_path, is_directory: false});
 			}),
 			close: vi.fn(async () => {}),
 		};
@@ -244,10 +252,12 @@ test('handles import.meta.resolve failures gracefully', async () => {
 	const filer = new Filer({watch_dir: mock_watch_dir});
 	await filer.init();
 
-	// File should still be tracked even if imports can't be resolved
-	const file = filer.get_by_id('/test/file.ts');
+	const file = filer.get_by_id(fixture_path);
 	assert.ok(file);
-	assert.equal(file.id, '/test/file.ts');
+	assert.ok(file.contents);
+
+	// The local import should appear as a dependency
+	assert.ok(file.dependencies.has(dep_path), `expected dependency on ${dep_path}`);
 });
 
 // File system edge cases

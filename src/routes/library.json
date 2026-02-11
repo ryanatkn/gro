@@ -70,7 +70,7 @@
 			"zod": "^4.3.6"
 		},
 		"peerDependencies": {
-			"@fuzdev/fuz_util": ">=0.49.2",
+			"@fuzdev/fuz_util": ">=0.50.1",
 			"@sveltejs/kit": "^2",
 			"esbuild": "^0.27.0",
 			"svelte": "^5",
@@ -1705,13 +1705,13 @@
 					{
 						"name": "OnFilerChange",
 						"kind": "type",
-						"source_line": 30,
+						"source_line": 29,
 						"type_signature": "OnFilerChange"
 					},
 					{
 						"name": "FilerOptions",
 						"kind": "type",
-						"source_line": 32,
+						"source_line": 31,
 						"type_signature": "FilerOptions",
 						"properties": [
 							{
@@ -1739,7 +1739,7 @@
 					{
 						"name": "Filer",
 						"kind": "class",
-						"source_line": 39,
+						"source_line": 38,
 						"members": [
 							{
 								"name": "root_dir",
@@ -1817,7 +1817,7 @@
 					{
 						"name": "filter_dependents",
 						"kind": "function",
-						"source_line": 428,
+						"source_line": 430,
 						"type_signature": "(disknode: Disknode, get_by_id: (id: PathId) => Disknode | undefined, filter?: FileFilter | undefined, results?: Set<PathId>, searched?: Set<...>, log?: Logger | undefined): Set<...>",
 						"return_type": "Set<PathId>",
 						"parameters": [
