@@ -1,5 +1,15 @@
 # @fuzdev/gro
 
+## 0.193.0
+
+### Minor Changes
+
+- upgrade fuz_util ([a9dff0a](https://github.com/fuzdev/gro/commit/a9dff0a))
+
+### Patch Changes
+
+- fix builtin specifier handling in filer ([a9dff0a](https://github.com/fuzdev/gro/commit/a9dff0a))
+
 ## 0.192.1
 
 ### Patch Changes
