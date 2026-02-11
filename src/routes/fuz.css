@@ -457,6 +457,10 @@ body {
 	margin-bottom: var(--space_xl7);
 }
 
+:where(.row, .box, .column) > * {
+	margin: 0;
+}
+
 :where(aside:not(.unstyled)) {
 	border-left-color: var(--border_color);
 	border-left-style: var(--border_style);
