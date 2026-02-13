@@ -149,9 +149,7 @@ export const SEARCH_EXCLUDER_DEFAULT = new RegExp(
 		`|(^|/)${NODE_MODULES_DIRNAME}(?!/(@[^/]+/)?gro/${SVELTEKIT_DIST_DIRNAME})` + // exclude `node_modules` unless it's to the Gro directory
 		`|(^|/)${SVELTEKIT_BUILD_DIRNAME}` + // exclude the SvelteKit build directory
 		`|(^|/)(?<!(^|/)gro/)${SVELTEKIT_DIST_DIRNAME}` + // exclude the SvelteKit dist directory unless it's in the Gro directory
-		`|(^|/)${SERVER_DIST_PATH}` + // exclude the Gro server plugin dist directory
-		'|(^|/)test' + // exclude test directories
-		'|(^|/)benchmark' // exclude benchmark directories
+		`|(^|/)${SERVER_DIST_PATH}` // exclude the Gro server plugin dist directory
 	})($|/)`,
 	'u',
 );

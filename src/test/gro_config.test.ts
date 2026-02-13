@@ -55,11 +55,10 @@ test('SEARCH_EXCLUDER_DEFAULT', () => {
 	assert_includes('.git', false);
 	assert_includes('.gro', false);
 	assert_includes('.svelte-kit', false);
-	assert_includes('test', false);
-	assert_includes('benchmark', false);
-
 	assert_includes('a', true);
+	assert_includes('test', true);
 	assert_includes('testing', true);
+	assert_includes('benchmark', true);
 	assert_includes('benchmarks', true);
 	assert_includes('nodemodules', true);
 
