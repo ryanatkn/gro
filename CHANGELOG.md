@@ -1,5 +1,15 @@
 # @fuzdev/gro
 
+## 0.194.0
+
+### Minor Changes
+
+- dont ignore test/ and benchmark/ dirs ([628fa71](https://github.com/fuzdev/gro/commit/628fa71))
+
+### Patch Changes
+
+- upgrade fuz_util ([df0f222](https://github.com/fuzdev/gro/commit/df0f222))
+
 ## 0.193.0
 
 ### Minor Changes
