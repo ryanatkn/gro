@@ -1,6 +1,6 @@
 # gro <img src="static/logo.svg" alt="a pixelated green oak acorn with a glint of sun" width="32" height="32">
 
-[<img src="static/logo.svg" alt="a pixelated green oak acorn with a glint of sun" align="right" width="192" height="192">](https://gro.fuzdev.com/)
+[<img src="static/logo.svg" alt="a pixelated green oak acorn with a glint of sun" align="right" width="192" height="192">](https://gro.fuz.dev/)
 
 > task runner and toolkit extending SvelteKit 🌰 generate, run, optimize
 
@@ -13,7 +13,7 @@
 
 > ⚠️[Windows won't be supported](https://github.com/fuzdev/gro/issues/319), I chose Bash instead.
 
-Docs at [gro.fuzdev.com/docs](https://gro.fuzdev.com/docs) and [src/docs](./src/docs).
+Docs at [gro.fuz.dev/docs](https://gro.fuz.dev/docs) and [src/docs](./src/docs).
 
 Need help or want to share thoughts? See the
 [issues](https://github.com/fuzdev/gro/issues) and
@@ -71,7 +71,7 @@ It includes:
 
 ## docs
 
-- early API docs at [/docs/api](https://gro.fuzdev.com/docs/api)
+- early API docs at [/docs/api](https://gro.fuz.dev/docs/api)
 - developing web frontends, servers, and libraries
   - [config](/src/docs/config.md)
   - [dev](/src/docs/dev.md)
