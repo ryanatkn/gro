@@ -36,6 +36,7 @@ export const run_gen = async (
 	const timing_for_run_gen = timings.start('run_gen');
 	const results = await map_concurrent(
 		gen_modules,
+		10,
 		async (module_meta): Promise<GenfileModuleResult> => {
 			input_count++;
 			const {id} = module_meta;
@@ -73,6 +74,7 @@ export const run_gen = async (
 			const files = format_file
 				? await map_concurrent(
 						gen_result.files,
+						10,
 						async (file) => {
 							if (!file.format) return file;
 							try {
@@ -85,7 +87,6 @@ export const run_gen = async (
 								return file;
 							}
 						},
-						10,
 					)
 				: gen_result.files;
 
@@ -97,7 +98,6 @@ export const run_gen = async (
 				elapsed: timing_for_module(),
 			};
 		},
-		10,
 	);
 	return {
 		results,

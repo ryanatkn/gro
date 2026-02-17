@@ -214,7 +214,7 @@ export const analyze_gen_results = async (
 	gen_results: GenResults,
 ): Promise<Array<AnalyzedGenResult>> => {
 	const files = gen_results.successes.flatMap((result) => result.files);
-	return map_concurrent(files, (file) => analyze_gen_result(file), 10);
+	return map_concurrent(files, 10, (file) => analyze_gen_result(file));
 };
 
 export const analyze_gen_result = async (file: GenFile): Promise<AnalyzedGenResult> => {
@@ -248,6 +248,7 @@ export const write_gen_results = async (
 	const files = gen_results.successes.flatMap((result) => result.files);
 	await each_concurrent(
 		files,
+		10,
 		async (file) => {
 			const analyzed = analyzed_gen_results.find((r) => r.file.id === file.id);
 			if (!analyzed) throw Error('Expected to find analyzed result: ' + file.id);
@@ -263,7 +264,6 @@ export const write_gen_results = async (
 				log.info('skipping unchanged', ...log_args);
 			}
 		},
-		10,
 	);
 };
 
