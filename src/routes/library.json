@@ -92,7 +92,7 @@
 			"@changesets/changelog-git": "^0.2.1",
 			"@changesets/types": "^6.1.0",
 			"@fuzdev/fuz_code": "^0.45.0",
-			"@fuzdev/fuz_css": "^0.50.0",
+			"@fuzdev/fuz_css": "^0.53.0",
 			"@fuzdev/fuz_ui": "^0.183.1",
 			"@fuzdev/fuz_util": "^0.52.0",
 			"@jridgewell/trace-mapping": "^0.3.31",
