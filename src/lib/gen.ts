@@ -246,25 +246,21 @@ export const write_gen_results = async (
 	log: Logger,
 ): Promise<void> => {
 	const files = gen_results.successes.flatMap((result) => result.files);
-	await each_concurrent(
-		files,
-		10,
-		async (file) => {
-			const analyzed = analyzed_gen_results.find((r) => r.file.id === file.id);
-			if (!analyzed) throw Error('Expected to find analyzed result: ' + file.id);
-			const log_args = [print_path(file.id), 'generated from', print_path(file.origin_id)];
-			if (analyzed.is_new) {
-				log.info('writing new', ...log_args);
-				await mkdir(dirname(file.id), {recursive: true});
-				await writeFile(file.id, file.content);
-			} else if (analyzed.has_changed) {
-				log.info('writing changed', ...log_args);
-				await writeFile(file.id, file.content);
-			} else {
-				log.info('skipping unchanged', ...log_args);
-			}
-		},
-	);
+	await each_concurrent(files, 10, async (file) => {
+		const analyzed = analyzed_gen_results.find((r) => r.file.id === file.id);
+		if (!analyzed) throw Error('Expected to find analyzed result: ' + file.id);
+		const log_args = [print_path(file.id), 'generated from', print_path(file.origin_id)];
+		if (analyzed.is_new) {
+			log.info('writing new', ...log_args);
+			await mkdir(dirname(file.id), {recursive: true});
+			await writeFile(file.id, file.content);
+		} else if (analyzed.has_changed) {
+			log.info('writing changed', ...log_args);
+			await writeFile(file.id, file.content);
+		} else {
+			log.info('skipping unchanged', ...log_args);
+		}
+	});
 };
 
 export interface FoundGenfiles {

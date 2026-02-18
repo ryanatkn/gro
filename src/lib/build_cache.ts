@@ -169,20 +169,16 @@ export const validate_build_cache = async (metadata: BuildCacheMetadata): Promis
 
 	// Size matches for all files - now verify content with cryptographic hashing
 	// Hash files with controlled concurrency (could be 10k+ files)
-	const results = await map_concurrent(
-		metadata.outputs,
-		20,
-		async (output) => {
-			try {
-				const contents = await readFile(output.path);
-				const actual_hash = await hash_secure(contents);
-				return actual_hash === output.hash;
-			} catch {
-				// File deleted/inaccessible between checks = cache invalid
-				return false;
-			}
-		},
-	);
+	const results = await map_concurrent(metadata.outputs, 20, async (output) => {
+		try {
+			const contents = await readFile(output.path);
+			const actual_hash = await hash_secure(contents);
+			return actual_hash === output.hash;
+		} catch {
+			// File deleted/inaccessible between checks = cache invalid
+			return false;
+		}
+	});
 	return results.every((valid) => valid);
 };
 

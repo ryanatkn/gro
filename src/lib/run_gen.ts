@@ -72,22 +72,18 @@ export const run_gen = async (
 
 			// Format the files if needed.
 			const files = format_file
-				? await map_concurrent(
-						gen_result.files,
-						10,
-						async (file) => {
-							if (!file.format) return file;
-							try {
-								return {...file, content: await format_file(file.content, {filepath: file.id})};
-							} catch (error) {
-								log.error(
-									st('red', `Error formatting ${print_path(file.id)} via ${print_path(id)}`),
-									print_error(error),
-								);
-								return file;
-							}
-						},
-					)
+				? await map_concurrent(gen_result.files, 10, async (file) => {
+						if (!file.format) return file;
+						try {
+							return {...file, content: await format_file(file.content, {filepath: file.id})};
+						} catch (error) {
+							log.error(
+								st('red', `Error formatting ${print_path(file.id)} via ${print_path(id)}`),
+								print_error(error),
+							);
+							return file;
+						}
+					})
 				: gen_result.files;
 
 			output_count += files.length;
