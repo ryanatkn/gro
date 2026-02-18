@@ -2,4 +2,4 @@
 '@fuzdev/gro': minor
 ---
 
-upgrade fuz_util
+upgrade `fuz_util`
