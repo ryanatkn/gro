@@ -1,5 +1,11 @@
 # @fuzdev/gro
 
+## 0.195.1
+
+### Patch Changes
+
+- add `gro_plugin_deno_server.ts` and `gro_plugin_deno_compile.ts` ([0b45163](https://github.com/fuzdev/gro/commit/0b45163))
+
 ## 0.195.0
 
 ### Minor Changes
