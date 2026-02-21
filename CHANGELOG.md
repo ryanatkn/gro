@@ -1,5 +1,11 @@
 # @fuzdev/gro
 
+## 0.195.2
+
+### Patch Changes
+
+- add `flags` to `gro_plugin_deno_server` ([58e2e96](https://github.com/fuzdev/gro/commit/58e2e96))
+
 ## 0.195.1
 
 ### Patch Changes
