@@ -2922,6 +2922,142 @@
 				"dependents": ["gro.ts", "run.task.ts"]
 			},
 			{
+				"path": "gro_plugin_deno_compile.ts",
+				"declarations": [
+					{
+						"name": "GroPluginDenoCompileOptions",
+						"kind": "type",
+						"source_line": 24,
+						"type_signature": "GroPluginDenoCompileOptions",
+						"properties": [
+							{
+								"name": "entry",
+								"kind": "variable",
+								"type_signature": "string",
+								"doc_comment": "Entry point TypeScript file."
+							},
+							{
+								"name": "output_name",
+								"kind": "variable",
+								"type_signature": "string",
+								"doc_comment": "Output binary name (without path)."
+							},
+							{
+								"name": "output_dir",
+								"kind": "variable",
+								"type_signature": "string",
+								"doc_comment": "Output directory for the binary."
+							},
+							{
+								"name": "permissions",
+								"kind": "variable",
+								"type_signature": "Array<string>",
+								"doc_comment": "Deno permissions to grant."
+							},
+							{
+								"name": "flags",
+								"kind": "variable",
+								"type_signature": "Array<string>",
+								"doc_comment": "Additional deno compile flags."
+							},
+							{
+								"name": "generate_hash",
+								"kind": "variable",
+								"type_signature": "boolean",
+								"doc_comment": "Generate a SHA-256 hash file alongside the binary.\nThe hash file is named `{output_name}.sha256` and uses sha256sum format."
+							}
+						]
+					},
+					{
+						"name": "gro_plugin_deno_compile",
+						"kind": "function",
+						"doc_comment": "Creates a gro plugin that compiles TypeScript to a binary using `deno compile`.\nRuns during the `adapt` phase (production build only).",
+						"source_line": 65,
+						"type_signature": "(options: GroPluginDenoCompileOptions): Plugin<PluginContext<object>>",
+						"return_type": "Plugin<PluginContext<object>>",
+						"parameters": [
+							{
+								"name": "options",
+								"type": "GroPluginDenoCompileOptions"
+							}
+						]
+					}
+				],
+				"module_comment": "Gro build plugin for compiling TypeScript to a standalone binary via `deno compile`.\n\nRuns during the `adapt` phase (production build only).\nOptionally generates a SHA-256 hash file for verification.\n\nTo avoid bundling all npm devDependencies from package.json, we:\n1. Extract just the \"imports\" from root deno.json\n2. Rebase relative paths (e.g. `../fuz_app/` → `../../fuz_app/`) since\n   compilation runs from the output subdirectory\n3. Write a minimal deno.json to the output directory\n4. Compile from that directory (which has no package.json)",
+				"dependencies": ["task.ts"]
+			},
+			{
+				"path": "gro_plugin_deno_server.ts",
+				"declarations": [
+					{
+						"name": "GroPluginDenoServerOptions",
+						"kind": "type",
+						"source_line": 13,
+						"type_signature": "GroPluginDenoServerOptions",
+						"properties": [
+							{
+								"name": "entry",
+								"kind": "variable",
+								"type_signature": "string",
+								"doc_comment": "Entry point TypeScript file for the Deno server."
+							},
+							{
+								"name": "port",
+								"kind": "variable",
+								"type_signature": "number",
+								"doc_comment": "Port for the Deno server."
+							},
+							{
+								"name": "host",
+								"kind": "variable",
+								"type_signature": "string",
+								"doc_comment": "Host for the Deno server."
+							},
+							{
+								"name": "permissions",
+								"kind": "variable",
+								"type_signature": "Array<string>",
+								"doc_comment": "Deno permissions to grant."
+							},
+							{
+								"name": "watch",
+								"kind": "variable",
+								"type_signature": "boolean",
+								"doc_comment": "Whether to watch for file changes and restart.\nUses Deno's built-in --watch flag."
+							},
+							{
+								"name": "env_file",
+								"kind": "variable",
+								"type_signature": "string | null",
+								"doc_comment": "Env file to load via Deno's --env flag.\nSet to `null` to disable env file loading."
+							},
+							{
+								"name": "env",
+								"kind": "variable",
+								"type_signature": "Record<string, string>",
+								"doc_comment": "Additional environment variables to pass to the child process.\nAlways merged with the parent process.env (for PATH, HOME, etc.).\nPORT, HOST, and NODE_ENV are set automatically from the plugin options."
+							}
+						]
+					},
+					{
+						"name": "gro_plugin_deno_server",
+						"kind": "function",
+						"doc_comment": "Creates a gro plugin that runs a Deno server during development.\nThe server is started during setup and stopped on teardown.\n\nIn dev mode, Vite should proxy API requests to this server.",
+						"source_line": 67,
+						"type_signature": "(options?: GroPluginDenoServerOptions): Plugin<PluginContext<object>>",
+						"return_type": "Plugin<PluginContext<object>>",
+						"parameters": [
+							{
+								"name": "options",
+								"type": "GroPluginDenoServerOptions",
+								"default_value": "{}"
+							}
+						]
+					}
+				],
+				"module_comment": "Gro plugin for running a Deno server alongside the Vite dev server.\n\nUnlike `gro_plugin_server`, this doesn't use esbuild bundling since\nDeno can run TypeScript directly with JSR imports."
+			},
+			{
 				"path": "gro_plugin_gen.ts",
 				"declarations": [
 					{
@@ -5411,8 +5547,8 @@
 						"name": "resolve",
 						"kind": "function",
 						"source_line": 23,
-						"type_signature": "<T extends RouteId | Pathname>(...args: ResolveArgs<T>): \"/\" | \"/about\" | \"/docs\" | \"/docs/api\" | \"/docs/library\" | \"/history\" | `${`/docs/api/${string}` & {}}` | `${`/docs/api/${string}/` & {}}` | ... 12 more ... | `/${string}/history/`",
-						"return_type": "\"/\" | \"/about\" | \"/docs\" | \"/docs/api\" | \"/docs/library\" | \"/history\" | `${`/docs/api/${string}` & {}}` | `${`/docs/api/${string}/` & {}}` | `/${string}/` | `/${string}/about` | `/${string}/docs` | `/${string}/docs/api` | `/${string}/docs/library` | `/${string}/history` | ... 6 more ... | `/${string}/history/`",
+						"type_signature": "<T extends RouteId | Pathname>(...args: ResolveArgs<T>): \"/\" | \"/about\" | \"/docs\" | \"/docs/api\" | \"/docs/library\" | \"/history\" | `${`/docs/api/${string}` & {}}` | `/${string}/` | `/${string}/about` | ... 4 more ... | `/${string}${`/docs/api/${string}` & {}}`",
+						"return_type": "\"/\" | \"/about\" | \"/docs\" | \"/docs/api\" | \"/docs/library\" | \"/history\" | `${`/docs/api/${string}` & {}}` | `/${string}/` | `/${string}/about` | `/${string}/docs` | `/${string}/docs/api` | `/${string}/docs/library` | `/${string}/history` | `/${string}${`/docs/api/${string}` & {}}`",
 						"parameters": [
 							{
 								"name": "args",
@@ -5425,7 +5561,7 @@
 						"kind": "variable",
 						"doc_comment": "",
 						"source_line": 25,
-						"type_signature": "<T extends RouteId | Pathname>(...args: ResolveArgs<T>) => \"/\" | \"/about\" | \"/docs\" | \"/docs/api\" | \"/docs/library\" | \"/history\" | `${`/docs/api/${string}` & {}}` | `${`/docs/api/${string}/` & {}}` | ... 12 more ... | `/${string}/history/`"
+						"type_signature": "<T extends RouteId | Pathname>(...args: ResolveArgs<T>) => \"/\" | \"/about\" | \"/docs\" | \"/docs/api\" | \"/docs/library\" | \"/history\" | `${`/docs/api/${string}` & {}}` | `/${string}/` | `/${string}/about` | ... 4 more ... | `/${string}${`/docs/api/${string}` & {}}`"
 					},
 					{
 						"name": "asset",
@@ -6011,6 +6147,7 @@
 					"deploy.task.ts",
 					"format.task.ts",
 					"gen.task.ts",
+					"gro_plugin_deno_compile.ts",
 					"gro_plugin_sveltekit_app.ts",
 					"gro_plugin_sveltekit_library.ts",
 					"index.ts",
