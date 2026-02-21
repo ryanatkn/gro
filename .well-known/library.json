@@ -11,7 +11,7 @@
 	"published": true,
 	"package_json": {
 		"name": "@fuzdev/gro",
-		"version": "0.195.1",
+		"version": "0.195.2",
 		"description": "task runner and toolkit extending SvelteKit",
 		"motto": "generate, run, optimize",
 		"glyph": "🌰",
@@ -91,14 +91,14 @@
 		"devDependencies": {
 			"@changesets/changelog-git": "^0.2.1",
 			"@changesets/types": "^6.1.0",
-			"@fuzdev/fuz_code": "^0.45.0",
-			"@fuzdev/fuz_css": "^0.53.0",
-			"@fuzdev/fuz_ui": "^0.183.1",
+			"@fuzdev/fuz_code": "^0.45.1",
+			"@fuzdev/fuz_css": "^0.53.1",
+			"@fuzdev/fuz_ui": "^0.185.2",
 			"@fuzdev/fuz_util": "^0.52.0",
 			"@jridgewell/trace-mapping": "^0.3.31",
 			"@ryanatkn/eslint-config": "^0.9.0",
 			"@sveltejs/adapter-static": "^3.0.10",
-			"@sveltejs/kit": "^2.50.1",
+			"@sveltejs/kit": "^2.53.0",
 			"@sveltejs/package": "^2.5.7",
 			"@sveltejs/vite-plugin-svelte": "^6.2.4",
 			"@types/estree": "^1.0.8",
@@ -108,9 +108,9 @@
 			"eslint": "^9.39.1",
 			"eslint-plugin-svelte": "^3.13.1",
 			"magic-string": "^0.30.21",
-			"svelte": "^5.49.1",
-			"svelte-check": "^4.3.6",
-			"svelte2tsx": "^0.7.47",
+			"svelte": "^5.53.1",
+			"svelte-check": "^4.4.3",
+			"svelte2tsx": "^0.7.51",
 			"typescript": "^5.9.3",
 			"typescript-eslint": "^8.48.1",
 			"vitest": "^4.0.15",
@@ -160,7 +160,7 @@
 	},
 	"source_json": {
 		"name": "@fuzdev/gro",
-		"version": "0.195.1",
+		"version": "0.195.2",
 		"modules": [
 			{
 				"path": "args.ts",
@@ -1395,7 +1395,7 @@
 							{
 								"name": "base_url",
 								"type": "\"\" | `/${string}` | undefined",
-								"description": "- best-effort shim from SvelteKit's `base` to Vite's `import.meta\\.env.BASE_URL`"
+								"description": "best-effort shim from SvelteKit's `base` to Vite's `import.meta\\.env.BASE_URL`"
 							},
 							{
 								"name": "ssr",
@@ -2045,7 +2045,7 @@
 							{
 								"name": "base_options",
 								"type": "Options | null | undefined",
-								"description": "- defaults to the the cwd's package.json `prettier` value",
+								"description": "defaults to the the cwd's package.json `prettier` value",
 								"default_value": "cached_base_options"
 							}
 						]
@@ -3183,6 +3183,12 @@
 								"doc_comment": "Deno permissions to grant."
 							},
 							{
+								"name": "flags",
+								"kind": "variable",
+								"type_signature": "Array<string>",
+								"doc_comment": "Additional deno run flags (e.g. --sloppy-imports, --no-check)."
+							},
+							{
 								"name": "watch",
 								"kind": "variable",
 								"type_signature": "boolean",
@@ -3206,7 +3212,7 @@
 						"name": "gro_plugin_deno_server",
 						"kind": "function",
 						"doc_comment": "Creates a gro plugin that runs a Deno server during development.\nThe server is started during setup and stopped on teardown.\n\nIn dev mode, Vite should proxy API requests to this server.",
-						"source_line": 67,
+						"source_line": 73,
 						"type_signature": "(options?: GroPluginDenoServerOptions): Plugin<PluginContext<object>>",
 						"return_type": "Plugin<PluginContext<object>>",
 						"parameters": [
@@ -3837,17 +3843,17 @@
 							{
 								"name": "task_name",
 								"type": "RawInputPath",
-								"description": "- The name of the task to invoke."
+								"description": "The name of the task to invoke."
 							},
 							{
 								"name": "args",
 								"type": "Args | undefined",
-								"description": "- The CLI args to pass to the task."
+								"description": "The CLI args to pass to the task."
 							},
 							{
 								"name": "config",
 								"type": "GroConfig",
-								"description": "- The Gro configuration."
+								"description": "The Gro configuration."
 							},
 							{
 								"name": "initial_filer",
@@ -3858,7 +3864,7 @@
 								"name": "initial_timings",
 								"type": "Timings | null | undefined",
 								"optional": true,
-								"description": "- The timings to use for the top-level task, `null` for composed tasks."
+								"description": "The timings to use for the top-level task, `null` for composed tasks."
 							},
 							{
 								"name": "parent_log",
@@ -5001,7 +5007,7 @@
 							{
 								"name": "plugins",
 								"type": "Plugin<PluginContext<object>>[]",
-								"description": "- accepts the same types as the return value of `PluginsCreateConfig`"
+								"description": "accepts the same types as the return value of `PluginsCreateConfig`"
 							},
 							{
 								"name": "new_plugin",
