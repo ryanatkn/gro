@@ -36,6 +36,12 @@ export interface GroPluginDenoServerOptions {
 	permissions?: Array<string>;
 
 	/**
+	 * Additional deno run flags (e.g. --sloppy-imports, --no-check).
+	 * @default []
+	 */
+	flags?: Array<string>;
+
+	/**
 	 * Whether to watch for file changes and restart.
 	 * Uses Deno's built-in --watch flag.
 	 * @default true in dev
@@ -70,6 +76,7 @@ export const gro_plugin_deno_server = (options: GroPluginDenoServerOptions = {})
 		port = 4041,
 		host = 'localhost',
 		permissions = ['--allow-net', '--allow-read', '--allow-env'],
+		flags = [],
 		watch,
 		env_file = '.env.development',
 		env: extra_env = {},
@@ -86,7 +93,7 @@ export const gro_plugin_deno_server = (options: GroPluginDenoServerOptions = {})
 
 			log.info(`[gro_plugin_deno_server] starting Deno server: ${entry} on http://${host}:${port}`);
 
-			const args = ['run', ...permissions];
+			const args = ['run', ...permissions, ...flags];
 
 			if (env_file != null) {
 				args.push(`--env=${env_file}`);
